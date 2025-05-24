@@ -12,6 +12,8 @@ const progressRoutes = require('./routes/progress-routes');
 const rewardRoutes = require('./routes/reward-routes');
 const transactionRoutes = require('./routes/transaction-routes');
 const tokenRoutes = require('./routes/token-routes');
+const userGymRoutes = require('./routes/user-gym-routes');
+const frequencyRoutes = require('./routes/frequency-routes');
 
 dotenv.config();
 
@@ -34,6 +36,8 @@ app.use('/api/progress', progressRoutes);
 app.use('/api/rewards', rewardRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/tokens', tokenRoutes);
+app.use('/api/user-gym', userGymRoutes);
+app.use('/api/frequency', frequencyRoutes);
 
 // Arrancar servidor
 const PORT = process.env.PORT || 3000;

@@ -1,7 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const assistanceController = require('../controllers/assistance-controller');
+const controller = require('../controllers/assistance-controller');
 
-router.post('/', assistanceController.registrarAsistencia);
+// Registrar asistencia con validación GPS + tokens + racha
+router.post('/registrar', controller.registrarAsistencia);
+router.get('/:id_user', controller.obtenerHistorialAsistencias);
+
+
+// Podés agregar otros endpoints como historial más adelante
 
 module.exports = router;

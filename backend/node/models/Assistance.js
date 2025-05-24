@@ -33,3 +33,8 @@ const Assistance = sequelize.define('Assistance', {
 });
 
 module.exports = Assistance;
+const Gym = require('./Gym');
+
+Assistance.belongsTo(Gym, {
+  foreignKey: 'id_gym'
+});

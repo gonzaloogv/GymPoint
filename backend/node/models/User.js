@@ -34,3 +34,11 @@ User.belongsToMany(Reward, {
   foreignKey: 'id_user',
   otherKey: 'id_reward'
 });
+const Transaction = require('./Transaction');
+User.hasMany(Transaction, { 
+  foreignKey: 'id_user' 
+});
+const UserGym = require('./UserGym');
+User.hasMany(UserGym, { 
+  foreignKey: 'id_user' 
+});

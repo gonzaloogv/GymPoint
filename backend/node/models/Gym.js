@@ -24,3 +24,8 @@ const Gym = sequelize.define('Gym', {
 });
 
 module.exports = Gym;
+const Assistance = require('./Assistance');
+
+Gym.hasMany(Assistance, {
+  foreignKey: 'id_gym'
+});

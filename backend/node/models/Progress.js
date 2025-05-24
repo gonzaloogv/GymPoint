@@ -1,8 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Exercise = require('./Exercise');
-const ProgressExercise = require('./ProgressExercise');
+
 const Progress = sequelize.define('Progress', {
   id_progress: {
     type: DataTypes.INTEGER,
@@ -30,6 +29,8 @@ const Progress = sequelize.define('Progress', {
   timestamps: false
 });
 
+const Exercise = require('./Exercise');
+const ProgressExercise = require('./ProgressExercise');
 module.exports = Progress;
 Progress.belongsToMany(Exercise, {
     through: ProgressExercise,
