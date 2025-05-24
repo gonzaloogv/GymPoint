@@ -18,3 +18,19 @@ const User = sequelize.define('User', {
 });
 
 module.exports = User;
+const Routine = require('./Routine');
+const UserRoutine = require('./UserRoutine');
+
+User.belongsToMany(Routine, {
+  through: UserRoutine,
+  foreignKey: 'id_user',
+  otherKey: 'id_routine'
+});
+const Reward = require('./Reward');
+const ClaimedReward = require('./ClaimedReward');
+
+User.belongsToMany(Reward, {
+  through: ClaimedReward,
+  foreignKey: 'id_user',
+  otherKey: 'id_reward'
+});

@@ -1,14 +1,42 @@
-// index.js
 const express = require('express');
 const dotenv = require('dotenv');
+const sequelize = require('./config/database');
+
 const authRoutes = require('./routes/auth-routes');
+const gymRoutes = require('./routes/gym-routes');
+const assistanceRoutes = require('./routes/assistance-routes');
+const routineRoutes = require('./routes/routine-routes');
+const exerciseRoutes = require('./routes/exercise-routes');
+const userRoutineRoutes = require('./routes/user-routine-routes');
+const progressRoutes = require('./routes/progress-routes');
+const rewardRoutes = require('./routes/reward-routes');
+const transactionRoutes = require('./routes/transaction-routes');
+const tokenRoutes = require('./routes/token-routes');
 
 dotenv.config();
+
 const app = express();
 app.use(express.json());
-app.use('/api/auth', authRoutes);
 
+// Testear conexión a MySQL
+sequelize.authenticate()
+  .then(() => console.log('✅ Conexión con MySQL establecida correctamente.'))
+  .catch((err) => console.error('❌ Error al conectar con MySQL:', err));
+
+// Rutas
+app.use('/api/auth', authRoutes);
+app.use('/api/gyms', gymRoutes);
+app.use('/api/assistances', assistanceRoutes);
+app.use('/api/routines', routineRoutes);
+app.use('/api/exercises', exerciseRoutes);
+app.use('/api/user-routines', userRoutineRoutes);
+app.use('/api/progress', progressRoutes);
+app.use('/api/rewards', rewardRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/tokens', tokenRoutes);
+
+// Arrancar servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
