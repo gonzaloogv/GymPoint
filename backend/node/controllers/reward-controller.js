@@ -11,7 +11,13 @@ const listarRecompensas = async (req, res) => {
 
 const canjearRecompensa = async (req, res) => {
   try {
-    const result = await rewardService.canjearRecompensa(req.body);
+    const { id_user, id_reward, id_gym } = req.body;
+
+    if (!id_user || !id_reward || !id_gym) {
+      return res.status(400).json({ error: 'Faltan datos requeridos.' });
+    }
+
+    const result = await rewardService.canjearRecompensa({ id_user, id_reward, id_gym });
     res.status(201).json(result);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -27,8 +33,18 @@ const obtenerHistorialRecompensas = async (req, res) => {
   }
 };
 
+const obtenerEstadisticasDeRecompensas = async (req, res) => {
+  try {
+    const estadisticas = await rewardService.obtenerEstadisticasDeRecompensas();
+    res.json(estadisticas);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 module.exports = {
   listarRecompensas,
   canjearRecompensa,
-  obtenerHistorialRecompensas
+  obtenerHistorialRecompensas,
+  obtenerEstadisticasDeRecompensas
 };

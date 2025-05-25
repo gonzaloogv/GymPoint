@@ -63,3 +63,8 @@ Reward.belongsToMany(User, {
   foreignKey: 'id_reward',
   otherKey: 'id_user'
 });
+
+const RewardCode = require('./RewardCode');
+Reward.hasMany(RewardCode, { 
+  foreignKey: 'id_reward' 
+});

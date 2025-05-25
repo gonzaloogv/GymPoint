@@ -1,4 +1,3 @@
-// controllers/auth-controller.js
 const authService = require('../services/auth-service');
 
 const register = async (req, res) => {
@@ -10,10 +9,15 @@ const register = async (req, res) => {
   }
 };
 
+const { generarToken } = require('../utils/jwt');
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const { token, user } = await authService.login(email, password);
+    const { user } = await authService.login(email, password);
+
+    const token = generarToken(user);
+
     res.json({ token, user });
   } catch (err) {
     res.status(401).json({ error: err.message });
@@ -31,21 +35,17 @@ const googleLogin = async (req, res) => {
   const { token } = req.body;
 
   try {
-    // Verificamos el token con Google
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID
     });
 
     const payload = ticket.getPayload();
+    const { email, name } = payload;
 
-    const { email, name, picture } = payload;
-
-    // Buscamos si ya existe el usuario
     let user = await User.findOne({ where: { email } });
 
     if (!user) {
-      // Si no existe, lo creamos
       user = await User.create({
         name,
         lastname: '',
@@ -55,17 +55,15 @@ const googleLogin = async (req, res) => {
         age: 0,
         subscription: 'FREE',
         tokens: 0
-        // No seteamos password
       });
     }
 
-    // Creamos JWT
-    const accessToken = jwt.sign({ id: user.id_user }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const accessToken = generarToken(user);
 
     res.json({ user, token: accessToken });
   } catch (err) {
     console.error(err);
-    res.status(401).json({ error: 'Invalid Google token' });
+    res.status(401).json({ error: 'Token de Google inválido o expirado' });
   }
 };
 

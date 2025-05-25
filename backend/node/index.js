@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const sequelize = require('./config/database');
+const setupSwagger = require('./swagger');
 
 const authRoutes = require('./routes/auth-routes');
 const gymRoutes = require('./routes/gym-routes');
@@ -14,6 +15,11 @@ const transactionRoutes = require('./routes/transaction-routes');
 const tokenRoutes = require('./routes/token-routes');
 const userGymRoutes = require('./routes/user-gym-routes');
 const frequencyRoutes = require('./routes/frequency-routes');
+const gymScheduleRoutes = require('./routes/gym-schedule-routes');
+const specialScheduleRoutes = require('./routes/gym-special-schedule-routes');
+const gymPaymentRoutes = require('./routes/gym-payment-routes');
+const rewardCodeRoutes = require('./routes/reward-code-routes');
+const userRoutes = require('./routes/user-routes');
 
 dotenv.config();
 
@@ -38,6 +44,14 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/tokens', tokenRoutes);
 app.use('/api/user-gym', userGymRoutes);
 app.use('/api/frequency', frequencyRoutes);
+app.use('/api/schedules', gymScheduleRoutes);
+app.use('/api/special-schedules', specialScheduleRoutes);
+app.use('/api/gym-payments', gymPaymentRoutes);
+app.use('/api/reward-codes', rewardCodeRoutes);
+app.use('/api/users', userRoutes);
+
+// Inicializado de swagger
+setupSwagger(app);
 
 // Arrancar servidor
 const PORT = process.env.PORT || 3000;

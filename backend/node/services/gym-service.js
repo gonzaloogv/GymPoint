@@ -35,6 +35,7 @@ const deleteGym = async (id) => {
   if (!gym) throw new Error('Gym not found');
   return await gym.destroy();
 };
+
 function calcularDistancia(lat1, lon1, lat2, lon2) {
   const R = 6371000;
   const rad = Math.PI / 180;
