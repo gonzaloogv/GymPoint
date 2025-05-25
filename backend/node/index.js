@@ -1,7 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const sequelize = require('./config/database');
-const setupSwagger = require('./swagger');
+const setupSwagger = require('./utils/swagger');
 
 const authRoutes = require('./routes/auth-routes');
 const gymRoutes = require('./routes/gym-routes');
@@ -50,7 +50,7 @@ app.use('/api/gym-payments', gymPaymentRoutes);
 app.use('/api/reward-codes', rewardCodeRoutes);
 app.use('/api/users', userRoutes);
 
-// Inicializado de swagger
+// Inicializador de swagger
 setupSwagger(app);
 
 // Arrancar servidor
