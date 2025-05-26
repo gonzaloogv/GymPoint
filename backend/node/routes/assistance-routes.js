@@ -7,7 +7,7 @@ const controller = require('../controllers/assistance-controller');
  * @swagger
  * /api/assistances/registrar:
  *   post:
- *     summary: Registrar asistencia del usuario en un gimnasio con GPS
+ *     summary: Registrar asistencia del usuario en un gimnasio con validación GPS, racha y tokens
  *     tags: [Asistencias]
  *     security:
  *       - bearerAuth: []
@@ -17,23 +17,26 @@ const controller = require('../controllers/assistance-controller');
  *         application/json:
  *           schema:
  *             type: object
- *             required: [id_user, id_gym, id_streak, latitude, longitude]
+ *             required:
+ *               - id_user
+ *               - id_gym
+ *               - latitude
+ *               - longitude
  *             properties:
  *               id_user:
  *                 type: integer
- *                 example: 1
+ *                 example: 7
  *               id_gym:
- *                 type: integer
- *                 example: 2
- *               id_streak:
  *                 type: integer
  *                 example: 3
  *               latitude:
  *                 type: number
- *                 example: -34.603738
+ *                 format: float
+ *                 example: -34.603722
  *               longitude:
  *                 type: number
- *                 example: -58.381570
+ *                 format: float
+ *                 example: -58.38159
  *     responses:
  *       201:
  *         description: Asistencia registrada correctamente
@@ -46,10 +49,12 @@ const controller = require('../controllers/assistance-controller');
  *                   type: object
  *                 distancia:
  *                   type: integer
- *                   example: 12
+ *                   description: Distancia en metros desde el gimnasio
+ *                   example: 6
  *                 tokens_actuales:
  *                   type: integer
- *                   example: 110
+ *                   description: Tokens totales del usuario tras registrar asistencia
+ *                   example: 30
  *       400:
  *         description: Datos inválidos o asistencia ya registrada hoy
  *       403:

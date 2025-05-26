@@ -2,7 +2,7 @@ const userService = require('../services/user-service');
 
 const actualizarPerfil = async (req, res) => {
   try {
-    const id_user = req.user.id; // ✅ SOLO el del token
+    const id_user = req.user.id; // SOLO el del token
     const usuario = await userService.actualizarPerfil(id_user, req.body);
     res.json(usuario);
   } catch (err) {

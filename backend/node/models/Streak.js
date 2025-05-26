@@ -19,10 +19,6 @@ const Streak = sequelize.define('Streak', {
     type: DataTypes.TINYINT,
     allowNull: false
   },
-  achieved_goal: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false
-  },
   last_value: {
     type: DataTypes.INTEGER,
     defaultValue: 0

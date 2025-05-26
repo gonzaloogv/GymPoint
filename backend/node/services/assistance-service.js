@@ -4,60 +4,58 @@ const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 const Gym = require('../models/Gym');
 const { Op } = require('sequelize');
+const frequencyService = require('../services/frequency-service');
 
 // Utilidad para validar distancia
 function calcularDistancia(lat1, lon1, lat2, lon2) {
-  const R = 6371000; // en metros
+  const R = 6378137;
   const rad = Math.PI / 180;
   const dLat = (lat2 - lat1) * rad;
   const dLon = (lon2 - lon1) * rad;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*rad) * Math.cos(lat2*rad) * Math.sin(dLon/2)**2;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLon / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
 
-const registrarAsistencia = async ({ id_user, id_gym, id_streak, latitude, longitude }) => {
+const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude }) => {
   const hoy = new Date();
-  const fecha = hoy.toISOString().split('T')[0];     // "YYYY-MM-DD"
-  const hora = hoy.toTimeString().split(' ')[0];     // "HH:MM:SS"
+  const fecha = hoy.toISOString().split('T')[0];
+  const hora = hoy.toTimeString().split(' ')[0];
 
-  // Validar asistencia duplicada A TENER EN CUENTA !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   const asistenciaHoy = await Assistance.findOne({
     where: { id_user, id_gym, date: fecha }
   });
   if (asistenciaHoy) throw new Error('Ya registraste asistencia hoy.');
 
-  // Validar distancia
   const gym = await Gym.findByPk(id_gym);
   if (!gym) throw new Error('Gimnasio no encontrado');
   const distancia = calcularDistancia(latitude, longitude, gym.latitude, gym.longitude);
-  const umbral = 15; // ✅ Umbral cambiado de 100 a 15 metros
-  if (distancia > umbral) {
+  if (distancia > 15) {
     throw new Error(`Estás fuera del rango del gimnasio (distancia: ${Math.round(distancia)} m)`);
   }
 
-  // Registrar asistencia
+  const user = await User.findByPk(id_user);
+  if (!user) throw new Error('Usuario no encontrado');
+  const racha = await Streak.findByPk(user.id_streak);
+  if (!racha) throw new Error('Racha no encontrada');
+
   const nuevaAsistencia = await Assistance.create({
     id_user,
     id_gym,
-    id_streak,
+    id_streak: user.id_streak,
     date: fecha,
     hour: hora
   });
 
-  // Lógica de racha
-  const racha = await Streak.findByPk(id_streak);
-  if (!racha) throw new Error('Racha no encontrada.');
-
-  const ultimaAsistencia = await Assistance.findOne({
-    where: { id_user, id_gym, date: { [Op.lt]: fecha } },
-    order: [['date', 'DESC']]
-  });
-
-  const ayer = new Date(hoy); ayer.setDate(hoy.getDate() - 1);
+  const ayer = new Date(hoy);
+  ayer.setDate(hoy.getDate() - 1);
   const fechaAyer = ayer.toISOString().split('T')[0];
 
-  if (ultimaAsistencia && ultimaAsistencia.date === fechaAyer) {
+  const ultimaAsistencia = await Assistance.findOne({
+    where: { id_user, id_gym, date: fechaAyer }
+  });
+
+  if (ultimaAsistencia) {
     racha.value += 1;
   } else {
     if (racha.recovery_items > 0) {
@@ -70,8 +68,6 @@ const registrarAsistencia = async ({ id_user, id_gym, id_streak, latitude, longi
 
   await racha.save();
 
-  // Otorgar tokens + registrar transacción
-  const user = await User.findByPk(id_user);
   user.tokens += 10;
   await user.save();
 
@@ -84,8 +80,6 @@ const registrarAsistencia = async ({ id_user, id_gym, id_streak, latitude, longi
     date: new Date()
   });
 
-  // ⬇️ Actualizar la frecuencia semanal
-  const frequencyService = require('../services/frequency-service');
   await frequencyService.actualizarAsistenciaSemanal(id_user);
 
   return {
@@ -106,8 +100,7 @@ const obtenerHistorialAsistencias = async (id_user) => {
   });
 };
 
-
-module.exports = { 
+module.exports = {
   registrarAsistencia,
   obtenerHistorialAsistencias
 };

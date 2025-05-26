@@ -67,7 +67,6 @@ Sugerencia: utilizar Jest + Supertest para testing automatizado.
 
 ## 📖 Documentación de la API
 - Acceso Swagger: `http://localhost:3000/api-docs`
-- Archivo: `/docs/swagger.yaml`
 
 ### Endpoints principales
 | Método | Ruta                     | Descripción                        |

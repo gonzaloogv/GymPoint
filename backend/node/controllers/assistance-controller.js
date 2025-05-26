@@ -2,23 +2,29 @@ const assistanceService = require('../services/assistance-service');
 
 const registrarAsistencia = async (req, res) => {
   try {
-    const { id_user, id_gym, id_streak, latitude, longitude } = req.body;
+    const { id_user, id_gym, latitude, longitude } = req.body;
 
-    if (!id_user || !id_gym || !id_streak || !latitude || !longitude) {
+    // Validación básica
+    if (
+      id_user == null ||
+      id_gym == null ||
+      latitude == null ||
+      longitude == null
+    ) {
       return res.status(400).json({ error: 'Faltan datos requeridos.' });
     }
 
     const resultado = await assistanceService.registrarAsistencia({
       id_user,
       id_gym,
-      id_streak,
       latitude,
       longitude
     });
 
-    res.status(201).json(resultado);
+    return res.status(201).json(resultado);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error('Error en registrarAsistencia:', err.message);
+    return res.status(400).json({ error: err.message });
   }
 };
 
@@ -31,7 +37,7 @@ const obtenerHistorialAsistencias = async (req, res) => {
   }
 };
 
-module.exports = { 
+module.exports = {
   registrarAsistencia,
   obtenerHistorialAsistencias
 };

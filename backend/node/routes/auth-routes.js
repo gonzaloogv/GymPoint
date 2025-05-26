@@ -1,4 +1,3 @@
-// routes/auth-routes.js
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth-controller');
@@ -23,6 +22,7 @@ const authController = require('../controllers/auth-controller');
  *               - gender
  *               - locality
  *               - age
+ *               - frequency_goal
  *             properties:
  *               name:
  *                 type: string
@@ -45,6 +45,10 @@ const authController = require('../controllers/auth-controller');
  *               age:
  *                 type: integer
  *                 example: 23
+ *               frequency_goal:
+ *                 type: integer
+ *                 description: Número de veces que el usuario se propone asistir por semana
+ *                 example: 3
  *     responses:
  *       201:
  *         description: Usuario creado correctamente

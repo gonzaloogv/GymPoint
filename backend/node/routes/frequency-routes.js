@@ -6,7 +6,7 @@ const controller = require('../controllers/frequency-controller');
  * @swagger
  * /api/frecuencia:
  *   post:
- *     summary: Crear o actualizar la meta semanal de asistencias de un usuario
+ *     summary: Crear o actualizar la frecuencia semanal (meta de asistencias) de un usuario
  *     tags: [Frecuencia]
  *     requestBody:
  *       required: true
@@ -18,13 +18,15 @@ const controller = require('../controllers/frequency-controller');
  *             properties:
  *               id_user:
  *                 type: integer
- *                 example: 1
+ *                 description: ID del usuario
+ *                 example: 7
  *               goal:
  *                 type: integer
- *                 example: 4
+ *                 description: Número de asistencias objetivo por semana
+ *                 example: 3
  *     responses:
  *       200:
- *         description: Meta semanal creada o actualizada correctamente
+ *         description: Frecuencia creada o actualizada correctamente
  *       400:
  *         description: Datos inválidos
  */
@@ -34,7 +36,7 @@ router.post('/', controller.crearMeta);
  * @swagger
  * /api/frecuencia/{id_user}:
  *   get:
- *     summary: Consultar el estado actual de la meta semanal del usuario
+ *     summary: Consultar el estado actual de la frecuencia semanal de un usuario
  *     tags: [Frecuencia]
  *     parameters:
  *       - in: path
@@ -45,7 +47,7 @@ router.post('/', controller.crearMeta);
  *         description: ID del usuario
  *     responses:
  *       200:
- *         description: Estado actual de la frecuencia semanal
+ *         description: Estado actual de la frecuencia del usuario
  *         content:
  *           application/json:
  *             schema:
@@ -53,14 +55,21 @@ router.post('/', controller.crearMeta);
  *               properties:
  *                 id_user:
  *                   type: integer
+ *                   example: 7
  *                 goal:
  *                   type: integer
+ *                   description: Meta semanal propuesta por el usuario
+ *                   example: 3
  *                 assist:
  *                   type: integer
+ *                   description: Cantidad de asistencias realizadas esta semana
+ *                   example: 2
  *                 achieved_goal:
  *                   type: boolean
+ *                   description: Si el usuario alcanzó o no su meta
+ *                   example: false
  *       404:
- *         description: Meta no encontrada para el usuario
+ *         description: Frecuencia no encontrada para el usuario
  */
 router.get('/:id_user', controller.consultarMetaSemanal);
 
@@ -68,11 +77,11 @@ router.get('/:id_user', controller.consultarMetaSemanal);
  * @swagger
  * /api/frecuencia/reset:
  *   put:
- *     summary: Reiniciar todas las metas semanales (asistencias y cumplimiento)
+ *     summary: Reiniciar todas las frecuencias semanales (asistencias y cumplimientos)
  *     tags: [Frecuencia]
  *     responses:
  *       200:
- *         description: Todas las metas fueron reiniciadas correctamente
+ *         description: Todas las frecuencias fueron reiniciadas correctamente
  */
 router.put('/reset', controller.reiniciarSemana);
 

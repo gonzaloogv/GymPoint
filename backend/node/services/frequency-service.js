@@ -1,8 +1,11 @@
 const Frequency = require('../models/Frequency');
 
 const crearMetaSemanal = async ({ id_user, goal }) => {
+  // Buscar si ya existe una frecuencia para el usuario
   const existente = await Frequency.findByPk(id_user);
+
   if (existente) {
+    // Si ya existía, reiniciar su meta y contador
     existente.goal = goal;
     existente.assist = 0;
     existente.achieved_goal = false;
@@ -10,6 +13,7 @@ const crearMetaSemanal = async ({ id_user, goal }) => {
     return existente;
   }
 
+  // Crear nueva frecuencia si no existía
   const nueva = await Frequency.create({
     id_user,
     goal,
@@ -21,18 +25,19 @@ const crearMetaSemanal = async ({ id_user, goal }) => {
 };
 
 const actualizarAsistenciaSemanal = async (id_user) => {
-    const frecuencia = await Frequency.findByPk(id_user);
-    if (!frecuencia || frecuencia.achieved_goal) return;
-  
-    frecuencia.assist += 1;
-  
-    if (frecuencia.assist >= frecuencia.goal) {
-      frecuencia.achieved_goal = true;
-    }
-  
-    await frecuencia.save();
+  const frecuencia = await Frequency.findByPk(id_user);
+
+  if (!frecuencia || frecuencia.achieved_goal) return;
+
+  frecuencia.assist += 1;
+
+  if (frecuencia.assist >= frecuencia.goal) {
+    frecuencia.achieved_goal = true;
+  }
+
+  await frecuencia.save();
 };
-  
+
 const reiniciarSemana = async () => {
   await Frequency.update(
     { assist: 0, achieved_goal: false },
@@ -41,17 +46,18 @@ const reiniciarSemana = async () => {
 };
 
 const consultarMetaSemanal = async (id_user) => {
-    const frecuencia = await Frequency.findByPk(id_user);
-    if (!frecuencia) throw new Error('El usuario no tiene una meta semanal asignada.');
-  
-    return frecuencia;
-};  
+  const frecuencia = await Frequency.findByPk(id_user);
 
+  if (!frecuencia) {
+    throw new Error('El usuario no tiene una meta semanal asignada.');
+  }
+
+  return frecuencia;
+};
 
 module.exports = {
-    crearMetaSemanal,
-    actualizarAsistenciaSemanal,
-    reiniciarSemana,
-    consultarMetaSemanal
+  crearMetaSemanal,
+  actualizarAsistenciaSemanal,
+  reiniciarSemana,
+  consultarMetaSemanal
 };
-  

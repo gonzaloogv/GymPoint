@@ -36,19 +36,9 @@ const getActiveRoutineWithExercises = async (req, res) => {
   }
 };
 
-const obtenerEstadisticaPeso = async (req, res) => {
-  try {
-    const datos = await progressService.obtenerEstadisticaPeso(req.params.id_user);
-    res.json(datos);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
-
 module.exports = {
   assignRoutineToUser,
   getActiveRoutine,
   endUserRoutine,
-  getActiveRoutineWithExercises,
-  obtenerEstadisticaPeso
+  getActiveRoutineWithExercises
 };

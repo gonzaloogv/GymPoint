@@ -1,4 +1,3 @@
-// models/User.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
@@ -45,6 +44,14 @@ const User = sequelize.define('User', {
   tokens: { 
     type: DataTypes.INTEGER, 
     defaultValue: 0 
+  },
+  id_streak: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'Streak',
+      key: 'id_streak'
+    }
   }
 }, {
   tableName: 'user',

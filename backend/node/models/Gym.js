@@ -49,7 +49,8 @@ const Gym = sequelize.define('Gym', {
   },
   registration_date: { 
     type: DataTypes.DATE, 
-    allowNull: false 
+    allowNull: false,
+    defaultValue: DataTypes.NOW 
   },
   equipment: { 
     type: DataTypes.TEXT, 

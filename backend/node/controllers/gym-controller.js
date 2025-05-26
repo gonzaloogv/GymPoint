@@ -7,7 +7,7 @@ const getAllGyms = async (req, res) => {
 
 const getGymById = async (req, res) => {
   const gym = await gymService.getGymById(req.params.id);
-  if (!gym) return res.status(404).json({ error: 'Gym not found' });
+  if (!gym) return res.status(404).json({ error: 'Gym no encontrado' });
   res.json(gym);
 };
 

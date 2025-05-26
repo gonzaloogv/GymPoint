@@ -13,7 +13,7 @@ const { verificarToken } = require('../middlewares/auth');
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Perfil del usuario
+ *         description: Perfil del usuario autenticado
  *         content:
  *           application/json:
  *             schema:
@@ -21,22 +21,31 @@ const { verificarToken } = require('../middlewares/auth');
  *               properties:
  *                 id_user:
  *                   type: integer
+ *                   example: 7
  *                 name:
  *                   type: string
+ *                   example: Gonzalo
  *                 lastname:
  *                   type: string
+ *                   example: Gómez
  *                 email:
  *                   type: string
+ *                   example: gonzalo@test.com
  *                 gender:
  *                   type: string
+ *                   example: M
  *                 locality:
  *                   type: string
+ *                   example: Resistencia
  *                 age:
  *                   type: integer
+ *                   example: 23
  *                 subscription:
  *                   type: string
+ *                   example: FREE
  *                 tokens:
  *                   type: integer
+ *                   example: 120
  *       401:
  *         description: Token inválido o no enviado
  *       404:
@@ -61,14 +70,19 @@ router.get('/me', verificarToken, controller.obtenerPerfil);
  *             properties:
  *               name:
  *                 type: string
+ *                 example: Gonzalo
  *               lastname:
  *                 type: string
+ *                 example: Gómez
  *               gender:
  *                 type: string
+ *                 example: M
  *               locality:
  *                 type: string
+ *                 example: Resistencia
  *               age:
  *                 type: integer
+ *                 example: 23
  *     responses:
  *       200:
  *         description: Perfil actualizado correctamente
