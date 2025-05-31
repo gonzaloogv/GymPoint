@@ -21,6 +21,7 @@ const authController = require('../controllers/auth-controller');
  *               - password
  *               - gender
  *               - locality
+ *               - subscription
  *               - age
  *               - frequency_goal
  *             properties:
@@ -42,6 +43,9 @@ const authController = require('../controllers/auth-controller');
  *               locality:
  *                 type: string
  *                 example: Resistencia
+ *               subscription:
+ *                 type: string
+ *                 example: FREE
  *               age:
  *                 type: integer
  *                 example: 23

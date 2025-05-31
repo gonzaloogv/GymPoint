@@ -1,24 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/gym-payment-controller');
+const { verificarToken, verificarRol, verificarRolMultiple } = require('../middlewares/auth');
 
 /**
  * @swagger
- * /api/gym-payment:
+ * /api/gym-payments:
  *   post:
  *     summary: Registrar un nuevo pago hacia un gimnasio
  *     tags: [Pagos]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required: [id_user, id_gym, mount, payment_method, payment_date, status]
+ *             required: [id_gym, mount, payment_method, payment_date, status]
  *             properties:
- *               id_user:
- *                 type: integer
- *                 example: 1
  *               id_gym:
  *                 type: integer
  *                 example: 2
@@ -41,14 +41,32 @@ const controller = require('../controllers/gym-payment-controller');
  *       400:
  *         description: Datos inválidos
  */
-router.post('/', controller.registrarPago);
+router.post('/', verificarToken, controller.registrarPago);
 
 /**
  * @swagger
- * /api/gym-payment/gimnasio/{id_gym}:
+ * /api/gym-payments/me:
+ *   get:
+ *     summary: Obtener los pagos realizados por el usuario autenticado
+ *     tags: [Pagos]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de pagos realizados por el usuario
+ *       404:
+ *         description: Usuario no encontrado o sin pagos
+ */
+router.get('/me', verificarToken, controller.obtenerPagosPorUsuario);
+
+/**
+ * @swagger
+ * /api/gym-payments/gimnasio/{id_gym}:
  *   get:
  *     summary: Obtener los pagos realizados a un gimnasio
  *     tags: [Pagos]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id_gym
@@ -62,35 +80,16 @@ router.post('/', controller.registrarPago);
  *       404:
  *         description: Gimnasio no encontrado o sin pagos
  */
-router.get('/gimnasio/:id_gym', controller.obtenerPagosPorGimnasio);
+router.get('/gimnasio/:id_gym', verificarToken, verificarRolMultiple(['ADMIN', 'GYM']), controller.obtenerPagosPorGimnasio);
 
 /**
  * @swagger
- * /api/gym-payment/{id_user}:
- *   get:
- *     summary: Obtener los pagos realizados por un usuario
- *     tags: [Pagos]
- *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID del usuario
- *     responses:
- *       200:
- *         description: Lista de pagos realizados por el usuario
- *       404:
- *         description: Usuario no encontrado o sin pagos
- */
-router.put('/:id_payment', controller.actualizarEstadoPago);
-
-/**
- * @swagger
- * /api/gym-payment/{id_payment}:
+ * /api/gym-payments/{id_payment}:
  *   put:
  *     summary: Actualizar el estado de un pago
  *     tags: [Pagos]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id_payment
@@ -115,6 +114,6 @@ router.put('/:id_payment', controller.actualizarEstadoPago);
  *       404:
  *         description: Pago no encontrado
  */
-router.get('/:id_user', controller.obtenerPagosPorUsuario);
+router.put('/:id_payment', verificarToken, verificarRol('ADMIN'), controller.actualizarEstadoPago);
 
 module.exports = router;

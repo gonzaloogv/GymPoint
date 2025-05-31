@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/frequency-controller');
+const { verificarToken, verificarRol } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -30,7 +31,7 @@ const controller = require('../controllers/frequency-controller');
  *       400:
  *         description: Datos inválidos
  */
-router.post('/', controller.crearMeta);
+router.post('/', verificarToken, controller.crearMeta);
 
 /**
  * @swagger
@@ -71,7 +72,7 @@ router.post('/', controller.crearMeta);
  *       404:
  *         description: Frecuencia no encontrada para el usuario
  */
-router.get('/:id_user', controller.consultarMetaSemanal);
+router.get('/me', verificarToken, controller.consultarMetaSemanal);
 
 /**
  * @swagger
@@ -83,6 +84,6 @@ router.get('/:id_user', controller.consultarMetaSemanal);
  *       200:
  *         description: Todas las frecuencias fueron reiniciadas correctamente
  */
-router.put('/reset', controller.reiniciarSemana);
+router.put('/reset', verificarToken, verificarRol('ADMIN'), controller.reiniciarSemana);
 
 module.exports = router;

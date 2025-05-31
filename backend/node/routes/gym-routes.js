@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const gymController = require('../controllers/gym-controller');
+const { verificarToken, verificarRol } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -36,38 +37,53 @@ router.get('/tipos', gymController.getGymTypes);
  * @swagger
  * /api/gyms/filtro:
  *   get:
- *     summary: Filtrar gimnasios por ciudad, precio y tipo (solo PREMIUM)
+ *     summary: Filtrar gimnasios por ciudad, precio y tipo (solo usuarios PREMIUM)
  *     tags: [Gimnasios]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
  *       - in: query
  *         name: city
  *         schema:
  *           type: string
+ *         description: Ciudad donde buscar gimnasios
  *       - in: query
  *         name: minPrice
  *         schema:
  *           type: number
+ *         description: Precio mínimo mensual
  *       - in: query
  *         name: maxPrice
  *         schema:
  *           type: number
+ *         description: Precio máximo mensual
  *       - in: query
  *         name: type
  *         schema:
  *           type: string
- *           description: Solo para usuarios PREMIUM
+ *         description: Tipo de gimnasio (solo válido para usuarios PREMIUM)
  *     responses:
  *       200:
  *         description: Lista filtrada de gimnasios y posible advertencia
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 gimnasios:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 advertencia:
+ *                   type: string
+ *                   nullable: true
+ *                   example: "Filtro por tipo ignorado para usuarios FREE"
  *       400:
- *         description: Usuario no encontrado o tipo inválido
+ *         description: Parámetros inválidos
+ *       403:
+ *         description: Solo usuarios PREMIUM pueden filtrar por tipo
  */
-router.get('/filtro', gymController.filtrarGimnasios);
+router.get('/filtro', verificarToken, gymController.filtrarGimnasios);
 
 /**
  * @swagger
@@ -190,7 +206,7 @@ router.get('/:id', gymController.getGymById);
  *       400:
  *         description: Datos inválidos
  */
-router.post('/', gymController.createGym);
+router.post('/', verificarToken, verificarRol('ADMIN'), gymController.createGym);
 
 /**
  * @swagger
@@ -246,7 +262,7 @@ router.post('/', gymController.createGym);
  *       404:
  *         description: Gimnasio no encontrado
  */
-router.put('/:id', gymController.updateGym);
+router.put('/:id', verificarToken, verificarRol('ADMIN'), gymController.updateGym);
 
 /**
  * @swagger
@@ -267,6 +283,6 @@ router.put('/:id', gymController.updateGym);
  *       404:
  *         description: Gimnasio no encontrado
  */
-router.delete('/:id', gymController.deleteGym);
+router.delete('/:id', verificarToken, verificarRol('ADMIN'), gymController.deleteGym);
 
 module.exports = router;

@@ -68,6 +68,6 @@ const googleLogin = async (req, res) => {
 };
 
 module.exports = {
-  ...module.exports, // mantiene los otros métodos como register, login si los tenés
+  ...module.exports, 
   googleLogin
 };

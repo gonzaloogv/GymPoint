@@ -1,6 +1,8 @@
 const { Op } = require('sequelize');
-const Gym = require('../models/Gym');
 const User = require('../models/User');
+const Gym = require('../models/Gym');
+const GymType = require('../models/GymType')(require('../config/database'), require('sequelize').DataTypes);
+
 
 const tiposValidos = [
   'completo',
@@ -21,13 +23,34 @@ const getGymById = async (id) => {
 };
 
 const createGym = async (data) => {
-  return await Gym.create(data);
+  const { id_types, ...gymData } = data;
+
+  // Crear el gimnasio
+  const gym = await Gym.create(gymData);
+
+  // Asociar tipos si vienen
+  if (Array.isArray(id_types) && id_types.length > 0) {
+    await gym.addGymTypes(id_types);
+  }
+
+  return gym;
 };
 
 const updateGym = async (id, data) => {
+  const { id_types, ...gymData } = data;
+
   const gym = await Gym.findByPk(id);
   if (!gym) throw new Error('Gym not found');
-  return await gym.update(data);
+
+  // Actualizar los datos del gimnasio
+  await gym.update(gymData);
+
+  // Si se pasan nuevos tipos, reemplazarlos
+  if (Array.isArray(id_types)) {
+    await gym.setGymTypes(id_types); // reemplaza todas las asociaciones anteriores
+  }
+
+  return gym;
 };
 
 const deleteGym = async (id) => {
@@ -69,46 +92,34 @@ const getGymsByCity = async (city) => {
   });
 };
 
-const filtrarGimnasios = async ({ id_user, city, type, minPrice, maxPrice }) => {
-  const user = await User.findByPk(id_user);
-  if (!user) throw new Error('Usuario no encontrado');
+const filtrarGimnasios = async ({ city, type, minPrice, maxPrice }) => {
+  const include = [];
 
-  const filtros = {};
-  let advertencia = null;
-
-  // Filtro común
-  if (city) filtros.city = city;
-
-  // Filtro por precio (permitido para todos)
-  if (minPrice && maxPrice) {
-    filtros.month_price = { [Op.between]: [minPrice, maxPrice] };
-  } else if (minPrice) {
-    filtros.month_price = { [Op.gte]: minPrice };
-  } else if (maxPrice) {
-    filtros.month_price = { [Op.lte]: maxPrice };
+  if (type) {
+    include.push({
+      model: GymType,
+      where: {
+        name: { [Op.like]: `%${type}%` }
+      }
+    });
   }
 
-  // Filtro por tipo SOLO si es premium
-  if (type) {
-    if (!tiposValidos.includes(type)) {
-      throw new Error(`Tipo de gimnasio inválido. Tipos válidos: ${tiposValidos.join(', ')}`);
-    }
-    if (user.subscription === 'PREMIUM') {
-      filtros.gym_type = type;
-    } else {
-      advertencia = "Los usuarios FREE no pueden filtrar por tipo de gimnasio.";
-    }
-  }  
+  const where = {};
+
+  if (city) where.city = city;
+  if (minPrice || maxPrice) {
+    where.month_price = {};
+    if (minPrice) where.month_price[Op.gte] = minPrice;
+    if (maxPrice) where.month_price[Op.lte] = maxPrice;
+  }
 
   const resultados = await Gym.findAll({
-    where: filtros,
+    where,
+    include,
     order: [['month_price', 'ASC']]
   });
 
-  return {
-    resultados,
-    advertencia
-  };
+  return { resultados, advertencia: null };
 };
 
 const getGymTypes = () => {

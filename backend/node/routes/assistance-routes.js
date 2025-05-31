@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/assistance-controller');
+const { verificarToken } = require('../middlewares/auth');
 
 // Registrar asistencia con validación GPS + tokens + racha
 /**
@@ -63,7 +64,7 @@ const controller = require('../controllers/assistance-controller');
 router.post('/registrar', controller.registrarAsistencia);
 /**
  * @swagger
- * /api/assistances/{id_user}:
+ * /api/assistances/me:
  *   get:
  *     summary: Obtener historial de asistencias del usuario
  *     tags: [Asistencias]
@@ -103,7 +104,7 @@ router.post('/registrar', controller.registrarAsistencia);
  *       404:
  *         description: Usuario no encontrado o sin asistencias
  */
-router.get('/:id_user', controller.obtenerHistorialAsistencias);
+router.get('/me', verificarToken, controller.obtenerHistorialAsistencias);
 
 // Podés agregar otros endpoints como historial más adelante
 

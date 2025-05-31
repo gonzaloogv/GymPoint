@@ -30,7 +30,8 @@ const registrarAsistencia = async (req, res) => {
 
 const obtenerHistorialAsistencias = async (req, res) => {
   try {
-    const historial = await assistanceService.obtenerHistorialAsistencias(req.params.id_user);
+    const id_user = req.user.id; // ✅ del token
+    const historial = await assistanceService.obtenerHistorialAsistencias(id_user);
     res.json(historial);
   } catch (err) {
     res.status(400).json({ error: err.message });

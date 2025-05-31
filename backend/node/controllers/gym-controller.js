@@ -65,15 +65,24 @@ const getGymsByCity = async (req, res) => {
 
 const filtrarGimnasios = async (req, res) => {
   try {
-    const { id_user, city, type, minPrice, maxPrice } = req.query;
-    if (!id_user) return res.status(400).json({ error: 'id_user es requerido' });
+    const id_user = req.user.id;       // ✅ viene del token
+    const rol = req.user.rol;          // 'FREE' o 'PREMIUM'
+
+    const { city, type, minPrice, maxPrice } = req.query;
+
+    // Solo usuarios PREMIUM pueden usar el filtro "type"
+    if (type && rol !== 'PREMIUM') {
+      return res.status(403).json({
+        error: 'Solo usuarios PREMIUM pueden filtrar por tipo de gimnasio.'
+      });
+    }
 
     const { resultados, advertencia } = await gymService.filtrarGimnasios({
       id_user,
       city,
-      type,
-      minPrice: parseFloat(minPrice),
-      maxPrice: parseFloat(maxPrice)
+      type: rol === 'PREMIUM' ? type : null, // si no es premium, se ignora
+      minPrice: minPrice ? parseFloat(minPrice) : null,
+      maxPrice: maxPrice ? parseFloat(maxPrice) : null
     });
 
     res.json({ gimnasios: resultados, advertencia });
