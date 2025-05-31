@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/gym-schedule-controller');
+const { verificarToken, verificarRolMultiple } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -8,6 +9,8 @@ const controller = require('../controllers/gym-schedule-controller');
  *   post:
  *     summary: Registrar un nuevo horario para un gimnasio
  *     tags: [Horarios]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -37,7 +40,7 @@ const controller = require('../controllers/gym-schedule-controller');
  *       400:
  *         description: Ya existe un horario para ese día y gimnasio
  */
-router.post('/', controller.crearHorario);
+router.post('/', verificarToken, verificarRolMultiple(['ADMIN', 'GYM']), controller.crearHorario);
 
 /**
  * @swagger
@@ -66,6 +69,8 @@ router.get('/:id_gym', controller.obtenerHorariosPorGimnasio);
  *   put:
  *     summary: Actualizar un horario existente
  *     tags: [Horarios]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id_schedule
@@ -95,6 +100,6 @@ router.get('/:id_gym', controller.obtenerHorariosPorGimnasio);
  *       404:
  *         description: Horario no encontrado
  */
-router.put('/:id_schedule', controller.actualizarHorario);
+router.put('/:id_schedule', verificarToken, verificarRolMultiple(['ADMIN', 'GYM']), controller.actualizarHorario);
 
 module.exports = router;

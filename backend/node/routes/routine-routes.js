@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const routineController = require('../controllers/routine-controller');
+const { verificarToken } = require('../middlewares/auth')
 
 /**
  * @swagger
@@ -8,64 +9,41 @@ const routineController = require('../controllers/routine-controller');
  *   post:
  *     summary: Crear una nueva rutina con ejercicios
  *     tags: [Rutinas]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required: [routine_name, description, exercises, id_user]
+ *             required: [routine_name, description, exercises]
  *             properties:
  *               routine_name:
  *                 type: string
- *                 example: Rutina Full Body
  *               description:
  *                 type: string
- *                 example: Rutina de 3 días completa
- *               id_user:
- *                 type: integer
- *                 example: 1
  *               exercises:
  *                 type: array
  *                 items:
  *                   type: object
  *                   required: [id_exercise, series, reps, order]
- *                   properties:
- *                     id_exercise:
- *                       type: integer
- *                       example: 1
- *                     series:
- *                       type: integer
- *                       example: 4
- *                     reps:
- *                       type: integer
- *                       example: 12
- *                     order:
- *                       type: integer
- *                       example: 1
- *     responses:
- *       201:
- *         description: Rutina creada correctamente
  */
-router.post('/', routineController.createRoutineWithExercises);
+router.post('/', verificarToken, routineController.createRoutineWithExercises);
 
 /**
  * @swagger
- * /api/routines/user/{id_user}:
+ * /api/routines/me:
  *   get:
- *     summary: Obtener todas las rutinas creadas por un usuario
+ *     summary: Obtener todas las rutinas creadas por el usuario autenticado
  *     tags: [Rutinas]
- *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de rutinas del usuario
  */
-router.get('/user/:id_user', routineController.getRoutinesByUser); // <-- primero
+router.get('/me', verificarToken, routineController.getRoutinesByUser); // <-- primero
 
 /**
  * @swagger

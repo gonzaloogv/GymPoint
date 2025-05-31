@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/token-controller');
+const { verificarToken, verificarRol } = require('../middlewares/auth');
 
 /**
  * @swagger
  * /api/tokens/ganar:
  *   post:
- *     summary: Otorgar tokens a un usuario
+ *     summary: ADMIN - Otorgar tokens a un usuario
  *     tags: [Tokens]
  *     requestBody:
  *       required: true
@@ -22,51 +23,33 @@ const controller = require('../controllers/token-controller');
  *               amount:
  *                 type: integer
  *                 example: 50
- *               motivo:
+ *               motive:
  *                 type: string
  *                 example: "Premio por asistencia semanal"
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Tokens otorgados correctamente
+ *       403:
+ *         description: Solo administradores pueden otorgar tokens
  *       404:
  *         description: Usuario no encontrado
  */
-router.post('/ganar', controller.otorgarTokens);
+router.post('/ganar', verificarToken, verificarRol('ADMIN'), controller.otorgarTokens);
 
 /**
  * @swagger
- * /api/tokens/saldo/{id_user}:
+ * /api/tokens/me/saldo:
  *   get:
  *     summary: Obtener resumen del saldo de tokens y estadísticas
  *     tags: [Tokens]
- *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID del usuario
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Detalle del saldo de tokens y estadísticas
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id_user:
- *                   type: integer
- *                 tokens_actuales:
- *                   type: integer
- *                 total_ganados:
- *                   type: integer
- *                 total_gastados:
- *                   type: integer
- *                 canjes_realizados:
- *                   type: integer
- *       404:
- *         description: Usuario no encontrado
  */
-router.get('/saldo/:id_user', controller.obtenerResumenTokens);
+router.get('/me/saldo', verificarToken, controller.obtenerResumenTokens);
 
 module.exports = router;

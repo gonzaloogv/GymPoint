@@ -74,7 +74,7 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude }) => 
   await Transaction.create({
     id_user,
     id_reward: null,
-    movement_type: 'GANANCIA',
+    movement_type: 'ASISTENCIA',
     amount: 10,
     result_balance: user.tokens,
     date: new Date()

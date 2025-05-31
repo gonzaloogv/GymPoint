@@ -105,9 +105,24 @@ const obtenerEstadisticasDeRecompensas = async () => {
   });
 };
 
+const crearRecompensa = async ({ name, description, cost_tokens, type, stock, start_date, finish_date }) => {
+  return await Reward.create({
+    name,
+    description,
+    cost_tokens,
+    type, // ahora sí, correctamente definido
+    stock,
+    start_date,
+    finish_date,
+    available: true,
+    creation_date: new Date()
+  });
+};
+
 module.exports = {
   listarRecompensas,
   canjearRecompensa,
   obtenerHistorialRecompensas,
-  obtenerEstadisticasDeRecompensas
+  obtenerEstadisticasDeRecompensas,
+  crearRecompensa
 };

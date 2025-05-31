@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/progress-controller');
+const { verificarToken } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -8,17 +9,16 @@ const controller = require('../controllers/progress-controller');
  *   post:
  *     summary: Registrar el progreso corporal y de ejercicios del usuario
  *     tags: [Progreso]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required: [id_user, date, body_weight, body_fat, ejercicios]
+ *             required: [date, body_weight, body_fat, ejercicios]
  *             properties:
- *               id_user:
- *                 type: integer
- *                 example: 1
  *               date:
  *                 type: string
  *                 format: date
@@ -47,20 +47,17 @@ const controller = require('../controllers/progress-controller');
  *       201:
  *         description: Progreso registrado correctamente
  */
-router.post('/', controller.registrarProgreso);
+router.post('/', verificarToken, controller.registrarProgreso);
 
 /**
  * @swagger
- * /api/progress/{id_user}/ejercicios/{id_exercise}/promedio:
+ * /api/progress/me/ejercicios/{id_exercise}/promedio:
  *   get:
  *     summary: Obtener el promedio de peso y repeticiones de un ejercicio
  *     tags: [Progreso]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
  *       - in: path
  *         name: id_exercise
  *         required: true
@@ -70,20 +67,17 @@ router.post('/', controller.registrarProgreso);
  *       200:
  *         description: Promedio de peso y reps
  */
-router.get('/:id_user/ejercicios/:id_exercise/promedio', controller.obtenerPromedioLevantamiento);
+router.get('/me/ejercicios/:id_exercise/promedio', verificarToken, controller.obtenerPromedioLevantamiento);
 
 /**
  * @swagger
- * /api/progress/{id_user}/ejercicios/{id_exercise}/mejor:
+ * /api/progress/me/ejercicios/{id_exercise}/mejor:
  *   get:
  *     summary: Obtener el mejor levantamiento de un ejercicio
  *     tags: [Progreso]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
  *       - in: path
  *         name: id_exercise
  *         required: true
@@ -93,20 +87,17 @@ router.get('/:id_user/ejercicios/:id_exercise/promedio', controller.obtenerProme
  *       200:
  *         description: Mayor peso levantado registrado
  */
-router.get('/:id_user/ejercicios/:id_exercise/mejor', controller.obtenerMejorLevantamiento);
+router.get('/me/ejercicios/:id_exercise/mejor', verificarToken, controller.obtenerMejorLevantamiento);
 
 /**
  * @swagger
- * /api/progress/{id_user}/ejercicios/{id_exercise}:
+ * /api/progress/me/ejercicios/{id_exercise}:
  *   get:
  *     summary: Obtener historial de un ejercicio específico por usuario
  *     tags: [Progreso]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
  *       - in: path
  *         name: id_exercise
  *         required: true
@@ -116,61 +107,48 @@ router.get('/:id_user/ejercicios/:id_exercise/mejor', controller.obtenerMejorLev
  *       200:
  *         description: Lista de progresos del ejercicio
  */
-router.get('/:id_user/ejercicios/:id_exercise', controller.obtenerHistorialPorEjercicio);
+router.get('/me/ejercicios/:id_exercise', verificarToken, controller.obtenerHistorialPorEjercicio);
 
 /**
  * @swagger
- * /api/progress/{id_user}/ejercicios:
+ * /api/progress/me/ejercicios:
  *   get:
  *     summary: Obtener el historial completo de ejercicios del usuario
  *     tags: [Progreso]
- *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Registros de ejercicios realizados por el usuario
  */
-router.get('/:id_user/ejercicios', controller.obtenerHistorialEjercicios);
+router.get('/me/ejercicios', verificarToken, controller.obtenerHistorialEjercicios);
 
 /**
  * @swagger
- * /api/progress/{id_user}/estadistica:
+ * /api/progress/me/estadistica:
  *   get:
  *     summary: Obtener la evolución del peso corporal del usuario
  *     tags: [Progreso]
- *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista con fechas y peso corporal
  */
-router.get('/:id_user/estadistica', controller.obtenerEstadisticaPeso);
+router.get('/me/estadistica', verificarToken, controller.obtenerEstadisticaPeso);
 
 /**
  * @swagger
- * /api/progress/{id_user}:
+ * /api/progress/me:
  *   get:
  *     summary: Obtener el historial general de progreso corporal del usuario
  *     tags: [Progreso]
- *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID del usuario
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de registros de progreso
  */
-router.get('/:id_user', controller.obtenerProgresoPorUsuario);          // después
+router.get('/me', verificarToken, controller.obtenerProgresoPorUsuario);
 
 module.exports = router;

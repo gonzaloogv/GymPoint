@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/reward-controller');
+const { verificarToken , verificarRol } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -20,17 +21,16 @@ router.get('/', controller.listarRecompensas);
  *   post:
  *     summary: Canjear una recompensa por tokens
  *     tags: [Recompensas]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required: [id_user, id_reward, id_gym]
+ *             required: [id_reward, id_gym]
  *             properties:
- *               id_user:
- *                 type: integer
- *                 example: 1
  *               id_reward:
  *                 type: integer
  *                 example: 2
@@ -43,25 +43,21 @@ router.get('/', controller.listarRecompensas);
  *       400:
  *         description: Tokens insuficientes o recompensa no disponible
  */
-router.post('/canjear', controller.canjearRecompensa);
+router.post('/canjear', verificarToken, controller.canjearRecompensa);
 
 /**
  * @swagger
- * /api/rewards/historial/{id_user}:
+ * /api/rewards/me/historial:
  *   get:
- *     summary: Obtener el historial de recompensas canjeadas por un usuario
+ *     summary: Obtener el historial de recompensas canjeadas por el usuario autenticado
  *     tags: [Recompensas]
- *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de recompensas canjeadas con fecha y descripción
  */
-router.get('/historial/:id_user', controller.obtenerHistorialRecompensas);
+router.get('/me/historial', verificarToken, controller.obtenerHistorialRecompensas);
 
 /**
  * @swagger
@@ -74,5 +70,48 @@ router.get('/historial/:id_user', controller.obtenerHistorialRecompensas);
  *         description: Lista de recompensas con cantidad de canjeos
  */
 router.get('/estadisticas', controller.obtenerEstadisticasDeRecompensas);
+
+/**
+ * @swagger
+ * /api/rewards:
+ *   post:
+ *     summary: Crear una nueva recompensa (solo admin)
+ *     tags: [Recompensas]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, description, cost_tokens, type, stock, start_date, finish_date]
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               cost_tokens:
+ *                 type: integer
+ *               type:
+ *                 type: string
+ *                 example: descuento
+ *               stock:
+ *                 type: integer
+ *               start_date:
+ *                 type: string
+ *                 format: date
+ *                 example: 2025-06-01
+ *               finish_date:
+ *                 type: string
+ *                 format: date
+ *                 example: 2025-12-31
+ *     responses:
+ *       201:
+ *         description: Recompensa creada correctamente
+ *       400:
+ *         description: Datos inválidos
+ */
+router.post('/', verificarToken, verificarRol('ADMIN'), controller.crearRecompensa);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/gym-special-schedule-controller');
+const { verificarToken, verificarRolMultiple } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -8,6 +9,8 @@ const controller = require('../controllers/gym-special-schedule-controller');
  *   post:
  *     summary: Crear un horario especial para un gimnasio (ej. feriados)
  *     tags: [Horarios Especiales]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -41,7 +44,7 @@ const controller = require('../controllers/gym-special-schedule-controller');
  *       400:
  *         description: Ya existe un horario especial para esa fecha
  */
-router.post('/', controller.crearHorarioEspecial);
+router.post('/', verificarToken, verificarRolMultiple(['ADMIN', 'GYM']), controller.crearHorarioEspecial);
 
 /**
  * @swagger

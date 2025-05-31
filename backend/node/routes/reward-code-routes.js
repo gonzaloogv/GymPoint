@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/reward-code-controller');
+const { verificarToken } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -26,7 +27,6 @@ router.get('/estadisticas/gimnasios', controller.obtenerEstadisticasPorGimnasio)
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID del código a marcar como usado
  *     responses:
  *       200:
  *         description: Código marcado como usado correctamente
@@ -37,56 +37,44 @@ router.put('/:id_code/usar', controller.marcarComoUsado);
 
 /**
  * @swagger
- * /api/reward-code/{id_user}/activos:
+ * /api/reward-code/me/activos:
  *   get:
- *     summary: Obtener códigos de recompensa activos del usuario
+ *     summary: Obtener códigos de recompensa activos del usuario autenticado
  *     tags: [Códigos de Recompensa]
- *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de códigos activos y vigentes
  */
-router.get('/:id_user/activos', controller.obtenerCodigosActivos);
+router.get('/me/activos', verificarToken, controller.obtenerCodigosActivos);
 
 /**
  * @swagger
- * /api/reward-code/{id_user}/expirados:
+ * /api/reward-code/me/expirados:
  *   get:
  *     summary: Obtener códigos de recompensa expirados o ya utilizados
  *     tags: [Códigos de Recompensa]
- *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de códigos expirados o utilizados
  */
-router.get('/:id_user/expirados', controller.obtenerCodigosExpirados);
+router.get('/me/expirados', verificarToken, controller.obtenerCodigosExpirados);
 
 /**
  * @swagger
- * /api/reward-code/{id_user}:
+ * /api/reward-code/me:
  *   get:
- *     summary: Obtener todos los códigos de recompensa asociados a un usuario
+ *     summary: Obtener todos los códigos de recompensa del usuario autenticado
  *     tags: [Códigos de Recompensa]
- *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de códigos de recompensa
  */
-router.get('/:id_user', controller.obtenerCodigosPorUsuario);
+router.get('/me', verificarToken, controller.obtenerCodigosPorUsuario);
 
 module.exports = router;

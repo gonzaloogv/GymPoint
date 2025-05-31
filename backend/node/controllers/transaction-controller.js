@@ -9,6 +9,16 @@ const obtenerTransaccionesPorUsuario = async (req, res) => {
   }
 };
 
+const obtenerTransaccionesAutenticado = async (req, res) => {
+  try {
+    const transacciones = await transactionService.obtenerTransaccionesPorUsuario(req.user.id);
+    res.json(transacciones);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 module.exports = {
-  obtenerTransaccionesPorUsuario
+  obtenerTransaccionesPorUsuario,
+  obtenerTransaccionesAutenticado
 };

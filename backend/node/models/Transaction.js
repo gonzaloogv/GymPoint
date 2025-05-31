@@ -30,6 +30,10 @@ const Transaction = sequelize.define('Transaction', {
   result_balance: {
     type: DataTypes.INTEGER,
     allowNull: false
+  },
+  motive: {
+    type: DataTypes.STRING(255), // 🔄 nuevo campo agregado
+    allowNull: true
   }
 }, {
   tableName: 'transaction',

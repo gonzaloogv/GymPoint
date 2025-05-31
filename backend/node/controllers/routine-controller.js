@@ -11,9 +11,10 @@ const getRoutineWithExercises = async (req, res) => {
 
 const createRoutineWithExercises = async (req, res) => {
   try {
-    const { routine_name, description, exercises, id_user } = req.body;
+    const id_user = req.user.id;
+    const { routine_name, description, exercises } = req.body;
 
-    if (!routine_name || !exercises || !id_user) {
+    if (!routine_name || !exercises) {
       return res.status(400).json({ error: 'Faltan datos requeridos' });
     }
 
@@ -28,8 +29,6 @@ const createRoutineWithExercises = async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
-  console.log('BODY RECIBIDO:', req.body);
-
 };
 
 
@@ -72,12 +71,13 @@ const deleteRoutineExercise = async (req, res) => {
 };
 
 const getRoutinesByUser = async (req, res) => {
-    try {
-      const rutinas = await routineService.getRoutinesByUser(req.params.id_user);
-      res.json(rutinas);
-    } catch (err) {
-      res.status(400).json({ error: err.message });
-    }
+  try {
+    const id_user = req.user.id;
+    const rutinas = await routineService.getRoutinesByUser(id_user);
+    res.json(rutinas);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 };
 
 const getActiveRoutineWithExercises = async (req, res) => {

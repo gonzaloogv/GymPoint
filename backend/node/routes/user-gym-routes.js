@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/user-gym-controller');
+const { verificarToken } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -14,24 +15,21 @@ const controller = require('../controllers/user-gym-controller');
  *         application/json:
  *           schema:
  *             type: object
- *             required: [id_user, id_gym, plan]
+ *             required: [id_gym, plan]
  *             properties:
- *               id_user:
- *                 type: integer
- *                 example: 1
  *               id_gym:
  *                 type: integer
  *                 example: 2
  *               plan:
  *                 type: string
  *                 example: "completo"
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Usuario dado de alta correctamente
- *       400:
- *         description: Ya estaba activo en este gimnasio
  */
-router.post('/alta', controller.darAltaEnGimnasio);
+router.post('/alta', verificarToken, controller.darAltaEnGimnasio);
 
 /**
  * @swagger
@@ -45,21 +43,18 @@ router.post('/alta', controller.darAltaEnGimnasio);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [id_user, id_gym]
+ *             required: [id_gym]
  *             properties:
- *               id_user:
- *                 type: integer
- *                 example: 1
  *               id_gym:
  *                 type: integer
  *                 example: 2
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Usuario dado de baja correctamente
- *       400:
- *         description: El usuario no tiene una membresía activa
  */
-router.put('/baja', controller.darBajaEnGimnasio);
+router.put('/baja', verificarToken, controller.darBajaEnGimnasio);
 
 /**
  * @swagger
@@ -81,16 +76,13 @@ router.get('/gimnasio/:id_gym/conteo', controller.contarUsuariosActivosEnGimnasi
 
 /**
  * @swagger
- * /api/user-gym/historial/{id_user}:
+ * /api/user-gym/me/historial:
  *   get:
- *     summary: Obtener historial completo de membresías de un usuario
+ *     summary: Obtener historial completo de membresías del usuario autenticado
  *     tags: [Membresías]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
  *       - in: query
  *         name: active
  *         required: false
@@ -101,7 +93,7 @@ router.get('/gimnasio/:id_gym/conteo', controller.contarUsuariosActivosEnGimnasi
  *       200:
  *         description: Lista de membresías por gimnasio
  */
-router.get('/historial/:id_user', controller.obtenerHistorialGimnasiosPorUsuario);
+router.get('/me/historial', verificarToken, controller.obtenerHistorialGimnasiosPorUsuario);
 
 /**
  * @swagger
@@ -129,20 +121,16 @@ router.get('/gimnasio/:id_gym', controller.obtenerHistorialUsuariosPorGimnasio);
 
 /**
  * @swagger
- * /api/user-gym/activos/{id_user}:
+ * /api/user-gym/me/activos:
  *   get:
- *     summary: Obtener los gimnasios activos del usuario
+ *     summary: Obtener los gimnasios activos del usuario autenticado
  *     tags: [Membresías]
- *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de gimnasios donde el usuario está activo
  */
-router.get('/activos/:id_user', controller.obtenerGimnasiosActivos);
+router.get('/me/activos', verificarToken, controller.obtenerGimnasiosActivos);
 
 module.exports = router;
