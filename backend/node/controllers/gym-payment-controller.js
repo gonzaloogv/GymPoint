@@ -3,7 +3,7 @@ const service = require('../services/gym-payment-service');
 const registrarPago = async (req, res) => {
   try {
     const { id_gym, mount, payment_method, payment_date, status } = req.body;
-    const id_user = req.user.id; // Usar el ID del usuario autenticado
+    const id_user = req.user.id; // id del autenticado
 
     if (!id_gym || !mount || !payment_method || !payment_date || !status) {
       return res.status(400).json({ error: 'Faltan datos requeridos.' });

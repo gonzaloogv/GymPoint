@@ -25,7 +25,7 @@ const UserGym = sequelize.define('UserGym', {
     allowNull: false
   },
   plan: {
-    type: DataTypes.STRING(50), // ejemplo: "completo mensual"
+    type: DataTypes.STRING(50),
     allowNull: false
   }
 }, {

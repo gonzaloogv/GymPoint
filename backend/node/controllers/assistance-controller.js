@@ -4,7 +4,7 @@ const registrarAsistencia = async (req, res) => {
   try {
     const { id_user, id_gym, latitude, longitude } = req.body;
 
-    // Validación básica
+    // validacion
     if (
       id_user == null ||
       id_gym == null ||
@@ -30,7 +30,7 @@ const registrarAsistencia = async (req, res) => {
 
 const obtenerHistorialAsistencias = async (req, res) => {
   try {
-    const id_user = req.user.id; // ✅ del token
+    const id_user = req.user.id;
     const historial = await assistanceService.obtenerHistorialAsistencias(id_user);
     res.json(historial);
   } catch (err) {

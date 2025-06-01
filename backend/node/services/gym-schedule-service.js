@@ -1,7 +1,7 @@
 const GymSchedule = require('../models/GymSchedule');
 
 const crearHorario = async ({ id_gym, day_of_week, opening_time, closing_time, closed }) => {
-    // Verificar si ya existe un horario para ese día y gimnasio
+    // verifica si ya existe un horario para ese dia y gimnasio
     const existente = await GymSchedule.findOne({
       where: { id_gym, day_of_week }
     });

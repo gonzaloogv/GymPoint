@@ -50,6 +50,9 @@ app.use('/api/gym-payments', gymPaymentRoutes);
 app.use('/api/reward-codes', rewardCodeRoutes);
 app.use('/api/users', userRoutes);
 
+// Confiar proxys
+app.set('trust proxy', true);
+
 // Inicializador de swagger
 setupSwagger(app);
 

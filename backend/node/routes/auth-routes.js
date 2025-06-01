@@ -4,6 +4,13 @@ const authController = require('../controllers/auth-controller');
 
 /**
  * @swagger
+ * tags:
+ *   name: Autenticación
+ *   description: Endpoints relacionados a autenticación y sesión
+ */
+
+/**
+ * @swagger
  * /api/auth/register:
  *   post:
  *     summary: Registrar un nuevo usuario
@@ -51,7 +58,6 @@ const authController = require('../controllers/auth-controller');
  *                 example: 23
  *               frequency_goal:
  *                 type: integer
- *                 description: Número de veces que el usuario se propone asistir por semana
  *                 example: 3
  *     responses:
  *       201:
@@ -89,7 +95,9 @@ router.post('/register', authController.register);
  *             schema:
  *               type: object
  *               properties:
- *                 token:
+ *                 accessToken:
+ *                   type: string
+ *                 refreshToken:
  *                   type: string
  *                 user:
  *                   type: object
@@ -123,5 +131,65 @@ router.post('/login', authController.login);
  *         description: Token de Google inválido o expirado
  */
 router.post('/google', authController.googleLogin);
+
+/**
+ * @swagger
+ * /api/auth/refresh-token:
+ *   post:
+ *     summary: Obtener un nuevo access token usando un refresh token válido
+ *     tags: [Autenticación]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token]
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 example: eyJhbGciOiJIUzI1NiIsIn...
+ *     responses:
+ *       200:
+ *         description: Nuevo token de acceso emitido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *       403:
+ *         description: Refresh token inválido o expirado
+ *       401:
+ *         description: Error de verificación
+ */
+router.post('/refresh-token', authController.refreshAccessToken);
+
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Cerrar sesión (revoca refresh token)
+ *     tags: [Autenticación]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token]
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: Refresh token a revocar
+ *                 example: eyJhbGciOiJIUzI1NiIsIn...
+ *     responses:
+ *       204:
+ *         description: Logout exitoso, token revocado
+ *       500:
+ *         description: Error en el cierre de sesión
+ */
+router.post('/logout', authController.logout);
 
 module.exports = router;

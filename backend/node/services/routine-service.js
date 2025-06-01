@@ -19,7 +19,7 @@ const getRoutineWithExercises = async (id_routine) => {
     throw new Error('Rutina no encontrada');
   }
 
-  // Ordenar ejercicios por el orden definido en RoutineExercise
+  // ordena orden de ejercicios definidos en routine exercise
   rutina.Exercises.sort((a, b) => {
     return a.RoutineExercise.order - b.RoutineExercise.order;
   });

@@ -2,7 +2,7 @@ const progressService = require('../services/progress-service');
 
 const registrarProgreso = async (req, res) => {
   try {
-    const id_user = req.user.id // 🔄 token
+    const id_user = req.user.id // token
     const { date, body_weight, body_fat, ejercicios } = req.body;
 
     const progreso = await progressService.registrarProgreso({

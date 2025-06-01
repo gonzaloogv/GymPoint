@@ -5,7 +5,7 @@ const generarToken = (user) => {
   return jwt.sign(
     {
       id: user.id_user,
-      rol: user.subscription // FREE, PREMIUM, ADMIN
+      rol: user.subscription // FREE, PREMIUM, ADMIN, GYM
     },
     SECRET,
     { expiresIn: '7d' }

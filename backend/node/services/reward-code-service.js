@@ -8,7 +8,7 @@ const crearCodigoParaCanje = async ({ id_reward, id_gym }) => {
   
     const hoy = new Date();
     const expiracion = new Date();
-    expiracion.setDate(hoy.getDate() + 90); // ✅ 90 días de validez
+    expiracion.setDate(hoy.getDate() + 90); //90 días de validez
   
     return await RewardCode.create({
       id_reward,
@@ -16,7 +16,7 @@ const crearCodigoParaCanje = async ({ id_reward, id_gym }) => {
       code,
       used: false,
       creation_date: hoy,
-      expiration_date: expiracion // ✅ Asegurate que este campo exista en tu modelo y DB
+      expiration_date: expiracion
     });
 };
 

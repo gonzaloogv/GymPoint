@@ -28,7 +28,7 @@ const GymPayment = sequelize.define('GymPayment', {
     allowNull: false
   },
   status: {
-    type: DataTypes.STRING(20), // ejemplo: "pendiente", "aprobado", "rechazado"
+    type: DataTypes.STRING(20), 
     allowNull: false
   }
 }, {

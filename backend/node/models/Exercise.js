@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-
 const Exercise = sequelize.define('Exercise', {
   id_exercise: {
     type: DataTypes.INTEGER,

@@ -3,7 +3,7 @@ const Reward = require('../models/Reward');
 const ClaimedReward = require('../models/ClaimedReward');
 const User = require('../models/User');
 const Transaction = require('../models/Transaction');
-const rewardCodeService = require('./reward-code-service'); // ✅ nuevo
+const rewardCodeService = require('./reward-code-service');
 const { Sequelize } = require('sequelize');
 
 const listarRecompensas = async () => {
@@ -35,22 +35,22 @@ const canjearRecompensa = async ({ id_user, id_reward, id_gym }) => {
   if (!user) throw new Error('Usuario no encontrado');
   if (user.tokens < reward.cost_tokens) throw new Error('Tokens insuficientes');
 
-  // Calcular nuevo saldo
+  // calcula nuevo saldo
   const result_balance = user.tokens - reward.cost_tokens;
 
-  // Actualizar usuario y recompensa
+  // actualiza usuario y recompensa
   user.tokens = result_balance;
   reward.stock -= 1;
   await user.save();
   await reward.save();
 
-  // ✅ Generar código
+  // genera codigo
   const codigoGenerado = await rewardCodeService.crearCodigoParaCanje({
     id_reward,
     id_gym
   });
   
-  // Crear registro en claimed_reward
+  // crea registro en claimed_reward
   const claimed = await ClaimedReward.create({
     id_user,
     id_reward,
@@ -59,7 +59,7 @@ const canjearRecompensa = async ({ id_user, id_reward, id_gym }) => {
     status: true
   });
 
-  // Crear transacción
+  // crea transaccion
   await Transaction.create({
     id_user,
     id_reward,
@@ -71,7 +71,7 @@ const canjearRecompensa = async ({ id_user, id_reward, id_gym }) => {
 
 
 
-  // ✅ Devolver todo en la respuesta
+  // devolver todo en la respuesta
   return {
     mensaje: 'Recompensa canjeada con éxito',
     claimed,
@@ -110,7 +110,7 @@ const crearRecompensa = async ({ name, description, cost_tokens, type, stock, st
     name,
     description,
     cost_tokens,
-    type, // ahora sí, correctamente definido
+    type,
     stock,
     start_date,
     finish_date,

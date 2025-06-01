@@ -12,12 +12,12 @@ const otorgarTokens = async ({ id_user, amount, motivo }) => {
 
   await Transaction.create({
     id_user,
-    id_reward: null, // no es un canje
+    id_reward: null, // se define null debido a que no es un canje
     movement_type: 'GANANCIA',
     amount,
     result_balance: nuevoSaldo,
     date: new Date(),
-    motive: motivo // ✅ agregado aquí
+    motive: motivo 
   });
 
   return {

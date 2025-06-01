@@ -1,7 +1,7 @@
 const GymSpecialSchedule = require('../models/GymSpecialSchedule');
 
 const crearHorarioEspecial = async ({ id_gym, date, opening_time, closing_time, closed, motive }) => {
-  // Verificar si ya existe un horario especial para esa fecha y gimnasio
+  // verificar si ya existe un horario especial
   const existente = await GymSpecialSchedule.findOne({
     where: { id_gym, date }
   });
@@ -31,4 +31,3 @@ module.exports = {
     crearHorarioEspecial,
     obtenerHorariosEspecialesPorGimnasio
 };
-  

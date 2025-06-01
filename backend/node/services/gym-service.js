@@ -3,7 +3,6 @@ const User = require('../models/User');
 const Gym = require('../models/Gym');
 const GymType = require('../models/GymType')(require('../config/database'), require('sequelize').DataTypes);
 
-
 const tiposValidos = [
   'completo',
   'crossfit',

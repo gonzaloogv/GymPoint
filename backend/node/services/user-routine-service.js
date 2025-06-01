@@ -3,7 +3,7 @@ const Routine = require('../models/Routine');
 const Exercise = require('../models/Exercise');
 
 const assignRoutineToUser = async ({ id_user, id_routine, start_date }) => {
-  // Verificar si ya tiene una rutina activa
+  // verifica si ya tiene una rutina activa
   const existing = await UserRoutine.findOne({
     where: { id_user, active: true }
   });
@@ -59,7 +59,7 @@ const getActiveRoutineWithExercises = async (id_user) => {
   
     if (!routine) throw new Error('Rutina activa no encontrada');
   
-    // Ordenar ejercicios por order
+    // ordena ejercicios por orden
     routine.Exercises.sort((a, b) => {
       return a.RoutineExercise.order - b.RoutineExercise.order;
     });

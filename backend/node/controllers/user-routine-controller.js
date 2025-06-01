@@ -2,7 +2,7 @@ const userRoutineService = require('../services/user-routine-service');
 
 const assignRoutineToUser = async (req, res) => {
   try {
-    const id_user = req.user.id; // ✅ extraído del token
+    const id_user = req.user.id; // extraído del token
     const { id_routine, start_date } = req.body;
 
     const routine = await userRoutineService.assignRoutineToUser({

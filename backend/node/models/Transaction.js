@@ -32,7 +32,7 @@ const Transaction = sequelize.define('Transaction', {
     allowNull: false
   },
   motive: {
-    type: DataTypes.STRING(255), // 🔄 nuevo campo agregado
+    type: DataTypes.STRING(255),
     allowNull: true
   }
 }, {

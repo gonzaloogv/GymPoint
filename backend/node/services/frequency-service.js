@@ -1,11 +1,11 @@
 const Frequency = require('../models/Frequency');
 
 const crearMetaSemanal = async ({ id_user, goal }) => {
-  // Buscar si ya existe una frecuencia para el usuario
+  // busca si existe frecuencia de usuario
   const existente = await Frequency.findByPk(id_user);
 
   if (existente) {
-    // Si ya existía, reiniciar su meta y contador
+    // si ya existe reinicia su meta y contador
     existente.goal = goal;
     existente.assist = 0;
     existente.achieved_goal = false;
@@ -13,7 +13,7 @@ const crearMetaSemanal = async ({ id_user, goal }) => {
     return existente;
   }
 
-  // Crear nueva frecuencia si no existía
+  // crea nueva frecuencia si no existía
   const nueva = await Frequency.create({
     id_user,
     goal,

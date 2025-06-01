@@ -3,7 +3,7 @@ const ProgressExercise = require('../models/ProgressExercise');
 const { Op } = require('sequelize');
 
 const registrarProgreso = async ({ id_user, date, body_weight, body_fat, ejercicios }) => {
-  // Crear progreso general
+  // crear progreso general
   const progreso = await Progress.create({
     id_user,
     date,
@@ -11,7 +11,7 @@ const registrarProgreso = async ({ id_user, date, body_weight, body_fat, ejercic
     body_fat
   });
 
-  // Registrar ejercicios asociados
+  // registrar ejercicios asociados
   for (const ex of ejercicios) {
     await ProgressExercise.create({
       id_progress: progreso.id_progress,
@@ -42,13 +42,13 @@ const obtenerEstadisticaPeso = async (id_user) => {
 };
 
 const obtenerHistorialEjercicios = async (id_user) => {
-  // Primero, obtenemos todos los progresos del usuario
+  // obtener progresos de usuario
   const progresos = await Progress.findAll({
     where: { id_user },
     attributes: ['id_progress', 'date']
   });
 
-  // Si no hay progresos, devolvemos vacío
+  // si no hay progresos devolvemos vacio
   if (!progresos.length) return [];
 
   const idMap = {};
@@ -56,7 +56,7 @@ const obtenerHistorialEjercicios = async (id_user) => {
 
   const ids = progresos.map(p => p.id_progress);
 
-  // Traer todos los registros de ejercicios de esos progresos
+  // traer registros de ejercicios de esos progresos
   const ejercicios = await ProgressExercise.findAll({
     where: {
       id_progress: {
@@ -65,7 +65,7 @@ const obtenerHistorialEjercicios = async (id_user) => {
     }
   });
 
-  // Enlazamos la fecha a cada registro
+  // enlazamos la fecha a cada registro
   return ejercicios.map(e => ({
     date: idMap[e.id_progress],
     id_exercise: e.id_exercise,

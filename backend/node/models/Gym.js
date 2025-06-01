@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-// Modelo principal
 const Gym = sequelize.define('Gym', {
   id_gym: {
     type: DataTypes.INTEGER,
