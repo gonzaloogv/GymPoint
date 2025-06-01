@@ -6,7 +6,7 @@ const RefreshToken = require('../models/RefreshToken');
 const frequencyService = require('../services/frequency-service');
 
 const ACCESS_EXPIRATION = '15m';
-const REFRESH_EXPIRATION_DAYS = 7;
+const REFRESH_EXPIRATION_DAYS = 30;
 
 const register = async (data) => {
   const { password, frequency_goal, ...resto } = data;

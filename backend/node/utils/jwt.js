@@ -5,10 +5,10 @@ const generarToken = (user) => {
   return jwt.sign(
     {
       id: user.id_user,
-      rol: user.subscription // FREE, PREMIUM, ADMIN, GYM
+      rol: user.subscription
     },
     SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: '15m' } // ✅ Access token corto
   );
 };
 

@@ -5,17 +5,20 @@ Backend del proyecto GymPoint, una plataforma para la gestión de gimnasios, usu
 ---
 
 ## 🚀 Descripción
+
 GymPoint permite a los usuarios:
-- Registrar su asistencia al gimnasio mediante GPS
+
+- Registrar asistencia diaria con validación por GPS
 - Mantener rachas activas de entrenamiento
 - Obtener y canjear tokens por recompensas
 - Gestionar rutinas personalizadas y progreso físico
 
-Los administradores pueden gestionar gimnasios, recompensas, usuarios y contenido general.
+Los administradores pueden gestionar gimnasios, usuarios, recompensas y contenido general.
 
 ---
 
 ## ⚙️ Requisitos del sistema
+
 - Node.js v22.14.0
 - npm v10.9.2
 - MySQL 8.4
@@ -24,6 +27,7 @@ Los administradores pueden gestionar gimnasios, recompensas, usuarios y contenid
 ---
 
 ## ⚡ Instalación
+
 ```bash
 git clone https://github.com/gonzaloogv/GymPoint.git
 cd GymPoint/backend/node
@@ -33,58 +37,98 @@ npm install
 ---
 
 ## 📞 Variables de entorno
-Crear un archivo `.env` en la raíz con el siguiente contenido:
+
+Crear un archivo `.env` en la raíz con:
+
 ```env
-PORT=3000
-DB_NAME=gympoint
-DB_USER=root
-DB_PASS=1234
+# Base de datos
 DB_HOST=localhost
-JWT_SECRET=unasecretaclave
+DB_USER=root
+DB_PASSWORD=mitre280
+DB_NAME=gympoint
+DB_PORT=3306
+
+# Servidor
+PORT=3000
+
+# JWT
+JWT_SECRET=clave_super_secreta_para_tokens
+JWT_REFRESH_SECRET=clave_distinta_para_refresh
+
+# Googlee
+GOOGLE_CLIENT_ID=287573324529-6dratpth8ik6jr9ppdpf2nv666e0mv9b.apps.googleusercontent.com
 ```
 
 ---
 
 ## ▶️ Ejecución
+
 ### Modo desarrollo
+
 ```bash
 npm run dev
 ```
 
 ### Modo producción
+
 ```bash
 npm start
 ```
 
 ---
 
-## 🔬 Testing
-_Aún no implementado_
+## 🔐 Autenticación con Access y Refresh Token
 
-Sugerencia: utilizar Jest + Supertest para testing automatizado.
+El sistema implementa autenticación basada en **JWT con doble token**:
+
+| Token         | Duración     | Uso                                     |
+|---------------|--------------|------------------------------------------|
+| `accessToken` | 15 minutos   | Acceso a rutas protegidas (`Authorization: Bearer`) |
+| `refreshToken`| 30 días      | Renovar `accessToken` vía `/auth/refresh-token` |
+
+### Flujo de sesion
+
+1. Al iniciar sesión, se devuelven `accessToken` y `refreshToken`.
+2. El `accessToken` se envía en headers para acceder a rutas protegidas.
+3. Si el `accessToken` expira, el cliente usa el `refreshToken` para obtener uno nuevo.
+4. El `refreshToken` se guarda en la base de datos y puede ser revocado (logout).
+5. Si expira o es revocado, el usuario debe volver a iniciar sesión.
+
+### Logout
+
+Para cerrar sesión de forma segura, se debe enviar el `refreshToken` a:
+
+```http
+POST /api/auth/logout
+{
+  "token": "<refreshToken>"
+}
+```
+
+El backend lo marca como revocado.
 
 ---
 
 ## 📖 Documentación de la API
-- Acceso Swagger: `http://localhost:3000/api-docs`
 
-### Endpoints principales
+Swagger:  
+📍 `http://localhost:3000/api-docs`
+
+### Endpoints comunes
+
 | Método | Ruta                     | Descripción                        |
 |--------|--------------------------|------------------------------------|
-| GET    | /api/users               | Lista de usuarios                  |
-| POST   | /api/auth/login          | Login con JWT                      |
-| POST   | /api/routines            | Asignar rutina a usuario           |
-| PUT    | /api/users/:id/profile   | Editar perfil del usuario          |
-
----
-
-## 🔐 Autenticación
-- Basada en JWT (Json Web Token)
-- Agregar `Authorization: Bearer <token>` en headers para acceder a rutas protegidas
+| POST   | /api/auth/register       | Registro de usuario con meta semanal |
+| POST   | /api/auth/login          | Iniciar sesión con email y contraseña |
+| POST   | /api/auth/google         | Login con Google OAuth2            |
+| POST   | /api/auth/refresh-token  | Obtener nuevo access token         |
+| POST   | /api/auth/logout         | Revocar refresh token              |
+| GET    | /api/users/me            | Obtener perfil del usuario         |
 
 ---
 
 ## 📂 Estructura del proyecto
+
 ```
 backend/
 └── node/
@@ -93,31 +137,46 @@ backend/
     ├── routes/         # Definición de endpoints
     ├── services/       # Lógica de negocio
     ├── middlewares/    # Validaciones, auth
-    ├── utils/          # Helpers
-    ├── config/         # Conexión a DB y dotenv
+    ├── utils/          # JWT, helpers
+    ├── config/         # Conexión a DB y variables
     └── index.js        # Entry point principal
 ```
 
 ---
 
 ## 📃 Base de datos
-- Motor: MySQL 8.4
-- ORM: Sequelize v6.37.7
-- Driver: mysql2 v3.14.1
-- Diagrama ER disponible en `/docs/diagram.png`
 
-Entidades clave: `User`, `Gym`, `Routine`, `Exercise`, `Streak`, `Reward`, `Transaction`, `Assistance`, etc.
+- MySQL 8.4
+- ORM: Sequelize
+- Diagramas en `/docs/diagram.png`
+
+Entidades clave: `User`, `Gym`, `Routine`, `Exercise`, `Streak`, `RefreshToken`, `Reward`, `Assistance`, `Transaction`.
+
+---
+
+## 🧪 Testing
+
+_Aún no implementado_  
+**Sugerencia:** utilizar Jest + Supertest.
 
 ---
 
 ## 🛠️ Despliegue
-_Aún no implementado_
 
-Sugerencia: agregar soporte para despliegue con Docker, Railway o plataformas similares.
+_Aún no implementado_  
+Sugerencia: usar Railway, Render, Vercel (backend), o Docker.
 
 ---
 
-## 🥇 Dependencias exactas utilizadas
+## 📄 Estilo de código
+
+- camelCase para funciones/variables
+- PascalCase para modelos y clases
+
+---
+
+## 🥇 Dependencias exactas
+
 ```
 Node.js v22.14.0
 npm v10.9.2
@@ -135,31 +194,19 @@ npm v10.9.2
 
 ---
 
-## 📄 Estilo de código
-- Seguir [Guía de estilos GymPoint](../GUIA%20DE%20ESTILOS%20GYMPOINT.pdf)
-- Nombres descriptivos, camelCase para funciones/variables, PascalCase para modelos/componentes
-- Sugerencia: incorporar validaciones con Joi u otras estrategias centralizadas
-
----
-
 ## 👥 Autores y colaboradores
-- Gonzalo Gomez Vignudo - Backend & Tech Lead
-- Nahuel Noir - PM & Frontend
-- Cristian Benetti - FullStack & Marketing
-- Santiago Mandagaran - QA & Frontend
-- Nuria Gonzalez - QA & Frontend
+
+- Gonzalo Gomez Vignudo – Backend & Tech Lead
+- Nahuel Noir – PM & Frontend
+- Cristian Benetti – FullStack & Marketing
+- Santiago Mandagaran – QA & Frontend
+- Nuria Gonzalez – QA & Frontend
 
 ---
 
-## ℹ️ Licencia
-[MIT](LICENSE)
+## 🎯 To Do
 
----
-
-## 🎡 To Do
-- [ ] Documentar rutas de asistencia y rachas
-- [ ] Implementar tests automáticos de integración
-- [ ] Dockerizar el backend
-- [ ] Incorporar validaciones centralizadas (middleware o Joi)
-
----
+- [ ] Implementar tests de integración
+- [ ] Dockerizar backend completo
+- [ ] Documentar todos los endpoints protegidos con Swagger
+- [ ] Validaciones centralizadas con Joi o middlewares

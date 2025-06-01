@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // Tu instancia de Sequelize
+const sequelize = require('../config/database');
 
 const RefreshToken = sequelize.define('RefreshToken', {
   id_token: {
@@ -31,9 +31,8 @@ const RefreshToken = sequelize.define('RefreshToken', {
   }
 }, {
   tableName: 'refresh_token',
-  timestamps: false // Cambiá a true si querés createdAt/updatedAt
+  timestamps: false 
 });
-
 // Asociación directa (opcional si no usás `models/index.js`)
 const User = require('./User');
 RefreshToken.belongsTo(User, { foreignKey: 'id_user', as: 'user' });

@@ -105,10 +105,23 @@ const refreshAccessToken = async (req, res) => {
 const logout = async (req, res) => {
   const { token } = req.body;
 
+  if (!token) {
+    return res.status(400).json({ error: 'No se recibió el refresh token' });
+  }
+
   try {
-    await RefreshToken.update({ revoked: true }, { where: { token } });
-    res.sendStatus(204);
+    const [affectedRows] = await RefreshToken.update(
+      { revoked: true },
+      { where: { token } }
+    );
+
+    if (affectedRows === 0) {
+      return res.status(404).json({ error: 'Refresh token no encontrado o ya revocado' });
+    }
+
+    res.status(200).json({ message: 'Sesión cerrada correctamente' });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Error al cerrar sesión' });
   }
 };
