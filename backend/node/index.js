@@ -50,6 +50,9 @@ app.use('/api/gym-payments', gymPaymentRoutes);
 app.use('/api/reward-codes', rewardCodeRoutes);
 app.use('/api/users', userRoutes);
 
+// 404 handler
+app.use((req, res) => res.status(404).json({ error: 'Not Found' }));
+
 // Confiar proxies
 app.set('trust proxy', true);
 

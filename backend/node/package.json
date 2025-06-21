@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "jest"
+    "test": "jest",
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint ."
   },
   "keywords": [],
   "author": "",
@@ -23,7 +24,8 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },
-  "devDependencies": {
+  "devDependencies": {    
+    "eslint": "^9.29.0",
     "jest": "^30.0.2",
     "nodemon": "^3.1.10",
     "supertest": "^7.1.1"

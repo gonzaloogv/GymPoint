@@ -21,3 +21,31 @@ describe('actualizarEstadoPago', () => {
     await expect(service.actualizarEstadoPago(1,'ok')).rejects.toThrow('Pago no encontrado.');
   });
 });
+
+describe('obtenerPagosPorUsuario', () => {
+  it('returns list and queries by user', async () => {
+    const pagos = ['p'];
+    GymPayment.findAll.mockResolvedValue(pagos);
+
+    const res = await service.obtenerPagosPorUsuario(3);
+
+    expect(GymPayment.findAll).toHaveBeenCalledWith({ where: { id_user: 3 }, order: [['payment_date', 'DESC']] });
+    expect(res).toBe(pagos);
+  });
+});
+
+describe('obtenerPagosPorGimnasio', () => {
+  it('returns list with user info', async () => {
+    const pagos = ['p'];
+    GymPayment.findAll.mockResolvedValue(pagos);
+
+    const res = await service.obtenerPagosPorGimnasio(2);
+
+    expect(GymPayment.findAll).toHaveBeenCalledWith({
+      where: { id_gym: 2 },
+      include: { model: User, attributes: ['name', 'lastname', 'email'] },
+      order: [['payment_date', 'DESC']]
+    });
+    expect(res).toBe(pagos);
+  });
+});

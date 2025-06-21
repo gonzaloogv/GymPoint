@@ -127,7 +127,8 @@ const logout = async (req, res) => {
 };
 
 module.exports = {
-  ...module.exports, 
+  register,
+  login,
   googleLogin,
   refreshAccessToken,
   logout

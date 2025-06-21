@@ -2,13 +2,13 @@ const tokenService = require('../services/token-service');
 
 const otorgarTokens = async (req, res) => {
   try {
-    const { id_user, amount, motivo } = req.body;
+    const { id_user, amount, motive } = req.body;
 
-    if (!id_user || !amount || !motivo) {
+    if (!id_user || !amount || !motive) {
       return res.status(400).json({ error: 'Faltan campos requeridos.' });
     }
 
-    const resultado = await tokenService.otorgarTokens({ id_user, amount, motivo });
+    const resultado = await tokenService.otorgarTokens({ id_user, amount, motive: motivo });
     res.status(201).json(resultado);
   } catch (err) {
     res.status(400).json({ error: err.message });

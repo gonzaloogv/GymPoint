@@ -9,7 +9,7 @@ beforeEach(() => {
 
 describe('token-controller.otorgarTokens', () => {
   it('returns 201 with result', async () => {
-    const req = { body: { id_user: 1, amount: 5, motivo: 'test' } };
+    const req = { body: { id_user: 1, amount: 5, motive: 'test' } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     tokenService.otorgarTokens.mockResolvedValue({ ok: true });
 
@@ -31,7 +31,7 @@ describe('token-controller.otorgarTokens', () => {
   });
 
   it('handles service errors', async () => {
-    const req = { body: { id_user: 1, amount: 1, motivo: 'a' } };
+    const req = { body: { id_user: 1, amount: 1, motive: 'a' } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     tokenService.otorgarTokens.mockRejectedValue(new Error('bad'));
 

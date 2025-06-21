@@ -152,6 +152,19 @@ backend/
 
 Entidades clave: `User`, `Gym`, `Routine`, `Exercise`, `Streak`, `RefreshToken`, `Reward`, `Assistance`, `Transaction`.
 
+### Cargar `gympoint_db.sql`
+
+1. Crea una base de datos MySQL con el nombre indicado en `DB_NAME` y con un
+   usuario que coincida con `DB_USER` y `DB_PASSWORD`.
+2. Importa el archivo de dump ubicado en `../db/gympoint_db.sql`:
+
+   ```bash
+   mysql -u $DB_USER -p $DB_NAME < ../db/gympoint_db.sql
+   ```
+
+Este proyecto **no utiliza migraciones** automáticas de Sequelize. Toda la
+estructura inicial se define en el dump anterior y debe cargarse manualmente.
+
 ---
 
 ## 🧪 Testing
@@ -211,4 +224,4 @@ npm v10.9.2
 ## 🎯 To Do
 
 - [ ] Dockerizar backend completo
-- [ ] Validaciones centralizadas con Joi o middlewares
+- [ ] Validaciones centralizadas con Joi o middlewares personalizados
