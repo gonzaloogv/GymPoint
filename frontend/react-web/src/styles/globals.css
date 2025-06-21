@@ -1,0 +1,35 @@
+:root {
+    --color-bg: #ffffff;
+    --color-text: #222222;
+    --color-subtext: #555555;
+    --color-primary: #2B74FF;
+    --color-dark-bg: #0C1B33;
+    --color-light-bg: #f9f9f9;
+    --color-footer-bg: #111111;
+  }
+  
+  [data-theme="dark"] {
+    --color-bg: #0A1128;          /* fondo general oscuro */
+    --color-text: #FFFFFF;        /* texto principal blanco */
+    --color-subtext: #AABBD0;     /* gris celeste claro */
+    --color-primary: #2B74FF;     /* azul vibrante constante */
+    --color-light-bg: #0F1E3C;    /* secciones claras dentro de tema oscuro */
+    --color-footer-bg: #060B18;   /* fondo aún más oscuro para footer */
+  }
+  
+  body {
+    margin: 0;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: 'Poppins', sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  /* Botones generales */
+  .btn {
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
