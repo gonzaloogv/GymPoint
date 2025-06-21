@@ -75,7 +75,7 @@ const login = async (email, password, req) => {
   const user = await User.findOne({ where: { email } });
 
   if (!user || !(await bcrypt.compare(password, user.password))) {
-    throw new Error('Credenciales inválidas. Verificá email y contraseña.');
+    throw new Error('Credenciales inválidas');
   }
 
   const token = generateAccessToken(user);

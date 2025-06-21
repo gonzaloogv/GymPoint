@@ -55,7 +55,7 @@ PORT=3000
 JWT_SECRET=clave_super_secreta_para_tokens
 JWT_REFRESH_SECRET=clave_distinta_para_refresh
 
-# Googlee
+# Google
 GOOGLE_CLIENT_ID=287573324529-6dratpth8ik6jr9ppdpf2nv666e0mv9b.apps.googleusercontent.com
 ```
 
@@ -210,7 +210,5 @@ npm v10.9.2
 
 ## 🎯 To Do
 
-- [ ] Implementar tests de integración
 - [ ] Dockerizar backend completo
-- [ ] Documentar todos los endpoints protegidos con Swagger
 - [ ] Validaciones centralizadas con Joi o middlewares

@@ -15,7 +15,7 @@ const { verificarToken, verificarRol } = require('../middlewares/auth');
  *         application/json:
  *           schema:
  *             type: object
- *             required: [id_user, amount, motivo]
+ *             required: [id_user, amount, motive]
  *             properties:
  *               id_user:
  *                 type: integer

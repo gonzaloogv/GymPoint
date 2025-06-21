@@ -24,10 +24,10 @@ const getGymById = async (id) => {
 const createGym = async (data) => {
   const { id_types, ...gymData } = data;
 
-  // Crear el gimnasio
+  // creal gimnasio
   const gym = await Gym.create(gymData);
 
-  // Asociar tipos si vienen
+  // asociar tipos si vienen
   if (Array.isArray(id_types) && id_types.length > 0) {
     await gym.addGymTypes(id_types);
   }
@@ -41,10 +41,10 @@ const updateGym = async (id, data) => {
   const gym = await Gym.findByPk(id);
   if (!gym) throw new Error('Gym not found');
 
-  // Actualizar los datos del gimnasio
+  // actualiza los datos del gimnasio
   await gym.update(gymData);
 
-  // Si se pasan nuevos tipos, reemplazarlos
+  // si se pasa nuevos tipos, reemplazarlos
   if (Array.isArray(id_types)) {
     await gym.setGymTypes(id_types); // reemplaza todas las asociaciones anteriores
   }
@@ -58,6 +58,7 @@ const deleteGym = async (id) => {
   return await gym.destroy();
 };
 
+// funcion que calcula la distancia ubicada
 function calcularDistancia(lat1, lon1, lat2, lon2) {
   const R = 6371000;
   const rad = Math.PI / 180;
