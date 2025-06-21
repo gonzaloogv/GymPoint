@@ -156,8 +156,12 @@ Entidades clave: `User`, `Gym`, `Routine`, `Exercise`, `Streak`, `RefreshToken`,
 
 ## 🧪 Testing
 
-_Aún no implementado_  
-**Sugerencia:** utilizar Jest + Supertest.
+El backend cuenta con pruebas unitarias implementadas con Jest.
+Para ejecutarlas se usa:
+```bash
+npm test
+```
+Estas pruebas cubren los servicios y controladores principales.
 
 ---
 
