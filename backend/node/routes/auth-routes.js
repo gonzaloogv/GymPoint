@@ -185,7 +185,7 @@ router.post('/refresh-token', authController.refreshAccessToken);
  *                 description: Refresh token a revocar
  *                 example: eyJhbGciOiJIUzI1NiIsIn...
  *     responses:
- *       204:
+ *       200:
  *         description: Logout exitoso, token revocado
  *       500:
  *         description: Error en el cierre de sesión

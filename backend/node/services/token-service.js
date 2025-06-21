@@ -2,7 +2,7 @@ const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 const ClaimedReward = require('../models/ClaimedReward');
 
-const otorgarTokens = async ({ id_user, amount, motivo }) => {
+const otorgarTokens = async ({ id_user, amount, motive }) => {
   const user = await User.findByPk(id_user);
   if (!user) throw new Error('Usuario no encontrado');
 
@@ -22,14 +22,14 @@ const otorgarTokens = async ({ id_user, amount, motivo }) => {
     amount: value,
     result_balance: nuevoSaldo,
     date: new Date(),
-    motive: motivo
+    motive: motive
   });
 
   return {
     id_user,
     tokens_antes: nuevoSaldo - value,
     tokens_actuales: nuevoSaldo,
-    motivo,
+    motive,
     fecha: new Date()
   };
 };
