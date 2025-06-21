@@ -45,7 +45,7 @@ CREATE TABLE `assistance` (
 
 LOCK TABLES `assistance` WRITE;
 /*!40000 ALTER TABLE `assistance` DISABLE KEYS */;
-INSERT INTO `assistance` VALUES (1,1,'2025-05-26',1,1,'18:12:54');
+INSERT INTO `assistance` VALUES (1,1,'2025-05-30',1,1,'17:20:57');
 /*!40000 ALTER TABLE `assistance` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -70,7 +70,7 @@ CREATE TABLE `claimed_reward` (
   CONSTRAINT `claimed_reward_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`),
   CONSTRAINT `claimed_reward_ibfk_2` FOREIGN KEY (`id_reward`) REFERENCES `reward` (`id_reward`),
   CONSTRAINT `fk_claimed_reward_code` FOREIGN KEY (`id_code`) REFERENCES `reward_code` (`id_code`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -79,6 +79,7 @@ CREATE TABLE `claimed_reward` (
 
 LOCK TABLES `claimed_reward` WRITE;
 /*!40000 ALTER TABLE `claimed_reward` DISABLE KEYS */;
+INSERT INTO `claimed_reward` VALUES (1,2,1,1,'2025-05-31',1);
 /*!40000 ALTER TABLE `claimed_reward` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -94,7 +95,7 @@ CREATE TABLE `exercise` (
   `exercise_name` varchar(100) NOT NULL,
   `muscular_group` varchar(100) NOT NULL,
   PRIMARY KEY (`id_exercise`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -103,6 +104,7 @@ CREATE TABLE `exercise` (
 
 LOCK TABLES `exercise` WRITE;
 /*!40000 ALTER TABLE `exercise` DISABLE KEYS */;
+INSERT INTO `exercise` VALUES (1,'Press de banca','Pecho'),(2,'Press de banca inclinado','Pecho'),(3,'Mariposa','Pecho');
 /*!40000 ALTER TABLE `exercise` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -122,7 +124,7 @@ CREATE TABLE `frequency` (
   PRIMARY KEY (`id_frequency`),
   KEY `id_user` (`id_user`),
   CONSTRAINT `frequency_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -131,7 +133,7 @@ CREATE TABLE `frequency` (
 
 LOCK TABLES `frequency` WRITE;
 /*!40000 ALTER TABLE `frequency` DISABLE KEYS */;
-INSERT INTO `frequency` VALUES (1,0,1,3,1);
+INSERT INTO `frequency` VALUES (1,0,1,3,1),(2,0,2,3,0);
 /*!40000 ALTER TABLE `frequency` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -154,13 +156,12 @@ CREATE TABLE `gym` (
   `email` varchar(100) DEFAULT NULL,
   `website` varchar(500) DEFAULT NULL,
   `social_media` text,
-  `gym_type` varchar(100) NOT NULL,
   `registration_date` date NOT NULL,
   `equipment` text NOT NULL,
   `month_price` double NOT NULL,
   `week_price` double NOT NULL,
   PRIMARY KEY (`id_gym`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -169,8 +170,35 @@ CREATE TABLE `gym` (
 
 LOCK TABLES `gym` WRITE;
 /*!40000 ALTER TABLE `gym` DISABLE KEYS */;
-INSERT INTO `gym` VALUES (1,'Gimnasio Centro','El mejor gimnasio de zona céntrica','Buenos Aires','Av. Corrientes 1234',-34.603722,-58.381590,'1133445566','centro@gym.com','https://gimnasiocentro.com','@gimnasiocentro','completo','2025-05-26','máquinas, pesas libres, mancuernas',8500,2500);
+INSERT INTO `gym` VALUES (1,'Iron Temple','Gimnasio premium con entrenamiento personalizado y crossfit','Resistencia','Av. Córdoba 1234',-34.603684,-58.381559,'+54 9 11 1234 5678','contacto@irontemple.com','https://www.irontemple.com','@irontemplegym','2025-05-30','Mancuernas, barras olímpicas, bicicletas, cintas de correr, zona de pesas libres, sala funcional',25000,8000),(2,'Iron Gym Reloaded','Muy completo','Resistencia','San Martín 456',-27.479532,-59.009432,NULL,NULL,NULL,NULL,'2025-05-31','Pesas, cardio, boxeo',13000,4000),(3,'Bulldog Academy','Muy completo','Resistencia','San Martín 456',-27.491000,-58.811000,NULL,NULL,NULL,NULL,'2025-05-31','Pesas, cardio, boxeo',13000,4000),(4,'Gimnasio Centro','Muy completo','Corrientes','San Martín 456',-27.481000,-58.811000,NULL,NULL,NULL,NULL,'2025-05-31','Pesas, cardio, boxeo',13000,4000),(5,'Gimnasio Centro','Muy completo','Corrientes','San Martín 456',-27.481000,-58.811000,NULL,NULL,NULL,NULL,'2025-05-31','Pesas, cardio, boxeo',13000,4000);
 /*!40000 ALTER TABLE `gym` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `gym_gym_type`
+--
+
+DROP TABLE IF EXISTS `gym_gym_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `gym_gym_type` (
+  `id_gym` int NOT NULL,
+  `id_type` int NOT NULL,
+  PRIMARY KEY (`id_gym`,`id_type`),
+  KEY `id_type` (`id_type`),
+  CONSTRAINT `gym_gym_type_ibfk_1` FOREIGN KEY (`id_gym`) REFERENCES `gym` (`id_gym`) ON DELETE CASCADE,
+  CONSTRAINT `gym_gym_type_ibfk_2` FOREIGN KEY (`id_type`) REFERENCES `gym_type` (`id_type`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `gym_gym_type`
+--
+
+LOCK TABLES `gym_gym_type` WRITE;
+/*!40000 ALTER TABLE `gym_gym_type` DISABLE KEYS */;
+INSERT INTO `gym_gym_type` VALUES (1,1),(2,1),(3,1),(5,1),(1,2),(2,2),(3,2),(5,2);
+/*!40000 ALTER TABLE `gym_gym_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -193,7 +221,7 @@ CREATE TABLE `gym_payment` (
   KEY `id_gym` (`id_gym`),
   CONSTRAINT `gym_payment_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`),
   CONSTRAINT `gym_payment_ibfk_2` FOREIGN KEY (`id_gym`) REFERENCES `gym` (`id_gym`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -202,6 +230,7 @@ CREATE TABLE `gym_payment` (
 
 LOCK TABLES `gym_payment` WRITE;
 /*!40000 ALTER TABLE `gym_payment` DISABLE KEYS */;
+INSERT INTO `gym_payment` VALUES (1,2,1,3000.00,'mercadopago','2025-05-01','PAGADO');
 /*!40000 ALTER TABLE `gym_payment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -265,6 +294,31 @@ LOCK TABLES `gym_special_schedule` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `gym_type`
+--
+
+DROP TABLE IF EXISTS `gym_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `gym_type` (
+  `id_type` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id_type`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `gym_type`
+--
+
+LOCK TABLES `gym_type` WRITE;
+/*!40000 ALTER TABLE `gym_type` DISABLE KEYS */;
+INSERT INTO `gym_type` VALUES (4,'Cardio'),(2,'Crossfit'),(3,'Funcional'),(5,'HIIT'),(1,'Musculación'),(6,'Yoga');
+/*!40000 ALTER TABLE `gym_type` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `progress`
 --
 
@@ -280,7 +334,7 @@ CREATE TABLE `progress` (
   PRIMARY KEY (`id_progress`),
   KEY `id_user` (`id_user`),
   CONSTRAINT `progress_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -289,6 +343,7 @@ CREATE TABLE `progress` (
 
 LOCK TABLES `progress` WRITE;
 /*!40000 ALTER TABLE `progress` DISABLE KEYS */;
+INSERT INTO `progress` VALUES (1,1,'2025-06-01',72,15),(2,1,'2025-06-01',72,15);
 /*!40000 ALTER TABLE `progress` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -317,7 +372,40 @@ CREATE TABLE `progress_exercise` (
 
 LOCK TABLES `progress_exercise` WRITE;
 /*!40000 ALTER TABLE `progress_exercise` DISABLE KEYS */;
+INSERT INTO `progress_exercise` VALUES (1,1,100,10),(1,2,70,12),(1,3,80,8),(2,1,120,10),(2,2,70,12),(2,3,80,8);
 /*!40000 ALTER TABLE `progress_exercise` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `refresh_token`
+--
+
+DROP TABLE IF EXISTS `refresh_token`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `refresh_token` (
+  `id_token` int NOT NULL AUTO_INCREMENT,
+  `id_user` int NOT NULL,
+  `token` text NOT NULL,
+  `user_agent` varchar(255) DEFAULT NULL,
+  `ip_address` varchar(50) DEFAULT NULL,
+  `expires_at` datetime NOT NULL,
+  `revoked` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_token`),
+  KEY `id_user` (`id_user`),
+  CONSTRAINT `refresh_token_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `refresh_token`
+--
+
+LOCK TABLES `refresh_token` WRITE;
+/*!40000 ALTER TABLE `refresh_token` DISABLE KEYS */;
+INSERT INTO `refresh_token` VALUES (1,1,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJpYXQiOjE3NDg3Mzc5NTIsImV4cCI6MTc0OTM0Mjc1Mn0.QGeSvZk49x9LI-L7axK8xFWDvymTkeKstvpkaxjMT-Y','PostmanRuntime/7.44.0','::1','2025-06-08 00:32:32',0,'2025-06-01 00:32:32'),(2,1,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJpYXQiOjE3NDg3NDM4OTQsImV4cCI6MTc0OTM0ODY5NH0.13jaJoWn56xG55Dd6UX5N6h13Ca2dbLK9nsFRqh9MJk','PostmanRuntime/7.44.0','::1','2025-06-08 02:11:34',0,'2025-06-01 02:11:34'),(3,1,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJpYXQiOjE3NDg3NDQwMzUsImV4cCI6MTc0OTM0ODgzNX0.2DJPd7Zxtat09Pr8aZmhmlSvuaxC2hUz0YSUP7N-Hjs','PostmanRuntime/7.44.0','::1','2025-06-08 02:13:55',0,'2025-06-01 02:13:55'),(4,1,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJpYXQiOjE3NDg3NDQxMDksImV4cCI6MTc0OTM0ODkwOX0.R4rkxeUIILMcehSTH9MsT8C45z6vrgUefuGQS9yTBO4','PostmanRuntime/7.44.0','::1','2025-06-08 02:15:09',0,'2025-06-01 02:15:09'),(5,1,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJpYXQiOjE3NDg3NDQyMTcsImV4cCI6MTc0OTM0OTAxN30.QGBixVqDxkRmf1cwDuGvSjyYG_DKAWmRxV8yzrAn8qA','PostmanRuntime/7.44.0','::1','2025-06-08 02:16:57',0,'2025-06-01 02:16:57'),(6,1,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJpYXQiOjE3NDg3NDQyODgsImV4cCI6MTc0OTM0OTA4OH0.Yxb9qc-zFfMlXGMddHXzNrNMijn6n4XRQj3L1gzA86U','PostmanRuntime/7.44.0','::1','2025-06-08 02:18:08',1,'2025-06-01 02:18:08'),(7,1,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJpYXQiOjE3NDg3NDQ0NDIsImV4cCI6MTc0OTM0OTI0Mn0.jSx75ZewGul9ujKit8Q5tAQvwByFJ4OYfI_L3laSYgk','PostmanRuntime/7.44.0','::1','2025-06-08 02:20:42',1,'2025-06-01 02:20:42'),(8,1,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJpYXQiOjE3NDg3NTAzMTcsImV4cCI6MTc1MTM0MjMxN30.Xo-LbTxc9iYihYT_uVo7Vr1er7xuN7mp8peK53o2VBE','PostmanRuntime/7.44.0','::1','2025-07-01 03:58:37',0,'2025-06-01 03:58:37');
+/*!40000 ALTER TABLE `refresh_token` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -339,7 +427,7 @@ CREATE TABLE `reward` (
   `finish_date` date NOT NULL,
   `creation_date` date NOT NULL,
   PRIMARY KEY (`id_reward`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -348,6 +436,7 @@ CREATE TABLE `reward` (
 
 LOCK TABLES `reward` WRITE;
 /*!40000 ALTER TABLE `reward` DISABLE KEYS */;
+INSERT INTO `reward` VALUES (1,'Descuento del 20%','Canjeable por un 20% de descuento en la próxima mensualidad','descuento',100,1,49,'2025-05-01','2025-12-31','2025-05-31');
 /*!40000 ALTER TABLE `reward` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -371,7 +460,7 @@ CREATE TABLE `reward_code` (
   KEY `id_gym` (`id_gym`),
   CONSTRAINT `reward_code_ibfk_1` FOREIGN KEY (`id_reward`) REFERENCES `reward` (`id_reward`),
   CONSTRAINT `reward_code_ibfk_2` FOREIGN KEY (`id_gym`) REFERENCES `gym` (`id_gym`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -380,6 +469,7 @@ CREATE TABLE `reward_code` (
 
 LOCK TABLES `reward_code` WRITE;
 /*!40000 ALTER TABLE `reward_code` DISABLE KEYS */;
+INSERT INTO `reward_code` VALUES (1,1,1,'GP-7QZPYULO','2025-08-29 07:05:55',1,'2025-05-31 07:05:55');
 /*!40000 ALTER TABLE `reward_code` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -398,7 +488,7 @@ CREATE TABLE `routine` (
   PRIMARY KEY (`id_routine`),
   KEY `fk_routine_creator` (`created_by`),
   CONSTRAINT `fk_routine_creator` FOREIGN KEY (`created_by`) REFERENCES `user` (`id_user`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -407,6 +497,7 @@ CREATE TABLE `routine` (
 
 LOCK TABLES `routine` WRITE;
 /*!40000 ALTER TABLE `routine` DISABLE KEYS */;
+INSERT INTO `routine` VALUES (1,'Fuerza Semanal','Rutina enfocada en fuerza para tren superior',1);
 /*!40000 ALTER TABLE `routine` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -436,6 +527,7 @@ CREATE TABLE `routine_exercise` (
 
 LOCK TABLES `routine_exercise` WRITE;
 /*!40000 ALTER TABLE `routine_exercise` DISABLE KEYS */;
+INSERT INTO `routine_exercise` VALUES (1,1,4,10,1),(1,2,3,12,2);
 /*!40000 ALTER TABLE `routine_exercise` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -456,7 +548,7 @@ CREATE TABLE `streak` (
   PRIMARY KEY (`id_streak`),
   KEY `id_user` (`id_user`),
   CONSTRAINT `streak_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -465,7 +557,7 @@ CREATE TABLE `streak` (
 
 LOCK TABLES `streak` WRITE;
 /*!40000 ALTER TABLE `streak` DISABLE KEYS */;
-INSERT INTO `streak` VALUES (1,1,1,1,0,0);
+INSERT INTO `streak` VALUES (1,1,1,1,0,0),(2,2,0,2,NULL,0);
 /*!40000 ALTER TABLE `streak` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -484,12 +576,13 @@ CREATE TABLE `transaction` (
   `date` date NOT NULL,
   `id_reward` int DEFAULT NULL,
   `result_balance` int NOT NULL,
+  `motive` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_transaction`),
   KEY `fk_transaction_user` (`id_user`),
   KEY `fk_transaction_reward` (`id_reward`),
   CONSTRAINT `fk_transaction_reward` FOREIGN KEY (`id_reward`) REFERENCES `reward` (`id_reward`) ON DELETE SET NULL,
   CONSTRAINT `fk_transaction_user` FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -498,7 +591,7 @@ CREATE TABLE `transaction` (
 
 LOCK TABLES `transaction` WRITE;
 /*!40000 ALTER TABLE `transaction` DISABLE KEYS */;
-INSERT INTO `transaction` VALUES (1,1,'GANANCIA',10,'2025-05-26',NULL,10);
+INSERT INTO `transaction` VALUES (1,1,'GANANCIA',10,'2025-05-30',NULL,10,NULL),(2,2,'GANANCIA',200,'2025-05-31',NULL,200,NULL),(3,1,'GANANCIA',200,'2025-05-31',NULL,210,NULL),(4,1,'GANANCIA',200,'2025-05-31',NULL,410,NULL),(5,1,'GANANCIA',200,'2025-05-31',NULL,610,'codigo'),(6,2,'GASTO',100,'2025-05-31',1,100,NULL);
 /*!40000 ALTER TABLE `transaction` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -524,7 +617,7 @@ CREATE TABLE `user` (
   PRIMARY KEY (`id_user`),
   KEY `id_streak` (`id_streak`),
   CONSTRAINT `user_ibfk_1` FOREIGN KEY (`id_streak`) REFERENCES `streak` (`id_streak`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -533,7 +626,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'Gonzalo','gonzalo23@example.com','Gomez','M','Buenos Aires',23,10,'PREMIUM',1,'$2b$10$6QaHLy6dfQksPD0cZDv5DuF3YoZwY2l/ncQRcU/ES9fnlLLTh/ngy');
+INSERT INTO `user` VALUES (1,'Gonzalo','gonzalo@example.com','Gomez','M','Buenos Aires',23,610,'PREMIUM',1,'$2b$10$kjWfjftU9RkPVyM3pl7jhehDcJO00/2HrVP7cEe1wdVsiPRReo.kW'),(2,'Admin','admin@gympoint.com','Principal','M','Resistencia',30,100,'ADMIN',2,'$2b$10$7IUQtRTXQF3xg1/evFC9JeEobV1Ew781vkaddTrYY7uBowcmUYHYi');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -564,6 +657,7 @@ CREATE TABLE `user_gym` (
 
 LOCK TABLES `user_gym` WRITE;
 /*!40000 ALTER TABLE `user_gym` DISABLE KEYS */;
+INSERT INTO `user_gym` VALUES (1,1,'2025-05-31','2025-05-31',0,'completo'),(1,2,'2025-05-31',NULL,1,'musculacion');
 /*!40000 ALTER TABLE `user_gym` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -593,6 +687,7 @@ CREATE TABLE `user_routine` (
 
 LOCK TABLES `user_routine` WRITE;
 /*!40000 ALTER TABLE `user_routine` DISABLE KEYS */;
+INSERT INTO `user_routine` VALUES (1,1,'2025-06-01',NULL,1);
 /*!40000 ALTER TABLE `user_routine` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -605,4 +700,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-26 18:20:44
+-- Dump completed on 2025-06-21 15:46:09

@@ -75,6 +75,17 @@ npm run dev
 npm start
 ```
 
+### Con Docker
+
+```bash
+# Construir la imagen
+docker build -t gympoint-backend .
+# Ejecutar con las variables de entorno de .env
+docker run --env-file .env -p 3000:3000 gympoint-backend
+```
+
+También puedes iniciar todo el proyecto usando `docker compose up` desde la raíz del repositorio.
+
 ---
 
 ## 🔐 Autenticación con Access y Refresh Token

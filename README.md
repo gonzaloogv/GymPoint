@@ -35,3 +35,14 @@ Este repositorio contiene la API del backend y dos clientes frontend para la pla
     ```
 
 Consulta el README del backend para más detalles sobre el entorno, pruebas y demás información.
+
+## Docker
+
+También puedes ejecutar todo el proyecto con Docker Compose:
+
+```bash
+# En la raíz del repositorio
+docker compose up --build
+```
+
+Esto levantará una base de datos MySQL, el backend de Node y la aplicación web en los puertos 3000 y 5173 respectivamente.
