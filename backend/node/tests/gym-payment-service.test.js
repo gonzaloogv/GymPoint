@@ -1,6 +1,7 @@
 jest.mock('../models/GymPayment', () => ({ create: jest.fn(), findAll: jest.fn(), findByPk: jest.fn() }));
 jest.mock('../models/User', () => ({}));
 
+const User = require('../models/User');
 const service = require('../services/gym-payment-service');
 const GymPayment = require('../models/GymPayment');
 

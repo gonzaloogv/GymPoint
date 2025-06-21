@@ -20,10 +20,15 @@ const specialScheduleRoutes = require('./routes/gym-special-schedule-routes');
 const gymPaymentRoutes = require('./routes/gym-payment-routes');
 const rewardCodeRoutes = require('./routes/reward-code-routes');
 const userRoutes = require('./routes/user-routes');
+const cors = require('cors');
 
 dotenv.config();
 
+// Iniciar app
 const app = express();
+
+// Middlewares
+app.use(cors());
 app.use(express.json());
 
 // Testear conexión a MySQL
@@ -50,8 +55,6 @@ app.use('/api/gym-payments', gymPaymentRoutes);
 app.use('/api/reward-codes', rewardCodeRoutes);
 app.use('/api/users', userRoutes);
 
-// 404 handler
-app.use((req, res) => res.status(404).json({ error: 'Not Found' }));
 
 // Confiar proxies
 app.set('trust proxy', true);
@@ -59,8 +62,11 @@ app.set('trust proxy', true);
 // Inicializador de swagger
 setupSwagger(app);
 
+// 404 handler
+app.use((req, res) => res.status(404).json({ error: 'Not Found' }));
+
 // Arrancar servidor
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
