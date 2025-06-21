@@ -1,4 +1,5 @@
 const routineService = require('../services/routine-service');
+const userRoutineService = require ('../services/user-routine-service')
 
 const getRoutineWithExercises = async (req, res) => {
   try {

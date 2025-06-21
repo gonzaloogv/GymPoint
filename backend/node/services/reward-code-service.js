@@ -22,13 +22,19 @@ const crearCodigoParaCanje = async ({ id_reward, id_gym }) => {
 
 const obtenerCodigosPorUsuario = async (id_user, usado) => {
     const where = {};
-  
+
     if (usado !== undefined) {
       where.used = usado === 'true'; // query param viene como string
     }
-  
+
     return await RewardCode.findAll({
       include: [
+        {
+          model: ClaimedReward,
+          where: { id_user },
+          attributes: [],
+          required: true
+        },
         {
           model: Reward,
           attributes: ['name', 'description']
@@ -77,7 +83,7 @@ const obtenerEstadisticasPorGimnasio = async () => {
 
 const obtenerCodigosActivos = async (id_user) => {
     const hoy = new Date();
-  
+
     return await RewardCode.findAll({
       where: {
         used: false,
@@ -89,6 +95,12 @@ const obtenerCodigosActivos = async (id_user) => {
         }
       },
       include: [
+        {
+          model: ClaimedReward,
+          where: { id_user },
+          attributes: [],
+          required: true
+        },
         {
           model: Reward,
           attributes: ['name', 'description']
@@ -118,6 +130,12 @@ const obtenerCodigosExpirados = async (id_user) => {
         ]
       },
       include: [
+        {
+          model: ClaimedReward,
+          where: { id_user },
+          attributes: [],
+          required: true
+        },
         {
           model: Reward,
           attributes: ['name', 'description']

@@ -6,7 +6,12 @@ const otorgarTokens = async ({ id_user, amount, motivo }) => {
   const user = await User.findByPk(id_user);
   if (!user) throw new Error('Usuario no encontrado');
 
-  const nuevoSaldo = user.tokens + amount;
+  const value = Number(amount);
+  if (Number.isNaN(value) || value <= 0) {
+    throw new Error('Monto de tokens inválido');
+  }
+
+  const nuevoSaldo = user.tokens + value;
   user.tokens = nuevoSaldo;
   await user.save();
 
@@ -14,15 +19,15 @@ const otorgarTokens = async ({ id_user, amount, motivo }) => {
     id_user,
     id_reward: null, // se define null debido a que no es un canje
     movement_type: 'GANANCIA',
-    amount,
+    amount: value,
     result_balance: nuevoSaldo,
     date: new Date(),
-    motive: motivo 
+    motive: motivo
   });
 
   return {
     id_user,
-    tokens_antes: nuevoSaldo - amount,
+    tokens_antes: nuevoSaldo - value,
     tokens_actuales: nuevoSaldo,
     motivo,
     fecha: new Date()
