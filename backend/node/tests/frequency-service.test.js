@@ -1,7 +1,11 @@
+jest.mock('../models/Frequency', () => ({
+    findOne: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn()
+}));
+
 const frequencyService = require('../services/frequency-service');
 const Frequency = require('../models/Frequency');
-
-jest.mock('../models/Frequency');
 
 beforeEach(() => {
   jest.clearAllMocks();

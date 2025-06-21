@@ -1,3 +1,25 @@
+jest.mock('bcryptjs');
+jest.mock('../models/User', () => ({
+  findOne: jest.fn(),
+  create: jest.fn(),
+  findByPk: jest.fn()
+}));
+jest.mock('../models/Streak', () => ({
+  create: jest.fn()
+}));
+jest.mock('../models/RefreshToken', () => ({
+  create: jest.fn(),
+  update: jest.fn(),
+  findOne: jest.fn()
+}));
+jest.mock('../services/frequency-service', () => ({
+  crearMetaSemanal: jest.fn()
+}));
+jest.mock('jsonwebtoken', () => ({
+  sign: jest.fn(),
+  verify: jest.fn()
+}));
+
 const authService = require('../services/auth-service');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
@@ -5,13 +27,6 @@ const Streak = require('../models/Streak');
 const RefreshToken = require('../models/RefreshToken');
 const frequencyService = require('../services/frequency-service');
 const jwt = require('jsonwebtoken');
-
-jest.mock('bcryptjs');
-jest.mock('../models/User');
-jest.mock('../models/Streak');
-jest.mock('../models/RefreshToken');
-jest.mock('../services/frequency-service');
-jest.mock('jsonwebtoken');
 
 beforeEach(() => {
   jest.clearAllMocks();

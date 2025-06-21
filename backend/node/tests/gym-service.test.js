@@ -1,7 +1,13 @@
+jest.mock('../models/Gym', () => ({
+    findAll: jest.fn(),
+    findByPk: jest.fn(),
+    create: jest.fn()
+}));
+jest.mock('../models/User', () => ({}));
+jest.mock('../models/GymType', () => jest.fn(() => ({})));
+
 const gymService = require('../services/gym-service');
 const Gym = require('../models/Gym');
-
-jest.mock('../models/Gym');
 
 beforeEach(() => {
   jest.clearAllMocks();

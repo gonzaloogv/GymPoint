@@ -1,7 +1,7 @@
+jest.mock('../services/auth-service');
+
 const authController = require('../controllers/auth-controller');
 const authService = require('../services/auth-service');
-
-jest.mock('../services/auth-service');
 
 describe('auth-controller.login', () => {
   it('returns 200 with tokens', async () => {
