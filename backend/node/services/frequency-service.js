@@ -1,8 +1,8 @@
 const Frequency = require('../models/Frequency');
 
 const crearMetaSemanal = async ({ id_user, goal }) => {
-  // busca si existe frecuencia de usuario
-  const existente = await Frequency.findByPk(id_user);
+  // buscar por id_user ya que el modelo usa id_frequency como PK
+  const existente = await Frequency.findOne({ where: { id_user } });
 
   if (existente) {
     // si ya existe reinicia su meta y contador
@@ -25,7 +25,7 @@ const crearMetaSemanal = async ({ id_user, goal }) => {
 };
 
 const actualizarAsistenciaSemanal = async (id_user) => {
-  const frecuencia = await Frequency.findByPk(id_user);
+  const frecuencia = await Frequency.findOne({ where: { id_user } });
 
   if (!frecuencia || frecuencia.achieved_goal) return;
 
@@ -46,7 +46,7 @@ const reiniciarSemana = async () => {
 };
 
 const consultarMetaSemanal = async (id_user) => {
-  const frecuencia = await Frequency.findByPk(id_user);
+  const frecuencia = await Frequency.findOne({ where: { id_user } });
 
   if (!frecuencia) {
     throw new Error('El usuario no tiene una meta semanal asignada.');
