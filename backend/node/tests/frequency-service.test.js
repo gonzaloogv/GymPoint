@@ -49,3 +49,30 @@ describe('actualizarAsistenciaSemanal', () => {
     expect(freq.save).toHaveBeenCalled();
   });
 });
+describe('reiniciarSemana', () => {
+  it('resets all frequencies', async () => {
+    await frequencyService.reiniciarSemana();
+    expect(Frequency.update).toHaveBeenCalledWith(
+      { assist: 0, achieved_goal: false },
+      { where: {} }
+    );
+  });
+});
+
+describe('consultarMetaSemanal', () => {
+  it('returns frequency when exists', async () => {
+    const freq = { id_frequency: 1 };
+    Frequency.findOne.mockResolvedValue(freq);
+
+    const result = await frequencyService.consultarMetaSemanal(1);
+
+    expect(Frequency.findOne).toHaveBeenCalledWith({ where: { id_user: 1 } });
+    expect(result).toBe(freq);
+  });
+
+  it('throws when frequency not found', async () => {
+    Frequency.findOne.mockResolvedValue(null);
+    await expect(frequencyService.consultarMetaSemanal(2))
+      .rejects.toThrow('El usuario no tiene una meta semanal asignada.');
+  });
+})
