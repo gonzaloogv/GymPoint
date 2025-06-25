@@ -11,7 +11,7 @@ function HeroSection() {
           <button className="btn btn-download">Descargar App</button>
         </div>
         <div className="hero-mockup">
-          <img src="/assets/mockup-phone.png" alt="App Mockup" className="mockup-image" />
+          <img src="https://s3u.tmimgcdn.com/u37752224/b1e630172f01beea978d7619f213e1f6.gif" alt="App Mockup" className="mockup-image" />
         </div>
       </div>
     </section>

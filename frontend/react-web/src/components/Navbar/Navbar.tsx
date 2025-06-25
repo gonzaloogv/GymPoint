@@ -13,9 +13,10 @@ function Navbar() {
           <a href="#social">Redes</a>
         </nav>
         <div className="navbar-buttons">
-        <ThemeToggle />
-          <button className="btn btn-try">Probar Demo</button>
           <button className="btn btn-download">Descargar App</button>
+        </div>
+        <div>
+          <ThemeToggle />
         </div>
       </div>
     </header>
