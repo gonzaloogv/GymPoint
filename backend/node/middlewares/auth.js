@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
-const SECRET = process.env.JWT_SECRET || 'gympoint_secret_key';
+
+const { JWT_SECRET } = process.env;
+if (!JWT_SECRET) throw new Error('JWT_SECRET is required');
 
 const verificarToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -7,7 +9,7 @@ const verificarToken = (req, res, next) => {
 
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
     next();
   } catch {
@@ -17,7 +19,7 @@ const verificarToken = (req, res, next) => {
 
 const verificarRol = (rolPermitido) => {
   return (req, res, next) => {
-    if (!req.user || req.user.rol !== rolPermitido) {
+    if (!req.user || req.user.role !== rolPermitido) {
       return res.status(403).json({ error: 'Acceso denegado' });
     }
     next();
@@ -26,7 +28,7 @@ const verificarRol = (rolPermitido) => {
 
 const verificarRolMultiple = (rolesPermitidos) => {
   return (req, res, next) => {
-    if (!req.user || !rolesPermitidos.includes(req.user.rol)) {
+    if (!req.user || !rolesPermitidos.includes(req.user.role)) {
       return res.status(403).json({ error: 'Acceso denegado' });
     }
     next();

@@ -32,8 +32,8 @@ const User = sequelize.define('User', {
     type: DataTypes.TINYINT, 
     allowNull: false 
   },
-  password: { 
-    type: DataTypes.STRING, 
+  password: {
+    type: DataTypes.STRING,
     allowNull: false 
   },
   subscription: { 

@@ -20,7 +20,19 @@ const obtenerPerfil = async (req, res) => {
   }
 };
 
+const cambiarPassword = async (req, res) => {
+  try {
+    const id_user = req.user.id;
+    const { currentPassword, newPassword } = req.body;
+    await userService.cambiarPassword(id_user, currentPassword, newPassword);
+    res.json({ message: 'Contraseña actualizada' });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 module.exports = {
   actualizarPerfil,
-  obtenerPerfil
+  obtenerPerfil,
+  cambiarPassword
 };

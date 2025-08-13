@@ -1,14 +1,22 @@
 const jwt = require('jsonwebtoken');
-const SECRET = process.env.JWT_SECRET || 'gympoint_secret';
+
+const { JWT_SECRET } = process.env;
+if (!JWT_SECRET) throw new Error('JWT_SECRET is required');
+
+/**
+ * Genera un access token con el rol real del usuario.
+ * @param {{id_user:number, role:string}} user
+ * @returns {string}
+ */
 
 const generarToken = (user) => {
   return jwt.sign(
     {
       id: user.id_user,
-      rol: user.subscription
+      role: user.role
     },
-    SECRET,
-    { expiresIn: '15m' } // ✅ Access token corto
+    JWT_SECRET,
+    { expiresIn: '15m' }
   );
 };
 

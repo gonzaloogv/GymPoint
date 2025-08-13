@@ -5,6 +5,11 @@ const Streak = require('../models/Streak');
 const RefreshToken = require('../models/RefreshToken');
 const frequencyService = require('../services/frequency-service');
 
+const { JWT_SECRET, JWT_REFRESH_SECRET } = process.env;
+if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
+  throw new Error('JWT secrets are required');
+}
+
 const ACCESS_EXPIRATION = '15m';
 const REFRESH_EXPIRATION_DAYS = 30;
 
@@ -15,7 +20,7 @@ const register = async (data) => {
   if (existente) throw new Error('El email ya está registrado');
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await User.create({ ...resto, password: hashedPassword });
+  const user = await User.create({ ...resto, password: hashedPassword, role: 'USER' });
 
   const frecuencia = await frequencyService.crearMetaSemanal({
     id_user: user.id_user,
@@ -41,10 +46,10 @@ const generateAccessToken = (user) => {
   return jwt.sign(
     {
       id: user.id_user,
-      rol: user.subscription,
+      role: user.role,
       email: user.email
     },
-    process.env.JWT_SECRET,
+    JWT_SECRET,
     { expiresIn: ACCESS_EXPIRATION }
   );
 };
@@ -52,7 +57,7 @@ const generateAccessToken = (user) => {
 const generateRefreshToken = async (user, req) => {
   const refreshToken = jwt.sign(
     { id_user: user.id_user },
-    process.env.JWT_REFRESH_SECRET,
+    JWT_REFRESH_SECRET,
     { expiresIn: `${REFRESH_EXPIRATION_DAYS}d` }
   );
 

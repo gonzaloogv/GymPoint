@@ -145,7 +145,7 @@ describe('getGymsByCity', () => {
 
 describe('filtrarGimnasios', () => {
   it('blocks type filter for non premium', async () => {
-    const req = { user:{ id:1, rol:'FREE' }, query:{ type:'x' } };
+    const req = { user:{ id:1, role:'FREE' }, query:{ type:'x' } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
     await controller.filtrarGimnasios(req, res);
@@ -155,7 +155,7 @@ describe('filtrarGimnasios', () => {
   });
 
   it('calls service with params', async () => {
-    const req = { user:{ id:1, rol:'PREMIUM' }, query:{ city:'a', type:'t', minPrice:'1', maxPrice:'2' } };
+     const req = { user:{ id:1, role:'PREMIUM' }, query:{ city:'a', type:'t', minPrice:'1', maxPrice:'2' } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.filtrarGimnasios.mockResolvedValue({ resultados:['g'], advertencia:null });
 

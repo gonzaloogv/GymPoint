@@ -38,13 +38,13 @@ npm install
 
 ## 📞 Variables de entorno
 
-Crear un archivo `.env` en la raíz con:
+Crea un archivo `.env` en la raíz basado en `.env.example` y completa los valores:
 
 ```env
 # Base de datos
 DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=mitre280
+DB_USER=user
+DB_PASSWORD=pass
 DB_NAME=gympoint
 DB_PORT=3306
 
@@ -52,11 +52,11 @@ DB_PORT=3306
 PORT=3000
 
 # JWT
-JWT_SECRET=clave_super_secreta_para_tokens
-JWT_REFRESH_SECRET=clave_distinta_para_refresh
+JWT_SECRET=change_me
+JWT_REFRESH_SECRET=change_me_refresh
 
 # Google
-GOOGLE_CLIENT_ID=287573324529-6dratpth8ik6jr9ppdpf2nv666e0mv9b.apps.googleusercontent.com
+GOOGLE_CLIENT_ID=your_google_client_id
 ```
 
 ---

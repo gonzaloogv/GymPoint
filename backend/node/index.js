@@ -20,6 +20,8 @@ const specialScheduleRoutes = require('./routes/gym-special-schedule-routes');
 const gymPaymentRoutes = require('./routes/gym-payment-routes');
 const rewardCodeRoutes = require('./routes/reward-code-routes');
 const userRoutes = require('./routes/user-routes');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 
 dotenv.config();
@@ -28,7 +30,9 @@ dotenv.config();
 const app = express();
 
 // Middlewares
-app.use(cors());
+app.use(helmet());
+app.use(cors({ origin: ['http://localhost:5173', 'https://tu-dominio'], credentials: true }));
+app.use(rateLimit({ windowMs: 15*60*1000, max: 200 })); // y uno más estricto en /api/auth/login
 app.use(express.json());
 
 // Testear conexión a MySQL

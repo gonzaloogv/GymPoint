@@ -20,6 +20,9 @@ jest.mock('jsonwebtoken', () => ({
   verify: jest.fn()
 }));
 
+process.env.JWT_SECRET = 'test_secret';
+process.env.JWT_REFRESH_SECRET = 'refresh_secret';
+
 const authService = require('../services/auth-service');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
@@ -48,14 +51,14 @@ describe('auth-service.register', () => {
 
     User.findOne.mockResolvedValue(null);
     bcrypt.hash.mockResolvedValue('hashed');
-    const created = { id_user: 1, save: jest.fn() };
+    const created = { id_user: 1, save: jest.fn(), role: 'USER' };
     User.create.mockResolvedValue(created);
     frequencyService.crearMetaSemanal.mockResolvedValue({ id_frequency: 2 });
     Streak.create.mockResolvedValue({ id_streak: 5 });
 
     const user = await authService.register(data);
 
-    expect(User.create).toHaveBeenCalledWith(expect.objectContaining({ password: 'hashed' }));
+    expect(User.create).toHaveBeenCalledWith(expect.objectContaining({ password: 'hashed', role: 'USER' }));
     expect(created.save).toHaveBeenCalled();
     expect(user).toBe(created);
   });
@@ -72,7 +75,7 @@ describe('auth-service.login', () => {
   const req = { headers: {}, ip: '127.0.0.1', connection: {} };
 
   it('returns tokens when credentials are valid', async () => {
-    const fakeUser = { id_user: 2, password: 'hash', subscription: 'FREE', email: 'a@a.com' };
+    const fakeUser = { id_user: 2, password: 'hash', subscription: 'FREE', role: 'USER', email: 'a@a.com' };
     User.findOne.mockResolvedValue(fakeUser);
     bcrypt.compare.mockResolvedValue(true);
     jwt.sign
