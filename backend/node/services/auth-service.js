@@ -4,9 +4,10 @@ const User = require('../models/User');
 const Streak = require('../models/Streak');
 const RefreshToken = require('../models/RefreshToken');
 const frequencyService = require('../services/frequency-service');
+const nodeCrypto = require('crypto');
 
-const { JWT_SECRET, JWT_REFRESH_SECRET } = process.env;
-if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
+const { JWT_SECRET, JWT_REFRESH_SECRET, NODE_ENV } = process.env;
+if ((!JWT_SECRET || !JWT_REFRESH_SECRET) && NODE_ENV !== 'test') {
   throw new Error('JWT secrets are required');
 }
 
@@ -61,9 +62,11 @@ const generateRefreshToken = async (user, req) => {
     expiresIn: `${REFRESH_EXPIRATION_DAYS}d`,
   });
 
+  const tokenHash = nodeCrypto.createHash('sha256').update(refreshToken).digest('hex');
+
   await RefreshToken.create({
     id_user: user.id_user,
-    token: refreshToken,
+    token_hash: tokenHash,
     user_agent: req.headers['user-agent'] || '',
     ip_address:
       req.headers['x-forwarded-for']?.split(',')[0] ||
@@ -89,4 +92,4 @@ const login = async (email, password, req) => {
   return { token, refreshToken, user };
 };
 
-module.exports = { register, login };
+module.exports = { register, login, generateAccessToken, generateRefreshToken };

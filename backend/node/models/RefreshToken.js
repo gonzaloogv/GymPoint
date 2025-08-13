@@ -13,8 +13,8 @@ const RefreshToken = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    token: {
-      type: DataTypes.TEXT,
+    token_hash: {
+      type: DataTypes.STRING(64),
       allowNull: false,
     },
     user_agent: {

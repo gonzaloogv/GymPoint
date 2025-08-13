@@ -2,6 +2,15 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/assistance-controller');
 const { verificarToken } = require('../middlewares/auth');
+const validate = require('../middlewares/validate');
+const { z } = require('zod');
+
+const asistenciaSchema = z.object({
+  id_user: z.number(),
+  id_gym: z.number(),
+  latitude: z.number(),
+  longitude: z.number(),
+});
 
 // Registrar asistencia con validación GPS + tokens + racha
 /**
@@ -61,7 +70,12 @@ const { verificarToken } = require('../middlewares/auth');
  *       403:
  *         description: Usuario fuera de rango o sin racha válida
  */
-router.post('/registrar', controller.registrarAsistencia);
+router.post(
+  '/registrar',
+  verificarToken,
+  validate(asistenciaSchema),
+  controller.registrarAsistencia
+);
 /**
  * @swagger
  * /api/assistances/me:

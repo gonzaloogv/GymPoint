@@ -34,7 +34,8 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude }) => 
     throw new Error('Gimnasio no encontrado');
   }
   const distancia = calcularDistancia(latitude, longitude, gym.latitude, gym.longitude);
-  if (distancia > 15) {
+  const maxDist = parseInt(process.env.CHECKIN_MAX_DISTANCE_M || '30', 10);
+  if (distancia > maxDist) {
     throw new Error(`Estás fuera del rango del gimnasio (distancia: ${Math.round(distancia)} m)`);
   }
 
