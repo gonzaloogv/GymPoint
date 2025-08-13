@@ -3,7 +3,9 @@ jest.mock('../services/exercise-service');
 const controller = require('../controllers/exercise-controller');
 const service = require('../services/exercise-service');
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('getAllExercises', () => {
   it('returns all exercises', async () => {

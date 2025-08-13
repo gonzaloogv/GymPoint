@@ -1,11 +1,15 @@
 const jwt = require('jsonwebtoken');
 
 const { JWT_SECRET } = process.env;
-if (!JWT_SECRET) throw new Error('JWT_SECRET is required');
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET is required');
+}
 
 const verificarToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).json({ error: 'Token requerido' });
+  if (!authHeader) {
+    return res.status(401).json({ error: 'Token requerido' });
+  }
 
   const token = authHeader.split(' ')[1];
   try {
@@ -38,5 +42,5 @@ const verificarRolMultiple = (rolesPermitidos) => {
 module.exports = {
   verificarToken,
   verificarRol,
-  verificarRolMultiple
+  verificarRolMultiple,
 };

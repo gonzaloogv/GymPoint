@@ -18,7 +18,7 @@ const crearMetaSemanal = async ({ id_user, goal }) => {
     id_user,
     goal,
     assist: 0,
-    achieved_goal: false
+    achieved_goal: false,
   });
 
   return nueva;
@@ -27,7 +27,9 @@ const crearMetaSemanal = async ({ id_user, goal }) => {
 const actualizarAsistenciaSemanal = async (id_user) => {
   const frecuencia = await Frequency.findOne({ where: { id_user } });
 
-  if (!frecuencia || frecuencia.achieved_goal) return;
+  if (!frecuencia || frecuencia.achieved_goal) {
+    return;
+  }
 
   frecuencia.assist += 1;
 
@@ -39,10 +41,7 @@ const actualizarAsistenciaSemanal = async (id_user) => {
 };
 
 const reiniciarSemana = async () => {
-  await Frequency.update(
-    { assist: 0, achieved_goal: false },
-    { where: {} }
-  );
+  await Frequency.update({ assist: 0, achieved_goal: false }, { where: {} });
 };
 
 const consultarMetaSemanal = async (id_user) => {
@@ -59,5 +58,5 @@ module.exports = {
   crearMetaSemanal,
   actualizarAsistenciaSemanal,
   reiniciarSemana,
-  consultarMetaSemanal
+  consultarMetaSemanal,
 };

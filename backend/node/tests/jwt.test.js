@@ -10,5 +10,5 @@ describe('generarToken', () => {
 
     expect(payload.id).toBe(user.id_user);
     expect(payload.role).toBe(user.role);
-    });
+  });
 });

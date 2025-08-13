@@ -3,11 +3,16 @@ jest.mock('../services/gym-payment-service');
 const controller = require('../controllers/gym-payment-controller');
 const service = require('../services/gym-payment-service');
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('registrarPago', () => {
   it('creates payment', async () => {
-    const req = { user:{ id:1 }, body:{ id_gym:1,mount:10,payment_method:'cash',payment_date:'d',status:'OK' } };
+    const req = {
+      user: { id: 1 },
+      body: { id_gym: 1, mount: 10, payment_method: 'cash', payment_date: 'd', status: 'OK' },
+    };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.registrarPago.mockResolvedValue('p');
 
@@ -19,7 +24,7 @@ describe('registrarPago', () => {
   });
 
   it('validates body fields', async () => {
-    const req = { user:{ id:1 }, body:{} };
+    const req = { user: { id: 1 }, body: {} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
     await controller.registrarPago(req, res);
@@ -31,7 +36,8 @@ describe('registrarPago', () => {
 
 describe('obtenerPagosPorUsuario', () => {
   it('returns list', async () => {
-    const req = { user:{ id:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user: { id: 1 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerPagosPorUsuario.mockResolvedValue(['p']);
 
     await controller.obtenerPagosPorUsuario(req, res);
@@ -43,7 +49,8 @@ describe('obtenerPagosPorUsuario', () => {
 
 describe('obtenerPagosPorGimnasio', () => {
   it('returns list', async () => {
-    const req = { params:{ id_gym:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { params: { id_gym: 1 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerPagosPorGimnasio.mockResolvedValue(['p']);
 
     await controller.obtenerPagosPorGimnasio(req, res);
@@ -55,7 +62,7 @@ describe('obtenerPagosPorGimnasio', () => {
 
 describe('actualizarEstadoPago', () => {
   it('requires status', async () => {
-    const req = { params:{ id_payment:1 }, body:{} };
+    const req = { params: { id_payment: 1 }, body: {} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
     await controller.actualizarEstadoPago(req, res);
@@ -65,7 +72,7 @@ describe('actualizarEstadoPago', () => {
   });
 
   it('updates payment', async () => {
-    const req = { params:{ id_payment:1 }, body:{ status:'OK' } };
+    const req = { params: { id_payment: 1 }, body: { status: 'OK' } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.actualizarEstadoPago.mockResolvedValue('u');
 

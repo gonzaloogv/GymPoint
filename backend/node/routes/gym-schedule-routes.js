@@ -100,6 +100,11 @@ router.get('/:id_gym', controller.obtenerHorariosPorGimnasio);
  *       404:
  *         description: Horario no encontrado
  */
-router.put('/:id_schedule', verificarToken, verificarRolMultiple(['ADMIN', 'GYM']), controller.actualizarHorario);
+router.put(
+  '/:id_schedule',
+  verificarToken,
+  verificarRolMultiple(['ADMIN', 'GYM']),
+  controller.actualizarHorario
+);
 
 module.exports = router;

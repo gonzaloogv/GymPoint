@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/reward-controller');
-const { verificarToken , verificarRol } = require('../middlewares/auth');
+const { verificarToken, verificarRol } = require('../middlewares/auth');
 
 /**
  * @swagger

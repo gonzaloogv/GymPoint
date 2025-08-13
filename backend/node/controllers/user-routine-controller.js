@@ -8,7 +8,7 @@ const assignRoutineToUser = async (req, res) => {
     const routine = await userRoutineService.assignRoutineToUser({
       id_user,
       id_routine,
-      start_date
+      start_date,
     });
 
     res.status(201).json(routine);
@@ -51,5 +51,5 @@ module.exports = {
   assignRoutineToUser,
   getActiveRoutine,
   endUserRoutine,
-  getActiveRoutineWithExercises
+  getActiveRoutineWithExercises,
 };

@@ -2,7 +2,7 @@ const progressService = require('../services/progress-service');
 
 const registrarProgreso = async (req, res) => {
   try {
-    const id_user = req.user.id // token
+    const id_user = req.user.id; // token
     const { date, body_weight, body_fat, ejercicios } = req.body;
 
     const progreso = await progressService.registrarProgreso({
@@ -10,7 +10,7 @@ const registrarProgreso = async (req, res) => {
       date,
       body_weight,
       body_fat,
-      ejercicios
+      ejercicios,
     });
 
     res.status(201).json(progreso);
@@ -65,11 +65,10 @@ const obtenerHistorialPorEjercicio = async (req, res) => {
 const obtenerMejorLevantamiento = async (req, res) => {
   try {
     const id_user = req.user.id;
-    const mejor = await progressService.obtenerMejorLevantamiento(
-      id_user,
-      req.params.id_exercise
-    );
-    if (!mejor) return res.status(404).json({ error: 'No se encontraron registros' });
+    const mejor = await progressService.obtenerMejorLevantamiento(id_user, req.params.id_exercise);
+    if (!mejor) {
+      return res.status(404).json({ error: 'No se encontraron registros' });
+    }
     res.json(mejor);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -83,13 +82,15 @@ const obtenerPromedioLevantamiento = async (req, res) => {
       id_user,
       req.params.id_exercise
     );
-    if (!data) return res.status(404).json({ error: 'No se encontraron registros' });
+    if (!data) {
+      return res.status(404).json({ error: 'No se encontraron registros' });
+    }
     res.json(data);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
-  
+
 module.exports = {
   registrarProgreso,
   obtenerProgresoPorUsuario,
@@ -97,5 +98,5 @@ module.exports = {
   obtenerHistorialEjercicios,
   obtenerHistorialPorEjercicio,
   obtenerMejorLevantamiento,
-  obtenerPromedioLevantamiento
+  obtenerPromedioLevantamiento,
 };

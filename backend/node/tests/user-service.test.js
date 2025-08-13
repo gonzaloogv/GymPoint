@@ -1,9 +1,9 @@
 jest.mock('../models/User', () => ({
-    findByPk: jest.fn()
-  }));
+  findByPk: jest.fn(),
+}));
 jest.mock('bcryptjs', () => ({
   compare: jest.fn(),
-  hash: jest.fn()
+  hash: jest.fn(),
 }));
 
 const userService = require('../services/user-service');
@@ -19,7 +19,11 @@ describe('actualizarPerfil', () => {
     const instance = { update: jest.fn().mockResolvedValue('updated') };
     User.findByPk.mockResolvedValue(instance);
 
-    const result = await userService.actualizarPerfil(1, { name: 'new', role: 'ADMIN', subscription: 'PREMIUM' });
+    const result = await userService.actualizarPerfil(1, {
+      name: 'new',
+      role: 'ADMIN',
+      subscription: 'PREMIUM',
+    });
 
     expect(instance.update).toHaveBeenCalledWith({ name: 'new' });
     expect(result).toBe('updated');
@@ -48,7 +52,9 @@ describe('cambiarPassword', () => {
     User.findByPk.mockResolvedValue(instance);
     bcrypt.compare.mockResolvedValue(false);
 
-    await expect(userService.cambiarPassword(1, 'bad', 'new')).rejects.toThrow('Contraseña actual incorrecta');
+    await expect(userService.cambiarPassword(1, 'bad', 'new')).rejects.toThrow(
+      'Contraseña actual incorrecta'
+    );
   });
 });
 

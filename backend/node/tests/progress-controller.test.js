@@ -5,17 +5,19 @@ jest.mock('../services/progress-service', () => ({
   obtenerHistorialEjercicios: jest.fn(),
   obtenerHistorialPorEjercicio: jest.fn(),
   obtenerMejorLevantamiento: jest.fn(),
-  obtenerPromedioLevantamiento: jest.fn()
+  obtenerPromedioLevantamiento: jest.fn(),
 }));
 
 const controller = require('../controllers/progress-controller');
 const service = require('../services/progress-service');
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('registrarProgreso', () => {
   it('creates progress', async () => {
-    const req = { user:{ id:1 }, body:{} };
+    const req = { user: { id: 1 }, body: {} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.registrarProgreso.mockResolvedValue('p');
 
@@ -27,7 +29,7 @@ describe('registrarProgreso', () => {
   });
 
   it('handles errors', async () => {
-    const req = { user:{ id:1 }, body:{} };
+    const req = { user: { id: 1 }, body: {} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.registrarProgreso.mockRejectedValue(new Error('e'));
 
@@ -40,7 +42,8 @@ describe('registrarProgreso', () => {
 
 describe('obtenerProgresoPorUsuario', () => {
   it('returns list', async () => {
-    const req = { user:{ id:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user: { id: 1 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerProgresoPorUsuario.mockResolvedValue(['p']);
 
     await controller.obtenerProgresoPorUsuario(req, res);
@@ -52,7 +55,8 @@ describe('obtenerProgresoPorUsuario', () => {
 
 describe('obtenerEstadisticaPeso', () => {
   it('returns data', async () => {
-    const req = { user:{ id:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user: { id: 1 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerEstadisticaPeso.mockResolvedValue('d');
 
     await controller.obtenerEstadisticaPeso(req, res);
@@ -64,7 +68,8 @@ describe('obtenerEstadisticaPeso', () => {
 
 describe('obtenerHistorialEjercicios', () => {
   it('returns data', async () => {
-    const req = { user:{ id:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user: { id: 1 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerHistorialEjercicios.mockResolvedValue(['d']);
 
     await controller.obtenerHistorialEjercicios(req, res);
@@ -76,7 +81,8 @@ describe('obtenerHistorialEjercicios', () => {
 
 describe('obtenerHistorialPorEjercicio', () => {
   it('returns data', async () => {
-    const req = { user:{ id:1 }, params:{ id_exercise:2 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user: { id: 1 }, params: { id_exercise: 2 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerHistorialPorEjercicio.mockResolvedValue(['d']);
 
     await controller.obtenerHistorialPorEjercicio(req, res);
@@ -88,17 +94,19 @@ describe('obtenerHistorialPorEjercicio', () => {
 
 describe('obtenerMejorLevantamiento', () => {
   it('returns best', async () => {
-    const req = { user:{ id:1 }, params:{ id_exercise:2 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user: { id: 1 }, params: { id_exercise: 2 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerMejorLevantamiento.mockResolvedValue('m');
 
     await controller.obtenerMejorLevantamiento(req, res);
 
-    expect(service.obtenerMejorLevantamiento).toHaveBeenCalledWith(1,2);
+    expect(service.obtenerMejorLevantamiento).toHaveBeenCalledWith(1, 2);
     expect(res.json).toHaveBeenCalledWith('m');
   });
 
   it('404 when none', async () => {
-    const req = { user:{ id:1 }, params:{ id_exercise:2 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user: { id: 1 }, params: { id_exercise: 2 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerMejorLevantamiento.mockResolvedValue(null);
 
     await controller.obtenerMejorLevantamiento(req, res);
@@ -110,17 +118,19 @@ describe('obtenerMejorLevantamiento', () => {
 
 describe('obtenerPromedioLevantamiento', () => {
   it('returns average', async () => {
-    const req = { user:{ id:1 }, params:{ id_exercise:2 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user: { id: 1 }, params: { id_exercise: 2 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerPromedioLevantamiento.mockResolvedValue('a');
 
     await controller.obtenerPromedioLevantamiento(req, res);
 
-    expect(service.obtenerPromedioLevantamiento).toHaveBeenCalledWith(1,2);
+    expect(service.obtenerPromedioLevantamiento).toHaveBeenCalledWith(1, 2);
     expect(res.json).toHaveBeenCalledWith('a');
   });
 
   it('404 when none', async () => {
-    const req = { user:{ id:1 }, params:{ id_exercise:2 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user: { id: 1 }, params: { id_exercise: 2 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerPromedioLevantamiento.mockResolvedValue(null);
 
     await controller.obtenerPromedioLevantamiento(req, res);

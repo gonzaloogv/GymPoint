@@ -32,12 +32,13 @@ const app = express();
 // Middlewares
 app.use(helmet());
 app.use(cors({ origin: ['http://localhost:5173', 'https://tu-dominio'], credentials: true }));
-app.use(rateLimit({ windowMs: 15*60*1000, max: 200 })); // y uno más estricto en /api/auth/login
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 200 })); // y uno más estricto en /api/auth/login
 app.use(express.json());
 
 // Testear conexión a MySQL
-sequelize.authenticate()
-  .then(() => console.log('✅ Conexión con MySQL establecida correctamente.'))
+sequelize
+  .authenticate()
+  .then(() => console.info('✅ Conexión con MySQL establecida correctamente.'))
   .catch((err) => console.error('❌ Error al conectar con MySQL:', err));
 
 // Rutas
@@ -59,7 +60,6 @@ app.use('/api/gym-payments', gymPaymentRoutes);
 app.use('/api/reward-codes', rewardCodeRoutes);
 app.use('/api/users', userRoutes);
 
-
 // Confiar proxies
 app.set('trust proxy', true);
 
@@ -72,5 +72,5 @@ app.use((req, res) => res.status(404).json({ error: 'Not Found' }));
 // Arrancar servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.info(`🚀 Server running on port ${PORT}`);
 });

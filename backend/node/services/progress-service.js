@@ -8,7 +8,7 @@ const registrarProgreso = async ({ id_user, date, body_weight, body_fat, ejercic
     id_user,
     date,
     body_weight,
-    body_fat
+    body_fat,
   });
 
   // registrar ejercicios asociados
@@ -17,7 +17,7 @@ const registrarProgreso = async ({ id_user, date, body_weight, body_fat, ejercic
       id_progress: progreso.id_progress,
       id_exercise: ex.id_exercise,
       used_weight: ex.used_weight,
-      reps: ex.reps
+      reps: ex.reps,
     });
   }
 
@@ -27,7 +27,7 @@ const registrarProgreso = async ({ id_user, date, body_weight, body_fat, ejercic
 const obtenerProgresoPorUsuario = async (id_user) => {
   return await Progress.findAll({
     where: { id_user },
-    order: [['date', 'DESC']]
+    order: [['date', 'DESC']],
   });
 };
 
@@ -35,7 +35,7 @@ const obtenerEstadisticaPeso = async (id_user) => {
   const registros = await Progress.findAll({
     where: { id_user },
     attributes: ['date', 'body_weight'],
-    order: [['date', 'ASC']]
+    order: [['date', 'ASC']],
   });
 
   return registros;
@@ -45,82 +45,90 @@ const obtenerHistorialEjercicios = async (id_user) => {
   // obtener progresos de usuario
   const progresos = await Progress.findAll({
     where: { id_user },
-    attributes: ['id_progress', 'date']
+    attributes: ['id_progress', 'date'],
   });
 
   // si no hay progresos devolvemos vacio
-  if (!progresos.length) return [];
+  if (!progresos.length) {
+    return [];
+  }
 
   const idMap = {};
-  progresos.forEach(p => idMap[p.id_progress] = p.date);
+  progresos.forEach((p) => (idMap[p.id_progress] = p.date));
 
-  const ids = progresos.map(p => p.id_progress);
+  const ids = progresos.map((p) => p.id_progress);
 
   // traer registros de ejercicios de esos progresos
   const ejercicios = await ProgressExercise.findAll({
     where: {
       id_progress: {
-        [Op.in]: ids
-      }
-    }
+        [Op.in]: ids,
+      },
+    },
   });
 
   // enlazamos la fecha a cada registro
-  return ejercicios.map(e => ({
+  return ejercicios.map((e) => ({
     date: idMap[e.id_progress],
     id_exercise: e.id_exercise,
     used_weight: e.used_weight,
-    reps: e.reps
+    reps: e.reps,
   }));
 };
 
 const obtenerHistorialPorEjercicio = async (id_user, id_exercise) => {
   const progresos = await Progress.findAll({
     where: { id_user },
-    attributes: ['id_progress', 'date']
+    attributes: ['id_progress', 'date'],
   });
 
-  if (!progresos.length) return [];
+  if (!progresos.length) {
+    return [];
+  }
 
   const idMap = {};
-  progresos.forEach(p => idMap[p.id_progress] = p.date);
+  progresos.forEach((p) => (idMap[p.id_progress] = p.date));
 
-  const ids = progresos.map(p => p.id_progress);
+  const ids = progresos.map((p) => p.id_progress);
 
   const registros = await ProgressExercise.findAll({
     where: {
       id_progress: { [Op.in]: ids },
-      id_exercise: id_exercise
-    }
+      id_exercise: id_exercise,
+    },
   });
 
-  return registros.map(r => ({
+  return registros.map((r) => ({
     date: idMap[r.id_progress],
     used_weight: r.used_weight,
-    reps: r.reps
+    reps: r.reps,
   }));
 };
 
 const obtenerMejorLevantamiento = async (id_user, id_exercise) => {
   const progresos = await Progress.findAll({
     where: { id_user },
-    attributes: ['id_progress', 'date']
+    attributes: ['id_progress', 'date'],
   });
 
-  if (!progresos.length) return null;
+  if (!progresos.length) {
+    return null;
+  }
 
   const idMap = {};
-  progresos.forEach(p => idMap[p.id_progress] = p.date);
-  const ids = progresos.map(p => p.id_progress);
+  progresos.forEach((p) => (idMap[p.id_progress] = p.date));
+  const ids = progresos.map((p) => p.id_progress);
 
   const registros = await ProgressExercise.findAll({
     where: {
       id_progress: { [Op.in]: ids },
-      id_exercise
-    }
+      id_exercise,
+    },
   });
 
-  if (!registros.length) return null;
+  if (!registros.length) {
+    return null;
+  }
 
   const mejor = registros.reduce((max, actual) => {
     return actual.used_weight > max.used_weight ? actual : max;
@@ -129,28 +137,32 @@ const obtenerMejorLevantamiento = async (id_user, id_exercise) => {
   return {
     date: idMap[mejor.id_progress],
     used_weight: mejor.used_weight,
-    reps: mejor.reps
+    reps: mejor.reps,
   };
 };
 
 const obtenerPromedioLevantamiento = async (id_user, id_exercise) => {
   const progresos = await Progress.findAll({
     where: { id_user },
-    attributes: ['id_progress']
+    attributes: ['id_progress'],
   });
 
-  if (!progresos.length) return null;
+  if (!progresos.length) {
+    return null;
+  }
 
-  const ids = progresos.map(p => p.id_progress);
+  const ids = progresos.map((p) => p.id_progress);
 
   const registros = await ProgressExercise.findAll({
     where: {
       id_progress: { [Op.in]: ids },
-      id_exercise
-    }
+      id_exercise,
+    },
   });
 
-  if (!registros.length) return null;
+  if (!registros.length) {
+    return null;
+  }
 
   const total = registros.length;
   const suma_peso = registros.reduce((sum, r) => sum + r.used_weight, 0);
@@ -158,10 +170,10 @@ const obtenerPromedioLevantamiento = async (id_user, id_exercise) => {
 
   return {
     promedio_peso: parseFloat((suma_peso / total).toFixed(2)),
-    promedio_reps: parseFloat((suma_reps / total).toFixed(2))
+    promedio_reps: parseFloat((suma_reps / total).toFixed(2)),
   };
-};  
-  
+};
+
 module.exports = {
   registrarProgreso,
   obtenerProgresoPorUsuario,
@@ -169,5 +181,5 @@ module.exports = {
   obtenerHistorialEjercicios,
   obtenerHistorialPorEjercicio,
   obtenerMejorLevantamiento,
-  obtenerPromedioLevantamiento
+  obtenerPromedioLevantamiento,
 };

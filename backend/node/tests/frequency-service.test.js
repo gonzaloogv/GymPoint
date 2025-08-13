@@ -1,7 +1,7 @@
 jest.mock('../models/Frequency', () => ({
-    findOne: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn()
+  findOne: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
 }));
 
 const frequencyService = require('../services/frequency-service');
@@ -19,7 +19,12 @@ describe('crearMetaSemanal', () => {
 
     const result = await frequencyService.crearMetaSemanal({ id_user: 1, goal: 3 });
 
-    expect(Frequency.create).toHaveBeenCalledWith({ id_user: 1, goal: 3, assist: 0, achieved_goal: false });
+    expect(Frequency.create).toHaveBeenCalledWith({
+      id_user: 1,
+      goal: 3,
+      assist: 0,
+      achieved_goal: false,
+    });
     expect(result).toBe(created);
   });
 
@@ -72,7 +77,8 @@ describe('consultarMetaSemanal', () => {
 
   it('throws when frequency not found', async () => {
     Frequency.findOne.mockResolvedValue(null);
-    await expect(frequencyService.consultarMetaSemanal(2))
-      .rejects.toThrow('El usuario no tiene una meta semanal asignada.');
+    await expect(frequencyService.consultarMetaSemanal(2)).rejects.toThrow(
+      'El usuario no tiene una meta semanal asignada.'
+    );
   });
-})
+});

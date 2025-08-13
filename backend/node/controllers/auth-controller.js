@@ -36,7 +36,7 @@ const googleLogin = async (req, res) => {
   try {
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID
+      audience: process.env.GOOGLE_CLIENT_ID,
     });
 
     const payload = ticket.getPayload();
@@ -53,24 +53,23 @@ const googleLogin = async (req, res) => {
         locality: '',
         age: 0,
         subscription: 'FREE',
-        tokens: 0
+        role: 'USER',
+        tokens: 0,
       });
     }
 
     const accessToken = generarToken(user);
 
-    const refreshToken = jwt.sign(
-      { id_user: user.id_user },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: '7d' }
-    );
+    const refreshToken = jwt.sign({ id_user: user.id_user }, process.env.JWT_REFRESH_SECRET, {
+      expiresIn: '7d',
+    });
 
     await RefreshToken.create({
       id_user: user.id_user,
       token: refreshToken,
       user_agent: req.headers['user-agent'] || '',
       ip_address: req.ip || '',
-      expires_at: new Date(Date.now() + 7 * 86400000)
+      expires_at: new Date(Date.now() + 7 * 86400000),
     });
 
     res.json({ user, accessToken, refreshToken });
@@ -93,11 +92,14 @@ const refreshAccessToken = async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
     const user = await User.findByPk(decoded.id_user);
 
-    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
 
     const accessToken = generarToken(user);
     res.json({ accessToken });
   } catch (err) {
+    console.info(err);
     res.status(401).json({ error: 'Token inválido o expirado' });
   }
 };
@@ -110,10 +112,7 @@ const logout = async (req, res) => {
   }
 
   try {
-    const [affectedRows] = await RefreshToken.update(
-      { revoked: true },
-      { where: { token } }
-    );
+    const [affectedRows] = await RefreshToken.update({ revoked: true }, { where: { token } });
 
     if (affectedRows === 0) {
       return res.status(404).json({ error: 'Refresh token no encontrado o ya revocado' });
@@ -131,5 +130,5 @@ module.exports = {
   login,
   googleLogin,
   refreshAccessToken,
-  logout
+  logout,
 };

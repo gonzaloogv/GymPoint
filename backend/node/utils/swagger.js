@@ -6,33 +6,33 @@ const swaggerDefinition = {
   info: {
     title: 'GymPoint API',
     version: '1.0.0',
-    description: 'Documentación de la API del sistema GymPoint'
+    description: 'Documentación de la API del sistema GymPoint',
   },
   servers: [
     {
       url: 'http://localhost:3000',
-      description: 'Servidor local'
-    }
+      description: 'Servidor local',
+    },
   ],
   components: {
     securitySchemes: {
       bearerAuth: {
         type: 'http',
         scheme: 'bearer',
-        bearerFormat: 'JWT'
-      }
-    }
+        bearerFormat: 'JWT',
+      },
+    },
   },
   security: [
     {
-      bearerAuth: []
-    }
-  ]
+      bearerAuth: [],
+    },
+  ],
 };
 
 const options = {
   swaggerDefinition,
-  apis: ['./routes/*.js'] // analiza comentarios en tus rutas
+  apis: ['./routes/*.js'], // analiza comentarios en tus rutas
 };
 
 const swaggerSpec = swaggerJSDoc(options);

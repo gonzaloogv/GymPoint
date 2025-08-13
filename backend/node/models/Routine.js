@@ -1,28 +1,33 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Routine = sequelize.define('Routine', {
-  id_routine: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+const Routine = sequelize.define(
+  'Routine',
+  {
+    id_routine: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    routine_name: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.STRING(250),
+      allowNull: true,
+    },
+    created_by: {
+      // antes: id_user
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
-  routine_name: {
-    type: DataTypes.STRING(100),
-    allowNull: false
-  },
-  description: {
-    type: DataTypes.STRING(250),
-    allowNull: true
-  },
-  created_by: {  // antes: id_user
-    type: DataTypes.INTEGER,
-    allowNull: true
+  {
+    tableName: 'routine',
+    timestamps: false,
   }
-}, {
-  tableName: 'routine',
-  timestamps: false
-});
+);
 
 module.exports = Routine;
 
@@ -33,7 +38,7 @@ const RoutineExercise = require('./RoutineExercise');
 Routine.belongsToMany(Exercise, {
   through: RoutineExercise,
   foreignKey: 'id_routine',
-  otherKey: 'id_exercise'
+  otherKey: 'id_exercise',
 });
 
 // Relaciones con usuarios (rutinas activas/inactivas)
@@ -43,5 +48,5 @@ const UserRoutine = require('./UserRoutine');
 Routine.belongsToMany(User, {
   through: UserRoutine,
   foreignKey: 'id_routine',
-  otherKey: 'id_user'
+  otherKey: 'id_user',
 });

@@ -1,0 +1,18 @@
+# node_modules y dependencias
+node_modules/**
+dist/**
+build/**
+coverage/**
+
+# Archivos públicos/estáticos
+public/**
+swagger.json
+
+# Carpeta de base de datos fuera de /node
+../db/**
+
+# Otros que no quieras tocar
+*.png
+*.jpg
+*.jpeg
+*.svg

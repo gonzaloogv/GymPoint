@@ -13,7 +13,7 @@ const crearHorario = async (req, res) => {
       day_of_week,
       opening_time,
       closing_time,
-      closed
+      closed,
     });
 
     res.status(201).json(horario);
@@ -32,19 +32,19 @@ const obtenerHorariosPorGimnasio = async (req, res) => {
 };
 
 const actualizarHorario = async (req, res) => {
-    try {
-      const id_schedule = req.params.id_schedule;
-      const data = req.body;
-  
-      const actualizado = await gymScheduleService.actualizarHorario(id_schedule, data);
-      res.json(actualizado);
-    } catch (err) {
-      res.status(400).json({ error: err.message });
-    }
+  try {
+    const id_schedule = req.params.id_schedule;
+    const data = req.body;
+
+    const actualizado = await gymScheduleService.actualizarHorario(id_schedule, data);
+    res.json(actualizado);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 };
-  
+
 module.exports = {
   crearHorario,
   obtenerHorariosPorGimnasio,
-  actualizarHorario
+  actualizarHorario,
 };

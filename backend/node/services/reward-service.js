@@ -12,9 +12,9 @@ const listarRecompensas = async () => {
       available: true,
       stock: { [Op.gt]: 0 },
       start_date: { [Op.lte]: new Date() },
-      finish_date: { [Op.gte]: new Date() }
+      finish_date: { [Op.gte]: new Date() },
     },
-    order: [['cost', 'ASC']]
+    order: [['cost', 'ASC']],
   });
 };
 
@@ -25,15 +25,21 @@ const canjearRecompensa = async ({ id_user, id_reward, id_gym }) => {
       available: true,
       stock: { [Op.gt]: 0 },
       start_date: { [Op.lte]: new Date() },
-      finish_date: { [Op.gte]: new Date() }
-    }
+      finish_date: { [Op.gte]: new Date() },
+    },
   });
 
-  if (!reward) throw new Error('La recompensa no está disponible');
+  if (!reward) {
+    throw new Error('La recompensa no está disponible');
+  }
 
   const user = await User.findByPk(id_user);
-  if (!user) throw new Error('Usuario no encontrado');
-  if (user.tokens < reward.cost_tokens) throw new Error('Tokens insuficientes');
+  if (!user) {
+    throw new Error('Usuario no encontrado');
+  }
+  if (user.tokens < reward.cost_tokens) {
+    throw new Error('Tokens insuficientes');
+  }
 
   // calcula nuevo saldo
   const result_balance = user.tokens - reward.cost_tokens;
@@ -47,16 +53,16 @@ const canjearRecompensa = async ({ id_user, id_reward, id_gym }) => {
   // genera codigo
   const codigoGenerado = await rewardCodeService.crearCodigoParaCanje({
     id_reward,
-    id_gym
+    id_gym,
   });
-  
+
   // crea registro en claimed_reward
   const claimed = await ClaimedReward.create({
     id_user,
     id_reward,
     id_code: codigoGenerado.id_code,
     claimed_date: new Date(),
-    status: true
+    status: true,
   });
 
   // crea transaccion
@@ -66,16 +72,14 @@ const canjearRecompensa = async ({ id_user, id_reward, id_gym }) => {
     movement_type: 'GASTO',
     amount: reward.cost_tokens,
     date: new Date(),
-    result_balance: result_balance
+    result_balance: result_balance,
   });
-
-
 
   // devolver todo en la respuesta
   return {
     mensaje: 'Recompensa canjeada con éxito',
     claimed,
-    codigo: codigoGenerado.code
+    codigo: codigoGenerado.code,
   };
 };
 
@@ -84,9 +88,9 @@ const obtenerHistorialRecompensas = async (id_user) => {
     where: { id_user },
     include: {
       model: Reward,
-      attributes: ['name', 'description']
+      attributes: ['name', 'description'],
     },
-    order: [['claimed_date', 'DESC']]
+    order: [['claimed_date', 'DESC']],
   });
 };
 
@@ -94,18 +98,26 @@ const obtenerEstadisticasDeRecompensas = async () => {
   return await ClaimedReward.findAll({
     attributes: [
       'id_reward',
-      [Sequelize.fn('COUNT', Sequelize.col('ClaimedReward.id_reward')), 'total_canjeos']
+      [Sequelize.fn('COUNT', Sequelize.col('ClaimedReward.id_reward')), 'total_canjeos'],
     ],
     include: {
       model: Reward,
-      attributes: ['name', 'description', 'cost_tokens']
+      attributes: ['name', 'description', 'cost_tokens'],
     },
     group: ['ClaimedReward.id_reward', 'Reward.id_reward'],
-    order: [[Sequelize.literal('total_canjeos'), 'DESC']]
+    order: [[Sequelize.literal('total_canjeos'), 'DESC']],
   });
 };
 
-const crearRecompensa = async ({ name, description, cost_tokens, type, stock, start_date, finish_date }) => {
+const crearRecompensa = async ({
+  name,
+  description,
+  cost_tokens,
+  type,
+  stock,
+  start_date,
+  finish_date,
+}) => {
   return await Reward.create({
     name,
     description,
@@ -115,7 +127,7 @@ const crearRecompensa = async ({ name, description, cost_tokens, type, stock, st
     start_date,
     finish_date,
     available: true,
-    creation_date: new Date()
+    creation_date: new Date(),
   });
 };
 
@@ -124,5 +136,5 @@ module.exports = {
   canjearRecompensa,
   obtenerHistorialRecompensas,
   obtenerEstadisticasDeRecompensas,
-  crearRecompensa
+  crearRecompensa,
 };

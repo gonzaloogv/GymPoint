@@ -1,7 +1,9 @@
 const jwt = require('jsonwebtoken');
 
 const { JWT_SECRET } = process.env;
-if (!JWT_SECRET) throw new Error('JWT_SECRET is required');
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET is required');
+}
 
 /**
  * Genera un access token con el rol real del usuario.
@@ -13,7 +15,7 @@ const generarToken = (user) => {
   return jwt.sign(
     {
       id: user.id_user,
-      role: user.role
+      role: user.role,
     },
     JWT_SECRET,
     { expiresIn: '15m' }

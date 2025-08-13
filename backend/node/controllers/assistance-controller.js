@@ -5,12 +5,7 @@ const registrarAsistencia = async (req, res) => {
     const { id_user, id_gym, latitude, longitude } = req.body;
 
     // validacion
-    if (
-      id_user == null ||
-      id_gym == null ||
-      latitude == null ||
-      longitude == null
-    ) {
+    if (id_user === null || id_gym === null || latitude === null || longitude === null) {
       return res.status(400).json({ error: 'Faltan datos requeridos.' });
     }
 
@@ -18,7 +13,7 @@ const registrarAsistencia = async (req, res) => {
       id_user,
       id_gym,
       latitude,
-      longitude
+      longitude,
     });
 
     return res.status(201).json(resultado);
@@ -40,5 +35,5 @@ const obtenerHistorialAsistencias = async (req, res) => {
 
 module.exports = {
   registrarAsistencia,
-  obtenerHistorialAsistencias
+  obtenerHistorialAsistencias,
 };

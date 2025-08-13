@@ -1,37 +1,41 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Frequency = sequelize.define('Frequency', {
+const Frequency = sequelize.define(
+  'Frequency',
+  {
     id_frequency: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
     },
     id_user: {
-        type: DataTypes.INTEGER,
-        primaryKey: true
+      type: DataTypes.INTEGER,
+      primaryKey: true,
     },
     goal: {
-        type: DataTypes.INTEGER,
-        allowNull: false
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     assist: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 0
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
     },
     achieved_goal: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-    }
-}, {
-  tableName: 'frequency',
-  timestamps: false
-});
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+  },
+  {
+    tableName: 'frequency',
+    timestamps: false,
+  }
+);
 
 module.exports = Frequency;
 const User = require('./User');
-Frequency.belongsTo(User, { 
-    foreignKey: 'id_user' 
+Frequency.belongsTo(User, {
+  foreignKey: 'id_user',
 });

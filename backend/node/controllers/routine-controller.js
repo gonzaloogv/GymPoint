@@ -1,5 +1,5 @@
 const routineService = require('../services/routine-service');
-const userRoutineService = require ('../services/user-routine-service')
+const userRoutineService = require('../services/user-routine-service');
 
 const getRoutineWithExercises = async (req, res) => {
   try {
@@ -23,7 +23,7 @@ const createRoutineWithExercises = async (req, res) => {
       routine_name,
       description,
       exercises,
-      id_user
+      id_user,
     });
 
     res.status(201).json(rutina);
@@ -32,43 +32,42 @@ const createRoutineWithExercises = async (req, res) => {
   }
 };
 
-
 const updateRoutine = async (req, res) => {
-    try {
-      const rutina = await routineService.updateRoutine(req.params.id, req.body);
-      res.json(rutina);
-    } catch (err) {
-      res.status(404).json({ error: err.message });
-    }
+  try {
+    const rutina = await routineService.updateRoutine(req.params.id, req.body);
+    res.json(rutina);
+  } catch (err) {
+    res.status(404).json({ error: err.message });
+  }
 };
 
 const updateRoutineExercise = async (req, res) => {
-    try {
-      const { id, id_exercise } = req.params;
-      const updated = await routineService.updateRoutineExercise(id, id_exercise, req.body);
-      res.json(updated);
-    } catch (err) {
-      res.status(404).json({ error: err.message });
-    }
+  try {
+    const { id, id_exercise } = req.params;
+    const updated = await routineService.updateRoutineExercise(id, id_exercise, req.body);
+    res.json(updated);
+  } catch (err) {
+    res.status(404).json({ error: err.message });
+  }
 };
 
 const deleteRoutine = async (req, res) => {
-    try {
-      await routineService.deleteRoutine(req.params.id);
-      res.status(204).send();
-    } catch (err) {
-      res.status(404).json({ error: err.message });
-    }
+  try {
+    await routineService.deleteRoutine(req.params.id);
+    res.status(204).send();
+  } catch (err) {
+    res.status(404).json({ error: err.message });
+  }
 };
 
 const deleteRoutineExercise = async (req, res) => {
-    try {
-      const { id, id_exercise } = req.params;
-      await routineService.deleteRoutineExercise(id, id_exercise);
-      res.status(204).send();
-    } catch (err) {
-      res.status(404).json({ error: err.message });
-    }
+  try {
+    const { id, id_exercise } = req.params;
+    await routineService.deleteRoutineExercise(id, id_exercise);
+    res.status(204).send();
+  } catch (err) {
+    res.status(404).json({ error: err.message });
+  }
 };
 
 const getRoutinesByUser = async (req, res) => {
@@ -82,14 +81,14 @@ const getRoutinesByUser = async (req, res) => {
 };
 
 const getActiveRoutineWithExercises = async (req, res) => {
-    try {
-      const routine = await userRoutineService.getActiveRoutineWithExercises(req.params.id_user);
-      res.json(routine);
-    } catch (err) {
-      res.status(404).json({ error: err.message });
-    }
+  try {
+    const routine = await userRoutineService.getActiveRoutineWithExercises(req.params.id_user);
+    res.json(routine);
+  } catch (err) {
+    res.status(404).json({ error: err.message });
+  }
 };
-   
+
 module.exports = {
   getRoutineWithExercises,
   createRoutineWithExercises,
@@ -98,5 +97,5 @@ module.exports = {
   deleteRoutine,
   deleteRoutineExercise,
   getRoutinesByUser,
-  getActiveRoutineWithExercises
+  getActiveRoutineWithExercises,
 };

@@ -59,7 +59,7 @@ const crearRecompensa = async (req, res) => {
       type,
       stock,
       start_date,
-      finish_date
+      finish_date,
     });
 
     res.status(201).json(recompensa);
@@ -73,5 +73,5 @@ module.exports = {
   canjearRecompensa,
   obtenerHistorialRecompensas,
   obtenerEstadisticasDeRecompensas,
-  crearRecompensa
+  crearRecompensa,
 };

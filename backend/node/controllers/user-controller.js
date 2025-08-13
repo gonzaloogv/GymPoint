@@ -34,5 +34,5 @@ const cambiarPassword = async (req, res) => {
 module.exports = {
   actualizarPerfil,
   obtenerPerfil,
-  cambiarPassword
+  cambiarPassword,
 };

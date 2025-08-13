@@ -16,7 +16,7 @@ const marcarComoUsado = async (req, res) => {
     const codigo = await rewardCodeService.marcarComoUsado(req.params.id_code);
     res.json({
       mensaje: 'Código marcado como usado',
-      codigo
+      codigo,
     });
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -57,5 +57,5 @@ module.exports = {
   marcarComoUsado,
   obtenerEstadisticasPorGimnasio,
   obtenerCodigosActivos,
-  obtenerCodigosExpirados
+  obtenerCodigosExpirados,
 };

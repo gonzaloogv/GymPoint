@@ -3,7 +3,9 @@ jest.mock('../services/gym-service');
 const controller = require('../controllers/gym-controller');
 const service = require('../services/gym-service');
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('getAllGyms', () => {
   it('returns list', async () => {
@@ -18,7 +20,8 @@ describe('getAllGyms', () => {
 
 describe('getGymById', () => {
   it('returns gym', async () => {
-    const req = { params:{ id:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { params: { id: 1 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.getGymById.mockResolvedValue('g');
 
     await controller.getGymById(req, res);
@@ -27,7 +30,8 @@ describe('getGymById', () => {
   });
 
   it('404 when not found', async () => {
-    const req = { params:{ id:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { params: { id: 1 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.getGymById.mockResolvedValue(null);
 
     await controller.getGymById(req, res);
@@ -39,12 +43,13 @@ describe('getGymById', () => {
 
 describe('createGym', () => {
   it('creates gym', async () => {
-    const req = { body:{ a:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { body: { a: 1 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.createGym.mockResolvedValue('g');
 
     await controller.createGym(req, res);
 
-    expect(service.createGym).toHaveBeenCalledWith({ a:1 });
+    expect(service.createGym).toHaveBeenCalledWith({ a: 1 });
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith('g');
   });
@@ -52,7 +57,7 @@ describe('createGym', () => {
 
 describe('updateGym', () => {
   it('updates gym', async () => {
-    const req = { params:{ id:1 }, body:{} };
+    const req = { params: { id: 1 }, body: {} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.updateGym.mockResolvedValue('u');
 
@@ -63,7 +68,7 @@ describe('updateGym', () => {
   });
 
   it('handles errors', async () => {
-    const req = { params:{ id:1 }, body:{} };
+    const req = { params: { id: 1 }, body: {} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.updateGym.mockRejectedValue(new Error('err'));
 
@@ -76,7 +81,7 @@ describe('updateGym', () => {
 
 describe('deleteGym', () => {
   it('deletes', async () => {
-    const req = { params:{ id:1 } };
+    const req = { params: { id: 1 } };
     const res = { status: jest.fn().mockReturnThis(), send: jest.fn(), json: jest.fn() };
     await controller.deleteGym(req, res);
 
@@ -86,7 +91,7 @@ describe('deleteGym', () => {
   });
 
   it('returns 404 on error', async () => {
-    const req = { params:{ id:1 } };
+    const req = { params: { id: 1 } };
     const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), send: jest.fn() };
     service.deleteGym.mockRejectedValue(new Error('fail'));
 
@@ -99,7 +104,7 @@ describe('deleteGym', () => {
 
 describe('buscarGimnasiosCercanos', () => {
   it('requires lat and lon', async () => {
-    const req = { query:{} };
+    const req = { query: {} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
     await controller.buscarGimnasiosCercanos(req, res);
@@ -109,7 +114,7 @@ describe('buscarGimnasiosCercanos', () => {
   });
 
   it('returns gyms', async () => {
-    const req = { query:{ lat:'0', lon:'0' } };
+    const req = { query: { lat: '0', lon: '0' } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.buscarGimnasiosCercanos.mockResolvedValue(['g']);
 
@@ -122,7 +127,7 @@ describe('buscarGimnasiosCercanos', () => {
 
 describe('getGymsByCity', () => {
   it('requires city', async () => {
-    const req = { query:{} };
+    const req = { query: {} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
     await controller.getGymsByCity(req, res);
@@ -132,7 +137,7 @@ describe('getGymsByCity', () => {
   });
 
   it('returns gyms', async () => {
-    const req = { query:{ city:'a' } };
+    const req = { query: { city: 'a' } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.getGymsByCity.mockResolvedValue(['g']);
 
@@ -145,24 +150,35 @@ describe('getGymsByCity', () => {
 
 describe('filtrarGimnasios', () => {
   it('blocks type filter for non premium', async () => {
-    const req = { user:{ id:1, role:'FREE' }, query:{ type:'x' } };
+    const req = { user: { id: 1, role: 'FREE' }, query: { type: 'x' } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
     await controller.filtrarGimnasios(req, res);
 
     expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Solo usuarios PREMIUM pueden filtrar por tipo de gimnasio.' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Solo usuarios PREMIUM pueden filtrar por tipo de gimnasio.',
+    });
   });
 
   it('calls service with params', async () => {
-     const req = { user:{ id:1, role:'PREMIUM' }, query:{ city:'a', type:'t', minPrice:'1', maxPrice:'2' } };
+    const req = {
+      user: { id: 1, role: 'PREMIUM' },
+      query: { city: 'a', type: 't', minPrice: '1', maxPrice: '2' },
+    };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
-    service.filtrarGimnasios.mockResolvedValue({ resultados:['g'], advertencia:null });
+    service.filtrarGimnasios.mockResolvedValue({ resultados: ['g'], advertencia: null });
 
     await controller.filtrarGimnasios(req, res);
 
-    expect(service.filtrarGimnasios).toHaveBeenCalledWith({ id_user:1, city:'a', type:'t', minPrice:1, maxPrice:2 });
-    expect(res.json).toHaveBeenCalledWith({ gimnasios:['g'], advertencia:null });
+    expect(service.filtrarGimnasios).toHaveBeenCalledWith({
+      id_user: 1,
+      city: 'a',
+      type: 't',
+      minPrice: 1,
+      maxPrice: 2,
+    });
+    expect(res.json).toHaveBeenCalledWith({ gimnasios: ['g'], advertencia: null });
   });
 });
 

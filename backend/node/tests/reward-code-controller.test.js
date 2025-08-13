@@ -3,11 +3,13 @@ jest.mock('../services/reward-code-service');
 const controller = require('../controllers/reward-code-controller');
 const service = require('../services/reward-code-service');
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('obtenerCodigosPorUsuario', () => {
   it('returns codes', async () => {
-    const req = { user:{ id:1 }, query:{ used:'false' } };
+    const req = { user: { id: 1 }, query: { used: 'false' } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerCodigosPorUsuario.mockResolvedValue(['c']);
 
@@ -20,7 +22,8 @@ describe('obtenerCodigosPorUsuario', () => {
 
 describe('marcarComoUsado', () => {
   it('marks code', async () => {
-    const req = { params:{ id_code:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { params: { id_code: 1 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.marcarComoUsado.mockResolvedValue('c');
 
     await controller.marcarComoUsado(req, res);
@@ -43,7 +46,8 @@ describe('obtenerEstadisticasPorGimnasio', () => {
 
 describe('obtenerCodigosActivos', () => {
   it('returns codes', async () => {
-    const req = { user:{ id:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user: { id: 1 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerCodigosActivos.mockResolvedValue(['c']);
 
     await controller.obtenerCodigosActivos(req, res);
@@ -55,7 +59,8 @@ describe('obtenerCodigosActivos', () => {
 
 describe('obtenerCodigosExpirados', () => {
   it('returns codes', async () => {
-    const req = { user:{ id:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user: { id: 1 } };
+    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerCodigosExpirados.mockResolvedValue(['c']);
 
     await controller.obtenerCodigosExpirados(req, res);

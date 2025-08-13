@@ -4,7 +4,9 @@ const ClaimedReward = require('../models/ClaimedReward');
 
 const otorgarTokens = async ({ id_user, amount, motive }) => {
   const user = await User.findByPk(id_user);
-  if (!user) throw new Error('Usuario no encontrado');
+  if (!user) {
+    throw new Error('Usuario no encontrado');
+  }
 
   const value = Number(amount);
   if (Number.isNaN(value) || value <= 0) {
@@ -22,7 +24,7 @@ const otorgarTokens = async ({ id_user, amount, motive }) => {
     amount: value,
     result_balance: nuevoSaldo,
     date: new Date(),
-    motive: motive
+    motive: motive,
   });
 
   return {
@@ -30,37 +32,42 @@ const otorgarTokens = async ({ id_user, amount, motive }) => {
     tokens_antes: nuevoSaldo - value,
     tokens_actuales: nuevoSaldo,
     motive,
-    fecha: new Date()
+    fecha: new Date(),
   };
 };
 
 const obtenerResumenTokens = async (id_user) => {
-    const user = await User.findByPk(id_user);
-    if (!user) throw new Error('Usuario no encontrado');
-  
-    const transacciones = await Transaction.findAll({ where: { id_user } });
-  
-    let ganados = 0;
-    let gastados = 0;
-  
-    transacciones.forEach(tx => {
-      if (tx.movement_type === 'GANANCIA') ganados += tx.amount;
-      if (tx.movement_type === 'GASTO' || tx.movement_type === 'COMPRA') gastados += tx.amount;
-    });
-  
-    const cantidadCanjes = await ClaimedReward.count({ where: { id_user } });
-  
-    return {
-      id_user,
-      tokens_actuales: user.tokens,
-      total_ganados: ganados,
-      total_gastados: gastados,
-      canjes_realizados: cantidadCanjes
-    };
+  const user = await User.findByPk(id_user);
+  if (!user) {
+    throw new Error('Usuario no encontrado');
+  }
+
+  const transacciones = await Transaction.findAll({ where: { id_user } });
+
+  let ganados = 0;
+  let gastados = 0;
+
+  transacciones.forEach((tx) => {
+    if (tx.movement_type === 'GANANCIA') {
+      ganados += tx.amount;
+    }
+    if (tx.movement_type === 'GASTO' || tx.movement_type === 'COMPRA') {
+      gastados += tx.amount;
+    }
+  });
+
+  const cantidadCanjes = await ClaimedReward.count({ where: { id_user } });
+
+  return {
+    id_user,
+    tokens_actuales: user.tokens,
+    total_ganados: ganados,
+    total_gastados: gastados,
+    canjes_realizados: cantidadCanjes,
+  };
 };
 
 module.exports = {
-    otorgarTokens,
-    obtenerResumenTokens
-  };
-  
+  otorgarTokens,
+  obtenerResumenTokens,
+};
