@@ -80,12 +80,7 @@ router.get('/me', verificarToken, controller.obtenerPagosPorUsuario);
  *       404:
  *         description: Gimnasio no encontrado o sin pagos
  */
-router.get(
-  '/gimnasio/:id_gym',
-  verificarToken,
-  verificarRolMultiple(['ADMIN', 'GYM']),
-  controller.obtenerPagosPorGimnasio
-);
+router.get('/gimnasio/:id_gym', verificarToken, verificarRolMultiple(['ADMIN', 'GYM']), controller.obtenerPagosPorGimnasio);
 
 /**
  * @swagger

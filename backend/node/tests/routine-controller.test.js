@@ -5,13 +5,11 @@ const controller = require('../controllers/routine-controller');
 const service = require('../services/routine-service');
 const userRoutineService = require('../services/user-routine-service');
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
+beforeEach(() => { jest.clearAllMocks(); });
 
 describe('getRoutineWithExercises', () => {
   it('returns routine', async () => {
-    const req = { params: { id: 1 } };
+    const req = { params:{ id:1 } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.getRoutineWithExercises.mockResolvedValue('r');
 
@@ -22,8 +20,7 @@ describe('getRoutineWithExercises', () => {
   });
 
   it('handles errors', async () => {
-    const req = { params: { id: 1 } };
-    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { params:{ id:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.getRoutineWithExercises.mockRejectedValue(new Error('no'));
 
     await controller.getRoutineWithExercises(req, res);
@@ -35,7 +32,7 @@ describe('getRoutineWithExercises', () => {
 
 describe('createRoutineWithExercises', () => {
   it('validates body', async () => {
-    const req = { user: { id: 1 }, body: {} };
+    const req = { user:{ id:1 }, body:{} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
     await controller.createRoutineWithExercises(req, res);
@@ -45,7 +42,7 @@ describe('createRoutineWithExercises', () => {
   });
 
   it('creates routine', async () => {
-    const req = { user: { id: 1 }, body: { routine_name: 'n', exercises: [] } };
+    const req = { user:{ id:1 }, body:{ routine_name:'n', exercises:[] } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.createRoutineWithExercises.mockResolvedValue('r');
 
@@ -59,7 +56,7 @@ describe('createRoutineWithExercises', () => {
 
 describe('updateRoutine', () => {
   it('updates routine', async () => {
-    const req = { params: { id: 1 }, body: {} };
+    const req = { params:{ id:1 }, body:{} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.updateRoutine.mockResolvedValue('u');
 
@@ -72,7 +69,7 @@ describe('updateRoutine', () => {
 
 describe('deleteRoutine', () => {
   it('deletes', async () => {
-    const req = { params: { id: 1 } };
+    const req = { params:{ id:1 } };
     const res = { status: jest.fn().mockReturnThis(), send: jest.fn(), json: jest.fn() };
     service.deleteRoutine.mockResolvedValue();
 
@@ -85,8 +82,7 @@ describe('deleteRoutine', () => {
 
 describe('getRoutinesByUser', () => {
   it('returns list', async () => {
-    const req = { user: { id: 1 } };
-    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user:{ id:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.getRoutinesByUser.mockResolvedValue(['r']);
 
     await controller.getRoutinesByUser(req, res);
@@ -98,8 +94,7 @@ describe('getRoutinesByUser', () => {
 
 describe('getActiveRoutineWithExercises', () => {
   it('returns active routine', async () => {
-    const req = { params: { id_user: 1 } };
-    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { params:{ id_user:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     userRoutineService.getActiveRoutineWithExercises.mockResolvedValue('r');
 
     await controller.getActiveRoutineWithExercises(req, res);

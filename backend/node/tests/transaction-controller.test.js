@@ -3,13 +3,11 @@ jest.mock('../services/transaction-service');
 const controller = require('../controllers/transaction-controller');
 const service = require('../services/transaction-service');
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
+beforeEach(() => { jest.clearAllMocks(); });
 
 describe('obtenerTransaccionesPorUsuario', () => {
   it('returns list', async () => {
-    const req = { params: { id_user: 1 } };
+    const req = { params:{ id_user:1 } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerTransaccionesPorUsuario.mockResolvedValue(['t']);
 
@@ -22,7 +20,7 @@ describe('obtenerTransaccionesPorUsuario', () => {
 
 describe('obtenerTransaccionesAutenticado', () => {
   it('returns list', async () => {
-    const req = { user: { id: 2 } };
+    const req = { user:{ id:2 } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerTransaccionesPorUsuario.mockResolvedValue(['t']);
 

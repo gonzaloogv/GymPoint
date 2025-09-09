@@ -3,13 +3,11 @@ jest.mock('../services/gym-special-schedule-service');
 const controller = require('../controllers/gym-special-schedule-controller');
 const service = require('../services/gym-special-schedule-service');
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
+beforeEach(() => { jest.clearAllMocks(); });
 
 describe('crearHorarioEspecial', () => {
   it('validates body', async () => {
-    const req = { body: {} };
+    const req = { body:{} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
     await controller.crearHorarioEspecial(req, res);
@@ -19,16 +17,7 @@ describe('crearHorarioEspecial', () => {
   });
 
   it('creates special schedule', async () => {
-    const req = {
-      body: {
-        id_gym: 1,
-        date: 'd',
-        opening_time: '',
-        closing_time: '',
-        closed: false,
-        motive: 'x',
-      },
-    };
+    const req = { body:{ id_gym:1, date:'d', opening_time:'', closing_time:'', closed:false, motive:'x' } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.crearHorarioEspecial.mockResolvedValue('h');
 
@@ -41,7 +30,7 @@ describe('crearHorarioEspecial', () => {
 
 describe('obtenerHorariosEspecialesPorGimnasio', () => {
   it('returns list', async () => {
-    const req = { params: { id_gym: 1 } };
+    const req = { params:{ id_gym:1 } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerHorariosEspecialesPorGimnasio.mockResolvedValue(['h']);
 

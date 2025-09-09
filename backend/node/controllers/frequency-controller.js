@@ -2,7 +2,7 @@ const frequencyService = require('../services/frequency-service');
 
 const crearMeta = async (req, res) => {
   try {
-    const id_user = req.user.id;
+    const id_user = req.user.id; 
     const { goal } = req.body;
 
     if (!goal) {
@@ -40,5 +40,5 @@ const reiniciarSemana = async (req, res) => {
 module.exports = {
   crearMeta,
   consultarMetaSemanal,
-  reiniciarSemana,
+  reiniciarSemana
 };

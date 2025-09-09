@@ -5,7 +5,7 @@ const Exercise = require('../models/Exercise');
 const assignRoutineToUser = async ({ id_user, id_routine, start_date }) => {
   // verifica si ya tiene una rutina activa
   const existing = await UserRoutine.findOne({
-    where: { id_user, active: true },
+    where: { id_user, active: true }
   });
 
   if (existing) {
@@ -16,7 +16,7 @@ const assignRoutineToUser = async ({ id_user, id_routine, start_date }) => {
     id_user,
     id_routine,
     start_date,
-    active: true,
+    active: true
   });
 
   return userRoutine;
@@ -24,15 +24,13 @@ const assignRoutineToUser = async ({ id_user, id_routine, start_date }) => {
 
 const getActiveRoutine = async (id_user) => {
   return await UserRoutine.findOne({
-    where: { id_user, active: true },
+    where: { id_user, active: true }
   });
 };
 
 const endUserRoutine = async (id_user) => {
   const routine = await UserRoutine.findOne({ where: { id_user, active: true } });
-  if (!routine) {
-    throw new Error('No hay rutina activa para cerrar');
-  }
+  if (!routine) throw new Error('No hay rutina activa para cerrar');
 
   routine.active = false;
   routine.finish_date = new Date();
@@ -42,38 +40,36 @@ const endUserRoutine = async (id_user) => {
 };
 
 const getActiveRoutineWithExercises = async (id_user) => {
-  const active = await UserRoutine.findOne({
-    where: { id_user, active: true },
-  });
-
-  if (!active) {
-    throw new Error('El usuario no tiene una rutina activa');
-  }
-
-  const routine = await Routine.findByPk(active.id_routine, {
-    include: {
-      model: Exercise,
-      through: {
-        attributes: ['series', 'reps', 'order'],
-      },
-    },
-  });
-
-  if (!routine) {
-    throw new Error('Rutina activa no encontrada');
-  }
-
-  // ordena ejercicios por orden
-  routine.Exercises.sort((a, b) => {
-    return a.RoutineExercise.order - b.RoutineExercise.order;
-  });
-
-  return routine;
+    const active = await UserRoutine.findOne({
+      where: { id_user, active: true }
+    });
+  
+    if (!active) {
+      throw new Error('El usuario no tiene una rutina activa');
+    }
+  
+    const routine = await Routine.findByPk(active.id_routine, {
+      include: {
+        model: Exercise,
+        through: {
+          attributes: ['series', 'reps', 'order']
+        }
+      }
+    });
+  
+    if (!routine) throw new Error('Rutina activa no encontrada');
+  
+    // ordena ejercicios por orden
+    routine.Exercises.sort((a, b) => {
+      return a.RoutineExercise.order - b.RoutineExercise.order;
+    });
+  
+    return routine;
 };
 
 module.exports = {
   assignRoutineToUser,
   getActiveRoutine,
   endUserRoutine,
-  getActiveRoutineWithExercises,
+  getActiveRoutineWithExercises
 };

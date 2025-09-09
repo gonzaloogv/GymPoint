@@ -2,25 +2,6 @@ const express = require('express');
 const router = express.Router();
 const gymController = require('../controllers/gym-controller');
 const { verificarToken, verificarRol } = require('../middlewares/auth');
-const validate = require('../middlewares/validate');
-const { z } = require('zod');
-
-const gymSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  city: z.string(),
-  address: z.string(),
-  latitude: z.number(),
-  longitude: z.number(),
-  phone: z.string().optional(),
-  email: z.string().email().optional(),
-  website: z.string().optional(),
-  social_media: z.string().optional(),
-  gym_type: z.string(),
-  equipment: z.string(),
-  month_price: z.number(),
-  week_price: z.number(),
-});
 
 /**
  * @swagger
@@ -225,13 +206,8 @@ router.get('/:id', gymController.getGymById);
  *       400:
  *         description: Datos inválidos
  */
-router.post(
-  '/',
-  verificarToken,
-  verificarRol('ADMIN'),
-  validate(gymSchema),
-  gymController.createGym
-);
+router.post('/', verificarToken, verificarRol('ADMIN'), gymController.createGym);
+
 /**
  * @swagger
  * /api/gyms/{id}:
@@ -286,13 +262,7 @@ router.post(
  *       404:
  *         description: Gimnasio no encontrado
  */
-router.put(
-  '/:id',
-  verificarToken,
-  verificarRol('ADMIN'),
-  validate(gymSchema.partial()),
-  gymController.updateGym
-);
+router.put('/:id', verificarToken, verificarRol('ADMIN'), gymController.updateGym);
 
 /**
  * @swagger

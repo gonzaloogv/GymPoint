@@ -38,13 +38,13 @@ npm install
 
 ## 📞 Variables de entorno
 
-Crea un archivo `.env` en la raíz basado en `.env.example` y completa los valores:
+Crear un archivo `.env` en la raíz con:
 
 ```env
 # Base de datos
 DB_HOST=localhost
-DB_USER=user
-DB_PASSWORD=pass
+DB_USER=root
+DB_PASSWORD=mitre280
 DB_NAME=gympoint
 DB_PORT=3306
 
@@ -52,11 +52,11 @@ DB_PORT=3306
 PORT=3000
 
 # JWT
-JWT_SECRET=change_me
-JWT_REFRESH_SECRET=change_me_refresh
+JWT_SECRET=clave_super_secreta_para_tokens
+JWT_REFRESH_SECRET=clave_distinta_para_refresh
 
 # Google
-GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_ID=287573324529-6dratpth8ik6jr9ppdpf2nv666e0mv9b.apps.googleusercontent.com
 ```
 
 ---
@@ -92,10 +92,10 @@ También puedes iniciar todo el proyecto usando `docker compose up` desde la ra�
 
 El sistema implementa autenticación basada en **JWT con doble token**:
 
-| Token          | Duración   | Uso                                                 |
-| -------------- | ---------- | --------------------------------------------------- |
-| `accessToken`  | 15 minutos | Acceso a rutas protegidas (`Authorization: Bearer`) |
-| `refreshToken` | 30 días    | Renovar `accessToken` vía `/auth/refresh-token`     |
+| Token         | Duración     | Uso                                     |
+|---------------|--------------|------------------------------------------|
+| `accessToken` | 15 minutos   | Acceso a rutas protegidas (`Authorization: Bearer`) |
+| `refreshToken`| 30 días      | Renovar `accessToken` vía `/auth/refresh-token` |
 
 ### Flujo de sesion
 
@@ -127,14 +127,14 @@ Swagger:
 
 ### Endpoints comunes
 
-| Método | Ruta                    | Descripción                           |
-| ------ | ----------------------- | ------------------------------------- |
-| POST   | /api/auth/register      | Registro de usuario con meta semanal  |
-| POST   | /api/auth/login         | Iniciar sesión con email y contraseña |
-| POST   | /api/auth/google        | Login con Google OAuth2               |
-| POST   | /api/auth/refresh-token | Obtener nuevo access token            |
-| POST   | /api/auth/logout        | Revocar refresh token                 |
-| GET    | /api/users/me           | Obtener perfil del usuario            |
+| Método | Ruta                     | Descripción                        |
+|--------|--------------------------|------------------------------------|
+| POST   | /api/auth/register       | Registro de usuario con meta semanal |
+| POST   | /api/auth/login          | Iniciar sesión con email y contraseña |
+| POST   | /api/auth/google         | Login con Google OAuth2            |
+| POST   | /api/auth/refresh-token  | Obtener nuevo access token         |
+| POST   | /api/auth/logout         | Revocar refresh token              |
+| GET    | /api/users/me            | Obtener perfil del usuario         |
 
 ---
 
@@ -182,11 +182,9 @@ estructura inicial se define en el dump anterior y debe cargarse manualmente.
 
 El backend cuenta con pruebas unitarias implementadas con Jest.
 Para ejecutarlas se usa:
-
 ```bash
 npm test
 ```
-
 Estas pruebas cubren los servicios y controladores principales.
 
 ---

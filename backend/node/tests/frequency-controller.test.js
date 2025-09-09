@@ -3,25 +3,23 @@ jest.mock('../services/frequency-service');
 const controller = require('../controllers/frequency-controller');
 const service = require('../services/frequency-service');
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
+beforeEach(() => { jest.clearAllMocks(); });
 
 describe('crearMeta', () => {
   it('creates weekly goal', async () => {
-    const req = { user: { id: 1 }, body: { goal: 3 } };
+    const req = { user:{ id:1 }, body:{ goal:3 } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.crearMetaSemanal.mockResolvedValue('m');
 
     await controller.crearMeta(req, res);
 
-    expect(service.crearMetaSemanal).toHaveBeenCalledWith({ id_user: 1, goal: 3 });
+    expect(service.crearMetaSemanal).toHaveBeenCalledWith({ id_user:1, goal:3 });
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith('m');
   });
 
   it('returns 400 when missing goal', async () => {
-    const req = { user: { id: 1 }, body: {} };
+    const req = { user:{ id:1 }, body:{} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
     await controller.crearMeta(req, res);
@@ -33,7 +31,7 @@ describe('crearMeta', () => {
 
 describe('consultarMetaSemanal', () => {
   it('returns goal', async () => {
-    const req = { user: { id: 1 } };
+    const req = { user:{ id:1 } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.consultarMetaSemanal.mockResolvedValue('g');
 
@@ -44,7 +42,7 @@ describe('consultarMetaSemanal', () => {
   });
 
   it('handles errors', async () => {
-    const req = { user: { id: 1 } };
+    const req = { user:{ id:1 } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.consultarMetaSemanal.mockRejectedValue(new Error('x'));
 
@@ -57,8 +55,7 @@ describe('consultarMetaSemanal', () => {
 
 describe('reiniciarSemana', () => {
   it('calls service and returns message', async () => {
-    const req = {};
-    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = {}; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.reiniciarSemana.mockResolvedValue();
 
     await controller.reiniciarSemana(req, res);

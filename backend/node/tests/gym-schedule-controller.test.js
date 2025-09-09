@@ -3,13 +3,11 @@ jest.mock('../services/gym-schedule-service');
 const controller = require('../controllers/gym-schedule-controller');
 const service = require('../services/gym-schedule-service');
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
+beforeEach(() => { jest.clearAllMocks(); });
 
 describe('crearHorario', () => {
   it('validates body', async () => {
-    const req = { body: {} };
+    const req = { body:{} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
     await controller.crearHorario(req, res);
@@ -19,9 +17,7 @@ describe('crearHorario', () => {
   });
 
   it('creates schedule', async () => {
-    const req = {
-      body: { id_gym: 1, day_of_week: 1, opening_time: '', closing_time: '', closed: false },
-    };
+    const req = { body:{ id_gym:1, day_of_week:1, opening_time:'', closing_time:'', closed:false } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.crearHorario.mockResolvedValue('h');
 
@@ -34,7 +30,7 @@ describe('crearHorario', () => {
 
 describe('obtenerHorariosPorGimnasio', () => {
   it('returns list', async () => {
-    const req = { params: { id_gym: 1 } };
+    const req = { params:{ id_gym:1 } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerHorariosPorGimnasio.mockResolvedValue(['h']);
 
@@ -47,7 +43,7 @@ describe('obtenerHorariosPorGimnasio', () => {
 
 describe('actualizarHorario', () => {
   it('updates schedule', async () => {
-    const req = { params: { id_schedule: 1 }, body: {} };
+    const req = { params:{ id_schedule:1 }, body:{} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.actualizarHorario.mockResolvedValue('u');
 
@@ -58,7 +54,7 @@ describe('actualizarHorario', () => {
   });
 
   it('handles errors', async () => {
-    const req = { params: { id_schedule: 1 }, body: {} };
+    const req = { params:{ id_schedule:1 }, body:{} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.actualizarHorario.mockRejectedValue(new Error('err'));
 

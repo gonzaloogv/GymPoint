@@ -14,17 +14,13 @@ const createExercise = async (data) => {
 
 const updateExercise = async (id, data) => {
   const exercise = await Exercise.findByPk(id);
-  if (!exercise) {
-    throw new Error('Exercise not found');
-  }
+  if (!exercise) throw new Error('Exercise not found');
   return await exercise.update(data);
 };
 
 const deleteExercise = async (id) => {
   const exercise = await Exercise.findByPk(id);
-  if (!exercise) {
-    throw new Error('Exercise not found');
-  }
+  if (!exercise) throw new Error('Exercise not found');
   return await exercise.destroy();
 };
 
@@ -33,5 +29,5 @@ module.exports = {
   getExerciseById,
   createExercise,
   updateExercise,
-  deleteExercise,
+  deleteExercise
 };

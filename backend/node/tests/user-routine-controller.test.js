@@ -3,13 +3,11 @@ jest.mock('../services/user-routine-service');
 const controller = require('../controllers/user-routine-controller');
 const service = require('../services/user-routine-service');
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
+beforeEach(() => { jest.clearAllMocks(); });
 
 describe('assignRoutineToUser', () => {
   it('assigns routine', async () => {
-    const req = { user: { id: 1 }, body: { id_routine: 2, start_date: 'd' } };
+    const req = { user:{ id:1 }, body:{ id_routine:2, start_date:'d' } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.assignRoutineToUser.mockResolvedValue('r');
 
@@ -23,8 +21,7 @@ describe('assignRoutineToUser', () => {
 
 describe('getActiveRoutine', () => {
   it('returns routine', async () => {
-    const req = { user: { id: 1 } };
-    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user:{ id:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.getActiveRoutine.mockResolvedValue('r');
 
     await controller.getActiveRoutine(req, res);
@@ -36,8 +33,7 @@ describe('getActiveRoutine', () => {
 
 describe('endUserRoutine', () => {
   it('ends routine', async () => {
-    const req = { user: { id: 1 } };
-    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user:{ id:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.endUserRoutine.mockResolvedValue('r');
 
     await controller.endUserRoutine(req, res);
@@ -49,8 +45,7 @@ describe('endUserRoutine', () => {
 
 describe('getActiveRoutineWithExercises', () => {
   it('returns routine', async () => {
-    const req = { user: { id: 1 } };
-    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user:{ id:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.getActiveRoutineWithExercises.mockResolvedValue('r');
 
     await controller.getActiveRoutineWithExercises(req, res);

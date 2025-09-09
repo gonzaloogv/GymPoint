@@ -1,19 +1,13 @@
 const jwt = require('jsonwebtoken');
-
-const { JWT_SECRET } = process.env;
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET is required');
-}
+const SECRET = process.env.JWT_SECRET || 'gympoint_secret_key';
 
 const verificarToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ error: 'Token requerido' });
-  }
+  if (!authHeader) return res.status(401).json({ error: 'Token requerido' });
 
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, SECRET);
     req.user = decoded;
     next();
   } catch {
@@ -23,7 +17,7 @@ const verificarToken = (req, res, next) => {
 
 const verificarRol = (rolPermitido) => {
   return (req, res, next) => {
-    if (!req.user || req.user.role !== rolPermitido) {
+    if (!req.user || req.user.rol !== rolPermitido) {
       return res.status(403).json({ error: 'Acceso denegado' });
     }
     next();
@@ -32,7 +26,7 @@ const verificarRol = (rolPermitido) => {
 
 const verificarRolMultiple = (rolesPermitidos) => {
   return (req, res, next) => {
-    if (!req.user || !rolesPermitidos.includes(req.user.role)) {
+    if (!req.user || !rolesPermitidos.includes(req.user.rol)) {
       return res.status(403).json({ error: 'Acceso denegado' });
     }
     next();
@@ -42,5 +36,5 @@ const verificarRolMultiple = (rolesPermitidos) => {
 module.exports = {
   verificarToken,
   verificarRol,
-  verificarRolMultiple,
+  verificarRolMultiple
 };

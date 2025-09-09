@@ -7,9 +7,7 @@ const getAllGyms = async (req, res) => {
 
 const getGymById = async (req, res) => {
   const gym = await gymService.getGymById(req.params.id);
-  if (!gym) {
-    return res.status(404).json({ error: 'Gym no encontrado' });
-  }
+  if (!gym) return res.status(404).json({ error: 'Gym no encontrado' });
   res.json(gym);
 };
 
@@ -43,7 +41,10 @@ const buscarGimnasiosCercanos = async (req, res) => {
       return res.status(400).json({ error: 'Faltan parámetros lat y lon' });
     }
 
-    const resultado = await gymService.buscarGimnasiosCercanos(parseFloat(lat), parseFloat(lon));
+    const resultado = await gymService.buscarGimnasiosCercanos(
+      parseFloat(lat),
+      parseFloat(lon)
+    );
     res.json(resultado);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -53,9 +54,7 @@ const buscarGimnasiosCercanos = async (req, res) => {
 const getGymsByCity = async (req, res) => {
   try {
     const { city } = req.query;
-    if (!city) {
-      return res.status(400).json({ error: 'Parámetro city requerido' });
-    }
+    if (!city) return res.status(400).json({ error: 'Parámetro city requerido' });
 
     const gyms = await gymService.getGymsByCity(city);
     res.json(gyms);
@@ -67,14 +66,14 @@ const getGymsByCity = async (req, res) => {
 const filtrarGimnasios = async (req, res) => {
   try {
     const id_user = req.user.id;
-    const rol = req.user.role; // 'FREE' o 'PREMIUM'
+    const rol = req.user.rol;// 'FREE' o 'PREMIUM'
 
     const { city, type, minPrice, maxPrice } = req.query;
 
     // Solo usuarios PREMIUM pueden usar el filtro "type"
     if (type && rol !== 'PREMIUM') {
       return res.status(403).json({
-        error: 'Solo usuarios PREMIUM pueden filtrar por tipo de gimnasio.',
+        error: 'Solo usuarios PREMIUM pueden filtrar por tipo de gimnasio.'
       });
     }
 
@@ -83,7 +82,7 @@ const filtrarGimnasios = async (req, res) => {
       city,
       type: rol === 'PREMIUM' ? type : null, // si no es premium, se ignora
       minPrice: minPrice ? parseFloat(minPrice) : null,
-      maxPrice: maxPrice ? parseFloat(maxPrice) : null,
+      maxPrice: maxPrice ? parseFloat(maxPrice) : null
     });
 
     res.json({ gimnasios: resultados, advertencia });
@@ -97,6 +96,7 @@ const getGymTypes = (req, res) => {
   res.json(tipos);
 };
 
+
 module.exports = {
   getAllGyms,
   getGymById,
@@ -106,5 +106,5 @@ module.exports = {
   buscarGimnasiosCercanos,
   getGymsByCity,
   filtrarGimnasios,
-  getGymTypes,
+  getGymTypes
 };

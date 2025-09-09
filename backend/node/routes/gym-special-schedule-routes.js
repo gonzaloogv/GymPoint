@@ -44,12 +44,7 @@ const { verificarToken, verificarRolMultiple } = require('../middlewares/auth');
  *       400:
  *         description: Ya existe un horario especial para esa fecha
  */
-router.post(
-  '/',
-  verificarToken,
-  verificarRolMultiple(['ADMIN', 'GYM']),
-  controller.crearHorarioEspecial
-);
+router.post('/', verificarToken, verificarRolMultiple(['ADMIN', 'GYM']), controller.crearHorarioEspecial);
 
 /**
  * @swagger

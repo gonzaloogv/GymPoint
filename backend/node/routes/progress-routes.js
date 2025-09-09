@@ -67,11 +67,7 @@ router.post('/', verificarToken, controller.registrarProgreso);
  *       200:
  *         description: Promedio de peso y reps
  */
-router.get(
-  '/me/ejercicios/:id_exercise/promedio',
-  verificarToken,
-  controller.obtenerPromedioLevantamiento
-);
+router.get('/me/ejercicios/:id_exercise/promedio', verificarToken, controller.obtenerPromedioLevantamiento);
 
 /**
  * @swagger
@@ -91,11 +87,7 @@ router.get(
  *       200:
  *         description: Mayor peso levantado registrado
  */
-router.get(
-  '/me/ejercicios/:id_exercise/mejor',
-  verificarToken,
-  controller.obtenerMejorLevantamiento
-);
+router.get('/me/ejercicios/:id_exercise/mejor', verificarToken, controller.obtenerMejorLevantamiento);
 
 /**
  * @swagger

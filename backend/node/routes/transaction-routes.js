@@ -82,11 +82,6 @@ router.get('/me', verificarToken, controller.obtenerTransaccionesAutenticado);
  *       404:
  *         description: Usuario sin transacciones
  */
-router.get(
-  '/:id_user',
-  verificarToken,
-  verificarRol('ADMIN'),
-  controller.obtenerTransaccionesPorUsuario
-);
+router.get('/:id_user', verificarToken, verificarRol('ADMIN'), controller.obtenerTransaccionesPorUsuario);
 
 module.exports = router;

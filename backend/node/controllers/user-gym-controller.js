@@ -41,7 +41,7 @@ const obtenerGimnasiosActivos = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
-
+  
 const obtenerHistorialGimnasiosPorUsuario = async (req, res) => {
   try {
     const id_user = req.user.id;
@@ -73,7 +73,7 @@ const contarUsuariosActivosEnGimnasio = async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
-};
+}; 
 
 module.exports = {
   darAltaEnGimnasio,
@@ -81,5 +81,5 @@ module.exports = {
   obtenerGimnasiosActivos,
   obtenerHistorialGimnasiosPorUsuario,
   obtenerHistorialUsuariosPorGimnasio,
-  contarUsuariosActivosEnGimnasio,
+  contarUsuariosActivosEnGimnasio
 };

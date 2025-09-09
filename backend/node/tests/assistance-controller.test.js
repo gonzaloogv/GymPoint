@@ -9,7 +9,7 @@ beforeEach(() => {
 
 describe('registrarAsistencia', () => {
   it('returns 201 on success', async () => {
-    const req = { body: { id_user: 1, id_gym: 1, latitude: 0, longitude: 0 } };
+    const req = { body: { id_user:1,id_gym:1,latitude:0,longitude:0 } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.registrarAsistencia.mockResolvedValue('ok');
 

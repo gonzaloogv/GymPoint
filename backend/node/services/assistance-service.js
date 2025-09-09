@@ -3,6 +3,7 @@ const Streak = require('../models/Streak');
 const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 const Gym = require('../models/Gym');
+const { Op } = require('sequelize');
 const frequencyService = require('../services/frequency-service');
 
 // Utilidad para validar distancia
@@ -11,8 +12,7 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
   const rad = Math.PI / 180;
   const dLat = (lat2 - lat1) * rad;
   const dLon = (lon2 - lon1) * rad;
-  const a =
-    Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLon / 2) ** 2;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLon / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
@@ -23,37 +23,28 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude }) => 
   const hora = hoy.toTimeString().split(' ')[0];
 
   const asistenciaHoy = await Assistance.findOne({
-    where: { id_user, id_gym, date: fecha },
+    where: { id_user, id_gym, date: fecha }
   });
-  if (asistenciaHoy) {
-    throw new Error('Ya registraste asistencia hoy.');
-  }
+  if (asistenciaHoy) throw new Error('Ya registraste asistencia hoy.');
 
   const gym = await Gym.findByPk(id_gym);
-  if (!gym) {
-    throw new Error('Gimnasio no encontrado');
-  }
+  if (!gym) throw new Error('Gimnasio no encontrado');
   const distancia = calcularDistancia(latitude, longitude, gym.latitude, gym.longitude);
-  const maxDist = parseInt(process.env.CHECKIN_MAX_DISTANCE_M || '30', 10);
-  if (distancia > maxDist) {
+  if (distancia > 15) {
     throw new Error(`Estás fuera del rango del gimnasio (distancia: ${Math.round(distancia)} m)`);
   }
 
   const user = await User.findByPk(id_user);
-  if (!user) {
-    throw new Error('Usuario no encontrado');
-  }
+  if (!user) throw new Error('Usuario no encontrado');
   const racha = await Streak.findByPk(user.id_streak);
-  if (!racha) {
-    throw new Error('Racha no encontrada');
-  }
+  if (!racha) throw new Error('Racha no encontrada');
 
   const nuevaAsistencia = await Assistance.create({
     id_user,
     id_gym,
     id_streak: user.id_streak,
     date: fecha,
-    hour: hora,
+    hour: hora
   });
 
   const ayer = new Date(hoy);
@@ -61,7 +52,7 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude }) => 
   const fechaAyer = ayer.toISOString().split('T')[0];
 
   const ultimaAsistencia = await Assistance.findOne({
-    where: { id_user, id_gym, date: fechaAyer },
+    where: { id_user, id_gym, date: fechaAyer }
   });
 
   if (ultimaAsistencia) {
@@ -86,7 +77,7 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude }) => 
     movement_type: 'ASISTENCIA',
     amount: 10,
     result_balance: user.tokens,
-    date: new Date(),
+    date: new Date()
   });
 
   await frequencyService.actualizarAsistenciaSemanal(id_user);
@@ -94,7 +85,7 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude }) => 
   return {
     asistencia: nuevaAsistencia,
     distancia: Math.round(distancia),
-    tokens_actuales: user.tokens,
+    tokens_actuales: user.tokens
   };
 };
 
@@ -103,16 +94,13 @@ const obtenerHistorialAsistencias = async (id_user) => {
     where: { id_user },
     include: {
       model: Gym,
-      attributes: ['name', 'city', 'address'],
+      attributes: ['name', 'city', 'address']
     },
-    order: [
-      ['date', 'DESC'],
-      ['hour', 'DESC'],
-    ],
+    order: [['date', 'DESC'], ['hour', 'DESC']]
   });
 };
 
 module.exports = {
   registrarAsistencia,
-  obtenerHistorialAsistencias,
+  obtenerHistorialAsistencias
 };

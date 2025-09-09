@@ -15,7 +15,7 @@ const registrarPago = async (req, res) => {
       mount,
       payment_method,
       payment_date,
-      status,
+      status
     });
 
     res.status(201).json(pago);
@@ -46,9 +46,7 @@ const obtenerPagosPorGimnasio = async (req, res) => {
 const actualizarEstadoPago = async (req, res) => {
   try {
     const { status } = req.body;
-    if (!status) {
-      return res.status(400).json({ error: 'Falta el campo "status".' });
-    }
+    if (!status) return res.status(400).json({ error: 'Falta el campo "status".' });
 
     const pagoActualizado = await service.actualizarEstadoPago(req.params.id_payment, status);
     res.json(pagoActualizado);
@@ -61,5 +59,5 @@ module.exports = {
   registrarPago,
   obtenerPagosPorUsuario,
   obtenerPagosPorGimnasio,
-  actualizarEstadoPago,
+  actualizarEstadoPago
 };

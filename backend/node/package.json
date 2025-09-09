@@ -6,54 +6,29 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "jest",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check",
-    "prepare": "husky",
-    "check:all": "npm run lint && npm run format:check && npm test"
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint ."
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
-  "lint-staged": {
-    "*.{js,json,md,yml,yaml}": [
-      "prettier --write"
-    ],
-    "*.js": [
-      "eslint --fix"
-    ]
-  },
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "express-rate-limit": "^8.0.1",
     "google-auth-library": "^9.15.1",
-    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.1",
     "sequelize": "^6.37.7",
-    "sequelize-cli": "^6.6.3",
     "silent": "^0.2.3",
-    "sqlite3": "^5.1.7",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1",
-    "winston": "^3.17.0",
-    "zod": "^4.0.17"
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.33.0",
-    "eslint": "^9.33.0",
-    "eslint-plugin-prettier": "^5.5.4",
-    "globals": "^16.3.0",
-    "husky": "^9.1.7",
+    "eslint": "^9.29.0",
     "jest": "^30.0.2",
-    "lint-staged": "^16.1.5",
     "nodemon": "^3.1.10",
-    "prettier": "^3.6.2",
     "supertest": "^7.1.1"
   }
 }

@@ -7,9 +7,7 @@ const getAllExercises = async (req, res) => {
 
 const getExerciseById = async (req, res) => {
   const exercise = await exerciseService.getExerciseById(req.params.id);
-  if (!exercise) {
-    return res.status(404).json({ error: 'Ejercicio no encontrado' });
-  }
+  if (!exercise) return res.status(404).json({ error: 'Ejercicio no encontrado' });
   res.json(exercise);
 };
 
@@ -41,5 +39,5 @@ module.exports = {
   getExerciseById,
   createExercise,
   updateExercise,
-  deleteExercise,
+  deleteExercise
 };

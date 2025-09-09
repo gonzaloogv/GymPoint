@@ -1,34 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth-controller');
-const rateLimit = require('express-rate-limit');
-const validate = require('../middlewares/validate');
-const { z } = require('zod');
-
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
-  standardHeaders: true, // X-RateLimit-*
-  legacyHeaders: false,
-  message: 'Too many login attempts',
-});
-
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
-});
-
-const registerSchema = z.object({
-  name: z.string(),
-  lastname: z.string(),
-  email: z.string().email(),
-  password: z.string().min(6),
-  gender: z.string(),
-  locality: z.string(),
-  subscription: z.string(),
-  age: z.number(),
-  frequency_goal: z.number(),
-});
 
 /**
  * @swagger
@@ -93,7 +65,7 @@ const registerSchema = z.object({
  *       400:
  *         description: Email ya registrado o datos inválidos
  */
-router.post('/register', validate(registerSchema), authController.register);
+router.post('/register', authController.register);
 
 /**
  * @swagger
@@ -132,7 +104,7 @@ router.post('/register', validate(registerSchema), authController.register);
  *       401:
  *         description: Credenciales inválidas
  */
-router.post('/login', loginLimiter, validate(loginSchema), authController.login);
+router.post('/login', authController.login);
 
 /**
  * @swagger

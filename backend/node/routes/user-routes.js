@@ -93,34 +93,4 @@ router.get('/me', verificarToken, controller.obtenerPerfil);
  */
 router.put('/me', verificarToken, controller.actualizarPerfil);
 
-/**
- * @swagger
- * /api/users/me/password:
- *   put:
- *     summary: Cambiar la contraseña del usuario autenticado
- *     tags: [Usuario]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [currentPassword, newPassword]
- *             properties:
- *               currentPassword:
- *                 type: string
- *                 example: oldPass123
- *               newPassword:
- *                 type: string
- *                 example: newPass123
- *     responses:
- *       200:
- *         description: Contraseña actualizada
- *       400:
- *         description: Error al cambiar la contraseña
- */
-router.put('/me/password', verificarToken, controller.cambiarPassword);
-
 module.exports = router;

@@ -1,24 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/reward-controller');
-const { verificarToken, verificarRol } = require('../middlewares/auth');
-const validate = require('../middlewares/validate');
-const { z } = require('zod');
-
-const canjearSchema = z.object({
-  id_reward: z.number(),
-  id_gym: z.number(),
-});
-
-const crearSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  cost_tokens: z.number(),
-  type: z.string(),
-  stock: z.number(),
-  start_date: z.string(),
-  finish_date: z.string(),
-});
+const { verificarToken , verificarRol } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -60,7 +43,7 @@ router.get('/', controller.listarRecompensas);
  *       400:
  *         description: Tokens insuficientes o recompensa no disponible
  */
-router.post('/canjear', verificarToken, validate(canjearSchema), controller.canjearRecompensa);
+router.post('/canjear', verificarToken, controller.canjearRecompensa);
 
 /**
  * @swagger
@@ -129,11 +112,6 @@ router.get('/estadisticas', controller.obtenerEstadisticasDeRecompensas);
  *       400:
  *         description: Datos inválidos
  */
-router.post(
-  '/',
-  verificarToken,
-  verificarRol('ADMIN'),
-  validate(crearSchema),
-  controller.crearRecompensa
-);
+router.post('/', verificarToken, verificarRol('ADMIN'), controller.crearRecompensa);
+
 module.exports = router;

@@ -13,7 +13,7 @@ const crearHorarioEspecial = async (req, res) => {
       opening_time,
       closing_time,
       closed,
-      motive,
+      motive
     });
 
     res.status(201).json(resultado);
@@ -33,5 +33,5 @@ const obtenerHorariosEspecialesPorGimnasio = async (req, res) => {
 
 module.exports = {
   crearHorarioEspecial,
-  obtenerHorariosEspecialesPorGimnasio,
+  obtenerHorariosEspecialesPorGimnasio
 };

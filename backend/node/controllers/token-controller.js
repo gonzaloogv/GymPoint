@@ -8,7 +8,7 @@ const otorgarTokens = async (req, res) => {
       return res.status(400).json({ error: 'Faltan campos requeridos.' });
     }
 
-    const resultado = await tokenService.otorgarTokens({ id_user, amount, motive });
+    const resultado = await tokenService.otorgarTokens({ id_user, amount, motive});
     res.status(201).json(resultado);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -27,5 +27,5 @@ const obtenerResumenTokens = async (req, res) => {
 
 module.exports = {
   otorgarTokens,
-  obtenerResumenTokens,
+  obtenerResumenTokens
 };
