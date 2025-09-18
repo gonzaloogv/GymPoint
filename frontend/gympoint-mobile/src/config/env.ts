@@ -1,2 +1,7 @@
+// src/config/env.ts
+import Constants from 'expo-constants';
+
 export const API_BASE_URL =
-process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://10.0.2.2:3000'; // Android emu
+  (Constants.expoConfig?.extra?.apiUrl as string) ?? 'http://localhost:3000';
+
+console.log('🌐 API_BASE_URL:', API_BASE_URL);
