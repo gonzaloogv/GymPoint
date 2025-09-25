@@ -9,7 +9,8 @@
       "@config/*": ["config/*"],
       "@features/*": ["features/*"],
       "@presentation/*": ["presentation/*"],
-      "@shared/*": ["shared/*"]
+      "@shared/*": ["shared/*"],
+      "@assets/*": ["assets/*"]
     },
     "skipLibCheck": true
   },

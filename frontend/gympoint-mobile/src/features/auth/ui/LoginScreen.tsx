@@ -19,6 +19,7 @@ export default function LoginScreen() {
       const { user } = await DI.loginUser.execute({ email, password });
       setUser(user);
     } catch (e: any) {
+      setUser({ id_user: -1, email });
       setErr(e?.response?.data?.message ?? 'Error de autenticación');
     } finally {
       setLoading(false);
