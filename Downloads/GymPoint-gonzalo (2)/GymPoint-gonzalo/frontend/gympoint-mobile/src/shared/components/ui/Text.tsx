@@ -4,6 +4,7 @@ export const H1 = styled.Text`
   color: ${({ theme }) => theme.colors.text};
   font-size: ${({ theme }) => theme.typography.h1}px;
   font-weight: 700;
+   margin-bottom: ${({ theme }) => theme.spacing(2)}px;
 `;
 
 export const Body = styled.Text`

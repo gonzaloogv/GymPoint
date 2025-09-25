@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { DI } from '@config/di';
 import { useAuthStore } from '../state/auth.store';
-import { Screen, Container } from '@shared/components/ui/Screen';
+import { Screen, CenteredContainer } from '@shared/components/ui/Screen';
 import { H1, Subtle } from '@shared/components/ui/Text';
 import { Input } from '@shared/components/ui/Input';
 import { Button, ButtonText } from '@shared/components/ui/Button';
+
 
 export default function LoginScreen() {
   const setUser = useAuthStore(s => s.setUser);
@@ -28,7 +29,7 @@ export default function LoginScreen() {
 
   return (
     <Screen>
-      <Container>
+      <CenteredContainer>
         <H1>Iniciar sesión</H1>
         <Input
           placeholder="Email"
@@ -48,7 +49,7 @@ export default function LoginScreen() {
         <Button onPress={onLogin} disabled={loading}>
           <ButtonText>{loading ? 'Ingresando…' : 'Ingresar'}</ButtonText>
         </Button>
-      </Container>
+      </CenteredContainer>
     </Screen>
   );
 }

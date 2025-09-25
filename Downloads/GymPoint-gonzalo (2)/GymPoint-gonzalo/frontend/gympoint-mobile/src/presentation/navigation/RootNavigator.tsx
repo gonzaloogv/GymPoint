@@ -10,10 +10,10 @@ import { useAuthStore } from '../../features/auth/state/auth.store';
 
 // Importa los íconos que has añadido a tu carpeta assets
 import homeIcon from '../../../assets/home.png';
-import heartIcon from '../../../assets/heart.jpg';
-import mapIcon from '../../../assets/map.jpg';
-import settingsIcon from '../../../assets/settings.jpg';
-import userIcon from '../../../assets/user.jpg';
+import heartIcon from '../../../assets/heart.png';
+import mapIcon from '../../../assets/map.png';
+import settingsIcon from '../../../assets/settings.png';
+import userIcon from '../../../assets/user.png'; 
 
 
 const Stack = createNativeStackNavigator();
@@ -24,7 +24,7 @@ function AppTabs() {
     <Tabs.Navigator
       screenOptions={{
         headerShown: false, // Oculta la cabecera por defecto
-        tabBarActiveTintColor: '#635BFF', // Color del ícono activo (ej. violeta)
+        tabBarActiveTintColor: '#ffffffff', // Color del ícono activo (ej. violeta)
         tabBarInactiveTintColor: '#A8A8A8', // Color del ícono inactivo (ej. gris)
         tabBarStyle: {
           backgroundColor: '#635BFF', // Fondo de la barra de tabs

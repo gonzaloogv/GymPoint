@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import styled from 'styled-components/native';
 import { Input } from '../../../shared/components/ui/Input';
 import GymsMap from './GymsMap';
-
+import {SafeAreaView} from 'react-native-safe-area-context'
 // importa imágenes arriba para que el bundler web las resuelva bien
-import DumbbellImg from '../../../../assets/dumbbell.jpg';
-import CrownImg from '../../../../assets/crown.jpg';
+import DumbbellImg from '../../../../assets/dumbbell.png';
+import CrownImg from '../../../../assets/crown.png';
 import UsersImg from '../../../../assets/users.png';
 
 // —— helpers seguros para theme —— //
