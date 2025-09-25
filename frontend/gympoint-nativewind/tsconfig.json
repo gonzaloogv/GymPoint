@@ -1,0 +1,13 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "types": ["nativewind/types"],
+    "baseUrl": ".",
+    "paths": {
+      "@features/*": ["src/features/*"],
+      "@ui/*": ["src/shared/components/ui/*"]
+    },
+    "strict": true,
+    "skipLibCheck": true
+  }
+}

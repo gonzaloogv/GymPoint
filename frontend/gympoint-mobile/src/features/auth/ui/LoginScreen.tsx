@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import { DI } from '@config/di';
 import { useAuthStore } from '../state/auth.store';
-import { Screen, Container } from '@shared/components/ui/Screen';
+import { Screen, CenteredContainer } from '@shared/components/ui/Screen';
 import { H1, Subtle } from '@shared/components/ui/Text';
-import { Input } from '@shared/components/ui/Input';
+import { InputLogin } from '@shared/components/ui/Input';
 import { Button, ButtonText } from '@shared/components/ui/Button';
+import { Text, TouchableOpacity } from 'react-native';
+import styled from 'styled-components/native';
+import { Logo } from '@shared/components/ui/Logo';
+import { RegisterText,RegisterLink } from '@shared/components/ui/Text';
 
+
+
+
+// --- Componente principal LoginScreen ---
 export default function LoginScreen() {
   const setUser = useAuthStore(s => s.setUser);
   const [email, setEmail] = useState('');
@@ -26,18 +34,35 @@ export default function LoginScreen() {
     }
   };
 
+  const onRegisterPress = () => {
+    // Aquí puedes agregar la lógica para navegar a la pantalla de registro
+    console.log('Navegar a la pantalla de registro');
+  };
+
   return (
     <Screen>
-      <Container>
+      <CenteredContainer>
+        {/* AGREGA EL LOGO AQUÍ */}
+        <Logo source={require('../../../../assets/logo.jpeg')} />
+
         <H1>Iniciar sesión</H1>
-        <Input
+
+        {/* AGREGA EL TEXTO DE REGISTRO AQUÍ */}
+        <RegisterText>
+          No tienes cuenta?{' '}
+          <TouchableOpacity onPress={onRegisterPress}>
+            <RegisterLink>Regístrate aquí.</RegisterLink>
+          </TouchableOpacity>
+        </RegisterText>
+
+        <InputLogin
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
         />
-        <Input
+        <InputLogin
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
@@ -48,7 +73,7 @@ export default function LoginScreen() {
         <Button onPress={onLogin} disabled={loading}>
           <ButtonText>{loading ? 'Ingresando…' : 'Ingresar'}</ButtonText>
         </Button>
-      </Container>
+      </CenteredContainer>
     </Screen>
   );
 }

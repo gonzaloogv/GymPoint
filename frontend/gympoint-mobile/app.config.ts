@@ -7,7 +7,7 @@ const config: ExpoConfig = {
   slug: 'gympoint-mobile',
   version: '1.0.0',
   extra: {
-    apiUrl: process.env.EXPO_PUBLIC_API_BASE_URL,
+    apiUrl: process.env.EXPO_PUBLIC_API_BASE_URL, // 👈 viene del .env
   },
 };
 

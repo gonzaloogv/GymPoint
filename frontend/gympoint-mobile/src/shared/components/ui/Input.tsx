@@ -8,4 +8,18 @@ export const Input = styled.TextInput.attrs(({ theme }: { theme: DefaultTheme })
   padding: ${({ theme }) => theme.spacing(1.5)}px;
   border-radius: ${({ theme }) => theme.radius.md}px;
   color: ${({ theme }) => theme.colors.text};
+   margin-bottom: ${({ theme }) => theme.spacing(2)}px;
+   width: 100%; 
+`;
+
+export const InputLogin = styled.TextInput.attrs(({ theme }: { theme: DefaultTheme }) => ({
+  placeholderTextColor: theme.colors.subtext,
+}))`
+  background-color: ${({ theme }) => theme.colors.inputBg};
+  border: 1px solid ${({ theme }) => theme.colors.inputBorder};
+  padding: ${({ theme }) => theme.spacing(1.5)}px;
+  border-radius: ${({ theme }) => theme.radius.md}px;
+  color: ${({ theme }) => theme.colors.text};
+   margin-bottom: ${({ theme }) => theme.spacing(2)}px;
+   width: 80%; 
 `;
