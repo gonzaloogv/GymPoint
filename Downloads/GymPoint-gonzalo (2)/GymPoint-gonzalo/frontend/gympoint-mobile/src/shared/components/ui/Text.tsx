@@ -1,4 +1,5 @@
 import styled from 'styled-components/native';
+import { Text} from 'react-native';
 
 export const H1 = styled.Text`
   color: ${({ theme }) => theme.colors.text};
@@ -14,4 +15,15 @@ export const Body = styled.Text`
 
 export const Subtle = styled(Body)`
   color: ${({ theme }) => theme.colors.subtext};
+`;
+
+export const RegisterText = styled(Text)`
+  font-size: ${({ theme }) => theme.typography.small}px;
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: ${({ theme }) => theme.spacing(3)}px; /* Espacio debajo del texto */
+`;
+
+export const RegisterLink = styled(Text)`
+  color: ${({ theme }) => theme.colors.primary};
+  text-decoration-line: underline;
 `;
