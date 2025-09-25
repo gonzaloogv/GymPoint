@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import { Input } from '../../../shared/components/ui/Input';
 import GymsMap from './GymsMap';
