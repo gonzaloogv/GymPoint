@@ -10,8 +10,11 @@ export const lightTheme = {
     inputBg: '#FFFFFF',
     inputBorder: '#DADDE6',
     success: '#12D18E',
-    danger: '#FF5A5F',
     warning: '#FFA629',
+    muted: '#70737A',        // alias de subtext
+    textMuted: '#70737A',    // alias de subtext
+    onPrimary: '#FFFFFF',
+    danger: '#EF4444',
   },
   radius: { xs: 6, sm: 10, md: 14, lg: 20 },
   spacing: (v: number) => v * 8, // 8px grid

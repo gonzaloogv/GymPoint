@@ -8,6 +8,7 @@ export type Gym = {
   address?: string;
   rating?: number;
   distancia?: number; // en metros
+  equipment?: string;
 };
 
 // --- utils ---
@@ -28,6 +29,7 @@ function distanceMeters(a: {lat: number; lng: number}, b: {lat: number; lng: num
 function dtoToGym(dto: any): Gym | null {
   const id = dto?.id_gym ?? dto?.id ?? 'unknown';
   const name = dto?.name ?? dto?.nombre ?? 'Gym';
+  const equipment = dto?.equipment ?? dto?.equipamiento ?? 'Equipamiento';
   const lat = toNum(dto?.latitude ?? dto?.lat);
   const lng = toNum(dto?.longitude ?? dto?.lon ?? dto?.lng);
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
@@ -39,6 +41,7 @@ function dtoToGym(dto: any): Gym | null {
     address: dto?.address ?? dto?.direccion,
     rating: dto?.rating ?? dto?.score,
     distancia: dto?.distancia, // si el backend la manda en /cercanos
+    equipment: dto?.equipamiento,
   };
 }
 
@@ -62,8 +65,13 @@ export const GymsService = {
           .filter((g): g is Gym => !!g)
           .sort((a, b) => (a.distancia ?? Infinity) - (b.distancia ?? Infinity));
       }
-    } catch (e: any) {
-      console.log('[GymsService] /cercanos failed → fallback /gyms:', e?.message || e);
+    } catch (e) {
+      console.log('[GymsService] /gyms failed → returning mock');
+      return [
+        { id: '1', name: 'BULLDOG CENTER',     lat: -27.4546453, lng: -58.9913384, address: '—', distancia: 200 },
+        { id: '2', name: 'EQUILIBRIO FITNESS', lat: -27.4484469, lng: -58.9937996, address: '—', distancia: 500 },
+        { id: '3', name: 'EXEN GYM',           lat: -27.4560971, lng: -58.9867207, address: '—', distancia: 900 },
+      ];
     }
 
     // 2) Fallback: /api/gyms (como el JSON que pegaste)

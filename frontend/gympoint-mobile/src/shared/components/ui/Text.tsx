@@ -27,3 +27,8 @@ export const RegisterLink = styled(Text)`
   color: ${({ theme }) => theme.colors.primary};
   text-decoration-line: underline;
 `;
+
+export const ErrorText = styled(Subtle)`
+  margin-top: 6px;
+  color: ${p => p.theme?.colors?.danger ?? '#ef4444'};
+`;

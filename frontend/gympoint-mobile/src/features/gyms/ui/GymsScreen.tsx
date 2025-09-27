@@ -1,144 +1,119 @@
+// src/features/gyms/ui/GymsScreen.tsx
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
-import { Input } from '../../../shared/components/ui/Input';
-import GymsMap from './GymsMap';
-import * as Location from 'expo-location';
+import { Text, View } from 'react-native';
 
-import DumbbellImg from '../../../../assets/dumbbell.png';
-import CrownImg from '../../../../assets/crown.png';
-import UsersImg from '../../../../assets/users.png';
+import { Screen, SearchBarContainer, Input } from '@shared/components/ui';
+import { sp, font } from '@shared/styles/uiTokens';
 
+import FiltersSheet from './components/FilterSheets';
+import HeaderActions from './components/HeaderActions';
+import MapSection from './components/MapSection';
+import GymsList from './components/GymLists';
+import ResultsInfo from './components/ResultsInfo';
+
+import { useUserLocation } from '@shared/hooks/useUserLocation';
 import { useNearbyGyms } from '../hooks/useNearbyGyms';
+import { useGymsFiltering } from '../hooks/useGymsFiltering';
+import { useMapInitialRegion } from '../hooks/useMapInitialRegion';
+import { useMapLocations } from '../hooks/useMapLocations';
+import { useActiveFiltersCount } from '../hooks/useActiveFilterCount';
 
-// helpers theme
-const sp = (theme: any, n: number) =>
-  typeof theme?.spacing === 'function'
-    ? theme.spacing(n)
-    : typeof theme?.spacing === 'number'
-    ? theme.spacing * n
-    : theme?.spacing?.[n] ?? n * 8;
-const rad = (theme: any, key: string, fallback = 12) =>
-  typeof theme?.radius === 'number' ? theme.radius : theme?.radius?.[key] ?? fallback;
-const font = (theme: any, key: string, fallback = 14) =>
-  typeof theme?.typography?.[key] === 'number' ? theme.typography[key] : fallback;
+import { MOCK_UI } from '../mocks';
+import type { Gym } from '../services/gyms.service';
 
-// styled
-const ScreenContainer = styled(SafeAreaView)`flex:1;background-color:${({theme})=>theme?.colors?.bg ?? '#fff'};`;
-const HeaderContainer = styled(View)`padding:${({theme})=>sp(theme,2)}px;align-items:center;justify-content:center;`;
-const Logo = styled(Image).attrs({ resizeMode: 'contain' })`width:150px;height:40px;`;
-const SearchBarContainer = styled(View)`padding:0 ${({theme})=>sp(theme,2)}px;margin-bottom:${({theme})=>sp(theme,2)}px;`;
-const MapBox = styled(View)`margin:0 ${({theme})=>sp(theme,2)}px;border-radius:${({theme})=>rad(theme,'md',12)}px;overflow:hidden;`;
-const ButtonsGrid = styled(View)`flex-direction:row;flex-wrap:wrap;justify-content:space-around;padding:${({theme})=>sp(theme,2)}px;`;
-const FeatureButton = styled(TouchableOpacity)`
-  width:45%;height:45vw;max-height:180px;background-color:${({theme})=>theme?.colors?.card ?? '#f5f5f5'};
-  border-radius:${({theme})=>rad(theme,'md',12)}px;justify-content:center;align-items:center;
-  margin-bottom:${({theme})=>sp(theme,2)}px;border-width:1px;border-color:${({theme})=>theme?.colors?.border ?? '#ddd'};
+/* ---------- UI ---------- */
+const HeaderRow = styled(View)`
+  padding: ${({ theme }) => sp(theme, 2)}px ${({ theme }) => sp(theme, 2)}px 0;
+  flex-direction: row; align-items: center; justify-content: space-between;
 `;
-const ButtonIcon = styled(Image)`width:60px;height:60px;margin-bottom:${({theme})=>sp(theme,1)}px;`;
-const ButtonText = styled(Text)`font-size:${({theme})=>font(theme,'small',14)}px;color:${({theme})=>theme?.colors?.text ?? '#111'};text-align:center;`;
+const Title = styled(Text)`
+  color: ${({ theme }) => theme?.colors?.text ?? '#111'};
+  font-size: ${({ theme }) => font(theme, 'h4', 18)}px; font-weight: 700;
+`;
 
 export default function GymsScreen() {
   const [searchText, setSearchText] = React.useState('');
-  const [userLocation, setUserLocation] = React.useState<{ latitude: number; longitude: number } | null>(null);
-  const [locError, setLocError] = React.useState<string | null>(null);
+  const [viewMode, setViewMode] = React.useState<'map' | 'list'>('map');
 
-  React.useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') { if (mounted) setLocError('Permiso de ubicación denegado'); return; }
-        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-        if (mounted) { setUserLocation({ latitude: loc.coords.latitude, longitude: loc.coords.longitude }); setLocError(null); }
-      } catch (e: any) {
-        if (mounted) setLocError('Ubicación no disponible');
-        console.log('Location error:', e?.code, e?.message);
-      }
-    })();
-    return () => { mounted = false; };
-  }, []);
+  // Filtros
+  const [filterVisible, setFilterVisible] = React.useState(false);
+  const [selectedServices, setSelectedServices] = React.useState<string[]>([]);
+  const [priceFilter, setPriceFilter] = React.useState('');
+  const [timeFilter, setTimeFilter] = React.useState('');
 
-  const lat = userLocation?.latitude;
-  const lng = userLocation?.longitude;
-  const { data, loading, error } = useNearbyGyms(lat, lng, 100000); // 10km para probar
+  // Ubicación
+  const { userLocation, error: locError } = useUserLocation();
+  const lat = userLocation?.latitude; const lng = userLocation?.longitude;
 
-  const initialRegion = React.useMemo(() => ({
-    latitude: lat ?? -27.4482833,
-    longitude: lng ?? -58.9875387,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
-  }), [lat, lng]);
+  // Data (API + fallback)
+  const { data, loading, error } = useNearbyGyms(lat, lng, 10000);
 
-  const apiLocations = React.useMemo(() => {
-    if (!data || !Array.isArray(data)) return [];
-    const sorted = [...data].sort((a: any, b: any) => {
-      const da = typeof a?.distancia === 'number' ? a.distancia : Number.POSITIVE_INFINITY;
-      const db = typeof b?.distancia === 'number' ? b.distancia : Number.POSITIVE_INFINITY;
-      return da - db;
-    });
-    return sorted.map((g: any) => ({
-      id: String(g.id),
-      title: g.name,
-      coordinate: { latitude: g.lat, longitude: g.lng },
-    }));
-  }, [data]);
+  // Filtrado (texto + servicios)
+  const filteredGyms: Gym[] = useGymsFiltering(data, MOCK_UI, searchText, selectedServices);
+  const resultsCount = filteredGyms.length;
 
-  const locationsWithUser = React.useMemo(() => {
-    const gyms = apiLocations ?? [];
-    return lat && lng
-      ? [...gyms, { id: 'user', title: 'Tu ubicación', coordinate: { latitude: lat, longitude: lng } }]
-      : gyms;
-  }, [apiLocations, lat, lng]);
+  // Región + pines del mapa
+  const initialRegion = useMapInitialRegion(lat, lng);
+  const mapLocations = useMapLocations(filteredGyms.length ? filteredGyms : MOCK_UI);
 
-  // Fallback visual si no hay datos aún
-  const mockLocations = React.useMemo(() => [
-    { id: '1', title: 'FITNIX', coordinate: { latitude: -34.598, longitude: -58.385 } },
-    { id: '2', title: 'PANTHER GYM', coordinate: { latitude: -34.595, longitude: -58.375 } },
-    { id: '3', title: 'Active Life PILATES', coordinate: { latitude: -34.605, longitude: -58.378 } },
-    { id: '4', title: 'GreyFit', coordinate: { latitude: -34.608, longitude: -58.370 } },
-    { id: '5', title: 'Smart Fit', coordinate: { latitude: -34.615, longitude: -58.380 } },
-  ], []);
-  const gymLocations = (locationsWithUser && locationsWithUser.length > 0) ? locationsWithUser : mockLocations;
+  // Vista + badge filtros
+  const isList = viewMode === 'list';
+  const activeFilters = useActiveFiltersCount(selectedServices, priceFilter, timeFilter);
 
   return (
-    <ScreenContainer>
-      <HeaderContainer>
-        {/* 👇 Asegurate que el archivo exista como .png */}
-        <Logo source={require('../../../../assets/logo.jpeg')} />
-      </HeaderContainer>
+    <Screen scroll={!isList} contentContainerStyle={isList ? undefined : { paddingBottom: 24 }}>
+      {/* Header */}
+      <HeaderRow>
+        <Title>Buscar gimnasios</Title>
+        <HeaderActions
+          viewMode={viewMode}
+          onChangeViewMode={setViewMode}
+          onOpenFilters={() => setFilterVisible(true)}
+          activeFilters={activeFilters}
+        />
+      </HeaderRow>
 
+      {/* Buscador */}
       <SearchBarContainer>
-        <Input placeholder="Search" value={searchText} onChangeText={setSearchText} />
+        <Input placeholder="Buscar por nombre o dirección…" value={searchText} onChangeText={setSearchText} />
       </SearchBarContainer>
 
-      <MapBox>
-        <GymsMap initialRegion={initialRegion} locations={gymLocations} />
-        {(loading || (!lat && !lng)) && (
-          <ActivityIndicator style={{ position: 'absolute', top: 12, right: 12 }} />
-        )}
-        {(error || locError) && (
-          <Text style={{ position: 'absolute', top: 12, left: 12, backgroundColor: '#fff8', padding: 6, borderRadius: 8 }}>
-            {locError ? locError : 'Sin conexión / usando datos locales'}
-          </Text>
-        )}
-      </MapBox>
+      {/* Info de resultados (solo mapa) */}
+      {!isList && (
+        <ResultsInfo count={resultsCount} hasUserLocation={!!userLocation} />
+      )}
 
-      <ButtonsGrid>
-        <FeatureButton onPress={() => console.log('Mi rutina')}>
-          <ButtonIcon source={DumbbellImg} />
-          <ButtonText>Mi rutina</ButtonText>
-        </FeatureButton>
-        <FeatureButton onPress={() => console.log('Desbloquear premium')}>
-          <ButtonIcon source={CrownImg} />
-          <ButtonText>Desbloquear premium</ButtonText>
-        </FeatureButton>
-        <FeatureButton onPress={() => console.log('Amigos')}>
-          <ButtonIcon source={UsersImg} />
-          <ButtonText>Amigos</ButtonText>
-        </FeatureButton>
-      </ButtonsGrid>
-    </ScreenContainer>
+      {/* Contenido */}
+      {isList ? (
+        <GymsList
+          data={filteredGyms}
+          headerText={
+            `${resultsCount} gimnasio${resultsCount !== 1 ? 's' : ''} ` +
+            `encontrado${resultsCount !== 1 ? 's' : ''}` +
+            `${userLocation ? ' • ordenados por distancia' : ''}`
+          }
+        />
+      ) : (
+        <MapSection
+          initialRegion={initialRegion}
+          mapLocations={mapLocations}
+          userLocation={lat && lng ? { latitude: lat, longitude: lng } : undefined}
+          loading={loading || (!lat && !lng)}
+          error={error}
+          locError={locError}
+          moreList={filteredGyms.slice(0, 3)}
+        />
+      )}
+
+      {/* Filtros */}
+      <FiltersSheet
+        visible={filterVisible}
+        onClose={() => setFilterVisible(false)}
+        selectedServices={selectedServices}  setSelectedServices={setSelectedServices}
+        priceFilter={priceFilter}            setPriceFilter={setPriceFilter}
+        timeFilter={timeFilter}              setTimeFilter={setTimeFilter}
+      />
+    </Screen>
   );
 }

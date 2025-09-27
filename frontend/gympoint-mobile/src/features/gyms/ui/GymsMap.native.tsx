@@ -1,4 +1,3 @@
-import React from 'react';
 import MapView, { Marker } from 'react-native-maps';
 import { ViewStyle, StyleProp } from 'react-native';
 
