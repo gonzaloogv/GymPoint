@@ -6,10 +6,10 @@ import { Text, View } from 'react-native';
 import { Screen, SearchBarContainer, Input } from '@shared/components/ui';
 import { sp, font } from '@shared/styles/uiTokens';
 
-import FiltersSheet from './components/FilterSheets';
+import FiltersSheet from './components/FiltersSheet';      // ✅ nombre consistente
 import HeaderActions from './components/HeaderActions';
 import MapSection from './components/MapSection';
-import GymsList from './components/GymLists';
+import GymsList from './components/GymsList';              // ✅ nombre consistente
 import ResultsInfo from './components/ResultsInfo';
 
 import { useUserLocation } from '@shared/hooks/useUserLocation';
@@ -17,7 +17,7 @@ import { useNearbyGyms } from '../hooks/useNearbyGyms';
 import { useGymsFiltering } from '../hooks/useGymsFiltering';
 import { useMapInitialRegion } from '../hooks/useMapInitialRegion';
 import { useMapLocations } from '../hooks/useMapLocations';
-import { useActiveFiltersCount } from '../hooks/useActiveFilterCount';
+import { useActiveFiltersCount } from '../hooks/useActiveFiltersCount'; // ✅ plural y nombre de archivo
 
 import { MOCK_UI } from '../mocks';
 import type { Gym } from '../services/gyms.service';
@@ -44,13 +44,20 @@ export default function GymsScreen() {
 
   // Ubicación
   const { userLocation, error: locError } = useUserLocation();
-  const lat = userLocation?.latitude; const lng = userLocation?.longitude;
+  const lat = userLocation?.latitude; 
+  const lng = userLocation?.longitude;
 
-  // Data (API + fallback)
+  // Data (API + fallback al mock si no hay cercanos)
   const { data, loading, error } = useNearbyGyms(lat, lng, 10000);
 
   // Filtrado (texto + servicios)
-  const filteredGyms: Gym[] = useGymsFiltering(data, MOCK_UI, searchText, selectedServices);
+  const filteredGyms: Gym[] = useGymsFiltering(
+    data, 
+    MOCK_UI, 
+    searchText, 
+    selectedServices,
+    priceFilter
+  );
   const resultsCount = filteredGyms.length;
 
   // Región + pines del mapa
@@ -76,7 +83,11 @@ export default function GymsScreen() {
 
       {/* Buscador */}
       <SearchBarContainer>
-        <Input placeholder="Buscar por nombre o dirección…" value={searchText} onChangeText={setSearchText} />
+        <Input 
+          placeholder="Buscar por nombre o dirección…" 
+          value={searchText} 
+          onChangeText={setSearchText} 
+        />
       </SearchBarContainer>
 
       {/* Info de resultados (solo mapa) */}
@@ -102,7 +113,7 @@ export default function GymsScreen() {
           loading={loading || (!lat && !lng)}
           error={error}
           locError={locError}
-          moreList={filteredGyms.slice(0, 3)}
+          moreList={filteredGyms.slice(0, 3)}   // ✅ “Más cercanos” debajo del mapa
         />
       )}
 
@@ -110,9 +121,9 @@ export default function GymsScreen() {
       <FiltersSheet
         visible={filterVisible}
         onClose={() => setFilterVisible(false)}
-        selectedServices={selectedServices}  setSelectedServices={setSelectedServices}
-        priceFilter={priceFilter}            setPriceFilter={setPriceFilter}
-        timeFilter={timeFilter}              setTimeFilter={setTimeFilter}
+        selectedServices={selectedServices}   setSelectedServices={setSelectedServices}
+        priceFilter={priceFilter}             setPriceFilter={setPriceFilter}
+        timeFilter={timeFilter}               setTimeFilter={setTimeFilter}
       />
     </Screen>
   );

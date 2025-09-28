@@ -56,7 +56,7 @@ const BtnText = styled(Text)<{ solid?: boolean }>`
 
 // ====== constantes (podés moverlas a @features/gyms/constants/filters.ts más adelante) ======
 export const SERVICE_OPTIONS = ['Pesas', 'Cardio', 'Clases', 'Pileta', 'Functional', 'Spa', '24hs', 'Nutrición'];
-export const PRICE_OPTIONS   = ['Gratis', '$1000-3000', '$3000-5000', '$5000+'];
+export const PRICE_OPTIONS   = ['Gratis', '$1000-3000', '$12000-20000', '$5000+'];
 export const TIME_OPTIONS    = ['Abierto ahora', 'Mañana (6-12)', 'Tarde (12-18)', 'Noche (18-24)', '24 horas'];
 
 // ====== tipos de props ======
