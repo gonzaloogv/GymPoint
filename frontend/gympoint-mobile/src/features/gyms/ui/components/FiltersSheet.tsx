@@ -56,8 +56,8 @@ const BtnText = styled(Text)<{ solid?: boolean }>`
 
 // ====== constantes (podés moverlas a @features/gyms/constants/filters.ts más adelante) ======
 export const SERVICE_OPTIONS = ['Pesas', 'Cardio', 'Clases', 'Pileta', 'Functional', 'Spa', '24hs', 'Nutrición'];
-export const PRICE_OPTIONS   = ['Gratis', '$1000-3000', '$12000-20000', '$5000+'];
-export const TIME_OPTIONS    = ['Abierto ahora', 'Mañana (6-12)', 'Tarde (12-18)', 'Noche (18-24)', '24 horas'];
+export const PRICE_OPTIONS   = ['Gratis', '$5000-12000', '$12000-20000', '$20000+'];
+export const TIME_OPTIONS    = ['Mañana (6-12)', 'Tarde (12-18)', 'Noche (18-24)', '24 horas'];
 
 // ====== tipos de props ======
 type FiltersSheetProps = {
@@ -69,6 +69,11 @@ type FiltersSheetProps = {
 
   priceFilter: string;
   setPriceFilter: (v: string) => void;
+
+  // 👇 CAMBIO: separo “Abierto ahora” del timeFilter
+  openNow: boolean;
+  setOpenNow: (v: boolean) => void;
+
 
   timeFilter: string;
   setTimeFilter: (v: string) => void;
@@ -84,6 +89,8 @@ export default function FiltersSheet({
   setSelectedServices,
   priceFilter,
   setPriceFilter,
+  openNow,
+  setOpenNow,
   timeFilter,
   setTimeFilter,
   onClear,
@@ -98,6 +105,7 @@ export default function FiltersSheet({
   const handleClear = () => {
     setSelectedServices([]);
     setPriceFilter('');
+    setOpenNow(false);
     setTimeFilter('');
     onClear?.();
   };
@@ -146,6 +154,14 @@ export default function FiltersSheet({
                   </Chip>
                 );
               })}
+            </ChipsGrid>
+
+            {/*Estado Actual */}
+            <SectionTitle style={{ marginTop: 16 }}>Estado</SectionTitle>
+            <ChipsGrid>
+              <Chip active={openNow} onPress={() => setOpenNow(!openNow)}>
+                <ChipText active={openNow}>Abierto ahora</ChipText>
+              </Chip>
             </ChipsGrid>
 
             {/* Horario */}

@@ -15,6 +15,7 @@ import { useAuthStore } from '../../features/auth/state/auth.store';
 import LoginScreen from '../../features/auth/ui/LoginScreen';
 import HomeScreen from '../../features/home/ui/HomeScreen';
 import GymsScreen from '../../features/gyms/ui/GymsScreen';
+import RewardsScreen from '../../features/rewards/ui/RewardsScreen';
 
 // Íconos locales
 import homeIcon from '../../../assets/home.png';
@@ -34,13 +35,7 @@ function MiGimnasioScreen() {
     </View>
   );
 }
-function AjustesScreen() {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Ajustes</Text>
-    </View>
-  );
-}
+
 function UsuarioScreen() {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -50,6 +45,16 @@ function UsuarioScreen() {
 }
 
     function AppTabs() {
+  // Asegúrate de extraer las funciones del store aquí
+  const user = useAuthStore((s) => s.user); 
+  const updateUser = useAuthStore((s) => s.updateUser);
+
+  const renderRewardsScreen = React.useCallback(
+    // Pasamos la función con el nombre correcto a la prop 'onUpdateUser' de RewardsScreen
+    () => <RewardsScreen user={user} onUpdateUser={updateUser} />,
+    [user, updateUser] // Dependencias actualizadas
+  );
+
   return (
     <Tabs.Navigator
       // sceneContainerStyle  ❌  (tu versión no lo tipa)
@@ -105,8 +110,8 @@ function UsuarioScreen() {
         }}
       />
       <Tabs.Screen
-        name="Ajustes"
-        component={AjustesScreen}
+        name="Recompensa"
+        children={renderRewardsScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Image

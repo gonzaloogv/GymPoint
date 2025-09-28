@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DI } from '@config/di';
+import { DI } from '@di/container';
 import { useAuthStore } from '../state/auth.store';
 import { ErrorText, Screen, BrandMark, H1, AuthCard, AuthCardTitle, FormField, InputLogin, PasswordInput, Button, ButtonText, SocialButton, DividerWithText } from '@shared/components/ui';
 

@@ -14,13 +14,14 @@ import ResultsInfo from './components/ResultsInfo';
 
 import { useUserLocation } from '@shared/hooks/useUserLocation';
 import { useNearbyGyms } from '../hooks/useNearbyGyms';
-import { useGymsFiltering } from '../hooks/useGymsFiltering';
+import { useGymsFiltering } from '../hooks/useGymsFiltering'
 import { useMapInitialRegion } from '../hooks/useMapInitialRegion';
 import { useMapLocations } from '../hooks/useMapLocations';
 import { useActiveFiltersCount } from '../hooks/useActiveFiltersCount'; // ✅ plural y nombre de archivo
+import { useGymSchedules } from '../hooks/useGymSchedule';
 
 import { MOCK_UI } from '../mocks';
-import type { Gym } from '../services/gyms.service';
+import type { Gym } from '../domain/entities/Gym';
 
 /* ---------- UI ---------- */
 const HeaderRow = styled(View)`
@@ -40,7 +41,8 @@ export default function GymsScreen() {
   const [filterVisible, setFilterVisible] = React.useState(false);
   const [selectedServices, setSelectedServices] = React.useState<string[]>([]);
   const [priceFilter, setPriceFilter] = React.useState('');
-  const [timeFilter, setTimeFilter] = React.useState('');
+  const [openNow, setOpenNow] = React.useState(false);     // 👈 NUEVO
+  const [timeFilter, setTimeFilter] = React.useState('');  // 👈 ventana
 
   // Ubicación
   const { userLocation, error: locError } = useUserLocation();
@@ -50,13 +52,24 @@ export default function GymsScreen() {
   // Data (API + fallback al mock si no hay cercanos)
   const { data, loading, error } = useNearbyGyms(lat, lng, 10000);
 
+  // Base de gyms para pedir horarios (data o MOCK_UI si no hay)
+  const baseGyms: Gym[] = (data && data.length ? data : MOCK_UI);
+  const baseIds = baseGyms.map(g => Number(g.id)).filter(n => Number.isFinite(n));
+
+  // 🔹 Traemos horarios de todos los gyms base
+  const { schedulesMap } = useGymSchedules(baseIds);
+
+
   // Filtrado (texto + servicios)
   const filteredGyms: Gym[] = useGymsFiltering(
     data, 
     MOCK_UI, 
     searchText, 
     selectedServices,
-    priceFilter
+    priceFilter,
+    openNow,
+    timeFilter,
+    schedulesMap
   );
   const resultsCount = filteredGyms.length;
 
@@ -66,7 +79,7 @@ export default function GymsScreen() {
 
   // Vista + badge filtros
   const isList = viewMode === 'list';
-  const activeFilters = useActiveFiltersCount(selectedServices, priceFilter, timeFilter);
+  const activeFilters = useActiveFiltersCount(selectedServices, priceFilter, timeFilter, openNow);
 
   return (
     <Screen scroll={!isList} contentContainerStyle={isList ? undefined : { paddingBottom: 24 }}>
@@ -123,7 +136,8 @@ export default function GymsScreen() {
         onClose={() => setFilterVisible(false)}
         selectedServices={selectedServices}   setSelectedServices={setSelectedServices}
         priceFilter={priceFilter}             setPriceFilter={setPriceFilter}
-        timeFilter={timeFilter}               setTimeFilter={setTimeFilter}
+        openNow={openNow}                    setOpenNow={setOpenNow}         // 👈
+        timeFilter={timeFilter}              setTimeFilter={setTimeFilter}   
       />
     </Screen>
   );
