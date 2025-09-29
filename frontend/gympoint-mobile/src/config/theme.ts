@@ -6,7 +6,7 @@ export const lightTheme = {
     subtext: '#707686',
     primary: '#4C3AFF',        // morado del wireframe
     primaryText: '#FFFFFF',
-    border: '#E6E8EF',
+    border: '#E6C9EF',
     inputBg: '#FFFFFF',
     inputBorder: '#DADDE6',
     success: '#12D18E',

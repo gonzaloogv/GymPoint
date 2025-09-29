@@ -1,7 +1,6 @@
-import React from 'react';
 import { View, Text, Pressable, ViewStyle, StyleProp } from 'react-native';
 import styled from 'styled-components/native';
-import { rad, sp, font } from '@shared/styles/uiTokens';
+import { rad, font } from '@shared/styles/uiTokens';
 
 type Option = { value: string; label: string };
 

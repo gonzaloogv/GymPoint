@@ -85,7 +85,7 @@ export default function LoginScreen() {
           {err && <ErrorText>{err}</ErrorText>}
 
           <Button onPress={onLogin} disabled={loading} style={{ marginTop: 12, width: '100%' }}>
-            {loading ? <ActivityIndicator color="#fff" /> : <ButtonText>Iniciar sesión</ButtonText>}
+            {loading ? <ActivityIndicator color="#fff" /> : <ButtonText style={{ color:'#ffffff'}}>Iniciar sesión</ButtonText>}
           </Button>
 
           <DividerWithText>o</DividerWithText>

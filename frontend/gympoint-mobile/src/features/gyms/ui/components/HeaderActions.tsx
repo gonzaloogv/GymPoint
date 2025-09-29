@@ -1,14 +1,21 @@
 // src/features/gyms/ui/components/HeaderActions.tsx
-import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { SegmentedControl, BadgeDot } from '@shared/components/ui';
-import { rad, sp } from '@shared/styles/uiTokens';
+import { rad } from '@shared/styles/uiTokens';
+import FilterIcon from '@expo/vector-icons/Feather';
 
-const ActionsRow = styled(View)` flex-direction: row; align-items: center; gap: 10px; `;
+const ActionsRow = styled(View)` 
+  flex-direction: row; 
+  align-items: center; 
+  gap: 10px; 
+`;
 const FilterBtn = styled(TouchableOpacity)`
-  position: relative; padding: 10px 12px;
-  border-width: 1px; border-color: ${({ theme }) => theme?.colors?.border ?? '#e5e7eb'};
+  position: relative; 
+  padding: 7px 12px;
+  margin-bottom: 6px;
+  border-width: 1px; 
+  border-color: ${({ theme }) => theme?.colors?.border ?? '#e5e7eb'};
   background-color: ${({ theme }) => theme?.colors?.card ?? '#fff'};
   border-radius: ${({ theme }) => rad(theme, 'md', 12)}px;
 `;
@@ -25,7 +32,7 @@ export default function HeaderActions({ viewMode, onChangeViewMode, onOpenFilter
     <ActionsRow>
       <View style={{ position: 'relative' }}>
         <FilterBtn onPress={onOpenFilters}>
-          <Text>Filtros</Text>
+          <FilterIcon name="filter" size={16}></FilterIcon>
         </FilterBtn>
         {activeFilters > 0 && <BadgeDot count={activeFilters} />}
       </View>

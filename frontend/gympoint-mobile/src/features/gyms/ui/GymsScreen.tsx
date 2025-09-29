@@ -1,7 +1,7 @@
 // src/features/gyms/ui/GymsScreen.tsx
 import React from 'react';
 import styled from 'styled-components/native';
-import { Text, View } from 'react-native';
+import { Text, View, Platform } from 'react-native';
 
 import { Screen, SearchBarContainer, Input } from '@shared/components/ui';
 import { sp, font } from '@shared/styles/uiTokens';
@@ -11,7 +11,6 @@ import HeaderActions from './components/HeaderActions';
 import MapSection from './components/MapSection';
 import GymsList from './components/GymsList';              // ✅ nombre consistente
 import ResultsInfo from './components/ResultsInfo';
-
 import { useUserLocation } from '@shared/hooks/useUserLocation';
 import { useNearbyGyms } from '../hooks/useNearbyGyms';
 import { useGymsFiltering } from '../hooks/useGymsFiltering'
@@ -127,6 +126,8 @@ export default function GymsScreen() {
           error={error}
           locError={locError}
           moreList={filteredGyms.slice(0, 3)}   // ✅ “Más cercanos” debajo del mapa
+          mapHeight={420}
+          showUserFallbackPin={true}
         />
       )}
 

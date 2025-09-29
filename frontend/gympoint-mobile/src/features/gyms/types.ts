@@ -20,25 +20,3 @@ export type GymDto = {
     distancia?: number;          // en metros
     rating?: number | null;      // si el backend lo devuelve
   };
-  
-// Modelo interno que usa el frontend en TODOS lados (mapa/lista/filtros)
-export type Gym = {
-    id: string;
-    name: string;
-    lat: number;
-    lng: number;
-    address?: string;
-    city?: string;
-    description?: string;
-    phone?: string | null;
-    email?: string | null;
-    website?: string | null;
-    social?: string | null;
-    monthPrice?: number | null;
-    weekPrice?: number | null;
-    equipment: string[];       // 👈 array normalizado
-    hours?: string;            // si más adelante tu API manda horarios
-    rating?: number;           // idem
-    distancia?: number;        // calculada o enviada por backend
-};
-  

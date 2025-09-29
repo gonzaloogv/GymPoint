@@ -5,7 +5,7 @@ const { verificarToken, verificarRolMultiple } = require('../middlewares/auth');
 
 /**
  * @swagger
- * /api/gym-schedule:
+ * /api/schedules:
  *   post:
  *     summary: Registrar un nuevo horario para un gimnasio
  *     tags: [Horarios]
@@ -44,7 +44,7 @@ router.post('/', verificarToken, verificarRolMultiple(['ADMIN', 'GYM']), control
 
 /**
  * @swagger
- * /api/gym-schedule/{id_gym}:
+ * /api/schedules/{id_gym}:
  *   get:
  *     summary: Obtener los horarios configurados para un gimnasio
  *     tags: [Horarios]
@@ -65,7 +65,7 @@ router.get('/:id_gym', controller.obtenerHorariosPorGimnasio);
 
 /**
  * @swagger
- * /api/gym-schedule/{id_schedule}:
+ * /api/schedules/{id_schedule}:
  *   put:
  *     summary: Actualizar un horario existente
  *     tags: [Horarios]

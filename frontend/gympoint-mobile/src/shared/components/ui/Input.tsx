@@ -11,8 +11,8 @@ export const Input = styled.TextInput.attrs(({ theme }: { theme: DefaultTheme })
   padding: ${({ theme }) => theme.spacing(1.5)}px;
   border-radius: ${({ theme }) => theme.radius.md}px;
   color: ${({ theme }) => theme.colors.text};
-   margin-bottom: ${({ theme }) => theme.spacing(2)}px;
-   width: 100%; 
+  margin-bottom: ${({ theme }) => theme.spacing(2)}px;
+  width: 100%; 
 `;
 
 export const InputLogin = styled.TextInput.attrs(({ theme }: { theme: DefaultTheme }) => ({
@@ -23,8 +23,8 @@ export const InputLogin = styled.TextInput.attrs(({ theme }: { theme: DefaultThe
   padding: ${({ theme }) => theme.spacing(1.5)}px;
   border-radius: ${({ theme }) => theme.radius.md}px;
   color: ${({ theme }) => theme.colors.text};
-   margin-bottom: ${({ theme }) => theme.spacing(2)}px;
-   width: 80%; 
+  margin-bottom: ${({ theme }) => theme.spacing(2)}px;
+  width: 80%; 
 `;
 
 //password
@@ -35,8 +35,11 @@ const Relative = styled.View`
 `;
 const EyeToggle = styled(TouchableOpacity)`
   position: absolute;
-  right: 12px; top: 0; bottom: 0;
-  justify-content: center; padding: 6px;
+  right: 12px; 
+  top: 0; 
+  bottom: 12px;
+  justify-content: center; 
+  padding: 6px;
 `;
 
 export function PasswordInput(props: TextInputProps) {

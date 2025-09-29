@@ -1,5 +1,4 @@
 // src/features/gyms/ui/components/GymsList.tsx
-import React from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { ListItem, IndexBadge } from '@shared/components/ui';
 

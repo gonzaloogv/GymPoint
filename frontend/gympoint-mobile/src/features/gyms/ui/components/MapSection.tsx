@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator, Dimensions } from 'react-native';
 import styled from 'styled-components/native';
 
 import { MapBox, ListItem, IndexBadge } from '@shared/components/ui';
@@ -32,6 +32,12 @@ type Props = {
 
   /** ✅ lista para el bloque “Más cercanos” debajo del mapa */
   moreList?: GymLite[];
+
+  /** 🔹 NUEVO: permitir setear la altura del mapa desde arriba (opcional) */
+  mapHeight?: number;
+
+  /** 🔹 NUEVO: mostrar un pin fallback del usuario si el dot nativo no aparece */
+  showUserFallbackPin?: boolean;
 };
 
 const Card = styled.View`
@@ -60,16 +66,27 @@ export default function MapSection({
   error,
   locError,
   moreList = [],
+  mapHeight,
+  showUserFallbackPin = false,
 }: Props) {
+  // Altura responsive por defecto (~50% de pantalla, clamped)
+  const screenH = Dimensions.get('window').height;
+  const computedHeight = mapHeight ?? Math.min(520, Math.max(320, Math.round(screenH * 0.5)));
+
   return (
     <>
-      <MapBox>
+      {/* Aplicamos altura al contenedor y al mapa para evitar recortes */}
+      <MapBox style={{ height: computedHeight }}>
         <GymsMap
           initialRegion={initialRegion}
           locations={mapLocations}
           userLocation={userLocation}
           animateToUserOnChange
           zoomDelta={0.01}
+          showUserFallbackPin={showUserFallbackPin}
+          // altura del mapa por style
+          style={{ height: computedHeight }}
+          debugUser
         />
 
         {loading && (

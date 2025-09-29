@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Gym } from '../services/gyms.service';
+import type { Gym } from '../domain/entities/Gym';
 
 export function useMapLocations(gyms: Gym[]) {
   return useMemo(
