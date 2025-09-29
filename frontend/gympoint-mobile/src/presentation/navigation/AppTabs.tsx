@@ -11,12 +11,13 @@ import GymsScreen from '../../features/gyms/ui/GymsScreen';
 import RewardsScreen from '../../features/rewards/ui/RewardsScreen';
 
 // Ícono local
-import gymIcon from '../../../assets/dumbbell_538914.png';
-import homeIcon from '../../../assets/home.png';
-import mapIcon from '../../../assets/map.png';
-import userIcon from '../../../assets/user.png';
-import giftIcon from '../../../assets/gift_548427.png';
+import WorkoutIcon from '../../../assets/icons/workout.svg';
+import HomeIcon from '../../../assets/icons/home.svg';
+import MapIcon from '../../../assets/icons/map.svg';
+import UserIcon from '../../../assets/icons/user.svg';
+import StoreIcon from '../../../assets/icons/gift.svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { TabIcon } from './components/TabIcon';
 
 const Tabs = createBottomTabNavigator();
 
@@ -116,36 +117,29 @@ export default function AppTabs() {
         name="Inicio"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ focused, size = 20 }) => (
+            tabBarIcon: ({ focused, size = 20 }) => (
             <Pill focused={focused} label="Inicio">
-              <Image
-                source={homeIcon}
-                style={{
-                  width: size,
-                  height: size,
-                  tintColor: focused ? theme.colors.primary : theme.colors.textMuted,
-                  resizeMode: 'contain',
-                }}
-              />
+                <TabIcon
+                source={HomeIcon}
+                size={size}
+                color={focused ? theme.colors.primary : theme.colors.textMuted}
+                />
             </Pill>
-          ),
+            ),
         }}
-      />
+        />
+
       <Tabs.Screen
         name="Rutinas"
         component={MiGimnasioScreen}
         options={{
-          tabBarIcon: ({ focused, size = 20 }) => (
+            tabBarIcon: ({ focused, size = 20 }) => (
             <Pill focused={focused} label="Rutinas">
-              <Image
-                source={gymIcon}
-                style={{
-                  width: size,
-                  height: size,
-                  tintColor: focused ? theme.colors.primary : theme.colors.textMuted,
-                  resizeMode: 'contain',
-                }}
-              />
+                <TabIcon
+                source={WorkoutIcon}
+                size={size}
+                color={focused ? theme.colors.primary : theme.colors.textMuted}
+                />
             </Pill>
           ),
         }}
@@ -156,15 +150,11 @@ export default function AppTabs() {
         options={{
           tabBarIcon: ({ focused, size = 20 }) => (
             <Pill focused={focused} label="Mapa">
-              <Image
-                source={mapIcon}
-                style={{
-                  width: size,
-                  height: size,
-                  tintColor: focused ? theme.colors.primary : theme.colors.textMuted,
-                  resizeMode: 'contain',
-                }}
-              />
+                <TabIcon
+                source={MapIcon}
+                size={size}
+                color={focused ? theme.colors.primary : theme.colors.textMuted}
+                />
             </Pill>
           ),
         }}
@@ -176,15 +166,11 @@ export default function AppTabs() {
             
           tabBarIcon: ({ focused, size = 20 }) => (
             <Pill focused={focused} label="Tienda">
-              <Image
-                source={giftIcon}
-                style={{
-                  width: size,
-                  height: size,
-                  tintColor: focused ? theme.colors.primary : theme.colors.textMuted,
-                  resizeMode: 'contain',
-                }}
-              />
+                <TabIcon
+                source={StoreIcon}
+                size={size}
+                color={focused ? theme.colors.primary : theme.colors.textMuted}
+                />
             </Pill>
           ),
         }}
@@ -195,15 +181,11 @@ export default function AppTabs() {
         options={{
           tabBarIcon: ({ focused, size = 20 }) => (
             <Pill focused={focused} label="Perfil">
-              <Image
-                source={userIcon}
-                style={{
-                  width: size,
-                  height: size,
-                  tintColor: focused ? theme.colors.primary : theme.colors.textMuted,
-                  resizeMode: 'contain',
-                }}
-              />
+                <TabIcon
+                source={UserIcon}
+                size={size}
+                color={focused ? theme.colors.primary : theme.colors.textMuted}
+                />
             </Pill>
           ),
         }}

@@ -15,5 +15,5 @@
     },
     "skipLibCheck": true
   },
-  "include": ["src", "App.tsx", "src/types/**/*.d.ts"]
+  "include": ["src", "App.tsx", "src/types/**/*.d.ts", "**/*.ts", "**/*.ts"]
 }
