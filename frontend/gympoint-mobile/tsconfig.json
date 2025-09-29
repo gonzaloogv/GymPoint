@@ -10,7 +10,7 @@
       "@features/*": ["features/*"],
       "@presentation/*": ["presentation/*"],
       "@shared/*": ["shared/*"],
-      "@assets/*": ["assets/*"],
+      "@assets/*": ["./assets/*"],
       "@di/*": ["di/*"]
     },
     "skipLibCheck": true
