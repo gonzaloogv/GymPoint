@@ -9,6 +9,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, Text, View } from 'react-native';
 import { useTheme as useAppTheme } from 'styled-components/native';
+import { Ionicons } from '@expo/vector-icons';
 
 import { useAuthStore } from '../../features/auth/state/auth.store';
 
@@ -19,7 +20,7 @@ import RewardsScreen from '../../features/rewards/ui/RewardsScreen';
 
 // Íconos locales
 import homeIcon from '../../../assets/home.png';
-import heartIcon from '../../../assets/heart.png';
+import gymIcon from '../../../assets/dumbbell_538914.png';
 import mapIcon from '../../../assets/map.png';
 import settingsIcon from '../../../assets/settings.png';
 import userIcon from '../../../assets/user.png';
@@ -78,20 +79,21 @@ function UsuarioScreen() {
         component={HomeScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Image
-              source={homeIcon}
-              style={{ tintColor: color, width: size, height: size }}
+            <Ionicons 
+              name='home-outline' 
+              color={color} 
+              size={size}
             />
           ),
         }}
       />
       <Tabs.Screen
-        name="Mi Gimnasio"
+        name="Rutinas"
         component={MiGimnasioScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Image
-              source={heartIcon}
+              source={gymIcon}
               style={{ tintColor: color, width: size, height: size }}
             />
           ),
@@ -102,9 +104,10 @@ function UsuarioScreen() {
         component={GymsScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Image
-              source={mapIcon}
-              style={{ tintColor: color, width: size, height: size }}
+            <Ionicons
+              name='navigate-outline'
+              color={color}
+              size={size}
             />
           ),
         }}
@@ -114,9 +117,10 @@ function UsuarioScreen() {
         children={renderRewardsScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Image
-              source={settingsIcon}
-              style={{ tintColor: color, width: size, height: size }}
+            <Ionicons 
+              name='gift-outline'
+              color={color}
+              size={size}
             />
           ),
         }}
@@ -126,9 +130,10 @@ function UsuarioScreen() {
         component={UsuarioScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Image
-              source={userIcon}
-              style={{ tintColor: color, width: size, height: size }}
+            <Ionicons
+              name='person-outline'
+              color={color}
+              size={size}
             />
           ),
         }}

@@ -1,20 +1,20 @@
 export const lightTheme = {
   colors: {
-    bg: '#F7F8FB',
+    bg: '#FAFAFA',
     card: '#FFFFFF',
-    text: '#1E1F24',
-    subtext: '#707686',
-    primary: '#4C3AFF',        // morado del wireframe
+    text: '#1A1A1A',
+    subtext: '#1A1A1A',
+    primary: '#4F9CF9',
     primaryText: '#FFFFFF',
-    border: '#E6C9EF',
+    border: '#DDDDDD',
     inputBg: '#FFFFFF',
-    inputBorder: '#DADDE6',
-    success: '#12D18E',
-    warning: '#FFA629',
-    muted: '#70737A',        // alias de subtext
-    textMuted: '#70737A',    // alias de subtext
+    inputBorder: '#DDDDDD',
+    success: '#4CAF50',
+    warning: '#FF9800',
+    muted: '#E0E0E0',
+    textMuted: '#E0E0E0',
     onPrimary: '#FFFFFF',
-    danger: '#EF4444',
+    danger: '#F44336',
   },
   radius: { xs: 6, sm: 10, md: 14, lg: 20 },
   spacing: (v: number) => v * 8, // 8px grid

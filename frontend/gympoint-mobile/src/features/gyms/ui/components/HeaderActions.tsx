@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import { SegmentedControl, BadgeDot } from '@shared/components/ui';
 import { rad } from '@shared/styles/uiTokens';
-import FilterIcon from '@expo/vector-icons/Feather';
+import FilterIcon from '@expo/vector-icons/Ionicons';
 
 const ActionsRow = styled(View)` 
   flex-direction: row; 
@@ -32,7 +32,7 @@ export default function HeaderActions({ viewMode, onChangeViewMode, onOpenFilter
     <ActionsRow>
       <View style={{ position: 'relative' }}>
         <FilterBtn onPress={onOpenFilters}>
-          <FilterIcon name="filter" size={16}></FilterIcon>
+          <FilterIcon name="filter-sharp" size={16}></FilterIcon>
         </FilterBtn>
         {activeFilters > 0 && <BadgeDot count={activeFilters} />}
       </View>
