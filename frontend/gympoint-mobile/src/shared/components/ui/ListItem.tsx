@@ -24,6 +24,9 @@ const LeftWrap = styled(View)`
   gap: 10px;
   flex: 1;
 `;
+export const ItemPad = styled.View`
+padding: 0 ${({ theme }) => theme.spacing(2)}px;
+`;
 
 export function ListItem({ children, Left, Right, onPress, style }: Props) {
   const Container: any = onPress ? TouchableOpacity : View;

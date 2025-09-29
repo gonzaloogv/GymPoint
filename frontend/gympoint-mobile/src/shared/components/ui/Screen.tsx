@@ -85,9 +85,9 @@ export function Screen({
 /* ---------- Primitivas de layout reutilizables ---------- */
 
 /** Contenedor de página con padding y gap vertical */
-export const Container = styled(View)`
+export const Container = styled(SafeAreaView)`
   flex: 1;
-  padding: ${({ theme }) => sp(theme, 2)}px;
+  padding: ${({ theme }) => sp(theme, 0.8)}px;
   gap: ${({ theme }) => sp(theme, 1)}px; /* RN 0.71+ soporta gap */
 `;
 

@@ -11,3 +11,8 @@ export const ProgressFill = styled.View<{ value: number }>`
   height: 100%;
   background-color: ${p => p.theme?.colors?.primary ?? '#111827'};
 `;
+
+export const ProgressWrap = styled.View`
+  padding: 0 ${({ theme }) => theme.spacing(2)}px;
+  margin-bottom: ${({ theme }) => theme.spacing(2)}px;
+`;

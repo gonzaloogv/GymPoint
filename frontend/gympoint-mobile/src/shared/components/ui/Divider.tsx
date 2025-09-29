@@ -18,3 +18,7 @@ export function DividerWithText({ children = 'o' }: { children?: string }) {
     </Row>
   );
 }
+
+export const Separator = styled.View`
+height: ${({ theme }) => theme.spacing(1.5)}px;
+`;

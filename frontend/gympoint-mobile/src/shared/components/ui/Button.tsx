@@ -11,14 +11,24 @@ export const Button = styled.TouchableOpacity<{ variant?: 'primary' | 'danger' }
   justify-content: center;
 `;
 
-export const ButtonsGrid = styled(View)`flex-direction:row;flex-wrap:wrap;justify-content:space-around;padding:${({theme})=>sp(theme,2)}px;`;
+export const ButtonsGrid = styled(View)`
+flex-direction:row;
+flex-wrap:wrap;
+justify-content:space-around;
+padding:${({theme})=>sp(theme,2)}px;
+`;
+
 export const FeatureButton = styled(TouchableOpacity)`
   width:45%;height:45vw;max-height:180px;background-color:${({theme})=>theme?.colors?.card ?? '#f5f5f5'};
   border-radius:${({theme})=>rad(theme,'md',12)}px;justify-content:center;align-items:center;
   margin-bottom:${({theme})=>sp(theme,2)}px;border-width:1px;border-color:${({theme})=>theme?.colors?.border ?? '#ddd'};
 `;
 export const ButtonIcon = styled(Image)`width:60px;height:60px;margin-bottom:${({theme})=>sp(theme,1)}px;`;
-export const ButtonText = styled(Text)`font-size:${({theme})=>font(theme,'small',14)}px;color:${({theme})=>theme?.colors?.text ?? '#111'};text-align:center;`;
+export const ButtonText = styled(Text)`
+  font-size:${({theme})=>font(theme,'small',14)}px;
+  color:${({theme})=>theme?.colors?.primaryText ?? '#111'};
+  text-align:center;
+`;
 
 //social
 
