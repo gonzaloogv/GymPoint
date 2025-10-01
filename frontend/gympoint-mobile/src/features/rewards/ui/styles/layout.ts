@@ -1,10 +1,11 @@
 import styled from 'styled-components/native';
 import { ScrollView, View, Text } from 'react-native';
 
-export const ScrollContainer = styled(ScrollView)`
+export const ScrollContainer = styled(ScrollView).attrs({
+  contentContainerStyle: { paddingBottom: 48, paddingHorizontal: 16 },
+})`
   flex: 1;
   background-color: ${({ theme }) => theme.colors.bg};
-  padding: 0 16px;
 `;
 
 export const Container = styled(View)`
