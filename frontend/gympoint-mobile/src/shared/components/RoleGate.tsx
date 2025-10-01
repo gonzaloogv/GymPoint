@@ -12,5 +12,5 @@ export function RoleGate({
   const user = useAuthStore((s) => s.user);
   if (!user) return <Text>No autenticado</Text>;
   if (!roles.includes(user.role)) return <Text>No autorizado</Text>;
-  return <>{children}</>;
+  return children;
 }

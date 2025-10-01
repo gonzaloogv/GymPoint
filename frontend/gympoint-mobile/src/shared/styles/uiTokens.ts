@@ -11,3 +11,10 @@ export const rad = (theme: any, key: string, fallback = 12) =>
 
 export const font = (theme: any, key: string, fallback = 14) =>
   typeof theme?.typography?.[key] === 'number' ? theme.typography[key] : fallback;
+
+export const palette = {
+  borderSubtle: '#e5e7eb',
+  slate400: '#9ca3af',
+  slate500: '#6b7280',
+  surfaceOverlay: '#fff8',
+} as const;
