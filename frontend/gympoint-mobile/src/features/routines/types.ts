@@ -15,8 +15,8 @@ export type Routine = {
   status: RoutineStatus;
   exercises: Exercise[];
   estimatedDuration: number; // minutos
-  lastPerformed?: string;    // ISO
-  nextScheduled?: string;    // ISO
+  lastPerformed?: string; // ISO
+  nextScheduled?: string; // ISO
   difficulty: 'Principiante' | 'Intermedio' | 'Avanzado';
   muscleGroups: string[];
 };
@@ -33,7 +33,7 @@ export type SetLog = {
 export type RoutineSession = {
   id: string;
   routineId: string;
-  date: string;          // ISO
+  date: string; // ISO
   durationMin: number;
   completed: boolean;
   notes?: string;

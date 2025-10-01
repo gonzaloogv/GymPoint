@@ -3,8 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme as useAppTheme } from 'styled-components/native';
 
-import { useAuthStore } from '../../features/auth/state/auth.store';
-import LoginScreen from '../../features/auth/ui/LoginScreen';
+import { LoginScreen, useAuthStore } from '@features/auth';
+
 import AppTabs from './AppTabs';
 import { useNavigationTheme } from './navTheme';
 

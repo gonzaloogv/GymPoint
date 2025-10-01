@@ -13,12 +13,21 @@ export function useNearbyGyms(lat?: number, lng?: number, radius = 10000) {
     let mounted = true;
     setLoading(true);
 
-    DI.listNearbyGyms.execute({ lat, lng, radius })
-      .then(d => { if (mounted) setData(d); })
-      .catch(e => { if (mounted) setError(e); })
-      .finally(() => { if (mounted) setLoading(false); });
+    DI.listNearbyGyms
+      .execute({ lat, lng, radius })
+      .then((d) => {
+        if (mounted) setData(d);
+      })
+      .catch((e) => {
+        if (mounted) setError(e);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
 
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [lat, lng, radius]);
 
   return { data, loading, error };

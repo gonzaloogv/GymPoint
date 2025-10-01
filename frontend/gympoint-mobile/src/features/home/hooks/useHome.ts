@@ -40,7 +40,7 @@ const useHomeHook = () => {
 
   const contentPaddingBottom = useMemo(
     () => tabBarHeight + insets.bottom + 8,
-    [tabBarHeight, insets.bottom]
+    [tabBarHeight, insets.bottom],
   );
 
   return {

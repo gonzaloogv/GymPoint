@@ -1,4 +1,3 @@
-export * from './GymLists'
-export * from'./HeaderActions'
-export * from './MapSection'
-export * from './FilterSheets'
+export { default as HeaderActions } from './HeaderActions';
+export { default as MapScreenHeader } from './MapScreenHeader';
+export { default as MapSection } from './MapSection';

@@ -1,4 +1,4 @@
-import { api } from 'services/api';
+import { api } from '@shared/services/api';
 import type { Schedule } from '../domain/entities/Schedule';
 import type { ScheduleRepository } from '../domain/repositories/ScheduleRepository';
 
@@ -23,16 +23,18 @@ export class ScheduleRepositoryImpl implements ScheduleRepository {
       else toFetch.push(id);
     }
     // fan-out simple (si tu backend no soporta batch)
-    await Promise.all(toFetch.map(async (id) => {
-      try {
-        const res = await api.get(`/api/schedules/${id}`);
-        const arr: Schedule[] = Array.isArray(res.data) ? res.data : [];
-        this.cache.set(id, arr);
-        result[id] = arr;
-      } catch {
-        result[id] = [];
-      }
-    }));
+    await Promise.all(
+      toFetch.map(async (id) => {
+        try {
+          const res = await api.get(`/api/schedules/${id}`);
+          const arr: Schedule[] = Array.isArray(res.data) ? res.data : [];
+          this.cache.set(id, arr);
+          result[id] = arr;
+        } catch {
+          result[id] = [];
+        }
+      }),
+    );
 
     // incluir los ya cacheados
     for (const id of ids) {

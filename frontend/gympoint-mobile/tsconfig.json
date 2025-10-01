@@ -3,17 +3,16 @@
   "compilerOptions": {
     "strict": true,
     "jsx": "react-jsx",
-    "baseUrl": "src",
+    "baseUrl": ".",
     "paths": {
       "@app/*": ["app/*"],
-      "@config/*": ["config/*"],
-      "@features/*": ["features/*"],
-      "@presentation/*": ["presentation/*"],
-      "@shared/*": ["shared/*"],
-      "@assets/*": ["./assets/*"],
-      "@di/*": ["di/*"]
+      "@features/*": ["src/features/*"],
+      "@presentation/*": ["src/presentation/*"],
+      "@shared/*": ["src/shared/*"],
+      "@assets/*": ["assets/*"],
+      "@di/*": ["src/di/*"]
     },
     "skipLibCheck": true
   },
-  "include": ["src", "App.tsx", "src/types/**/*.d.ts", "**/*.ts", "**/*.ts"]
+  "include": ["app", "src", "App.tsx", "src/types/**/*.d.ts"]
 }
