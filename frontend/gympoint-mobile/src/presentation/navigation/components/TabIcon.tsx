@@ -3,10 +3,10 @@ import { Image, ImageSourcePropType } from 'react-native';
 import { SvgUri, SvgXml } from 'react-native-svg';
 
 type IconSource =
-  | ImageSourcePropType              // PNG/JPG estáticos: require('...png') o import x from '...png'
-  | React.ComponentType<any>         // SVG como componente: import Icon from '...svg'
+  | ImageSourcePropType // PNG/JPG estáticos: require('...png') o import x from '...png'
+  | React.ComponentType<any> // SVG como componente: import Icon from '...svg'
   | { default: React.ComponentType<any> } // SVG empaquetado como { default: Componente }
-  | string;                          // SVG string o URL
+  | string; // SVG string o URL
 
 export function TabIcon({
   source,
@@ -23,7 +23,9 @@ export function TabIcon({
 
   if (typeof MaybeComp === 'function') {
     // SVG importado como componente (con react-native-svg-transformer)
-    return <MaybeComp width={size} height={size} color={color} fill={color} stroke={color} />;
+    return (
+      <MaybeComp width={size} height={size} color={color} fill={color} stroke={color} />
+    );
   }
 
   if (typeof MaybeComp === 'string') {

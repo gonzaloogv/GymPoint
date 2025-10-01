@@ -36,12 +36,14 @@ const Meta = styled.Text`
 const Pill = styled.View<{ active?: boolean }>`
   padding: ${({ theme }) => theme.spacing(0.5)}px ${({ theme }) => theme.spacing(1)}px;
   border-radius: ${({ theme }) => theme.radius.lg}px;
-  background: ${({ theme, active }) => active ? theme.colors.primary : theme.colors.card};
-  border: 1px solid ${({ theme, active }) => active ? theme.colors.primary : theme.colors.border};
+  background: ${({ theme, active }) =>
+    active ? theme.colors.primary : theme.colors.card};
+  border: 1px solid
+    ${({ theme, active }) => (active ? theme.colors.primary : theme.colors.border)};
 `;
 
 const PillText = styled.Text<{ active?: boolean }>`
-  color: ${({ theme, active }) => active ? theme.colors.onPrimary : theme.colors.text};
+  color: ${({ theme, active }) => (active ? theme.colors.onPrimary : theme.colors.text)};
   font-size: ${({ theme }) => theme.typography.small}px;
   font-weight: 600;
 `;
@@ -127,7 +129,11 @@ export default function RoutineDetailScreen({ route, navigation }: any) {
         <MetaRow>
           <Pill active={routine.status === 'Active'}>
             <PillText active={routine.status === 'Active'}>
-              {routine.status === 'Active' ? 'Activa' : routine.status === 'Scheduled' ? 'Programada' : 'Completada'}
+              {routine.status === 'Active'
+                ? 'Activa'
+                : routine.status === 'Scheduled'
+                  ? 'Programada'
+                  : 'Completada'}
             </PillText>
           </Pill>
           <Meta>• {routine.difficulty}</Meta>
@@ -155,8 +161,10 @@ export default function RoutineDetailScreen({ route, navigation }: any) {
                 <ExMeta>{`Series: ${item.sets} • Reps: ${item.reps} • Descanso: ${item.rest}s`}</ExMeta>
               </ExRow>
               <Chips>
-                {item.muscleGroups.map(m => (
-                  <Chip key={m}><ChipText>{m}</ChipText></Chip>
+                {item.muscleGroups.map((m) => (
+                  <Chip key={m}>
+                    <ChipText>{m}</ChipText>
+                  </Chip>
                 ))}
               </Chips>
             </CardInner>
@@ -165,14 +173,18 @@ export default function RoutineDetailScreen({ route, navigation }: any) {
         contentContainerStyle={{ paddingBottom: 96 }}
       />
 
-        <Footer>
-        <Button onPress={() => navigation?.navigate?.('RoutineExecution', { id: routine.id })}>
-            <ButtonText>Empezar rutina</ButtonText>
+      <Footer>
+        <Button
+          onPress={() => navigation?.navigate?.('RoutineExecution', { id: routine.id })}
+        >
+          <ButtonText>Empezar rutina</ButtonText>
         </Button>
-        <OutlineBtn onPress={() => navigation?.navigate?.('RoutineHistory', { id: routine.id })}>
-            <OutlineText>Ver historial</OutlineText>
+        <OutlineBtn
+          onPress={() => navigation?.navigate?.('RoutineHistory', { id: routine.id })}
+        >
+          <OutlineText>Ver historial</OutlineText>
         </OutlineBtn>
-        </Footer>
+      </Footer>
     </Screen>
   );
 }

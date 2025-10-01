@@ -1,40 +1,86 @@
 import { useState } from 'react';
-import { DI } from '@di/container';
-import { useAuthStore } from '../state/auth.store';
-import { ErrorText, Screen, BrandMark, H1, AuthCard, AuthCardTitle, FormField, InputLogin, PasswordInput, Button, ButtonText, SocialButton, DividerWithText } from '@shared/components/ui';
-
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
-import { Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { sp } from '@shared/styles/uiTokens';
-// --- layout local (propio de esta pantalla) ---
+
+import dumbbellIcon from '@assets/dumbbell.png';
+import { DI } from '@di/container';
+import { BrandMark } from '@shared/components/brand';
+import {
+  AuthCard,
+  AuthCardTitle,
+  Button,
+  ButtonText,
+  DividerWithText,
+  ErrorText,
+  FormField,
+  H1,
+  InputLogin,
+  PasswordInput,
+  Screen,
+  SocialButton,
+} from '@shared/components/ui';
+import { sp } from '@shared/styles';
+
+import { useAuthStore } from '../state/auth.store';
+
 const Root = styled(View)`
-  flex: 1; align-items: center; justify-content: center;
-  padding: ${p => sp(p.theme, 3)}px ${p => sp(p.theme, 2)}px;
-  background-color: ${p => p.theme?.colors?.bg ?? '#fafafa'};
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  padding: ${({ theme }) => sp(theme, 3)}px ${({ theme }) => sp(theme, 2)}px;
+  background-color: ${({ theme }) => theme.colors.bg};
 `;
-const Header = styled(View)` align-items: center; margin-bottom: ${p => sp(p.theme, 3)}px; `;
+
+const Header = styled(View)`
+  align-items: center;
+  margin-bottom: ${({ theme }) => sp(theme, 3)}px;
+`;
 
 const Subtitle = styled(Text)`
-  color: ${p => p.theme?.colors?.subtext ?? '#6b7280'};
-  text-align: center; margin-top: 6px;
+  margin-top: 6px;
+  text-align: center;
+  color: ${({ theme }) => theme.colors.subtext};
 `;
 
-const Footer = styled(View)` align-items: center; margin-top: ${p => sp(p.theme, 2)}px; `;
-const RegisterRow = styled(View)` flex-direction: row; justify-content: center; margin-top: ${p => sp(p.theme, 1.5)}px; `;
-const RegisterText = styled(Text)` color: ${p => p.theme?.colors?.subtext ?? '#6b7280'}; `;
-const RegisterLink = styled(Text)` color: ${p => p.theme?.colors?.primary ?? '#111827'}; font-weight: 600; `;
-const SmallLink = styled(TouchableOpacity)` padding: 6px; `;
-const SmallLinkText = styled(Text)` color: ${p => p.theme?.colors?.primary ?? '#111827'}; font-weight: 500; `;
+const Footer = styled(View)`
+  align-items: center;
+  margin-top: ${({ theme }) => sp(theme, 2)}px;
+`;
+
+const RegisterRow = styled(View)`
+  flex-direction: row;
+  justify-content: center;
+  margin-top: ${({ theme }) => sp(theme, 1.5)}px;
+`;
+
+const RegisterText = styled(Text)`
+  color: ${({ theme }) => theme.colors.subtext};
+`;
+
+const RegisterLink = styled(Text)`
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.primary};
+`;
+
+const SmallLink = styled(TouchableOpacity)`
+  padding: 6px;
+`;
+
+const SmallLinkText = styled(Text)`
+  font-weight: 500;
+  color: ${({ theme }) => theme.colors.primary};
+`;
 
 export default function LoginScreen() {
-  const setUser = useAuthStore(s => s.setUser);
+  const setUser = useAuthStore((state) => state.setUser);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const onLogin = async () => {
-    setLoading(true); setErr(null);
+    setLoading(true);
+    setErr(null);
     try {
       const { user } = await DI.loginUser.execute({ email, password });
       setUser(user);
@@ -55,7 +101,7 @@ export default function LoginScreen() {
     >
       <Root>
         <Header>
-          <BrandMark icon={require('../../../../assets/dumbbell.png')} />
+          <BrandMark icon={dumbbellIcon} />
           <H1>GymPoint</H1>
           <Subtitle>Encontrá tu gym ideal y mantené tu racha</Subtitle>
         </Header>
@@ -84,8 +130,16 @@ export default function LoginScreen() {
 
           {err && <ErrorText>{err}</ErrorText>}
 
-          <Button onPress={onLogin} disabled={loading} style={{ marginTop: 12, width: '100%' }}>
-            {loading ? <ActivityIndicator color="#fff" /> : <ButtonText style={{ color:'#ffffff'}}>Iniciar sesión</ButtonText>}
+          <Button
+            onPress={onLogin}
+            disabled={loading}
+            style={{ marginTop: 12, width: '100%' }}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <ButtonText style={{ color: '#ffffff' }}>Iniciar sesión</ButtonText>
+            )}
           </Button>
 
           <DividerWithText>o</DividerWithText>

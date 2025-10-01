@@ -12,19 +12,21 @@ export const Input = styled.TextInput.attrs(({ theme }: { theme: DefaultTheme })
   border-radius: ${({ theme }) => theme.radius.md}px;
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing(2)}px;
-  width: 100%; 
+  width: 100%;
 `;
 
-export const InputLogin = styled.TextInput.attrs(({ theme }: { theme: DefaultTheme }) => ({
-  placeholderTextColor: theme.colors.subtext,
-}))`
+export const InputLogin = styled.TextInput.attrs(
+  ({ theme }: { theme: DefaultTheme }) => ({
+    placeholderTextColor: theme.colors.subtext,
+  }),
+)`
   background-color: ${({ theme }) => theme.colors.inputBg};
   border: 1px solid ${({ theme }) => theme.colors.inputBorder};
   padding: ${({ theme }) => theme.spacing(1.5)}px;
   border-radius: ${({ theme }) => theme.radius.md}px;
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${({ theme }) => theme.spacing(2)}px;
-  width: 80%; 
+  width: 80%;
 `;
 
 //password
@@ -35,10 +37,10 @@ const Relative = styled.View`
 `;
 const EyeToggle = styled(TouchableOpacity)`
   position: absolute;
-  right: 12px; 
-  top: 0; 
+  right: 12px;
+  top: 0;
   bottom: 12px;
-  justify-content: center; 
+  justify-content: center;
   padding: 6px;
 `;
 
@@ -52,7 +54,7 @@ export function PasswordInput(props: TextInputProps) {
         secureTextEntry={!show}
         style={[{ width: '100%', paddingRight: 44 }, props.style]}
       />
-      <EyeToggle onPress={() => setShow(v => !v)}>
+      <EyeToggle onPress={() => setShow((v) => !v)}>
         <Feather
           name={show ? 'eye-off' : 'eye'}
           size={20}

@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import { Text} from 'react-native';
+import { Text } from 'react-native';
 
 export const H1 = styled.Text`
   color: ${({ theme }) => theme.colors.text};
@@ -30,5 +30,5 @@ export const RegisterLink = styled(Text)`
 
 export const ErrorText = styled(Subtle)`
   margin-top: 6px;
-  color: ${p => p.theme?.colors?.danger ?? '#ef4444'};
+  color: ${(p) => p.theme?.colors?.danger ?? '#ef4444'};
 `;

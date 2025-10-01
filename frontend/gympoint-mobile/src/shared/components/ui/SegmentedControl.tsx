@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ViewStyle, StyleProp } from 'react-native';
 import styled from 'styled-components/native';
-import { rad, font } from '@shared/styles/uiTokens';
+import { rad, font } from '@shared/styles';
 
 type Option = { value: string; label: string };
 
@@ -35,13 +35,20 @@ const Item = styled(Pressable)<{ active?: boolean; size?: 'sm' | 'md' }>`
 const Label = styled(Text)<{ active?: boolean; size?: 'sm' | 'md' }>`
   color: ${({ active, theme }) => (active ? '#fff' : (theme?.colors?.text ?? '#111'))};
   font-weight: 600;
-  font-size: ${({ size, theme }) => (size === 'sm' ? font(theme, 'small', 13) : font(theme, 'base', 14))}px;
+  font-size: ${({ size, theme }) =>
+    size === 'sm' ? font(theme, 'small', 13) : font(theme, 'base', 14)}px;
 `;
 
-export function SegmentedControl({ options, value, onChange, style, size = 'sm' }: Props) {
+export function SegmentedControl({
+  options,
+  value,
+  onChange,
+  style,
+  size = 'sm',
+}: Props) {
   return (
     <Root style={style}>
-      {options.map(opt => {
+      {options.map((opt) => {
         const active = opt.value === value;
         return (
           <Item
@@ -50,7 +57,9 @@ export function SegmentedControl({ options, value, onChange, style, size = 'sm' 
             size={size}
             onPress={() => onChange(opt.value)}
           >
-            <Label active={active} size={size}>{opt.label}</Label>
+            <Label active={active} size={size}>
+              {opt.label}
+            </Label>
           </Item>
         );
       })}

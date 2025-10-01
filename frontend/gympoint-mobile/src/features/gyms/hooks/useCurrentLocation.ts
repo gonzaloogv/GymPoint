@@ -21,7 +21,9 @@ export function useCurrentLocation() {
         setStatus(p.status as LocationStatus);
         if (p.status === 'granted') {
           setLoading(true);
-          const cur = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+          const cur = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+          });
           if (!mounted) return;
           setCoords({ latitude: cur.coords.latitude, longitude: cur.coords.longitude });
         }
@@ -32,7 +34,9 @@ export function useCurrentLocation() {
         if (mounted) setLoading(false);
       }
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // Permite pedir permiso y tomar ubicación actual
@@ -43,7 +47,9 @@ export function useCurrentLocation() {
       const r = await Location.requestForegroundPermissionsAsync();
       setStatus(r.status as LocationStatus);
       if (r.status === 'granted') {
-        const cur = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        const cur = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
         setCoords({ latitude: cur.coords.latitude, longitude: cur.coords.longitude });
       }
     } catch (e) {

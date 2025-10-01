@@ -29,14 +29,14 @@ export function useNavigationTheme(colors?: AppColors): NavigationTheme {
       ...NavDefaultTheme,
       colors: {
         ...NavDefaultTheme.colors,
-        primary,            // se usa en enlaces/acciones
-        background: bg,     // fondo de NavigationContainer
-        card,               // fondo de headers/cards
-        text,               // texto por defecto de RN Navigation
-        border,             // borde de headers/cards
+        primary, // se usa en enlaces/acciones
+        background: bg, // fondo de NavigationContainer
+        card, // fondo de headers/cards
+        text, // texto por defecto de RN Navigation
+        border, // borde de headers/cards
         notification: danger,
       },
     }),
-    [bg, card, text, primary, border, danger]
+    [bg, card, text, primary, border, danger],
   );
 }

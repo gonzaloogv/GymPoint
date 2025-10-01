@@ -1,15 +1,12 @@
 // src/features/gyms/ui/GymsMap.tsx
 import React from 'react';
-import {
-  Platform,
-  View,
-  Text,
-  StyleProp,
-  ViewStyle,
-  Animated,
-} from 'react-native';
+import { Platform, View, Text, StyleProp, ViewStyle, Animated } from 'react-native';
 
-type Gym = { id: string; title: string; coordinate: { latitude: number; longitude: number } };
+type Gym = {
+  id: string;
+  title: string;
+  coordinate: { latitude: number; longitude: number };
+};
 
 type Region = {
   latitude: number;
@@ -100,7 +97,7 @@ export default function GymsMap({
           latitudeDelta: zoomDelta,
           longitudeDelta: zoomDelta,
         },
-        450
+        450,
       );
     }
   }, [userLocation, animateToUserOnChange, zoomDelta]);
@@ -114,7 +111,7 @@ export default function GymsMap({
         latitudeDelta: zoomDelta,
         longitudeDelta: zoomDelta,
       },
-      500
+      500,
     );
   }, [userLocation, animateToUserOnChange, zoomDelta]);
 
@@ -125,7 +122,7 @@ export default function GymsMap({
       Animated.sequence([
         Animated.timing(scale, { toValue: 1.2, duration: 900, useNativeDriver: true }),
         Animated.timing(scale, { toValue: 1.0, duration: 900, useNativeDriver: true }),
-      ])
+      ]),
     );
     loop.start();
     return () => loop.stop();
@@ -154,9 +151,12 @@ export default function GymsMap({
       initialRegion={startRegion}
       onMapReady={onMapReady}
       onLayout={onMapReady}
-      style={[{ width: '100%', height: mapHeight, borderRadius: 12, overflow: 'hidden' }, style]}
-      showsUserLocation={true}          // punto azul nativo
-      showsMyLocationButton={true}      // botón nativo (Android)
+      style={[
+        { width: '100%', height: mapHeight, borderRadius: 12, overflow: 'hidden' },
+        style,
+      ]}
+      showsUserLocation={true} // punto azul nativo
+      showsMyLocationButton={true} // botón nativo (Android)
     >
       {/* Marcadores de gimnasios */}
       {locations.map((g) => (

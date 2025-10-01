@@ -10,7 +10,10 @@ const toNum = (v: any): number | undefined => {
 
 function parseEquipment(e?: string): string[] | undefined {
   if (!e || typeof e !== 'string') return undefined;
-  return e.split(',').map(s => s.trim()).filter(Boolean);
+  return e
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 export function mapGymDTOtoEntity(dto: GymDTO): Gym | null {
@@ -23,7 +26,8 @@ export function mapGymDTOtoEntity(dto: GymDTO): Gym | null {
     name: dto.name ?? 'Gym',
     address: dto.address ?? undefined,
     city: dto.city ?? undefined,
-    lat, lng,
+    lat,
+    lng,
     monthPrice: toNum(dto.month_price),
     weekPrice: toNum(dto.week_price),
     equipment: parseEquipment(dto.equipment),

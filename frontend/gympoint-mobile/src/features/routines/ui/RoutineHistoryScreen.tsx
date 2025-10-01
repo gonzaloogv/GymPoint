@@ -43,7 +43,9 @@ const Meta = styled.Text`
 `;
 
 const Dot = styled.View<{ ok?: boolean }>`
-  width: 10px; height: 10px; border-radius: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
   background: ${({ theme, ok }) => (ok ? theme.colors.primary : theme.colors.border)};
 `;
 

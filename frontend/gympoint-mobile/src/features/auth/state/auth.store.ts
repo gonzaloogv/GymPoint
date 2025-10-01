@@ -9,7 +9,7 @@ type AuthState = {
   user: User | null;
   setUser: (u: User | null) => void;
   // ¡NUEVA FUNCIÓN AÑADIDA! Permite actualizar el objeto User sin reescribir todo el store.
-  updateUser: (u: User) => void; 
+  updateUser: (u: User) => void;
 };
 
 export const useAuthStore = create<AuthState>()(
@@ -17,17 +17,19 @@ export const useAuthStore = create<AuthState>()(
     user: null,
 
     // Función para establecer el usuario (Login/Logout)
-    setUser: (u) => set((s) => { 
-      s.user = u; 
-    }),
+    setUser: (u) =>
+      set((s) => {
+        s.user = u;
+      }),
 
     // 2. Implementación de la nueva función
-    updateUser: (u) => set((s) => {
-      // Usamos 'immer' para mutar el estado de forma segura.
-      // Aquí, reemplazamos el objeto user por el nuevo objeto User que recibimos (con los tokens actualizados).
-      if (s.user) {
-         s.user = u;
-      }
-    }),
-  }))
+    updateUser: (u) =>
+      set((s) => {
+        // Usamos 'immer' para mutar el estado de forma segura.
+        // Aquí, reemplazamos el objeto user por el nuevo objeto User que recibimos (con los tokens actualizados).
+        if (s.user) {
+          s.user = u;
+        }
+      }),
+  })),
 );

@@ -1,6 +1,8 @@
 import { FlatList } from 'react-native';
 import styled from 'styled-components/native';
-import { Routine } from '../../../types';
+
+import type { Routine } from '@features/routines/types';
+
 import RoutineCard from './RoutineCard';
 
 const ListWrap = styled.View`

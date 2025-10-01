@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { sp } from '@shared/styles/uiTokens';
+import { sp } from '@shared/styles';
 
 const InfoText = styled.Text`
   color: ${({ theme }) => theme?.colors?.subtext ?? '#6b7280'};
@@ -8,7 +8,7 @@ const InfoText = styled.Text`
   margin-top: 6px;
 `;
 
-type Props = { count: number; hasUserLocation: boolean; };
+type Props = { count: number; hasUserLocation: boolean };
 export default function ResultsInfo({ count, hasUserLocation }: Props) {
   return (
     <InfoText>

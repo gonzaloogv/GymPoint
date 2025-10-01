@@ -1,6 +1,7 @@
-import styled from 'styled-components/native';
-import { Routine } from '../../../types';
 import { Card } from '@shared/components/ui';
+import styled from 'styled-components/native';
+
+import type { Routine } from '@features/routines/types';
 
 const Touch = styled.TouchableOpacity``;
 
@@ -87,8 +88,8 @@ export default function RoutineCard({ routine, onPress }: Props) {
     routine.status === 'Scheduled'
       ? `Próxima: ${routine.nextScheduled}`
       : routine.lastPerformed
-      ? `Última: ${routine.lastPerformed}`
-      : undefined;
+        ? `Última: ${routine.lastPerformed}`
+        : undefined;
 
   return (
     <Touch onPress={() => onPress?.(routine)}>
@@ -101,8 +102,8 @@ export default function RoutineCard({ routine, onPress }: Props) {
                 {routine.status === 'Active'
                   ? 'Activa'
                   : routine.status === 'Scheduled'
-                  ? 'Programada'
-                  : 'Completada'}
+                    ? 'Programada'
+                    : 'Completada'}
               </StatusText>
             </StatusPill>
           </Row>
@@ -117,7 +118,10 @@ export default function RoutineCard({ routine, onPress }: Props) {
 
           <Meta numberOfLines={2}>
             {routine.exercises.length} ejercicios •{' '}
-            {routine.exercises.slice(0, 3).map(e => e.name).join(', ')}
+            {routine.exercises
+              .slice(0, 3)
+              .map((e) => e.name)
+              .join(', ')}
             {routine.exercises.length > 3 ? '…' : ''}
           </Meta>
 

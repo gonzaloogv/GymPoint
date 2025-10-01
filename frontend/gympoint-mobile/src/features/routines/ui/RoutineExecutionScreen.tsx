@@ -27,13 +27,16 @@ const Sub = styled.Text`
 `;
 
 const ProgressBg = styled.View`
-  height: 8px; border-radius: 999px; overflow: hidden;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
   background: ${({ theme }) => theme.colors.muted};
   margin: ${({ theme }) => theme.spacing(1)}px 0;
 `;
 
 const ProgressBar = styled.View<{ pct: number }>`
-  width: ${({ pct }) => `${pct}%`}; height: 8px;
+  width: ${({ pct }) => `${pct}%`};
+  height: 8px;
   background: ${({ theme }) => theme.colors.primary};
 `;
 
@@ -53,7 +56,8 @@ const Meta = styled.Text`
 `;
 
 const SetsRow = styled.View`
-  flex-direction: row; flex-wrap: wrap;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: ${({ theme }) => theme.spacing(1)}px;
 `;
 
@@ -61,14 +65,10 @@ const SetPill = styled.View<{ done?: boolean; current?: boolean }>`
   padding: ${({ theme }) => theme.spacing(0.5)}px ${({ theme }) => theme.spacing(1)}px;
   border-radius: ${({ theme }) => theme.radius.lg}px;
   background: ${({ theme, done, current }) =>
-    done ? theme.colors.primary
-    : current ? theme.colors.card
-    : theme.colors.muted};
+    done ? theme.colors.primary : current ? theme.colors.card : theme.colors.muted};
   border: 1px solid
     ${({ theme, done, current }) =>
-      done ? theme.colors.primary
-      : current ? theme.colors.border
-      : theme.colors.muted};
+      done ? theme.colors.primary : current ? theme.colors.border : theme.colors.muted};
 `;
 
 const SetText = styled.Text<{ done?: boolean }>`
@@ -83,7 +83,9 @@ const Footer = styled.View`
 `;
 
 const OutlineBtn = styled.TouchableOpacity`
-  min-height: 48px; align-items: center; justify-content: center;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
   border-radius: ${({ theme }) => theme.radius.lg}px;
   border: 1px solid ${({ theme }) => theme.colors.border};
   background: ${({ theme }) => theme.colors.card};
@@ -104,8 +106,11 @@ export default function RoutineExecutionScreen({ route, navigation }: any) {
   const totalExercises = routine.exercises.length;
   const [setIdx, setSetIdx] = useState(1);
   const totalSets = useMemo(
-    () => (typeof current.sets === 'number' ? current.sets : parseInt(String(current.sets)) || 1),
-    [current]
+    () =>
+      typeof current.sets === 'number'
+        ? current.sets
+        : parseInt(String(current.sets)) || 1,
+    [current],
   );
 
   const [rest, setRest] = useState<number>(0);
@@ -119,7 +124,7 @@ export default function RoutineExecutionScreen({ route, navigation }: any) {
     setSetIdx(1);
   }, [exIdx]);
 
-  const pctRoutine = ((exIdx) / totalExercises) * 100;
+  const pctRoutine = (exIdx / totalExercises) * 100;
 
   const onSetDone = () => {
     if (setIdx < totalSets) {
@@ -137,14 +142,16 @@ export default function RoutineExecutionScreen({ route, navigation }: any) {
     }
   };
 
-  const onPrevExercise = () => setExIdx(i => Math.max(0, i - 1));
-  const onNextExercise = () => setExIdx(i => Math.min(totalExercises - 1, i + 1));
+  const onPrevExercise = () => setExIdx((i) => Math.max(0, i - 1));
+  const onNextExercise = () => setExIdx((i) => Math.min(totalExercises - 1, i + 1));
 
   const header = (
     <Header>
       <Title>{routine.name}</Title>
       <Sub>{`Ejercicio ${exIdx + 1} de ${totalExercises}`}</Sub>
-      <ProgressBg><ProgressBar pct={pctRoutine} /></ProgressBg>
+      <ProgressBg>
+        <ProgressBar pct={pctRoutine} />
+      </ProgressBg>
     </Header>
   );
 
@@ -182,7 +189,13 @@ export default function RoutineExecutionScreen({ route, navigation }: any) {
 
       <Footer>
         <Button onPress={onSetDone}>
-          <ButtonText>{setIdx < totalSets ? 'Marcar serie completa' : (exIdx < totalExercises - 1 ? 'Continuar al siguiente' : 'Finalizar')}</ButtonText>
+          <ButtonText>
+            {setIdx < totalSets
+              ? 'Marcar serie completa'
+              : exIdx < totalExercises - 1
+                ? 'Continuar al siguiente'
+                : 'Finalizar'}
+          </ButtonText>
         </Button>
 
         <OutlineBtn onPress={onPrevExercise} disabled={exIdx === 0}>

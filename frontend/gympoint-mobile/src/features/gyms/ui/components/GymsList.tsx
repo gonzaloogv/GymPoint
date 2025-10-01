@@ -22,7 +22,11 @@ export default function GymsList({ data, headerText, onPressItem }: Props) {
       data={data}
       keyExtractor={(item) => String(item.id)}
       ListHeaderComponent={
-        headerText ? <Text style={{ color: '#6b7280', paddingHorizontal: 16, marginBottom: 8 }}>{headerText}</Text> : null
+        headerText ? (
+          <Text style={{ color: '#6b7280', paddingHorizontal: 16, marginBottom: 8 }}>
+            {headerText}
+          </Text>
+        ) : null
       }
       renderItem={({ item, index }) => (
         <ListItem
@@ -32,12 +36,19 @@ export default function GymsList({ data, headerText, onPressItem }: Props) {
         >
           <Text style={{ fontWeight: '600' }}>{item.name}</Text>
           <Text style={{ color: '#6b7280', fontSize: 12 }}>
-            {typeof item.distancia === 'number' ? `${(item.distancia / 1000).toFixed(1)} km` : '—'} • {item.hours ?? '—'}
+            {typeof item.distancia === 'number'
+              ? `${(item.distancia / 1000).toFixed(1)} km`
+              : '—'}{' '}
+            • {item.hours ?? '—'}
           </Text>
-          {!!item.address && <Text style={{ color: '#6b7280', fontSize: 12 }}>{item.address}</Text>}
+          {!!item.address && (
+            <Text style={{ color: '#6b7280', fontSize: 12 }}>{item.address}</Text>
+          )}
         </ListItem>
       )}
-      ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: '#eee' }} />}
+      ItemSeparatorComponent={() => (
+        <View style={{ height: 1, backgroundColor: '#eee' }} />
+      )}
       contentContainerStyle={{ paddingBottom: 24, backgroundColor: 'transparent' }}
     />
   );

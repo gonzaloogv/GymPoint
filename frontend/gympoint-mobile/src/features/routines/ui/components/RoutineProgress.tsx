@@ -38,16 +38,23 @@ const Bar = styled.View<{ pct: number }>`
 type Props = { completed: number; goal: number };
 
 export default function RoutineProgress({ completed, goal }: Props) {
-  const pct = useMemo(() => Math.max(0, Math.min(100, (completed / Math.max(1, goal)) * 100)), [completed, goal]);
+  const pct = useMemo(
+    () => Math.max(0, Math.min(100, (completed / Math.max(1, goal)) * 100)),
+    [completed, goal],
+  );
   return (
     <Wrap>
       <Card>
         <Inner>
           <Row>
             <Label>Progreso semanal</Label>
-            <Label>{completed}/{goal} entrenamientos</Label>
+            <Label>
+              {completed}/{goal} entrenamientos
+            </Label>
           </Row>
-          <BarBg><Bar pct={pct} /></BarBg>
+          <BarBg>
+            <Bar pct={pct} />
+          </BarBg>
         </Inner>
       </Card>
     </Wrap>

@@ -71,7 +71,8 @@ export default function MapSection({
 }: Props) {
   // Altura responsive por defecto (~50% de pantalla, clamped)
   const screenH = Dimensions.get('window').height;
-  const computedHeight = mapHeight ?? Math.min(520, Math.max(320, Math.round(screenH * 0.5)));
+  const computedHeight =
+    mapHeight ?? Math.min(520, Math.max(320, Math.round(screenH * 0.5)));
 
   return (
     <>
