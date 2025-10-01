@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Screen } from '@shared/components/ui/Screen';
 import { sp } from '@shared/styles';
-import { useHome } from '../../home/hooks/useHome';
+import { useHome } from '../hooks/useHome';
 import {
   HomeHeader,
   WeeklyProgressCard,
@@ -32,25 +32,27 @@ const Page = styled.View`
 
 export default function HomeScreen() {
   const navigation = useNavigation<BottomTabNavigationProp<AppTabsParamList>>();
-  const insets = useSafeAreaInsets();
+  const { bottom } = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
 
   const { user, weeklyGoal, currentProgress, progressPct, perm, requestLocation } =
     useHome();
 
-  const goToGyms = React.useCallback(() => {
-    navigation.navigate('Mapa'); // ✅ directo al tab de Gyms
-  }, [navigation]);
+  const goToGyms = () => navigation.navigate('Mapa');
+  const contentSpacing = React.useMemo(
+    () => ({
+      paddingHorizontal: 16,
+      paddingTop: 4,
+      paddingBottom: tabBarHeight + bottom + 8,
+      rowGap: 16,
+    }),
+    [bottom, tabBarHeight],
+  );
 
   return (
     <Screen
       scroll
-      contentContainerStyle={{
-        paddingHorizontal: 16,
-        paddingTop: 4,
-        paddingBottom: tabBarHeight + insets.bottom + 8,
-        rowGap: 16,
-      }}
+      contentContainerStyle={contentSpacing}
     >
       <Page>
         <HomeHeader userName={user.name} plan={user.plan} tokens={user.tokens} />

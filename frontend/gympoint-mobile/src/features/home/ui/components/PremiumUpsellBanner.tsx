@@ -1,53 +1,71 @@
-import React from 'react';
 import styled from 'styled-components/native';
-import { View, Text, TouchableOpacity } from 'react-native';
 import FeatherIcon from '@expo/vector-icons/Feather';
-import { Card } from '@shared/components/ui/Card';
-import { rad } from '@shared/styles';
+import { Card, Row } from '@shared/components/ui';
+import { palette, rad } from '@shared/styles';
 
-const Row = styled.View`
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 12px;
+const UpsellCard = styled(Card)`
+  border-color: ${palette.premiumBorder};
+  background-color: ${palette.premiumSurface};
 `;
-const PurpleCard = styled(Card)`
-  border-color: #ddd6fe;
-  background-color: #f5f3ff;
+
+const UpsellContent = styled(Row).attrs({ $align: 'flex-start' })`
+  flex: 1;
 `;
-const OutlineButton = styled(TouchableOpacity)`
+
+const UpsellCopy = styled.View`
+  flex: 1;
+  margin-left: 12px;
+`;
+
+const Title = styled.Text`
+  margin-bottom: 2px;
+  font-weight: 700;
+  color: ${palette.premiumStrong};
+`;
+
+const Description = styled.Text`
+  margin-bottom: 8px;
+  color: ${palette.premiumText};
+`;
+
+const OutlineButton = styled.TouchableOpacity`
   min-height: 40px;
   padding: 10px 14px;
-  border-radius: ${(p) => rad(p.theme, 'lg', 12)}px;
+  border-radius: ${({ theme }) => rad(theme, 'lg', 12)}px;
   border-width: 1px;
-  border-color: ${(p) => p.theme?.colors?.border ?? '#e5e7eb'};
+  border-color: ${({ theme }) => theme?.colors?.border ?? palette.neutralBorder};
   align-items: center;
   justify-content: center;
 `;
-const OutlineText = styled(Text)`
-  color: ${(p) => p.theme?.colors?.text ?? '#111'};
+
+const OutlineText = styled.Text`
   font-weight: 600;
+  color: ${({ theme }) => theme?.colors?.text ?? palette.textStrong};
+`;
+
+const LeadingIcon = styled(FeatherIcon).attrs({ size: 20, color: palette.premiumIcon })`
+  margin-top: 2px;
 `;
 
 type Props = { visible: boolean; onPress?: () => void };
 
 export default function PremiumUpsellBanner({ visible, onPress }: Props) {
   if (!visible) return null;
+
   return (
-    <PurpleCard>
-      <Row>
-        <FeatherIcon name="zap" size={20} color="#7c3aed" style={{ marginTop: 2 }} />
-        <View style={{ flex: 1 }}>
-          <Text style={{ color: '#4c1d95', fontWeight: '700', marginBottom: 2 }}>
-            Upgrade a Premium
-          </Text>
-          <Text style={{ color: '#5b21b6', marginBottom: 8 }}>
+    <UpsellCard>
+      <UpsellContent>
+        <LeadingIcon name="zap" />
+        <UpsellCopy>
+          <Title>Upgrade a Premium</Title>
+          <Description>
             Accedé a rutinas personalizadas, métricas avanzadas y más recompensas
-          </Text>
+          </Description>
           <OutlineButton onPress={onPress}>
             <OutlineText>Ver planes</OutlineText>
           </OutlineButton>
-        </View>
-      </Row>
-    </PurpleCard>
+        </UpsellCopy>
+      </UpsellContent>
+    </UpsellCard>
   );
 }

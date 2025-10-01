@@ -1,76 +1,88 @@
-import React from 'react';
 import styled from 'styled-components/native';
-import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FeatherIcon from '@expo/vector-icons/Feather';
-import { Card } from '@shared/components/ui/Card';
-import { sp } from '@shared/styles';
+import { Card, Circle, Row } from '@shared/components/ui';
+import { palette, sp } from '@shared/styles';
 
 const Heading = styled.Text`
+  margin-bottom: 2px;
   font-weight: 700;
-  color: ${(p) => p.theme?.colors?.text ?? '#111'};
-`;
-const Subtext = styled.Text`
-  color: ${(p) => p.theme?.colors?.subtext ?? '#70737A'};
+  color: ${({ theme }) => theme?.colors?.text ?? palette.textStrong};
 `;
 
-const QuickGrid = styled.View`
-  flex-direction: row;
-  gap: ${(p) => sp(p.theme, 1.5)}px;
+const Subtext = styled.Text`
+  color: ${({ theme }) => theme?.colors?.subtext ?? palette.textMuted};
 `;
-const Quick = styled(Card)`
+
+const QuickGrid = styled(Row)`
+  width: 100%;
+`;
+
+const QuickCard = styled(Card)<{ $spaced?: boolean }>`
   flex: 1;
   align-items: center;
-  padding-vertical: ${(p) => sp(p.theme, 2)}px;
+  padding-vertical: ${({ theme }) => sp(theme, 2)}px;
+  ${({ $spaced, theme }) => ($spaced ? `margin-right: ${sp(theme, 1.5)}px;` : '')}
 `;
-const Circle = styled.View<{ bg?: string }>`
-  width: 48px;
-  height: 48px;
-  border-radius: 24px;
+
+const ActionButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.6 })`
+  flex: 1;
   align-items: center;
-  justify-content: center;
-  background-color: ${(p) => p.bg ?? 'rgba(17,24,39,0.08)'};
-  margin-bottom: ${(p) => sp(p.theme, 1)}px;
+`;
+
+const ActionCircle = styled(Circle)`
+  margin-bottom: ${({ theme }) => sp(theme, 1)}px;
 `;
 
 type Props = { onFindGyms?: () => void; onMyRoutines?: () => void };
 
+type QuickAction = {
+  key: 'gyms' | 'routines';
+  label: string;
+  description: string;
+  icon: keyof typeof FeatherIcon.glyphMap;
+  color: string;
+  background: string;
+  onPress: () => void;
+};
+
 export default function QuickActions({ onFindGyms, onMyRoutines }: Props) {
   const navigation = useNavigation<any>();
 
-  const handleFindGyms = onFindGyms ?? (() => navigation.navigate('Mapa')); // ✅ nombre del tab
-
-  const handleMyRoutines = onMyRoutines ?? (() => navigation.navigate('Rutinas')); // ✅ nombre del tab
+  const actions: QuickAction[] = [
+    {
+      key: 'gyms',
+      label: 'Encontrar gym',
+      description: 'Cerca de ti',
+      icon: 'map-pin',
+      color: palette.gymPrimary,
+      background: 'rgba(59, 130, 246, 0.12)',
+      onPress: onFindGyms ?? (() => navigation.navigate('Mapa')),
+    },
+    {
+      key: 'routines',
+      label: 'Mis rutinas',
+      description: 'Entrenamientos',
+      icon: 'activity',
+      color: palette.lifestylePrimary,
+      background: 'rgba(16, 185, 129, 0.12)',
+      onPress: onMyRoutines ?? (() => navigation.navigate('Rutinas')),
+    },
+  ];
 
   return (
     <QuickGrid>
-      <Quick>
-        <TouchableOpacity
-          style={{ flex: 1, alignItems: 'center' }}
-          activeOpacity={0.6}
-          onPress={handleFindGyms}
-        >
-          <Circle bg="rgba(99,91,255,0.12)">
-            <FeatherIcon name="map-pin" size={24} color="#635bff" />
-          </Circle>
-          <Heading style={{ marginBottom: 2 }}>Encontrar gym</Heading>
-          <Subtext>Cerca de ti</Subtext>
-        </TouchableOpacity>
-      </Quick>
-
-      <Quick>
-        <TouchableOpacity
-          style={{ flex: 1, alignItems: 'center' }}
-          activeOpacity={0.6}
-          onPress={handleMyRoutines}
-        >
-          <Circle bg="rgba(16,185,129,0.12)">
-            <FeatherIcon name="activity" size={24} color="#10b981" />
-          </Circle>
-          <Heading style={{ marginBottom: 2 }}>Mis rutinas</Heading>
-          <Subtext>Entrenamientos</Subtext>
-        </TouchableOpacity>
-      </Quick>
+      {actions.map(({ key, label, description, icon, color, background, onPress }, index) => (
+        <QuickCard key={key} $spaced={index === 0}>
+          <ActionButton onPress={onPress}>
+            <ActionCircle $size={48} $background={background}>
+              <FeatherIcon name={icon} size={24} color={color} />
+            </ActionCircle>
+            <Heading>{label}</Heading>
+            <Subtext>{description}</Subtext>
+          </ActionButton>
+        </QuickCard>
+      ))}
     </QuickGrid>
   );
 }
