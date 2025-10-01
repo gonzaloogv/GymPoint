@@ -1,26 +1,22 @@
-import React from 'react';
-import { View, Text, ActivityIndicator, Dimensions } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import styled from 'styled-components/native';
 
-import { MapBox, ListItem, IndexBadge } from '@shared/components/ui';
+import {
+  Card as BaseCard,
+  CardMeta,
+  CardTitle as BaseCardTitle,
+  IndexBadge,
+  ListItem,
+  MapBox,
+  Subtle,
+} from '@shared/components/ui';
+import { palette, rad, sp } from '@shared/styles';
+
+import { LOCATION_FALLBACK_MESSAGE } from '@features/gyms/constants';
+import { GymLite, LatLng, MapLocation, Region } from '@features/gyms/types';
+import { getMapHeight } from '@features/gyms/utils/layout';
+
 import GymsMap from '../GymsMap';
-
-type LatLng = { latitude: number; longitude: number };
-type Region = {
-  latitude: number;
-  longitude: number;
-  latitudeDelta: number;
-  longitudeDelta: number;
-};
-type MapLocation = { id: string; title: string; coordinate: LatLng };
-
-export type GymLite = {
-  id: string | number;
-  name: string;
-  distancia?: number;
-  address?: string;
-  hours?: string;
-};
 
 type Props = {
   initialRegion: Region;
@@ -29,34 +25,53 @@ type Props = {
   loading?: boolean;
   error?: unknown;
   locError?: string | null;
-
-  /** ✅ lista para el bloque “Más cercanos” debajo del mapa */
   moreList?: GymLite[];
-
-  /** 🔹 NUEVO: permitir setear la altura del mapa desde arriba (opcional) */
   mapHeight?: number;
-
-  /** 🔹 NUEVO: mostrar un pin fallback del usuario si el dot nativo no aparece */
   showUserFallbackPin?: boolean;
 };
 
-const Card = styled.View`
-  background-color: ${({ theme }) => theme?.colors?.card ?? '#fff'};
-  border-width: 1px;
-  border-color: ${({ theme }) => theme?.colors?.border ?? '#e5e7eb'};
-  border-radius: 14px;
-  margin: 16px;
+const SectionCard = styled(BaseCard)`
+  margin: ${({ theme }) => sp(theme, 2)}px;
+  padding: 0;
   overflow: hidden;
+  elevation: 0;
 `;
 
-const CardHeader = styled.View`
-  padding: 12px 16px 0 16px;
+const SectionHeader = styled.View`
+  padding: ${({ theme }) => `${sp(theme, 1.5)}px ${sp(theme, 2)}px 0`};
 `;
 
-const CardTitle = styled.Text`
-  font-weight: 600;
-  color: ${({ theme }) => theme?.colors?.text ?? '#111'};
+const LoadingIndicator = styled(ActivityIndicator)`
+  position: absolute;
+  top: ${({ theme }) => sp(theme, 1.5)}px;
+  right: ${({ theme }) => sp(theme, 1.5)}px;
 `;
+
+const ErrorBanner = styled(Subtle)`
+  position: absolute;
+  top: ${({ theme }) => sp(theme, 1.5)}px;
+  left: ${({ theme }) => sp(theme, 1.5)}px;
+  padding: ${({ theme }) => sp(theme, 0.75)}px;
+  background-color: ${palette.surfaceOverlay};
+  border-radius: ${({ theme }) => rad(theme, 'overlay', 8)}px;
+`;
+
+const Accessory = styled(CardMeta)`
+  color: ${palette.slate400};
+`;
+
+const ItemTitle = styled(BaseCardTitle)`
+  margin-bottom: ${({ theme }) => sp(theme, 0.5)}px;
+`;
+
+const Meta = styled(CardMeta)`
+  color: ${palette.slate500};
+`;
+
+const formatDistance = (distance?: number) =>
+  typeof distance === 'number' ? `${(distance / 1000).toFixed(1)} km` : '—';
+
+const noop = () => {};
 
 export default function MapSection({
   initialRegion,
@@ -69,14 +84,13 @@ export default function MapSection({
   mapHeight,
   showUserFallbackPin = false,
 }: Props) {
-  // Altura responsive por defecto (~50% de pantalla, clamped)
-  const screenH = Dimensions.get('window').height;
-  const computedHeight =
-    mapHeight ?? Math.min(520, Math.max(320, Math.round(screenH * 0.5)));
+  const computedHeight = getMapHeight(mapHeight);
+  const hasMoreGyms = moreList.length > 0;
+  const hasLocationError = Boolean(error || locError);
+  const errorMessage = locError ?? LOCATION_FALLBACK_MESSAGE;
 
   return (
     <>
-      {/* Aplicamos altura al contenedor y al mapa para evitar recortes */}
       <MapBox style={{ height: computedHeight }}>
         <GymsMap
           initialRegion={initialRegion}
@@ -85,60 +99,36 @@ export default function MapSection({
           animateToUserOnChange
           zoomDelta={0.01}
           showUserFallbackPin={showUserFallbackPin}
-          // altura del mapa por style
           style={{ height: computedHeight }}
           debugUser
         />
 
-        {loading && (
-          <ActivityIndicator style={{ position: 'absolute', top: 12, right: 12 }} />
-        )}
+        {loading && <LoadingIndicator />}
 
-        {(error || locError) && (
-          <Text
-            style={{
-              position: 'absolute',
-              top: 12,
-              left: 12,
-              backgroundColor: '#fff8',
-              padding: 6,
-              borderRadius: 8,
-            }}
-          >
-            {locError ? locError : 'Sin conexión / usando datos locales'}
-          </Text>
-        )}
+        {hasLocationError && <ErrorBanner>{errorMessage}</ErrorBanner>}
       </MapBox>
 
-      {/* ✅ Más cercanos debajo del mapa */}
-      {Array.isArray(moreList) && moreList.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Más cercanos</CardTitle>
-          </CardHeader>
+      {hasMoreGyms && (
+        <SectionCard>
+          <SectionHeader>
+            <BaseCardTitle>Más cercanos</BaseCardTitle>
+          </SectionHeader>
 
-          <View>
-            {moreList.map((g, idx) => (
-              <ListItem
-                key={String(g.id)}
-                onPress={() => {}}
-                Left={<IndexBadge n={idx + 1} />}
-                Right={<Text style={{ color: '#9ca3af' }}>{'>'}</Text>}
-              >
-                <Text style={{ fontWeight: '600' }}>{g.name}</Text>
-                <Text style={{ color: '#6b7280', fontSize: 12 }}>
-                  {typeof g.distancia === 'number'
-                    ? `${(g.distancia / 1000).toFixed(1)} km`
-                    : '—'}{' '}
-                  • {g.hours ?? '—'}
-                </Text>
-                {!!g.address && (
-                  <Text style={{ color: '#6b7280', fontSize: 12 }}>{g.address}</Text>
-                )}
-              </ListItem>
-            ))}
-          </View>
-        </Card>
+          {moreList.map(({ id, name, distancia, hours, address }, index) => (
+            <ListItem
+              key={String(id)}
+              onPress={noop}
+              Left={<IndexBadge n={index + 1} />}
+              Right={<Accessory>{'>'}</Accessory>}
+            >
+              <ItemTitle>{name}</ItemTitle>
+              <Meta>
+                {formatDistance(distancia)} • {hours ?? '—'}
+              </Meta>
+              {address ? <Meta>{address}</Meta> : null}
+            </ListItem>
+          ))}
+        </SectionCard>
       )}
     </>
   );

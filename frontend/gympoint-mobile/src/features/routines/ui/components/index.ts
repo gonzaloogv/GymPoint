@@ -5,3 +5,4 @@ export { default as RoutineCard } from './RoutineCard';
 export { default as RoutineProgress } from './RoutineProgress';
 export { default as RoutinesHeader } from './RoutinesHeader';
 export { default as RoutinesList } from './RoutinesList';
+export * from './ExerciseDetails';
