@@ -169,7 +169,7 @@ export default function AppTabs() {
       {/* Cambiamos el tab de Rutinas para usar el stack */}
       <Tabs.Screen
         name="Rutinas"
-        component={RoutinesStackNavigator}
+        component={RoutinesScreen}
         options={{
           tabBarIcon: ({ focused, size = 20 }) => (
             <Pill focused={focused} label="Rutinas">
