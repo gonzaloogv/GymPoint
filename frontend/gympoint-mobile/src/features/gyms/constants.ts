@@ -9,5 +9,6 @@ export const DEFAULT_REGION = {
 export const MAP_MIN_HEIGHT = 320;
 export const MAP_MAX_HEIGHT = 520;
 export const MAP_VIEWPORT_RATIO = 0.5;
+export const MAP_SECTION_HEIGHT = 420;
 
 export const LOCATION_FALLBACK_MESSAGE = 'Sin conexión / usando datos locales';

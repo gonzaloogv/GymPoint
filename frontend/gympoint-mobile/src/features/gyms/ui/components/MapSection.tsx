@@ -16,7 +16,7 @@ import { LOCATION_FALLBACK_MESSAGE } from '@features/gyms/constants';
 import { GymLite, LatLng, MapLocation, Region } from '@features/gyms/types';
 import { getMapHeight } from '@features/gyms/utils/layout';
 
-import GymsMap from '../GymsMap';
+import MapView from '../MapView';
 
 type Props = {
   initialRegion: Region;
@@ -92,7 +92,7 @@ export default function MapSection({
   return (
     <>
       <MapBox style={{ height: computedHeight }}>
-        <GymsMap
+        <MapView
           initialRegion={initialRegion}
           locations={mapLocations}
           userLocation={userLocation}

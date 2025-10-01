@@ -1,19 +1,22 @@
-// src/features/gyms/ui/components/HeaderActions.tsx
-import { View, Text, TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
-import { SegmentedControl, BadgeDot } from '@shared/components/ui';
-import { rad } from '@shared/styles';
+
+import { BadgeDot, Row, SegmentedControl } from '@shared/components/ui';
+import { rad, sp } from '@shared/styles';
+
 import FilterIcon from '@expo/vector-icons/Ionicons';
 
-const ActionsRow = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
+const ActionsRow = styled(Row)`
+  gap: ${({ theme }) => sp(theme, 1.25)}px;
 `;
-const FilterBtn = styled(TouchableOpacity)`
+
+const FiltersWrapper = styled(View)`
   position: relative;
-  padding: 7px 12px;
-  margin-bottom: 6px;
+`;
+
+const FilterButton = styled(TouchableOpacity)`
+  padding: ${({ theme }) => `${sp(theme, 0.875)}px ${sp(theme, 1.5)}px`};
+  margin-bottom: ${({ theme }) => sp(theme, 0.75)}px;
   border-width: 1px;
   border-color: ${({ theme }) => theme?.colors?.border ?? '#e5e7eb'};
   background-color: ${({ theme }) => theme?.colors?.card ?? '#fff'};
@@ -34,17 +37,17 @@ export default function HeaderActions({
   activeFilters,
 }: Props) {
   return (
-    <ActionsRow>
-      <View style={{ position: 'relative' }}>
-        <FilterBtn onPress={onOpenFilters}>
-          <FilterIcon name="filter-sharp" size={16}></FilterIcon>
-        </FilterBtn>
+    <ActionsRow $align="center">
+      <FiltersWrapper>
+        <FilterButton onPress={onOpenFilters}>
+          <FilterIcon name="filter-sharp" size={16} />
+        </FilterButton>
         {activeFilters > 0 && <BadgeDot count={activeFilters} />}
-      </View>
+      </FiltersWrapper>
 
       <SegmentedControl
         value={viewMode}
-        onChange={(v) => v && onChangeViewMode(v as 'map' | 'list')}
+        onChange={(value) => value && onChangeViewMode(value as 'map' | 'list')}
         options={[
           { value: 'map', label: 'Mapa' },
           { value: 'list', label: 'Lista' },
