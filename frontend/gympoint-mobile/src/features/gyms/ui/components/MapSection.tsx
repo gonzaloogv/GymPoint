@@ -3,10 +3,8 @@ import styled from 'styled-components/native';
 
 import {
   Card as BaseCard,
-  CardMeta,
   CardTitle as BaseCardTitle,
-  IndexBadge,
-  ListItem,
+  GymListItem,
   MapBox,
   Subtle,
 } from '@shared/components/ui';
@@ -56,17 +54,6 @@ const ErrorBanner = styled(Subtle)`
   border-radius: ${({ theme }) => rad(theme, 'overlay', 8)}px;
 `;
 
-const Accessory = styled(CardMeta)`
-  color: ${palette.slate400};
-`;
-
-const ItemTitle = styled(BaseCardTitle)`
-  margin-bottom: ${({ theme }) => sp(theme, 0.5)}px;
-`;
-
-const Meta = styled(CardMeta)`
-  color: ${palette.slate500};
-`;
 
 const formatDistance = (distance?: number) =>
   typeof distance === 'number' ? `${(distance / 1000).toFixed(1)} km` : '—';
@@ -115,18 +102,16 @@ export default function MapSection({
           </SectionHeader>
 
           {moreList.map(({ id, name, distancia, hours, address }, index) => (
-            <ListItem
+            <GymListItem
               key={String(id)}
+              id={id}
+              name={name}
+              distancia={distancia}
+              hours={hours}
+              address={address}
+              index={index}
               onPress={noop}
-              Left={<IndexBadge n={index + 1} />}
-              Right={<Accessory>{'>'}</Accessory>}
-            >
-              <ItemTitle>{name}</ItemTitle>
-              <Meta>
-                {formatDistance(distancia)} • {hours ?? '—'}
-              </Meta>
-              {address ? <Meta>{address}</Meta> : null}
-            </ListItem>
+            />
           ))}
         </SectionCard>
       )}

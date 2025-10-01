@@ -4,91 +4,60 @@
  */
 
 import React from 'react';
-import { View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import {
-  Card,
-  AvatarContainer,
-  AvatarImage,
-  AvatarFallback,
-  Title,
-  Subtitle,
-  Badge,
-  BadgeText,
-} from '../styles/ProfilesStyles';
+import { View, Text } from 'react-native';
+import { Card, Avatar, UnifiedBadge } from '@shared/components/ui';
 import { UserProfile } from '../types/UserTypes';
-import { AppTheme } from '@config/theme';
 
 interface ProfileHeaderProps {
   user: UserProfile;
-  theme: AppTheme;
+  theme?: any;
 }
-
-/**
- * Genera las iniciales del nombre del usuario
- * Ejemplo: "Juan Pérez" -> "JP"
- */
-const getInitials = (name: string): string => {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
-};
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, theme }) => {
   return (
-    <Card theme={theme}>
+    <Card>
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          gap: theme.spacing(2),
+          gap: 16,
         }}
       >
         {/* Avatar del usuario */}
-        <AvatarContainer theme={theme}>
-          {user.avatar ? (
-            <AvatarImage source={{ uri: user.avatar }} />
-          ) : (
-            <AvatarFallback theme={theme}>{getInitials(user.name)}</AvatarFallback>
-          )}
-        </AvatarContainer>
+        <Avatar userName={user.name} size={60} />
 
         {/* Información del usuario */}
         <View style={{ flex: 1 }}>
-          <Title theme={theme}>{user.name}</Title>
-          <Subtitle theme={theme}>{user.email}</Subtitle>
+          <View style={{ marginBottom: 8 }}>
+            <Text style={{ fontSize: 22, fontWeight: '700', color: '#000', marginBottom: 4 }}>
+              {user.name}
+            </Text>
+            <Text style={{ fontSize: 16, color: '#666' }}>
+              {user.email}
+            </Text>
+          </View>
 
           {/* Badges de plan y racha */}
           <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              gap: theme.spacing(1),
-              marginTop: theme.spacing(1),
+              gap: 8,
             }}
           >
-            {/* Badge del plan (Free o Premium) */}
-            <Badge premium={user.plan === 'Premium'} theme={theme}>
-              {user.plan === 'Premium' && (
-                <Feather
-                name="star"
-                size={12}
-                color="#FFFFFF"
-                style={{ marginRight: 4 }}
-              />
-              )}
-              <BadgeText premium={user.plan === 'Premium'} theme={theme}>
-                {user.plan}
-              </BadgeText>
-            </Badge>
-
-            {/* Badge de la racha actual */}
-            <Badge outline theme={theme}>
-              <Feather size={12} color={theme.colors.text} style={{ marginRight: 4 }} />
-              <BadgeText theme={theme}>{user.streak} días</BadgeText>
-            </Badge>
+            <UnifiedBadge 
+              variant={user.plan === 'Premium' ? 'primary' : 'secondary'}
+              icon={user.plan === 'Premium' ? 'star' : undefined}
+            >
+              {user.plan}
+            </UnifiedBadge>
+            <UnifiedBadge 
+              variant="outline"
+              icon="zap"
+              iconColor="#FFA726"
+            >
+              {user.streak || 0} días
+            </UnifiedBadge>
           </View>
         </View>
       </View>

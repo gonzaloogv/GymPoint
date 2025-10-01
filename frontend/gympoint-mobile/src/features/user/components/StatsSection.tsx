@@ -4,25 +4,15 @@
  */
 
 import React from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import {
-  Card,
-  SectionTitle,
-  Title,
-  StatBox,
-  StatValue,
-  StatLabel,
-  BodyText,
-  SmallText,
-} from '../styles/ProfilesStyles';
-import { UserProfile } from '../types/userTypes';
-import { AppTheme } from '@config/theme';
+import { Card, StatsCard } from '@shared/components/ui';
+import { UserStats } from '../types/UserTypes';
 
 interface StatsSectionProps {
-  stats: UserProfile;
+  stats: UserStats;
   isPremium: boolean;
-  theme: AppTheme;
+  theme?: any;
 }
 
 export const StatsSection: React.FC<StatsSectionProps> = ({
@@ -30,84 +20,61 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
   isPremium,
   theme,
 }) => {
+  const statsData = [
+    {
+      value: stats.totalCheckIns,
+      label: 'Check-ins totales',
+      backgroundColor: '#E3F2FD',
+      color: '#1976D2',
+    },
+    {
+      value: stats.longestStreak,
+      label: 'Mayor racha',
+      backgroundColor: '#E8F5E9',
+      color: '#388E3C',
+    },
+    {
+      value: stats.monthlyVisits,
+      label: 'Visitas este mes',
+      backgroundColor: '#F3E8FF',
+      color: '#9333EA',
+    },
+    {
+      value: stats.favoriteGym,
+      label: 'Gym favorito',
+      backgroundColor: '#FFF3E0',
+      color: '#E65100',
+      isText: true,
+    },
+  ];
+
   return (
-    <Card theme={theme}>
+    <Card>
       {/* Título de la sección */}
-      <SectionTitle theme={theme}>
-        <Feather size={20} color={theme.colors.text} />
-        <Title theme={theme}>Estadísticas</Title>
-      </SectionTitle>
-
-      {/* Grid de estadísticas en 2 columnas */}
-      <View
-        style={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          marginHorizontal: -theme.spacing(0.5),
-        }}
-      >
-        {/* Check-ins totales */}
-        <View style={{ width: '50%', padding: theme.spacing(0.5) }}>
-          <StatBox color="#E3F2FD" theme={theme}>
-            <StatValue color="#1976D2">{stats.totalCheckIns}</StatValue>
-            <StatLabel color="#1976D2">Check-ins totales</StatLabel>
-          </StatBox>
-        </View>
-
-        {/* Mayor racha */}
-        <View style={{ width: '50%', padding: theme.spacing(0.5) }}>
-          <StatBox color="#E8F5E9" theme={theme}>
-            <StatValue color="#388E3C">{stats.longestStreak}</StatValue>
-            <StatLabel color="#388E3C">Mayor racha</StatLabel>
-          </StatBox>
-        </View>
-
-        {/* Visitas este mes */}
-        <View style={{ width: '50%', padding: theme.spacing(0.5) }}>
-          <StatBox color="#F3E8FF" theme={theme}>
-            <StatValue color="#9333EA">{stats.monthlyVisits}</StatValue>
-            <StatLabel color="#9333EA">Visitas este mes</StatLabel>
-          </StatBox>
-        </View>
-
-        {/* Gimnasio favorito */}
-        <View style={{ width: '50%', padding: theme.spacing(0.5) }}>
-          <StatBox color="#FFF3E0" theme={theme}>
-            <BodyText
-              style={{
-                fontWeight: 'bold',
-                color: '#E65100',
-                fontSize: 14,
-                textAlign: 'center',
-              }}
-            >
-              {stats.favoriteGym}
-            </BodyText>
-            <StatLabel color="#E65100">Gym favorito</StatLabel>
-          </StatBox>
-        </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+        <Feather name="bar-chart-2" size={20} color="#000" />
+        <Text style={{ fontSize: 18, fontWeight: '700', color: '#000' }}>
+          Estadísticas
+        </Text>
       </View>
+
+      {/* Grid de estadísticas */}
+      <StatsCard stats={statsData} />
 
       {/* Mensaje para usuarios Free sobre estadísticas Premium */}
       {!isPremium && (
         <View
           style={{
-            marginTop: theme.spacing(2),
-            padding: theme.spacing(1.5),
+            marginTop: 16,
+            padding: 12,
             backgroundColor: '#F5F5F5',
-            borderRadius: theme.radius.sm,
+            borderRadius: 8,
             alignItems: 'center',
           }}
         >
-          <SmallText
-            style={{
-              color: theme.colors.subtext,
-              opacity: 0.7,
-              textAlign: 'center',
-            }}
-          >
+          <Text style={{ fontSize: 14, color: '#666', opacity: 0.7, textAlign: 'center' }}>
             Con Premium desbloqueás estadísticas detalladas y gráficos
-          </SmallText>
+          </Text>
         </View>
       )}
     </Card>

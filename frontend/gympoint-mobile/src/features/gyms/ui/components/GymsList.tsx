@@ -1,6 +1,6 @@
 // src/features/gyms/ui/components/GymsList.tsx
 import { View, Text, FlatList } from 'react-native';
-import { ListItem, IndexBadge } from '@shared/components/ui';
+import { GymListItem } from '@shared/components/ui';
 
 type Item = {
   id: string | number;
@@ -29,22 +29,15 @@ export default function GymsList({ data, headerText, onPressItem }: Props) {
         ) : null
       }
       renderItem={({ item, index }) => (
-        <ListItem
-          onPress={() => onPressItem?.(item.id)}
-          Left={<IndexBadge n={index + 1} />}
-          Right={<Text style={{ color: '#9ca3af' }}>{'>'}</Text>}
-        >
-          <Text style={{ fontWeight: '600' }}>{item.name}</Text>
-          <Text style={{ color: '#6b7280', fontSize: 12 }}>
-            {typeof item.distancia === 'number'
-              ? `${(item.distancia / 1000).toFixed(1)} km`
-              : '—'}{' '}
-            • {item.hours ?? '—'}
-          </Text>
-          {!!item.address && (
-            <Text style={{ color: '#6b7280', fontSize: 12 }}>{item.address}</Text>
-          )}
-        </ListItem>
+        <GymListItem
+          id={item.id}
+          name={item.name}
+          distancia={item.distancia}
+          address={item.address}
+          hours={item.hours}
+          index={index}
+          onPress={onPressItem}
+        />
       )}
       ItemSeparatorComponent={() => (
         <View style={{ height: 1, backgroundColor: '#eee' }} />

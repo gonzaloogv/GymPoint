@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
-import { Screen } from '@shared/components/ui';
-import { useUserLocation } from '@shared/hooks/useUserLocation';
+import { GymsScreenLayout } from '@shared/components/ui';
+import { useGymsData, useGymsFilters, useGymsView } from '@shared/hooks';
+import { formatResultsLabel } from '@shared/utils';
 
 import { MAP_SECTION_HEIGHT } from '@features/gyms/constants';
-import type { Gym } from '@features/gyms/domain/entities/Gym';
 import { MOCK_UI } from '@features/gyms/mocks';
 import { useActiveFiltersCount } from '@features/gyms/hooks/useActiveFiltersCount';
 import { useGymsFiltering } from '@features/gyms/hooks/useGymsFiltering';
@@ -19,53 +19,53 @@ import MapSection from './components/MapSection';
 import MapScreenHeader from './components/MapScreenHeader';
 import ResultsInfo from './components/ResultsInfo';
 
-const MAP_CONTENT_SPACING = { paddingBottom: 24 } as const;
-
-const formatResultsLabel = (count: number, hasLocation: boolean) => {
-  const plural = count === 1 ? '' : 's';
-  const suffix = hasLocation ? ' • ordenados por distancia' : '';
-  return `${count} gimnasio${plural} encontrado${plural}${suffix}`;
-};
-
-const getNumericIds = (gyms: Gym[]) =>
-  gyms
-    .map((gym) => Number(gym.id))
-    .filter((id): id is number => Number.isFinite(id));
 
 export default function MapScreen() {
   const [searchText, setSearchText] = useState('');
-  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
-  const [filterVisible, setFilterVisible] = useState(false);
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [priceFilter, setPriceFilter] = useState('');
-  const [openNow, setOpenNow] = useState(false);
-  const [timeFilter, setTimeFilter] = useState('');
 
-  const { userLocation, error: locError } = useUserLocation();
-  const latitude = userLocation?.latitude;
-  const longitude = userLocation?.longitude;
+  // Custom hooks for state management
+  const { viewMode, setViewMode, isListView } = useGymsView('map');
+  const {
+    filterVisible,
+    selectedServices,
+    priceFilter,
+    openNow,
+    timeFilter,
+    setFilterVisible,
+    setSelectedServices,
+    setPriceFilter,
+    setOpenNow,
+    setTimeFilter,
+    openFilters,
+    closeFilters,
+  } = useGymsFilters();
 
-  const { data, loading, error } = useNearbyGyms(latitude, longitude, 10000);
-
-  const baseGyms: Gym[] = data?.length ? data : MOCK_UI;
-  const baseIds = useMemo(() => getNumericIds(baseGyms), [baseGyms]);
-  const { schedulesMap } = useGymSchedules(baseIds);
-
-  const filteredGyms = useGymsFiltering(
-    data,
-    MOCK_UI,
+  // Data management
+  const {
+    filteredGyms,
+    resultsCount,
+    hasUserLocation,
+    initialRegion,
+    mapLocations,
+    userLatLng,
+    isLoading,
+    topNearbyGyms,
+    locError,
+    error,
+  } = useGymsData({
+    useNearbyGyms,
+    useGymSchedules,
+    useGymsFiltering,
+    useMapInitialRegion,
+    useMapLocations,
+    mockData: MOCK_UI,
     searchText,
     selectedServices,
     priceFilter,
     openNow,
     timeFilter,
-    schedulesMap,
-  );
+  });
 
-  const resultsCount = filteredGyms.length;
-  const hasUserLocation = Boolean(userLocation);
-  const initialRegion = useMapInitialRegion(latitude, longitude);
-  const mapLocations = useMapLocations(filteredGyms.length ? filteredGyms : MOCK_UI);
   const activeFilters = useActiveFiltersCount(
     selectedServices,
     priceFilter,
@@ -73,20 +73,14 @@ export default function MapScreen() {
     openNow,
   );
 
-  const isListView = viewMode === 'list';
-  const contentPadding = isListView ? undefined : MAP_CONTENT_SPACING;
-  const userLatLng =
-    latitude && longitude ? { latitude, longitude } : undefined;
-  const isLoading = loading || (!latitude && !longitude);
-  const topNearbyGyms = filteredGyms.slice(0, 3);
   const listHeader = formatResultsLabel(resultsCount, hasUserLocation);
 
   return (
-    <Screen scroll={!isListView} contentContainerStyle={contentPadding}>
+    <GymsScreenLayout isListView={isListView}>
       <MapScreenHeader
         viewMode={viewMode}
         onChangeViewMode={setViewMode}
-        onOpenFilters={() => setFilterVisible(true)}
+        onOpenFilters={openFilters}
         activeFilters={activeFilters}
         searchText={searchText}
         onChangeSearch={setSearchText}
@@ -114,7 +108,7 @@ export default function MapScreen() {
 
       <FiltersSheet
         visible={filterVisible}
-        onClose={() => setFilterVisible(false)}
+        onClose={closeFilters}
         selectedServices={selectedServices}
         setSelectedServices={setSelectedServices}
         priceFilter={priceFilter}
@@ -124,6 +118,6 @@ export default function MapScreen() {
         timeFilter={timeFilter}
         setTimeFilter={setTimeFilter}
       />
-    </Screen>
+    </GymsScreenLayout>
   );
 }

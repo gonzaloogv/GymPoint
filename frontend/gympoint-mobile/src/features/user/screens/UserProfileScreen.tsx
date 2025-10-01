@@ -4,7 +4,7 @@
 
 import React, { useCallback, useState } from 'react';
 import { Feather } from '@expo/vector-icons';
-import { Container, ContentWrapper, Button, ButtonText } from '../styles/ProfilesStyles';
+import { UserProfileLayout, Button, ButtonText } from '@shared/components/ui';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { PremiumAlert } from '../components/PremiumAlert';
 import { PremiumBadge } from '../components/PremiumBadge';
@@ -84,64 +84,65 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   // RENDER
   // ============================================
   return (
-    <Container theme={theme}>
-      <ContentWrapper theme={theme}>
-        {/* 1. Header */}
-        <ProfileHeader user={resolvedUser} theme={theme} />
+    <UserProfileLayout>
+      {/* 1. Header */}
+      <ProfileHeader user={resolvedUser} theme={theme} />
 
-        {/* 2. Plan */}
-        {resolvedUser.plan === 'Free' ? (
-          <PremiumAlert onUpgrade={handleUpgradeToPremium} theme={theme} />
-        ) : (
-          <PremiumBadge theme={theme} />
-        )}
+      {/* 2. Plan */}
+      {resolvedUser.plan === 'Free' ? (
+        <PremiumAlert onUpgrade={handleUpgradeToPremium} theme={theme} />
+      ) : (
+        <PremiumBadge theme={theme} />
+      )}
 
-        {/* 3. Stats */}
-        <StatsSection
-          stats={stats}
-          isPremium={resolvedUser.plan === 'Premium'}
-          theme={theme}
+      {/* 3. Stats */}
+      <StatsSection
+        stats={stats}
+        isPremium={resolvedUser.plan === 'Premium'}
+        theme={theme}
+      />
+
+      {/* 4. Configuraciones */}
+      <SettingsCard
+        notifications={notifications}
+        onNotificationToggle={handleNotificationToggle}
+        locationEnabled={locationEnabled}
+        onLocationToggle={setLocationEnabled}
+        theme={theme}
+      />
+
+      {/* 5. Menú */}
+      <MenuOptions isPremium={resolvedUser.plan === 'Premium'} theme={theme} />
+
+      {/* 6. Beneficios Premium */}
+      {resolvedUser.plan === 'Free' && (
+        <PremiumBenefitsCard onUpgrade={handleUpgradeToPremium} theme={theme} />
+      )}
+
+      {/* 7. Footer */}
+      <LegalFooter theme={theme} />
+
+      {/* 8. Logout */}
+      <Button
+        onPress={handleLogoutPress}
+        style={{ 
+          marginBottom: theme.spacing(2),
+          backgroundColor: 'transparent',
+          borderWidth: 1,
+          borderColor: theme.colors.danger,
+        }}
+      >
+        <Feather
+          name="log-out"
+          size={16}
+          color={theme.colors.danger}
+          style={{ marginRight: 8 }}
         />
-
-        {/* 4. Configuraciones */}
-        <SettingsCard
-          notifications={notifications}
-          onNotificationToggle={handleNotificationToggle}
-          locationEnabled={locationEnabled}
-          onLocationToggle={setLocationEnabled}
-          theme={theme}
-        />
-
-        {/* 5. Menú */}
-        <MenuOptions isPremium={resolvedUser.plan === 'Premium'} theme={theme} />
-
-        {/* 6. Beneficios Premium */}
-        {resolvedUser.plan === 'Free' && (
-          <PremiumBenefitsCard onUpgrade={handleUpgradeToPremium} theme={theme} />
-        )}
-
-        {/* 7. Footer */}
-        <LegalFooter theme={theme} />
-
-        {/* 8. Logout */}
-        <Button
-          outline
-          onPress={handleLogoutPress}
-          theme={theme}
-          style={{ marginBottom: theme.spacing(2) }}
-        >
-          <Feather
-            name="log-out"
-            size={16}
-            color={theme.colors.danger}
-            style={{ marginRight: 8 }}
-          />
-          <ButtonText outline theme={theme}>
-            Cerrar sesión
-          </ButtonText>
-        </Button>
-      </ContentWrapper>
-    </Container>
+        <ButtonText style={{ color: theme.colors.danger }}>
+          Cerrar sesión
+        </ButtonText>
+      </Button>
+    </UserProfileLayout>
   );
 };
 

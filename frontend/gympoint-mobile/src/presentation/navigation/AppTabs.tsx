@@ -1,10 +1,10 @@
 // src/presentation/navigation/AppTabs.tsx
 import React from 'react';
-import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme as useAppTheme } from 'styled-components/native';
+import { TabPill, StackNavigator } from '@shared/components/ui';
 
 import WorkoutIcon from '@assets/icons/workout.svg';
 import HomeIcon from '@assets/icons/home.svg';
@@ -37,30 +37,30 @@ type RoutinesStackParamList = {
 const RoutinesStack = createNativeStackNavigator<RoutinesStackParamList>();
 
 function RoutinesStackNavigator() {
-  return (
-    <RoutinesStack.Navigator>
-      <RoutinesStack.Screen
-        name="RoutinesList"
-        component={RoutinesScreen}
-        options={{ headerShown: false }}
-      />
-      <RoutinesStack.Screen
-        name="RoutineDetail"
-        component={RoutineDetailScreen}
-        options={{ title: 'Detalle de rutina' }}
-      />
-      <RoutinesStack.Screen
-        name="RoutineHistory"
-        component={RoutineHistoryScreen}
-        options={{ title: 'Historial' }}
-      />
-      <RoutinesStack.Screen
-        name="RoutineExecution"
-        component={RoutineExecutionScreen}
-        options={{ title: 'Ejecución' }}
-      />
-    </RoutinesStack.Navigator>
-  );
+  const screens = [
+    {
+      name: 'RoutinesList',
+      component: RoutinesScreen,
+      options: { headerShown: false },
+    },
+    {
+      name: 'RoutineDetail',
+      component: RoutineDetailScreen,
+      options: { title: 'Detalle de rutina' },
+    },
+    {
+      name: 'RoutineHistory',
+      component: RoutineHistoryScreen,
+      options: { title: 'Historial' },
+    },
+    {
+      name: 'RoutineExecution',
+      component: RoutineExecutionScreen,
+      options: { title: 'Ejecución' },
+    },
+  ];
+
+  return <StackNavigator screens={screens} />;
 }
 
 export default function AppTabs() {
@@ -75,40 +75,15 @@ export default function AppTabs() {
   const insets = useSafeAreaInsets();
   const TAB_BASE_HEIGHT = 64;
 
-  const Pill = ({
-    focused,
-    children,
-    label,
-  }: {
-    focused: boolean;
-    children: React.ReactNode;
-    label: string;
-  }) => (
-    <View
-      style={{
-        width: '100%',
-        alignItems: 'center',
-        paddingVertical: 4,
-        paddingHorizontal: 12,
-        borderRadius: theme.radius.md,
-        backgroundColor: focused ? primary10 : 'transparent',
-      }}
+  const renderTabPill = (focused: boolean, children: React.ReactNode, label: string) => (
+    <TabPill
+      focused={focused}
+      label={label}
+      primaryColor={theme.colors.primary}
+      textMuted={theme.colors.textMuted}
     >
       {children}
-      <Text
-        allowFontScaling={false}
-        numberOfLines={1}
-        ellipsizeMode="clip"
-        style={{
-          fontSize: 12,
-          lineHeight: 14,
-          marginTop: 4,
-          color: focused ? theme.colors.primary : theme.colors.textMuted,
-        }}
-      >
-        {label}
-      </Text>
-    </View>
+    </TabPill>
   );
 
   const renderRewardsScreen = React.useCallback(
@@ -156,15 +131,15 @@ export default function AppTabs() {
         name="Inicio"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ focused, size = 20 }) => (
-            <Pill focused={focused} label="Inicio">
+          tabBarIcon: ({ focused, size = 20 }) => 
+            renderTabPill(focused, 
               <TabIcon
                 source={HomeIcon}
                 size={size}
                 color={focused ? theme.colors.primary : theme.colors.textMuted}
-              />
-            </Pill>
-          ),
+              />, 
+              "Inicio"
+            ),
         }}
       />
 
@@ -173,15 +148,15 @@ export default function AppTabs() {
         name="Rutinas"
         component={RoutinesStackNavigator}
         options={{
-          tabBarIcon: ({ focused, size = 20 }) => (
-            <Pill focused={focused} label="Rutinas">
+          tabBarIcon: ({ focused, size = 20 }) => 
+            renderTabPill(focused, 
               <TabIcon
                 source={WorkoutIcon}
                 size={size}
                 color={focused ? theme.colors.primary : theme.colors.textMuted}
-              />
-            </Pill>
-          ),
+              />, 
+              "Rutinas"
+            ),
         }}
       />
 
@@ -189,15 +164,15 @@ export default function AppTabs() {
         name="Mapa"
         component={GymsScreen}
         options={{
-          tabBarIcon: ({ focused, size = 20 }) => (
-            <Pill focused={focused} label="Mapa">
+          tabBarIcon: ({ focused, size = 20 }) => 
+            renderTabPill(focused, 
               <TabIcon
                 source={MapIcon}
                 size={size}
                 color={focused ? theme.colors.primary : theme.colors.textMuted}
-              />
-            </Pill>
-          ),
+              />, 
+              "Mapa"
+            ),
         }}
       />
 
@@ -205,15 +180,15 @@ export default function AppTabs() {
         name="Recompensa"
         children={renderRewardsScreen}
         options={{
-          tabBarIcon: ({ focused, size = 20 }) => (
-            <Pill focused={focused} label="Tienda">
+          tabBarIcon: ({ focused, size = 20 }) => 
+            renderTabPill(focused, 
               <TabIcon
                 source={StoreIcon}
                 size={size}
                 color={focused ? theme.colors.primary : theme.colors.textMuted}
-              />
-            </Pill>
-          ),
+              />, 
+              "Tienda"
+            ),
         }}
       />
 
@@ -221,15 +196,15 @@ export default function AppTabs() {
         name="Usuario"
         children={renderUserProfileScreen}
         options={{
-          tabBarIcon: ({ focused, size = 20 }) => (
-            <Pill focused={focused} label="Perfil">
+          tabBarIcon: ({ focused, size = 20 }) => 
+            renderTabPill(focused, 
               <TabIcon
                 source={UserIcon}
                 size={size}
                 color={focused ? theme.colors.primary : theme.colors.textMuted}
-              />
-            </Pill>
-          ),
+              />, 
+              "Perfil"
+            ),
         }}
       />
     </Tabs.Navigator>

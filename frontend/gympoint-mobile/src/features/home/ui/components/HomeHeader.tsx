@@ -1,18 +1,12 @@
 import styled from 'styled-components/native';
 import FeatherIcon from '@expo/vector-icons/Feather';
-import { Circle, Row } from '@shared/components/ui';
+import { Avatar, Row, TokenPill } from '@shared/components/ui';
 import { palette } from '@shared/styles';
 
 const Container = styled(Row).attrs({ $justify: 'space-between' })``;
 
 const Identity = styled(Row)`
   flex: 1;
-`;
-
-const Avatar = styled(Circle)`
-  background-color: ${({ theme }) => theme?.colors?.bg ?? palette.surfaceMuted};
-  border-width: 1px;
-  border-color: ${({ theme }) => theme?.colors?.border ?? palette.neutralBorder};
 `;
 
 const IdentityText = styled.View`
@@ -29,25 +23,8 @@ const Subtext = styled.Text`
   color: ${({ theme }) => theme?.colors?.subtext ?? palette.textMuted};
 `;
 
-const Initials = styled.Text`
-  font-weight: 700;
-  color: ${palette.textStrong};
-`;
-
 const Actions = styled(Row)`
   margin-left: 12px;
-`;
-
-const TokenPill = styled(Row)`
-  padding: 4px 8px;
-  border-radius: 999px;
-  background-color: ${palette.tokenSurface};
-`;
-
-const TokenValue = styled.Text`
-  margin-left: 4px;
-  font-weight: 600;
-  color: ${palette.token};
 `;
 
 const IconButton = styled.TouchableOpacity`
@@ -67,14 +44,11 @@ type Props = {
 
 export default function HomeHeader({ userName, plan, tokens, onBellPress }: Props) {
   const parts = userName.trim().split(/\s+/);
-  const initials = parts.map((part) => part?.[0] ?? '').join('');
   const firstName = parts[0] ?? userName;
   return (
     <Container>
       <Identity>
-        <Avatar>
-          <Initials>{initials}</Initials>
-        </Avatar>
+        <Avatar userName={userName} />
         <IdentityText>
           <Heading>¡Hola, {firstName}!</Heading>
           <Subtext>Usuario {plan}</Subtext>
@@ -82,10 +56,7 @@ export default function HomeHeader({ userName, plan, tokens, onBellPress }: Prop
       </Identity>
 
       <Actions>
-        <TokenPill>
-          <FeatherIcon name="zap" size={14} color={palette.token} />
-          <TokenValue>{tokens}</TokenValue>
-        </TokenPill>
+        <TokenPill value={tokens} />
         <IconButton onPress={onBellPress}>
           <FeatherIcon name="bell" size={20} color={palette.textStrong} />
         </IconButton>

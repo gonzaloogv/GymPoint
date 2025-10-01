@@ -1,20 +1,9 @@
 import React from 'react';
-import { FlatList } from 'react-native';
-
-import { Button, ButtonText } from '@shared/components/ui';
 import { useRoutineExecution } from '../hooks/useRoutineExecution';
 import { ExerciseDetails } from './components';
-import {
-  Screen,
-  Header,
-  Title,
-  Subtitle,
-  ProgressTrack,
-  ProgressBar,
-  Footer,
-  OutlineButton,
-  OutlineLabel,
-} from './styles/execution';
+import { ExecutionLayout } from './layouts';
+import { ExecutionHeader } from './headers';
+import { ExecutionFooter } from './footers';
 
 type RoutineExecutionScreenProps = {
   route: { params?: { id?: string } };
@@ -37,53 +26,43 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({ route, 
     completeSet,
   } = useRoutineExecution({ id, onComplete: navigation?.goBack });
 
-  const header = (
-    <Header>
-      <Title>{routineName}</Title>
-      <Subtitle>{`Ejercicio ${exerciseIndex + 1} de ${totalExercises}`}</Subtitle>
-      <ProgressTrack>
-        <ProgressBar $pct={progressPct} />
-      </ProgressTrack>
-    </Header>
+  const headerComponent = (
+    <ExecutionHeader
+      routineName={routineName}
+      exerciseIndex={exerciseIndex}
+      totalExercises={totalExercises}
+      progressPct={progressPct}
+    />
+  );
+
+  const footerComponent = (
+    <ExecutionFooter
+      currentSet={currentSet}
+      totalSets={totalSets}
+      exerciseIndex={exerciseIndex}
+      totalExercises={totalExercises}
+      onCompleteSet={completeSet}
+      onPrevious={goToPrevious}
+      onNext={goToNext}
+    />
   );
 
   return (
-    <Screen edges={['top', 'left', 'right']}>
-      <FlatList
-        data={[currentExercise]}
-        keyExtractor={(exercise) => exercise.id}
-        ListHeaderComponent={header}
-        renderItem={() => (
-          <ExerciseDetails
-            exercise={currentExercise}
-            totalSets={totalSets}
-            currentSet={currentSet}
-            restSeconds={restSeconds}
-          />
-        )}
-        contentContainerStyle={{ paddingBottom: 96 }}
-      />
-
-      <Footer>
-        <Button onPress={completeSet}>
-          <ButtonText>
-            {currentSet < totalSets
-              ? 'Marcar serie completa'
-              : exerciseIndex < totalExercises - 1
-                ? 'Continuar al siguiente'
-                : 'Finalizar'}
-          </ButtonText>
-        </Button>
-
-        <OutlineButton onPress={goToPrevious} disabled={exerciseIndex === 0}>
-          <OutlineLabel>Anterior</OutlineLabel>
-        </OutlineButton>
-
-        <OutlineButton onPress={goToNext} disabled={exerciseIndex === totalExercises - 1}>
-          <OutlineLabel>Siguiente</OutlineLabel>
-        </OutlineButton>
-      </Footer>
-    </Screen>
+    <ExecutionLayout
+      data={[currentExercise]}
+      keyExtractor={(exercise) => exercise.id}
+      ListHeaderComponent={headerComponent}
+      ListFooterComponent={footerComponent}
+      renderItem={() => (
+        <ExerciseDetails
+          exercise={currentExercise}
+          totalSets={totalSets}
+          currentSet={currentSet}
+          restSeconds={restSeconds}
+        />
+      )}
+      contentContainerStyle={{ paddingBottom: 96 }}
+    />
   );
 };
 

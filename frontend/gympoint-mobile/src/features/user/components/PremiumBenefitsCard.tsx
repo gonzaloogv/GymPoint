@@ -4,21 +4,11 @@
  */
 
 import React from 'react';
-import { View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import {
-  Card,
-  SectionTitle,
-  Title,
-  SmallText,
-  Button,
-  ButtonText,
-} from '../styles/ProfilesStyles';
-import { AppTheme } from '@config/theme';
+import { PremiumCard } from '@shared/components/ui';
 
 interface PremiumBenefitsCardProps {
   onUpgrade: () => void;
-  theme: AppTheme;
+  theme?: any;
 }
 
 // Lista de beneficios del plan Premium
@@ -35,49 +25,13 @@ export const PremiumBenefitsCard: React.FC<PremiumBenefitsCardProps> = ({
   theme,
 }) => {
   return (
-    <Card
-      theme={theme}
-      style={{ borderColor: '#C084FC', borderWidth: 1 }}
-    >
-      {/* Título del card */}
-      <SectionTitle theme={theme}>
-        <Feather name="gift" size={20} color="#7C3AED" />
-        <Title style={{ color: '#7C3AED' }}>Beneficios Premium</Title>
-      </SectionTitle>
-
-      {/* Lista de beneficios */}
-      <View style={{ marginVertical: theme.spacing(2) }}>
-        {PREMIUM_BENEFITS.map((benefit, index) => (
-          <View
-            key={index}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: theme.spacing(1),
-              marginBottom: theme.spacing(1),
-            }}
-          >
-            {/* Bullet point */}
-            <View
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: 3,
-                backgroundColor: '#9333EA',
-              }}
-            />
-            {/* Texto del beneficio */}
-            <SmallText>{benefit}</SmallText>
-          </View>
-        ))}
-      </View>
-
-      {/* Botón de upgrade */}
-      <Button purple onPress={onUpgrade} theme={theme}>
-        <ButtonText purple theme={theme}>
-          Actualizar a Premium
-        </ButtonText>
-      </Button>
-    </Card>
+    <PremiumCard
+      title="Beneficios Premium"
+      description="Desbloqueá todas las funcionalidades premium"
+      benefits={PREMIUM_BENEFITS}
+      buttonText="Actualizar a Premium"
+      onButtonPress={onUpgrade}
+      icon="gift"
+    />
   );
 };

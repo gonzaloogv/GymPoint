@@ -1,19 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Platform, StyleProp, Text, View, ViewStyle } from 'react-native';
-
+import { Platform, StyleProp, ViewStyle } from 'react-native';
 import type { LatLng, MapLocation, Region } from '@features/gyms/types';
-
-import {
-  DEBUG_BADGE_STYLE,
-  MAP_STYLE,
-  USER_FOCUS_DURATION,
-  USER_PIN_PULSE_DURATION,
-  USER_PIN_SIZE,
-  USER_PIN_SOURCE,
-  USER_UPDATE_DURATION,
-  WEB_FALLBACK_STYLE,
-  createRegion,
-} from './mapViewConfig';
+import { useMapUserLocation } from '@shared/hooks/useMapUserLocation';
+import { MapFallback, MapMarker, UserLocationPin } from '@shared/components/ui';
+import { MAP_STYLE } from './mapViewConfig';
 
 type Props = {
   initialRegion: Region;
@@ -39,109 +28,46 @@ export default function MapView({
   debugUser = false,
 }: Props) {
   if (Platform.OS === 'web') {
-    return (
-      <View style={[WEB_FALLBACK_STYLE, { height: mapHeight }, style]}>
-        <Text>Mapa no disponible en Web con react-native-maps</Text>
-      </View>
-    );
+    return <MapFallback mapHeight={mapHeight} style={style} />;
   }
 
   const RNMaps = require('react-native-maps');
   const NativeMapView = RNMaps.default;
-  const Marker = RNMaps.Marker || RNMaps.default.Marker;
 
-  const mapRef = useRef<any>(null);
-  const startRegion = userLocation
-    ? createRegion(userLocation, zoomDelta)
-    : initialRegion;
-
-  const focusUserRegion = useCallback(
-    (duration: number) => {
-      if (!mapRef.current || !userLocation) return;
-      mapRef.current.animateToRegion(createRegion(userLocation, zoomDelta), duration);
-    },
-    [userLocation, zoomDelta],
-  );
-
-  const handleReady = useCallback(() => {
-    if (!animateToUserOnChange) return;
-    focusUserRegion(USER_FOCUS_DURATION);
-  }, [animateToUserOnChange, focusUserRegion]);
-
-  useEffect(() => {
-    if (!animateToUserOnChange || !userLocation) return;
-    focusUserRegion(USER_UPDATE_DURATION);
-  }, [animateToUserOnChange, userLocation, focusUserRegion]);
-
-  const scale = useRef(new Animated.Value(1)).current;
-  useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(scale, {
-          toValue: 1.2,
-          duration: USER_PIN_PULSE_DURATION,
-          useNativeDriver: true,
-        }),
-        Animated.timing(scale, {
-          toValue: 1,
-          duration: USER_PIN_PULSE_DURATION,
-          useNativeDriver: true,
-        }),
-      ]),
-    );
-    animation.start();
-    return () => animation.stop();
-  }, [scale]);
-
-  const [tracksViewChanges, setTracksViewChanges] = useState(true);
-  const handleUserMarkerLayout = useCallback(() => {
-    requestAnimationFrame(() => setTracksViewChanges(false));
-  }, []);
+  const {
+    mapRef,
+    startRegion,
+    tracksViewChanges,
+    handleReady,
+    handleUserMarkerLayout,
+  } = useMapUserLocation({
+    userLocation,
+    animateToUserOnChange,
+    zoomDelta,
+  });
 
   return (
     <NativeMapView
       ref={mapRef}
-      initialRegion={startRegion}
+      initialRegion={startRegion || initialRegion}
       onMapReady={handleReady}
       onLayout={handleReady}
       style={[MAP_STYLE, { height: mapHeight }, style]}
       showsUserLocation
       showsMyLocationButton
     >
-      {locations.map(({ id, coordinate, title }) => (
-        <Marker key={id} coordinate={coordinate} title={title} />
+      {locations.map((location) => (
+        <MapMarker key={location.id} location={location} />
       ))}
 
-      {userLocation && showUserFallbackPin && USER_PIN_SOURCE && (
-        <Marker
-          coordinate={userLocation}
-          title="Tu ubicación"
-          anchor={{ x: 0.5, y: 0.5 }}
-          flat
-          zIndex={9999}
+      {userLocation && (
+        <UserLocationPin
+          userLocation={userLocation}
+          showFallbackPin={showUserFallbackPin}
+          debugUser={debugUser}
           tracksViewChanges={tracksViewChanges}
           onLayout={handleUserMarkerLayout}
-        >
-          <Animated.Image
-            source={USER_PIN_SOURCE}
-            style={{
-              width: USER_PIN_SIZE,
-              height: USER_PIN_SIZE,
-              transform: [{ scale }],
-            }}
-            resizeMode="contain"
-          />
-        </Marker>
-      )}
-
-      {debugUser && userLocation && (
-        <Marker coordinate={userLocation}>
-          <View style={DEBUG_BADGE_STYLE}>
-            <Text style={{ fontSize: 11 }}>
-              {userLocation.latitude.toFixed(5)}, {userLocation.longitude.toFixed(5)}
-            </Text>
-          </View>
-        </Marker>
+        />
       )}
     </NativeMapView>
   );

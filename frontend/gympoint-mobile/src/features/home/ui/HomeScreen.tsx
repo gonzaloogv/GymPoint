@@ -1,12 +1,7 @@
 // src/features/home/ui/HomeScreen.tsx
-import React from 'react';
-import styled from 'styled-components/native';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { Screen } from '@shared/components/ui/Screen';
-import { sp } from '@shared/styles';
+import { HomeLayout } from '@shared/components/ui';
 import { useHome } from '../hooks/useHome';
 import {
   HomeHeader,
@@ -21,59 +16,40 @@ type AppTabsParamList = {
   Inicio: undefined;
   'Mi Gimnasio': undefined;
   Mapa: undefined; // 👈 este es tu GymsScreen
+  Rutinas: undefined; // 👈 agregamos Rutinas
   Recompensa: undefined;
   Usuario: undefined;
 };
 
-const Page = styled.View`
-  padding: ${(p) => sp(p.theme, 2)}px;
-  gap: ${(p) => sp(p.theme, 2)}px;
-`;
-
 export default function HomeScreen() {
   const navigation = useNavigation<BottomTabNavigationProp<AppTabsParamList>>();
-  const { bottom } = useSafeAreaInsets();
-  const tabBarHeight = useBottomTabBarHeight();
 
   const { user, weeklyGoal, currentProgress, progressPct, perm, requestLocation } =
     useHome();
 
   const goToGyms = () => navigation.navigate('Mapa');
-  const contentSpacing = React.useMemo(
-    () => ({
-      paddingHorizontal: 16,
-      paddingTop: 4,
-      paddingBottom: tabBarHeight + bottom + 8,
-      rowGap: 16,
-    }),
-    [bottom, tabBarHeight],
-  );
+  const goToRoutines = () => navigation.navigate('Rutinas');
 
   return (
-    <Screen
-      scroll
-      contentContainerStyle={contentSpacing}
-    >
-      <Page>
-        <HomeHeader userName={user.name} plan={user.plan} tokens={user.tokens} />
+    <HomeLayout>
+      <HomeHeader userName={user.name} plan={user.plan} tokens={user.tokens} />
 
-        <WeeklyProgressCard
-          current={currentProgress}
-          goal={weeklyGoal}
-          progressPct={progressPct}
-          streak={user.streak}
-          onStats={() => {}}
-        />
+      <WeeklyProgressCard
+        current={currentProgress}
+        goal={weeklyGoal}
+        progressPct={progressPct}
+        streak={user.streak}
+        onStats={() => {}}
+      />
 
-        <QuickActions
-          onFindGyms={goToGyms} // 👈 se conecta acá
-          onMyRoutines={() => {}}
-        />
+      <QuickActions
+        onFindGyms={goToGyms}
+        onMyRoutines={goToRoutines} // 👈 ahora navega a Rutinas
+      />
 
-        <LocationBanner visible={perm !== 'granted'} onEnable={requestLocation} />
-        <DailyChallengeCard />
-        <PremiumUpsellBanner visible={user.plan === 'Free'} onPress={() => {}} />
-      </Page>
-    </Screen>
+      <LocationBanner visible={perm !== 'granted'} onEnable={requestLocation} />
+      <DailyChallengeCard />
+      <PremiumUpsellBanner visible={user.plan === 'Free'} onPress={() => {}} />
+    </HomeLayout>
   );
 }

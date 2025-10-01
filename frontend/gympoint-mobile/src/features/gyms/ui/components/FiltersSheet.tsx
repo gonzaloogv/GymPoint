@@ -1,22 +1,6 @@
 import React from 'react';
-
 import { PRICE_OPTIONS, SERVICE_OPTIONS, TIME_OPTIONS } from '../../constants/filters';
-import {
-  SheetOverlay,
-  SheetContainer,
-  Backdrop,
-  SheetBody,
-  SheetTitle,
-  ContentScroll,
-  SectionTitle,
-  ChipsGrid,
-  Chip,
-  ChipText,
-  SheetActions,
-  OutlineButton,
-  SolidButton,
-  ButtonText,
-} from './FiltersSheet.styles';
+import { FilterSheet, ChipSelector } from '@shared/components/ui';
 
 type FiltersSheetProps = {
   visible: boolean;
@@ -33,24 +17,6 @@ type FiltersSheetProps = {
   onApply?: () => void;
 };
 
-type OptionChipsProps = {
-  options: readonly string[];
-  isActive: (value: string) => boolean;
-  onToggle: (value: string) => void;
-};
-
-const OptionChips: React.FC<OptionChipsProps> = ({ options, isActive, onToggle }) => (
-  <ChipsGrid>
-    {options.map((option) => {
-      const active = isActive(option);
-      return (
-        <Chip key={option} $active={active} onPress={() => onToggle(option)}>
-          <ChipText $active={active}>{option}</ChipText>
-        </Chip>
-      );
-    })}
-  </ChipsGrid>
-);
 
 const FiltersSheet: React.FC<FiltersSheetProps> = ({
   visible,
@@ -95,53 +61,43 @@ const FiltersSheet: React.FC<FiltersSheetProps> = ({
   };
 
   return (
-    <SheetOverlay visible={visible} onRequestClose={onClose}>
-      <SheetContainer>
-        <Backdrop onPress={onClose} />
-        <SheetBody>
-          <SheetTitle>Filtros</SheetTitle>
+    <FilterSheet
+      visible={visible}
+      onClose={onClose}
+      onClear={handleClear}
+      onApply={handleApply}
+    >
+      <ChipSelector
+        title="Servicios"
+        options={SERVICE_OPTIONS}
+        isActive={(value) => selectedServices.includes(value)}
+        onToggle={toggleService}
+      />
 
-          <ContentScroll>
-            <SectionTitle>Servicios</SectionTitle>
-            <OptionChips
-              options={SERVICE_OPTIONS}
-              isActive={(value) => selectedServices.includes(value)}
-              onToggle={toggleService}
-            />
+      <ChipSelector
+        title="Precio"
+        options={PRICE_OPTIONS}
+        isActive={(value) => priceFilter === value}
+        onToggle={togglePrice}
+        spaced
+      />
 
-            <SectionTitle $spaced>Precio</SectionTitle>
-            <OptionChips
-              options={PRICE_OPTIONS}
-              isActive={(value) => priceFilter === value}
-              onToggle={togglePrice}
-            />
+      <ChipSelector
+        title="Estado"
+        options={["Abierto ahora"]}
+        isActive={() => openNow}
+        onToggle={() => setOpenNow(!openNow)}
+        spaced
+      />
 
-            <SectionTitle $spaced>Estado</SectionTitle>
-            <OptionChips
-              options={["Abierto ahora"]}
-              isActive={() => openNow}
-              onToggle={() => setOpenNow(!openNow)}
-            />
-
-            <SectionTitle $spaced>Horario</SectionTitle>
-            <OptionChips
-              options={TIME_OPTIONS}
-              isActive={(value) => timeFilter === value}
-              onToggle={toggleTime}
-            />
-
-            <SheetActions>
-              <OutlineButton onPress={handleClear}>
-                <ButtonText>Limpiar</ButtonText>
-              </OutlineButton>
-              <SolidButton onPress={handleApply}>
-                <ButtonText $solid>Aplicar</ButtonText>
-              </SolidButton>
-            </SheetActions>
-          </ContentScroll>
-        </SheetBody>
-      </SheetContainer>
-    </SheetOverlay>
+      <ChipSelector
+        title="Horario"
+        options={TIME_OPTIONS}
+        isActive={(value) => timeFilter === value}
+        onToggle={toggleTime}
+        spaced
+      />
+    </FilterSheet>
   );
 };
 

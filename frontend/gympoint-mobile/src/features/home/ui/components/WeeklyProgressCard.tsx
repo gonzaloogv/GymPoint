@@ -1,49 +1,9 @@
 import styled from 'styled-components/native';
-import FeatherIcon from '@expo/vector-icons/Feather';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Badge } from '@shared/components/ui/Badge';
 import { Button, ButtonText } from '@shared/components/ui/Button';
-import { Card, CardRow, CardTitle, Row } from '@shared/components/ui';
-import { ProgressFill, ProgressTrack } from '@shared/components/ui/ProgressBar';
-import { palette } from '@shared/styles';
-
-const HeaderRow = styled(CardRow)`
-  margin-bottom: 8px;
-`;
-
-const TitleRow = styled(Row)`
-  flex: 1;
-`;
-
-const TitleText = styled(CardTitle)`
-  margin-left: 8px;
-`;
-
-const Body = styled.View`
-  gap: 8px;
-`;
-
-const Spread = styled(Row).attrs({ $justify: 'space-between' })``;
-
-const Subtext = styled.Text`
-  color: ${({ theme }) => theme?.colors?.subtext ?? palette.textMuted};
-`;
-
-const StreakRow = styled(Row)``;
-
-const StreakText = styled.Text`
-  margin-left: 6px;
-  font-weight: 600;
-  color: ${palette.warningIcon};
-`;
-
-const StatsButton = styled(Button)`
-  min-height: 40px;
-`;
-
-const StatsLabel = styled(ButtonText)`
-  color: #ffffff;
-`;
+import { Card, Row } from '@shared/components/ui';
+import { CardHeader } from '@shared/components/ui/CardHeader';
+import { ProgressSection } from '@shared/components/ui/ProgressSection';
+import { StreakDisplay } from '@shared/components/ui/StreakDisplay';
 
 type Props = {
   current: number;
@@ -52,6 +12,16 @@ type Props = {
   streak: number;
   onStats?: () => void;
 };
+
+const Spread = styled(Row).attrs({ $justify: 'space-between' })``;
+
+const StatsButton = styled(Button)`
+  min-height: 40px;
+`;
+
+const StatsLabel = styled(ButtonText)`
+  color: #ffffff;
+`;
 
 export default function WeeklyProgressCard({
   current,
@@ -62,38 +32,27 @@ export default function WeeklyProgressCard({
 }: Props) {
   return (
     <Card>
-      <HeaderRow>
-        <TitleRow>
-          <FeatherIcon name="target" size={20} color={palette.textStrong} />
-          <TitleText>Progreso semanal</TitleText>
-        </TitleRow>
-        <Badge variant="secondary">
-          {current}/{goal}
-        </Badge>
-      </HeaderRow>
+      <CardHeader
+        icon="target"
+        title="Progreso semanal"
+        badgeText={`${current}/${goal}`}
+        badgeVariant="secondary"
+      />
 
-      <Body>
-        <Spread>
-          <Subtext>Meta semanal</Subtext>
-          <Subtext>
-            {current} de {goal} entrenamientos
-          </Subtext>
-        </Spread>
+      <ProgressSection
+        current={current}
+        goal={goal}
+        progressPct={progressPct}
+        label="Meta semanal"
+        description={`${current} de ${goal} entrenamientos`}
+      />
 
-        <ProgressTrack>
-          <ProgressFill value={progressPct} />
-        </ProgressTrack>
-
-        <Spread>
-          <StreakRow>
-            <MaterialCommunityIcons name="fire" size={16} color={palette.warningIcon} />
-            <StreakText>Racha: {streak} días</StreakText>
-          </StreakRow>
-          <StatsButton onPress={onStats}>
-            <StatsLabel>Ver estadísticas</StatsLabel>
-          </StatsButton>
-        </Spread>
-      </Body>
+      <Spread>
+        <StreakDisplay streak={streak} />
+        <StatsButton onPress={onStats}>
+          <StatsLabel>Ver estadísticas</StatsLabel>
+        </StatsButton>
+      </Spread>
     </Card>
   );
 }
