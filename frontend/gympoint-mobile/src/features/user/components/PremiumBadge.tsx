@@ -25,7 +25,7 @@ export const PremiumBadge: React.FC<PremiumBadgeProps> = ({ theme }) => {
           marginBottom: 8,
         }}
       >
-        <Feather size={20} color="#9333EA" />
+        <Feather name="award" size={16} color="#9333EA" />
         <BodyText style={{ fontWeight: '600', color: '#7C3AED' }}>
           Usuario Premium
         </BodyText>

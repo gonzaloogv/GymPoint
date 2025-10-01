@@ -35,8 +35,8 @@ export interface NotificationSettings {
 // Props para la pantalla principal
 export interface UserProfileScreenProps {
   user: UserProfile | null;
-  onLogout: () => void;
-  onUpdateUser: (user: UserProfile) => void;
+  onLogout?: () => void;
+  onUpdateUser?: (user: UserProfile) => void;
 }
 
 //

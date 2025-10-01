@@ -31,7 +31,7 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
     <Section theme={theme}>
       {/* Título de la sección */}
       <SectionTitle theme={theme}>
-        <Feather size={16} color={theme.colors.text} />
+        <Feather name="map-pin" size={16} color={theme.colors.text} />
         <BodyText style={{ fontWeight: '600' }}>Ubicación</BodyText>
       </SectionTitle>
 

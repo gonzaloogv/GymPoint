@@ -41,7 +41,7 @@ export const PremiumBenefitsCard: React.FC<PremiumBenefitsCardProps> = ({
     >
       {/* Título del card */}
       <SectionTitle theme={theme}>
-        <Feather size={20} color="#7C3AED" />
+        <Feather name="gift" size={20} color="#7C3AED" />
         <Title style={{ color: '#7C3AED' }}>Beneficios Premium</Title>
       </SectionTitle>
 

@@ -72,7 +72,12 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, theme }) => 
             {/* Badge del plan (Free o Premium) */}
             <Badge premium={user.plan === 'Premium'} theme={theme}>
               {user.plan === 'Premium' && (
-                <Feather size={12} color="#FFFFFF" style={{ marginRight: 4 }} />
+                <Feather
+                name="star"
+                size={12}
+                color="#FFFFFF"
+                style={{ marginRight: 4 }}
+              />
               )}
               <BadgeText premium={user.plan === 'Premium'} theme={theme}>
                 {user.plan}

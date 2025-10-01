@@ -27,11 +27,18 @@ export default function LoginScreen() {
     setLoading(true);
     setError(null);
     try {
-      const { user } = await DI.loginUser.execute({ email, password });
-      setUser(user);
-    } catch (e: any) {
-      setUser({ id_user: -1, email });
-      setError(e?.response?.data?.message ?? 'Error de autenticación');
+      // TODO: Integrar con la API real cuando esté disponible.
+      // const { user } = await DI.loginUser.execute({ email, password });
+      // setUser(user);
+
+      setUser({
+        id_user: -1,
+        name: 'Usuario Demo',
+        email: email || 'demo@gympoint.app',
+        role: 'USER',
+        tokens: 0,
+        plan: 'Free',
+      });
     } finally {
       setLoading(false);
     }

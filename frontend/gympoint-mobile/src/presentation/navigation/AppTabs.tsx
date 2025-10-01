@@ -15,6 +15,7 @@ import { useAuthStore } from '@features/auth';
 import { GymsScreen } from '@features/gyms';
 import { HomeScreen } from '@features/home';
 import { RewardsScreen } from '@features/rewards';
+import { UserProfileScreen } from '@features/user';
 import {
   RoutineDetailScreen,
   RoutineExecutionScreen,
@@ -62,25 +63,10 @@ function RoutinesStackNavigator() {
   );
 }
 
-// Placeholders locales (pueden quedar por ahora)
-function MiGimnasioScreen() {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Mi Gimnasio</Text>
-    </View>
-  );
-}
-function UsuarioScreen() {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Usuario</Text>
-    </View>
-  );
-}
-
 export default function AppTabs() {
   const theme = useAppTheme();
   const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
   const updateUser = useAuthStore((s) => s.updateUser);
 
   const ITEM_MIN_WIDTH = 72;
@@ -128,6 +114,21 @@ export default function AppTabs() {
   const renderRewardsScreen = React.useCallback(
     () => <RewardsScreen user={user} onUpdateUser={updateUser} />,
     [user, updateUser],
+  );
+
+  const handleLogout = React.useCallback(() => {
+    setUser(null);
+  }, [setUser]);
+
+  const renderUserProfileScreen = React.useCallback(
+    () => (
+      <UserProfileScreen
+        user={user}
+        onUpdateUser={updateUser}
+        onLogout={handleLogout}
+      />
+    ),
+    [user, updateUser, handleLogout],
   );
 
   return (
@@ -218,7 +219,7 @@ export default function AppTabs() {
 
       <Tabs.Screen
         name="Usuario"
-        component={UsuarioScreen}
+        children={renderUserProfileScreen}
         options={{
           tabBarIcon: ({ focused, size = 20 }) => (
             <Pill focused={focused} label="Perfil">

@@ -33,7 +33,7 @@ export const SettingsCard: React.FC<SettingsCardProps> = ({
     <Card theme={theme}>
       {/* Título principal del card */}
       <SectionTitle theme={theme}>
-        <Feather size={20} color={theme.colors.text} />
+        <Feather name="settings" size={20} color={theme.colors.text} />
         <Title theme={theme}>Configuración</Title>
       </SectionTitle>
 

@@ -24,8 +24,7 @@ export type {
   UserStats,
   NotificationSettings as NotificationSettingsType,
   UserProfileScreenProps,
-  UserPlan,
 } from './types/UserTypes';
 
 // Estilos (por si necesitas extenderlos)
-export * from './styles/profilesStyles';
+export * from './styles/ProfilesStyles';

@@ -2,9 +2,9 @@
  * UserProfileScreen - Pantalla principal de perfil de usuario
  */
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Feather } from '@expo/vector-icons';
-import { Container, ContentWrapper, Button, ButtonText } from '../styles/profilesStyles';
+import { Container, ContentWrapper, Button, ButtonText } from '../styles/ProfilesStyles';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { PremiumAlert } from '../components/PremiumAlert';
 import { PremiumBadge } from '../components/PremiumBadge';
@@ -14,23 +14,34 @@ import { MenuOptions } from '../components/MenuOptions';
 import { PremiumBenefitsCard } from '../components/PremiumBenefitsCard';
 import { LegalFooter } from '../components/LegalFooter';
 import {
+  UserProfile,
   UserProfileScreenProps,
   NotificationSettings,
   UserStats,
-} from '../types/userTypes';
+} from '../types/UserTypes';
 
 // Importar el tema
-import { lightTheme } from '@config/theme';
-
-// Importar usuarios mocks
-import { mockUserFree } from '../../auth/mocks/user.mocks';
+import { lightTheme } from '@presentation/theme';
 
 const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
-  user = mockUserFree, // <-- si no viene user, usamos el mock por defecto
+  user,
   onLogout,
   onUpdateUser,
 }) => {
   const theme = lightTheme;
+  const defaultUser: UserProfile = {
+    id_user: 0,
+    name: 'GymPoint User',
+    email: 'usuario@gympoint.com',
+    role: 'USER',
+    tokens: 0,
+    plan: 'Free',
+    streak: 0,
+  };
+  const resolvedUser = user ?? defaultUser;
+  const handleLogoutPress = useCallback(() => {
+    onLogout?.();
+  }, [onLogout]);
 
   // ============================================
   // ESTADO LOCAL
@@ -65,7 +76,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   };
 
   const handleUpgradeToPremium = async () => {
-    const updatedUser = { ...user, plan: 'Premium' as const };
+    const updatedUser = { ...resolvedUser, plan: 'Premium' as const };
     onUpdateUser?.(updatedUser);
   };
 
@@ -76,10 +87,10 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
     <Container theme={theme}>
       <ContentWrapper theme={theme}>
         {/* 1. Header */}
-        <ProfileHeader user={user} theme={theme} />
+        <ProfileHeader user={resolvedUser} theme={theme} />
 
         {/* 2. Plan */}
-        {user.plan === 'Free' ? (
+        {resolvedUser.plan === 'Free' ? (
           <PremiumAlert onUpgrade={handleUpgradeToPremium} theme={theme} />
         ) : (
           <PremiumBadge theme={theme} />
@@ -88,7 +99,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
         {/* 3. Stats */}
         <StatsSection
           stats={stats}
-          isPremium={user.plan === 'Premium'}
+          isPremium={resolvedUser.plan === 'Premium'}
           theme={theme}
         />
 
@@ -102,10 +113,10 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
         />
 
         {/* 5. Menú */}
-        <MenuOptions isPremium={user.plan === 'Premium'} theme={theme} />
+        <MenuOptions isPremium={resolvedUser.plan === 'Premium'} theme={theme} />
 
         {/* 6. Beneficios Premium */}
-        {user.plan === 'Free' && (
+        {resolvedUser.plan === 'Free' && (
           <PremiumBenefitsCard onUpgrade={handleUpgradeToPremium} theme={theme} />
         )}
 
@@ -115,11 +126,16 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
         {/* 8. Logout */}
         <Button
           outline
-          onPress={onLogout}
+          onPress={handleLogoutPress}
           theme={theme}
           style={{ marginBottom: theme.spacing(2) }}
         >
-          <Feather size={16} color={theme.colors.danger} style={{ marginRight: 8 }} />
+          <Feather
+            name="log-out"
+            size={16}
+            color={theme.colors.danger}
+            style={{ marginRight: 8 }}
+          />
           <ButtonText outline theme={theme}>
             Cerrar sesión
           </ButtonText>

@@ -34,7 +34,7 @@ export const PremiumAlert: React.FC<PremiumAlertProps> = ({
         }}
       >
         {/* Icono de corona */}
-        <Feather size={16} color="#9333EA" />
+        <Feather name="award" size={16} color="#9333EA" />
 
         {/* Contenido del alert */}
         <View style={{ flex: 1 }}>

@@ -15,7 +15,7 @@ import {
   StatLabel,
   BodyText,
   SmallText,
-} from '../styles/profilesStyles';
+} from '../styles/ProfilesStyles';
 import { UserProfile } from '../types/userTypes';
 import { AppTheme } from '@config/theme';
 
