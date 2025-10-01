@@ -3,6 +3,7 @@ import type { LatLng, MapLocation, Region } from '@features/gyms/types';
 import { useMapUserLocation } from '@shared/hooks/useMapUserLocation';
 import { MapFallback, MapMarker, UserLocationPin } from '@shared/components/ui';
 import { MAP_STYLE } from './mapViewConfig';
+import WebMapView from './MapView.web';
 
 type Props = {
   initialRegion: Region;
@@ -28,11 +29,30 @@ export default function MapView({
   debugUser = false,
 }: Props) {
   if (Platform.OS === 'web') {
-    return <MapFallback mapHeight={mapHeight} style={style} />;
+    return (
+      <WebMapView
+        initialRegion={initialRegion}
+        locations={locations}
+        style={style}
+        userLocation={userLocation}
+        animateToUserOnChange={animateToUserOnChange}
+        zoomDelta={zoomDelta}
+        showUserFallbackPin={showUserFallbackPin}
+        mapHeight={mapHeight}
+        debugUser={debugUser}
+      />
+    );
   }
-
-  const RNMaps = require('react-native-maps');
-  const NativeMapView = RNMaps.default;
+  
+  // Importación dinámica solo para plataformas nativas
+  let NativeMapView;
+  try {
+    const RNMaps = require('react-native-maps');
+    NativeMapView = RNMaps.default;
+  } catch (error) {
+    console.warn('react-native-maps no está disponible:', error);
+    return null;
+  }
 
   const {
     mapRef,

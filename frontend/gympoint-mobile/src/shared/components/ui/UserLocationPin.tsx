@@ -1,5 +1,5 @@
 import React from 'react';
-import { Animated, View, Text } from 'react-native';
+import { Animated, View, Text, Platform } from 'react-native';
 import type { LatLng } from '@features/gyms/types';
 import { useMapAnimations } from '@shared/hooks/useMapAnimations';
 
@@ -35,8 +35,19 @@ export function UserLocationPin({
 }: Props) {
   const { scale } = useMapAnimations();
 
-  const RNMaps = require('react-native-maps');
-  const Marker = RNMaps.Marker || RNMaps.default.Marker;
+  if (Platform.OS === 'web') {
+    return null;
+  }
+
+  // Importación dinámica solo para plataformas nativas
+  let Marker;
+  try {
+    const RNMaps = require('react-native-maps');
+    Marker = RNMaps.Marker || RNMaps.default.Marker;
+  } catch (error) {
+    console.warn('react-native-maps no está disponible:', error);
+    return null;
+  }
 
   return (
     <>
