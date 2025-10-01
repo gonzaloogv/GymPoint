@@ -9,12 +9,14 @@ export function useRoutines() {
   const [status, setStatus] = useState<RoutineStatus | 'All'>('All');
 
   const list = useMemo(() => {
-    const byStatus = status === 'All' ? mockRoutines : mockRoutines.filter(r => r.status === status);
+    const byStatus =
+      status === 'All' ? mockRoutines : mockRoutines.filter((r) => r.status === status);
     const q = search.trim().toLowerCase();
     return q
-      ? byStatus.filter(r =>
-          r.name.toLowerCase().includes(q) ||
-          r.muscleGroups.join(' ').toLowerCase().includes(q)
+      ? byStatus.filter(
+          (r) =>
+            r.name.toLowerCase().includes(q) ||
+            r.muscleGroups.join(' ').toLowerCase().includes(q),
         )
       : byStatus;
   }, [search, status]);

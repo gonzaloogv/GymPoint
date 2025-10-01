@@ -41,11 +41,13 @@ export function useUserLocation() {
             latitude: loc.coords.latitude,
             longitude: loc.coords.longitude,
           });
-        }
+        },
       );
     })();
 
-    return () => { sub?.remove?.(); };
+    return () => {
+      sub?.remove?.();
+    };
   }, []);
 
   return { userLocation, error };

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 import { TouchableOpacity, View, Text, ViewStyle, StyleProp } from 'react-native';
-import { sp } from '@shared/styles/uiTokens';
+import { sp } from '@shared/styles';
 
 type Props = {
   children: React.ReactNode;
@@ -25,7 +25,7 @@ const LeftWrap = styled(View)`
   flex: 1;
 `;
 export const ItemPad = styled.View`
-padding: 0 ${({ theme }) => theme.spacing(2)}px;
+  padding: 0 ${({ theme }) => theme.spacing(2)}px;
 `;
 
 export function ListItem({ children, Left, Right, onPress, style }: Props) {

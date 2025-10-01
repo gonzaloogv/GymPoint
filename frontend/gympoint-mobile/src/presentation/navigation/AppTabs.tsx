@@ -1,29 +1,26 @@
 // src/presentation/navigation/AppTabs.tsx
 import React from 'react';
+import { Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { View, Text } from 'react-native';
 import { useTheme as useAppTheme } from 'styled-components/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useAuthStore } from '../../features/auth/state/auth.store';
-
-import HomeScreen from '../../features/home/ui/HomeScreen';
-import GymsScreen from '../../features/gyms/ui/GymsScreen';
-import RewardsScreen from '../../features/rewards/ui/RewardsScreen';
-
-// === Routines stack screens ===
-import RoutinesScreen from '../../features/routines/ui/RoutinesScreen';
-import RoutineDetailScreen from '../../features/routines/ui/RoutineDetailScreen';
-import RoutineHistoryScreen from '../../features/routines/ui/RoutineHistoryScreen';
-import RoutineExecutionScreen from '../../features/routines/ui/RoutineExecutionScreen';
-
-// Icons
-import WorkoutIcon from '../../../assets/icons/workout.svg';
-import HomeIcon from '../../../assets/icons/home.svg';
-import MapIcon from '../../../assets/icons/map.svg';
-import UserIcon from '../../../assets/icons/user.svg';
-import StoreIcon from '../../../assets/icons/gift.svg';
+import WorkoutIcon from '@assets/icons/workout.svg';
+import HomeIcon from '@assets/icons/home.svg';
+import MapIcon from '@assets/icons/map.svg';
+import StoreIcon from '@assets/icons/gift.svg';
+import UserIcon from '@assets/icons/user.svg';
+import { useAuthStore } from '@features/auth';
+import { GymsScreen } from '@features/gyms';
+import { HomeScreen } from '@features/home';
+import { RewardsScreen } from '@features/rewards';
+import {
+  RoutineDetailScreen,
+  RoutineExecutionScreen,
+  RoutineHistoryScreen,
+  RoutinesScreen,
+} from '@features/routines';
 
 import { TabIcon } from './components/TabIcon';
 
@@ -130,7 +127,7 @@ export default function AppTabs() {
 
   const renderRewardsScreen = React.useCallback(
     () => <RewardsScreen user={user} onUpdateUser={updateUser} />,
-    [user, updateUser]
+    [user, updateUser],
   );
 
   return (
@@ -146,7 +143,11 @@ export default function AppTabs() {
           paddingTop: 10,
           paddingBottom: Math.max(insets.bottom, 8),
         },
-        tabBarIconStyle: { width: ITEM_MIN_WIDTH, alignItems: 'center', justifyContent: 'center' },
+        tabBarIconStyle: {
+          width: ITEM_MIN_WIDTH,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
         tabBarItemStyle: { paddingVertical: 2 },
       }}
     >

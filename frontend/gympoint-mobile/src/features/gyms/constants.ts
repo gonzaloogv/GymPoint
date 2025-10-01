@@ -5,4 +5,3 @@ export const DEFAULT_REGION = {
   latitudeDelta: 0.05,
   longitudeDelta: 0.05,
 };
-  

@@ -1,7 +1,7 @@
-// src/services/api.ts
+// src/shared/services/api.ts
 import axios, { AxiosInstance, AxiosRequestHeaders } from 'axios';
 import * as SecureStore from 'expo-secure-store';
-import { API_BASE_URL } from '../config/env';
+import { API_BASE_URL } from '@shared/config/env';
 
 export const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -78,6 +78,6 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 console.log('🌐 API_BASE_URL:', API_BASE_URL || api.defaults.baseURL);

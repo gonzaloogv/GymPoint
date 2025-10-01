@@ -1,13 +1,13 @@
 // src/features/gyms/ui/components/FiltersSheet.tsx
 import { Modal, ScrollView, TouchableOpacity, View, Text } from 'react-native';
 import styled from 'styled-components/native'; // 👈 importante: native
-import { rad, sp } from '@shared/styles/uiTokens';
+import { rad, sp } from '@shared/styles';
 
 // ====== estilos ======
 const SheetContainer = styled(View)`
   flex: 1;
   justify-content: flex-end;
-  background-color: rgba(0,0,0,0.25);
+  background-color: rgba(0, 0, 0, 0.25);
 `;
 
 const SheetBody = styled(View)`
@@ -18,46 +18,86 @@ const SheetBody = styled(View)`
   padding: ${({ theme }) => sp(theme, 2)}px;
 `;
 
-const SheetTitle = styled(Text)` font-weight: 700; font-size: 16px; margin-bottom: 8px; `;
-const SectionTitle = styled(Text)` font-weight: 600; margin-bottom: 8px; `;
-const ChipsGrid = styled(View)` flex-direction: row; flex-wrap: wrap; gap: 8px; `;
+const SheetTitle = styled(Text)`
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 8px;
+`;
+const SectionTitle = styled(Text)`
+  font-weight: 600;
+  margin-bottom: 8px;
+`;
+const ChipsGrid = styled(View)`
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
 
 const Chip = styled(TouchableOpacity)<{ active?: boolean }>`
   padding: 8px 12px;
   border-radius: ${({ theme }) => rad(theme, 'md', 12)}px;
   border-width: 1px;
-  border-color: ${({ theme, active }) => active ? (theme?.colors?.primary ?? '#635BFF') : (theme?.colors?.border ?? '#e5e7eb')};
-  background-color: ${({ theme, active }) => active ? (theme?.colors?.primary ?? '#635BFF') : (theme?.colors?.bg ?? '#fafafa')};
+  border-color: ${({ theme, active }) =>
+    active
+      ? (theme?.colors?.primary ?? '#635BFF')
+      : (theme?.colors?.border ?? '#e5e7eb')};
+  background-color: ${({ theme, active }) =>
+    active ? (theme?.colors?.primary ?? '#635BFF') : (theme?.colors?.bg ?? '#fafafa')};
 `;
 
 const ChipText = styled(Text)<{ active?: boolean }>`
-  color: ${({ theme, active }) => active ? '#fff' : (theme?.colors?.text ?? '#111')};
+  color: ${({ theme, active }) => (active ? '#fff' : (theme?.colors?.text ?? '#111'))};
   font-weight: 600;
 `;
 
-const SheetActions = styled(View)` flex-direction: row; gap: 10px; margin-top: 12px; `;
+const SheetActions = styled(View)`
+  flex-direction: row;
+  gap: 10px;
+  margin-top: 12px;
+`;
 
 const OutlineButton = styled(TouchableOpacity)`
-  flex: 1; align-items: center; justify-content: center;
-  min-height: 40px; border-radius: ${({ theme }) => rad(theme, 'md', 12)}px;
-  border-width: 1px; border-color: ${({ theme }) => theme?.colors?.border ?? '#e5e7eb'};
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border-radius: ${({ theme }) => rad(theme, 'md', 12)}px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme?.colors?.border ?? '#e5e7eb'};
 `;
 
 const SolidButton = styled(TouchableOpacity)`
-  flex: 1; align-items: center; justify-content: center;
-  min-height: 40px; border-radius: ${({ theme }) => rad(theme, 'md', 12)}px;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border-radius: ${({ theme }) => rad(theme, 'md', 12)}px;
   background-color: ${({ theme }) => theme?.colors?.primary ?? '#635BFF'};
 `;
 
 const BtnText = styled(Text)<{ solid?: boolean }>`
-  color: ${({ solid }) => solid ? '#fff' : '#111'};
+  color: ${({ solid }) => (solid ? '#fff' : '#111')};
   font-weight: 600;
 `;
 
 // ====== constantes (podés moverlas a @features/gyms/constants/filters.ts más adelante) ======
-export const SERVICE_OPTIONS = ['Pesas', 'Cardio', 'Clases', 'Pileta', 'Functional', 'Spa', '24hs', 'Nutrición'];
-export const PRICE_OPTIONS   = ['Gratis', '$5000-12000', '$12000-20000', '$20000+'];
-export const TIME_OPTIONS    = ['Mañana (6-12)', 'Tarde (12-18)', 'Noche (18-24)', '24 horas'];
+export const SERVICE_OPTIONS = [
+  'Pesas',
+  'Cardio',
+  'Clases',
+  'Pileta',
+  'Functional',
+  'Spa',
+  '24hs',
+  'Nutrición',
+];
+export const PRICE_OPTIONS = ['Gratis', '$5000-12000', '$12000-20000', '$20000+'];
+export const TIME_OPTIONS = [
+  'Mañana (6-12)',
+  'Tarde (12-18)',
+  'Noche (18-24)',
+  '24 horas',
+];
 
 // ====== tipos de props ======
 type FiltersSheetProps = {
@@ -73,7 +113,6 @@ type FiltersSheetProps = {
   // 👇 CAMBIO: separo “Abierto ahora” del timeFilter
   openNow: boolean;
   setOpenNow: (v: boolean) => void;
-
 
   timeFilter: string;
   setTimeFilter: (v: string) => void;
@@ -96,10 +135,13 @@ export default function FiltersSheet({
   onClear,
   onApply,
 }: FiltersSheetProps) {
-
   const handleToggleService = (service: string) => {
     const active = selectedServices.includes(service);
-    setSelectedServices(active ? selectedServices.filter(s => s !== service) : [...selectedServices, service]);
+    setSelectedServices(
+      active
+        ? selectedServices.filter((s) => s !== service)
+        : [...selectedServices, service],
+    );
   };
 
   const handleClear = () => {
@@ -116,12 +158,7 @@ export default function FiltersSheet({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <SheetContainer>
         {/* Tocar fondo cierra */}
         <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={onClose} />
@@ -149,7 +186,11 @@ export default function FiltersSheet({
               {PRICE_OPTIONS.map((p) => {
                 const active = priceFilter === p;
                 return (
-                  <Chip key={p} active={active} onPress={() => setPriceFilter(active ? '' : p)}>
+                  <Chip
+                    key={p}
+                    active={active}
+                    onPress={() => setPriceFilter(active ? '' : p)}
+                  >
                     <ChipText active={active}>{p}</ChipText>
                   </Chip>
                 );
@@ -170,7 +211,11 @@ export default function FiltersSheet({
               {TIME_OPTIONS.map((t) => {
                 const active = timeFilter === t;
                 return (
-                  <Chip key={t} active={active} onPress={() => setTimeFilter(active ? '' : t)}>
+                  <Chip
+                    key={t}
+                    active={active}
+                    onPress={() => setTimeFilter(active ? '' : t)}
+                  >
                     <ChipText active={active}>{t}</ChipText>
                   </Chip>
                 );

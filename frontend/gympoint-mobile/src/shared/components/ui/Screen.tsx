@@ -2,8 +2,15 @@
 import React from 'react';
 import styled, { useTheme } from 'styled-components/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView, View, StyleProp, ViewStyle, TouchableOpacity, Text } from 'react-native';
-import { sp } from '@shared/styles/uiTokens';
+import {
+  ScrollView,
+  View,
+  StyleProp,
+  ViewStyle,
+  TouchableOpacity,
+  Text,
+} from 'react-native';
+import { sp } from '@shared/styles';
 
 /** Fondo global fuera del SafeArea (evita “gris” al rebotar) */
 const Bg = styled(View)`
@@ -30,7 +37,7 @@ type ScreenProps = {
   keyboardShouldPersistTaps?: 'always' | 'handled' | 'never';
   /** iOS: desactiva el “rebote” (rubber band) si true */
   noBounce?: boolean;
-    /** iOS/Android: desactiva el “rebote” vertical si true */
+  /** iOS/Android: desactiva el “rebote” vertical si true */
   padBottom?: number | 'safe';
 };
 
@@ -112,10 +119,20 @@ export const SearchBarContainer = styled(View)`
   margin-bottom: ${({ theme }) => sp(theme, 2)}px;
 `;
 
-const Row = styled(View)`flex-direction: row; align-items: center; justify-content: space-between;`;
-const Title = styled(Text)`font-weight: 700; font-size: 16px;`;
+const Row = styled(View)`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+const Title = styled(Text)`
+  font-weight: 700;
+  font-size: 16px;
+`;
 const Ghost = styled(TouchableOpacity)``;
-const GhostTxt = styled(Text)`color: ${({ theme }) => theme?.colors?.primary ?? '#635BFF'}; font-weight: 600;`;
+const GhostTxt = styled(Text)`
+  color: ${({ theme }) => theme?.colors?.primary ?? '#635BFF'};
+  font-weight: 600;
+`;
 
 type Props = {
   title: string;
@@ -124,7 +141,12 @@ type Props = {
   style?: any;
 };
 
-export function SectionHeader({ title, onSeeAll, rightText = 'Ver todos', style }: Props) {
+export function SectionHeader({
+  title,
+  onSeeAll,
+  rightText = 'Ver todos',
+  style,
+}: Props) {
   return (
     <Row style={style}>
       <Title>{title}</Title>

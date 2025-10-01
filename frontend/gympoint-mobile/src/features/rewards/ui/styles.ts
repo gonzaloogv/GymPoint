@@ -83,7 +83,8 @@ export const TabsTrigger = styled(TouchableOpacity)<TabButtonProps>`
   flex: 1;
   padding: 10px;
   border-radius: 6px;
-  background-color: ${({ isActive, theme }) => (isActive ? theme.colors.primary : 'transparent')};
+  background-color: ${({ isActive, theme }) =>
+    isActive ? theme.colors.primary : 'transparent'};
 `;
 
 export const TabsTriggerText = styled(Text)<TabButtonProps>`
@@ -110,7 +111,8 @@ export const RewardCard = styled(View)<RewardCardProps>`
   margin-bottom: 12px;
   opacity: ${({ isAvailable }) => (isAvailable ? 1 : 0.5)};
   border-width: 1px;
-  border-color: ${({ isAffordable, theme }) => (isAffordable ? theme.colors.successBorder : theme.colors.border)};
+  border-color: ${({ isAffordable, theme }) =>
+    isAffordable ? theme.colors.successBorder : theme.colors.border};
 `;
 
 export const RewardCardContent = styled(View)`
@@ -179,7 +181,7 @@ export const CategoryBadge = styled(View)<CategoryBadgeProps>`
 `;
 
 export const CategoryBadgeText = styled(Text)`
-  color: #FFFFFF;
+  color: #ffffff;
   font-size: 10px;
   font-weight: 600;
 `;
@@ -199,12 +201,13 @@ interface ButtonProps {
 export const ActionButton = styled(TouchableOpacity)<ButtonProps>`
   padding: 12px;
   border-radius: 8px;
-  background-color: ${({ disabled, theme }) => (disabled ? theme.colors.disabledBg : theme.colors.primary)};
+  background-color: ${({ disabled, theme }) =>
+    disabled ? theme.colors.disabledBg : theme.colors.primary};
 `;
 
 export const ActionButtonText = styled(Text)`
   text-align: center;
-  color: #FFFFFF;
+  color: #ffffff;
   font-weight: bold;
 `;
 
@@ -241,6 +244,6 @@ export const CodeCopyButton = styled(TouchableOpacity)`
 `;
 
 export const CodeCopyText = styled(Text)`
-  color: #FFFFFF;
+  color: #ffffff;
   font-weight: 600;
 `;

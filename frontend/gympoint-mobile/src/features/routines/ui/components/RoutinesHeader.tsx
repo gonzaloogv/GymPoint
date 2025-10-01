@@ -24,7 +24,8 @@ const FiltersRow = styled.ScrollView.attrs({
 const Chip = styled.TouchableOpacity<{ active?: boolean }>`
   padding: ${({ theme }) => theme.spacing(0.75)}px ${({ theme }) => theme.spacing(1.5)}px;
   border-radius: ${({ theme }) => theme.radius.lg}px;
-  background-color: ${({ theme, active }) => (active ? theme.colors.primary : theme.colors.card)};
+  background-color: ${({ theme, active }) =>
+    active ? theme.colors.primary : theme.colors.card};
   border: 1px solid
     ${({ theme, active }) => (active ? theme.colors.primary : theme.colors.border)};
   margin-right: ${({ theme }) => theme.spacing(1)}px;

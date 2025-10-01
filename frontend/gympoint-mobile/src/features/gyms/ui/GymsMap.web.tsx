@@ -1,7 +1,11 @@
 import React from 'react';
 import { View, Text, ViewStyle, StyleProp } from 'react-native';
 
-type Gym = { id: string; title: string; coordinate: { latitude: number; longitude: number } };
+type Gym = {
+  id: string;
+  title: string;
+  coordinate: { latitude: number; longitude: number };
+};
 
 type Props = {
   initialRegion: {

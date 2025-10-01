@@ -27,7 +27,6 @@ type RoutinesNav = NativeStackNavigationProp<RoutinesStackParamList>;
 
 const HeaderWrap = styled.View``;
 
-
 export default function RoutinesScreen() {
   const { state, setSearch, setStatus } = useRoutines();
   const navigation = useNavigation<RoutinesNav>();
@@ -43,7 +42,7 @@ export default function RoutinesScreen() {
         />
       </ItemPad>
     ),
-    [navigation]
+    [navigation],
   );
 
   const keyExtractor = useCallback((item: Routine) => item.id, []);

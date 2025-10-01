@@ -8,9 +8,16 @@ import { Card, CardRow, CardTitle } from '@shared/components/ui/Card';
 import { ProgressTrack, ProgressFill } from '@shared/components/ui/ProgressBar';
 import { Badge } from '@shared/components/ui/Badge';
 
-const Row = styled.View`flex-direction: row; align-items: center;`;
-const SpaceBetween = styled(Row)`justify-content: space-between;`;
-const Subtext = styled.Text`color:${p=>p.theme?.colors?.subtext ?? '#70737A'};`;
+const Row = styled.View`
+  flex-direction: row;
+  align-items: center;
+`;
+const SpaceBetween = styled(Row)`
+  justify-content: space-between;
+`;
+const Subtext = styled.Text`
+  color: ${(p) => p.theme?.colors?.subtext ?? '#70737A'};
+`;
 
 type Props = {
   current: number;
@@ -20,7 +27,13 @@ type Props = {
   onStats?: () => void;
 };
 
-export default function WeeklyProgressCard({ current, goal, progressPct, streak, onStats }: Props) {
+export default function WeeklyProgressCard({
+  current,
+  goal,
+  progressPct,
+  streak,
+  onStats,
+}: Props) {
   return (
     <Card>
       <CardRow style={{ marginBottom: 8 }}>
@@ -28,24 +41,32 @@ export default function WeeklyProgressCard({ current, goal, progressPct, streak,
           <FeatherIcon name="target" size={20} color={'#111827'} />
           <Text style={{ fontWeight: '600' }}>Progreso semanal</Text>
         </CardTitle>
-        <Badge variant="secondary">{current}/{goal}</Badge>
+        <Badge variant="secondary">
+          {current}/{goal}
+        </Badge>
       </CardRow>
 
       <View style={{ gap: 8 }}>
         <SpaceBetween>
           <Subtext>Meta semanal</Subtext>
-          <Subtext>{current} de {goal} entrenamientos</Subtext>
+          <Subtext>
+            {current} de {goal} entrenamientos
+          </Subtext>
         </SpaceBetween>
 
-        <ProgressTrack><ProgressFill value={progressPct} /></ProgressTrack>
+        <ProgressTrack>
+          <ProgressFill value={progressPct} />
+        </ProgressTrack>
 
         <SpaceBetween>
           <Row style={{ gap: 6 }}>
             <MaterialCommunityIcons name="fire" size={16} color="#ea580c" />
-            <Text style={{ color: '#ea580c', fontWeight: '600' }}>Racha: {streak} días</Text>
+            <Text style={{ color: '#ea580c', fontWeight: '600' }}>
+              Racha: {streak} días
+            </Text>
           </Row>
           <Button style={{ minHeight: 40 }} onPress={onStats}>
-            <ButtonText style={{ color: '#ffffff'}}>Ver estadísticas</ButtonText>
+            <ButtonText style={{ color: '#ffffff' }}>Ver estadísticas</ButtonText>
           </Button>
         </SpaceBetween>
       </View>

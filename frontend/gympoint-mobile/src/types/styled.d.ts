@@ -6,7 +6,7 @@
 import 'styled-components';
 import 'styled-components/native';
 
-import type { AppTheme } from '../config/theme';
+import type { AppTheme } from '@presentation/theme';
 
 // 👇 Extiende el tema en los dos módulos
 declare module 'styled-components' {

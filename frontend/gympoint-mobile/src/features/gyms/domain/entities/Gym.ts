@@ -8,8 +8,8 @@ export interface Gym {
   city?: string;
   lat: number;
   lng: number;
-  monthPrice?: number;   // normalizado
+  monthPrice?: number; // normalizado
   weekPrice?: number;
-  equipment?: string[];  // normalizado
-  distancia?: number;    // en metros (opcional)
+  equipment?: string[]; // normalizado
+  distancia?: number; // en metros (opcional)
 }

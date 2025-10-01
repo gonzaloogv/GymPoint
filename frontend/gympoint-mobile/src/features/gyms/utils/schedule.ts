@@ -4,14 +4,28 @@ import type { Schedule } from '../domain/entities/Schedule';
 // Aceptamos ambas convenciones
 const dayToJs: Record<string, number> = {
   // English
-  sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6,
+  sun: 0,
+  mon: 1,
+  tue: 2,
+  wed: 3,
+  thu: 4,
+  fri: 5,
+  sat: 6,
   // Spanish (abreviados más usados en datos)
-  dom: 0, lun: 1, mar: 2, mie: 3, 'mié': 3, jue: 4, vie: 5, sab: 6, 'sáb': 6,
+  dom: 0,
+  lun: 1,
+  mar: 2,
+  mie: 3,
+  mié: 3,
+  jue: 4,
+  vie: 5,
+  sab: 6,
+  sáb: 6,
 };
 
 function toDow(s: Schedule): number | null {
   const raw = (s.day_of_week || '').toString().toLowerCase().trim();
-  return (raw in dayToJs) ? dayToJs[raw] : null;
+  return raw in dayToJs ? dayToJs[raw] : null;
 }
 
 const toMinutes = (hhmmss: string) => {
@@ -29,12 +43,12 @@ const is24h = (s: Schedule) => {
   if (s.closed) return false;
   const open = toMinutes(s.opening_time);
   const close = toMinutes(s.closing_time);
-  return (open === 0 && (close >= 1439 || close === 0));
+  return open === 0 && (close >= 1439 || close === 0);
 };
 
 export function isGymOpenNow(schedules: Schedule[], now = new Date()): boolean {
   const dow = now.getDay(); // 0..6
-  const todays = schedules.filter(s => toDow(s) === dow && !s.closed);
+  const todays = schedules.filter((s) => toDow(s) === dow && !s.closed);
   if (!todays.length) return false;
 
   const nowMin = now.getHours() * 60 + now.getMinutes();
@@ -59,29 +73,30 @@ export function matchesTimeWindow(
   schedules: Schedule[],
   windowLabel: string,
   now = new Date(),
-  mode: 'today' | 'any-day' = 'today'   // 👈 opcional
+  mode: 'today' | 'any-day' = 'today', // 👈 opcional
 ): boolean {
   const dow = now.getDay(); // 0..6
 
-  const candidates = mode === 'today'
-    ? schedules.filter(s => toDow(s) === dow && !s.closed)
-    : schedules.filter(s => !s.closed); // 👈 más permisivo: toma cualquier día
+  const candidates =
+    mode === 'today'
+      ? schedules.filter((s) => toDow(s) === dow && !s.closed)
+      : schedules.filter((s) => !s.closed); // 👈 más permisivo: toma cualquier día
 
   if (!candidates.length) return false;
 
   const windows: Record<string, [number, number]> = {
-    'Mañana (6-12)': [6*60, 12*60],
-    'Tarde (12-18)': [12*60, 18*60],
-    'Noche (18-24)': [18*60, 24*60],
+    'Mañana (6-12)': [6 * 60, 12 * 60],
+    'Tarde (12-18)': [12 * 60, 18 * 60],
+    'Noche (18-24)': [18 * 60, 24 * 60],
   };
 
   if (/24\s*horas/i.test(windowLabel)) {
-    return candidates.some(s => is24h(s));
+    return candidates.some((s) => is24h(s));
   }
 
   if (/abierto\s*ahora/i.test(windowLabel)) {
     // “Abierto ahora” siempre se evalúa vs hoy
-    const todays = schedules.filter(s => toDow(s) === dow && !s.closed);
+    const todays = schedules.filter((s) => toDow(s) === dow && !s.closed);
     return isGymOpenNow(todays, now);
   }
 
@@ -95,7 +110,9 @@ export function matchesTimeWindow(
       return Math.max(open, winStart) < Math.min(close, winEnd);
     }
     // cruza medianoche → dos tramos
-    return (Math.max(open, winStart) < winEnd || Math.max(0, winStart) < Math.min(close, winEnd));
+    return (
+      Math.max(open, winStart) < winEnd || Math.max(0, winStart) < Math.min(close, winEnd)
+    );
   };
 
   for (const s of candidates) {

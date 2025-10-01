@@ -1,9 +1,10 @@
-export function parsePriceFilter(label?: string):
+export function parsePriceFilter(
+  label?: string,
+):
   | { kind: 'free' }
   | { kind: 'range'; min: number; max: number }
   | { kind: 'min'; min: number }
-  | null 
-{
+  | null {
   if (!label) return null;
 
   const clean = label.trim();
