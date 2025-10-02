@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components/native';
 import { Card, MetaChip } from '@shared/components/ui';
 import type { Exercise } from '@features/routines/domain/entities';

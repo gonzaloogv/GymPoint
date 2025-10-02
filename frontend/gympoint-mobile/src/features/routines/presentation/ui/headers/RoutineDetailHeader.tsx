@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components/native';
 import { StatusPill, MetaChip } from '@shared/components/ui';
 import type { Routine } from '@features/routines/domain/entities';

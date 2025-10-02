@@ -1,10 +1,10 @@
 import React from 'react';
-import { useRoutineById } from '@features/routines/hooks/useRoutineById';
+import { useRoutineById } from '@features/routines/presentation/hooks/useRoutineById';
 import { Routine, Exercise } from '@features/routines/domain/entities';
-import { RoutineDetailLayout } from '@features/routines/ui/layouts/RoutineDetailLayout';
-import { RoutineDetailHeader } from '@features/routines/ui/headers/RoutineDetailHeader';
-import { RoutineDetailFooter } from '@features/routines/ui/footers/RoutineDetailFooter';
-import { ExerciseList } from '@features/routines/ui/lists/ExerciseList';
+import { RoutineDetailLayout } from '@features/routines/presentation/ui/layouts/RoutineDetailLayout';
+import { RoutineDetailHeader } from '@features/routines/presentation/ui/headers/RoutineDetailHeader';
+import { RoutineDetailFooter } from '@features/routines/presentation/ui/footers/RoutineDetailFooter';
+import { ExerciseList } from '@features/routines/presentation/ui/lists/ExerciseList';
 
 
 export default function RoutineDetailScreen({ route, navigation }: any) {

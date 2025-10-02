@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useRoutinesStore } from '../state';
-import { RoutineStatus } from '../domain/entities';
+import { RoutineStatus } from '@features/routines/domain/entities';
 
 export function useRoutines() {
   const {

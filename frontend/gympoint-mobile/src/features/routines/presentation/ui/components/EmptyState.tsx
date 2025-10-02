@@ -1,4 +1,3 @@
-import React from 'react';
 import { EmptyState as SharedEmptyState } from '@shared/components/ui';
 
 type Props = {

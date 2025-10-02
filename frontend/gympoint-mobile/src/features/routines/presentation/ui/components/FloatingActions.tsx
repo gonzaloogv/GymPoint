@@ -1,4 +1,3 @@
-import React from 'react';
 import { FloatingActionBar } from '@shared/components/ui';
 
 type Props = {

@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components/native';
 import { Card } from '@shared/components/ui';
 import type { RoutineSession } from '@features/routines/domain/entities';

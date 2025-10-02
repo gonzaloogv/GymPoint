@@ -1,6 +1,9 @@
 /**
  * Rewards Feature - Public API
- * Only exports UI components
+ * Clean Architecture (3 layers)
+ * 
+ * Only exports presentation layer (UI, hooks, state, utils)
+ * Domain and Data layers are internal implementation details
  */
 
-export { default as RewardsScreen } from './ui/screens/RewardsScreen';
+export * from './presentation';

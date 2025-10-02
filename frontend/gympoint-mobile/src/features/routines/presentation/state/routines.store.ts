@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { DI } from '@di/container';
-import { Routine, RoutineStatus, RoutineSession } from '../domain/entities';
+import { Routine, RoutineStatus, RoutineSession } from '@features/routines/domain/entities';
 
 interface RoutinesState {
   // State

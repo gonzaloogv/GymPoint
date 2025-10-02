@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { Exercise } from '../domain/entities';
+import { Exercise } from '@features/routines/domain/entities';
 import { useRoutineById } from './useRoutineById';
 
 type UseRoutineExecutionParams = {
