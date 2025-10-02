@@ -8,7 +8,7 @@ import { RoutinesLayout } from '@features/routines/ui/layouts/RoutinesLayout';
 import { ItemPad, ProgressWrap } from '@shared/components/ui';
 import RoutinesHeader from '@features/routines/ui/components/RoutinesHeader';
 import RoutineProgress from '@features/routines/ui/components/RoutineProgress';
-import RoutineCard from '@features/routines/ui/components/RoutineCard';
+import { RoutineCard } from '../components/RoutineCard';
 import EmptyState from '@features/routines/ui/components/EmptyState';
 import ErrorState from '@features/routines/ui/components/ErrorState';
 import FloatingActions from '@features/routines/ui/components/FloatingActions';

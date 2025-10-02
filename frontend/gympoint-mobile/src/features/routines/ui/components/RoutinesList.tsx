@@ -3,7 +3,7 @@ import styled from 'styled-components/native';
 
 import type { Routine } from '@features/routines/domain/entities';
 
-import RoutineCard from './RoutineCard';
+import { RoutineCard } from './RoutineCard';
 
 const ListWrap = styled.View`
   padding: 0 ${({ theme }) => theme.spacing(2)}px;
