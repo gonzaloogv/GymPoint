@@ -15,11 +15,12 @@ export const Container = styled(View)`
 `;
 
 export const HeaderWrapper = styled(View)`
-  padding: 16px 0;
+  padding: 20px 0;
   flex-direction: row;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  background-color: ${({ theme }) => theme.colors.bg};
 `;
 
 export const HeaderTexts = styled(View)`
@@ -28,14 +29,17 @@ export const HeaderTexts = styled(View)`
 `;
 
 export const HeaderTitle = styled(Text)`
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 28px;
+  font-weight: 700;
   color: ${({ theme }) => theme.colors.text};
+  letter-spacing: -0.5px;
 `;
 
 export const HeaderSubtitle = styled(Text)`
-  font-size: 14px;
+  font-size: 15px;
   color: ${({ theme }) => theme.colors.textMuted};
+  margin-top: 4px;
+  line-height: 20px;
 `;
 
 export const LoadingMessage = styled(HeaderTitle)`
@@ -45,22 +49,29 @@ export const LoadingMessage = styled(HeaderTitle)`
 
 export const TokenDisplay = styled(View)`
   align-items: flex-end;
+  background-color: ${({ theme }) => theme.colors.bgSecondary};
+  padding: 12px 16px;
+  border-radius: 12px;
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.border};
 `;
 
 export const TokenWrapper = styled(View)`
   flex-direction: row;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 `;
 
 export const TokenText = styled(Text)`
-  font-size: 18px;
-  font-weight: bold;
-  color: ${({ theme }) => theme.colors.text};
+  font-size: 20px;
+  font-weight: 700;
+  color: #facc15;
 `;
 
 export const TokenLabel = styled(Text)`
-  font-size: 10px;
+  font-size: 11px;
   color: ${({ theme }) => theme.colors.textMuted};
   text-align: right;
+  margin-top: 2px;
+  font-weight: 500;
 `;

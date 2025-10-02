@@ -3,3 +3,7 @@ export * from './GeneratedCodeItem';
 export * from './EmptyCodes';
 export * from './PremiumUpsell';
 export * from './TokensTips';
+export * from './RewardsHeader';
+export * from './RewardsTabs';
+export * from './RewardsContent';
+export * from './LoadingState';

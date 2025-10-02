@@ -6,7 +6,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { GradientCard, BodyText, SmallText } from '../styles/ProfilesStyles';
+import { GradientCard, BodyText, SmallText } from '../styles/ProfileStyles';
 import { AppTheme } from '@config/theme';
 
 interface PremiumBadgeProps {

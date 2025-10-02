@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Feather } from '@expo/vector-icons';
-import { Card, SectionTitle, Title } from '../styles/ProfilesStyles';
+import { Card, SectionTitle, Title } from '../styles/ProfileStyles';
 import { NotificationSettings } from './NotificationSettings';
 import { LocationSettings } from './LocationSettings';
 import { NotificationSettings as NotificationSettingsType } from '../types/UserTypes';

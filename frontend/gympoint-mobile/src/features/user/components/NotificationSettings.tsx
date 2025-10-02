@@ -13,7 +13,7 @@ import {
   SmallText,
   SwitchRow,
   SwitchRowLeft,
-} from '../styles/ProfilesStyles';
+} from '../styles/ProfileStyles';
 import { NotificationSettings as NotificationSettingsType } from '../types/UserTypes';
 import { AppTheme } from '@config/theme';
 

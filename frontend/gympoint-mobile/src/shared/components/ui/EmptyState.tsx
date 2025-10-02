@@ -50,8 +50,21 @@ export function EmptyState({
           <Title>{title}</Title>
           <Description>{description}</Description>
           {buttonText && onButtonPress && (
-            <Button style={{ minHeight: 44, alignSelf: 'stretch' }} onPress={onButtonPress}>
-              <ButtonText>{buttonText}</ButtonText>
+            <Button 
+              variant="primary"
+              style={{ 
+                minHeight: 44, 
+                alignSelf: 'stretch',
+                backgroundColor: '#3b82f6'
+              }} 
+              onPress={onButtonPress}
+            >
+              <ButtonText style={{ 
+                color: '#ffffff',
+                fontWeight: '600'
+              }}>
+                {buttonText}
+              </ButtonText>
             </Button>
           )}
         </Content>

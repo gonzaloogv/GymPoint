@@ -4,7 +4,7 @@
  */
 
 import styled from 'styled-components/native';
-import { AppTheme } from '@config/theme';
+import { AppTheme } from '@presentation/theme';
 
 // ============================================
 // CONTAINERS
