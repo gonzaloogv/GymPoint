@@ -4,10 +4,10 @@ import styled from 'styled-components/native';
 import {
   Card as BaseCard,
   CardTitle as BaseCardTitle,
-  GymListItem,
   MapBox,
   Subtle,
 } from '@shared/components/ui';
+import { GymListItem } from '../list/GymListItem';
 import { palette, rad, sp } from '@shared/styles';
 
 import { LOCATION_FALLBACK_MESSAGE } from '@features/gyms/constants';

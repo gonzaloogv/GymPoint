@@ -1,7 +1,7 @@
 import styled from 'styled-components/native';
 import { Text } from 'react-native';
-import { ListItem } from './ListItem';
-import { IndexBadge } from './IndexBadge';
+import { ListItem } from '@shared/components/ui';
+import { IndexBadge } from '@shared/components/ui';
 import { palette } from '@shared/styles';
 
 const ItemTitle = styled(Text)`

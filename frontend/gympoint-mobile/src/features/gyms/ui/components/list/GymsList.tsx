@@ -1,6 +1,6 @@
 // src/features/gyms/ui/components/GymsList.tsx
 import { View, Text, FlatList } from 'react-native';
-import { GymListItem } from '@shared/components/ui';
+import { GymListItem } from './GymListItem';
 
 type Item = {
   id: string | number;
