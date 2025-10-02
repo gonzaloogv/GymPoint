@@ -6,3 +6,4 @@ export { default as GymDetailScreen } from './GymDetailScreen';
 export { default as GymDetailScreenWrapper } from './GymDetailScreenWrapper';
 export { default as GymDetailScreenTest } from './GymDetailScreenTest';
 
+

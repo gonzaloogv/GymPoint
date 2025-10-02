@@ -1,6 +1,6 @@
 import React from "react";
 import { ScrollView, View, Text, StyleSheet } from "react-native";
-import { GymDetailScreenProps } from "../ui/types";
+import { GymDetailScreenProps } from '@features/gyms/ui/screens/GymDetailScreen.types';
 
 type Props = GymDetailScreenProps & {
   dataSource?: 'api' | 'mocks' | null;
