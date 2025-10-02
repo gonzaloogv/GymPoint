@@ -19,9 +19,9 @@ export const getCategoryColor = (category: RewardCategory | string) =>
 export const getCategoryName = (category: RewardCategory | string) =>
   CATEGORY_INFO[category as RewardCategory]?.name ?? 'Otros';
 
-export const formatDate = (date: Date) =>
-  date.toLocaleDateString('es-AR', {
+export const formatDate = (date: Date | undefined) =>
+  date ? date.toLocaleDateString('es-AR', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
-  });
+  }) : '';

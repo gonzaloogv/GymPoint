@@ -1,4 +1,4 @@
-import { RoutineSession } from '../types';
+import { RoutineSession } from '@features/routines/domain/entities';
 
 export const mockRoutineHistory: RoutineSession[] = [
   {

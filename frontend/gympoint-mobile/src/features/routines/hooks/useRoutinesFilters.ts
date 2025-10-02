@@ -1,4 +1,4 @@
-import { RoutineStatus } from '../types';
+import { RoutineStatus } from '@features/routines/domain/entities';
 
 export const FILTERS: Array<{ key: 'All' | RoutineStatus; label: string }> = [
   { key: 'All', label: 'Todas' },

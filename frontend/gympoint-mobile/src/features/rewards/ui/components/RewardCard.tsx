@@ -5,6 +5,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 
 import { Card, Button, ButtonText } from '@shared/components/ui';
 import { palette } from '@shared/styles';
+import { Reward } from '@features/rewards/domain/entities';
 
 // Styled components específicos para RewardCard
 const RewardCardContent = styled(View)`
@@ -101,18 +102,6 @@ const TermsText = styled(Text)`
   color: ${palette.textMuted};
   font-style: italic;
 `;
-
-type Reward = {
-  id: string;
-  title: string;
-  description: string;
-  cost: number;
-  icon: string;
-  category: string;
-  validDays: number;
-  available: boolean;
-  terms?: string;
-};
 
 type RewardCardProps = {
   reward: Reward;

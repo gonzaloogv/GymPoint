@@ -1,4 +1,4 @@
-import { Routine } from '../types';
+import { Routine } from '@features/routines/domain/entities';
 
 export const mockRoutines: Routine[] = [
   {

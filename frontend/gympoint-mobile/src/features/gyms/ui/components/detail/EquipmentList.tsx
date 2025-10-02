@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components/native";
 import { Feather } from '@expo/vector-icons';
 import { TouchableOpacity } from "react-native";
-import { Gym } from "../types";
+import { Gym } from '@features/gyms/domain/entities/Gym';
 
 const Wrapper = styled.View`
   padding: 16px;
@@ -30,30 +30,16 @@ const Item = styled.Text`
 
 interface Props {
   equipment?: Gym["equipment"];
-  expandedCategories: string[];
-  toggleCategory: (c: string) => void;
 }
 
-export const EquipmentList = ({ equipment, expandedCategories, toggleCategory }: Props) => {
-  if (!equipment) return null;
+export const EquipmentList = ({ equipment }: Props) => {
+  if (!equipment || equipment.length === 0) return null;
 
   return (
     <Wrapper>
       <CatTitle>Equipamiento</CatTitle>
-      {equipment.map((cat) => (
-        <Category key={cat.category}>
-          <TouchableOpacity onPress={() => toggleCategory(cat.category)}>
-            <Row>
-              <CatTitle>{cat.category}</CatTitle>
-              <Feather
-                name={expandedCategories.includes(cat.category) ? "chevron-up" : "chevron-down"}
-                size={18}
-              />
-            </Row>
-          </TouchableOpacity>
-          {expandedCategories.includes(cat.category) &&
-            cat.items.map((i) => <Item key={i.name}>• {i.name} ({i.quantity})</Item>)}
-        </Category>
+      {equipment.map((item, index) => (
+        <Item key={index}>• {item}</Item>
       ))}
     </Wrapper>
   );

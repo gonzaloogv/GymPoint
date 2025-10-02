@@ -31,19 +31,12 @@ interface Props {
 export const BasicInfo = ({ gym }: Props) => (
   <Wrapper>
     <Title>{gym.name}</Title>
-    {gym.rating && (
-      <Row>
-        <Feather name="star" size={16} color="gold" />
-        <Info>{gym.rating} (127 reseñas)</Info>
-      </Row>
-    )}
     <Row>
       <Feather name="map-pin" size={16} color="#666" />
-      <Info>{gym.address} • {gym.distance.toFixed(1)} km</Info>
-    </Row>
-    <Row>
-      <Feather name="clock" size={16} color="#666" />
-      <Info>{gym.hours} – Abierto ahora</Info>
+      <Info>
+        {gym.address || 'Sin dirección'}
+        {gym.distancia && ` • ${(gym.distancia / 1000).toFixed(1)} km`}
+      </Info>
     </Row>
   </Wrapper>
 );

@@ -7,6 +7,7 @@ import { Card } from './Card';
 import { Button } from './Button';
 import { ButtonText } from './Button';
 import { palette } from '@shared/styles';
+import { GeneratedCode } from '@features/rewards/domain/entities';
 
 // Styled components específicos para GeneratedCodeCard
 const GeneratedCodeWrapper = styled(View)`
@@ -56,16 +57,6 @@ const CodeFooterValue = styled(Text)<{ $color?: string }>`
 const IconButton = styled(TouchableOpacity)`
   padding: 4px;
 `;
-
-type GeneratedCode = {
-  id: string;
-  code: string;
-  title: string;
-  generatedAt: Date;
-  expiresAt?: Date;
-  used: boolean;
-  usedAt?: Date;
-};
 
 type GeneratedCodeCardProps = {
   item: GeneratedCode;
