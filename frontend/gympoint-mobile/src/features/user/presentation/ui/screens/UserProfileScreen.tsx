@@ -3,8 +3,11 @@
  */
 
 import React, { useCallback, useEffect } from 'react';
+import { ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import styled from 'styled-components/native';
 import { Feather } from '@expo/vector-icons';
-import { UserProfileLayout, Button, ButtonText } from '@shared/components/ui';
+import { Button, ButtonText } from '@shared/components/ui';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { PremiumAlert } from '../components/PremiumAlert';
 import { PremiumBadge } from '../components/PremiumBadge';
@@ -18,6 +21,17 @@ import { UserProfile, UserProfileScreenProps } from '../../../types/userTypes';
 
 // Importar el tema
 import { lightTheme } from '@presentation/theme';
+
+const Container = styled(SafeAreaView)`
+  flex: 1;
+  background-color: ${({ theme }) => theme.colors.bg};
+`;
+
+const ContentWrapper = styled(ScrollView)`
+  flex: 1;
+  padding: ${({ theme }) => theme.spacing(2)}px;
+  gap: ${({ theme }) => theme.spacing(2)}px;
+`;
 
 const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   user,
@@ -88,9 +102,10 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   };
 
   return (
-    <UserProfileLayout>
-      {/* 1. Header */}
-      <ProfileHeader user={resolvedUser} theme={theme} />
+    <Container edges={['top', 'left', 'right']}>
+      <ContentWrapper showsVerticalScrollIndicator={false}>
+        {/* 1. Header */}
+        <ProfileHeader user={resolvedUser} theme={theme} />
 
       {/* 2. Plan */}
       {resolvedUser.plan === 'Free' ? (
@@ -146,7 +161,8 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
           Cerrar sesión
         </ButtonText>
       </Button>
-    </UserProfileLayout>
+      </ContentWrapper>
+    </Container>
   );
 };
 
