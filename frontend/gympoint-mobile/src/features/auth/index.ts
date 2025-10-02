@@ -1,8 +1,9 @@
 /**
  * Auth Feature - Public API
- * Only exports UI components and public hooks
+ * Clean Architecture (3 layers)
+ * 
+ * Only exports presentation layer (UI components, hooks, stores)
+ * Domain and Data layers are internal implementation details
  */
 
-export { useAuthStore } from './state/auth.store';
-export { default as LoginScreen } from './ui/LoginScreen';
-export { default as RegisterScreen } from './ui/RegisterScreen';
+export { useAuthStore, LoginScreen, RegisterScreen } from './presentation';
