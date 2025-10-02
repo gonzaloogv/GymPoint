@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import type { Gym } from '../domain/entities/Gym';
 import { DI } from '@di/container';
-import { MOCK_UI } from '../mocks';
+import { MOCK_UI } from '../../data/datasources/GymMocks';
 
 export function useNearbyGyms(lat?: number, lng?: number, radius = 10000) {
   const [data, setData] = useState<Gym[] | null>(null);
