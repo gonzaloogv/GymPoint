@@ -1,10 +1,13 @@
 import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme as useAppTheme } from 'styled-components/native';
-import { NavigationLayout, StackNavigator } from '@shared/components/ui';
 
-import { LoginScreen, RegisterScreen, useAuthStore } from '@features/auth'; // 👈 agrego RegisterScreen
+import { LoginScreen, RegisterScreen, useAuthStore } from '@features/auth';
 import AppTabs from './AppTabs';
 import { useNavigationTheme } from './navTheme';
+
+const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
   const theme = useAppTheme();
@@ -19,25 +22,23 @@ export default function RootNavigator() {
     danger: theme.colors.danger,
   });
 
-  // 👇 Si hay usuario -> App
-  //    Si no hay usuario -> Login + Register
-  const screens = user
-    ? [
-        { name: 'App', component: AppTabs, options: {} },
-      ]
-    : [
-        { name: 'Login', component: LoginScreen, options: {} },
-        { name: 'Register', component: RegisterScreen, options: {} },
-      ];
-
   const screenOptions = {
     headerShown: false,
     contentStyle: { backgroundColor: theme.colors.bg },
   };
 
   return (
-    <NavigationLayout theme={navTheme}>
-      <StackNavigator screens={screens} screenOptions={screenOptions} />
-    </NavigationLayout>
+    <NavigationContainer theme={navTheme}>
+      <Stack.Navigator screenOptions={screenOptions}>
+        {user ? (
+          <Stack.Screen name="App" component={AppTabs} />
+        ) : (
+          <>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+          </>
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
