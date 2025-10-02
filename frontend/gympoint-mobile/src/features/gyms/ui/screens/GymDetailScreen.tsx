@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ScrollView, View, Text, TouchableOpacity, Linking, Alert } from "react-native";
 import styled from "styled-components/native";
 import { Feather } from '@expo/vector-icons';
-import { GymDetailScreenProps } from "../ui/types";
+import { GymDetailScreenProps } from "./GymDetailScreen.types";
 
 const Container = styled.ScrollView`
   flex: 1;

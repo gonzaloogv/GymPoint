@@ -15,11 +15,11 @@ import { useMapLocations } from '@features/gyms/hooks/useMapLocations';
 import { useNearbyGyms } from '@features/gyms/hooks/useNearbyGyms';
 import { useGymSchedules } from '@features/gyms/hooks/useGymSchedule';
 
-import FiltersSheet from './components/FiltersSheet';
-import GymsList from './components/GymsList';
-import MapSection from './components/MapSection';
-import MapScreenHeader from './components/MapScreenHeader';
-import ResultsInfo from './components/ResultsInfo';
+import FiltersSheet from '../components/list/FiltersSheet';
+import GymsList from '../components/list/GymsList';
+import MapSection from '../components/map/MapSection';
+import MapScreenHeader from '../components/map/MapScreenHeader';
+import ResultsInfo from '../components/list/ResultsInfo';
 import type { GymsStackParamList } from '@presentation/navigation/types';
 
 type GymsNavigationProp = NativeStackNavigationProp<GymsStackParamList, 'GymsList'>;
