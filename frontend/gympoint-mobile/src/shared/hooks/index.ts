@@ -1,6 +1,6 @@
-export { useGymsData } from './useGymsData';
-export { useGymsFilters } from './useGymsFilters';
-export { useGymsView } from './useGymsView';
-export { useMapAnimations } from './useMapAnimations';
-export { useMapUserLocation } from './useMapUserLocation';
+/**
+ * Shared Hooks
+ * Only truly shared hooks across multiple features
+ */
+
 export { useUserLocation } from './useUserLocation';

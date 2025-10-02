@@ -2,18 +2,22 @@ import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { GymsScreenLayout } from '@shared/components/ui';
-import { useGymsData, useGymsFilters, useGymsView } from '@shared/hooks';
+import { Screen } from '@shared/components/ui';
 import { formatResultsLabel } from '@shared/utils';
 
 import { MAP_SECTION_HEIGHT } from '@features/gyms/domain/constants/map';
 import { MOCK_UI } from '@features/gyms/data/datasources/GymMocks';
-import { useActiveFiltersCount } from '@features/gyms/presentation/hooks/useActiveFiltersCount';
-import { useGymsFiltering } from '@features/gyms/presentation/hooks/useGymsFiltering';
-import { useMapInitialRegion } from '@features/gyms/presentation/hooks/useMapInitialRegion';
-import { useMapLocations } from '@features/gyms/presentation/hooks/useMapLocations';
-import { useNearbyGyms } from '@features/gyms/presentation/hooks/useNearbyGyms';
-import { useGymSchedules } from '@features/gyms/presentation/hooks/useGymSchedule';
+import {
+  useActiveFiltersCount,
+  useGymSchedules,
+  useGymsData,
+  useGymsFiltering,
+  useGymsFilters,
+  useGymsView,
+  useMapInitialRegion,
+  useMapLocations,
+  useNearbyGyms,
+} from '@features/gyms/presentation/hooks';
 
 import FiltersSheet from '../components/list/FiltersSheet';
 import GymsList from '../components/list/GymsList';
@@ -85,7 +89,7 @@ export default function MapScreen() {
   };
 
   return (
-    <GymsScreenLayout isListView={isListView}>
+    <Screen scroll={!isListView} contentContainerStyle={!isListView ? { paddingBottom: 24 } : undefined}>
       <MapScreenHeader
         viewMode={viewMode}
         onChangeViewMode={setViewMode}
@@ -128,6 +132,6 @@ export default function MapScreen() {
         timeFilter={timeFilter}
         setTimeFilter={setTimeFilter}
       />
-    </GymsScreenLayout>
+    </Screen>
   );
 }
