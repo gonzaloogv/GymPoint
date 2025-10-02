@@ -4,19 +4,19 @@
  */
 
 // Screen principal
-export { default as UserProfileScreen } from './screens/UserProfileScreen';
+export { default as UserProfileScreen } from './presentation/ui/screens/UserProfileScreen';
 
 // Componentes individuales (por si necesitas usarlos por separado)
-export { ProfileHeader } from './components/ProfileHeader';
-export { PremiumAlert } from './components/PremiumAlert';
-export { PremiumBadge } from './components/PremiumBadge';
-export { StatsSection } from './components/StatsSection';
-export { NotificationSettings } from './components/NotificationSettings';
-export { LocationSettings } from './components/LocationSettings';
-export { SettingsCard } from './components/SettingsCard';
-export { MenuOptions } from './components/MenuOptions';
-export { PremiumBenefitsCard } from './components/PremiumBenefitsCard';
-export { LegalFooter } from './components/LegalFooter';
+export { ProfileHeader } from './presentation/ui/components/ProfileHeader';
+export { PremiumAlert } from './presentation/ui/components/PremiumAlert';
+export { PremiumBadge } from './presentation/ui/components/PremiumBadge';
+export { StatsSection } from './presentation/ui/components/StatsSection';
+export { NotificationSettings } from './presentation/ui/components/NotificationSettings';
+export { LocationSettings } from './presentation/ui/components/LocationSettings';
+export { SettingsCard } from './presentation/ui/components/SettingsCard';
+export { MenuOptions } from './presentation/ui/components/MenuOptions';
+export { PremiumBenefitsCard } from './presentation/ui/components/PremiumBenefitsCard';
+export { LegalFooter } from './presentation/ui/components/LegalFooter';
 
 // Tipos
 export type {
@@ -24,7 +24,7 @@ export type {
   UserStats,
   NotificationSettings as NotificationSettingsType,
   UserProfileScreenProps,
-} from './types/UserTypes';
+} from './types/userTypes';
 
 // Estilos (por si necesitas extenderlos)
-export * from './styles/ProfileStyles';
+export * from './presentation/ui/styles/ProfileStyles';

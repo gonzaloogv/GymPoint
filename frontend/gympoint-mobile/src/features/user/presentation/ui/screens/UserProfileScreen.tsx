@@ -2,7 +2,7 @@
  * UserProfileScreen - Pantalla principal de perfil de usuario
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
 import { UserProfileLayout, Button, ButtonText } from '@shared/components/ui';
 import { ProfileHeader } from '../components/ProfileHeader';
@@ -13,12 +13,8 @@ import { SettingsCard } from '../components/SettingsCard';
 import { MenuOptions } from '../components/MenuOptions';
 import { PremiumBenefitsCard } from '../components/PremiumBenefitsCard';
 import { LegalFooter } from '../components/LegalFooter';
-import {
-  UserProfile,
-  UserProfileScreenProps,
-  NotificationSettings,
-  UserStats,
-} from '../types/UserTypes';
+import { useUserProfileStore } from '../../state/userProfile.store';
+import { UserProfile, UserProfileScreenProps } from '../../../types/userTypes';
 
 // Importar el tema
 import { lightTheme } from '@presentation/theme';
@@ -39,45 +35,46 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
     streak: 0,
   };
   const resolvedUser = user ?? defaultUser;
-  const handleLogoutPress = useCallback(() => {
-    onLogout?.();
-  }, [onLogout]);
 
   // ============================================
-  // ESTADO LOCAL
+  // ZUSTAND STORE
   // ============================================
-  const [notifications, setNotifications] = useState<NotificationSettings>({
-    checkinReminders: true,
-    streakAlerts: true,
-    rewardUpdates: false,
-    marketing: false,
-  });
+  const {
+    profile,
+    stats,
+    notifications,
+    locationEnabled,
+    fetchUserProfile,
+    fetchUserStats,
+    updateNotifications,
+    toggleLocation,
+    upgradeToPremium,
+  } = useUserProfileStore();
 
-  const [locationEnabled, setLocationEnabled] = useState<boolean>(true);
-
-  // ============================================
-  // DATOS ESTÁTICOS (mock en frontend)
-  // ============================================
-  const stats: UserStats = {
-    totalCheckIns: 45,
-    longestStreak: 23,
-    favoriteGym: 'FitMax Centro',
-    monthlyVisits: 12,
-  };
+  useEffect(() => {
+    fetchUserProfile();
+    fetchUserStats();
+  }, []);
 
   // ============================================
   // HANDLERS
   // ============================================
-  const handleNotificationToggle = (
-    key: keyof NotificationSettings,
+  const handleLogoutPress = useCallback(() => {
+    onLogout?.();
+  }, [onLogout]);
+
+  const handleNotificationToggle = async (
+    key: keyof typeof notifications,
     value: boolean
   ) => {
-    setNotifications((prev) => ({ ...prev, [key]: value }));
+    await updateNotifications(key, value);
   };
 
   const handleUpgradeToPremium = async () => {
-    const updatedUser = { ...resolvedUser, plan: 'Premium' as const };
-    onUpdateUser?.(updatedUser);
+    await upgradeToPremium();
+    if (onUpdateUser && profile) {
+      onUpdateUser(profile);
+    }
   };
 
   // ============================================
@@ -107,7 +104,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
         notifications={notifications}
         onNotificationToggle={handleNotificationToggle}
         locationEnabled={locationEnabled}
-        onLocationToggle={setLocationEnabled}
+        onLocationToggle={toggleLocation}
         theme={theme}
       />
 
