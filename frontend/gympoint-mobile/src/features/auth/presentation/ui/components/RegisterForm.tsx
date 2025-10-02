@@ -1,7 +1,17 @@
 import { useState } from 'react';
-import { View } from 'react-native';
-import { Button, Input, Label, Select, RadioGroup, Slider } from '@shared/components/ui';
+import { View, Text } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+import styled from 'styled-components/native';
+import { Button, Input, Label } from '@shared/components/ui';
 import { PROVINCES } from '@features/auth/domain/constants/provinces';
+
+const PickerWrapper = styled(View)`
+  border-width: 1px;
+  border-color: ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radius.md}px;
+  background-color: ${({ theme }) => theme.colors.card};
+  overflow: hidden;
+`;
 
 interface Props {
   loading: boolean;
@@ -68,7 +78,18 @@ export function RegisterForm({ loading, onSubmit }: Props) {
       <Input secureTextEntry value={form.confirmPassword} onChangeText={(t) => handleChange('confirmPassword', t)} />
 
       <Label>Localidad</Label>
-      <Select value={selectedCity} options={PROVINCES} placeholder='Selecciona tu localidad' onChange={handleCityChange}></Select>
+      <PickerWrapper>
+        <Picker
+          selectedValue={selectedCity}
+          onValueChange={handleCityChange}
+          style={{ height: 50 }}
+        >
+          <Picker.Item label="Selecciona tu localidad" value="" />
+          {PROVINCES.map((province) => (
+            <Picker.Item key={province} label={province} value={province} />
+          ))}
+        </Picker>
+      </PickerWrapper>
 
       <Label>Edad</Label>
       <Input value={form.age} keyboardType='number-pad' inputMode="numeric"  onChangeText={(t) => handleChange('age', t.replace(/\D/g, ''))} maxLength={3}/>
