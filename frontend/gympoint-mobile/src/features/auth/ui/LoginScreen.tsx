@@ -15,8 +15,18 @@ import { LoginFooter } from './components/LoginFooter';
 import { LoginForm } from './components/LoginForm';
 import { LoginHeader } from './components/LoginHeader';
 import { Root, contentContainerStyle } from './LoginScreen.styles';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+type RootStackParamList = {
+  Login: undefined;
+  Register: undefined;
+  App: undefined;
+};
 
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function LoginScreen() {
+  const navigation = useNavigation<Nav>();
+
   const setUser = useAuthStore((state) => state.setUser);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,7 +56,9 @@ export default function LoginScreen() {
 
   const handleGoogle = () => console.log('Continuar con Google');
   const handleForgotPassword = () => console.log('Olvidé mi contraseña');
-  const handleRegister = () => console.log('Ir a registro');
+  const handleRegister = () => {
+    navigation.navigate("Register"); // 👈 redirige al RegisterScreen
+  };
 
   return (
     <Screen

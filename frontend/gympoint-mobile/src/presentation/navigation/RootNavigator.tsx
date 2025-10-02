@@ -1,10 +1,8 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme as useAppTheme } from 'styled-components/native';
 import { NavigationLayout, StackNavigator } from '@shared/components/ui';
 
-import { LoginScreen, useAuthStore } from '@features/auth';
-import { GymDetailScreenWrapper } from '@features/gymdetails/ui/GymDetailScreenWrapper';
+import { LoginScreen, RegisterScreen, useAuthStore } from '@features/auth'; // 👈 agrego RegisterScreen
 import AppTabs from './AppTabs';
 import { useNavigationTheme } from './navTheme';
 
@@ -21,21 +19,16 @@ export default function RootNavigator() {
     danger: theme.colors.danger,
   });
 
-  const screens = user 
+  // 👇 Si hay usuario -> App
+  //    Si no hay usuario -> Login + Register
+  const screens = user
     ? [
         { name: 'App', component: AppTabs, options: {} },
-        { 
-          name: 'GymDetail', 
-          component: GymDetailScreenWrapper, 
-          options: { 
-            headerShown: true,
-            title: 'Detalle del gimnasio',
-            headerStyle: { backgroundColor: theme.colors.card },
-            headerTintColor: theme.colors.text,
-          } 
-        }
       ]
-    : [{ name: 'Login', component: LoginScreen, options: {} }];
+    : [
+        { name: 'Login', component: LoginScreen, options: {} },
+        { name: 'Register', component: RegisterScreen, options: {} },
+      ];
 
   const screenOptions = {
     headerShown: false,

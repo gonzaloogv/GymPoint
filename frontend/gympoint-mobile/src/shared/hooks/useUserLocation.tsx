@@ -7,9 +7,11 @@ type LatLng = { latitude: number; longitude: number };
 export function useUserLocation() {
   const [userLocation, setUserLocation] = React.useState<LatLng | undefined>();
   const [error, setError] = React.useState<string | null>(null);
+  const subscriptionRef = React.useRef<Location.LocationSubscription | null>(null);
 
   React.useEffect(() => {
-    let sub: Location.LocationSubscription | null = null;
+    let isMounted = true;
+
     (async () => {
       // 1) permisos
       let { status } = await Location.getForegroundPermissionsAsync();
@@ -18,35 +20,53 @@ export function useUserLocation() {
         status = req.status;
       }
       if (status !== 'granted') {
-        setError('Permiso de ubicación denegado');
+        if (isMounted) {
+          setError('Permiso de ubicación denegado');
+        }
         return;
       }
 
       // 2) servicios activos (GPS)
       const servicesOn = await Location.hasServicesEnabledAsync();
       if (!servicesOn) {
-        setError('Servicios de ubicación desactivados');
+        if (isMounted) {
+          setError('Servicios de ubicación desactivados');
+        }
         return;
       }
 
       // 3) watch continuo
-      sub = await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.Balanced, // o High si querés
-          timeInterval: 2000,
-          distanceInterval: 5,
-        },
-        (loc) => {
-          setUserLocation({
-            latitude: loc.coords.latitude,
-            longitude: loc.coords.longitude,
-          });
-        },
-      );
+      try {
+        const subscription = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.Balanced, // o High si querés
+            timeInterval: 2000,
+            distanceInterval: 5,
+          },
+          (loc) => {
+            if (isMounted) {
+              setUserLocation({
+                latitude: loc.coords.latitude,
+                longitude: loc.coords.longitude,
+              });
+            }
+          },
+        );
+        subscriptionRef.current = subscription;
+      } catch (err) {
+        if (isMounted) {
+          setError('Error al obtener ubicación');
+          console.error('Error en watchPositionAsync:', err);
+        }
+      }
     })();
 
     return () => {
-      sub?.remove?.();
+      isMounted = false;
+      if (subscriptionRef.current) {
+        subscriptionRef.current.remove();
+        subscriptionRef.current = null;
+      }
     };
   }, []);
 

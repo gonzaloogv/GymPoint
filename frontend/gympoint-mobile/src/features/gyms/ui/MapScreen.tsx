@@ -20,13 +20,9 @@ import GymsList from './components/GymsList';
 import MapSection from './components/MapSection';
 import MapScreenHeader from './components/MapScreenHeader';
 import ResultsInfo from './components/ResultsInfo';
+import type { GymsStackParamList } from '@presentation/navigation/types';
 
-type RootStackParamList = {
-  App: undefined;
-  GymDetail: { gymId: string };
-};
-
-type GymsNavigationProp = NativeStackNavigationProp<RootStackParamList, 'App'>;
+type GymsNavigationProp = NativeStackNavigationProp<GymsStackParamList, 'GymsList'>;
 
 export default function MapScreen() {
   const navigation = useNavigation<GymsNavigationProp>();

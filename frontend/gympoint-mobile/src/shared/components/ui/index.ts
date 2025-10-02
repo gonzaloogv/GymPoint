@@ -52,3 +52,6 @@ export * from './UserProfileLayout';
 export * from './TabPill';
 export * from './NavigationLayout';
 export * from './StackNavigator';
+export * from './Slider';
+export * from './Select';
+export * from './RadioGroup'

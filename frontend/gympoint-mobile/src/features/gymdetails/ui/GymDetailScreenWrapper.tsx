@@ -6,17 +6,11 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNearbyGyms } from '@features/gyms/hooks';
 import { useCurrentLocation } from '@features/gyms/hooks';
 import type { Gym as GymEntity } from '@features/gyms/domain/entities/Gym';
-import { mapGymEntityToGymDetail } from '../utils/gymMapper';
 import { GymDetailScreen } from './GymDetailScreen';
-import { GymDetailScreenTest } from './GymDetailScreenTest';
+import type { GymsStackParamList } from '@presentation/navigation/types';
 
-type RootStackParamList = {
-  App: undefined;
-  GymDetail: { gymId: string };
-};
-
-type GymDetailRouteProp = RouteProp<RootStackParamList, 'GymDetail'>;
-type GymDetailNavigationProp = NativeStackNavigationProp<RootStackParamList, 'GymDetail'>;
+type GymDetailRouteProp = RouteProp<GymsStackParamList, 'GymDetail'>;
+type GymDetailNavigationProp = NativeStackNavigationProp<GymsStackParamList, 'GymDetail'>;
 
 export function GymDetailScreenWrapper() {
   const route = useRoute<GymDetailRouteProp>();
@@ -52,7 +46,46 @@ export function GymDetailScreenWrapper() {
     }
     
     console.log('✅ Gimnasio encontrado:', foundGym.name);
-    return mapGymEntityToGymDetail(foundGym);
+    
+    // Mapear la entidad Gym al formato esperado por GymDetailScreen
+    return {
+      id: foundGym.id,
+      name: foundGym.name,
+      distance: foundGym.distancia ? foundGym.distancia / 1000 : 0, // Convertir metros a km
+      services: foundGym.equipment || ['Pesas', 'Cardio', 'Funcional'],
+      hours: '6:00 - 23:00',
+      rating: 4.5,
+      address: foundGym.address || 'Dirección no disponible',
+      coordinates: [foundGym.lat, foundGym.lng] as [number, number],
+      price: foundGym.monthPrice,
+      equipment: [
+        {
+          category: 'Máquinas de peso',
+          icon: '🏋️',
+          items: [
+            { name: 'Prensa', quantity: 2 },
+            { name: 'Polea', quantity: 3 },
+            { name: 'Extensión de piernas', quantity: 3 }
+          ]
+        },
+        {
+          category: 'Cardio',
+          icon: '🏃',
+          items: [
+            { name: 'Cintas de correr', quantity: 10 },
+            { name: 'Bicicletas fijas', quantity: 5 }
+          ]
+        },
+        {
+          category: 'Pesas libres',
+          icon: '💪',
+          items: [
+            { name: 'Mancuernas', quantity: 12 },
+            { name: 'Barras', quantity: 8 }
+          ]
+        }
+      ]
+    };
   }, [gymsData, gymId]);
 
   const handleBack = () => {
@@ -103,11 +136,10 @@ export function GymDetailScreenWrapper() {
   }
 
   return (
-    <GymDetailScreenTest
+    <GymDetailScreen
       gym={gym}
       onBack={handleBack}
       onCheckIn={handleCheckIn}
-      dataSource={dataSource}
     />
   );
 }

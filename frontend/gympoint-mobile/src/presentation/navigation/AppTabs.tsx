@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme as useAppTheme } from 'styled-components/native';
-import { TabPill, StackNavigator } from '@shared/components/ui';
+import { TabPill } from '@shared/components/ui';
 
 import WorkoutIcon from '@assets/icons/workout.svg';
 import HomeIcon from '@assets/icons/home.svg';
@@ -25,43 +25,58 @@ import {
 } from '@features/routines';
 
 import { TabIcon } from './components/TabIcon';
+import type { RoutinesStackParamList, GymsStackParamList } from './types';
 
 const Tabs = createBottomTabNavigator();
 
 // ====== Routines nested stack ======
-type RoutinesStackParamList = {
-  RoutinesList: undefined;
-  RoutineDetail: { id: string };
-  RoutineHistory: { id: string };
-  RoutineExecution: { id: string };
-};
 const RoutinesStack = createNativeStackNavigator<RoutinesStackParamList>();
 
 function RoutinesStackNavigator() {
-  const screens = [
-    {
-      name: 'RoutinesList',
-      component: RoutinesScreen,
-      options: { headerShown: false },
-    },
-    {
-      name: 'RoutineDetail',
-      component: RoutineDetailScreen,
-      options: { title: 'Detalle de rutina' },
-    },
-    {
-      name: 'RoutineHistory',
-      component: RoutineHistoryScreen,
-      options: { title: 'Historial' },
-    },
-    {
-      name: 'RoutineExecution',
-      component: RoutineExecutionScreen,
-      options: { title: 'Ejecución' },
-    },
-  ];
+  return (
+    <RoutinesStack.Navigator>
+      <RoutinesStack.Screen
+        name="RoutinesList"
+        component={RoutinesScreen}
+        options={{ headerShown: false }}
+      />
+      <RoutinesStack.Screen
+        name="RoutineDetail"
+        component={RoutineDetailScreen}
+        options={{ title: 'Detalle de rutina' }}
+      />
+      <RoutinesStack.Screen
+        name="RoutineHistory"
+        component={RoutineHistoryScreen}
+        options={{ title: 'Historial' }}
+      />
+      <RoutinesStack.Screen
+        name="RoutineExecution"
+        component={RoutineExecutionScreen}
+        options={{ title: 'Ejecución' }}
+      />
+    </RoutinesStack.Navigator>
+  );
+}
 
-  return <StackNavigator screens={screens} />;
+// ====== Gyms nested stack ======
+const GymsStack = createNativeStackNavigator<GymsStackParamList>();
+
+function GymsStackNavigator() {
+  return (
+    <GymsStack.Navigator>
+      <GymsStack.Screen
+        name="GymsList"
+        component={GymsScreen}
+        options={{ headerShown: false }}
+      />
+      <GymsStack.Screen
+        name="GymDetail"
+        component={GymDetailScreenWrapper}
+        options={{ title: 'Detalle del gimnasio' }}
+      />
+    </GymsStack.Navigator>
+  );
 }
 
 
@@ -164,7 +179,7 @@ export default function AppTabs() {
 
       <Tabs.Screen
         name="Mapa"
-        component={GymsScreen}
+        component={GymsStackNavigator}
         options={{
           tabBarIcon: ({ focused, size = 20 }) => 
             renderTabPill(focused, 
