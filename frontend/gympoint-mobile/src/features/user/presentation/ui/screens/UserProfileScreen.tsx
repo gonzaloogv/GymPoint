@@ -80,6 +80,13 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   // ============================================
   // RENDER
   // ============================================
+  const defaultStats = {
+    totalCheckIns: 0,
+    longestStreak: 0,
+    favoriteGym: '-',
+    monthlyVisits: 0,
+  };
+
   return (
     <UserProfileLayout>
       {/* 1. Header */}
@@ -94,7 +101,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
 
       {/* 3. Stats */}
       <StatsSection
-        stats={stats}
+        stats={stats || defaultStats}
         isPremium={resolvedUser.plan === 'Premium'}
         theme={theme}
       />
