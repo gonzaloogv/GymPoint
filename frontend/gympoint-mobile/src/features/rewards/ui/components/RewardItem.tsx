@@ -1,5 +1,5 @@
 import React from 'react';
-import { RewardCard } from '@shared/components/ui';
+import { RewardCard } from './RewardCard';
 import { Reward } from '../../types';
 import { getCategoryColor, getCategoryName } from '../../utils/categories';
 
