@@ -1,7 +1,7 @@
 import React from 'react';
 import { Animated, View, Text, Platform } from 'react-native';
-import type { LatLng } from '@features/gyms/types';
-import { useMapAnimations } from '@shared/hooks/useMapAnimations';
+import type { LatLng } from '@features/gyms/presentation/types';
+import { useMapAnimations } from '@features/gyms/presentation/hooks';
 
 const USER_PIN_SIZE = 30;
 const DEBUG_BADGE_STYLE = {
