@@ -1,0 +1,42 @@
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: mitre280
+      MYSQL_DATABASE: gympoint
+    ports:
+      - '3308:3306'
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./backend/db:/docker-entrypoint-initdb.d
+
+  backend:
+    build: ./backend/node
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: mitre280
+      DB_NAME: gympoint
+      DB_PORT: 3306
+      PORT: 3000
+      JWT_SECRET: clave_super_secreta_para_tokens
+      JWT_REFRESH_SECRET: clave_distinta_para_refresh
+      GOOGLE_CLIENT_ID: 287573324529-6dratpth8ik6jr9ppdpf2nv666e0mv9b.apps.googleusercontent.com
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+
+  web:
+    build:
+      context: ./frontend/react-web
+      args:
+        VITE_API_URL: http://localhost:3000
+    ports:
+      - '5173:5173'
+    depends_on:
+      - backend
+
+volumes:
+  db-data:
