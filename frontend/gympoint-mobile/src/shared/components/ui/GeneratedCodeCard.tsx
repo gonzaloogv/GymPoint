@@ -2,6 +2,7 @@ import React from 'react';
 import { Feather } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { useTheme } from 'styled-components/native';
 
 import { Card } from './Card';
 import { Button } from './Button';
@@ -58,26 +59,45 @@ const IconButton = styled(TouchableOpacity)`
   padding: 4px;
 `;
 
+const STATUS_LABELS = {
+  used: 'USADO',
+  expired: 'VENCIDO',
+  available: 'DISPONIBLE',
+} as const;
+
+const DATE_LABELS = {
+  generated: 'Generado:',
+  expires: 'Vence:',
+  used: 'Usado:',
+} as const;
+
 type GeneratedCodeCardProps = {
   item: GeneratedCode;
   onCopy: (code: string) => void;
   onToggle: (code: GeneratedCode) => void;
   formatDate: (date: Date | undefined) => string;
+  markAsUsedLabel?: string;
 };
 
 export function GeneratedCodeCard({ 
   item, 
   onCopy, 
   onToggle, 
-  formatDate 
+  formatDate,
+  markAsUsedLabel = 'Marcar como usado',
 }: GeneratedCodeCardProps) {
+  const theme = useTheme();
   const isExpired = item.expiresAt ? new Date() > item.expiresAt : false;
   const statusColor = item.used
     ? palette.neutralText
     : isExpired
     ? palette.danger
     : palette.lifestylePrimary;
-  const statusText = item.used ? 'USADO' : isExpired ? 'VENCIDO' : 'DISPONIBLE';
+  const statusText = item.used 
+    ? STATUS_LABELS.used 
+    : isExpired 
+    ? STATUS_LABELS.expired 
+    : STATUS_LABELS.available;
 
   return (
     <Card style={{ opacity: item.used ? 0.6 : 1 }}>
@@ -97,12 +117,12 @@ export function GeneratedCodeCard({
       </GeneratedCodeWrapper>
 
       <CodeFooterRow>
-        <CodeFooterLabel>Generado:</CodeFooterLabel>
+        <CodeFooterLabel>{DATE_LABELS.generated}</CodeFooterLabel>
         <CodeFooterValue>{formatDate(item.generatedAt)}</CodeFooterValue>
       </CodeFooterRow>
       
       <CodeFooterRow>
-        <CodeFooterLabel>Vence:</CodeFooterLabel>
+        <CodeFooterLabel>{DATE_LABELS.expires}</CodeFooterLabel>
         <CodeFooterValue $color={isExpired ? palette.danger : undefined}>
           {formatDate(item.expiresAt)}
         </CodeFooterValue>
@@ -110,7 +130,7 @@ export function GeneratedCodeCard({
       
       {item.used && item.usedAt && (
         <CodeFooterRow>
-          <CodeFooterLabel>Usado:</CodeFooterLabel>
+          <CodeFooterLabel>{DATE_LABELS.used}</CodeFooterLabel>
           <CodeFooterValue>{formatDate(item.usedAt)}</CodeFooterValue>
         </CodeFooterRow>
       )}
@@ -125,10 +145,10 @@ export function GeneratedCodeCard({
           }}
         >
           <ButtonText style={{ 
-            color: '#ffffff',
+            color: theme.colors.onPrimary,
             fontWeight: '600'
           }}>
-            Marcar como usado
+            {markAsUsedLabel}
           </ButtonText>
         </Button>
       )}

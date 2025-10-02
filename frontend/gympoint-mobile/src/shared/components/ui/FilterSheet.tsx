@@ -17,7 +17,7 @@ const Backdrop = styled(TouchableOpacity).attrs({ activeOpacity: 1 })`
 
 const SheetBody = styled(View)`
   max-height: 70%;
-  background-color: ${({ theme }) => theme?.colors?.card ?? '#fff'};
+  background-color: ${({ theme }) => theme.colors.card};
   border-top-left-radius: ${({ theme }) => rad(theme, 'lg', 16)}px;
   border-top-right-radius: ${({ theme }) => rad(theme, 'lg', 16)}px;
   padding: ${({ theme }) => sp(theme, 2)}px;
@@ -29,6 +29,7 @@ const SheetTitle = styled(Text)`
   font-weight: 700;
   font-size: 16px;
   margin-bottom: 8px;
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 const SheetActions = styled(View)`
@@ -44,7 +45,7 @@ const OutlineButton = styled(TouchableOpacity)`
   min-height: 40px;
   border-radius: ${({ theme }) => rad(theme, 'md', 12)}px;
   border-width: 1px;
-  border-color: ${({ theme }) => theme?.colors?.border ?? '#e5e7eb'};
+  border-color: ${({ theme }) => theme.colors.border};
 `;
 
 const SolidButton = styled(TouchableOpacity)`
@@ -53,29 +54,33 @@ const SolidButton = styled(TouchableOpacity)`
   justify-content: center;
   min-height: 40px;
   border-radius: ${({ theme }) => rad(theme, 'md', 12)}px;
-  background-color: ${({ theme }) => theme?.colors?.primary ?? '#635BFF'};
+  background-color: ${({ theme }) => theme.colors.primary};
 `;
 
 const ButtonText = styled(Text)<{ $solid?: boolean }>`
-  color: ${({ $solid }) => ($solid ? '#fff' : '#111')};
+  color: ${({ theme, $solid }) => ($solid ? theme.colors.onPrimary : theme.colors.text)};
   font-weight: 600;
 `;
 
 type Props = {
   visible: boolean;
   onClose: () => void;
-  title?: string;
+  title: string;
   onClear?: () => void;
   onApply?: () => void;
+  clearLabel?: string;
+  applyLabel?: string;
   children: React.ReactNode;
 };
 
 export function FilterSheet({
   visible,
   onClose,
-  title = "Filtros",
+  title,
   onClear,
   onApply,
+  clearLabel = 'Limpiar',
+  applyLabel = 'Aplicar',
   children,
 }: Props) {
   return (
@@ -90,10 +95,10 @@ export function FilterSheet({
 
             <SheetActions>
               <OutlineButton onPress={onClear}>
-                <ButtonText>Limpiar</ButtonText>
+                <ButtonText>{clearLabel}</ButtonText>
               </OutlineButton>
               <SolidButton onPress={onApply}>
-                <ButtonText $solid>Aplicar</ButtonText>
+                <ButtonText $solid>{applyLabel}</ButtonText>
               </SolidButton>
             </SheetActions>
           </ContentScroll>
