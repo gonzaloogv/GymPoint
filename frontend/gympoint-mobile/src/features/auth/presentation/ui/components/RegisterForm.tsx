@@ -42,11 +42,8 @@ export function RegisterForm({ loading, onSubmit }: Props) {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const [selectedCity, setSelectedCity] = useState<string>('');
-
   const handleCityChange = (value: string) => {
-    setSelectedCity(value);
-    console.log('Localidad seleccionada:', value);
+    handleChange('location', value);
   };
 
   const handleSubmit = () => {
@@ -80,7 +77,7 @@ export function RegisterForm({ loading, onSubmit }: Props) {
       <Label>Localidad</Label>
       <PickerWrapper>
         <Picker
-          selectedValue={selectedCity}
+          selectedValue={form.location}
           onValueChange={handleCityChange}
           style={{ height: 50 }}
         >
