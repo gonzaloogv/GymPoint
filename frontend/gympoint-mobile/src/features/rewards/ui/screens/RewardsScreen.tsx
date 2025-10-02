@@ -5,8 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
 // 1. IMPORTACIONES DE DOMINIO Y HOOKS
-import { User } from '../../auth/domain/entities/User'; 
-import { useRewards } from '../hooks/useRewards'; 
+import { User } from '@features/auth/domain/entities/User'; 
+import { useRewards } from '@features/rewards/hooks/useRewards'; 
 
 // 2. IMPORTACIONES DE COMPONENTES MODULARES
 import {
@@ -16,10 +16,10 @@ import {
   LoadingState,
   PremiumUpsell,
   TokensTips,
-} from './components';
+} from '@features/rewards/ui/components';
 
 // 3. IMPORTACIONES DE ESTILOS MODULARES
-import { ScrollContainer, Container } from './styles/layout';
+import { ScrollContainer, Container } from '@features/rewards/ui/styles/layout';
 
 
 // --- INTERFAZ DE PROPS ---

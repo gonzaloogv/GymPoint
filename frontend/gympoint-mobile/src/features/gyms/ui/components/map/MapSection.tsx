@@ -14,7 +14,7 @@ import { LOCATION_FALLBACK_MESSAGE } from '@features/gyms/constants';
 import { GymLite, LatLng, MapLocation, Region } from '@features/gyms/types';
 import { getMapHeight } from '@features/gyms/utils/layout';
 
-import MapView from '../MapView';
+import MapView from '@features/gyms/ui/screens/MapView';
 
 type Props = {
   initialRegion: Region;

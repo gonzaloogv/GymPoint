@@ -1,9 +1,9 @@
 import React from 'react';
-import { useRoutineExecution } from '../hooks/useRoutineExecution';
-import { ExerciseDetails } from './components';
-import { ExecutionLayout } from './layouts';
-import { ExecutionHeader } from './headers';
-import { ExecutionFooter } from './footers';
+import { useRoutineExecution } from '@features/routines/hooks/useRoutineExecution';
+import { ExerciseDetails } from '@features/routines/ui/components';
+import { ExecutionLayout } from '@features/routines/ui/layouts';
+import { ExecutionHeader } from '@features/routines/ui/headers';
+import { ExecutionFooter } from '@features/routines/ui/footers';
 
 type RoutineExecutionScreenProps = {
   route: { params?: { id?: string } };

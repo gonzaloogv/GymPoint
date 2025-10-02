@@ -3,9 +3,7 @@ import { Ionicons, Feather } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import { View, Text, TouchableOpacity } from 'react-native';
 
-import { Card } from './Card';
-import { Button } from './Button';
-import { ButtonText } from './Button';
+import { Card, Button, ButtonText } from '@shared/components/ui';
 import { palette } from '@shared/styles';
 
 // Styled components específicos para RewardCard

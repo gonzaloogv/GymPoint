@@ -1,4 +1,5 @@
 export * from './RewardItem';
+export * from './RewardCard';
 export * from './GeneratedCodeItem';
 export * from './EmptyCodes';
 export * from './PremiumUpsell';

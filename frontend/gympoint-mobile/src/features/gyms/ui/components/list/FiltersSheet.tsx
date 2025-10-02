@@ -1,5 +1,5 @@
 import React from 'react';
-import { PRICE_OPTIONS, SERVICE_OPTIONS, TIME_OPTIONS } from '../../constants/filters';
+import { PRICE_OPTIONS, SERVICE_OPTIONS, TIME_OPTIONS } from '@features/gyms/constants/filters';
 import { FilterSheet, ChipSelector } from '@shared/components/ui';
 
 type FiltersSheetProps = {

@@ -2,16 +2,16 @@ import { useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { useRoutines } from '../hooks/useRoutine';
-import { Routine } from '../types';
-import { RoutinesLayout } from './layouts';
+import { useRoutines } from '@features/routines/hooks/useRoutine';
+import { Routine } from '@features/routines/types';
+import { RoutinesLayout } from '@features/routines/ui/layouts/RoutinesLayout';
 import { ItemPad, ProgressWrap } from '@shared/components/ui';
-import RoutinesHeader from './components/RoutinesHeader';
-import RoutineProgress from './components/RoutineProgress';
-import RoutineCard from './components/RoutineCard';
-import EmptyState from './components/EmptyState';
-import ErrorState from './components/ErrorState';
-import FloatingActions from './components/FloatingActions';
+import RoutinesHeader from '@features/routines/ui/components/RoutinesHeader';
+import RoutineProgress from '@features/routines/ui/components/RoutineProgress';
+import RoutineCard from '@features/routines/ui/components/RoutineCard';
+import EmptyState from '@features/routines/ui/components/EmptyState';
+import ErrorState from '@features/routines/ui/components/ErrorState';
+import FloatingActions from '@features/routines/ui/components/FloatingActions';
 
 // Tipado local del stack de Rutinas (evita depender del RootNavigator)
 type RoutinesStackParamList = {

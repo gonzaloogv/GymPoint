@@ -1,10 +1,10 @@
 import React from 'react';
-import { useRoutineById } from '../hooks/useRoutineById';
-import { useRoutineHistory } from '../hooks/useRoutineHistory';
-import { RoutineSession } from '../types';
-import { HistoryLayout } from './layouts';
-import { HistoryHeader } from './headers';
-import { HistoryList } from './lists';
+import { useRoutineById } from '@features/routines/hooks/useRoutineById';
+import { useRoutineHistory } from '@features/routines/hooks/useRoutineHistory';
+import { RoutineSession } from '@features/routines/types';
+import { HistoryLayout } from '@features/routines/ui/layouts/HistoryLayout';
+import { HistoryHeader } from '@features/routines/ui/headers/HistoryHeader';
+import { HistoryList } from '@features/routines/ui/lists/HistoryList';
 
 
 export default function RoutineHistoryScreen({ route }: any) {

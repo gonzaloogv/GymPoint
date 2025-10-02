@@ -1,6 +1,5 @@
 import styled from 'styled-components/native';
-import { Card } from './Card';
-import { SetPill } from './SetPill';
+import { Card, SetPill } from '@shared/components/ui';
 
 const ExerciseCardContainer = styled.View`
   margin: 0 16px;
