@@ -1,11 +1,11 @@
 /**
  * Gyms Feature - Public API
- * Only exports UI, hooks, and public utilities
+ * Clean Architecture (3 layers)
+ * 
+ * Only exports presentation layer (UI, hooks, utils, types)
+ * Domain and Data layers are internal implementation details
  */
 
-export * from './hooks';
-export * from './ui';
-export * from './types';
-export * from './utils/price';
-export * from './utils/schedule';
-export * from './constants';
+export * from './presentation';
+export * from './domain/constants/filters';
+export * from './domain/constants/map';
