@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 import { Button, Input, Label, Select, RadioGroup, Slider } from '@shared/components/ui';
-import { PROVINCES } from '@features/auth/data/auth.provinces';
+import { PROVINCES } from '@features/auth/domain/constants/provinces';
 
 interface Props {
   loading: boolean;

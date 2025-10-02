@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 import { StatusPill, MetaChip } from '@shared/components/ui';
-import type { Routine } from '../../types';
+import type { Routine } from '@features/routines/domain/entities';
 
 const HeaderWrap = styled.View`
   padding: ${({ theme }) => theme.spacing(2)}px;

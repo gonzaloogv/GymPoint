@@ -1,6 +1,6 @@
 import styled from 'styled-components/native';
 import { FILTERS } from '../../hooks/useRoutinesFilters';
-import { RoutineStatus } from '../../types';
+import { RoutineStatus } from '@features/routines/domain/entities';
 import { Input, FilterChip } from '@shared/components/ui';
 
 const Header = styled.View`

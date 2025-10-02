@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/native';
 import { Card } from '@shared/components/ui';
-import type { RoutineSession } from '../../types';
+import type { RoutineSession } from '@features/routines/domain/entities';
 
 const ItemInner = styled.View`
   padding: ${({ theme }) => theme.spacing(2)}px;

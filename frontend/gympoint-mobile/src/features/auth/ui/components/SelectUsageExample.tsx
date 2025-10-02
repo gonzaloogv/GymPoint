@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView } from 'react-native'; // Importación correcta de SafeAreaView
 import { Select } from '@shared/components/ui'; // Ajusta la ruta de importación si es necesario
-import { PROVINCES } from '../../data/auth.provinces'; // Importa los datos del nuevo archivo
+import { PROVINCES } from '../../domain/constants/provinces';
 
 export default function SelectUsageExample() {
   // State para almacenar el valor de la provincia seleccionada (e.g., 'BA', 'CH', etc.)
