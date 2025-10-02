@@ -38,6 +38,13 @@ import { GetHomeStats } from '@features/home/domain/usecases/GetHomeStats';
 import { GetWeeklyProgress } from '@features/home/domain/usecases/GetWeeklyProgress';
 import { GetDailyChallenge } from '@features/home/domain/usecases/GetDailyChallenge';
 
+// ===== User =====
+import { UserRepository } from '@features/user/domain/repositories/UserRepository';
+import { UserRepositoryImpl } from '@features/user/data/UserRepositoryImpl';
+import { GetUserProfile } from '@features/user/domain/usecases/GetUserProfile';
+import { UpdateUserSettings } from '@features/user/domain/usecases/UpdateUserSettings';
+import { UpgradeToPremium } from '@features/user/domain/usecases/UpgradeToPremium';
+
 class Container {
   // Auth
   authRepository: AuthRepository;
@@ -73,6 +80,12 @@ class Container {
   getWeeklyProgress: GetWeeklyProgress;
   getDailyChallenge: GetDailyChallenge;
 
+  // User
+  userRepository: UserRepository;
+  getUserProfile: GetUserProfile;
+  updateUserSettings: UpdateUserSettings;
+  upgradeToPremium: UpgradeToPremium;
+
   constructor() {
     // Auth
     this.authRepository = new AuthRepositoryImpl();
@@ -107,6 +120,12 @@ class Container {
     this.getHomeStats = new GetHomeStats(this.homeRepository);
     this.getWeeklyProgress = new GetWeeklyProgress(this.homeRepository);
     this.getDailyChallenge = new GetDailyChallenge(this.homeRepository);
+
+    // User
+    this.userRepository = new UserRepositoryImpl();
+    this.getUserProfile = new GetUserProfile(this.userRepository);
+    this.updateUserSettings = new UpdateUserSettings(this.userRepository);
+    this.upgradeToPremium = new UpgradeToPremium(this.userRepository);
   }
 }
 
