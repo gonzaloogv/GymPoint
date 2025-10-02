@@ -1,3 +1,3 @@
-export { default as HomeScreen } from './ui/HomeScreen';
-export * from './hooks/useHome';
-export * from './ui/components';
+export { default as HomeScreen } from './presentation/ui/HomeScreen';
+export * from './presentation/hooks';
+export * from './presentation/ui/components';
