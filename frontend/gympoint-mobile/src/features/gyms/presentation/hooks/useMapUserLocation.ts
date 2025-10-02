@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { LatLng, Region } from '@features/gyms/types';
+import type { LatLng, Region } from '@features/gyms/presentation/types';
 
 const USER_FOCUS_DURATION = 450;
 const USER_UPDATE_DURATION = 500;

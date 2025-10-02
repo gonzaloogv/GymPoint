@@ -1,6 +1,6 @@
 import { Platform, StyleProp, ViewStyle } from 'react-native';
 import type { LatLng, MapLocation, Region } from '@features/gyms/presentation/types';
-import { useMapUserLocation } from '@shared/hooks/useMapUserLocation';
+import { useMapUserLocation } from '@features/gyms/presentation/hooks';
 import { MapFallback, MapMarker, UserLocationPin } from '@shared/components/ui';
 import { MAP_STYLE } from './mapViewConfig';
 import WebMapView from './MapView.web';

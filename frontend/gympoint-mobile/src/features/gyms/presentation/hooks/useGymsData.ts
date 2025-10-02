@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useUserLocation } from './useUserLocation';
+import { useUserLocation } from '../../../../shared/hooks';
 
 type UseGymsDataProps = {
   useNearbyGyms: (lat?: number, lng?: number, radius?: number) => {
