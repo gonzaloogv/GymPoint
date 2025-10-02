@@ -1,6 +1,6 @@
 // src/features/gyms/hooks/useNearbyGyms.ts
 import { useEffect, useState } from 'react';
-import type { Gym } from '../domain/entities/Gym';
+import type { Gym } from '../../domain/entities/Gym';
 import { DI } from '@di/container';
 import { MOCK_UI } from '../../data/datasources/GymMocks';
 
