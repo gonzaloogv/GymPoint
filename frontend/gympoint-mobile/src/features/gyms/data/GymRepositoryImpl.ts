@@ -5,7 +5,7 @@ import { Gym } from '../domain/entities/Gym';
 import { GymRepository, ListNearbyParams } from '../domain/repositories/GymRepository';
 import { GymDTO } from './dto/GymDTO';
 import { mapGymDTOtoEntity } from './mappers/gym.mappers';
-import { MOCK_UI } from '../mocks';
+import { MOCK_UI } from '../data/datasources/GymMocks';
 
 function distanceMeters(
   a: { lat: number; lng: number },

@@ -2,7 +2,7 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 
 import { DI } from '@di/container';
-import type { Schedule } from '../domain/entities/Schedule';
+import { Schedule } from '@features/gyms/domain/entities/Schedule';
 
 export function useGymSchedules(gymIds: Array<number | string> | undefined) {
   const [map, setMap] = useState<Record<number, Schedule[]>>({});

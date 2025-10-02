@@ -3,7 +3,7 @@ import { Platform, Text, View } from 'react-native';
 import styled from 'styled-components/native';
 import { Feather } from '@expo/vector-icons';
 
-import type { LatLng, MapLocation, Region } from '@features/gyms/types';
+import type { LatLng, MapLocation, Region } from '@features/gyms/presentation/types';
 import { palette } from '@shared/styles';
 
 import { WEB_FALLBACK_STYLE } from './mapViewConfig';

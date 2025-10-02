@@ -1,6 +1,6 @@
 import type { ViewStyle } from 'react-native';
 
-import type { LatLng, Region } from '@features/gyms/types';
+import type { LatLng, Region } from '@features/gyms/presentation/types';
 
 export const WEB_FALLBACK_STYLE: ViewStyle = {
   width: '100%',

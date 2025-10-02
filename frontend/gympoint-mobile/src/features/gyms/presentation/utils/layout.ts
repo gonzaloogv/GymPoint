@@ -1,6 +1,6 @@
 import { Dimensions } from 'react-native';
 
-import { MAP_MAX_HEIGHT, MAP_MIN_HEIGHT, MAP_VIEWPORT_RATIO } from '../constants';
+import { MAP_MAX_HEIGHT, MAP_MIN_HEIGHT, MAP_VIEWPORT_RATIO } from '../../domain/constants/map';
 
 export const getMapHeight = (customHeight?: number) => {
   if (typeof customHeight === 'number') {

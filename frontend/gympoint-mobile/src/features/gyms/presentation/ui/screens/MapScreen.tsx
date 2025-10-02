@@ -6,14 +6,14 @@ import { GymsScreenLayout } from '@shared/components/ui';
 import { useGymsData, useGymsFilters, useGymsView } from '@shared/hooks';
 import { formatResultsLabel } from '@shared/utils';
 
-import { MAP_SECTION_HEIGHT } from '@features/gyms/constants';
-import { MOCK_UI } from '@features/gyms/mocks';
-import { useActiveFiltersCount } from '@features/gyms/hooks/useActiveFiltersCount';
-import { useGymsFiltering } from '@features/gyms/hooks/useGymsFiltering';
-import { useMapInitialRegion } from '@features/gyms/hooks/useMapInitialRegion';
-import { useMapLocations } from '@features/gyms/hooks/useMapLocations';
-import { useNearbyGyms } from '@features/gyms/hooks/useNearbyGyms';
-import { useGymSchedules } from '@features/gyms/hooks/useGymSchedule';
+import { MAP_SECTION_HEIGHT } from '@features/gyms/domain/constants/map';
+import { MOCK_UI } from '@features/gyms/data/datasources/GymMocks';
+import { useActiveFiltersCount } from '@features/gyms/presentation/hooks/useActiveFiltersCount';
+import { useGymsFiltering } from '@features/gyms/presentation/hooks/useGymsFiltering';
+import { useMapInitialRegion } from '@features/gyms/presentation/hooks/useMapInitialRegion';
+import { useMapLocations } from '@features/gyms/presentation/hooks/useMapLocations';
+import { useNearbyGyms } from '@features/gyms/presentation/hooks/useNearbyGyms';
+import { useGymSchedules } from '@features/gyms/presentation/hooks/useGymSchedule';
 
 import FiltersSheet from '../components/list/FiltersSheet';
 import GymsList from '../components/list/GymsList';

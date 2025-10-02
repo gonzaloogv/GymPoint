@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import type { Gym } from '../domain/entities/Gym';
+import type { Gym } from '@features/gyms/domain/entities/Gym';
 import type { MapLocation } from '../types';
 
 export function useMapLocations(gyms: Gym[]) {

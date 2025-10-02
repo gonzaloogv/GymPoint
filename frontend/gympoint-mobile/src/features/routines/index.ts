@@ -1,7 +1,9 @@
 /**
  * Routines Feature - Public API
- * Only exports UI and hooks
+ * Clean Architecture (3 layers)
+ * 
+ * Only exports presentation layer (UI, hooks, state)
+ * Domain and Data layers are internal implementation details
  */
 
-export * from './ui';
-export * from './hooks';
+export * from './presentation';

@@ -1,5 +1,5 @@
 // src/features/gyms/utils/schedule.ts
-import type { Schedule } from '../domain/entities/Schedule';
+import type { Schedule } from '@features/gyms/domain/entities/Schedule';
 
 // Aceptamos ambas convenciones
 const dayToJs: Record<string, number> = {

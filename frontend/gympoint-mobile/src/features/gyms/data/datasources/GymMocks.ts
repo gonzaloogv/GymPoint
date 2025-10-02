@@ -1,4 +1,4 @@
-import type { Gym } from './domain/entities/Gym';
+import type { Gym } from '@features/gyms/domain/entities/Gym';
 
 export const MOCK_UI: Gym[] = [
   {

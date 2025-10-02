@@ -1,7 +1,7 @@
 // src/features/gyms/hooks/useGymsFiltering.ts
 import { useMemo } from 'react';
-import type { Gym } from '../domain/entities/Gym';
-import type { Schedule } from '../domain/entities/Schedule';
+import type { Gym } from '@features/gyms/domain/entities/Gym';
+import { Schedule } from '@features/gyms/domain/entities/Schedule';
 import { isGymOpenNow, matchesTimeWindow } from '../utils/schedule';
 import { parsePriceFilter } from '../utils/price'; // o mantené el parser inline si lo tenés así
 

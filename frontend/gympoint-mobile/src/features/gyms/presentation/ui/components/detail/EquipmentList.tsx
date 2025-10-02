@@ -1,7 +1,4 @@
-import React from "react";
 import styled from "styled-components/native";
-import { Feather } from '@expo/vector-icons';
-import { TouchableOpacity } from "react-native";
 import { Gym } from '@features/gyms/domain/entities/Gym';
 
 const Wrapper = styled.View`

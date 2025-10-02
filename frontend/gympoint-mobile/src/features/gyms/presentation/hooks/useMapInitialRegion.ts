@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { DEFAULT_REGION } from '../constants';
+import { DEFAULT_REGION } from '@features/gyms/domain/constants/map';
 
 export function useMapInitialRegion(lat?: number, lng?: number) {
   return useMemo(() => {

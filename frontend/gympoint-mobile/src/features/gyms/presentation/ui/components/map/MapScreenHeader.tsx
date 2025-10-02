@@ -1,6 +1,4 @@
 import { memo } from 'react';
-import styled from 'styled-components/native';
-import { Row } from '@shared/components/ui';
 import { SearchHeader } from '@shared/components/ui';
 import HeaderActions from './HeaderActions';
 

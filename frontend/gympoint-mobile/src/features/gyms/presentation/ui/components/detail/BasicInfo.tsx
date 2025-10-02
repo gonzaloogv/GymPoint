@@ -1,4 +1,3 @@
-import React from "react";
 import styled from "styled-components/native";
 import { Feather } from "@expo/vector-icons";
 import { Gym } from '@features/gyms/domain/entities/Gym';

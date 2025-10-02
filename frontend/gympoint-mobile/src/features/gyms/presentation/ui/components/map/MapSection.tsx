@@ -10,11 +10,11 @@ import {
 import { GymListItem } from '../list/GymListItem';
 import { palette, rad, sp } from '@shared/styles';
 
-import { LOCATION_FALLBACK_MESSAGE } from '@features/gyms/constants';
-import { GymLite, LatLng, MapLocation, Region } from '@features/gyms/types';
-import { getMapHeight } from '@features/gyms/utils/layout';
+import { LOCATION_FALLBACK_MESSAGE } from '@features/gyms/domain/constants/map';
+import { GymLite, LatLng, MapLocation, Region } from '@features/gyms/presentation/types';
+import { getMapHeight } from '@features/gyms/presentation/utils/layout';
 
-import MapView from '@features/gyms/ui/screens/MapView';
+import MapView from '../../screens/MapView.web';
 
 type Props = {
   initialRegion: Region;
