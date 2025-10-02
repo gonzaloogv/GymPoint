@@ -22,6 +22,15 @@ import { GetRoutines } from '@features/routines/domain/usecases/GetRoutines';
 import { GetRoutineById } from '@features/routines/domain/usecases/GetRoutineById';
 import { ExecuteRoutine } from '@features/routines/domain/usecases/ExecuteRoutine';
 import { GetRoutineHistory } from '@features/routines/domain/usecases/GetRoutineHistory';
+
+// ===== Rewards =====
+import { RewardRepository } from '@features/rewards/domain/repositories/RewardRepository';
+import { RewardRepositoryImpl } from '@features/rewards/data/RewardRepositoryImpl';
+import { RewardLocal } from '@features/rewards/data/datasources/RewardLocal';
+import { GetAvailableRewards } from '@features/rewards/domain/usecases/GetAvailableRewards';
+import { GenerateRewardCode } from '@features/rewards/domain/usecases/GenerateRewardCode';
+import { GetGeneratedCodes } from '@features/rewards/domain/usecases/GetGeneratedCodes';
+
 class Container {
   // Auth
   authRepository: AuthRepository;
@@ -44,6 +53,13 @@ class Container {
   executeRoutine: ExecuteRoutine;
   getRoutineHistory: GetRoutineHistory;
 
+  // Rewards
+  rewardLocal: RewardLocal;
+  rewardRepository: RewardRepository;
+  getAvailableRewards: GetAvailableRewards;
+  generateRewardCode: GenerateRewardCode;
+  getGeneratedCodes: GetGeneratedCodes;
+
   constructor() {
     // Auth
     this.authRepository = new AuthRepositoryImpl();
@@ -65,6 +81,13 @@ class Container {
     this.getRoutineById = new GetRoutineById(this.routineRepository);
     this.executeRoutine = new ExecuteRoutine(this.routineRepository);
     this.getRoutineHistory = new GetRoutineHistory(this.routineRepository);
+
+    // Rewards
+    this.rewardLocal = new RewardLocal();
+    this.rewardRepository = new RewardRepositoryImpl(this.rewardLocal);
+    this.getAvailableRewards = new GetAvailableRewards(this.rewardRepository);
+    this.generateRewardCode = new GenerateRewardCode(this.rewardRepository);
+    this.getGeneratedCodes = new GetGeneratedCodes(this.rewardRepository);
   }
 }
 
