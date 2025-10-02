@@ -13,7 +13,7 @@ import {
   SmallText,
   SwitchRow,
   SwitchRowLeft,
-} from '../styles/ProfilesStyles';
+} from '../styles/ProfileStyles';
 import { AppTheme } from '@presentation/theme';
 
 interface LocationSettingsProps {

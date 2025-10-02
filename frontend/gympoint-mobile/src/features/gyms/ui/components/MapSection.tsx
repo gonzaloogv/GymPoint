@@ -26,6 +26,7 @@ type Props = {
   moreList?: GymLite[];
   mapHeight?: number;
   showUserFallbackPin?: boolean;
+  onGymPress?: (gymId: string | number) => void;
 };
 
 const SectionCard = styled(BaseCard)`
@@ -70,6 +71,7 @@ export default function MapSection({
   moreList = [],
   mapHeight,
   showUserFallbackPin = false,
+  onGymPress,
 }: Props) {
   const computedHeight = getMapHeight(mapHeight);
   const hasMoreGyms = moreList.length > 0;
@@ -110,7 +112,7 @@ export default function MapSection({
               hours={hours}
               address={address}
               index={index}
-              onPress={noop}
+              onPress={onGymPress || noop}
             />
           ))}
         </SectionCard>

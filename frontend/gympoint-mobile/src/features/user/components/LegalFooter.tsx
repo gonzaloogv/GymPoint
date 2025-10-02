@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
-import { Card, SmallText } from '../styles/ProfilesStyles';
+import { Card, SmallText } from '../styles/ProfileStyles';
 import { AppTheme } from '@presentation/theme';
 
 interface LegalFooterProps {

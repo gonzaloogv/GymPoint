@@ -1,7 +1,3 @@
-/**
- * NotificationSettings - Configuración de notificaciones
- * Permite al usuario controlar qué tipo de notificaciones desea recibir
- */
 
 import React from 'react';
 import { Switch as RNSwitch } from 'react-native';
@@ -15,7 +11,7 @@ import {
   SwitchRowLeft,
 } from '../styles/ProfileStyles';
 import { NotificationSettings as NotificationSettingsType } from '../types/UserTypes';
-import { AppTheme } from '@config/theme';
+import { AppTheme } from '@presentation/theme';
 
 interface NotificationSettingsProps {
   notifications: NotificationSettingsType;
@@ -32,7 +28,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
     <Section theme={theme}>
       {/* Título de la sección */}
       <SectionTitle theme={theme}>
-        <Feather size={16} color={theme.colors.text} />
+        <Feather name="bell" size={16} color={theme.colors.text} />
         <BodyText style={{ fontWeight: '600' }}>Notificaciones</BodyText>
       </SectionTitle>
 

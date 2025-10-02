@@ -12,7 +12,7 @@ import {
   SmallText,
   Button,
   ButtonText,
-} from '../styles/ProfilesStyles';
+} from '../styles/ProfileStyles';
 import { AppTheme } from '@presentation/theme';
 
 interface PremiumAlertProps {

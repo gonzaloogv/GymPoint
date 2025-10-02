@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { GymsScreenLayout } from '@shared/components/ui';
 import { useGymsData, useGymsFilters, useGymsView } from '@shared/hooks';
@@ -19,8 +21,15 @@ import MapSection from './components/MapSection';
 import MapScreenHeader from './components/MapScreenHeader';
 import ResultsInfo from './components/ResultsInfo';
 
+type RootStackParamList = {
+  App: undefined;
+  GymDetail: { gymId: string };
+};
+
+type GymsNavigationProp = NativeStackNavigationProp<RootStackParamList, 'App'>;
 
 export default function MapScreen() {
+  const navigation = useNavigation<GymsNavigationProp>();
   const [searchText, setSearchText] = useState('');
 
   // Custom hooks for state management
@@ -75,6 +84,10 @@ export default function MapScreen() {
 
   const listHeader = formatResultsLabel(resultsCount, hasUserLocation);
 
+  const handleGymPress = (gymId: string | number) => {
+    navigation.navigate('GymDetail', { gymId: gymId.toString() });
+  };
+
   return (
     <GymsScreenLayout isListView={isListView}>
       <MapScreenHeader
@@ -91,7 +104,7 @@ export default function MapScreen() {
       )}
 
       {isListView ? (
-        <GymsList data={filteredGyms} headerText={listHeader} />
+        <GymsList data={filteredGyms} headerText={listHeader} onPressItem={handleGymPress} />
       ) : (
         <MapSection
           initialRegion={initialRegion}
@@ -103,6 +116,7 @@ export default function MapScreen() {
           moreList={topNearbyGyms}
           mapHeight={MAP_SECTION_HEIGHT}
           showUserFallbackPin
+          onGymPress={handleGymPress}
         />
       )}
 

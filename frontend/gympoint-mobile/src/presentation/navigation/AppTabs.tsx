@@ -13,6 +13,7 @@ import StoreIcon from '@assets/icons/gift.svg';
 import UserIcon from '@assets/icons/user.svg';
 import { useAuthStore } from '@features/auth';
 import { GymsScreen } from '@features/gyms';
+import { GymDetailScreenWrapper } from '@features/gymdetails/ui/GymDetailScreenWrapper';
 import { HomeScreen } from '@features/home';
 import { RewardsScreen } from '@features/rewards';
 import { UserProfileScreen } from '@features/user';
@@ -62,6 +63,7 @@ function RoutinesStackNavigator() {
 
   return <StackNavigator screens={screens} />;
 }
+
 
 export default function AppTabs() {
   const theme = useAppTheme();

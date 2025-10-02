@@ -4,6 +4,7 @@ import { useTheme as useAppTheme } from 'styled-components/native';
 import { NavigationLayout, StackNavigator } from '@shared/components/ui';
 
 import { LoginScreen, useAuthStore } from '@features/auth';
+import { GymDetailScreenWrapper } from '@features/gymdetails/ui/GymDetailScreenWrapper';
 import AppTabs from './AppTabs';
 import { useNavigationTheme } from './navTheme';
 
@@ -21,7 +22,19 @@ export default function RootNavigator() {
   });
 
   const screens = user 
-    ? [{ name: 'App', component: AppTabs, options: {} }]
+    ? [
+        { name: 'App', component: AppTabs, options: {} },
+        { 
+          name: 'GymDetail', 
+          component: GymDetailScreenWrapper, 
+          options: { 
+            headerShown: true,
+            title: 'Detalle del gimnasio',
+            headerStyle: { backgroundColor: theme.colors.card },
+            headerTintColor: theme.colors.text,
+          } 
+        }
+      ]
     : [{ name: 'Login', component: LoginScreen, options: {} }];
 
   const screenOptions = {
