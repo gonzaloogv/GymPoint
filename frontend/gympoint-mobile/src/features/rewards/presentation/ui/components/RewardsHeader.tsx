@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { User } from '../../../auth/domain/entities/User';
+import { User } from '@features/auth/domain/entities/User';
 import { 
   HeaderWrapper, 
   HeaderTitle, 

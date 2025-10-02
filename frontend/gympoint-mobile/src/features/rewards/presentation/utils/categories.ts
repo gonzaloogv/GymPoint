@@ -1,4 +1,4 @@
-import { palette } from '../../../shared/styles';
+import { palette } from '@shared/styles';
 
 type RewardCategory = 'gym' | 'lifestyle' | 'premium';
 

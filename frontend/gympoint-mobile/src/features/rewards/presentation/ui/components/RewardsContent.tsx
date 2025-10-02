@@ -1,6 +1,6 @@
 import React from 'react';
 import { FlatList, View } from 'react-native';
-import { User } from '../../../auth/domain/entities/User';
+import { User } from '@features/auth/domain/entities/User';
 import { Reward, GeneratedCode } from '@features/rewards/domain/entities';
 import { RewardItem, GeneratedCodeItem, EmptyCodes } from './';
 import { TabsContent } from '../styles/tabs';

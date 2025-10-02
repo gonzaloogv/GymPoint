@@ -1,4 +1,4 @@
-import { GeneratedCode, Reward } from '../types';
+import { GeneratedCode, Reward } from '@features/rewards/domain/entities';
 
 export const createInitialCodes = (): GeneratedCode[] => [
   {

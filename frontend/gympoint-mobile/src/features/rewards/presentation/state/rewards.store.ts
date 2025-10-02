@@ -1,10 +1,9 @@
 import { create } from 'zustand';
 import Toast from 'react-native-toast-message';
 import * as Clipboard from 'expo-clipboard';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { Reward } from '../domain/entities/Reward';
-import { GeneratedCode } from '../domain/entities/GeneratedCode';
+import { Reward } from '@features/rewards/domain/entities/Reward';
+import { GeneratedCode } from '@features/rewards/domain/entities/GeneratedCode';
 import { DI } from '@di/container';
 
 type RewardsTab = 'available' | 'codes';

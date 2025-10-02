@@ -6,7 +6,7 @@ import Toast from 'react-native-toast-message';
 
 // 1. IMPORTACIONES DE DOMINIO Y HOOKS
 import { User } from '@features/auth/domain/entities/User'; 
-import { useRewards } from '@features/rewards/hooks/useRewards'; 
+import { useRewards } from '@features/rewards/presentation/hooks/useRewards'; 
 
 // 2. IMPORTACIONES DE COMPONENTES MODULARES
 import {
@@ -16,10 +16,10 @@ import {
   LoadingState,
   PremiumUpsell,
   TokensTips,
-} from '@features/rewards/ui/components';
+} from '@features/rewards/presentation/ui/components';
 
 // 3. IMPORTACIONES DE ESTILOS MODULARES
-import { ScrollContainer, Container } from '@features/rewards/ui/styles/layout';
+import { ScrollContainer, Container } from '@features/rewards/presentation/ui/styles/layout';
 
 
 // --- INTERFAZ DE PROPS ---
