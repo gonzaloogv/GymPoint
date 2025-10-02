@@ -1,0 +1,6 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M9 21H4C3.4477 21 3 20.5523 3 20V12.4142c0-.2652.1054-.5196.2929-.7071l8-8a1 1 0 0 1 1.4142 0l8 8c.1875.1875.2929.4419.2929.7071V20c0 .5523-.4477 1-1 1h-5"
+        fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M9 21H15M9 21V15a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V21"
+        fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
