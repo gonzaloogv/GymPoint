@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import styled from 'styled-components/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Input, Label } from '@shared/components/ui';
+import { Button, ButtonText, Input, Label } from '@shared/components/ui';
 import { PROVINCES } from '@features/auth/domain/constants/provinces';
 
 const SelectButton = styled(TouchableOpacity)`
@@ -150,7 +150,7 @@ export function RegisterForm({ loading, onSubmit }: Props) {
               ))}
             </ScrollView>
             <Button onPress={() => setModalVisible(false)} style={{ marginTop: 12 }}>
-              Cancelar
+              <ButtonText>Cancelar</ButtonText>
             </Button>
           </ModalContent>
         </ModalContainer>
@@ -163,7 +163,9 @@ export function RegisterForm({ loading, onSubmit }: Props) {
       
 
       <Button disabled={loading} onPress={handleSubmit}>
-        {loading ? 'Creando cuenta...' : 'Crear cuenta'}
+        <ButtonText>
+          {loading ? 'Creando cuenta...' : 'Crear cuenta'}
+        </ButtonText>
       </Button>
     </View>
   );
