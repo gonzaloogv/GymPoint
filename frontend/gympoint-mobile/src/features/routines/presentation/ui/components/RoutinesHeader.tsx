@@ -1,7 +1,7 @@
 import styled from 'styled-components/native';
 import { FILTERS } from '../../hooks/useRoutinesFilters';
 import { RoutineStatus } from '@features/routines/domain/entities';
-import { Input, FilterChip } from '@shared/components/ui';
+import { Input } from '@shared/components/ui';
 
 const Header = styled.View`
   padding: ${({ theme }) => theme.spacing(2)}px;
@@ -19,6 +19,22 @@ const FiltersRow = styled.ScrollView.attrs({
   showsHorizontalScrollIndicator: false,
 })`
   margin-top: ${({ theme }) => theme.spacing(1)}px;
+`;
+
+const Chip = styled.TouchableOpacity<{ $active?: boolean }>`
+  padding: ${({ theme }) => theme.spacing(0.75)}px ${({ theme }) => theme.spacing(1.5)}px;
+  border-radius: ${({ theme }) => theme.radius.lg}px;
+  background-color: ${({ theme, $active }) =>
+    $active ? theme.colors.primary : theme.colors.card};
+  border: 1px solid
+    ${({ theme, $active }) => ($active ? theme.colors.primary : theme.colors.border)};
+  margin-right: ${({ theme }) => theme.spacing(1)}px;
+`;
+
+const ChipText = styled.Text<{ $active?: boolean }>`
+  color: ${({ theme, $active }) => ($active ? theme.colors.onPrimary : theme.colors.text)};
+  font-size: ${({ theme }) => theme.typography.small}px;
+  font-weight: 600;
 `;
 
 type Props = {
@@ -46,9 +62,9 @@ export default function RoutinesHeader({
         {FILTERS.map(({ key, label }) => {
           const active = key === status;
           return (
-            <FilterChip key={key} active={active} onPress={() => onStatusChange(key)}>
-              {label}
-            </FilterChip>
+            <Chip key={key} $active={active} onPress={() => onStatusChange(key)}>
+              <ChipText $active={active}>{label}</ChipText>
+            </Chip>
           );
         })}
       </FiltersRow>
