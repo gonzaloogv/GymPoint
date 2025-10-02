@@ -1,25 +1,35 @@
-import { useMemo, useState } from 'react';
-import { Routine, RoutineStatus } from '../types';
-import { mockRoutines } from '../mocks/routines.mock';
+import { useEffect } from 'react';
+import { useRoutinesStore } from '../state';
+import { RoutineStatus } from '../domain/entities';
 
 export function useRoutines() {
-  const [loading] = useState(false);
-  const [error] = useState(false);
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<RoutineStatus | 'All'>('All');
+  const {
+    loading,
+    error,
+    search,
+    status,
+    setSearch,
+    setStatus,
+    fetchRoutines,
+    getFilteredRoutines,
+  } = useRoutinesStore();
 
-  const list = useMemo(() => {
-    const byStatus =
-      status === 'All' ? mockRoutines : mockRoutines.filter((r) => r.status === status);
-    const q = search.trim().toLowerCase();
-    return q
-      ? byStatus.filter(
-          (r) =>
-            r.name.toLowerCase().includes(q) ||
-            r.muscleGroups.join(' ').toLowerCase().includes(q),
-        )
-      : byStatus;
-  }, [search, status]);
+  // Fetch routines on mount
+  useEffect(() => {
+    fetchRoutines();
+  }, [fetchRoutines]);
 
-  return { state: { list, loading, error, search, status }, setSearch, setStatus };
+  const list = getFilteredRoutines();
+
+  return {
+    state: {
+      list,
+      loading,
+      error: error ? true : false,
+      search,
+      status,
+    },
+    setSearch,
+    setStatus: setStatus as (status: RoutineStatus | 'All') => void,
+  };
 }
