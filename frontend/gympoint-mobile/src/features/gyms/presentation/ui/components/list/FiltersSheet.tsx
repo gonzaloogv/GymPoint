@@ -64,6 +64,7 @@ const FiltersSheet: React.FC<FiltersSheetProps> = ({
     <FilterSheet
       visible={visible}
       onClose={onClose}
+      title="Filtros"
       onClear={handleClear}
       onApply={handleApply}
     >
