@@ -1,3 +1,8 @@
+/**
+ * Shared UI Components
+ * Re-exports of all reusable UI components
+ */
+
 export * from './ActionCard';
 export * from './Avatar';
 export * from './BadgeDot';
@@ -10,25 +15,21 @@ export * from './Circle';
 export * from './Divider';
 export * from './EmptyState';
 export * from './ErrorState';
-export * from './FilterButton';
-export * from './FilterChip';
 export * from './FilterSheet';
 export * from './FloatingActionBar';
 export * from './FormField';
 export * from './GeneratedCodeCard';
-export * from './GymsScreenLayout';
-export * from './HomeLayout';
 export * from './IndexBadge';
-export * from './MapFallback';
-export * from './MapMarker';
 export * from './Input';
 export * from './ListItem';
 export * from './MapBox';
-export * from './ProgressBar';
-export * from './MetaChip';
+export * from './MapFallback';
+export * from './MapMarker';
 export * from './MenuItem';
 export * from './MenuList';
+export * from './MetaChip';
 export * from './PremiumCard';
+export * from './ProgressBar';
 export * from './ProgressSection';
 export * from './ResultsInfo';
 export * from './Row';
@@ -39,15 +40,9 @@ export * from './SetPill';
 export * from './StatusPill';
 export * from './StatsCard';
 export * from './StreakDisplay';
+export * from './TabPill';
 export * from './Text';
 export * from './TipsBanner';
 export * from './TokenPill';
 export * from './UnifiedBadge';
 export * from './UserLocationPin';
-export * from './UserProfileLayout';
-export * from './TabPill';
-export * from './NavigationLayout';
-export * from './StackNavigator';
-export * from './Slider';
-export * from './Select';
-export * from './RadioGroup'
