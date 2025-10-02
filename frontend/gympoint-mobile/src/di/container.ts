@@ -31,6 +31,13 @@ import { GetAvailableRewards } from '@features/rewards/domain/usecases/GetAvaila
 import { GenerateRewardCode } from '@features/rewards/domain/usecases/GenerateRewardCode';
 import { GetGeneratedCodes } from '@features/rewards/domain/usecases/GetGeneratedCodes';
 
+// ===== Home =====
+import { HomeRepository } from '@features/home/domain/repositories/HomeRepository';
+import { HomeRepositoryImpl } from '@features/home/data/HomeRepositoryImpl';
+import { GetHomeStats } from '@features/home/domain/usecases/GetHomeStats';
+import { GetWeeklyProgress } from '@features/home/domain/usecases/GetWeeklyProgress';
+import { GetDailyChallenge } from '@features/home/domain/usecases/GetDailyChallenge';
+
 class Container {
   // Auth
   authRepository: AuthRepository;
@@ -60,6 +67,12 @@ class Container {
   generateRewardCode: GenerateRewardCode;
   getGeneratedCodes: GetGeneratedCodes;
 
+  // Home
+  homeRepository: HomeRepository;
+  getHomeStats: GetHomeStats;
+  getWeeklyProgress: GetWeeklyProgress;
+  getDailyChallenge: GetDailyChallenge;
+
   constructor() {
     // Auth
     this.authRepository = new AuthRepositoryImpl();
@@ -88,6 +101,12 @@ class Container {
     this.getAvailableRewards = new GetAvailableRewards(this.rewardRepository);
     this.generateRewardCode = new GenerateRewardCode(this.rewardRepository);
     this.getGeneratedCodes = new GetGeneratedCodes(this.rewardRepository);
+
+    // Home
+    this.homeRepository = new HomeRepositoryImpl();
+    this.getHomeStats = new GetHomeStats(this.homeRepository);
+    this.getWeeklyProgress = new GetWeeklyProgress(this.homeRepository);
+    this.getDailyChallenge = new GetDailyChallenge(this.homeRepository);
   }
 }
 
