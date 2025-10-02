@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRoutineById } from '@features/routines/hooks/useRoutineById';
-import { Routine, Exercise } from '@features/routines/types';
+import { Routine, Exercise } from '@features/routines/domain/entities';
 import { RoutineDetailLayout } from '@features/routines/ui/layouts/RoutineDetailLayout';
 import { RoutineDetailHeader } from '@features/routines/ui/headers/RoutineDetailHeader';
 import { RoutineDetailFooter } from '@features/routines/ui/footers/RoutineDetailFooter';

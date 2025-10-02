@@ -1,7 +1,7 @@
 import { FlatList } from 'react-native';
 import styled from 'styled-components/native';
 
-import type { Routine } from '@features/routines/types';
+import type { Routine } from '@features/routines/domain/entities';
 
 import RoutineCard from './RoutineCard';
 

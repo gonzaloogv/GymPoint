@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRoutineById } from '@features/routines/hooks/useRoutineById';
 import { useRoutineHistory } from '@features/routines/hooks/useRoutineHistory';
-import { RoutineSession } from '@features/routines/types';
+import { RoutineSession } from '@features/routines/domain/entities';
 import { HistoryLayout } from '@features/routines/ui/layouts/HistoryLayout';
 import { HistoryHeader } from '@features/routines/ui/headers/HistoryHeader';
 import { HistoryList } from '@features/routines/ui/lists/HistoryList';

@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useRoutines } from '@features/routines/hooks/useRoutine';
-import { Routine } from '@features/routines/types';
+import { Routine } from '@features/routines/domain/entities';
 import { RoutinesLayout } from '@features/routines/ui/layouts/RoutinesLayout';
 import { ItemPad, ProgressWrap } from '@shared/components/ui';
 import RoutinesHeader from '@features/routines/ui/components/RoutinesHeader';
