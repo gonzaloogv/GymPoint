@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { useAuthStore } from '@features/auth/state/auth.store';
+import { useAuthStore } from '@features/auth/presentation/state/auth.store';
 import { Text } from 'react-native';
 
 export function RoleGate({
