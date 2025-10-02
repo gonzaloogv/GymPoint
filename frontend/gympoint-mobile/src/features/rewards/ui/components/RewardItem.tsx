@@ -1,6 +1,6 @@
 import React from 'react';
 import { RewardCard } from './RewardCard';
-import { Reward } from '../../types';
+import { Reward } from '@features/rewards/domain/entities';
 import { getCategoryColor, getCategoryName } from '../../utils/categories';
 
 type RewardItemProps = {
