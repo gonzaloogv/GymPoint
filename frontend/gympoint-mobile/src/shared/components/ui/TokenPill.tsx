@@ -1,18 +1,17 @@
 import styled from 'styled-components/native';
 import FeatherIcon from '@expo/vector-icons/Feather';
 import { Row } from './Row';
-import { palette } from '@shared/styles';
 
 const TokenPillContainer = styled(Row)`
-  padding: 4px 8px;
+  padding: ${({ theme }) => theme.spacing(0.5)}px ${({ theme }) => theme.spacing(1)}px;
   border-radius: 999px;
-  background-color: ${palette.tokenSurface};
+  background-color: #FFF7ED;
 `;
 
 const TokenValue = styled.Text`
-  margin-left: 4px;
+  margin-left: ${({ theme }) => theme.spacing(0.5)}px;
   font-weight: 600;
-  color: ${palette.token};
+  color: ${({ theme }) => theme.colors.primary};
 `;
 
 type Props = {
@@ -23,7 +22,7 @@ type Props = {
 export function TokenPill({ value, size = 14 }: Props) {
   return (
     <TokenPillContainer>
-      <FeatherIcon name="zap" size={size} color={palette.token} />
+      <FeatherIcon name="zap" size={size} color="#F59E0B" />
       <TokenValue>{value}</TokenValue>
     </TokenPillContainer>
   );

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/native';
+import { useTheme } from 'styled-components/native';
 import { Feather } from '@expo/vector-icons';
 
 const BadgeContainer = styled.View<{ 
@@ -83,6 +84,8 @@ export function UnifiedBadge({
   iconColor,
   iconSize = 12
 }: Props) {
+  const theme = useTheme();
+
   const getIconColor = () => {
     if (iconColor) return iconColor;
     
@@ -91,9 +94,9 @@ export function UnifiedBadge({
       case 'success':
       case 'warning':
       case 'danger':
-        return '#FFFFFF';
+        return theme.colors.onPrimary;
       default:
-        return '#666666';
+        return theme.colors.subtext;
     }
   };
 

@@ -8,5 +8,5 @@ export const TokensTips: React.FC = () => {
     { icon: 'trophy-outline', iconType: 'ionicons' as const, text: 'Racha de 30 días: +100 tokens extra' },
   ];
 
-  return <TipsBanner tips={tips} />;
+  return <TipsBanner title="💡 ¿Cómo ganar más tokens?" tips={tips} />;
 };
