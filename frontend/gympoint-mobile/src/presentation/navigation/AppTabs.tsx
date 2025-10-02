@@ -13,7 +13,7 @@ import StoreIcon from '@assets/icons/gift.svg';
 import UserIcon from '@assets/icons/user.svg';
 import { useAuthStore } from '@features/auth';
 import { GymsScreen } from '@features/gyms';
-import { GymDetailScreenWrapper } from '@features/gyms/ui/screens/GymDetailScreenWrapper';
+import { GymDetailScreenWrapper } from '@features/gyms/presentation/ui/screens/GymDetailScreenWrapper';
 import { HomeScreen } from '@features/home';
 import { RewardsScreen } from '@features/rewards';
 import { UserProfileScreen } from '@features/user';

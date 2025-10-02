@@ -1,6 +1,6 @@
 import React from 'react';
 import { Platform, Text, View } from 'react-native';
-import { WEB_FALLBACK_STYLE } from '@features/gyms/ui/screens/mapViewConfig';
+import { WEB_FALLBACK_STYLE } from '@features/gyms/presentation/ui/screens/mapViewConfig';
 
 type Props = {
   mapHeight?: number;
