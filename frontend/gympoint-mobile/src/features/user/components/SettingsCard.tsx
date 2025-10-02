@@ -5,11 +5,11 @@
 
 import React from 'react';
 import { Feather } from '@expo/vector-icons';
-import { Card, SectionTitle, Title } from '../styles/ProfileStyles';
+import { Card, SectionTitle, Title } from '../styles/ProfilesStyles';
 import { NotificationSettings } from './NotificationSettings';
 import { LocationSettings } from './LocationSettings';
 import { NotificationSettings as NotificationSettingsType } from '../types/UserTypes';
-import { AppTheme } from '@config/theme';
+import { AppTheme } from '@presentation/theme';
 
 interface SettingsCardProps {
   notifications: NotificationSettingsType;

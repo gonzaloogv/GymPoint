@@ -13,8 +13,8 @@ import {
   SmallText,
   SwitchRow,
   SwitchRowLeft,
-} from '../styles/ProfileStyles';
-import { AppTheme } from '@config/theme';
+} from '../styles/ProfilesStyles';
+import { AppTheme } from '@presentation/theme';
 
 interface LocationSettingsProps {
   locationEnabled: boolean;

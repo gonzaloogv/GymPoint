@@ -27,4 +27,4 @@ export type {
 } from './types/UserTypes';
 
 // Estilos (por si necesitas extenderlos)
-export * from './styles/ProfileStyles';
+export * from './styles/ProfilesStyles';

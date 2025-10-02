@@ -12,8 +12,8 @@ import {
   SmallText,
   Button,
   ButtonText,
-} from '../styles/ProfileStyles';
-import { AppTheme } from '@config/theme';
+} from '../styles/ProfilesStyles';
+import { AppTheme } from '@presentation/theme';
 
 interface PremiumAlertProps {
   onUpgrade: () => void;
