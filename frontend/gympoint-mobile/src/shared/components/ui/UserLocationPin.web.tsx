@@ -1,5 +1,5 @@
 import React from 'react';
-import type { LatLng } from '@features/gyms/types';
+import type { LatLng } from '@features/gyms/presentation/types';
 
 type Props = {
   userLocation: LatLng;
