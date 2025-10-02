@@ -13,6 +13,8 @@ module.exports = function (api) {
             '@features': './src/features',
             '@presentation': './src/presentation',
             '@shared': './src/shared',
+            '@di': './src/di',
+            '@assets': './assets',
           },
         },
       ],
