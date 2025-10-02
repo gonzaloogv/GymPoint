@@ -1,1 +1,1 @@
-export { default as RewardsScreen } from './ui/RewardsScreen';
+export { default as RewardsScreen } from './ui/screens/RewardsScreen';
