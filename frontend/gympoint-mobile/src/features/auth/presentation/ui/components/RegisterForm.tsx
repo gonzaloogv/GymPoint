@@ -1,16 +1,59 @@
 import { useState } from 'react';
-import { View } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import { View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import styled from 'styled-components/native';
+import { Ionicons } from '@expo/vector-icons';
 import { Button, ButtonText, Input, Label } from '@shared/components/ui';
 import { PROVINCES } from '@features/auth/domain/constants/provinces';
 
-const PickerWrapper = styled(View)`
+const SelectButton = styled(TouchableOpacity)`
   border-width: 1px;
   border-color: ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.md}px;
   background-color: ${({ theme }) => theme.colors.card};
-  overflow: hidden;
+  padding: 12px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 48px;
+`;
+
+const SelectText = styled(Text)<{ $placeholder?: boolean }>`
+  color: ${({ theme, $placeholder }) => 
+    $placeholder ? theme.colors.subtext : theme.colors.text};
+  font-size: 16px;
+`;
+
+const ModalContainer = styled(View)`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+`;
+
+const ModalContent = styled(View)`
+  background-color: ${({ theme }) => theme.colors.card};
+  border-radius: ${({ theme }) => theme.radius.lg}px;
+  width: 90%;
+  max-height: 70%;
+  padding: 20px;
+`;
+
+const ModalTitle = styled(Text)`
+  font-size: 18px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: 16px;
+`;
+
+const OptionButton = styled(TouchableOpacity)`
+  padding: 16px;
+  border-bottom-width: 1px;
+  border-bottom-color: ${({ theme }) => theme.colors.border};
+`;
+
+const OptionText = styled(Text)`
+  color: ${({ theme }) => theme.colors.text};
+  font-size: 16px;
 `;
 
 interface Props {
@@ -38,12 +81,15 @@ export function RegisterForm({ loading, onSubmit }: Props) {
     weeklyFrequency: [3],
   });
 
+  const [modalVisible, setModalVisible] = useState(false);
+
   const handleChange = (field: string, value: any) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleCityChange = (value: string) => {
     handleChange('location', value);
+    setModalVisible(false);
   };
 
   const handleSubmit = () => {
@@ -75,22 +121,38 @@ export function RegisterForm({ loading, onSubmit }: Props) {
       <Input secureTextEntry value={form.confirmPassword} onChangeText={(t) => handleChange('confirmPassword', t)} />
 
       <Label>Localidad</Label>
-      <PickerWrapper>
-        <Picker
-          selectedValue={form.location}
-          onValueChange={handleCityChange}
-          style={{ height: 50 }}
-        >
-          <Picker.Item label="Selecciona tu localidad" value="" />
-          {PROVINCES.map((province) => (
-            <Picker.Item
-              key={province.value}
-              label={province.label}
-              value={province.label}
-            />
-          ))}
-        </Picker>
-      </PickerWrapper>
+      <SelectButton onPress={() => setModalVisible(true)}>
+        <SelectText $placeholder={!form.location}>
+          {form.location || 'Selecciona tu localidad'}
+        </SelectText>
+        <Ionicons name="chevron-down" size={20} />
+      </SelectButton>
+
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <ModalContainer>
+          <ModalContent>
+            <ModalTitle>Selecciona tu localidad</ModalTitle>
+            <ScrollView>
+              {PROVINCES.map((province) => (
+                <OptionButton
+                  key={province.value}
+                  onPress={() => handleCityChange(province.label)}
+                >
+                  <OptionText>{province.label}</OptionText>
+                </OptionButton>
+              ))}
+            </ScrollView>
+            <Button onPress={() => setModalVisible(false)} style={{ marginTop: 12 }}>
+              <ButtonText>Cancelar</ButtonText>
+            </Button>
+          </ModalContent>
+        </ModalContainer>
+      </Modal>
 
       <Label>Edad</Label>
       <Input value={form.age} keyboardType='number-pad' inputMode="numeric"  onChangeText={(t) => handleChange('age', t.replace(/\D/g, ''))} maxLength={3}/>
