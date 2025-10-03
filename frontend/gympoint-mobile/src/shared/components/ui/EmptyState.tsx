@@ -54,15 +54,11 @@ export function EmptyState({
               variant="primary"
               style={{ 
                 minHeight: 44, 
-                alignSelf: 'stretch',
-                backgroundColor: '#3b82f6'
+                alignSelf: 'stretch'
               }} 
               onPress={onButtonPress}
             >
-              <ButtonText style={{ 
-                color: '#ffffff',
-                fontWeight: '600'
-              }}>
+              <ButtonText>
                 {buttonText}
               </ButtonText>
             </Button>

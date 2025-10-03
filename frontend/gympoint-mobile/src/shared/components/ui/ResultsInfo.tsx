@@ -2,9 +2,9 @@ import styled from 'styled-components/native';
 import { sp } from '@shared/styles';
 
 const InfoText = styled.Text`
-  color: ${({ theme }) => theme?.colors?.subtext ?? '#6b7280'};
+  color: ${({ theme }) => theme.colors.subtext};
   padding: 0 ${({ theme }) => sp(theme, 2)}px;
-  margin-top: 6px;
+  margin-top: ${({ theme }) => theme.spacing(0.75)}px;
 `;
 
 type Props = { 

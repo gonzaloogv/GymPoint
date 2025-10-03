@@ -1,12 +1,12 @@
 import styled from 'styled-components/native';
+import { useTheme } from 'styled-components/native';
 import FeatherIcon from '@expo/vector-icons/Feather';
 import { UnifiedBadge } from './UnifiedBadge';
 import { CardRow, CardTitle } from './Card';
 import { Row } from './Row';
-import { palette } from '@shared/styles';
 
 const HeaderRow = styled(CardRow)`
-  margin-bottom: 8px;
+  margin-bottom: ${({ theme }) => theme.spacing(1)}px;
 `;
 
 const TitleRow = styled(Row)`
@@ -14,7 +14,7 @@ const TitleRow = styled(Row)`
 `;
 
 const TitleText = styled(CardTitle)`
-  margin-left: 8px;
+  margin-left: ${({ theme }) => theme.spacing(1)}px;
 `;
 
 type Props = {
@@ -22,13 +22,17 @@ type Props = {
   title: string;
   badgeText?: string;
   badgeVariant?: 'secondary' | 'outline';
+  iconColor?: string;
 };
 
-export function CardHeader({ icon, title, badgeText, badgeVariant = 'secondary' }: Props) {
+export function CardHeader({ icon, title, badgeText, badgeVariant = 'secondary', iconColor }: Props) {
+  const theme = useTheme();
+  const color = iconColor || theme.colors.text;
+  
   return (
     <HeaderRow>
       <TitleRow>
-        <FeatherIcon name={icon} size={20} color={palette.textStrong} />
+        <FeatherIcon name={icon} size={20} color={color} />
         <TitleText>{title}</TitleText>
       </TitleRow>
       {badgeText && (

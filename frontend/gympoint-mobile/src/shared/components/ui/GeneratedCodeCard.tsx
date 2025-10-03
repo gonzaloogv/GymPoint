@@ -12,17 +12,17 @@ import { GeneratedCode } from '@features/rewards/domain/entities';
 
 // Styled components específicos para GeneratedCodeCard
 const GeneratedCodeWrapper = styled(View)`
-  background-color: ${palette.neutralBg};
-  padding: 12px;
-  border-radius: 8px;
-  margin: 8px 0;
+  background-color: ${({ theme }) => theme.colors.muted || '#f3f4f6'};
+  padding: ${({ theme }) => theme.spacing(1.5)}px;
+  border-radius: ${({ theme }) => theme.radius.md}px;
+  margin: ${({ theme }) => theme.spacing(1)}px 0;
 `;
 
 const CodeHeader = styled(View)`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: ${({ theme }) => theme.spacing(1)}px;
 `;
 
 const CodeState = styled(Text)<{ $statusColor: string }>`
@@ -42,21 +42,21 @@ const CodeText = styled(Text)`
 const CodeFooterRow = styled(View)`
   flex-direction: row;
   justify-content: space-between;
-  margin-bottom: 4px;
+  margin-bottom: ${({ theme }) => theme.spacing(0.5)}px;
 `;
 
 const CodeFooterLabel = styled(Text)`
-  font-size: 12px;
-  color: ${palette.neutralText};
+  font-size: ${({ theme }) => theme.typography.small}px;
+  color: ${({ theme }) => theme.colors.subtext};
 `;
 
 const CodeFooterValue = styled(Text)<{ $color?: string }>`
-  font-size: 12px;
-  color: ${({ $color }) => $color ?? palette.neutralText};
+  font-size: ${({ theme }) => theme.typography.small}px;
+  color: ${({ theme, $color }) => $color ?? theme.colors.subtext};
 `;
 
 const IconButton = styled(TouchableOpacity)`
-  padding: 4px;
+  padding: ${({ theme }) => theme.spacing(0.5)}px;
 `;
 
 const STATUS_LABELS = {
@@ -140,14 +140,11 @@ export function GeneratedCodeCard({
           variant="primary"
           onPress={() => onToggle(item)} 
           style={{ 
-            marginTop: 8,
+            marginTop: theme.spacing(1),
             minHeight: 44
           }}
         >
-          <ButtonText style={{ 
-            color: theme.colors.onPrimary,
-            fontWeight: '600'
-          }}>
+          <ButtonText>
             {markAsUsedLabel}
           </ButtonText>
         </Button>
