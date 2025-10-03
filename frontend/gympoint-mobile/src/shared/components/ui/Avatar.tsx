@@ -1,16 +1,15 @@
 import styled from 'styled-components/native';
 import { Circle } from './Circle';
-import { palette } from '@shared/styles';
 
 const AvatarContainer = styled(Circle)`
-  background-color: ${({ theme }) => theme?.colors?.bg ?? palette.surfaceMuted};
+  background-color: ${({ theme }) => theme.colors.bg};
   border-width: 1px;
-  border-color: ${({ theme }) => theme?.colors?.border ?? palette.neutralBorder};
+  border-color: ${({ theme }) => theme.colors.border};
 `;
 
 const Initials = styled.Text`
   font-weight: 700;
-  color: ${palette.textStrong};
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 type Props = {

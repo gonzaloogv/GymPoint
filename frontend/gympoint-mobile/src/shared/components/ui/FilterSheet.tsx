@@ -23,26 +23,28 @@ const SheetBody = styled(View)`
   padding: ${({ theme }) => sp(theme, 2)}px;
 `;
 
-const ContentScroll = styled(ScrollView).attrs({ contentContainerStyle: { paddingBottom: 12 } })``;
+const ContentScroll = styled(ScrollView).attrs(({ theme }) => ({ 
+  contentContainerStyle: { paddingBottom: theme.spacing(1.5) } 
+}))``;
 
 const SheetTitle = styled(Text)`
   font-weight: 700;
-  font-size: 16px;
-  margin-bottom: 8px;
+  font-size: ${({ theme }) => theme.typography.body}px;
+  margin-bottom: ${({ theme }) => theme.spacing(1)}px;
   color: ${({ theme }) => theme.colors.text};
 `;
 
 const SheetActions = styled(View)`
   flex-direction: row;
-  gap: 10px;
-  margin-top: 12px;
+  gap: ${({ theme }) => theme.spacing(1.25)}px;
+  margin-top: ${({ theme }) => theme.spacing(1.5)}px;
 `;
 
 const OutlineButton = styled(TouchableOpacity)`
   flex: 1;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
+  min-height: ${({ theme }) => theme.spacing(5)}px;
   border-radius: ${({ theme }) => rad(theme, 'md', 12)}px;
   border-width: 1px;
   border-color: ${({ theme }) => theme.colors.border};
@@ -52,7 +54,7 @@ const SolidButton = styled(TouchableOpacity)`
   flex: 1;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
+  min-height: ${({ theme }) => theme.spacing(5)}px;
   border-radius: ${({ theme }) => rad(theme, 'md', 12)}px;
   background-color: ${({ theme }) => theme.colors.primary};
 `;
