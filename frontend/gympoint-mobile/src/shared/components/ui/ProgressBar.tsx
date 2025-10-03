@@ -1,15 +1,16 @@
 import styled from 'styled-components/native';
 
 export const ProgressTrack = styled.View`
-  height: 8px;
-  background-color: ${(p) => p.theme?.colors?.border ?? '#e5e7eb'};
+  height: ${({ theme }) => theme.spacing(1)}px;
+  background-color: ${({ theme }) => theme.colors.border};
   border-radius: 999px;
   overflow: hidden;
 `;
+
 export const ProgressFill = styled.View<{ value: number }>`
   width: ${(p) => Math.max(0, Math.min(100, p.value))}%;
   height: 100%;
-  background-color: ${(p) => p.theme?.colors?.primary ?? '#111827'};
+  background-color: ${({ theme }) => theme.colors.primary};
 `;
 
 export const ProgressWrap = styled.View`

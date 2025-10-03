@@ -2,8 +2,7 @@ import styled from 'styled-components/native';
 import FeatherIcon from '@expo/vector-icons/Feather';
 import { Card } from './Card';
 import { Circle } from './Circle';
-import { Row } from './Row';
-import { palette, sp } from '@shared/styles';
+import { sp } from '@shared/styles';
 
 const ActionCardContainer = styled(Card)<{ $spaced?: boolean }>`
   flex: 1;
@@ -22,13 +21,13 @@ const ActionCircle = styled(Circle)`
 `;
 
 const Heading = styled.Text`
-  margin-bottom: 2px;
+  margin-bottom: ${({ theme }) => theme.spacing(0.25)}px;
   font-weight: 700;
-  color: ${({ theme }) => theme?.colors?.text ?? palette.textStrong};
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 const Subtext = styled.Text`
-  color: ${({ theme }) => theme?.colors?.subtext ?? palette.textMuted};
+  color: ${({ theme }) => theme.colors.subtext};
 `;
 
 type Props = {

@@ -29,11 +29,11 @@ const BannerContent = styled(Row).attrs({ $align: 'flex-start' })`
 
 const BannerCopy = styled.View`
   flex: 1;
-  margin-left: 12px;
+  margin-left: ${({ theme }) => theme.spacing(1.5)}px;
 `;
 
 const Title = styled.Text<{ $variant: 'warning' | 'premium' | 'info' }>`
-  margin-bottom: 2px;
+  margin-bottom: ${({ theme }) => theme.spacing(0.25)}px;
   font-weight: 600;
   color: ${({ $variant }) => {
     switch ($variant) {
@@ -46,7 +46,7 @@ const Title = styled.Text<{ $variant: 'warning' | 'premium' | 'info' }>`
 `;
 
 const Description = styled.Text<{ $variant: 'warning' | 'premium' | 'info' }>`
-  margin-bottom: 8px;
+  margin-bottom: ${({ theme }) => theme.spacing(1)}px;
   color: ${({ $variant }) => {
     switch ($variant) {
       case 'warning': return palette.warningText;
@@ -58,22 +58,22 @@ const Description = styled.Text<{ $variant: 'warning' | 'premium' | 'info' }>`
 `;
 
 const OutlineButton = styled.TouchableOpacity`
-  min-height: 40px;
-  padding: 10px 14px;
+  min-height: ${({ theme }) => theme.spacing(5)}px;
+  padding: ${({ theme }) => theme.spacing(1.25)}px ${({ theme }) => theme.spacing(1.75)}px;
   border-radius: ${({ theme }) => rad(theme, 'lg', 12)}px;
   border-width: 1px;
-  border-color: ${({ theme }) => theme?.colors?.border ?? palette.neutralBorder};
+  border-color: ${({ theme }) => theme.colors.border};
   align-items: center;
   justify-content: center;
 `;
 
 const OutlineText = styled.Text`
   font-weight: 600;
-  color: ${({ theme }) => theme?.colors?.text ?? palette.textStrong};
+  color: ${({ theme }) => theme.colors.text};
 `;
 
 const LeadingIcon = styled(FeatherIcon)<{ $variant: 'warning' | 'premium' | 'info' }>`
-  margin-top: 2px;
+  margin-top: ${({ theme }) => theme.spacing(0.25)}px;
   color: ${({ $variant }) => {
     switch ($variant) {
       case 'warning': return palette.warningIcon;

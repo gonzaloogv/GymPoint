@@ -1,16 +1,15 @@
 import styled from 'styled-components/native';
 import { Row } from './Row';
 import { ProgressFill, ProgressTrack } from './ProgressBar';
-import { palette } from '@shared/styles';
 
 const Body = styled.View`
-  gap: 8px;
+  gap: ${({ theme }) => theme.spacing(1)}px;
 `;
 
 const Spread = styled(Row).attrs({ $justify: 'space-between' })``;
 
 const Subtext = styled.Text`
-  color: ${({ theme }) => theme?.colors?.subtext ?? palette.textMuted};
+  color: ${({ theme }) => theme.colors.subtext};
 `;
 
 type Props = {
