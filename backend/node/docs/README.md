@@ -22,6 +22,8 @@ Bienvenido a la documentación del backend de GymPoint.
 | **[ARQUITECTURA_ACTUAL.md](../../../ARQUITECTURA_ACTUAL.md)** | 🏛️ Análisis completo de la arquitectura del sistema |
 | **[DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md)** | 🗄️ Arquitectura de base de datos v2.0 (Accounts + Profiles) |
 | **[database-schema-v2.sql](./database-schema-v2.sql)** | 📊 Esquema SQL de las nuevas tablas |
+| **[DATA_MIGRATION.md](./DATA_MIGRATION.md)** | 🔄 Migración de datos completada (12 usuarios migrados) |
+| **[MIGRATION_SUMMARY.md](./MIGRATION_SUMMARY.md)** | 📝 Resumen ejecutivo de la implementación |
 
 ### 🔐 Autenticación
 
