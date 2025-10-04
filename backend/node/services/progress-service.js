@@ -1,9 +1,20 @@
 const Progress = require('../models/Progress');
 const ProgressExercise = require('../models/ProgressExercise');
+const { UserProfile } = require('../models');
 const { Op } = require('sequelize');
 
+/**
+ * Registrar progreso físico de un usuario
+ * @param {Object} data - Datos del progreso
+ * @param {number} data.id_user - ID del user_profile
+ * @param {string} data.date - Fecha del registro
+ * @param {number} data.body_weight - Peso corporal
+ * @param {number} data.body_fat - Grasa corporal
+ * @param {Array} data.ejercicios - Lista de ejercicios realizados
+ * @returns {Promise<Progress>} Progreso creado
+ */
 const registrarProgreso = async ({ id_user, date, body_weight, body_fat, ejercicios }) => {
-  // crear progreso general
+  // id_user ahora es id_user_profile
   const progreso = await Progress.create({
     id_user,
     date,
@@ -24,16 +35,31 @@ const registrarProgreso = async ({ id_user, date, body_weight, body_fat, ejercic
   return progreso;
 };
 
-const obtenerProgresoPorUsuario = async (id_user) => {
+/**
+ * Obtener todo el progreso de un usuario
+ * @param {number} idUserProfile - ID del user_profile
+ * @returns {Promise<Array>} Lista de progresos
+ */
+const obtenerProgresoPorUsuario = async (idUserProfile) => {
   return await Progress.findAll({
-    where: { id_user },
+    where: { id_user: idUserProfile },
+    include: {
+      model: UserProfile,
+      as: 'userProfile',
+      attributes: ['name', 'lastname']
+    },
     order: [['date', 'DESC']]
   });
 };
 
-const obtenerEstadisticaPeso = async (id_user) => {
+/**
+ * Obtener estadísticas de peso de un usuario
+ * @param {number} idUserProfile - ID del user_profile
+ * @returns {Promise<Array>} Lista de registros de peso
+ */
+const obtenerEstadisticaPeso = async (idUserProfile) => {
   const registros = await Progress.findAll({
-    where: { id_user },
+    where: { id_user: idUserProfile },
     attributes: ['date', 'body_weight'],
     order: [['date', 'ASC']]
   });
@@ -41,10 +67,15 @@ const obtenerEstadisticaPeso = async (id_user) => {
   return registros;
 };
 
-const obtenerHistorialEjercicios = async (id_user) => {
+/**
+ * Obtener historial de ejercicios de un usuario
+ * @param {number} idUserProfile - ID del user_profile
+ * @returns {Promise<Array>} Lista de ejercicios con fechas
+ */
+const obtenerHistorialEjercicios = async (idUserProfile) => {
   // obtener progresos de usuario
   const progresos = await Progress.findAll({
-    where: { id_user },
+    where: { id_user: idUserProfile },
     attributes: ['id_progress', 'date']
   });
 
@@ -74,9 +105,15 @@ const obtenerHistorialEjercicios = async (id_user) => {
   }));
 };
 
-const obtenerHistorialPorEjercicio = async (id_user, id_exercise) => {
+/**
+ * Obtener historial de un ejercicio específico de un usuario
+ * @param {number} idUserProfile - ID del user_profile
+ * @param {number} id_exercise - ID del ejercicio
+ * @returns {Promise<Array>} Historial del ejercicio
+ */
+const obtenerHistorialPorEjercicio = async (idUserProfile, id_exercise) => {
   const progresos = await Progress.findAll({
-    where: { id_user },
+    where: { id_user: idUserProfile },
     attributes: ['id_progress', 'date']
   });
 
@@ -101,9 +138,15 @@ const obtenerHistorialPorEjercicio = async (id_user, id_exercise) => {
   }));
 };
 
-const obtenerMejorLevantamiento = async (id_user, id_exercise) => {
+/**
+ * Obtener mejor levantamiento de un ejercicio de un usuario
+ * @param {number} idUserProfile - ID del user_profile
+ * @param {number} id_exercise - ID del ejercicio
+ * @returns {Promise<Object>} Mejor levantamiento
+ */
+const obtenerMejorLevantamiento = async (idUserProfile, id_exercise) => {
   const progresos = await Progress.findAll({
-    where: { id_user },
+    where: { id_user: idUserProfile },
     attributes: ['id_progress', 'date']
   });
 
@@ -133,9 +176,15 @@ const obtenerMejorLevantamiento = async (id_user, id_exercise) => {
   };
 };
 
-const obtenerPromedioLevantamiento = async (id_user, id_exercise) => {
+/**
+ * Obtener promedio de levantamiento de un ejercicio de un usuario
+ * @param {number} idUserProfile - ID del user_profile
+ * @param {number} id_exercise - ID del ejercicio
+ * @returns {Promise<Object>} Promedios de peso y reps
+ */
+const obtenerPromedioLevantamiento = async (idUserProfile, id_exercise) => {
   const progresos = await Progress.findAll({
-    where: { id_user },
+    where: { id_user: idUserProfile },
     attributes: ['id_progress']
   });
 
