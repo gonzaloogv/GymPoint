@@ -7,12 +7,36 @@ describe('auth-controller.login', () => {
   it('returns 200 with tokens', async () => {
     const req = { body: { email: 'a', password: 'b' } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
-    const user = { id_user: 1 };
-    authService.login.mockResolvedValue({ token: 't', refreshToken: 'r', user });
+    const mockAccount = {
+      id_account: 1,
+      email: 'a',
+      roles: [{ role_name: 'USER' }]
+    };
+    const mockProfile = {
+      id_user_profile: 1,
+      name: 'Test',
+      lastname: 'User',
+      subscription: 'FREE',
+      tokens: 100
+    };
+    authService.login.mockResolvedValue({ 
+      token: 't', 
+      refreshToken: 'r', 
+      account: mockAccount,
+      profile: mockProfile
+    });
 
     await authController.login(req, res);
 
-    expect(res.json).toHaveBeenCalledWith({ accessToken: 't', refreshToken: 'r', user });
+    expect(res.json).toHaveBeenCalledWith({ 
+      accessToken: 't', 
+      refreshToken: 'r', 
+      user: expect.objectContaining({
+        id: 1,
+        email: 'a',
+        roles: ['USER']
+      })
+    });
   });
 
   it('returns 401 on error', async () => {

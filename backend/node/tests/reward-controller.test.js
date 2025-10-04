@@ -12,13 +12,13 @@ describe('listarRecompensas', () => {
 
     await controller.listarRecompensas({}, res);
 
-    expect(res.json).toHaveBeenCalledWith(['r']);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Recompensas obtenidas con éxito', data: ['r'] });
   });
 });
 
 describe('canjearRecompensa', () => {
   it('validates body', async () => {
-    const req = { user:{ id:1 }, body:{} };
+    const req = { user:{ id_user_profile:1 }, body:{} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
     await controller.canjearRecompensa(req, res);
@@ -28,27 +28,40 @@ describe('canjearRecompensa', () => {
   });
 
   it('redeems reward', async () => {
-    const req = { user:{ id:1 }, body:{ id_reward:2, id_gym:3 } };
+    const req = { user:{ id_user_profile:1 }, body:{ id_reward:2, id_gym:3 } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
-    service.canjearRecompensa.mockResolvedValue('r');
+    const mockResult = { 
+      mensaje: 'Recompensa canjeada con éxito', 
+      claimed: {}, 
+      codigo: 'ABC123', 
+      nuevo_saldo: 50 
+    };
+    service.canjearRecompensa.mockResolvedValue(mockResult);
 
     await controller.canjearRecompensa(req, res);
 
     expect(service.canjearRecompensa).toHaveBeenCalledWith({ id_user:1, id_reward:2, id_gym:3 });
     expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith('r');
+    expect(res.json).toHaveBeenCalledWith({ 
+      message: mockResult.mensaje, 
+      data: {
+        claimed: mockResult.claimed,
+        codigo: mockResult.codigo,
+        nuevo_saldo: mockResult.nuevo_saldo
+      }
+    });
   });
 });
 
 describe('obtenerHistorialRecompensas', () => {
   it('returns history', async () => {
-    const req = { user:{ id:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user:{ id_user_profile:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerHistorialRecompensas.mockResolvedValue(['h']);
 
     await controller.obtenerHistorialRecompensas(req, res);
 
     expect(service.obtenerHistorialRecompensas).toHaveBeenCalledWith(1);
-    expect(res.json).toHaveBeenCalledWith(['h']);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Historial de recompensas obtenido con éxito', data: ['h'] });
   });
 });
 
@@ -59,7 +72,7 @@ describe('obtenerEstadisticasDeRecompensas', () => {
 
     await controller.obtenerEstadisticasDeRecompensas({}, res);
 
-    expect(res.json).toHaveBeenCalledWith('s');
+    expect(res.json).toHaveBeenCalledWith({ message: 'Estadísticas de recompensas obtenidas con éxito', data: 's' });
   });
 });
 
@@ -84,6 +97,6 @@ describe('crearRecompensa', () => {
 
     expect(service.crearRecompensa).toHaveBeenCalledWith(body);
     expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith('r');
+    expect(res.json).toHaveBeenCalledWith({ message: 'Recompensa creada con éxito', data: 'r' });
   });
 });
