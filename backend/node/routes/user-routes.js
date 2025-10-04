@@ -40,9 +40,9 @@ const { verificarToken } = require('../middlewares/auth');
  *                 age:
  *                   type: integer
  *                   example: 23
- *                 subscription:
+ *                 role:
  *                   type: string
- *                   example: FREE
+ *                   example: USER
  *                 tokens:
  *                   type: integer
  *                   example: 120

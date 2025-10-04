@@ -1,17 +1,28 @@
 const authService = require('../services/auth-service');
 const RefreshToken = require('../models/RefreshToken');
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
+/**
+ * Registrar un nuevo usuario con email y contraseña
+ */
 const register = async (req, res) => {
   try {
     const user = await authService.register(req.body);
     res.status(201).json(user);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ 
+      error: {
+        code: 'REGISTER_FAILED',
+        message: err.message 
+      }
+    });
   }
 };
 
-const { generarToken } = require('../utils/jwt');
-
+/**
+ * Login con email y contraseña
+ */
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -19,94 +30,112 @@ const login = async (req, res) => {
 
     res.json({ accessToken: token, refreshToken, user });
   } catch (err) {
-    res.status(401).json({ error: err.message });
+    res.status(401).json({ 
+      error: {
+        code: 'LOGIN_FAILED',
+        message: err.message 
+      }
+    });
   }
 };
 
-module.exports = { register, login };
-const { OAuth2Client } = require('google-auth-library');
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
-
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
+/**
+ * Login con Google OAuth2
+ */
 const googleLogin = async (req, res) => {
-  const { token } = req.body;
-
   try {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID
-    });
+    const { idToken } = req.body;
 
-    const payload = ticket.getPayload();
-    const { email, name } = payload;
-
-    let user = await User.findOne({ where: { email } });
-
-    if (!user) {
-      user = await User.create({
-        name,
-        lastname: '',
-        email,
-        gender: 'O',
-        locality: '',
-        age: 0,
-        subscription: 'FREE',
-        tokens: 0
+    if (!idToken) {
+      return res.status(400).json({ 
+        error: {
+          code: 'MISSING_TOKEN',
+          message: 'El idToken de Google es requerido' 
+        }
       });
     }
 
-    const accessToken = generarToken(user);
+    const { token, refreshToken, user } = await authService.googleLogin(idToken, req);
 
-    const refreshToken = jwt.sign(
-      { id_user: user.id_user },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    await RefreshToken.create({
-      id_user: user.id_user,
-      token: refreshToken,
-      user_agent: req.headers['user-agent'] || '',
-      ip_address: req.ip || '',
-      expires_at: new Date(Date.now() + 7 * 86400000)
+    res.json({ 
+      accessToken: token, 
+      refreshToken, 
+      user 
     });
-
-    res.json({ user, accessToken, refreshToken });
   } catch (err) {
-    console.error(err);
-    res.status(401).json({ error: 'Token de Google inválido o expirado' });
+    res.status(401).json({ 
+      error: {
+        code: 'GOOGLE_AUTH_FAILED',
+        message: err.message 
+      }
+    });
   }
 };
 
+/**
+ * Refrescar access token usando refresh token
+ */
 const refreshAccessToken = async (req, res) => {
   const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ 
+      error: {
+        code: 'MISSING_TOKEN',
+        message: 'El refresh token es requerido' 
+      }
+    });
+  }
 
   try {
     const registro = await RefreshToken.findOne({ where: { token, revoked: false } });
 
     if (!registro || new Date(registro.expires_at) < new Date()) {
-      return res.status(403).json({ error: 'Refresh token inválido o expirado' });
+      return res.status(403).json({ 
+        error: {
+          code: 'INVALID_REFRESH_TOKEN',
+          message: 'Refresh token inválido o expirado' 
+        }
+      });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
     const user = await User.findByPk(decoded.id_user);
 
-    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!user) {
+      return res.status(404).json({ 
+        error: {
+          code: 'USER_NOT_FOUND',
+          message: 'Usuario no encontrado' 
+        }
+      });
+    }
 
-    const accessToken = generarToken(user);
+    const accessToken = authService.generateAccessToken(user);
     res.json({ accessToken });
   } catch (err) {
-    res.status(401).json({ error: 'Token inválido o expirado' });
+    res.status(401).json({ 
+      error: {
+        code: 'TOKEN_VERIFICATION_FAILED',
+        message: 'Token inválido o expirado' 
+      }
+    });
   }
 };
 
+/**
+ * Logout - Revocar refresh token
+ */
 const logout = async (req, res) => {
   const { token } = req.body;
 
   if (!token) {
-    return res.status(400).json({ error: 'No se recibió el refresh token' });
+    return res.status(400).json({ 
+      error: {
+        code: 'MISSING_TOKEN',
+        message: 'El refresh token es requerido' 
+      }
+    });
   }
 
   try {
@@ -116,13 +145,23 @@ const logout = async (req, res) => {
     );
 
     if (affectedRows === 0) {
-      return res.status(404).json({ error: 'Refresh token no encontrado o ya revocado' });
+      return res.status(404).json({ 
+        error: {
+          code: 'TOKEN_NOT_FOUND',
+          message: 'Refresh token no encontrado o ya revocado' 
+        }
+      });
     }
 
     res.status(200).json({ message: 'Sesión cerrada correctamente' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Error al cerrar sesión' });
+    res.status(500).json({ 
+      error: {
+        code: 'LOGOUT_FAILED',
+        message: 'Error al cerrar sesión' 
+      }
+    });
   }
 };
 

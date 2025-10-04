@@ -55,9 +55,23 @@ const consultarMetaSemanal = async (id_user) => {
   return frecuencia;
 };
 
+const actualizarUsuarioFrecuencia = async (id_frequency, id_user) => {
+  const frecuencia = await Frequency.findByPk(id_frequency);
+  
+  if (!frecuencia) {
+    throw new Error('Frecuencia no encontrada');
+  }
+  
+  frecuencia.id_user = id_user;
+  await frecuencia.save();
+  
+  return frecuencia;
+};
+
 module.exports = {
   crearMetaSemanal,
   actualizarAsistenciaSemanal,
   reiniciarSemana,
-  consultarMetaSemanal
+  consultarMetaSemanal,
+  actualizarUsuarioFrecuencia
 };

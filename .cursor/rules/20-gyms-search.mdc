@@ -1,0 +1,8 @@
+---
+description: "USE WHEN writing search or map proximity for gyms."
+globs: backend/**/gyms/**,backend/**/geo/**,backend/**/utils/**haversine*.*
+alwaysApply: false
+---
+- Query: bounding box in DB first; then order by Haversine distance.
+- Indexes: gyms(lat,lng) and/or by city. Results paginated; limit ≤ 50.
+- Return only needed columns; keep payloads small.

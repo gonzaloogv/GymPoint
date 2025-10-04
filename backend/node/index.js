@@ -1,8 +1,15 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const sequelize = require('./config/database');
 const setupSwagger = require('./utils/swagger');
+const { runMigrations } = require('./migrate');
 
+// Cargar variables de entorno
+dotenv.config();
+
+// Importar rutas
+const healthRoutes = require('./routes/health-routes');
 const authRoutes = require('./routes/auth-routes');
 const gymRoutes = require('./routes/gym-routes');
 const assistanceRoutes = require('./routes/assistance-routes');
@@ -20,23 +27,25 @@ const specialScheduleRoutes = require('./routes/gym-special-schedule-routes');
 const gymPaymentRoutes = require('./routes/gym-payment-routes');
 const rewardCodeRoutes = require('./routes/reward-code-routes');
 const userRoutes = require('./routes/user-routes');
-const cors = require('cors');
 
-dotenv.config();
-
-// Iniciar app
+// Inicializar app
 const app = express();
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN?.split(',') || '*',
+  credentials: true
+}));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Testear conexión a MySQL
-sequelize.authenticate()
-  .then(() => console.log('✅ Conexión con MySQL establecida correctamente.'))
-  .catch((err) => console.error('❌ Error al conectar con MySQL:', err));
+// Confiar en proxies (para obtener IP real detrás de reverse proxy)
+app.set('trust proxy', true);
 
-// Rutas
+// Health checks (sin autenticación, para load balancers/kubernetes)
+app.use('/', healthRoutes);
+
+// Rutas de API
 app.use('/api/auth', authRoutes);
 app.use('/api/gyms', gymRoutes);
 app.use('/api/assistances', assistanceRoutes);
@@ -55,18 +64,81 @@ app.use('/api/gym-payments', gymPaymentRoutes);
 app.use('/api/reward-codes', rewardCodeRoutes);
 app.use('/api/users', userRoutes);
 
-
-// Confiar proxies
-app.set('trust proxy', true);
-
-// Inicializador de swagger
+// Swagger UI
 setupSwagger(app);
 
 // 404 handler
-app.use((req, res) => res.status(404).json({ error: 'Not Found' }));
+app.use((req, res) => {
+  res.status(404).json({ 
+    error: {
+      code: 'NOT_FOUND',
+      message: 'Endpoint no encontrado',
+      path: req.path
+    }
+  });
+});
 
-// Arrancar servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+// Error handler global
+app.use((err, req, res, next) => {
+  console.error('Error no manejado:', err);
+  
+  const statusCode = err.statusCode || 500;
+  const code = err.code || 'INTERNAL_ERROR';
+  
+  res.status(statusCode).json({
+    error: {
+      code,
+      message: err.message || 'Error interno del servidor',
+      ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    }
+  });
+});
+
+// Función para iniciar el servidor
+async function startServer() {
+  const PORT = process.env.PORT || 3000;
+  
+  try {
+    // 1. Verificar conexión a base de datos
+    console.log('🔄 Verificando conexión a MySQL...');
+    await sequelize.authenticate();
+    console.log('✅ Conexión con MySQL establecida correctamente');
+
+    // 2. Ejecutar migraciones automáticamente
+    console.log('🔄 Ejecutando migraciones...');
+    await runMigrations();
+    
+    // 3. Iniciar servidor
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log('');
+      console.log('='.repeat(50));
+      console.log(`🚀 Servidor GymPoint corriendo en puerto ${PORT}`);
+      console.log(`📚 Documentación API: http://localhost:${PORT}/api-docs`);
+      console.log(`❤️  Health check: http://localhost:${PORT}/health`);
+      console.log(`✅ Ready check: http://localhost:${PORT}/ready`);
+      console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
+      console.log('='.repeat(50));
+      console.log('');
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fatal al iniciar el servidor:', error);
+    process.exit(1);
+  }
+}
+
+// Iniciar servidor
+startServer();
+
+// Manejo de señales para shutdown graceful
+process.on('SIGTERM', async () => {
+  console.log('⚠️  SIGTERM recibido. Cerrando conexiones...');
+  await sequelize.close();
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  console.log('\n⚠️  SIGINT recibido. Cerrando servidor...');
+  await sequelize.close();
+  process.exit(0);
 });

@@ -23,7 +23,8 @@
     "sequelize": "^6.37.7",
     "silent": "^0.2.3",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "umzug": "^3.8.2"
   },
   "devDependencies": {
     "eslint": "^9.29.0",

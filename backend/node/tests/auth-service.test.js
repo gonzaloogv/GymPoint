@@ -19,6 +19,15 @@ jest.mock('jsonwebtoken', () => ({
   sign: jest.fn(),
   verify: jest.fn()
 }));
+jest.mock('../utils/auth-providers/google-provider', () => {
+  return jest.fn().mockImplementation(() => ({
+    verifyToken: jest.fn(),
+    validateGoogleUser: jest.fn()
+  }));
+});
+
+// Mockear variable de entorno antes de importar auth-service
+process.env.GOOGLE_CLIENT_ID = 'test-client-id';
 
 const authService = require('../services/auth-service');
 const bcrypt = require('bcryptjs');
@@ -72,7 +81,13 @@ describe('auth-service.login', () => {
   const req = { headers: {}, ip: '127.0.0.1', connection: {} };
 
   it('returns tokens when credentials are valid', async () => {
-    const fakeUser = { id_user: 2, password: 'hash', subscription: 'FREE', email: 'a@a.com' };
+    const fakeUser = { 
+      id_user: 2, 
+      password: 'hash', 
+      subscription: 'FREE', 
+      email: 'a@a.com',
+      auth_provider: 'local' 
+    };
     User.findOne.mockResolvedValue(fakeUser);
     bcrypt.compare.mockResolvedValue(true);
     jwt.sign
@@ -86,7 +101,11 @@ describe('auth-service.login', () => {
   });
 
   it('throws on invalid credentials', async () => {
-    User.findOne.mockResolvedValue({ id_user: 3, password: 'hash' });
+    User.findOne.mockResolvedValue({ 
+      id_user: 3, 
+      password: 'hash',
+      auth_provider: 'local'
+    });
     bcrypt.compare.mockResolvedValue(false);
 
     await expect(authService.login('a@a.com', 'wrong', req))

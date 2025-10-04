@@ -23,6 +23,11 @@ describe('auth-controller.login', () => {
     await authController.login(req, res);
 
     expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith({ error: 'invalid' });
+    expect(res.json).toHaveBeenCalledWith({ 
+      error: {
+        code: 'LOGIN_FAILED',
+        message: 'invalid'
+      }
+    });
   });
 });

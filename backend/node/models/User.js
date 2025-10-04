@@ -34,12 +34,12 @@ const User = sequelize.define('User', {
   },
   password: { 
     type: DataTypes.STRING, 
-    allowNull: false 
+    allowNull: true  // Puede ser null para usuarios de Google
   },
-  subscription: { 
-    type: DataTypes.STRING(10), 
+  role: { 
+    type: DataTypes.STRING(15), 
     allowNull: false, 
-    defaultValue: 'FREE' 
+    defaultValue: 'USER' 
   },
   tokens: { 
     type: DataTypes.INTEGER, 
@@ -52,10 +52,32 @@ const User = sequelize.define('User', {
       model: 'Streak',
       key: 'id_streak'
     }
+  },
+  auth_provider: {
+    type: DataTypes.ENUM('local', 'google'),
+    allowNull: false,
+    defaultValue: 'local'
+  },
+  google_id: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
   }
 }, {
   tableName: 'user',
-  timestamps: false
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at'
 });
 
 module.exports = User;

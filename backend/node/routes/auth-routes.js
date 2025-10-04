@@ -28,7 +28,6 @@ const authController = require('../controllers/auth-controller');
  *               - password
  *               - gender
  *               - locality
- *               - subscription
  *               - age
  *               - frequency_goal
  *             properties:
@@ -50,9 +49,11 @@ const authController = require('../controllers/auth-controller');
  *               locality:
  *                 type: string
  *                 example: Resistencia
- *               subscription:
+ *               role:
  *                 type: string
- *                 example: FREE
+ *                 example: USER
+ *                 enum: [USER, PREMIUM, ADMIN]
+ *                 default: USER
  *               age:
  *                 type: integer
  *                 example: 23
@@ -110,7 +111,12 @@ router.post('/login', authController.login);
  * @swagger
  * /api/auth/google:
  *   post:
- *     summary: Iniciar sesión con Google
+ *     summary: Iniciar sesión con Google OAuth2
+ *     description: |
+ *       Autentica a un usuario mediante Google OAuth2. Si el usuario no existe, se crea automáticamente.
+ *       - Si el email ya existe con auth local, se vincula con Google
+ *       - Si es un usuario nuevo, se crea con frecuencia semanal por defecto (3 días)
+ *       - Se genera un streak inicial
  *     tags: [Autenticación]
  *     requestBody:
  *       required: true
@@ -118,17 +124,77 @@ router.post('/login', authController.login);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [token]
+ *             required: [idToken]
  *             properties:
- *               token:
+ *               idToken:
  *                 type: string
- *                 description: ID token de Google
- *                 example: ya29.a0AWY7Ckk...
+ *                 description: ID token de Google obtenido desde el cliente
+ *                 example: eyJhbGciOiJSUzI1NiIsImtpZCI6IjdlM...
  *     responses:
  *       200:
- *         description: Usuario autenticado por Google
+ *         description: Usuario autenticado correctamente con Google
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *                   description: Token JWT de acceso (válido 15 minutos)
+ *                 refreshToken:
+ *                   type: string
+ *                   description: Token de refresco (válido 30 días)
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id_user:
+ *                       type: integer
+ *                     email:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     lastname:
+ *                       type: string
+ *                     role:
+ *                       type: string
+ *                       enum: [USER, PREMIUM, ADMIN]
+ *                     auth_provider:
+ *                       type: string
+ *                       enum: [local, google]
+ *                     google_id:
+ *                       type: string
+ *       400:
+ *         description: El idToken no fue proporcionado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: MISSING_TOKEN
+ *                     message:
+ *                       type: string
+ *                       example: El idToken de Google es requerido
  *       401:
  *         description: Token de Google inválido o expirado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: GOOGLE_AUTH_FAILED
+ *                     message:
+ *                       type: string
+ *                       example: Token de Google inválido o expirado
  */
 router.post('/google', authController.googleLogin);
 
