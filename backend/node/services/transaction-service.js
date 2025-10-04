@@ -1,15 +1,31 @@
 const Transaction = require('../models/Transaction');
 const Reward = require('../models/Reward');
+const { UserProfile } = require('../models');
 
-const obtenerTransaccionesPorUsuario = async (id_user) => {
-    return await Transaction.findAll({
-      where: { id_user },
-      include: {
+/**
+ * Obtener transacciones por usuario
+ * @param {number} idUserProfile - ID del user_profile
+ * @returns {Promise<Array>} Lista de transacciones
+ */
+const obtenerTransaccionesPorUsuario = async (idUserProfile) => {
+  return await Transaction.findAll({
+    where: { id_user: idUserProfile }, // id_user apunta a user_profiles
+    include: [
+      {
         model: Reward,
-        attributes: ['name']
+        as: 'reward',
+        attributes: ['name'],
+        required: false
       },
-      order: [['date', 'DESC']]
-    });
+      {
+        model: UserProfile,
+        as: 'userProfile',
+        attributes: ['name', 'lastname'],
+        required: false
+      }
+    ],
+    order: [['date', 'DESC']]
+  });
 };  
 
 module.exports = {

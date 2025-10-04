@@ -1,6 +1,6 @@
 const Assistance = require('../models/Assistance');
 const Streak = require('../models/Streak');
-const User = require('../models/User');
+const { UserProfile } = require('../models');
 const Transaction = require('../models/Transaction');
 const Gym = require('../models/Gym');
 const { Op } = require('sequelize');
@@ -17,42 +17,63 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
+/**
+ * Registrar asistencia a un gimnasio
+ * @param {Object} data - Datos de asistencia
+ * @param {number} data.id_user - ID del user_profile
+ * @param {number} data.id_gym - ID del gimnasio
+ * @param {number} data.latitude - Latitud del usuario
+ * @param {number} data.longitude - Longitud del usuario
+ * @returns {Promise<Object>} Asistencia registrada + tokens actuales
+ */
 const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude }) => {
   const hoy = new Date();
   const fecha = hoy.toISOString().split('T')[0];
   const hora = hoy.toTimeString().split(' ')[0];
 
+  // id_user ahora es id_user_profile
+  const idUserProfile = id_user;
+
+  // Validar que no haya registrado ya hoy
   const asistenciaHoy = await Assistance.findOne({
-    where: { id_user, id_gym, date: fecha }
+    where: { id_user: idUserProfile, id_gym, date: fecha }
   });
   if (asistenciaHoy) throw new Error('Ya registraste asistencia hoy.');
 
+  // Validar gimnasio
   const gym = await Gym.findByPk(id_gym);
   if (!gym) throw new Error('Gimnasio no encontrado');
+  
+  // Validar proximidad
   const distancia = calcularDistancia(latitude, longitude, gym.latitude, gym.longitude);
-  if (distancia > 15) {
-    throw new Error(`Estás fuera del rango del gimnasio (distancia: ${Math.round(distancia)} m)`);
+  const PROXIMITY_M = parseInt(process.env.PROXIMITY_M || '180');
+  if (distancia > PROXIMITY_M) {
+    throw new Error(`Estás fuera del rango del gimnasio (distancia: ${Math.round(distancia)} m, máximo: ${PROXIMITY_M} m)`);
   }
 
-  const user = await User.findByPk(id_user);
-  if (!user) throw new Error('Usuario no encontrado');
-  const racha = await Streak.findByPk(user.id_streak);
+  // Cargar user profile
+  const userProfile = await UserProfile.findByPk(idUserProfile);
+  if (!userProfile) throw new Error('Usuario no encontrado');
+  
+  const racha = await Streak.findByPk(userProfile.id_streak);
   if (!racha) throw new Error('Racha no encontrada');
 
+  // Crear asistencia
   const nuevaAsistencia = await Assistance.create({
-    id_user,
+    id_user: idUserProfile,
     id_gym,
-    id_streak: user.id_streak,
+    id_streak: userProfile.id_streak,
     date: fecha,
     hour: hora
   });
 
+  // Actualizar racha
   const ayer = new Date(hoy);
   ayer.setDate(hoy.getDate() - 1);
   const fechaAyer = ayer.toISOString().split('T')[0];
 
   const ultimaAsistencia = await Assistance.findOne({
-    where: { id_user, id_gym, date: fechaAyer }
+    where: { id_user: idUserProfile, id_gym, date: fechaAyer }
   });
 
   if (ultimaAsistencia) {
@@ -68,32 +89,43 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude }) => 
 
   await racha.save();
 
-  user.tokens += 10;
-  await user.save();
+  // Otorgar tokens
+  const TOKENS_ATTENDANCE = parseInt(process.env.TOKENS_ATTENDANCE || '10');
+  userProfile.tokens += TOKENS_ATTENDANCE;
+  await userProfile.save();
 
+  // Registrar transacción
   await Transaction.create({
-    id_user,
+    id_user: idUserProfile,
     id_reward: null,
     movement_type: 'ASISTENCIA',
-    amount: 10,
-    result_balance: user.tokens,
+    amount: TOKENS_ATTENDANCE,
+    result_balance: userProfile.tokens,
     date: new Date()
   });
 
-  await frequencyService.actualizarAsistenciaSemanal(id_user);
+  // Actualizar frecuencia semanal
+  await frequencyService.actualizarAsistenciaSemanal(idUserProfile);
 
   return {
     asistencia: nuevaAsistencia,
     distancia: Math.round(distancia),
-    tokens_actuales: user.tokens
+    tokens_actuales: userProfile.tokens,
+    racha_actual: racha.value
   };
 };
 
-const obtenerHistorialAsistencias = async (id_user) => {
+/**
+ * Obtener historial de asistencias de un usuario
+ * @param {number} idUserProfile - ID del user_profile
+ * @returns {Promise<Array>} Lista de asistencias con gimnasio
+ */
+const obtenerHistorialAsistencias = async (idUserProfile) => {
   return await Assistance.findAll({
-    where: { id_user },
+    where: { id_user: idUserProfile },
     include: {
       model: Gym,
+      as: 'gym',
       attributes: ['name', 'city', 'address']
     },
     order: [['date', 'DESC'], ['hour', 'DESC']]
