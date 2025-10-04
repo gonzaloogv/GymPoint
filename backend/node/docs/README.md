@@ -25,10 +25,11 @@ Bienvenido a la documentación del backend de GymPoint.
 | **[DATA_MIGRATION.md](./DATA_MIGRATION.md)** | 🔄 Migración de datos completada (12 usuarios migrados) |
 | **[MIGRATION_SUMMARY.md](./MIGRATION_SUMMARY.md)** | 📝 Resumen ejecutivo de la implementación |
 
-### 🔐 Autenticación
+### 🔐 Autenticación y Administración
 
 | Archivo | Descripción |
 |---------|-------------|
+| **[CREATE_ADMIN.md](./CREATE_ADMIN.md)** | 👨‍💼 Guía para crear administradores del sistema |
 | **[utils/auth-providers/README.md](../utils/auth-providers/README.md)** | 🔑 Documentación de proveedores de autenticación (Google OAuth) |
 
 ### 📝 Otros Documentos
