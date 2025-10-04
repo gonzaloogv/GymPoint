@@ -27,6 +27,7 @@ const specialScheduleRoutes = require('./routes/gym-special-schedule-routes');
 const gymPaymentRoutes = require('./routes/gym-payment-routes');
 const rewardCodeRoutes = require('./routes/reward-code-routes');
 const userRoutes = require('./routes/user-routes');
+const adminRoutes = require('./routes/admin-routes');
 
 // Inicializar app
 const app = express();
@@ -63,6 +64,7 @@ app.use('/api/special-schedules', specialScheduleRoutes);
 app.use('/api/gym-payments', gymPaymentRoutes);
 app.use('/api/reward-codes', rewardCodeRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Swagger UI
 setupSwagger(app);
