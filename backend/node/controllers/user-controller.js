@@ -1,4 +1,4 @@
-const userService = require('../services/user-service-v2');
+const userService = require('../services/user-service');
 
 /**
  * Obtener perfil del usuario actual
