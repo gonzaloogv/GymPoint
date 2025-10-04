@@ -53,10 +53,8 @@ module.exports = {
       
       console.log(`✅ Mapeo creado: ${Object.keys(mapping).length} usuarios\n`);
       
-      // Lista de tablas y sus FKs a actualizar
-      const tables = [
-        { name: 'assistance', column: 'id_user', fkName: 'assistance_ibfk_1' },
-        { name: 'claimed_reward', column: 'id_user', fkName: 'claimed_reward_ibfk_1' },
+      // Lista de tablas potencialmente a actualizar
+      const potentialTables = [
         { name: 'frequency', column: 'id_user', fkName: 'frequency_ibfk_1' },
         { name: 'gym_payment', column: 'id_user', fkName: 'gym_payment_ibfk_1' },
         { name: 'progress', column: 'id_user', fkName: 'progress_ibfk_1' },
@@ -68,10 +66,56 @@ module.exports = {
         { name: 'user_routine', column: 'id_user', fkName: 'user_routine_ibfk_1' }
       ];
       
+      // Filtrar solo las tablas que realmente tienen FK a user
+      const tables = [];
+      for (const table of potentialTables) {
+        const [fkCheck] = await queryInterface.sequelize.query(
+          `SELECT CONSTRAINT_NAME 
+           FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+           WHERE TABLE_NAME = '${table.name}'
+             AND TABLE_SCHEMA = DATABASE()
+             AND REFERENCED_TABLE_NAME = 'user'
+             AND COLUMN_NAME = '${table.column}'`,
+          { transaction }
+        );
+        
+        if (fkCheck.length > 0) {
+          tables.push({ ...table, fkName: fkCheck[0].CONSTRAINT_NAME });
+        }
+      }
+      
+      console.log(`✅ Tablas a migrar: ${tables.length}/${potentialTables.length}\n`);
+      
+      if (tables.length === 0) {
+        console.log('⚠️ No hay tablas pendientes de migración');
+        await transaction.commit();
+        return;
+      }
+      
       for (const table of tables) {
         console.log(`📋 Procesando tabla: ${table.name}`);
         
         try {
+          // Caso especial: refresh_token puede tener tokens de admins
+          if (table.name === 'refresh_token') {
+            const [adminTokens] = await queryInterface.sequelize.query(
+              `SELECT COUNT(*) as count FROM refresh_token rt
+               JOIN user u ON rt.id_user = u.id_user
+               WHERE u.role = 'ADMIN'`,
+              { transaction }
+            );
+            
+            if (adminTokens[0].count > 0) {
+              console.log(`  ⚠️ Eliminando ${adminTokens[0].count} tokens de administradores...`);
+              await queryInterface.sequelize.query(
+                `DELETE FROM refresh_token 
+                 WHERE id_user IN (SELECT id_user FROM user WHERE role = 'ADMIN')`,
+                { transaction }
+              );
+              console.log(`  ✅ Tokens de admin eliminados`);
+            }
+          }
+          
           // 1. Eliminar FK constraint antigua
           await queryInterface.sequelize.query(
             `ALTER TABLE \`${table.name}\` DROP FOREIGN KEY \`${table.fkName}\``,
@@ -118,12 +162,22 @@ module.exports = {
           console.log(`  ✅ Columna antigua eliminada: ${table.column}`);
           
           // 6. Renombrar columna temporal
-          await queryInterface.sequelize.query(
-            `ALTER TABLE \`${table.name}\` 
-             CHANGE COLUMN \`${tempColumn}\` \`${table.column}\` INT NOT NULL`,
+          // Verificar si hay NULLs para decidir si permite NULL
+          const [[hasNulls]] = await queryInterface.sequelize.query(
+            `SELECT COUNT(*) as count 
+             FROM \`${table.name}\` 
+             WHERE \`${tempColumn}\` IS NULL`,
             { transaction }
           );
-          console.log(`  ✅ Columna renombrada: ${tempColumn} → ${table.column}`);
+          
+          const nullability = hasNulls.count > 0 ? 'NULL' : 'NOT NULL';
+          
+          await queryInterface.sequelize.query(
+            `ALTER TABLE \`${table.name}\` 
+             CHANGE COLUMN \`${tempColumn}\` \`${table.column}\` INT ${nullability}`,
+            { transaction }
+          );
+          console.log(`  ✅ Columna renombrada: ${tempColumn} → ${table.column} (${nullability})`);
           
           // 7. Crear nueva FK a user_profiles
           const newFkName = `fk_${table.name}_user_profile`;
