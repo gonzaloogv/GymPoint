@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/assistance-controller');
-const { verificarToken } = require('../middlewares/auth');
+const { verificarToken, verificarUsuarioApp } = require('../middlewares/auth');
 
-// Registrar asistencia con validación GPS + tokens + racha
 /**
  * @swagger
- * /api/assistances/registrar:
+ * /api/assistances:
  *   post:
  *     summary: Registrar asistencia del usuario en un gimnasio con validación GPS, racha y tokens
+ *     description: El usuario debe estar dentro del rango de proximidad del gimnasio (configurable via PROXIMITY_M). Se otorgan tokens configurables (TOKENS_ATTENDANCE) y se actualiza la racha.
  *     tags: [Asistencias]
  *     security:
  *       - bearerAuth: []
@@ -19,24 +19,23 @@ const { verificarToken } = require('../middlewares/auth');
  *           schema:
  *             type: object
  *             required:
- *               - id_user
  *               - id_gym
  *               - latitude
  *               - longitude
  *             properties:
- *               id_user:
- *                 type: integer
- *                 example: 7
  *               id_gym:
  *                 type: integer
+ *                 description: ID del gimnasio
  *                 example: 3
  *               latitude:
  *                 type: number
  *                 format: float
+ *                 description: Latitud actual del usuario
  *                 example: -34.603722
  *               longitude:
  *                 type: number
  *                 format: float
+ *                 description: Longitud actual del usuario
  *                 example: -58.38159
  *     responses:
  *       201:
@@ -46,65 +45,119 @@ const { verificarToken } = require('../middlewares/auth');
  *             schema:
  *               type: object
  *               properties:
- *                 asistencia:
+ *                 message:
+ *                   type: string
+ *                   example: Asistencia registrada con éxito
+ *                 data:
  *                   type: object
- *                 distancia:
- *                   type: integer
- *                   description: Distancia en metros desde el gimnasio
- *                   example: 6
- *                 tokens_actuales:
- *                   type: integer
- *                   description: Tokens totales del usuario tras registrar asistencia
- *                   example: 30
+ *                   properties:
+ *                     asistencia:
+ *                       type: object
+ *                       properties:
+ *                         id_assistance:
+ *                           type: integer
+ *                         id_user:
+ *                           type: integer
+ *                         id_gym:
+ *                           type: integer
+ *                         date:
+ *                           type: string
+ *                           format: date
+ *                         hour:
+ *                           type: string
+ *                     distancia:
+ *                       type: integer
+ *                       description: Distancia en metros desde el gimnasio
+ *                       example: 6
+ *                     tokens_actuales:
+ *                       type: integer
+ *                       description: Tokens totales del usuario tras registrar asistencia
+ *                       example: 30
+ *                     racha_actual:
+ *                       type: integer
+ *                       description: Valor actual de la racha
+ *                       example: 5
  *       400:
- *         description: Datos inválidos o asistencia ya registrada hoy
+ *         description: Datos inválidos, asistencia ya registrada hoy, o fuera de rango
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: ASSISTANCE_REGISTRATION_FAILED
+ *                     message:
+ *                       type: string
+ *                       example: Ya registraste asistencia hoy.
+ *       401:
+ *         description: No autorizado (token inválido o expirado)
  *       403:
- *         description: Usuario fuera de rango o sin racha válida
+ *         description: Requiere rol de usuario de la app
  */
-router.post('/registrar', controller.registrarAsistencia);
+router.post('/', verificarToken, verificarUsuarioApp, controller.registrarAsistencia);
+
 /**
  * @swagger
  * /api/assistances/me:
  *   get:
- *     summary: Obtener historial de asistencias del usuario
+ *     summary: Obtener historial de asistencias del usuario autenticado
+ *     description: Retorna todas las asistencias del usuario con información del gimnasio
  *     tags: [Asistencias]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id_user
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID del usuario
  *     responses:
  *       200:
  *         description: Lista de asistencias con información del gimnasio
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   date:
- *                     type: string
- *                     format: date
- *                   hour:
- *                     type: string
- *                   Gym:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Historial de asistencias obtenido con éxito
+ *                 data:
+ *                   type: array
+ *                   items:
  *                     type: object
  *                     properties:
- *                       name:
+ *                       id_assistance:
+ *                         type: integer
+ *                       id_user:
+ *                         type: integer
+ *                       id_gym:
+ *                         type: integer
+ *                       date:
  *                         type: string
- *                       city:
+ *                         format: date
+ *                         example: 2025-10-04
+ *                       hour:
  *                         type: string
- *                       address:
- *                         type: string
- *       404:
- *         description: Usuario no encontrado o sin asistencias
+ *                         example: 14:30:00
+ *                       gym:
+ *                         type: object
+ *                         properties:
+ *                           name:
+ *                             type: string
+ *                             example: MegaGym Centro
+ *                           city:
+ *                             type: string
+ *                             example: Córdoba
+ *                           address:
+ *                             type: string
+ *                             example: Av. Colón 123
+ *       400:
+ *         description: Error al obtener historial
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: Requiere rol de usuario de la app
  */
-router.get('/me', verificarToken, controller.obtenerHistorialAsistencias);
+router.get('/me', verificarToken, verificarUsuarioApp, controller.obtenerHistorialAsistencias);
 
 // Podés agregar otros endpoints como historial más adelante
 
