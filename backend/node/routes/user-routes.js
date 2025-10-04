@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/user-controller');
-const { verificarToken } = require('../middlewares/auth');
+const { verificarToken, verificarAdmin, verificarUsuarioApp } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -51,7 +51,7 @@ const { verificarToken } = require('../middlewares/auth');
  *       404:
  *         description: Usuario no encontrado
  */
-router.get('/me', verificarToken, controller.obtenerPerfil);
+router.get('/me', verificarToken, verificarUsuarioApp, controller.obtenerPerfil);
 
 /**
  * @swagger
@@ -91,6 +91,165 @@ router.get('/me', verificarToken, controller.obtenerPerfil);
  *       404:
  *         description: Usuario no encontrado
  */
-router.put('/me', verificarToken, controller.actualizarPerfil);
+router.put('/me', verificarToken, verificarUsuarioApp, controller.actualizarPerfil);
+
+/**
+ * @swagger
+ * /api/users/me/email:
+ *   put:
+ *     summary: Actualizar email del usuario autenticado
+ *     tags: [Usuario]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: nuevo@example.com
+ *     responses:
+ *       200:
+ *         description: Email actualizado correctamente
+ *       400:
+ *         description: Email inválido o ya en uso
+ *       401:
+ *         description: No autorizado
+ */
+router.put('/me/email', verificarToken, verificarUsuarioApp, controller.actualizarEmail);
+
+/**
+ * @swagger
+ * /api/users/me:
+ *   delete:
+ *     summary: Eliminar cuenta del usuario autenticado
+ *     tags: [Usuario]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Cuenta eliminada correctamente
+ *       401:
+ *         description: No autorizado
+ *       500:
+ *         description: Error al eliminar cuenta
+ */
+router.delete('/me', verificarToken, verificarUsuarioApp, controller.eliminarCuenta);
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: Obtener perfil de usuario por ID (solo admin)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del user_profile
+ *     responses:
+ *       200:
+ *         description: Perfil del usuario
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: Requiere permisos de admin
+ *       404:
+ *         description: Usuario no encontrado
+ */
+router.get('/:id', verificarToken, verificarAdmin, controller.obtenerUsuarioPorId);
+
+/**
+ * @swagger
+ * /api/users/{id}/tokens:
+ *   post:
+ *     summary: Actualizar tokens de un usuario (solo admin)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del user_profile
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - delta
+ *             properties:
+ *               delta:
+ *                 type: integer
+ *                 example: 50
+ *                 description: Cantidad a sumar (positivo) o restar (negativo)
+ *               reason:
+ *                 type: string
+ *                 example: Bonus por evento especial
+ *     responses:
+ *       200:
+ *         description: Tokens actualizados correctamente
+ *       400:
+ *         description: Datos inválidos
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: Requiere permisos de admin
+ */
+router.post('/:id/tokens', verificarToken, verificarAdmin, controller.actualizarTokens);
+
+/**
+ * @swagger
+ * /api/users/{id}/subscription:
+ *   put:
+ *     summary: Actualizar suscripción de un usuario (solo admin)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del user_profile
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - subscription
+ *             properties:
+ *               subscription:
+ *                 type: string
+ *                 enum: [FREE, PREMIUM]
+ *                 example: PREMIUM
+ *     responses:
+ *       200:
+ *         description: Suscripción actualizada correctamente
+ *       400:
+ *         description: Datos inválidos
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: Requiere permisos de admin
+ */
+router.put('/:id/subscription', verificarToken, verificarAdmin, controller.actualizarSuscripcion);
 
 module.exports = router;
