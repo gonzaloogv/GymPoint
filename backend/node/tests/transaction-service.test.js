@@ -2,7 +2,7 @@ jest.mock('../models/Transaction', () => ({ findAll: jest.fn() }));
 jest.mock('../models/Reward', () => ({}));
 
 const service = require('../services/transaction-service');
-const Transaction = require('../models/Transaction');
+const {Transaction} = require('../models');
 
 beforeEach(() => { jest.clearAllMocks(); });
 

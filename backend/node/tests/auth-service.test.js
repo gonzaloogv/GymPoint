@@ -31,7 +31,7 @@ process.env.GOOGLE_CLIENT_ID = 'test-client-id';
 
 const authService = require('../services/auth-service');
 const bcrypt = require('bcryptjs');
-const User = require('../models/User');
+const { User } = require('../models');
 const Streak = require('../models/Streak');
 const RefreshToken = require('../models/RefreshToken');
 const frequencyService = require('../services/frequency-service');

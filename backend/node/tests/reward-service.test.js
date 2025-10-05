@@ -5,10 +5,10 @@ jest.mock('../models/Transaction', () => ({ create: jest.fn() }));
 jest.mock('../services/reward-code-service', () => ({ crearCodigoParaCanje: jest.fn() }));
 
 const rewardService = require('../services/reward-service');
-const Reward = require('../models/Reward');
-const User = require('../models/User');
-const ClaimedReward = require('../models/ClaimedReward');
-const Transaction = require('../models/Transaction');
+const {Reward} = require('../models');
+const {User} = require('../models');
+const {ClaimedReward} = require('../models');
+const {Transaction} = require('../models');
 const rewardCodeService = require('../services/reward-code-service');
 
 beforeEach(() => { jest.clearAllMocks(); });

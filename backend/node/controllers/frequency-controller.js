@@ -2,7 +2,7 @@ const frequencyService = require('../services/frequency-service');
 
 const crearMeta = async (req, res) => {
   try {
-    const id_user = req.user.id; 
+    const id_user = req.user.id_user_profile; 
     const { goal } = req.body;
 
     if (!goal) {
@@ -19,7 +19,7 @@ const crearMeta = async (req, res) => {
 // GET /frequency/me
 const consultarMetaSemanal = async (req, res) => {
   try {
-    const id_user = req.user.id;
+    const id_user = req.user.id_user_profile;
     const resultado = await frequencyService.consultarMetaSemanal(id_user);
     res.json(resultado);
   } catch (err) {

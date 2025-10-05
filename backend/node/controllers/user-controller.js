@@ -7,7 +7,7 @@ const userService = require('../services/user-service');
 const obtenerPerfil = async (req, res) => {
   try {
     // req.user.id contiene id_account gracias al middleware
-    const usuario = await userService.obtenerUsuario(req.user.id);
+    const usuario = await userService.obtenerUsuario(req.user.id_user_profile);
     res.json(usuario);
   } catch (err) {
     res.status(404).json({ 

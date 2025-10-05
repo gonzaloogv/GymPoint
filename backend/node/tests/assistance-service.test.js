@@ -9,10 +9,10 @@ jest.mock('../models/Gym', () => ({ findByPk: jest.fn() }));
 jest.mock('../services/frequency-service', () => ({ actualizarAsistenciaSemanal: jest.fn() }));
 
 const assistanceService = require('../services/assistance-service');
-const Assistance = require('../models/Assistance');
-const Streak = require('../models/Streak');
-const User = require('../models/User');
-const Gym = require('../models/Gym');
+const {Assistance} = require('../models');
+const {Streak} = require('../models');
+const {User} = require('../models');
+const {Gym} = require('../models');
 const frequencyService = require('../services/frequency-service');
 
 beforeEach(() => {

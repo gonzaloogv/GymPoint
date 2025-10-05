@@ -47,7 +47,7 @@ jest.mock('../models/Frequency', () => ({
 process.env.GOOGLE_CLIENT_ID = 'test-client-id-123';
 
 const authService = require('../services/auth-service');
-const User = require('../models/User');
+const { User } = require('../models');
 const jwt = require('jsonwebtoken');
 
 // Test simple para verificar que el login con password rechaza cuentas de Google

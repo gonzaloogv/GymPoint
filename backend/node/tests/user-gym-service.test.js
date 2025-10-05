@@ -3,7 +3,7 @@ jest.mock('../models/Gym', () => ({}));
 jest.mock('../models/User', () => ({}));
 
 const service = require('../services/user-gym-service');
-const UserGym = require('../models/UserGym');
+const {UserGym} = require('../models');
 
 beforeEach(() => { jest.clearAllMocks(); });
 

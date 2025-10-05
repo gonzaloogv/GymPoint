@@ -5,7 +5,7 @@ jest.mock('../models/GymSpecialSchedule', () => ({
 }));
 
 const specialService = require('../services/gym-special-schedule-service');
-const GymSpecialSchedule = require('../models/GymSpecialSchedule');
+const {GymSpecialSchedule} = require('../models');
 
 beforeEach(() => {
   jest.clearAllMocks();

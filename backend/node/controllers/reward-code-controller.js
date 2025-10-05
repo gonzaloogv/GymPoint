@@ -3,7 +3,7 @@ const rewardCodeService = require('../services/reward-code-service');
 const obtenerCodigosPorUsuario = async (req, res) => {
   try {
     const { used } = req.query;
-    const id_user = req.user.id;
+    const id_user = req.user.id_user_profile;
     const codigos = await rewardCodeService.obtenerCodigosPorUsuario(id_user, used);
     res.json(codigos);
   } catch (err) {
@@ -34,7 +34,7 @@ const obtenerEstadisticasPorGimnasio = async (req, res) => {
 
 const obtenerCodigosActivos = async (req, res) => {
   try {
-    const id_user = req.user.id;
+    const id_user = req.user.id_user_profile;
     const codigos = await rewardCodeService.obtenerCodigosActivos(id_user);
     res.json(codigos);
   } catch (err) {
@@ -44,7 +44,7 @@ const obtenerCodigosActivos = async (req, res) => {
 
 const obtenerCodigosExpirados = async (req, res) => {
   try {
-    const id_user = req.user.id;
+    const id_user = req.user.id_user_profile;
     const codigos = await rewardCodeService.obtenerCodigosExpirados(id_user);
     res.json(codigos);
   } catch (err) {

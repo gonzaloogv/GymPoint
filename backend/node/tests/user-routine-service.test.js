@@ -3,8 +3,8 @@ jest.mock('../models/Routine', () => ({ findByPk: jest.fn() }));
 jest.mock('../models/Exercise', () => ({}));
 
 const service = require('../services/user-routine-service');
-const UserRoutine = require('../models/UserRoutine');
-const Routine = require('../models/Routine');
+const {UserRoutine} = require('../models');
+const {Routine} = require('../models');
 
 beforeEach(() => { jest.clearAllMocks(); });
 

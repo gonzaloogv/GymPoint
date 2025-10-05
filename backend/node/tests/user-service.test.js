@@ -3,7 +3,7 @@ jest.mock('../models/User', () => ({
   }));
   
   const userService = require('../services/user-service');
-  const User = require('../models/User');
+  const {User} = require('../models');
   
   beforeEach(() => {
     jest.clearAllMocks();

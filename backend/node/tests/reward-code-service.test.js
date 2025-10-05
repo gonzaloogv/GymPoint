@@ -4,7 +4,7 @@ jest.mock('../models/Reward', () => ({}));
 jest.mock('../models/Gym', () => ({}));
 
 const service = require('../services/reward-code-service');
-const RewardCode = require('../models/RewardCode');
+const {RewardCode} = require('../models');
 
 beforeEach(() => { jest.clearAllMocks(); });
 

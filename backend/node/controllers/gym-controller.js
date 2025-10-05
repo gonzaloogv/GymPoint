@@ -100,7 +100,7 @@ const getGymsByCity = async (req, res) => {
 
 const filtrarGimnasios = async (req, res) => {
   try {
-    const id_user = req.user.id;
+    const id_user = req.user.id_user_profile;
     const rol = req.user.rol;// 'FREE' o 'PREMIUM'
 
     const { city, type, minPrice, maxPrice } = req.query;

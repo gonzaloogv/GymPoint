@@ -2,8 +2,8 @@ jest.mock('../models/Progress', () => ({ create: jest.fn(), findAll: jest.fn() }
 jest.mock('../models/ProgressExercise', () => ({ create: jest.fn(), findAll: jest.fn() }));
 
 const service = require('../services/progress-service');
-const Progress = require('../models/Progress');
-const ProgressExercise = require('../models/ProgressExercise');
+const {Progress} = require('../models');
+const {ProgressExercise} = require('../models');
 
 beforeEach(() => { jest.clearAllMocks(); });
 
