@@ -38,7 +38,11 @@ const { verificarToken, verificarAdmin } = require('../middlewares/auth');
  *       201:
  *         description: Horario registrado correctamente
  *       400:
- *         description: Ya existe un horario para ese dÃ­a y gimnasio
+ *         description: Ya existe un horario para ese día y gimnasio
+ *       401:
+ *         description: Token no válido o no proporcionado
+ *       403:
+ *         description: Requiere permisos de administrador
  */
 router.post('/', verificarToken, verificarAdmin, controller.crearHorario);
 
@@ -97,6 +101,10 @@ router.get('/:id_gym', controller.obtenerHorariosPorGimnasio);
  *     responses:
  *       200:
  *         description: Horario actualizado correctamente
+ *       401:
+ *         description: Token no válido o no proporcionado
+ *       403:
+ *         description: Requiere permisos de administrador
  *       404:
  *         description: Horario no encontrado
  */

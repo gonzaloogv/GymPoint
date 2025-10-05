@@ -5,7 +5,7 @@ const { verificarToken, verificarAdmin } = require('../middlewares/auth');
 
 /**
  * @swagger
- * /api/gym-special-schedule:
+ * /api/special-schedules:
  *   post:
  *     summary: Crear un horario especial para un gimnasio (ej. feriados)
  *     tags: [Horarios Especiales]
@@ -43,12 +43,16 @@ const { verificarToken, verificarAdmin } = require('../middlewares/auth');
  *         description: Horario especial creado correctamente
  *       400:
  *         description: Ya existe un horario especial para esa fecha
+ *       401:
+ *         description: Token no válido o no proporcionado
+ *       403:
+ *         description: Requiere permisos de administrador
  */
 router.post('/', verificarToken, verificarAdmin, controller.crearHorarioEspecial);
 
 /**
  * @swagger
- * /api/gym-special-schedule/{id_gym}:
+ * /api/special-schedules/{id_gym}:
  *   get:
  *     summary: Obtener los horarios especiales de un gimnasio
  *     tags: [Horarios Especiales]
