@@ -34,20 +34,55 @@ const deleteGym = async (req, res) => {
   }
 };
 
+/**
+ * Buscar gimnasios cercanos
+ * @route GET /api/gyms/cercanos
+ * @access Public
+ */
 const buscarGimnasiosCercanos = async (req, res) => {
   try {
-    const { lat, lon } = req.query;
-    if (!lat || !lon) {
-      return res.status(400).json({ error: 'Faltan parámetros lat y lon' });
+    const { lat, lng, lon, radiusKm, radius, limit, offset } = req.query;
+    
+    // Soportar tanto 'lng' como 'lon' para retrocompatibilidad
+    const longitude = lng || lon;
+    
+    if (!lat || !longitude) {
+      return res.status(400).json({ 
+        error: { 
+          code: 'MISSING_PARAMS', 
+          message: 'Parámetros requeridos: lat y lng (o lon)' 
+        } 
+      });
     }
+
+    // Soportar tanto 'radiusKm' como 'radius'
+    const radius_km = radiusKm || radius || 5;
 
     const resultado = await gymService.buscarGimnasiosCercanos(
       parseFloat(lat),
-      parseFloat(lon)
+      parseFloat(longitude),
+      parseFloat(radius_km),
+      limit ? parseInt(limit) : 50,
+      offset ? parseInt(offset) : 0
     );
-    res.json(resultado);
+    
+    res.json({
+      message: 'Gimnasios cercanos obtenidos con éxito',
+      data: resultado,
+      meta: {
+        total: resultado.length,
+        center: { lat: parseFloat(lat), lng: parseFloat(longitude) },
+        radius_km: parseFloat(radius_km)
+      }
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Error en buscarGimnasiosCercanos:', err.message);
+    res.status(400).json({ 
+      error: { 
+        code: 'SEARCH_NEARBY_FAILED', 
+        message: err.message 
+      } 
+    });
   }
 };
 

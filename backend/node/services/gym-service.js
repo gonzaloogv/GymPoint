@@ -1,7 +1,8 @@
-const { Op } = require('sequelize');
+const { Op, literal } = require('sequelize');
 const User = require('../models/User');
 const Gym = require('../models/Gym');
 const GymType = require('../models/GymType')(require('../config/database'), require('sequelize').DataTypes);
+const Joi = require('joi');
 
 const tiposValidos = [
   'completo',
@@ -71,17 +72,81 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-const buscarGimnasiosCercanos = async (lat, lon) => {
-  const gimnasios = await Gym.findAll();
-  return gimnasios
-    .map(gym => {
-      const distancia = calcularDistancia(lat, lon, gym.latitude, gym.longitude);
-      return {
-        ...gym.toJSON(),
-        distancia: Math.round(distancia)
-      };
-    })
-    .sort((a, b) => a.distancia - b.distancia);
+/**
+ * Calcular bounding box para pre-filtrado
+ * @param {number} lat - Latitud central
+ * @param {number} lng - Longitud central
+ * @param {number} km - Radio en kilómetros
+ * @returns {Object} Bounding box {minLat, maxLat, minLng, maxLng}
+ */
+const calculateBoundingBox = (lat, lng, km) => {
+  const d = km / 111; // 1 grado ≈ 111 km
+  return {
+    minLat: lat - d,
+    maxLat: lat + d,
+    minLng: lng - d,
+    maxLng: lng + d
+  };
+};
+
+/**
+ * Buscar gimnasios cercanos usando bounding box + Haversine
+ * @param {number} lat - Latitud
+ * @param {number} lng - Longitud
+ * @param {number} radiusKm - Radio de búsqueda en km (default: 5)
+ * @param {number} limit - Límite de resultados (default: 50)
+ * @param {number} offset - Offset para paginación (default: 0)
+ * @returns {Promise<Array>} Gimnasios dentro del radio ordenados por distancia
+ */
+const buscarGimnasiosCercanos = async (lat, lng, radiusKm = 5, limit = 50, offset = 0) => {
+  // Validar parámetros con Joi
+  const schema = Joi.object({
+    lat: Joi.number().min(-90).max(90).required(),
+    lng: Joi.number().min(-180).max(180).required(),
+    radiusKm: Joi.number().min(0.1).max(100).default(5),
+    limit: Joi.number().integer().min(1).max(100).default(50),
+    offset: Joi.number().integer().min(0).default(0)
+  });
+
+  const { error, value } = schema.validate({ lat, lng, radiusKm, limit, offset });
+  if (error) {
+    throw new Error(`Parámetros inválidos: ${error.details[0].message}`);
+  }
+
+  const { lat: validLat, lng: validLng, radiusKm: validRadius } = value;
+
+  // Paso 1: Pre-filtro con bounding box
+  const bbox = calculateBoundingBox(validLat, validLng, validRadius);
+
+  // Paso 2: Expresión Haversine para calcular distancia exacta
+  const distanceExpr = literal(`
+    6371 * 2 * ASIN(SQRT(
+      POWER(SIN(RADIANS((${validLat}) - latitude) / 2), 2) +
+      COS(RADIANS(${validLat})) * COS(RADIANS(latitude)) *
+      POWER(SIN(RADIANS((${validLng}) - longitude) / 2), 2)
+    ))
+  `);
+
+  // Paso 3: Query optimizada con bounding box + Haversine
+  const gimnasios = await Gym.findAll({
+    where: {
+      latitude: { [Op.between]: [bbox.minLat, bbox.maxLat] },
+      longitude: { [Op.between]: [bbox.minLng, bbox.maxLng] }
+    },
+    attributes: {
+      include: [[distanceExpr, 'distance_km']]
+    },
+    having: literal(`distance_km <= ${validRadius}`),
+    order: literal('distance_km ASC'),
+    limit: value.limit,
+    offset: value.offset,
+    raw: true
+  });
+
+  return gimnasios.map(gym => ({
+    ...gym,
+    distance_km: parseFloat(gym.distance_km).toFixed(2)
+  }));
 };
 
 const getGymsByCity = async (city) => {

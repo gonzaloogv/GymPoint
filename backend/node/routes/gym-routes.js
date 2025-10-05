@@ -89,7 +89,7 @@ router.get('/filtro', verificarToken, gymController.filtrarGimnasios);
  * @swagger
  * /api/gyms/cercanos:
  *   get:
- *     summary: Buscar gimnasios cercanos a una ubicación
+ *     summary: Buscar gimnasios cercanos usando búsqueda geográfica optimizada (bounding box + Haversine)
  *     tags: [Gimnasios]
  *     parameters:
  *       - in: query
@@ -97,14 +97,108 @@ router.get('/filtro', verificarToken, gymController.filtrarGimnasios);
  *         required: true
  *         schema:
  *           type: number
+ *           minimum: -90
+ *           maximum: 90
+ *         description: Latitud del centro de búsqueda
+ *         example: -31.4201
  *       - in: query
- *         name: lon
+ *         name: lng
  *         required: true
  *         schema:
  *           type: number
+ *           minimum: -180
+ *           maximum: 180
+ *         description: Longitud del centro de búsqueda (también acepta 'lon')
+ *         example: -64.1888
+ *       - in: query
+ *         name: radiusKm
+ *         required: false
+ *         schema:
+ *           type: number
+ *           minimum: 0.1
+ *           maximum: 100
+ *           default: 5
+ *         description: Radio de búsqueda en kilómetros
+ *         example: 10
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 50
+ *         description: Límite de resultados
+ *       - in: query
+ *         name: offset
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 0
+ *           default: 0
+ *         description: Offset para paginación
  *     responses:
  *       200:
- *         description: Lista ordenada por cercanía
+ *         description: Gimnasios dentro del radio ordenados por distancia
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Gimnasios cercanos obtenidos con éxito
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id_gym:
+ *                         type: integer
+ *                       name:
+ *                         type: string
+ *                       address:
+ *                         type: string
+ *                       city:
+ *                         type: string
+ *                       latitude:
+ *                         type: number
+ *                       longitude:
+ *                         type: number
+ *                       distance_km:
+ *                         type: string
+ *                         description: Distancia en kilómetros (2 decimales)
+ *                         example: "2.45"
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                       description: Cantidad de resultados
+ *                     center:
+ *                       type: object
+ *                       properties:
+ *                         lat:
+ *                           type: number
+ *                         lng:
+ *                           type: number
+ *                     radius_km:
+ *                       type: number
+ *       400:
+ *         description: Parámetros inválidos o faltantes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: MISSING_PARAMS
+ *                     message:
+ *                       type: string
  */
 router.get('/cercanos', gymController.buscarGimnasiosCercanos);
 
