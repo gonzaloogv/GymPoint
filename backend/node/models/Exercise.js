@@ -14,6 +14,14 @@ const Exercise = sequelize.define('Exercise', {
   muscular_group: {
     type: DataTypes.STRING(100),
     allowNull: false
+  },
+  created_by: {
+    type: DataTypes.INTEGER,
+    allowNull: true, // NULL = ejercicio del sistema
+    references: {
+      model: 'user_profiles',
+      key: 'id_user_profile'
+    }
   }
 }, {
   tableName: 'exercise',

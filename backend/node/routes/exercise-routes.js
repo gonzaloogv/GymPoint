@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const exerciseController = require('../controllers/exercise-controller');
+const { verificarToken } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -45,8 +46,10 @@ router.get('/:id', exerciseController.getExerciseById);
  * @swagger
  * /api/exercises:
  *   post:
- *     summary: Crear un nuevo ejercicio
+ *     summary: Crear un nuevo ejercicio (requiere autenticación)
  *     tags: [Ejercicios]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -66,8 +69,10 @@ router.get('/:id', exerciseController.getExerciseById);
  *         description: Ejercicio creado correctamente
  *       400:
  *         description: Datos inválidos
+ *       401:
+ *         description: Token no válido
  */
-router.post('/', exerciseController.createExercise);
+router.post('/', verificarToken, exerciseController.createExercise);
 
 /**
  * @swagger
@@ -105,8 +110,10 @@ router.put('/:id', exerciseController.updateExercise);
  * @swagger
  * /api/exercises/{id}:
  *   delete:
- *     summary: Eliminar un ejercicio
+ *     summary: Eliminar un ejercicio (solo el creador o admin)
  *     tags: [Ejercicios]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -117,9 +124,27 @@ router.put('/:id', exerciseController.updateExercise);
  *     responses:
  *       204:
  *         description: Ejercicio eliminado correctamente
+ *       401:
+ *         description: Token no válido
+ *       403:
+ *         description: No eres el propietario del ejercicio
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: FORBIDDEN
+ *                     message:
+ *                       type: string
+ *                       example: No eres el propietario de este ejercicio
  *       404:
  *         description: Ejercicio no encontrado
  */
-router.delete('/:id', exerciseController.deleteExercise);
+router.delete('/:id', verificarToken, exerciseController.deleteExercise);
 
 module.exports = router;

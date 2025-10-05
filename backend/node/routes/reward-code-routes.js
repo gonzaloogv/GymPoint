@@ -1,19 +1,39 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/reward-code-controller');
-const { verificarToken } = require('../middlewares/auth');
+const { verificarToken, verificarAdmin, requireRole } = require('../middlewares/auth');
 
 /**
  * @swagger
  * /api/reward-code/estadisticas/gimnasios:
  *   get:
- *     summary: Obtener cantidad de códigos generados por gimnasio
+ *     summary: Obtener cantidad de códigos generados por gimnasio (Solo Admin)
  *     tags: [Códigos de Recompensa]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Estadísticas de códigos por gimnasio
+ *       401:
+ *         description: Token no válido
+ *       403:
+ *         description: Requiere permisos de administrador
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: FORBIDDEN
+ *                     message:
+ *                       type: string
+ *                       example: Insufficient role
  */
-router.get('/estadisticas/gimnasios', controller.obtenerEstadisticasPorGimnasio);
+router.get('/estadisticas/gimnasios', verificarToken, requireRole('ADMIN'), controller.obtenerEstadisticasPorGimnasio);
 
 /**
  * @swagger
