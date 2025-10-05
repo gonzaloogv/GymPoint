@@ -4,6 +4,7 @@ const cors = require('cors');
 const sequelize = require('./config/database');
 const setupSwagger = require('./utils/swagger');
 const { runMigrations } = require('./migrate');
+const { startRewardStatsJob } = require('./jobs/reward-stats-job');
 
 // Cargar variables de entorno
 dotenv.config();
@@ -125,6 +126,11 @@ async function startServer() {
       console.log('');
     });
     
+    // 4. Iniciar job de estadísticas de recompensas
+    if (process.env.NODE_ENV !== 'test') {
+      startRewardStatsJob(); // Cada 5 minutos
+    }
+    
   } catch (error) {
     console.error('❌ Error fatal al iniciar el servidor:', error);
     process.exit(1);
@@ -146,3 +152,4 @@ process.on('SIGINT', async () => {
   await sequelize.close();
   process.exit(0);
 });
+
