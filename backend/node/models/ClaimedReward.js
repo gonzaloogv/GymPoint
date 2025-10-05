@@ -41,13 +41,6 @@ const ClaimedReward = sequelize.define('ClaimedReward', {
 });
 
 module.exports = ClaimedReward;
-const Reward = require('./Reward');
-ClaimedReward.belongsTo(Reward, { 
-  foreignKey: 'id_reward' 
-});
 
-const RewardCode = require('./RewardCode');
-ClaimedReward.belongsTo(RewardCode, { 
-  foreignKey: 'id_code' 
-});
+// Las asociaciones se definen en index.js para evitar referencias circulares
 

@@ -23,6 +23,13 @@ const Reward = sequelize.define('Reward', {
     type: DataTypes.INTEGER,
     allowNull: false
   },
+  // Alias para facilitar queries
+  cost: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return this.getDataValue('cost_tokens');
+    }
+  },
   available: {
     type: DataTypes.BOOLEAN,
     allowNull: false
@@ -50,22 +57,5 @@ const Reward = sequelize.define('Reward', {
 
 module.exports = Reward;
 
-// Relaciones
-const ClaimedReward = require('./ClaimedReward');
-const Transaction = require('./Transaction');
-const User = require('./User');
-
-Reward.hasMany(ClaimedReward, { foreignKey: 'id_reward' });
-Reward.hasMany(Transaction, { foreignKey: 'id_reward' });
-
-Reward.belongsToMany(User, {
-  through: ClaimedReward,
-  foreignKey: 'id_reward',
-  otherKey: 'id_user'
-});
-
-const RewardCode = require('./RewardCode');
-Reward.hasMany(RewardCode, { 
-  foreignKey: 'id_reward' 
-});
+// Las asociaciones se definen en index.js para evitar referencias circulares
 

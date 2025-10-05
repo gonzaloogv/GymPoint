@@ -42,12 +42,5 @@ const Transaction = sequelize.define('Transaction', {
 
 module.exports = Transaction;
 
-// Relaciones
-const Reward = require('./Reward');
-const User = require('./User');
-
-Transaction.belongsTo(User, { foreignKey: 'id_user' });
-Transaction.belongsTo(Reward, { foreignKey: 'id_reward' });
-
-User.hasMany(Transaction, { foreignKey: 'id_user' });
-Reward.hasMany(Transaction, { foreignKey: 'id_reward' });
+// Relaciones con alias en minúsculas (lazy loading para evitar ciclos)
+// Las asociaciones se definen en index.js para evitar referencias circulares

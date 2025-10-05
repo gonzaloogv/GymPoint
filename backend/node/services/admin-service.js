@@ -350,7 +350,7 @@ const obtenerTransacciones = async (idUserProfile = null, options = {}) => {
     where,
     include: {
       model: UserProfile,
-      as: 'userProfile',
+      as: 'user',
       attributes: ['name', 'lastname'],
       include: {
         model: Account,
@@ -358,7 +358,7 @@ const obtenerTransacciones = async (idUserProfile = null, options = {}) => {
         attributes: ['email']
       }
     },
-    order: [['created_at', 'DESC']],
+    order: [['date', 'DESC']],
     limit,
     offset
   });
@@ -367,9 +367,9 @@ const obtenerTransacciones = async (idUserProfile = null, options = {}) => {
     transactions: rows.map(t => ({
       id_transaction: t.id_transaction,
       id_user_profile: t.id_user,
-      user: t.userProfile ? {
-        name: `${t.userProfile.name} ${t.userProfile.lastname}`,
-        email: t.userProfile.account?.email
+      user: t.user ? {
+        name: `${t.user.name} ${t.user.lastname}`,
+        email: t.user.account?.email
       } : null,
       amount: t.amount,
       description: t.description,

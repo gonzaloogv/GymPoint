@@ -111,7 +111,18 @@ UserProfile.hasMany(Assistance, {
 
 Assistance.belongsTo(UserProfile, {
   foreignKey: 'id_user',
-  as: 'userProfile'
+  as: 'user'
+});
+
+// Gym ←→ Assistance
+Gym.hasMany(Assistance, {
+  foreignKey: 'id_gym',
+  as: 'assistances'
+});
+
+Assistance.belongsTo(Gym, {
+  foreignKey: 'id_gym',
+  as: 'gym'
 });
 
 // UserProfile ←→ Progress
@@ -147,7 +158,7 @@ Routine.belongsTo(UserProfile, {
   as: 'creator'
 });
 
-// UserProfile ←→ ClaimedReward (sin FK física, solo en modelo)
+// UserProfile ←→ ClaimedReward
 UserProfile.hasMany(ClaimedReward, {
   foreignKey: 'id_user',
   as: 'claimedRewards'
@@ -155,7 +166,29 @@ UserProfile.hasMany(ClaimedReward, {
 
 ClaimedReward.belongsTo(UserProfile, {
   foreignKey: 'id_user',
-  as: 'userProfile'
+  as: 'user'
+});
+
+// Reward ←→ ClaimedReward
+Reward.hasMany(ClaimedReward, {
+  foreignKey: 'id_reward',
+  as: 'claimedRewards'
+});
+
+ClaimedReward.belongsTo(Reward, {
+  foreignKey: 'id_reward',
+  as: 'reward'
+});
+
+// RewardCode ←→ ClaimedReward
+RewardCode.hasMany(ClaimedReward, {
+  foreignKey: 'id_code',
+  as: 'claims'
+});
+
+ClaimedReward.belongsTo(RewardCode, {
+  foreignKey: 'id_code',
+  as: 'code'
 });
 
 // UserProfile ←→ Frequency (sin FK física, solo en modelo)
@@ -191,7 +224,7 @@ Streak.belongsTo(UserProfile, {
   as: 'userProfile'
 });
 
-// UserProfile ←→ Transaction (sin FK física, solo en modelo)
+// UserProfile ←→ Transaction
 UserProfile.hasMany(Transaction, {
   foreignKey: 'id_user',
   as: 'transactions'
@@ -199,7 +232,29 @@ UserProfile.hasMany(Transaction, {
 
 Transaction.belongsTo(UserProfile, {
   foreignKey: 'id_user',
-  as: 'userProfile'
+  as: 'user'
+});
+
+// Reward ←→ Transaction
+Reward.hasMany(Transaction, {
+  foreignKey: 'id_reward',
+  as: 'transactions'
+});
+
+Transaction.belongsTo(Reward, {
+  foreignKey: 'id_reward',
+  as: 'reward'
+});
+
+// Gym ←→ Reward
+Gym.hasMany(Reward, {
+  foreignKey: 'id_gym',
+  as: 'rewards'
+});
+
+Reward.belongsTo(Gym, {
+  foreignKey: 'id_gym',
+  as: 'gym'
 });
 
 // UserProfile ←→ UserGym (sin FK física, solo en modelo)

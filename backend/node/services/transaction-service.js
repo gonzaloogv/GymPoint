@@ -19,7 +19,7 @@ const obtenerTransaccionesPorUsuario = async (idUserProfile) => {
       },
       {
         model: UserProfile,
-        as: 'userProfile',
+        as: 'user',
         attributes: ['name', 'lastname'],
         required: false
       }

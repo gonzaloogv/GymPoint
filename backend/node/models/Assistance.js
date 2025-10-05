@@ -33,8 +33,5 @@ const Assistance = sequelize.define('Assistance', {
 });
 
 module.exports = Assistance;
-const Gym = require('./Gym');
 
-Assistance.belongsTo(Gym, {
-  foreignKey: 'id_gym'
-});
+// Las asociaciones se definen en index.js para evitar referencias circulares

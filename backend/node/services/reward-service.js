@@ -18,7 +18,7 @@ const listarRecompensas = async () => {
       start_date: { [Op.lte]: new Date() },
       finish_date: { [Op.gte]: new Date() }
     },
-    order: [['cost', 'ASC']]
+    order: [['cost_tokens', 'ASC']]
   });
 };
 
@@ -109,7 +109,7 @@ const obtenerHistorialRecompensas = async (idUserProfile) => {
       },
       {
         model: UserProfile,
-        as: 'userProfile',
+        as: 'user',
         attributes: ['name', 'lastname']
       }
     ],
