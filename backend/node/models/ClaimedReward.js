@@ -24,8 +24,16 @@ const ClaimedReward = sequelize.define('ClaimedReward', {
     allowNull: false
   },
   status: {
-    type: DataTypes.BOOLEAN,
+    type: DataTypes.ENUM('pending', 'redeemed', 'revoked'),
     allowNull: false
+  },
+  provider_snapshot: {
+    type: DataTypes.ENUM('system', 'gym'),
+    allowNull: true
+  },
+  gym_id_snapshot: {
+    type: DataTypes.BIGINT,
+    allowNull: true
   }
 }, {
   tableName: 'claimed_reward',
@@ -42,3 +50,4 @@ const RewardCode = require('./RewardCode');
 ClaimedReward.belongsTo(RewardCode, { 
   foreignKey: 'id_code' 
 });
+

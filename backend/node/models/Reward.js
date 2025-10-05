@@ -68,3 +68,4 @@ const RewardCode = require('./RewardCode');
 Reward.hasMany(RewardCode, { 
   foreignKey: 'id_reward' 
 });
+
