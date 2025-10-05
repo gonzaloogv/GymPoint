@@ -1,7 +1,7 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/gym-schedule-controller');
-const { verificarToken, verificarRolMultiple } = require('../middlewares/auth');
+const { verificarToken, verificarAdmin } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -38,9 +38,9 @@ const { verificarToken, verificarRolMultiple } = require('../middlewares/auth');
  *       201:
  *         description: Horario registrado correctamente
  *       400:
- *         description: Ya existe un horario para ese día y gimnasio
+ *         description: Ya existe un horario para ese dÃ­a y gimnasio
  */
-router.post('/', verificarToken, verificarRolMultiple(['ADMIN', 'GYM']), controller.crearHorario);
+router.post('/', verificarToken, verificarAdmin, controller.crearHorario);
 
 /**
  * @swagger
@@ -100,6 +100,6 @@ router.get('/:id_gym', controller.obtenerHorariosPorGimnasio);
  *       404:
  *         description: Horario no encontrado
  */
-router.put('/:id_schedule', verificarToken, verificarRolMultiple(['ADMIN', 'GYM']), controller.actualizarHorario);
+router.put('/:id_schedule', verificarToken, verificarAdmin, controller.actualizarHorario);
 
 module.exports = router;

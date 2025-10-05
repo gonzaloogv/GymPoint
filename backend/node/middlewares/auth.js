@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+﻿const jwt = require('jsonwebtoken');
 const { Account, Role, UserProfile, AdminProfile } = require('../models');
 
 const SECRET = process.env.JWT_SECRET || 'gympoint_secret_key';
@@ -71,7 +71,7 @@ const verificarToken = async (req, res, next) => {
     req.profile = account.userProfile || account.adminProfile;
     req.roles = account.roles.map(r => r.role_name);
     
-    // Retrocompatibilidad con código existente
+    // Retrocompatibilidad con cÃ³digo existente
     req.user = {
       id: decoded.id,
       id_account: account.id_account,
@@ -96,16 +96,16 @@ const verificarToken = async (req, res, next) => {
     return res.status(403).json({ 
       error: { 
         code: 'TOKEN_INVALID', 
-        message: 'Token inválido' 
+        message: 'Token invÃ¡lido' 
       } 
     });
   }
 };
 
 /**
- * Middleware: Verificar Rol Único
+ * Middleware: Verificar Rol Ãšnico
  * 
- * Verifica que el usuario tenga un rol específico.
+ * Verifica que el usuario tenga un rol especÃ­fico.
  * 
  * @param {string} rolRequerido - Rol requerido (USER, ADMIN)
  */
@@ -124,7 +124,7 @@ const verificarRol = (rolRequerido) => {
 };
 
 /**
- * Middleware: Verificar Múltiples Roles
+ * Middleware: Verificar MÃºltiples Roles
  * 
  * Verifica que el usuario tenga al menos uno de los roles especificados.
  * 
@@ -199,9 +199,9 @@ const verificarUsuarioApp = (req, res, next) => {
 };
 
 /**
- * Middleware: Verificar Suscripción
+ * Middleware: Verificar SuscripciÃ³n
  * 
- * Verifica que el usuario tenga una suscripción específica.
+ * Verifica que el usuario tenga una suscripciÃ³n especÃ­fica.
  * 
  * @param {string} nivelRequerido - Nivel requerido (FREE, PREMIUM)
  */
@@ -233,7 +233,7 @@ const verificarSuscripcion = (nivelRequerido) => {
       return res.status(403).json({ 
         error: { 
           code: 'PREMIUM_REQUIRED', 
-          message: 'Requiere suscripción Premium' 
+          message: 'Requiere suscripciÃ³n Premium' 
         } 
       });
     }
@@ -250,7 +250,7 @@ const verificarPremium = verificarSuscripcion('PREMIUM');
 /**
  * Middleware: Verificar Propiedad del Recurso
  * 
- * Verifica que el usuario sea dueño del recurso.
+ * Verifica que el usuario sea dueÃ±o del recurso.
  * El ID del recurso se obtiene de req.params.id o el campo especificado.
  * 
  * @param {string} idField - Campo del request que contiene el ID del propietario (default: 'id_user_profile')
@@ -288,7 +288,15 @@ const verificarPropiedad = (idField = 'id_user_profile') => {
   };
 };
 
+
+
+/**
+ * Alias simplificado para verificarRol
+ */
+const requireRole = verificarRol;
+
 module.exports = {
+  requireRole,
   verificarToken,
   verificarRol,
   verificarRolMultiple,
@@ -298,4 +306,6 @@ module.exports = {
   verificarPremium,
   verificarPropiedad
 };
+
+
 

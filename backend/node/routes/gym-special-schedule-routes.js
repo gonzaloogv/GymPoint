@@ -1,7 +1,7 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/gym-special-schedule-controller');
-const { verificarToken, verificarRolMultiple } = require('../middlewares/auth');
+const { verificarToken, verificarAdmin } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -44,7 +44,7 @@ const { verificarToken, verificarRolMultiple } = require('../middlewares/auth');
  *       400:
  *         description: Ya existe un horario especial para esa fecha
  */
-router.post('/', verificarToken, verificarRolMultiple(['ADMIN', 'GYM']), controller.crearHorarioEspecial);
+router.post('/', verificarToken, verificarAdmin, controller.crearHorarioEspecial);
 
 /**
  * @swagger
