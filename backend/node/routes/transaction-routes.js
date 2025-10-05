@@ -50,7 +50,7 @@ const { verificarToken, verificarUsuarioApp, verificarAdmin } = require('../midd
  *                         properties:
  *                           name:
  *                             type: string
- *                       userProfile:
+ *                       user:
  *                         type: object
  *                         properties:
  *                           name:
@@ -122,7 +122,7 @@ router.get('/me', verificarToken, verificarUsuarioApp, controller.obtenerTransac
  *                           name:
  *                             type: string
  *                             example: Pase 1 día
- *                       userProfile:
+ *                       user:
  *                         type: object
  *                         properties:
  *                           name:
