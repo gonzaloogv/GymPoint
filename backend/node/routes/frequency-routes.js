@@ -5,7 +5,7 @@ const { verificarToken, verificarUsuarioApp, verificarAdmin } = require('../midd
 
 /**
  * @swagger
- * /api/frecuencia:
+ * /api/frecuency:
  *   post:
  *     summary: Crear o actualizar la frecuencia semanal (meta de asistencias)
  *     description: Define la meta semanal de asistencias del usuario autenticado
@@ -59,7 +59,7 @@ router.post('/', verificarToken, verificarUsuarioApp, controller.crearMeta);
 
 /**
  * @swagger
- * /api/frecuencia/me:
+ * /api/frecuency/me:
  *   get:
  *     summary: Consultar el estado actual de la frecuencia semanal
  *     description: Retorna la meta semanal y el progreso del usuario autenticado

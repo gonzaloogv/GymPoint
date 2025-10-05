@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
-import { User } from '../domain/entities/User';
+import { User } from '../../domain/entities/User';
 
 type AuthState = {
   user: User | null;
