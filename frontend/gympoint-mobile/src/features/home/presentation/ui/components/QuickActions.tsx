@@ -30,7 +30,7 @@ export default function QuickActions({ onFindGyms, onMyRoutines }: Props) {
       description: 'Cerca de ti',
       icon: 'map-pin',
       color: palette.gymPrimary,
-      background: 'rgba(59, 130, 246, 0.12)',
+      background: palette.overlayBlue,
       onPress: onFindGyms ?? (() => navigation.navigate('Mapa')),
     },
     {
@@ -39,7 +39,7 @@ export default function QuickActions({ onFindGyms, onMyRoutines }: Props) {
       description: 'Entrenamientos',
       icon: 'activity',
       color: palette.lifestylePrimary,
-      background: 'rgba(16, 185, 129, 0.12)',
+      background: palette.overlayGreen,
       onPress: onMyRoutines ?? (() => navigation.navigate('Rutinas')),
     },
   ];

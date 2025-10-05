@@ -4,16 +4,10 @@
  */
 
 import React from 'react';
-import { Switch as RNSwitch } from 'react-native';
+import { View, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import {
-  Section,
-  SectionTitle,
-  BodyText,
-  SmallText,
-  SwitchRow,
-  SwitchRowLeft,
-} from '../styles/ProfileStyles';
+import { SwitchRow } from '@shared/components/ui';
+import { Section, SectionTitle } from '../styles/ProfileStyles';
 import { AppTheme } from '@presentation/theme';
 
 interface LocationSettingsProps {
@@ -32,24 +26,23 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
       {/* Título de la sección */}
       <SectionTitle theme={theme}>
         <Feather name="map-pin" size={16} color={theme.colors.text} />
-        <BodyText style={{ fontWeight: '600' }}>Ubicación</BodyText>
+        <Text style={{ fontWeight: '600', fontSize: 16 }}>Ubicación</Text>
       </SectionTitle>
 
       {/* Switch de ubicación */}
-      <SwitchRow theme={theme}>
-        <SwitchRowLeft>
-          <BodyText style={{ fontWeight: '500' }}>Acceso a ubicación</BodyText>
-          <SmallText muted style={{ opacity: 0.6 }}>
-            Para encontrar gimnasios cercanos
-          </SmallText>
-        </SwitchRowLeft>
-        <RNSwitch
+      <View>
+        <Text style={{ fontWeight: '500', fontSize: 16, marginBottom: 4 }}>
+          Acceso a ubicación
+        </Text>
+        <Text style={{ fontSize: 12, opacity: 0.6, color: '#666', marginBottom: 8 }}>
+          Para encontrar gimnasios cercanos
+        </Text>
+        <SwitchRow
+          label="Activar ubicación"
           value={locationEnabled}
           onValueChange={onToggle}
-          trackColor={{ false: '#D1D5DB', true: '#4F9CF9' }}
-          thumbColor="#FFFFFF"
         />
-      </SwitchRow>
+      </View>
     </Section>
   );
 };

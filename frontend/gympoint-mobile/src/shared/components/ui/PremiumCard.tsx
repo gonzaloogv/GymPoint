@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { Card } from './Card';
 import { Button } from './Button';
 import { ButtonText } from './Button';
+import { palette } from '@shared/styles';
 
 const CardContent = styled.View`
   align-items: center;
@@ -14,7 +15,7 @@ const IconContainer = styled.View`
   width: 48px;
   height: 48px;
   border-radius: 24px;
-  background-color: #F3E8FF;
+  background-color: ${palette.premiumBg};
   align-items: center;
   justify-content: center;
   margin-bottom: ${({ theme }) => theme.spacing(1)}px;
@@ -23,13 +24,13 @@ const IconContainer = styled.View`
 const Title = styled.Text`
   font-size: ${({ theme }) => theme.typography.h2}px;
   font-weight: 700;
-  color: #7C3AED;
+  color: ${palette.premiumLight};
   text-align: center;
 `;
 
 const Description = styled.Text`
   font-size: ${({ theme }) => theme.typography.body}px;
-  color: #7C3AED;
+  color: ${palette.premiumLight};
   text-align: center;
   opacity: 0.8;
   margin-bottom: ${({ theme }) => theme.spacing(1)}px;
@@ -51,7 +52,7 @@ const BenefitBullet = styled.View`
   width: 6px;
   height: 6px;
   border-radius: 3px;
-  background-color: #9333EA;
+  background-color: ${palette.premiumDark};
 `;
 
 const BenefitText = styled.Text`
@@ -78,15 +79,15 @@ export function PremiumCard({
   icon = "gift"
 }: Props) {
   return (
-    <Card style={{ borderColor: '#C084FC', borderWidth: 1 }}>
+    <Card style={{ borderColor: palette.premiumBorderAlt, borderWidth: 1 }}>
       <CardContent>
         <IconContainer>
-          <Feather name={icon as any} size={24} color="#7C3AED" />
+          <Feather name={icon as any} size={24} color={palette.premiumLight} />
         </IconContainer>
-        
+
         <Title>{title}</Title>
         <Description>{description}</Description>
-        
+
         <BenefitsList>
           {benefits.map((benefit, index) => (
             <BenefitItem key={index}>
@@ -95,8 +96,8 @@ export function PremiumCard({
             </BenefitItem>
           ))}
         </BenefitsList>
-        
-        <Button onPress={onButtonPress} style={{ backgroundColor: '#7C3AED' }}>
+
+        <Button onPress={onButtonPress} style={{ backgroundColor: palette.premiumLight }}>
           <ButtonText style={{ color: '#FFFFFF' }}>{buttonText}</ButtonText>
         </Button>
       </CardContent>

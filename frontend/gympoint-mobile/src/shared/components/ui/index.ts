@@ -4,6 +4,7 @@
  */
 
 export * from './ActionCard';
+export * from './AlertCard';
 export * from './Avatar';
 export * from './BadgeDot';
 export * from './BannerCard';
@@ -19,6 +20,7 @@ export * from './FilterSheet';
 export * from './FloatingActionBar';
 export * from './FormField';
 export * from './GeneratedCodeCard';
+export * from './GradientCard';
 export * from './IndexBadge';
 export * from './Input';
 export * from './ListItem';
@@ -40,6 +42,7 @@ export * from './SetPill';
 export * from './StatusPill';
 export * from './StatsCard';
 export * from './StreakDisplay';
+export * from './SwitchRow';
 export * from './TabPill';
 export * from './Text';
 export * from './TipsBanner';

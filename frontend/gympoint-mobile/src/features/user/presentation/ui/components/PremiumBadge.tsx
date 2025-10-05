@@ -4,9 +4,10 @@
  */
 
 import React from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { GradientCard, BodyText, SmallText } from '../styles/ProfileStyles';
+import { GradientCard } from '@shared/components/ui';
+import { palette } from '@shared/styles';
 import { AppTheme } from '@presentation/theme';
 
 interface PremiumBadgeProps {
@@ -25,16 +26,16 @@ export const PremiumBadge: React.FC<PremiumBadgeProps> = ({ theme }) => {
           marginBottom: 8,
         }}
       >
-        <Feather name="award" size={16} color="#9333EA" />
-        <BodyText style={{ fontWeight: '600', color: '#7C3AED' }}>
+        <Feather name="award" size={16} color={palette.premiumDark} />
+        <Text style={{ fontWeight: '600', color: palette.premiumLight, fontSize: 16 }}>
           Usuario Premium
-        </BodyText>
+        </Text>
       </View>
 
       {/* Mensaje de agradecimiento */}
-      <SmallText style={{ color: '#7C3AED' }}>
+      <Text style={{ color: palette.premiumLight, fontSize: 14 }}>
         Disfrutás de todos los beneficios Premium. ¡Gracias por tu apoyo!
-      </SmallText>
+      </Text>
     </GradientCard>
   );
 };

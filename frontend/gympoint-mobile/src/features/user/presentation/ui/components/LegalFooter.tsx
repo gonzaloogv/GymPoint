@@ -4,8 +4,8 @@
  */
 
 import React from 'react';
-import { View, TouchableOpacity } from 'react-native';
-import { Card, SmallText } from '../styles/ProfileStyles';
+import { View, TouchableOpacity, Text } from 'react-native';
+import { Card } from '@shared/components/ui';
 import { AppTheme } from '@presentation/theme';
 
 interface LegalFooterProps {
@@ -14,7 +14,7 @@ interface LegalFooterProps {
 
 export const LegalFooter: React.FC<LegalFooterProps> = ({ theme }) => {
   return (
-    <Card theme={theme}>
+    <Card>
       <View style={{ alignItems: 'center' }}>
         {/* Enlaces legales */}
         <View
@@ -25,22 +25,22 @@ export const LegalFooter: React.FC<LegalFooterProps> = ({ theme }) => {
           }}
         >
           <TouchableOpacity>
-            <SmallText style={{ opacity: 0.6 }}>Términos de Uso</SmallText>
+            <Text style={{ fontSize: 14, opacity: 0.6 }}>Términos de Uso</Text>
           </TouchableOpacity>
 
           <TouchableOpacity>
-            <SmallText style={{ opacity: 0.6 }}>Privacidad</SmallText>
+            <Text style={{ fontSize: 14, opacity: 0.6 }}>Privacidad</Text>
           </TouchableOpacity>
 
           <TouchableOpacity>
-            <SmallText style={{ opacity: 0.6 }}>Soporte</SmallText>
+            <Text style={{ fontSize: 14, opacity: 0.6 }}>Soporte</Text>
           </TouchableOpacity>
         </View>
 
         {/* Versión de la app */}
-        <SmallText style={{ fontSize: 12, opacity: 0.4 }}>
+        <Text style={{ fontSize: 12, opacity: 0.4 }}>
           GymPoint v1.0.0
-        </SmallText>
+        </Text>
       </View>
     </Card>
   );

@@ -37,16 +37,3 @@ const RewardCode = sequelize.define('RewardCode', {
 });
 
 module.exports = RewardCode;
-const Reward = require('./Reward');
-const ClaimedReward = require('./ClaimedReward');
-const Gym = require('./Gym');
-
-RewardCode.belongsTo(Reward, {
-    foreignKey: 'id_reward'
-});
-RewardCode.belongsTo(Gym, { 
-    foreignKey: 'id_gym' 
-});
-RewardCode.hasOne(ClaimedReward, {
-  foreignKey: 'id_code'
-});

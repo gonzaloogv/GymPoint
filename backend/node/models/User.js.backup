@@ -81,3 +81,35 @@ const User = sequelize.define('User', {
 });
 
 module.exports = User;
+const Routine = require('./Routine');
+const UserRoutine = require('./UserRoutine');
+
+User.belongsToMany(Routine, {
+  through: UserRoutine,
+  foreignKey: 'id_user',
+  otherKey: 'id_routine'
+});
+const Reward = require('./Reward');
+const ClaimedReward = require('./ClaimedReward');
+
+User.belongsToMany(Reward, {
+  through: ClaimedReward,
+  foreignKey: 'id_user',
+  otherKey: 'id_reward'
+});
+const Transaction = require('./Transaction');
+User.hasMany(Transaction, { 
+  foreignKey: 'id_user' 
+});
+const UserGym = require('./UserGym');
+User.hasMany(UserGym, { 
+  foreignKey: 'id_user' 
+});
+const Frequency = require('./Frequency');
+User.hasOne(Frequency, { 
+  foreignKey: 'id_user' 
+});
+const GymPayment = require('./GymPayment');
+User.hasMany(GymPayment, { 
+  foreignKey: 'id_user' 
+});

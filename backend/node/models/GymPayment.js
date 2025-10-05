@@ -37,12 +37,3 @@ const GymPayment = sequelize.define('GymPayment', {
 });
 
 module.exports = GymPayment;
-const User = require('./User');
-const Gym = require('./Gym');
-
-GymPayment.belongsTo(User, { 
-    foreignKey: 'id_user' 
-});
-GymPayment.belongsTo(Gym, { 
-    foreignKey: 'id_gym' 
-});

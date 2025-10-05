@@ -4,8 +4,9 @@
  */
 
 import React from 'react';
+import { Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Card, SectionTitle, Title } from '../styles/ProfileStyles';
+import { Card } from '@shared/components/ui';
 import { NotificationSettings } from './NotificationSettings';
 import { LocationSettings } from './LocationSettings';
 import { NotificationSettings as NotificationSettingsType } from '../types/UserTypes';
@@ -30,12 +31,14 @@ export const SettingsCard: React.FC<SettingsCardProps> = ({
   theme,
 }) => {
   return (
-    <Card theme={theme}>
+    <Card>
       {/* Título principal del card */}
-      <SectionTitle theme={theme}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}>
         <Feather name="settings" size={20} color={theme.colors.text} />
-        <Title theme={theme}>Configuración</Title>
-      </SectionTitle>
+        <Text style={{ fontSize: 18, fontWeight: '700', color: theme.colors.text }}>
+          Configuración
+        </Text>
+      </View>
 
       {/* Configuraciones de notificaciones */}
       <NotificationSettings

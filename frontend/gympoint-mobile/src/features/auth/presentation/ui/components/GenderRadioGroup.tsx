@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
+import { GENDER_OPTIONS } from '@shared/constants';
 
 const Container = styled(View)`
   gap: 12px;
@@ -23,9 +24,9 @@ const RadioCircle = styled(View)<{ $selected: boolean }>`
   height: 20px;
   border-radius: 10px;
   border-width: 2px;
-  border-color: ${({ theme, $selected }) => 
+  border-color: ${({ theme, $selected }) =>
     $selected ? theme.colors.primary : theme.colors.border};
-  background-color: ${({ theme, $selected }) => 
+  background-color: ${({ theme, $selected }) =>
     $selected ? theme.colors.primary : 'transparent'};
   align-items: center;
   justify-content: center;
@@ -48,18 +49,11 @@ interface Props {
   onChange: (gender: string) => void;
 }
 
-const genderOptions = [
-  { value: 'male', label: 'Hombre' },
-  { value: 'female', label: 'Mujer' },
-  { value: 'other', label: 'Otro' },
-  { value: 'prefer-not-to-say', label: 'Prefiero no decir' },
-];
-
 export function GenderRadioGroup({ value, onChange }: Props) {
   return (
     <Container>
       <Row>
-        {genderOptions.map((option) => (
+        {GENDER_OPTIONS.map((option) => (
           <RadioButton
             key={option.value}
             $selected={value === option.value}
