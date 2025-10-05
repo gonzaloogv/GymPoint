@@ -9,6 +9,8 @@ const { verificarToken } = require('../middlewares/auth');
  *   post:
  *     summary: Dar de alta a un usuario en un gimnasio
  *     tags: [Membresías]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -19,15 +21,80 @@ const { verificarToken } = require('../middlewares/auth');
  *             properties:
  *               id_gym:
  *                 type: integer
+ *                 description: ID del gimnasio
  *                 example: 2
  *               plan:
  *                 type: string
- *                 example: "completo"
- *     security:
- *       - bearerAuth: []
+ *                 description: Plan de membresía (case-insensitive)
+ *                 enum:
+ *                   - MENSUAL
+ *                   - SEMANAL
+ *                   - ANUAL
+ *                 example: mensual
  *     responses:
- *       200:
+ *       201:
  *         description: Usuario dado de alta correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Alta en gimnasio realizada con éxito
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id_user:
+ *                       type: integer
+ *                     id_gym:
+ *                       type: integer
+ *                     plan:
+ *                       type: string
+ *                       example: MENSUAL
+ *                     active:
+ *                       type: boolean
+ *                     start_date:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Faltan datos requeridos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: MISSING_FIELDS
+ *                     message:
+ *                       type: string
+ *       401:
+ *         description: Token no válido
+ *       422:
+ *         description: Plan inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: INVALID_PLAN
+ *                     message:
+ *                       type: string
+ *                       example: Plan inválido. Valores aceptados MENSUAL, SEMANAL, ANUAL
+ *                     accepted_values:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: [MENSUAL, SEMANAL, ANUAL]
  */
 router.post('/alta', verificarToken, controller.darAltaEnGimnasio);
 

@@ -25,8 +25,9 @@ const UserGym = sequelize.define('UserGym', {
     allowNull: false
   },
   plan: {
-    type: DataTypes.STRING(50),
-    allowNull: false
+    type: DataTypes.ENUM('MENSUAL', 'SEMANAL', 'ANUAL'),
+    allowNull: false,
+    defaultValue: 'MENSUAL'
   }
 }, {
   tableName: 'user_gym',
