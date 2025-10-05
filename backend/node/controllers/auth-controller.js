@@ -14,11 +14,14 @@ const register = async (req, res) => {
     
     // Retornar datos para el cliente
     res.status(201).json({
-      id: result.id_user,
-      email: result.email,
-      name: result.name,
-      lastname: result.lastname,
-      subscription: result.subscription
+      message: 'Usuario registrado con éxito',
+      data: {
+        id: result.id_user,
+        email: result.email,
+        name: result.name,
+        lastname: result.lastname,
+        subscription: result.subscription
+      }
     });
   } catch (err) {
     res.status(400).json({ 
@@ -62,7 +65,10 @@ const login = async (req, res) => {
       }
     }
 
-    res.json({ accessToken: token, refreshToken, user });
+    res.json({
+      message: 'Login exitoso',
+      data: { accessToken: token, refreshToken, user }
+    });
   } catch (err) {
     res.status(401).json({ 
       error: {
@@ -103,10 +109,13 @@ const googleLogin = async (req, res) => {
       roles: account.roles.map(r => r.role_name)
     };
 
-    res.json({ 
-      accessToken: token, 
-      refreshToken, 
-      user 
+    res.json({
+      message: 'Login con Google exitoso',
+      data: { 
+        accessToken: token, 
+        refreshToken, 
+        user 
+      }
     });
   } catch (err) {
     res.status(401).json({ 
@@ -136,7 +145,10 @@ const refreshAccessToken = async (req, res) => {
   try {
     // Usar el nuevo método del service
     const result = await authService.refreshAccessToken(token);
-    res.json(result);
+    res.json({
+      message: 'Token refrescado con éxito',
+      data: result
+    });
   } catch (err) {
     res.status(401).json({ 
       error: {
