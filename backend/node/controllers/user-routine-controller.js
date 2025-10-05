@@ -30,8 +30,8 @@ const getActiveRoutine = async (req, res) => {
     const id_user = req.user.id_user_profile;
     const routine = await userRoutineService.getActiveRoutine(id_user);
     res.json({
-      message: 'Rutina activa obtenida con éxito',
-      data: routine
+      data: routine,
+      message: 'Rutina activa obtenida con éxito'
     });
   } catch (err) {
     res.status(404).json({
@@ -48,8 +48,8 @@ const endUserRoutine = async (req, res) => {
     const id_user = req.user.id_user_profile;
     const routine = await userRoutineService.endUserRoutine(id_user);
     res.json({
-      message: 'Rutina finalizada con éxito',
-      data: routine
+      data: routine,
+      message: 'Rutina finalizada con éxito'
     });
   } catch (err) {
     res.status(404).json({
@@ -66,8 +66,8 @@ const getActiveRoutineWithExercises = async (req, res) => {
     const id_user = req.user.id_user_profile;
     const routine = await userRoutineService.getActiveRoutineWithExercises(id_user);
     res.json({
-      message: 'Rutina activa con ejercicios obtenida con éxito',
-      data: routine
+      data: routine,
+      message: 'Rutina activa con ejercicios obtenida con éxito'
     });
   } catch (err) {
     res.status(404).json({

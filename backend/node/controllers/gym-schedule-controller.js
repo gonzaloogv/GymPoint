@@ -16,18 +16,18 @@ const crearHorario = async (req, res) => {
       closed
     });
 
-    res.status(201).json(horario);
+    res.status(201).json({ data: horario, message: 'Horario creado con éxito' });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: { code: 'CREATE_SCHEDULE_FAILED', message: err.message } });
   }
 };
 
 const obtenerHorariosPorGimnasio = async (req, res) => {
   try {
     const horarios = await gymScheduleService.obtenerHorariosPorGimnasio(req.params.id_gym);
-    res.json(horarios);
+    res.json({ data: horarios, message: 'Horarios obtenidos con éxito' });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: { code: 'GET_SCHEDULE_FAILED', message: err.message } });
   }
 };
 
@@ -37,9 +37,9 @@ const actualizarHorario = async (req, res) => {
       const data = req.body;
   
       const actualizado = await gymScheduleService.actualizarHorario(id_schedule, data);
-      res.json(actualizado);
+      res.json({ data: actualizado, message: 'Horario actualizado con éxito' });
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json({ error: { code: 'UPDATE_SCHEDULE_FAILED', message: err.message } });
     }
 };
   

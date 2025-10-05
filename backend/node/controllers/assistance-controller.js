@@ -28,8 +28,8 @@ const registrarAsistencia = async (req, res) => {
     });
 
     return res.status(201).json({
-      message: 'Asistencia registrada con éxito',
-      data: resultado
+      data: resultado,
+      message: 'Asistencia registrada con éxito'
     });
   } catch (err) {
     console.error('Error en registrarAsistencia:', err.message);
@@ -53,8 +53,8 @@ const obtenerHistorialAsistencias = async (req, res) => {
     const historial = await assistanceService.obtenerHistorialAsistencias(id_user_profile);
     
     res.json({
-      message: 'Historial de asistencias obtenido con éxito',
-      data: historial
+      data: historial,
+      message: 'Historial de asistencias obtenido con éxito'
     });
   } catch (err) {
     res.status(400).json({ 

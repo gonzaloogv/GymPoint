@@ -20,8 +20,8 @@ const obtenerResumenTokens = async (req, res) => {
     const id_user = req.user.id_user_profile;
     const data = await tokenService.obtenerResumenTokens(id_user);
     res.json({
-      message: 'Resumen de tokens obtenido con éxito',
-      data
+      data,
+      message: 'Resumen de tokens obtenido con éxito'
     });
   } catch (err) {
     res.status(404).json({

@@ -16,18 +16,18 @@ const crearHorarioEspecial = async (req, res) => {
       motive
     });
 
-    res.status(201).json(resultado);
+    res.status(201).json({ data: resultado, message: 'Horario especial creado con éxito' });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: { code: 'CREATE_SPECIAL_SCHEDULE_FAILED', message: err.message } });
   }
 };
 
 const obtenerHorariosEspecialesPorGimnasio = async (req, res) => {
   try {
     const resultado = await service.obtenerHorariosEspecialesPorGimnasio(req.params.id_gym);
-    res.json(resultado);
+    res.json({ data: resultado, message: 'Horarios especiales obtenidos con éxito' });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: { code: 'GET_SPECIAL_SCHEDULE_FAILED', message: err.message } });
   }
 };
 

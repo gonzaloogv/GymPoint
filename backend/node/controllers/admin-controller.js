@@ -8,7 +8,7 @@ const userService = require('../services/user-service');
 const obtenerEstadisticas = async (req, res) => {
   try {
     const stats = await adminService.obtenerEstadisticas();
-    res.json(stats);
+    res.json({ data: stats, message: 'Estadísticas generales obtenidas con éxito' });
   } catch (err) {
     res.status(500).json({
       error: {
@@ -28,7 +28,10 @@ const obtenerEstadisticas = async (req, res) => {
 const listarUsuarios = async (req, res) => {
   try {
     const result = await adminService.listarUsuarios(req.query);
-    res.json(result);
+    res.json({
+      data: result,
+      message: 'Usuarios obtenidos con éxito'
+    });
   } catch (err) {
     res.status(500).json({
       error: {
@@ -59,7 +62,7 @@ const buscarUsuario = async (req, res) => {
     }
 
     const user = await adminService.buscarUsuarioPorEmail(email);
-    res.json(user);
+    res.json({ data: user, message: 'Usuario obtenido con éxito' });
   } catch (err) {
     res.status(404).json({
       error: {
@@ -97,10 +100,13 @@ const otorgarTokens = async (req, res) => {
     );
 
     res.json({
-      id_user_profile: parseInt(id),
-      new_balance: newBalance,
-      delta: parseInt(delta),
-      reason: reason || 'Admin adjustment'
+      data: {
+        id_user_profile: parseInt(id),
+        new_balance: newBalance,
+        delta: parseInt(delta),
+        reason: reason || 'Admin adjustment'
+      },
+      message: 'Tokens otorgados con éxito'
     });
   } catch (err) {
     res.status(400).json({
@@ -137,7 +143,7 @@ const actualizarSuscripcion = async (req, res) => {
       subscription
     );
 
-    res.json(result);
+    res.json({ data: result, message: 'Suscripción actualizada con éxito' });
   } catch (err) {
     res.status(400).json({
       error: {
@@ -158,8 +164,10 @@ const desactivarUsuario = async (req, res) => {
     await adminService.desactivarCuenta(parseInt(id));
 
     res.json({
-      message: 'Usuario desactivado correctamente',
-      id_account: parseInt(id)
+      data: {
+        id_account: parseInt(id)
+      },
+      message: 'Usuario desactivado correctamente'
     });
   } catch (err) {
     res.status(400).json({
@@ -181,8 +189,10 @@ const activarUsuario = async (req, res) => {
     await adminService.activarCuenta(parseInt(id));
 
     res.json({
-      message: 'Usuario activado correctamente',
-      id_account: parseInt(id)
+      data: {
+        id_account: parseInt(id)
+      },
+      message: 'Usuario activado correctamente'
     });
   } catch (err) {
     res.status(400).json({
@@ -204,7 +214,7 @@ const obtenerActividad = async (req, res) => {
   try {
     const days = req.query.days ? parseInt(req.query.days) : 7;
     const activity = await adminService.obtenerActividadReciente(days);
-    res.json(activity);
+    res.json({ data: activity, message: 'Actividad obtenida con éxito' });
   } catch (err) {
     res.status(500).json({
       error: {
@@ -230,7 +240,7 @@ const obtenerTransacciones = async (req, res) => {
     };
 
     const result = await adminService.obtenerTransacciones(userId, options);
-    res.json(result);
+    res.json({ data: result, message: 'Transacciones obtenidas con éxito' });
   } catch (err) {
     res.status(500).json({
       error: {
@@ -250,14 +260,17 @@ const obtenerPerfilAdmin = async (req, res) => {
     const adminProfile = req.profile; // Ya cargado por middleware
 
     res.json({
-      id_admin_profile: adminProfile.id_admin_profile,
-      id_account: adminProfile.id_account,
-      email: req.account.email,
-      name: adminProfile.name,
-      lastname: adminProfile.lastname,
-      department: adminProfile.department,
-      notes: adminProfile.notes,
-      created_at: adminProfile.created_at
+      data: {
+        id_admin_profile: adminProfile.id_admin_profile,
+        id_account: adminProfile.id_account,
+        email: req.account.email,
+        name: adminProfile.name,
+        lastname: adminProfile.lastname,
+        department: adminProfile.department,
+        notes: adminProfile.notes,
+        created_at: adminProfile.created_at,
+    },
+      message: 'Perfil del admin obtenido con éxito'
     });
   } catch (err) {
     res.status(500).json({
