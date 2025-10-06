@@ -29,3 +29,18 @@ const Exercise = sequelize.define('Exercise', {
 });
 
 module.exports = Exercise;
+const Routine = require('./Routine');
+const RoutineExercise = require('./RoutineExercise');
+Exercise.belongsToMany(Routine, {
+  through: RoutineExercise,
+  foreignKey: 'id_exercise',
+  otherKey: 'id_routine'
+});
+
+const Progress = require('./Progress');
+const ProgressExercise = require('./ProgressExercise');
+Exercise.belongsToMany(Progress, {
+    through: ProgressExercise,
+    foreignKey: 'id_exercise',
+    otherKey: 'id_progress'
+  });

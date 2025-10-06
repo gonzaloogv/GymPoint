@@ -35,4 +35,12 @@ const UserGym = sequelize.define('UserGym', {
 });
 
 module.exports = UserGym;
+const Gym = require('./Gym');
+UserGym.belongsTo(Gym, { 
+    foreignKey: 'id_gym' 
+});
+const User = require('./User');
+UserGym.belongsTo(User, { 
+    foreignKey: 'id_user' 
+});
 

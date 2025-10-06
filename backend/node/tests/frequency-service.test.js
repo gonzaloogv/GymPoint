@@ -1,11 +1,13 @@
+jest.mock('../models', () => ({ UserProfile: {} }));
 jest.mock('../models/Frequency', () => ({
-    findOne: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn()
+  findOne: jest.fn(),
+  findByPk: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn()
 }));
 
 const frequencyService = require('../services/frequency-service');
-const {Frequency} = require('../models');
+const Frequency = require('../models/Frequency');
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -49,6 +51,7 @@ describe('actualizarAsistenciaSemanal', () => {
     expect(freq.save).toHaveBeenCalled();
   });
 });
+
 describe('reiniciarSemana', () => {
   it('resets all frequencies', async () => {
     await frequencyService.reiniciarSemana();
@@ -66,7 +69,14 @@ describe('consultarMetaSemanal', () => {
 
     const result = await frequencyService.consultarMetaSemanal(1);
 
-    expect(Frequency.findOne).toHaveBeenCalledWith({ where: { id_user: 1 } });
+    expect(Frequency.findOne).toHaveBeenCalledWith({
+      where: { id_user: 1 },
+      include: {
+        model: expect.any(Object),
+        as: 'userProfile',
+        attributes: ['name', 'lastname']
+      }
+    });
     expect(result).toBe(freq);
   });
 
@@ -75,4 +85,24 @@ describe('consultarMetaSemanal', () => {
     await expect(frequencyService.consultarMetaSemanal(2))
       .rejects.toThrow('El usuario no tiene una meta semanal asignada.');
   });
-})
+});
+
+describe('actualizarUsuarioFrecuencia', () => {
+  it('actualiza id_user cuando la frecuencia existe', async () => {
+    const freq = { save: jest.fn() };
+    Frequency.findByPk.mockResolvedValue(freq);
+
+    const result = await frequencyService.actualizarUsuarioFrecuencia(1, 20);
+
+    expect(freq.id_user).toBe(20);
+    expect(freq.save).toHaveBeenCalled();
+    expect(result).toBe(freq);
+  });
+
+  it('lanza error si la frecuencia no existe', async () => {
+    Frequency.findByPk.mockResolvedValue(null);
+
+    await expect(frequencyService.actualizarUsuarioFrecuencia(1, 20))
+      .rejects.toThrow('Frecuencia no encontrada');
+  });
+});

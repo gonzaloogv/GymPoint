@@ -32,3 +32,8 @@ const Exercise = require('./Exercise');
 const ProgressExercise = require('./ProgressExercise');
 
 module.exports = Progress;
+Progress.belongsToMany(Exercise, {
+  through: ProgressExercise,
+  foreignKey: 'id_progress',
+  otherKey: 'id_exercise'
+});

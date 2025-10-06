@@ -67,8 +67,8 @@ const buscarGimnasiosCercanos = async (req, res) => {
     );
     
     res.json({
-      data: resultado,
       message: 'Gimnasios cercanos obtenidos con éxito',
+      data: resultado,
       meta: {
         total: resultado.length,
         center: { lat: parseFloat(lat), lng: parseFloat(longitude) },
@@ -92,15 +92,15 @@ const getGymsByCity = async (req, res) => {
     if (!city) return res.status(400).json({ error: 'Parámetro city requerido' });
 
     const gyms = await gymService.getGymsByCity(city);
-    res.json({ data: gyms, message: 'Gimnasios obtenidos con éxito' });
+    res.json(gyms);
   } catch (err) {
-    res.status(500).json({ error: { code: 'GET_GYM_TYPES_FAILED', message: err.message } });
+    res.status(500).json({ error: err.message });
   }
 };
 
 const filtrarGimnasios = async (req, res) => {
   try {
-    const id_user = req.user.id_user_profile;
+    const id_user = req.user.id;
     const rol = req.user.rol;// 'FREE' o 'PREMIUM'
 
     const { city, type, minPrice, maxPrice } = req.query;
@@ -122,13 +122,13 @@ const filtrarGimnasios = async (req, res) => {
 
     res.json({ gimnasios: resultados, advertencia });
   } catch (err) {
-    res.status(400).json({ error: { code: 'GET_GYM_TYPES_FAILED', message: err.message } });
+    res.status(400).json({ error: err.message });
   }
 };
 
 const getGymTypes = (req, res) => {
   const tipos = gymService.getGymTypes();
-  res.json({ data: tipos, message: 'Tipos de gimnasio obtenidos con éxito' });
+  res.json(tipos);
 };
 
 

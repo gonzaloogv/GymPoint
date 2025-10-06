@@ -7,8 +7,8 @@ const userService = require('../services/user-service');
 const obtenerPerfil = async (req, res) => {
   try {
     // req.user.id contiene id_account gracias al middleware
-    const usuario = await userService.obtenerUsuario(req.user.id_user_profile);
-    res.json({ message: 'Usuario obtenido con éxito', data: usuario });
+    const usuario = await userService.obtenerUsuario(req.user.id);
+    res.json(usuario);
   } catch (err) {
     res.status(404).json({ 
       error: {
@@ -40,7 +40,7 @@ const actualizarPerfil = async (req, res) => {
     }
 
     const usuario = await userService.actualizarPerfil(idUserProfile, req.body);
-    res.json({ message: 'Perfil actualizado con éxito', data: usuario });
+    res.json(usuario);
   } catch (err) {
     res.status(400).json({ 
       error: {
@@ -71,7 +71,7 @@ const actualizarEmail = async (req, res) => {
     }
 
     const result = await userService.actualizarEmail(req.user.id_account, email);
-    res.json({ message: 'Email actualizado con éxito', data: result });
+    res.json(result);
   } catch (err) {
     res.status(400).json({ 
       error: {
@@ -108,7 +108,7 @@ const obtenerUsuarioPorId = async (req, res) => {
   try {
     const { id } = req.params;
     const usuario = await userService.obtenerPerfilPorId(parseInt(id));
-    res.json({ message: 'Usuario obtenido con éxito', data: usuario });
+    res.json(usuario);
   } catch (err) {
     res.status(404).json({ 
       error: {
@@ -185,7 +185,7 @@ const actualizarSuscripcion = async (req, res) => {
       subscription
     );
 
-    res.json({ message: 'Suscripción actualizada con éxito', data: result });
+    res.json(result);
   } catch (err) {
     res.status(400).json({ 
       error: {

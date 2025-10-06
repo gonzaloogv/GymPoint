@@ -1,8 +1,9 @@
+jest.mock('../models', () => ({ UserProfile: {} }));
 jest.mock('../models/Transaction', () => ({ findAll: jest.fn() }));
 jest.mock('../models/Reward', () => ({}));
 
 const service = require('../services/transaction-service');
-const {Transaction} = require('../models');
+const Transaction = require('../models/Transaction');
 
 beforeEach(() => { jest.clearAllMocks(); });
 

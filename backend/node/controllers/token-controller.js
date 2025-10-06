@@ -17,19 +17,11 @@ const otorgarTokens = async (req, res) => {
 
 const obtenerResumenTokens = async (req, res) => {
   try {
-    const id_user = req.user.id_user_profile;
+    const id_user = req.user.id;
     const data = await tokenService.obtenerResumenTokens(id_user);
-    res.json({
-      data,
-      message: 'Resumen de tokens obtenido con éxito'
-    });
+    res.json(data);
   } catch (err) {
-    res.status(404).json({
-      error: {
-        code: 'GET_TOKEN_SUMMARY_FAILED',
-        message: err.message
-      }
-    });
+    res.status(404).json({ error: err.message });
   }
 };
 

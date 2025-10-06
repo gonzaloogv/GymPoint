@@ -10,8 +10,8 @@ const listarRecompensas = async (req, res) => {
     const recompensas = await rewardService.listarRecompensas();
     
     res.json({
-      data: recompensas,
-      message: 'Recompensas obtenidas con éxito'
+      message: 'Recompensas obtenidas con éxito',
+      data: recompensas
     });
   } catch (err) {
     res.status(500).json({ 
@@ -49,7 +49,7 @@ const canjearRecompensa = async (req, res) => {
     });
     
     res.status(201).json({
-      message: result.message,
+      message: result.mensaje,
       data: {
         claimed: result.claimed,
         codigo: result.codigo,
@@ -77,8 +77,8 @@ const obtenerHistorialRecompensas = async (req, res) => {
     const historial = await rewardService.obtenerHistorialRecompensas(id_user_profile);
     
     res.json({
-      data: historial,
-      message: 'Historial de recompensas obtenido con éxito'
+      message: 'Historial de recompensas obtenido con éxito',
+      data: historial
     });
   } catch (err) {
     res.status(400).json({ 
@@ -100,8 +100,8 @@ const obtenerEstadisticasDeRecompensas = async (req, res) => {
     const estadisticas = await rewardService.obtenerEstadisticasDeRecompensas();
     
     res.json({
-      data: estadisticas,
-      message: 'Estadísticas de recompensas obtenidas con éxito'
+      message: 'Estadísticas de recompensas obtenidas con éxito',
+      data: estadisticas
     });
   } catch (err) {
     res.status(400).json({ 
@@ -142,8 +142,8 @@ const crearRecompensa = async (req, res) => {
     });
 
     res.status(201).json({
-      data: recompensa,
-      message: 'Recompensa creada con éxito'
+      message: 'Recompensa creada con éxito',
+      data: recompensa
     });
   } catch (err) {
     res.status(400).json({ 

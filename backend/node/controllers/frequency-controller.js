@@ -2,7 +2,7 @@ const frequencyService = require('../services/frequency-service');
 
 const crearMeta = async (req, res) => {
   try {
-    const id_user = req.user.id_user_profile; 
+    const id_user = req.user.id; 
     const { goal } = req.body;
 
     if (!goal) {
@@ -10,20 +10,20 @@ const crearMeta = async (req, res) => {
     }
 
     const meta = await frequencyService.crearMetaSemanal({ id_user, goal });
-    res.status(201).json({ message: 'Meta semanal creada con éxito', data: meta });
+    res.status(201).json(meta);
   } catch (err) {
-    res.status(400).json({ error: { code: 'CREATE_FREQUENCY_FAILED', message: err.message } });
+    res.status(400).json({ error: err.message });
   }
 };
 
 // GET /frequency/me
 const consultarMetaSemanal = async (req, res) => {
   try {
-    const id_user = req.user.id_user_profile;
+    const id_user = req.user.id;
     const resultado = await frequencyService.consultarMetaSemanal(id_user);
-    res.json({ data: resultado, message: 'Meta semanal obtenida con éxito' });
+    res.json(resultado);
   } catch (err) {
-    res.status(404).json({ error: { code: 'GET_FREQUENCY_FAILED', message: err.message } });
+    res.status(404).json({ error: err.message });
   }
 };
 
@@ -31,9 +31,9 @@ const consultarMetaSemanal = async (req, res) => {
 const reiniciarSemana = async (req, res) => {
   try {
     await frequencyService.reiniciarSemana(); // esto reinicia todas, solo ADMIN rol
-    res.json({ message: 'Todas las metas fueron reiniciadas' });
+    res.json({ mensaje: 'Todas las metas fueron reiniciadas.' });
   } catch (err) {
-    res.status(500).json({ error: { code: 'RESET_FREQUENCY_FAILED', message: err.message } });
+    res.status(500).json({ error: err.message });
   }
 };
 

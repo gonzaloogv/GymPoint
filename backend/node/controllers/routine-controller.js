@@ -11,8 +11,8 @@ const getRoutineWithExercises = async (req, res) => {
     const rutina = await routineService.getRoutineWithExercises(req.params.id);
     
     res.json({
-      data: rutina,
-      message: 'Rutina obtenida con éxito'
+      message: 'Rutina obtenida con éxito',
+      data: rutina
     });
   } catch (err) {
     res.status(404).json({ 
@@ -60,8 +60,8 @@ const createRoutineWithExercises = async (req, res) => {
     });
 
     res.status(201).json({
-      data: rutina,
-      message: 'Rutina creada con éxito'
+      message: 'Rutina creada con éxito',
+      data: rutina
     });
   } catch (err) {
     res.status(400).json({ 
@@ -83,8 +83,8 @@ const updateRoutine = async (req, res) => {
     const rutina = await routineService.updateRoutine(req.params.id, req.body);
     
     res.json({
-      data: rutina,
-      message: 'Rutina actualizada con éxito'
+      message: 'Rutina actualizada con éxito',
+      data: rutina
     });
   } catch (err) {
     res.status(404).json({ 
@@ -107,8 +107,8 @@ const updateRoutineExercise = async (req, res) => {
     const updated = await routineService.updateRoutineExercise(id, id_exercise, req.body);
     
     res.json({
-      data: updated,
-      message: 'Ejercicio de rutina actualizado con éxito'
+      message: 'Ejercicio de rutina actualizado con éxito',
+      data: updated
     });
   } catch (err) {
     res.status(404).json({ 
@@ -170,8 +170,8 @@ const getRoutinesByUser = async (req, res) => {
     const rutinas = await routineService.getRoutinesByUser(id_user_profile);
     
     res.json({
-      data: rutinas,
-      message: 'Rutinas del usuario obtenidas con éxito'
+      message: 'Rutinas del usuario obtenidas con éxito',
+      data: rutinas
     });
   } catch (err) {
     res.status(400).json({ 
@@ -193,8 +193,8 @@ const getActiveRoutineWithExercises = async (req, res) => {
     const routine = await userRoutineService.getActiveRoutineWithExercises(req.params.id_user);
     
     res.json({
-      data: routine,
-      message: 'Rutina activa obtenida con éxito'
+      message: 'Rutina activa obtenida con éxito',
+      data: routine
     });
   } catch (err) {
     res.status(404).json({ 

@@ -12,9 +12,9 @@ jest.mock('../models/User', () => ({
   }));
   
   const tokenService = require('../services/token-service');
-  const {User} = require('../models');
-  const {Transaction} = require('../models');
-  const {ClaimedReward} = require('../models');
+  const User = require('../models/User');
+  const Transaction = require('../models/Transaction');
+  const ClaimedReward = require('../models/ClaimedReward');
   
   beforeEach(() => {
     jest.clearAllMocks();

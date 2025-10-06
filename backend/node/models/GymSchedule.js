@@ -33,3 +33,7 @@ const GymSchedule = sequelize.define('GymSchedule', {
 });
 
 module.exports = GymSchedule;
+const Gym = require('./Gym');
+GymSchedule.belongsTo(Gym, { 
+    foreignKey: 'id_gym' 
+});

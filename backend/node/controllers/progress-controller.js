@@ -43,8 +43,8 @@ const obtenerProgresoPorUsuario = async (req, res) => {
     const lista = await progressService.obtenerProgresoPorUsuario(id_user_profile);
     
     res.json({
-      data: lista,
-      message: 'Progreso obtenido con éxito'
+      message: 'Progreso obtenido con éxito',
+      data: lista
     });
   } catch (err) {
     res.status(404).json({ 
