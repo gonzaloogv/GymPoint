@@ -1,17 +1,24 @@
-jest.mock('../models', () => ({ UserProfile: {} }));
-jest.mock('../models/Transaction', () => ({ findAll: jest.fn() }));
-jest.mock('../models/Reward', () => ({}));
+jest.mock('../models', () => ({ UserProfile: {}, TokenLedger: {} }));
+jest.mock('../services/token-ledger-service', () => ({
+  obtenerHistorial: jest.fn()
+}));
 
 const service = require('../services/transaction-service');
-const Transaction = require('../models/Transaction');
+const tokenLedgerService = require('../services/token-ledger-service');
 
 beforeEach(() => { jest.clearAllMocks(); });
 
 describe('obtenerTransaccionesPorUsuario', () => {
-  it('calls findAll with user id', async () => {
-    Transaction.findAll.mockResolvedValue([]);
+  it('calls obtenerHistorial with user id', async () => {
+    const mockHistorial = [
+      { id_ledger: 1, delta: 10, reason: 'ATTENDANCE', balance_after: 10 },
+      { id_ledger: 2, delta: -5, reason: 'REWARD_CLAIM', balance_after: 5 }
+    ];
+    tokenLedgerService.obtenerHistorial.mockResolvedValue(mockHistorial);
+
     const res = await service.obtenerTransaccionesPorUsuario(1);
-    expect(Transaction.findAll).toHaveBeenCalledWith(expect.objectContaining({ where: { id_user: 1 } }));
-    expect(res).toEqual([]);
+
+    expect(tokenLedgerService.obtenerHistorial).toHaveBeenCalledWith(1);
+    expect(res).toEqual(mockHistorial);
   });
 });

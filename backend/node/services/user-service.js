@@ -202,33 +202,15 @@ const eliminarCuenta = async (idAccount) => {
  * @returns {Promise<number>} Nuevo balance de tokens
  */
 const actualizarTokens = async (idUserProfile, delta, reason = 'manual') => {
-  const userProfile = await UserProfile.findByPk(idUserProfile);
-  
-  if (!userProfile) {
-    throw new Error('Perfil de usuario no encontrado');
-  }
+  const tokenLedgerService = require('./token-ledger-service');
 
-  const newBalance = userProfile.tokens + delta;
-  
-  if (newBalance < 0) {
-    throw new Error('Saldo de tokens insuficiente');
-  }
-
-  await userProfile.update({ tokens: newBalance });
-
-  // Registrar en transaction ledger (si existe)
-  try {
-    const Transaction = require('../models/Transaction');
-    await Transaction.create({
-      id_user: idUserProfile,
-      amount: delta,
-      description: reason,
-      transaction_type: delta > 0 ? 'CREDIT' : 'DEBIT',
-      balance_after: newBalance
-    });
-  } catch (error) {
-    console.warn('No se pudo registrar transacción:', error.message);
-  }
+  const { newBalance } = await tokenLedgerService.registrarMovimiento({
+    userId: idUserProfile,
+    delta,
+    reason: reason || 'MANUAL_ADJUSTMENT',
+    refType: null,
+    refId: null
+  });
 
   return newBalance;
 };

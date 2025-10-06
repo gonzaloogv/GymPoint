@@ -1,8 +1,12 @@
 ﻿const { Op, fn, col, literal } = require('sequelize');
 const sequelize = require('../config/database');
 const ClaimedReward = require('../models/ClaimedReward');
-const Transaction = require('../models/Transaction');
+const { TokenLedger } = require('../models');
 const Gym = require('../models/Gym');
+
+/**
+ * NOTA: Este servicio ha sido actualizado para usar token_ledger en lugar de transaction
+ */
 
 /**
  * Ejecutar upsert de agregados diarios para una ventana de tiempo
@@ -45,24 +49,25 @@ const runDailyUpsert = async (from, to) => {
       type: sequelize.QueryTypes.INSERT
     });
     
-    // Upsert de tokens desde transaction
+    // Upsert de tokens desde token_ledger (actualizado)
     await sequelize.query(`
       INSERT INTO reward_gym_stats_daily (day, gym_id, claims, redeemed, revoked, tokens_spent, tokens_refunded)
-      SELECT 
-        DATE(t.date) as day,
+      SELECT
+        DATE(tl.created_at) as day,
         r.id_gym as gym_id,
         0 as claims,
         0 as redeemed,
         0 as revoked,
-        SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as tokens_spent,
-        SUM(CASE WHEN t.amount > 0 THEN t.amount ELSE 0 END) as tokens_refunded
-      FROM transaction t
-      JOIN reward r ON t.id_reward = r.id_reward
-      WHERE 
+        SUM(CASE WHEN tl.delta < 0 AND tl.reason = 'REWARD_CLAIM' THEN ABS(tl.delta) ELSE 0 END) as tokens_spent,
+        SUM(CASE WHEN tl.delta > 0 AND tl.reason = 'REWARD_REFUND' THEN tl.delta ELSE 0 END) as tokens_refunded
+      FROM token_ledger tl
+      JOIN claimed_reward cr ON tl.ref_type = 'claimed_reward' AND tl.ref_id = cr.id_claim
+      JOIN reward r ON cr.id_reward = r.id_reward
+      WHERE
         r.provider = 'gym'
         AND r.id_gym IS NOT NULL
-        AND t.date BETWEEN :from AND :to
-      GROUP BY DATE(t.date), r.id_gym
+        AND tl.created_at BETWEEN :from AND :to
+      GROUP BY DATE(tl.created_at), r.id_gym
       ON DUPLICATE KEY UPDATE
         tokens_spent = tokens_spent + VALUES(tokens_spent),
         tokens_refunded = tokens_refunded + VALUES(tokens_refunded)
@@ -163,17 +168,19 @@ const getGymStatsRange = async (from, to) => {
       type: sequelize.QueryTypes.SELECT
     });
     
+    // Actualizado para usar token_ledger
     const ledgerStats = await sequelize.query(`
-      SELECT 
+      SELECT
         r.id_gym as gym_id,
-        SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as tokens_spent,
-        SUM(CASE WHEN t.amount > 0 THEN t.amount ELSE 0 END) as tokens_refunded
-      FROM transaction t
-      JOIN reward r ON t.id_reward = r.id_reward
-      WHERE 
+        SUM(CASE WHEN tl.delta < 0 AND tl.reason = 'REWARD_CLAIM' THEN ABS(tl.delta) ELSE 0 END) as tokens_spent,
+        SUM(CASE WHEN tl.delta > 0 AND tl.reason = 'REWARD_REFUND' THEN tl.delta ELSE 0 END) as tokens_refunded
+      FROM token_ledger tl
+      JOIN claimed_reward cr ON tl.ref_type = 'claimed_reward' AND tl.ref_id = cr.id_claim
+      JOIN reward r ON cr.id_reward = r.id_reward
+      WHERE
         r.provider = 'gym'
         AND r.id_gym IS NOT NULL
-        AND t.date BETWEEN :from AND :to
+        AND tl.created_at BETWEEN :from AND :to
       GROUP BY r.id_gym
     `, {
       replacements: { from: todayStart, to: toDate },
@@ -332,16 +339,18 @@ const getGymStatsById = async (gymId, from, to) => {
       type: sequelize.QueryTypes.SELECT
     });
     
+    // Actualizado para usar token_ledger
     const ledgerStats = await sequelize.query(`
-      SELECT 
-        SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as tokens_spent,
-        SUM(CASE WHEN t.amount > 0 THEN t.amount ELSE 0 END) as tokens_refunded
-      FROM transaction t
-      JOIN reward r ON t.id_reward = r.id_reward
-      WHERE 
+      SELECT
+        SUM(CASE WHEN tl.delta < 0 AND tl.reason = 'REWARD_CLAIM' THEN ABS(tl.delta) ELSE 0 END) as tokens_spent,
+        SUM(CASE WHEN tl.delta > 0 AND tl.reason = 'REWARD_REFUND' THEN tl.delta ELSE 0 END) as tokens_refunded
+      FROM token_ledger tl
+      JOIN claimed_reward cr ON tl.ref_type = 'claimed_reward' AND tl.ref_id = cr.id_claim
+      JOIN reward r ON cr.id_reward = r.id_reward
+      WHERE
         r.provider = 'gym'
         AND r.id_gym = :gymId
-        AND t.date BETWEEN :from AND :to
+        AND tl.created_at BETWEEN :from AND :to
     `, {
       replacements: { gymId, from: todayStart, to: toDate },
       type: sequelize.QueryTypes.SELECT

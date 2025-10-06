@@ -1,66 +1,58 @@
-const User = require('../models/User');
-const Transaction = require('../models/Transaction');
+const { UserProfile } = require('../models');
+const tokenLedgerService = require('./token-ledger-service');
 const ClaimedReward = require('../models/ClaimedReward');
 
+/**
+ * Otorgar tokens a un usuario
+ * @param {Object} params - Parámetros
+ * @param {number} params.id_user - ID del user_profile
+ * @param {number} params.amount - Cantidad de tokens a otorgar
+ * @param {string} params.motive - Motivo del otorgamiento
+ * @returns {Promise<Object>} Resultado del otorgamiento
+ */
 const otorgarTokens = async ({ id_user, amount, motive }) => {
-  const user = await User.findByPk(id_user);
-  if (!user) throw new Error('Usuario no encontrado');
-
   const value = Number(amount);
   if (Number.isNaN(value) || value <= 0) {
     throw new Error('Monto de tokens inválido');
   }
 
-  const nuevoSaldo = user.tokens + value;
-  user.tokens = nuevoSaldo;
-  await user.save();
-
-  await Transaction.create({
-    id_user,
-    id_reward: null, // se define null debido a que no es un canje
-    movement_type: 'GANANCIA',
-    amount: value,
-    result_balance: nuevoSaldo,
-    date: new Date(),
-    motive: motive
+  const { previousBalance, newBalance } = await tokenLedgerService.registrarMovimiento({
+    userId: id_user,
+    delta: value,
+    reason: motive || 'MANUAL_GRANT',
+    refType: null,
+    refId: null
   });
 
   return {
     id_user,
-    tokens_antes: nuevoSaldo - value,
-    tokens_actuales: nuevoSaldo,
-    motive,
+    tokens_antes: previousBalance,
+    tokens_actuales: newBalance,
+    motive: motive || 'MANUAL_GRANT',
     fecha: new Date()
   };
 };
 
+/**
+ * Obtener resumen de tokens de un usuario
+ * @param {number} id_user - ID del user_profile
+ * @returns {Promise<Object>} Resumen de tokens
+ */
 const obtenerResumenTokens = async (id_user) => {
-    const user = await User.findByPk(id_user);
-    if (!user) throw new Error('Usuario no encontrado');
-  
-    const transacciones = await Transaction.findAll({ where: { id_user } });
-  
-    let ganados = 0;
-    let gastados = 0;
-  
-    transacciones.forEach(tx => {
-      if (tx.movement_type === 'GANANCIA') ganados += tx.amount;
-      if (tx.movement_type === 'GASTO' || tx.movement_type === 'COMPRA') gastados += tx.amount;
-    });
-  
-    const cantidadCanjes = await ClaimedReward.count({ where: { id_user } });
-  
-    return {
-      id_user,
-      tokens_actuales: user.tokens,
-      total_ganados: ganados,
-      total_gastados: gastados,
-      canjes_realizados: cantidadCanjes
-    };
+  const estadisticas = await tokenLedgerService.obtenerEstadisticas(id_user);
+  const cantidadCanjes = await ClaimedReward.count({ where: { id_user } });
+
+  return {
+    id_user,
+    tokens_actuales: estadisticas.balance_actual,
+    total_ganados: estadisticas.total_ganado,
+    total_gastados: estadisticas.total_gastado,
+    canjes_realizados: cantidadCanjes
+  };
 };
 
 module.exports = {
-    otorgarTokens,
-    obtenerResumenTokens
-  };
+  otorgarTokens,
+  obtenerResumenTokens
+};
   

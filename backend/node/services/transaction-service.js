@@ -1,32 +1,14 @@
-const Transaction = require('../models/Transaction');
-const Reward = require('../models/Reward');
-const { UserProfile } = require('../models');
+const { TokenLedger, UserProfile } = require('../models');
+const tokenLedgerService = require('./token-ledger-service');
 
 /**
- * Obtener transacciones por usuario
+ * Obtener historial de movimientos de tokens por usuario
  * @param {number} idUserProfile - ID del user_profile
- * @returns {Promise<Array>} Lista de transacciones
+ * @returns {Promise<Array>} Lista de movimientos de tokens
  */
 const obtenerTransaccionesPorUsuario = async (idUserProfile) => {
-  return await Transaction.findAll({
-    where: { id_user: idUserProfile }, // id_user apunta a user_profiles
-    include: [
-      {
-        model: Reward,
-        as: 'reward',
-        attributes: ['name'],
-        required: false
-      },
-      {
-        model: UserProfile,
-        as: 'user',
-        attributes: ['name', 'lastname'],
-        required: false
-      }
-    ],
-    order: [['date', 'DESC']]
-  });
-};  
+  return await tokenLedgerService.obtenerHistorial(idUserProfile);
+};
 
 module.exports = {
   obtenerTransaccionesPorUsuario

@@ -7,13 +7,23 @@ const { OAuth2Client } = require('google-auth-library');
 class GoogleAuthProvider {
   constructor() {
     const clientId = process.env.GOOGLE_CLIENT_ID;
-    
+
     if (!clientId) {
-      throw new Error('GOOGLE_CLIENT_ID no está configurado en las variables de entorno');
+      console.warn('⚠️  GOOGLE_CLIENT_ID no está configurado. Google OAuth estará deshabilitado.');
+      this.enabled = false;
+      return;
     }
-    
+
+    // Si es dummy, deshabilitar Google OAuth
+    if (clientId === 'dummy-client-id-for-development') {
+      console.warn('⚠️  Google OAuth deshabilitado (usando GOOGLE_CLIENT_ID dummy)');
+      this.enabled = false;
+      return;
+    }
+
     this.client = new OAuth2Client(clientId);
     this.clientId = clientId;
+    this.enabled = true;
   }
 
   /**
@@ -23,6 +33,10 @@ class GoogleAuthProvider {
    * @throws {Error} Si el token es inválido o expirado
    */
   async verifyToken(idToken) {
+    if (!this.enabled) {
+      throw new Error('Google OAuth no está habilitado en este servidor');
+    }
+
     try {
       const ticket = await this.client.verifyIdToken({
         idToken,

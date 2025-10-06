@@ -340,17 +340,17 @@ const obtenerActividadReciente = async (days = 7) => {
  * @returns {Promise<Array>} Transacciones
  */
 const obtenerTransacciones = async (idUserProfile = null, options = {}) => {
-  const Transaction = require('../models/Transaction');
+  const { TokenLedger } = require('../models');
   const { limit = 50, page = 1 } = options;
-  
-  const where = idUserProfile ? { id_user: idUserProfile } : {};
+
+  const where = idUserProfile ? { id_user_profile: idUserProfile } : {};
   const offset = (page - 1) * limit;
 
-  const { count, rows } = await Transaction.findAndCountAll({
+  const { count, rows } = await TokenLedger.findAndCountAll({
     where,
     include: {
       model: UserProfile,
-      as: 'user',
+      as: 'userProfile',
       attributes: ['name', 'lastname'],
       include: {
         model: Account,
@@ -358,22 +358,23 @@ const obtenerTransacciones = async (idUserProfile = null, options = {}) => {
         attributes: ['email']
       }
     },
-    order: [['date', 'DESC']],
+    order: [['created_at', 'DESC']],
     limit,
     offset
   });
 
   return {
     transactions: rows.map(t => ({
-      id_transaction: t.id_transaction,
-      id_user_profile: t.id_user,
-      user: t.user ? {
-        name: `${t.user.name} ${t.user.lastname}`,
-        email: t.user.account?.email
+      id_ledger: t.id_ledger,
+      id_user_profile: t.id_user_profile,
+      user: t.userProfile ? {
+        name: `${t.userProfile.name} ${t.userProfile.lastname}`,
+        email: t.userProfile.account?.email
       } : null,
-      amount: t.amount,
-      description: t.description,
-      transaction_type: t.transaction_type,
+      delta: t.delta,
+      reason: t.reason,
+      ref_type: t.ref_type,
+      ref_id: t.ref_id,
       balance_after: t.balance_after,
       created_at: t.created_at
     })),

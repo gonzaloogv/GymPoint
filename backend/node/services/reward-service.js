@@ -2,9 +2,10 @@ const { Op } = require('sequelize');
 const Reward = require('../models/Reward');
 const ClaimedReward = require('../models/ClaimedReward');
 const { UserProfile } = require('../models');
-const Transaction = require('../models/Transaction');
+const tokenLedgerService = require('./token-ledger-service');
 const rewardCodeService = require('./reward-code-service');
 const { Sequelize } = require('sequelize');
+const sequelize = require('../config/database');
 
 /**
  * Listar recompensas disponibles
@@ -31,66 +32,71 @@ const listarRecompensas = async () => {
  * @returns {Promise<Object>} Resultado del canje
  */
 const canjearRecompensa = async ({ id_user, id_reward, id_gym }) => {
-  // id_user ahora es id_user_profile
   const idUserProfile = id_user;
+  const t = await sequelize.transaction();
 
-  const reward = await Reward.findOne({
-    where: {
-      id_reward,
-      available: true,
-      stock: { [Op.gt]: 0 },
-      start_date: { [Op.lte]: new Date() },
-      finish_date: { [Op.gte]: new Date() }
+  try {
+    const reward = await Reward.findOne({
+      where: {
+        id_reward,
+        available: true,
+        stock: { [Op.gt]: 0 },
+        start_date: { [Op.lte]: new Date() },
+        finish_date: { [Op.gte]: new Date() }
+      },
+      transaction: t
+    });
+
+    if (!reward) throw new Error('La recompensa no está disponible');
+
+    // Verificar idempotencia: si ya existe el canje, retornar el existente
+    const existingClaim = await tokenLedgerService.existeMovimiento('claimed_reward', id_reward);
+    if (existingClaim) {
+      await t.rollback();
+      throw new Error('Esta recompensa ya fue canjeada anteriormente');
     }
-  });
 
-  if (!reward) throw new Error('La recompensa no está disponible');
+    // Generar código primero
+    const codigoGenerado = await rewardCodeService.crearCodigoParaCanje({
+      id_reward,
+      id_gym
+    });
 
-  const userProfile = await UserProfile.findByPk(idUserProfile);
-  if (!userProfile) throw new Error('Usuario no encontrado');
-  if (userProfile.tokens < reward.cost_tokens) throw new Error('Tokens insuficientes');
+    // Crear registro en claimed_reward
+    const claimed = await ClaimedReward.create({
+      id_user: idUserProfile,
+      id_reward,
+      id_code: codigoGenerado.id_code,
+      claimed_date: new Date(),
+      status: true
+    }, { transaction: t });
 
-  // calcula nuevo saldo
-  const result_balance = userProfile.tokens - reward.cost_tokens;
+    // Registrar movimiento de tokens (validará saldo y actualizará user_profile)
+    const { newBalance } = await tokenLedgerService.registrarMovimiento({
+      userId: idUserProfile,
+      delta: -reward.cost_tokens,
+      reason: 'REWARD_CLAIM',
+      refType: 'claimed_reward',
+      refId: claimed.id_claim,
+      transaction: t
+    });
 
-  // actualiza usuario y recompensa
-  userProfile.tokens = result_balance;
-  reward.stock -= 1;
-  await userProfile.save();
-  await reward.save();
+    // Actualizar stock de recompensa
+    reward.stock -= 1;
+    await reward.save({ transaction: t });
 
-  // genera codigo
-  const codigoGenerado = await rewardCodeService.crearCodigoParaCanje({
-    id_reward,
-    id_gym
-  });
-  
-  // crea registro en claimed_reward
-  const claimed = await ClaimedReward.create({
-    id_user: idUserProfile,
-    id_reward,
-    id_code: codigoGenerado.id_code,
-    claimed_date: new Date(),
-    status: true
-  });
+    await t.commit();
 
-  // crea transaccion
-  await Transaction.create({
-    id_user: idUserProfile,
-    id_reward,
-    movement_type: 'GASTO',
-    amount: reward.cost_tokens,
-    date: new Date(),
-    result_balance: result_balance
-  });
-
-  // devolver todo en la respuesta
-  return {
-    mensaje: 'Recompensa canjeada con éxito',
-    claimed,
-    codigo: codigoGenerado.code,
-    nuevo_saldo: result_balance
-  };
+    return {
+      mensaje: 'Recompensa canjeada con éxito',
+      claimed,
+      codigo: codigoGenerado.code,
+      nuevo_saldo: newBalance
+    };
+  } catch (error) {
+    await t.rollback();
+    throw error;
+  }
 };
 
 /**

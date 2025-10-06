@@ -1,74 +1,77 @@
-jest.mock('../models/User', () => ({
-    findByPk: jest.fn()
-  }));
-  
-  jest.mock('../models/Transaction', () => ({
-    create: jest.fn(),
-    findAll: jest.fn()
-  }));
-  
-  jest.mock('../models/ClaimedReward', () => ({
-    count: jest.fn()
-  }));
-  
-  const tokenService = require('../services/token-service');
-  const User = require('../models/User');
-  const Transaction = require('../models/Transaction');
-  const ClaimedReward = require('../models/ClaimedReward');
-  
-  beforeEach(() => {
-    jest.clearAllMocks();
+jest.mock('../models', () => ({
+  UserProfile: {}
+}));
+
+jest.mock('../services/token-ledger-service', () => ({
+  registrarMovimiento: jest.fn(),
+  obtenerEstadisticas: jest.fn()
+}));
+
+jest.mock('../models/ClaimedReward', () => ({
+  count: jest.fn()
+}));
+
+const tokenService = require('../services/token-service');
+const tokenLedgerService = require('../services/token-ledger-service');
+const ClaimedReward = require('../models/ClaimedReward');
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('otorgarTokens', () => {
+  it('adds tokens using ledger service', async () => {
+    tokenLedgerService.registrarMovimiento.mockResolvedValue({
+      previousBalance: 10,
+      newBalance: 15,
+      ledgerEntry: {}
+    });
+
+    const result = await tokenService.otorgarTokens({ id_user: 1, amount: 5, motive: 'test' });
+
+    expect(tokenLedgerService.registrarMovimiento).toHaveBeenCalledWith({
+      userId: 1,
+      delta: 5,
+      reason: 'test',
+      refType: null,
+      refId: null
+    });
+    expect(result.tokens_antes).toBe(10);
+    expect(result.tokens_actuales).toBe(15);
+    expect(result.motive).toBe('test');
   });
-  
-  describe('otorgarTokens', () => {
-    it('adds tokens and creates a transaction', async () => {
-      const user = { tokens: 10, save: jest.fn() };
-      User.findByPk.mockResolvedValue(user);
-      Transaction.create.mockResolvedValue({});
-  
-      const result = await tokenService.otorgarTokens({ id_user: 1, amount: 5, motive: 'test' });
-  
-      expect(user.tokens).toBe(15);
-      expect(user.save).toHaveBeenCalled();
-      expect(Transaction.create).toHaveBeenCalledWith(expect.objectContaining({
-        id_user: 1,
-        amount: 5,
-        motive: 'test',
-        result_balance: 15
-      }));
-      expect(result.tokens_actuales).toBe(15);
+
+  it('throws on invalid amount', async () => {
+    await expect(tokenService.otorgarTokens({ id_user: 1, amount: -1, motive: 'x' }))
+      .rejects.toThrow('Monto de tokens inválido');
+  });
+
+  it('throws on invalid amount (zero)', async () => {
+    await expect(tokenService.otorgarTokens({ id_user: 1, amount: 0, motive: 'x' }))
+      .rejects.toThrow('Monto de tokens inválido');
+  });
+});
+
+describe('obtenerResumenTokens', () => {
+  it('returns token summary from ledger stats', async () => {
+    tokenLedgerService.obtenerEstadisticas.mockResolvedValue({
+      balance_actual: 10,
+      total_ganado: 50,
+      total_gastado: 40,
+      total_movimientos: 15
     });
-  
-    it('throws if user not found', async () => {
-      User.findByPk.mockResolvedValue(null);
-      await expect(tokenService.otorgarTokens({ id_user: 1, amount: 5, motive: 'test' }))
-        .rejects.toThrow('Usuario no encontrado');
-    });
-  
-    it('throws on invalid amount', async () => {
-      User.findByPk.mockResolvedValue({ tokens: 0 });
-      await expect(tokenService.otorgarTokens({ id_user: 1, amount: -1, motive: 'x' }))
-        .rejects.toThrow('Monto de tokens inválido');
+    ClaimedReward.count.mockResolvedValue(3);
+
+    const result = await tokenService.obtenerResumenTokens(1);
+
+    expect(tokenLedgerService.obtenerEstadisticas).toHaveBeenCalledWith(1);
+    expect(ClaimedReward.count).toHaveBeenCalledWith({ where: { id_user: 1 } });
+    expect(result).toEqual({
+      id_user: 1,
+      tokens_actuales: 10,
+      total_ganados: 50,
+      total_gastados: 40,
+      canjes_realizados: 3
     });
   });
-  
-  describe('obtenerResumenTokens', () => {
-    it('returns token summary', async () => {
-      User.findByPk.mockResolvedValue({ tokens: 10 });
-      Transaction.findAll.mockResolvedValue([
-        { movement_type: 'GANANCIA', amount: 5 },
-        { movement_type: 'GASTO', amount: 2 }
-      ]);
-      ClaimedReward.count.mockResolvedValue(1);
-  
-      const result = await tokenService.obtenerResumenTokens(1);
-  
-      expect(result).toEqual({
-        id_user: 1,
-        tokens_actuales: 10,
-        total_ganados: 5,
-        total_gastados: 2,
-        canjes_realizados: 1
-      });
-    });
-  });
+});

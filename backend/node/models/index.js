@@ -32,7 +32,7 @@ const RewardCode = require('./RewardCode');
 const Routine = require('./Routine');
 const RoutineExercise = require('./RoutineExercise');
 const Streak = require('./Streak');
-const Transaction = require('./Transaction');
+const TokenLedger = require('./TokenLedger');
 const UserGym = require('./UserGym');
 const UserRoutine = require('./UserRoutine');
 
@@ -224,26 +224,15 @@ Streak.belongsTo(UserProfile, {
   as: 'userProfile'
 });
 
-// UserProfile ←→ Transaction
-UserProfile.hasMany(Transaction, {
-  foreignKey: 'id_user',
-  as: 'transactions'
+// UserProfile ←→ TokenLedger
+UserProfile.hasMany(TokenLedger, {
+  foreignKey: 'id_user_profile',
+  as: 'tokenLedger'
 });
 
-Transaction.belongsTo(UserProfile, {
-  foreignKey: 'id_user',
-  as: 'user'
-});
-
-// Reward ←→ Transaction
-Reward.hasMany(Transaction, {
-  foreignKey: 'id_reward',
-  as: 'transactions'
-});
-
-Transaction.belongsTo(Reward, {
-  foreignKey: 'id_reward',
-  as: 'reward'
+TokenLedger.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'userProfile'
 });
 
 // Gym ←→ Reward
@@ -314,7 +303,7 @@ module.exports = {
   Routine,
   RoutineExercise,
   Streak,
-  Transaction,
+  TokenLedger,
   UserGym,
   UserRoutine
 };

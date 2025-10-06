@@ -1,7 +1,7 @@
 const Assistance = require('../models/Assistance');
 const Streak = require('../models/Streak');
 const { UserProfile } = require('../models');
-const Transaction = require('../models/Transaction');
+const tokenLedgerService = require('./token-ledger-service');
 const Gym = require('../models/Gym');
 const { Op } = require('sequelize');
 const frequencyService = require('../services/frequency-service');
@@ -89,19 +89,14 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude }) => 
 
   await racha.save();
 
-  // Otorgar tokens
+  // Otorgar tokens usando ledger
   const TOKENS_ATTENDANCE = parseInt(process.env.TOKENS_ATTENDANCE || '10');
-  userProfile.tokens += TOKENS_ATTENDANCE;
-  await userProfile.save();
-
-  // Registrar transacción
-  await Transaction.create({
-    id_user: idUserProfile,
-    id_reward: null,
-    movement_type: 'ASISTENCIA',
-    amount: TOKENS_ATTENDANCE,
-    result_balance: userProfile.tokens,
-    date: new Date()
+  const { newBalance } = await tokenLedgerService.registrarMovimiento({
+    userId: idUserProfile,
+    delta: TOKENS_ATTENDANCE,
+    reason: 'ATTENDANCE',
+    refType: 'assistance',
+    refId: nuevaAsistencia.id_assistance
   });
 
   // Actualizar frecuencia semanal
@@ -110,7 +105,7 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude }) => 
   return {
     asistencia: nuevaAsistencia,
     distancia: Math.round(distancia),
-    tokens_actuales: userProfile.tokens,
+    tokens_actuales: newBalance,
     racha_actual: racha.value
   };
 };
