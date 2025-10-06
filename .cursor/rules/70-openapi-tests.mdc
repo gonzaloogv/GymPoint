@@ -1,7 +1,0 @@
----
-description: "USE WHEN changing endpoints, contracts, or adding features."
-globs: backend/**/routes/**,backend/**/controllers/**,backend/**/docs/**
-alwaysApply: false
----
-- Update OpenAPI for every endpoint change; expose /health (liveness) & /ready (DB+migrations).
-- Tests: unit (≥80% services) + basic integration (auth/assistances/rewards) must pass.

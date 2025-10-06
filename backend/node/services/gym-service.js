@@ -1,7 +1,5 @@
 const { Op, literal } = require('sequelize');
-const User = require('../models/User');
-const Gym = require('../models/Gym');
-const GymType = require('../models/GymType')(require('../config/database'), require('sequelize').DataTypes);
+const { Gym, GymType } = require('../models');
 const Joi = require('joi');
 
 const tiposValidos = [

@@ -16,7 +16,7 @@ const Streak = sequelize.define('Streak', {
     allowNull: false
   },
   id_frequency: {
-    type: DataTypes.TINYINT,
+    type: DataTypes.INTEGER,
     allowNull: false
   },
   last_value: {
@@ -26,7 +26,17 @@ const Streak = sequelize.define('Streak', {
   recovery_items: {
     type: DataTypes.INTEGER,
     defaultValue: 0
-  }  
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
+  }
 }, {
   tableName: 'streak',
   timestamps: false

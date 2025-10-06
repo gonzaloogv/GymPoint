@@ -98,19 +98,20 @@ Gym.hasMany(RewardCode, {
 });
 
 // Relación N:M con GymType (belongsToMany)
-const sequelizeInstance = require('../config/database'); // para asegurar misma instancia
-const GymType = require('./GymType')(sequelizeInstance, DataTypes);
+const GymType = require('./GymType');
 
 Gym.belongsToMany(GymType, {
   through: 'gym_gym_type',
   foreignKey: 'id_gym',
   otherKey: 'id_type',
-  timestamps: false
+  timestamps: false,
+  as: 'gymTypes'
 });
 
 GymType.belongsToMany(Gym, {
   through: 'gym_gym_type',
   foreignKey: 'id_type',
   otherKey: 'id_gym',
-  timestamps: false
+  timestamps: false,
+  as: 'gyms'
 });

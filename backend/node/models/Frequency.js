@@ -9,7 +9,7 @@ const Frequency = sequelize.define('Frequency', {
     },
     id_user: {
         type: DataTypes.INTEGER,
-        primaryKey: true
+        allowNull: false
     },
     goal: {
         type: DataTypes.INTEGER,
@@ -24,6 +24,11 @@ const Frequency = sequelize.define('Frequency', {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
+    },
+    created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW
     }
 }, {
   tableName: 'frequency',

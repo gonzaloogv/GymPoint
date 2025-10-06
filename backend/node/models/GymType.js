@@ -1,19 +1,20 @@
-module.exports = (sequelize, DataTypes) => {
-    const GymType = sequelize.define('GymType', {
-        id_type: {
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
+
+const GymType = sequelize.define('GymType', {
+    id_type: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true
-        },
-        name: {
+    },
+    name: {
         type: DataTypes.STRING(100),
         allowNull: false,
         unique: true
-        }
-    }, {
-        tableName: 'gym_type',
-        timestamps: false
-    });
+    }
+}, {
+    tableName: 'gym_type',
+    timestamps: false
+});
 
-    return GymType;
-};
+module.exports = GymType;

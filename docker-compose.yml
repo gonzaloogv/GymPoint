@@ -28,15 +28,5 @@ services:
     depends_on:
       - db
 
-  web:
-    build:
-      context: ./frontend/react-web
-      args:
-        VITE_API_URL: http://localhost:3000
-    ports:
-      - '5173:5173'
-    depends_on:
-      - backend
-
 volumes:
   db-data:

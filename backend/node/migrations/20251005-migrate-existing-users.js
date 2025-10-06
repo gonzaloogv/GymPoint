@@ -42,9 +42,9 @@ module.exports = {
         try {
           console.log(`📝 Procesando usuario #${user.id_user}: ${user.email}`);
           
-          // Determinar si es ADMIN o USER
-          const isAdmin = user.role === 'ADMIN';
-          const isPremium = user.role === 'PREMIUM';
+          // Determinar si es ADMIN o USER (subscription es el campo que contiene el rol)
+          const isAdmin = user.subscription === 'ADMIN';
+          const isPremium = user.subscription === 'PREMIUM';
           
           // 2.1. Crear account
           const [accountResult] = await queryInterface.sequelize.query(
@@ -56,7 +56,7 @@ module.exports = {
                 user.email,
                 user.password, // ya es hash de bcrypt
                 user.auth_provider || 'local',
-                user.google_id,
+                user.google_id || null,
                 true, // email_verified (asumimos true para usuarios existentes)
                 true, // is_active
                 null, // last_login

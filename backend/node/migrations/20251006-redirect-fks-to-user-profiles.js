@@ -94,25 +94,27 @@ module.exports = {
       
       for (const table of tables) {
         console.log(`📋 Procesando tabla: ${table.name}`);
-        
+
         try {
-          // Caso especial: refresh_token puede tener tokens de admins
-          if (table.name === 'refresh_token') {
-            const [adminTokens] = await queryInterface.sequelize.query(
-              `SELECT COUNT(*) as count FROM refresh_token rt
-               JOIN user u ON rt.id_user = u.id_user
-               WHERE u.role = 'ADMIN'`,
+          // Caso especial: eliminar datos de administradores (no tienen user_profiles)
+          const adminOnlyTables = ['refresh_token', 'streak', 'frequency', 'user_gym', 'user_routine', 'transaction'];
+
+          if (adminOnlyTables.includes(table.name)) {
+            const [adminData] = await queryInterface.sequelize.query(
+              `SELECT COUNT(*) as count FROM \`${table.name}\` t
+               JOIN user u ON t.\`${table.column}\` = u.id_user
+               WHERE u.subscription = 'ADMIN'`,
               { transaction }
             );
-            
-            if (adminTokens[0].count > 0) {
-              console.log(`  ⚠️ Eliminando ${adminTokens[0].count} tokens de administradores...`);
+
+            if (adminData[0].count > 0) {
+              console.log(`  ⚠️ Eliminando ${adminData[0].count} registros de administradores...`);
               await queryInterface.sequelize.query(
-                `DELETE FROM refresh_token 
-                 WHERE id_user IN (SELECT id_user FROM user WHERE role = 'ADMIN')`,
+                `DELETE FROM \`${table.name}\`
+                 WHERE \`${table.column}\` IN (SELECT id_user FROM user WHERE subscription = 'ADMIN')`,
                 { transaction }
               );
-              console.log(`  ✅ Tokens de admin eliminados`);
+              console.log(`  ✅ Registros de admin eliminados`);
             }
           }
           

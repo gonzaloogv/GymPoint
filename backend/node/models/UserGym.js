@@ -2,14 +2,17 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const UserGym = sequelize.define('UserGym', {
+  id_user_gym: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
   id_user: {
     type: DataTypes.INTEGER,
-    primaryKey: true,
     allowNull: false
   },
   id_gym: {
     type: DataTypes.INTEGER,
-    primaryKey: true,
     allowNull: false
   },
   start_date: {
@@ -31,7 +34,15 @@ const UserGym = sequelize.define('UserGym', {
   }
 }, {
   tableName: 'user_gym',
-  timestamps: false
+  timestamps: false,
+  indexes: [
+    {
+      unique: true,
+      fields: ['id_user', 'id_gym', 'active'],
+      where: { active: true },
+      name: 'unique_active_gym'
+    }
+  ]
 });
 
 module.exports = UserGym;
