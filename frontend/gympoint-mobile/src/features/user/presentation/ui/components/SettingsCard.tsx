@@ -9,7 +9,7 @@ import { Feather } from '@expo/vector-icons';
 import { Card } from '@shared/components/ui';
 import { NotificationSettings } from './NotificationSettings';
 import { LocationSettings } from './LocationSettings';
-import { NotificationSettings as NotificationSettingsType } from '../types/UserTypes';
+import { NotificationSettings as NotificationSettingsType } from '../../../types/userTypes';
 import { AppTheme } from '@presentation/theme';
 
 interface SettingsCardProps {
