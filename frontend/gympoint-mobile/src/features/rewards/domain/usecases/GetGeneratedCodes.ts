@@ -8,4 +8,3 @@ export class GetGeneratedCodes {
     return this.repository.getGeneratedCodes();
   }
 }
-

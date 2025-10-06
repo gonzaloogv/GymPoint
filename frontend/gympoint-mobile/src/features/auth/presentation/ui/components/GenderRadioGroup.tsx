@@ -69,4 +69,3 @@ export function GenderRadioGroup({ value, onChange }: Props) {
     </Container>
   );
 }
-

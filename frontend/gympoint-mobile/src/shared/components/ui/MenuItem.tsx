@@ -45,13 +45,13 @@ type Props = {
   rightComponent?: React.ReactNode;
 };
 
-export function MenuItem({ 
-  icon, 
-  title, 
-  subtitle, 
-  onPress, 
+export function MenuItem({
+  icon,
+  title,
+  subtitle,
+  onPress,
   showChevron = true,
-  rightComponent 
+  rightComponent,
 }: Props) {
   return (
     <MenuItemContainer onPress={onPress}>
@@ -62,9 +62,7 @@ export function MenuItem({
       <MenuItemRight>
         {subtitle && <MenuSubtext>{subtitle}</MenuSubtext>}
         {rightComponent}
-        {showChevron && (
-          <Feather name="chevron-right" size={16} color="#666" />
-        )}
+        {showChevron && <Feather name="chevron-right" size={16} color="#666" />}
       </MenuItemRight>
     </MenuItemContainer>
   );

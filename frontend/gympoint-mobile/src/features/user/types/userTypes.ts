@@ -6,14 +6,14 @@
 export type Role = 'USER' | 'ADMIN' | 'PREMIUM';
 
 export interface UserProfile {
-  id_user: number;       // usa siempre id_user si querés mantenerlo consistente
+  id_user: number; // usa siempre id_user si querés mantenerlo consistente
   name: string;
   email: string;
   role: Role;
   tokens: number;
   plan: 'Free' | 'Premium';
-  streak?: number;       // opcional si no siempre lo tenés
-  avatar?: string;       // opcional
+  streak?: number; // opcional si no siempre lo tenés
+  avatar?: string; // opcional
 }
 
 // Interfaz para las estadísticas del usuario

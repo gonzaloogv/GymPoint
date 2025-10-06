@@ -2,7 +2,10 @@ import { RewardRepository } from '../domain/repositories/RewardRepository';
 import { Reward } from '../domain/entities/Reward';
 import { GeneratedCode } from '../domain/entities/GeneratedCode';
 import { RewardLocal } from './datasources/RewardLocal';
-import { mapRewardDTOToEntity, mapGeneratedCodeDTOToEntity } from './mappers/reward.mapper';
+import {
+  mapRewardDTOToEntity,
+  mapGeneratedCodeDTOToEntity,
+} from './mappers/reward.mapper';
 
 export class RewardRepositoryImpl implements RewardRepository {
   constructor(private local: RewardLocal) {}
@@ -22,4 +25,3 @@ export class RewardRepositoryImpl implements RewardRepository {
     return dtos.map(mapGeneratedCodeDTOToEntity);
   }
 }
-

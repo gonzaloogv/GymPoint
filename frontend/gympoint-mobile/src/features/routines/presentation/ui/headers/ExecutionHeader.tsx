@@ -36,7 +36,12 @@ type Props = {
   progressPct: number;
 };
 
-export function ExecutionHeader({ routineName, exerciseIndex, totalExercises, progressPct }: Props) {
+export function ExecutionHeader({
+  routineName,
+  exerciseIndex,
+  totalExercises,
+  progressPct,
+}: Props) {
   return (
     <Header>
       <Title>{routineName}</Title>

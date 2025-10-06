@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 import { DI } from '@di/container';
-import { Routine, RoutineStatus, RoutineSession } from '@features/routines/domain/entities';
+import {
+  Routine,
+  RoutineStatus,
+  RoutineSession,
+} from '@features/routines/domain/entities';
 
 interface RoutinesState {
   // State
@@ -9,11 +13,11 @@ interface RoutinesState {
   error: string | null;
   search: string;
   status: RoutineStatus | 'All';
-  
+
   // Routine detail
   currentRoutine: Routine | null;
   loadingRoutine: boolean;
-  
+
   // History
   history: RoutineSession[];
   loadingHistory: boolean;
@@ -23,11 +27,11 @@ interface RoutinesState {
   fetchRoutineById: (id: string) => Promise<void>;
   fetchRoutineHistory: (routineId: string) => Promise<void>;
   saveRoutineSession: (session: RoutineSession) => Promise<void>;
-  
+
   // Filters
   setSearch: (search: string) => void;
   setStatus: (status: RoutineStatus | 'All') => void;
-  
+
   // Computed
   getFilteredRoutines: () => Routine[];
 }
@@ -97,20 +101,19 @@ export const useRoutinesStore = create<RoutinesState>((set, get) => ({
   // Computed - get filtered routines based on search and status
   getFilteredRoutines: () => {
     const { routines, search, status } = get();
-    
+
     // Filter by status
-    const byStatus = status === 'All' 
-      ? routines 
-      : routines.filter((r) => r.status === status);
-    
+    const byStatus =
+      status === 'All' ? routines : routines.filter((r) => r.status === status);
+
     // Filter by search
     const q = search.trim().toLowerCase();
     if (!q) return byStatus;
-    
-    return byStatus.filter((r) =>
-      r.name.toLowerCase().includes(q) ||
-      r.muscleGroups.join(' ').toLowerCase().includes(q)
+
+    return byStatus.filter(
+      (r) =>
+        r.name.toLowerCase().includes(q) ||
+        r.muscleGroups.join(' ').toLowerCase().includes(q),
     );
   },
 }));
-

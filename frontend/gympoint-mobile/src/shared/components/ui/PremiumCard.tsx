@@ -70,13 +70,13 @@ type Props = {
   icon?: string;
 };
 
-export function PremiumCard({ 
-  title, 
-  description, 
-  benefits, 
-  buttonText, 
+export function PremiumCard({
+  title,
+  description,
+  benefits,
+  buttonText,
   onButtonPress,
-  icon = "gift"
+  icon = 'gift',
 }: Props) {
   return (
     <Card style={{ borderColor: palette.premiumBorderAlt, borderWidth: 1 }}>

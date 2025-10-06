@@ -3,7 +3,10 @@ import { Modal, ScrollView, TouchableOpacity, View, Text } from 'react-native';
 
 import { rad, sp } from '@shared/styles';
 
-export const SheetOverlay = styled(Modal).attrs({ transparent: true, animationType: 'fade' })``;
+export const SheetOverlay = styled(Modal).attrs({
+  transparent: true,
+  animationType: 'fade',
+})``;
 
 export const SheetContainer = styled(View)`
   flex: 1;
@@ -23,7 +26,9 @@ export const SheetBody = styled(View)`
   padding: ${({ theme }) => sp(theme, 2)}px;
 `;
 
-export const ContentScroll = styled(ScrollView).attrs({ contentContainerStyle: { paddingBottom: 12 } })``;
+export const ContentScroll = styled(ScrollView).attrs({
+  contentContainerStyle: { paddingBottom: 12 },
+})``;
 
 export const SheetTitle = styled(Text)`
   font-weight: 700;
@@ -47,13 +52,15 @@ export const Chip = styled(TouchableOpacity)<{ $active?: boolean }>`
   border-radius: ${({ theme }) => rad(theme, 'md', 12)}px;
   border-width: 1px;
   border-color: ${({ theme, $active }) =>
-    $active ? theme?.colors?.primary ?? '#635BFF' : theme?.colors?.border ?? '#e5e7eb'};
+    $active
+      ? (theme?.colors?.primary ?? '#635BFF')
+      : (theme?.colors?.border ?? '#e5e7eb')};
   background-color: ${({ theme, $active }) =>
-    $active ? theme?.colors?.primary ?? '#635BFF' : theme?.colors?.bg ?? '#fafafa'};
+    $active ? (theme?.colors?.primary ?? '#635BFF') : (theme?.colors?.bg ?? '#fafafa')};
 `;
 
 export const ChipText = styled(Text)<{ $active?: boolean }>`
-  color: ${({ theme, $active }) => ($active ? '#fff' : theme?.colors?.text ?? '#111')};
+  color: ${({ theme, $active }) => ($active ? '#fff' : (theme?.colors?.text ?? '#111'))};
   font-weight: 600;
 `;
 

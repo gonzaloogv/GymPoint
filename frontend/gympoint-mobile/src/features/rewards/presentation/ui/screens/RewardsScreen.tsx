@@ -5,8 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
 // 1. IMPORTACIONES DE DOMINIO Y HOOKS
-import { User } from '@features/auth/domain/entities/User'; 
-import { useRewards } from '@features/rewards/presentation/hooks/useRewards'; 
+import { User } from '@features/auth/domain/entities/User';
+import { useRewards } from '@features/rewards/presentation/hooks/useRewards';
 
 // 2. IMPORTACIONES DE COMPONENTES MODULARES
 import {
@@ -19,8 +19,10 @@ import {
 } from '@features/rewards/presentation/ui/components';
 
 // 3. IMPORTACIONES DE ESTILOS MODULARES
-import { ScrollContainer, Container } from '@features/rewards/presentation/ui/styles/layout';
-
+import {
+  ScrollContainer,
+  Container,
+} from '@features/rewards/presentation/ui/styles/layout';
 
 // --- INTERFAZ DE PROPS ---
 interface RewardsScreenProps {
@@ -53,12 +55,15 @@ const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser }) => 
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }} edges={['top', 'left', 'right']}>
-      <ScrollContainer 
-        contentContainerStyle={{ 
-          paddingBottom: 50, 
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: '#ffffff' }}
+      edges={['top', 'left', 'right']}
+    >
+      <ScrollContainer
+        contentContainerStyle={{
+          paddingBottom: 50,
           paddingHorizontal: 16,
-          flexGrow: 1 
+          flexGrow: 1,
         }}
         showsVerticalScrollIndicator={false}
         bounces={true}
@@ -68,15 +73,10 @@ const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser }) => 
           <RewardsHeader user={user} />
 
           {/* Banner Premium para usuarios Free */}
-          {user.plan === 'Free' && (
-            <PremiumUpsell onPress={handlePremiumPress} />
-          )}
+          {user.plan === 'Free' && <PremiumUpsell onPress={handlePremiumPress} />}
 
           {/* Sistema de pestañas */}
-          <RewardsTabs 
-            activeTab={activeTab} 
-            onTabChange={setActiveTab} 
-          />
+          <RewardsTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
           {/* Contenido de las pestañas */}
           <RewardsContent

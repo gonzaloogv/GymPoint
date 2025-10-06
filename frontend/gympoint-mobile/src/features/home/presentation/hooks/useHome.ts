@@ -50,4 +50,3 @@ const useHomeHook = () => {
 
 export default useHomeHook;
 export { useHomeHook as useHome };
-

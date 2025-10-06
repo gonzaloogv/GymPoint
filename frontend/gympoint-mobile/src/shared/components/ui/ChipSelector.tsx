@@ -14,13 +14,15 @@ const Chip = styled(TouchableOpacity)<{ $active?: boolean }>`
   border-radius: ${({ theme }) => rad(theme, 'md', 12)}px;
   border-width: 1px;
   border-color: ${({ theme, $active }) =>
-    $active ? theme?.colors?.primary ?? '#635BFF' : theme?.colors?.border ?? '#e5e7eb'};
+    $active
+      ? (theme?.colors?.primary ?? '#635BFF')
+      : (theme?.colors?.border ?? '#e5e7eb')};
   background-color: ${({ theme, $active }) =>
-    $active ? theme?.colors?.primary ?? '#635BFF' : theme?.colors?.bg ?? '#fafafa'};
+    $active ? (theme?.colors?.primary ?? '#635BFF') : (theme?.colors?.bg ?? '#fafafa')};
 `;
 
 const ChipText = styled(Text)<{ $active?: boolean }>`
-  color: ${({ theme, $active }) => ($active ? '#fff' : theme?.colors?.text ?? '#111')};
+  color: ${({ theme, $active }) => ($active ? '#fff' : (theme?.colors?.text ?? '#111'))};
   font-weight: 600;
 `;
 
@@ -37,7 +39,13 @@ type Props = {
   spaced?: boolean;
 };
 
-export function ChipSelector({ title, options, isActive, onToggle, spaced = false }: Props) {
+export function ChipSelector({
+  title,
+  options,
+  isActive,
+  onToggle,
+  spaced = false,
+}: Props) {
   return (
     <>
       {title && <SectionTitle $spaced={spaced}>{title}</SectionTitle>}

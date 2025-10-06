@@ -4,4 +4,3 @@ export interface HomeStats {
   tokens: number;
   streak: number;
 }
-

@@ -17,10 +17,10 @@ const LabelsRow = styled(View)`
 `;
 
 const LabelText = styled(Text)<{ $selected?: boolean }>`
-  color: ${({ theme, $selected }) => 
+  color: ${({ theme, $selected }) =>
     $selected ? theme.colors.primary : theme.colors.subtext};
   font-size: 13px;
-  font-weight: ${({ $selected }) => $selected ? '600' : '400'};
+  font-weight: ${({ $selected }) => ($selected ? '600' : '400')};
 `;
 
 interface Props {
@@ -52,4 +52,3 @@ export function FrequencySlider({ value, onChange }: Props) {
     </Container>
   );
 }
-

@@ -20,7 +20,11 @@ interface RewardsState {
   setActiveTab: (tab: RewardsTab) => void;
   fetchRewards: (isPremium: boolean) => Promise<void>;
   fetchGeneratedCodes: () => Promise<void>;
-  handleGenerate: (reward: Reward, userTokens: number, onUpdateUser: (tokens: number) => void) => Promise<void>;
+  handleGenerate: (
+    reward: Reward,
+    userTokens: number,
+    onUpdateUser: (tokens: number) => void,
+  ) => Promise<void>;
   handleCopy: (code: string) => Promise<void>;
   handleToggleCode: (code: GeneratedCode) => void;
 }
@@ -62,7 +66,10 @@ export const useRewardsStore = create<RewardsState>((set, get) => ({
 
   handleGenerate: async (reward, userTokens, onUpdateUser) => {
     if (userTokens < reward.cost) {
-      Toast.show({ type: 'error', text1: 'No tenés suficientes tokens para esta recompensa' });
+      Toast.show({
+        type: 'error',
+        text1: 'No tenés suficientes tokens para esta recompensa',
+      });
       return;
     }
 
@@ -103,7 +110,7 @@ export const useRewardsStore = create<RewardsState>((set, get) => ({
               used: willMarkAsUsed,
               usedAt: willMarkAsUsed ? new Date() : undefined,
             }
-          : item
+          : item,
       ),
     }));
 
@@ -113,4 +120,3 @@ export const useRewardsStore = create<RewardsState>((set, get) => ({
     });
   },
 }));
-

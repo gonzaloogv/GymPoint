@@ -1,5 +1,5 @@
-import React from "react";
-import { ScrollView, View, Text, StyleSheet } from "react-native";
+import React from 'react';
+import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { GymDetailScreenProps } from './GymDetailScreen.types';
 
 type Props = GymDetailScreenProps & {
@@ -16,17 +16,31 @@ export function GymDetailScreenTest({ gym, onBack, onCheckIn, dataSource }: Prop
         <Text style={styles.text}>Distancia: {gym.distance.toFixed(1)} km</Text>
         <Text style={styles.text}>Horarios: {gym.hours}</Text>
         <Text style={styles.text}>Precio: ${gym.price || 'No disponible'}</Text>
-        <Text style={styles.text}>Servicios: {gym.services.join(', ') || 'No disponibles'}</Text>
+        <Text style={styles.text}>
+          Servicios: {gym.services.join(', ') || 'No disponibles'}
+        </Text>
       </View>
-      
+
       <View style={styles.section}>
         <Text style={styles.subtitle}>🎯 Información de Debug</Text>
         <Text style={styles.debugText}>ID: {gym.id}</Text>
         <Text style={styles.debugText}>Coordenadas: {gym.coordinates.join(', ')}</Text>
-        <Text style={styles.debugText}>En rango: {gym.distance <= 0.15 ? 'Sí' : 'No'}</Text>
+        <Text style={styles.debugText}>
+          En rango: {gym.distance <= 0.15 ? 'Sí' : 'No'}
+        </Text>
         <Text style={styles.debugText}>Rating: {gym.rating || 'No disponible'}</Text>
-        <Text style={[styles.debugText, { fontWeight: 'bold', color: dataSource === 'api' ? '#4CAF50' : '#FF9800' }]}>
-          Origen: {dataSource === 'api' ? '🌐 API' : dataSource === 'mocks' ? '📦 Mocks' : '❓ Desconocido'}
+        <Text
+          style={[
+            styles.debugText,
+            { fontWeight: 'bold', color: dataSource === 'api' ? '#4CAF50' : '#FF9800' },
+          ]}
+        >
+          Origen:{' '}
+          {dataSource === 'api'
+            ? '🌐 API'
+            : dataSource === 'mocks'
+              ? '📦 Mocks'
+              : '❓ Desconocido'}
         </Text>
       </View>
 
@@ -35,7 +49,9 @@ export function GymDetailScreenTest({ gym, onBack, onCheckIn, dataSource }: Prop
         {gym.equipment ? (
           gym.equipment.map((eq, index) => (
             <View key={index} style={styles.equipmentSection}>
-              <Text style={styles.equipmentCategory}>{eq.icon} {eq.category}</Text>
+              <Text style={styles.equipmentCategory}>
+                {eq.icon} {eq.category}
+              </Text>
               {eq.items.map((item, itemIndex) => (
                 <Text key={itemIndex} style={styles.equipmentItem}>
                   • {item.name} (x{item.quantity})

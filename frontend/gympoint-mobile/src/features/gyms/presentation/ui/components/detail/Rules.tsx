@@ -1,4 +1,4 @@
-import styled from "styled-components/native";
+import styled from 'styled-components/native';
 
 const Wrapper = styled.View`
   padding: 16px;

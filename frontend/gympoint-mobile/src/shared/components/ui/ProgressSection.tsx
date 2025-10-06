@@ -20,12 +20,12 @@ type Props = {
   description?: string;
 };
 
-export function ProgressSection({ 
-  current, 
-  goal, 
-  progressPct, 
-  label = "Meta semanal",
-  description 
+export function ProgressSection({
+  current,
+  goal,
+  progressPct,
+  label = 'Meta semanal',
+  description,
 }: Props) {
   const displayDescription = description || `${current} de ${goal} entrenamientos`;
 

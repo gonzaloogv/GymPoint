@@ -22,7 +22,10 @@ type UseRoutineExecutionResult = {
   completeSet: () => void;
 };
 
-export const useRoutineExecution = ({ id, onComplete }: UseRoutineExecutionParams): UseRoutineExecutionResult => {
+export const useRoutineExecution = ({
+  id,
+  onComplete,
+}: UseRoutineExecutionParams): UseRoutineExecutionResult => {
   const routine = useRoutineById(id);
   const [exerciseIndex, setExerciseIndex] = useState(0);
   const [currentSet, setCurrentSet] = useState(1);
@@ -50,7 +53,10 @@ export const useRoutineExecution = ({ id, onComplete }: UseRoutineExecutionParam
     if (restSeconds <= 0) {
       return;
     }
-    const timer = setInterval(() => setRestSeconds((value) => Math.max(0, value - 1)), 1000);
+    const timer = setInterval(
+      () => setRestSeconds((value) => Math.max(0, value - 1)),
+      1000,
+    );
     return () => clearInterval(timer);
   }, [restSeconds]);
 
@@ -58,7 +64,8 @@ export const useRoutineExecution = ({ id, onComplete }: UseRoutineExecutionParam
 
   const goToPrevious = () => setExerciseIndex((index) => Math.max(0, index - 1));
 
-  const goToNext = () => setExerciseIndex((index) => Math.min(totalExercises - 1, index + 1));
+  const goToNext = () =>
+    setExerciseIndex((index) => Math.min(totalExercises - 1, index + 1));
 
   const completeSet = () => {
     if (currentSet < totalSets) {

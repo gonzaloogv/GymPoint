@@ -6,4 +6,3 @@ export interface Exercise {
   rest: number; // segundos
   muscleGroups: string[];
 }
-

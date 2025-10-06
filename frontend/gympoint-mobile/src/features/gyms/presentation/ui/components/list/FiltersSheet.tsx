@@ -1,5 +1,9 @@
 import React from 'react';
-import { PRICE_OPTIONS, SERVICE_OPTIONS, TIME_OPTIONS } from '@features/gyms/domain/constants/filters';
+import {
+  PRICE_OPTIONS,
+  SERVICE_OPTIONS,
+  TIME_OPTIONS,
+} from '@features/gyms/domain/constants/filters';
 import { FilterSheet, ChipSelector } from '@shared/components/ui';
 
 type FiltersSheetProps = {
@@ -16,7 +20,6 @@ type FiltersSheetProps = {
   onClear?: () => void;
   onApply?: () => void;
 };
-
 
 const FiltersSheet: React.FC<FiltersSheetProps> = ({
   visible,
@@ -85,7 +88,7 @@ const FiltersSheet: React.FC<FiltersSheetProps> = ({
 
       <ChipSelector
         title="Estado"
-        options={["Abierto ahora"]}
+        options={['Abierto ahora']}
         isActive={() => openNow}
         onToggle={() => setOpenNow(!openNow)}
         spaced

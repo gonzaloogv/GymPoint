@@ -20,10 +20,7 @@ interface PremiumAlertProps {
   theme: AppTheme;
 }
 
-export const PremiumAlert: React.FC<PremiumAlertProps> = ({
-  onUpgrade,
-  theme,
-}) => {
+export const PremiumAlert: React.FC<PremiumAlertProps> = ({ onUpgrade, theme }) => {
   return (
     <AlertCard purple theme={theme}>
       <View

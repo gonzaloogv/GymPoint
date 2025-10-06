@@ -8,4 +8,3 @@ export class GetAvailableRewards {
     return this.repository.getAvailableRewards(isPremium);
   }
 }
-

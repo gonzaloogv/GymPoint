@@ -79,7 +79,6 @@ function GymsStackNavigator() {
   );
 }
 
-
 export default function AppTabs() {
   const theme = useAppTheme();
   const user = useAuthStore((s) => s.user);
@@ -114,11 +113,7 @@ export default function AppTabs() {
 
   const renderUserProfileScreen = React.useCallback(
     () => (
-      <UserProfileScreen
-        user={user}
-        onUpdateUser={updateUser}
-        onLogout={handleLogout}
-      />
+      <UserProfileScreen user={user} onUpdateUser={updateUser} onLogout={handleLogout} />
     ),
     [user, updateUser, handleLogout],
   );
@@ -148,14 +143,15 @@ export default function AppTabs() {
         name="Inicio"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ focused, size = 20 }) => 
-            renderTabPill(focused, 
+          tabBarIcon: ({ focused, size = 20 }) =>
+            renderTabPill(
+              focused,
               <TabIcon
                 source={HomeIcon}
                 size={size}
                 color={focused ? theme.colors.primary : theme.colors.textMuted}
-              />, 
-              "Inicio"
+              />,
+              'Inicio',
             ),
         }}
       />
@@ -165,14 +161,15 @@ export default function AppTabs() {
         name="Rutinas"
         component={RoutinesStackNavigator}
         options={{
-          tabBarIcon: ({ focused, size = 20 }) => 
-            renderTabPill(focused, 
+          tabBarIcon: ({ focused, size = 20 }) =>
+            renderTabPill(
+              focused,
               <TabIcon
                 source={WorkoutIcon}
                 size={size}
                 color={focused ? theme.colors.primary : theme.colors.textMuted}
-              />, 
-              "Rutinas"
+              />,
+              'Rutinas',
             ),
         }}
       />
@@ -181,14 +178,15 @@ export default function AppTabs() {
         name="Mapa"
         component={GymsStackNavigator}
         options={{
-          tabBarIcon: ({ focused, size = 20 }) => 
-            renderTabPill(focused, 
+          tabBarIcon: ({ focused, size = 20 }) =>
+            renderTabPill(
+              focused,
               <TabIcon
                 source={MapIcon}
                 size={size}
                 color={focused ? theme.colors.primary : theme.colors.textMuted}
-              />, 
-              "Mapa"
+              />,
+              'Mapa',
             ),
         }}
       />
@@ -197,14 +195,15 @@ export default function AppTabs() {
         name="Recompensa"
         children={renderRewardsScreen}
         options={{
-          tabBarIcon: ({ focused, size = 20 }) => 
-            renderTabPill(focused, 
+          tabBarIcon: ({ focused, size = 20 }) =>
+            renderTabPill(
+              focused,
               <TabIcon
                 source={StoreIcon}
                 size={size}
                 color={focused ? theme.colors.primary : theme.colors.textMuted}
-              />, 
-              "Tienda"
+              />,
+              'Tienda',
             ),
         }}
       />
@@ -213,14 +212,15 @@ export default function AppTabs() {
         name="Usuario"
         children={renderUserProfileScreen}
         options={{
-          tabBarIcon: ({ focused, size = 20 }) => 
-            renderTabPill(focused, 
+          tabBarIcon: ({ focused, size = 20 }) =>
+            renderTabPill(
+              focused,
               <TabIcon
                 source={UserIcon}
                 size={size}
                 color={focused ? theme.colors.primary : theme.colors.textMuted}
-              />, 
-              "Perfil"
+              />,
+              'Perfil',
             ),
         }}
       />

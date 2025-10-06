@@ -8,4 +8,3 @@ export class GetRoutines {
     return await this.repository.getAll();
   }
 }
-

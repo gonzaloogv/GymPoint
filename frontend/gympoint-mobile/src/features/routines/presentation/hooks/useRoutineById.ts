@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { useRoutinesStore } from '../state';
 
 export function useRoutineById(id?: string) {
-  const { currentRoutine, loadingRoutine, fetchRoutineById, routines } = useRoutinesStore();
+  const { currentRoutine, loadingRoutine, fetchRoutineById, routines } =
+    useRoutinesStore();
 
   useEffect(() => {
     if (id) {

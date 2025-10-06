@@ -7,18 +7,26 @@ import { palette, rad } from '@shared/styles';
 const BannerCardContainer = styled(Card)<{ $variant: 'warning' | 'premium' | 'info' }>`
   border-color: ${({ $variant }) => {
     switch ($variant) {
-      case 'warning': return palette.warningBorder;
-      case 'premium': return palette.premiumBorder;
-      case 'info': return palette.infoBorder;
-      default: return palette.neutralBorder;
+      case 'warning':
+        return palette.warningBorder;
+      case 'premium':
+        return palette.premiumBorder;
+      case 'info':
+        return palette.infoBorder;
+      default:
+        return palette.neutralBorder;
     }
   }};
   background-color: ${({ $variant }) => {
     switch ($variant) {
-      case 'warning': return palette.warningSurface;
-      case 'premium': return palette.premiumSurface;
-      case 'info': return palette.infoSurface;
-      default: return palette.surfaceMuted;
+      case 'warning':
+        return palette.warningSurface;
+      case 'premium':
+        return palette.premiumSurface;
+      case 'info':
+        return palette.infoSurface;
+      default:
+        return palette.surfaceMuted;
     }
   }};
 `;
@@ -37,10 +45,14 @@ const Title = styled.Text<{ $variant: 'warning' | 'premium' | 'info' }>`
   font-weight: 600;
   color: ${({ $variant }) => {
     switch ($variant) {
-      case 'warning': return palette.warningStrong;
-      case 'premium': return palette.premiumStrong;
-      case 'info': return palette.infoStrong;
-      default: return palette.textStrong;
+      case 'warning':
+        return palette.warningStrong;
+      case 'premium':
+        return palette.premiumStrong;
+      case 'info':
+        return palette.infoStrong;
+      default:
+        return palette.textStrong;
     }
   }};
 `;
@@ -49,10 +61,14 @@ const Description = styled.Text<{ $variant: 'warning' | 'premium' | 'info' }>`
   margin-bottom: ${({ theme }) => theme.spacing(1)}px;
   color: ${({ $variant }) => {
     switch ($variant) {
-      case 'warning': return palette.warningText;
-      case 'premium': return palette.premiumText;
-      case 'info': return palette.info;
-      default: return palette.textMuted;
+      case 'warning':
+        return palette.warningText;
+      case 'premium':
+        return palette.premiumText;
+      case 'info':
+        return palette.info;
+      default:
+        return palette.textMuted;
     }
   }};
 `;
@@ -76,10 +92,14 @@ const LeadingIcon = styled(FeatherIcon)<{ $variant: 'warning' | 'premium' | 'inf
   margin-top: ${({ theme }) => theme.spacing(0.25)}px;
   color: ${({ $variant }) => {
     switch ($variant) {
-      case 'warning': return palette.warningIcon;
-      case 'premium': return palette.premiumIcon;
-      case 'info': return palette.info;
-      default: return palette.textMuted;
+      case 'warning':
+        return palette.warningIcon;
+      case 'premium':
+        return palette.premiumIcon;
+      case 'info':
+        return palette.info;
+      default:
+        return palette.textMuted;
     }
   }};
 `;

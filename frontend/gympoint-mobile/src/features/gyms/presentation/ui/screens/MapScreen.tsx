@@ -89,7 +89,10 @@ export default function MapScreen() {
   };
 
   return (
-    <Screen scroll={!isListView} contentContainerStyle={!isListView ? { paddingBottom: 24 } : undefined}>
+    <Screen
+      scroll={!isListView}
+      contentContainerStyle={!isListView ? { paddingBottom: 24 } : undefined}
+    >
       <MapScreenHeader
         viewMode={viewMode}
         onChangeViewMode={setViewMode}
@@ -104,7 +107,11 @@ export default function MapScreen() {
       )}
 
       {isListView ? (
-        <GymsList data={filteredGyms} headerText={listHeader} onPressItem={handleGymPress} />
+        <GymsList
+          data={filteredGyms}
+          headerText={listHeader}
+          onPressItem={handleGymPress}
+        />
       ) : (
         <MapSection
           initialRegion={initialRegion}

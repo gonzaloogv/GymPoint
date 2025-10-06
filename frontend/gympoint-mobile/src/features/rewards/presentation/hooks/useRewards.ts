@@ -20,7 +20,10 @@ type UseRewardsResult = {
   handleToggleCode: (code: any) => void;
 };
 
-export const useRewards = ({ user, onUpdateUser }: UseRewardsParams): UseRewardsResult => {
+export const useRewards = ({
+  user,
+  onUpdateUser,
+}: UseRewardsParams): UseRewardsResult => {
   const {
     activeTab,
     setActiveTab,

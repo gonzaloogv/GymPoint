@@ -10,7 +10,10 @@ type RoutineExecutionScreenProps = {
   navigation: { goBack?: () => void };
 };
 
-const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({ route, navigation }) => {
+const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
+  route,
+  navigation,
+}) => {
   const id = route?.params?.id;
   const {
     routineName,

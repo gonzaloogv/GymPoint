@@ -8,4 +8,3 @@ export * from './ui/components';
 export { useRewards } from './hooks/useRewards';
 export * from './state';
 export * from './utils/categories';
-

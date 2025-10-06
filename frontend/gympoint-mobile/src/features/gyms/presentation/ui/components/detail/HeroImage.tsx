@@ -1,4 +1,4 @@
-import styled from "styled-components/native";
+import styled from 'styled-components/native';
 
 const Image = styled.Image`
   width: 100%;
@@ -7,7 +7,7 @@ const Image = styled.Image`
 
 export const HeroImage = () => (
   <Image
-    source={{ uri: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b" }}
+    source={{ uri: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b' }}
     resizeMode="cover"
   />
 );

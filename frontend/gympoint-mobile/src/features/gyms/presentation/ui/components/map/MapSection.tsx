@@ -55,7 +55,6 @@ const ErrorBanner = styled(Subtle)`
   border-radius: ${({ theme }) => rad(theme, 'overlay', 8)}px;
 `;
 
-
 const formatDistance = (distance?: number) =>
   typeof distance === 'number' ? `${(distance / 1000).toFixed(1)} km` : '—';
 

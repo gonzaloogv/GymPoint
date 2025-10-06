@@ -22,10 +22,6 @@ export function MapMarker({ location }: Props) {
   }
 
   return (
-    <Marker 
-      key={location.id} 
-      coordinate={location.coordinate} 
-      title={location.title} 
-    />
+    <Marker key={location.id} coordinate={location.coordinate} title={location.title} />
   );
 }

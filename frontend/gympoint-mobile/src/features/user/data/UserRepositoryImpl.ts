@@ -51,4 +51,3 @@ export class UserRepositoryImpl implements UserRepository {
     return mapUserProfileDTOToEntity(this.mockProfile);
   }
 }
-

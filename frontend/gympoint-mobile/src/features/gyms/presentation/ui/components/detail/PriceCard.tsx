@@ -1,4 +1,4 @@
-import styled from "styled-components/native";
+import styled from 'styled-components/native';
 
 const Card = styled.View`
   background: ${({ theme }) => theme.colors.card};
@@ -25,6 +25,6 @@ interface Props {
 export const PriceCard = ({ price }: Props) => (
   <Card>
     <Title>Membresía Mensual</Title>
-    <Price>${price.toLocaleString("es-AR")}</Price>
+    <Price>${price.toLocaleString('es-AR')}</Price>
   </Card>
 );

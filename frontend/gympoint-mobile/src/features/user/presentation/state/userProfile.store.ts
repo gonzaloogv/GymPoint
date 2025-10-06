@@ -70,9 +70,9 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
   updateNotifications: async (key, value) => {
     const currentNotifications = get().notifications;
     const updatedNotifications = { ...currentNotifications, [key]: value };
-    
+
     set({ notifications: updatedNotifications });
-    
+
     try {
       await DI.updateUserSettings.updateNotifications(updatedNotifications);
     } catch (error) {
@@ -85,7 +85,7 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
   toggleLocation: async (enabled) => {
     const previousValue = get().locationEnabled;
     set({ locationEnabled: enabled });
-    
+
     try {
       await DI.updateUserSettings.updateLocation(enabled);
     } catch (error) {
@@ -106,4 +106,3 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
 
   setShowPremiumModal: (show) => set({ showPremiumModal: show }),
 }));
-

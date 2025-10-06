@@ -12,4 +12,3 @@ export class UpdateUserSettings {
     return this.repository.updateLocationSettings(shareLocation);
   }
 }
-

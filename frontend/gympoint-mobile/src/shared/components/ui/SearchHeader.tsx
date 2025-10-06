@@ -34,7 +34,7 @@ export function SearchHeader({
   title,
   searchText,
   onChangeSearch,
-  searchPlaceholder = "Buscar...",
+  searchPlaceholder = 'Buscar...',
   children,
 }: Props) {
   return (

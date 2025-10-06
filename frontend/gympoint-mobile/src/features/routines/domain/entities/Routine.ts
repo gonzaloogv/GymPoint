@@ -13,4 +13,3 @@ export interface Routine {
   difficulty: 'Principiante' | 'Intermedio' | 'Avanzado';
   muscleGroups: string[];
 }
-

@@ -9,4 +9,3 @@ export interface Reward {
   validDays: number;
   available: boolean;
 }
-

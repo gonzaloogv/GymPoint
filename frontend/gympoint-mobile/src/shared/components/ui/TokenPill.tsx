@@ -5,7 +5,7 @@ import { Row } from './Row';
 const TokenPillContainer = styled(Row)`
   padding: ${({ theme }) => theme.spacing(0.5)}px ${({ theme }) => theme.spacing(1)}px;
   border-radius: 999px;
-  background-color: #FFF7ED;
+  background-color: #fff7ed;
 `;
 
 const TokenValue = styled.Text`

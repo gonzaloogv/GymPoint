@@ -2,7 +2,11 @@ import { useMemo } from 'react';
 import { useUserLocation } from '../../../../shared/hooks';
 
 type UseGymsDataProps = {
-  useNearbyGyms: (lat?: number, lng?: number, radius?: number) => {
+  useNearbyGyms: (
+    lat?: number,
+    lng?: number,
+    radius?: number,
+  ) => {
     data: any[] | null;
     loading: boolean;
     error: any;
@@ -16,7 +20,7 @@ type UseGymsDataProps = {
     priceFilter: string,
     openNow: boolean,
     timeFilter: string,
-    schedulesMap: any
+    schedulesMap: any,
   ) => any[];
   useMapInitialRegion: (lat?: number, lng?: number) => any;
   useMapLocations: (gyms: any[]) => any[];
@@ -49,10 +53,11 @@ export function useGymsData({
 
   const baseGyms = data?.length ? data : mockData;
   const baseIds = useMemo(
-    () => baseGyms
-      .map((gym: any) => Number(gym.id))
-      .filter((id: any): id is number => Number.isFinite(id)),
-    [baseGyms]
+    () =>
+      baseGyms
+        .map((gym: any) => Number(gym.id))
+        .filter((id: any): id is number => Number.isFinite(id)),
+    [baseGyms],
   );
   const { schedulesMap } = useGymSchedules(baseIds);
 

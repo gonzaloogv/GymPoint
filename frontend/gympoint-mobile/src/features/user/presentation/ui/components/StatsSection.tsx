@@ -52,7 +52,9 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
   return (
     <Card>
       {/* Título de la sección */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+      <View
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}
+      >
         <Feather name="bar-chart-2" size={20} color="#000" />
         <Text style={{ fontSize: 18, fontWeight: '700', color: '#000' }}>
           Estadísticas
@@ -73,7 +75,14 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
             alignItems: 'center',
           }}
         >
-          <Text style={{ fontSize: 14, color: palette.textGray, opacity: 0.7, textAlign: 'center' }}>
+          <Text
+            style={{
+              fontSize: 14,
+              color: palette.textGray,
+              opacity: 0.7,
+              textAlign: 'center',
+            }}
+          >
             Con Premium desbloqueás estadísticas detalladas y gráficos
           </Text>
         </View>

@@ -19,34 +19,39 @@ export function GymDetailScreenWrapper() {
 
   // Obtener ubicación del usuario
   const { coords } = useCurrentLocation();
-  
+
   // Debug de coordenadas
   console.log('📍 Coordenadas del usuario:', coords);
-  
+
   // Obtener la lista de gimnasios para encontrar el seleccionado
-  const { data: gymsData, loading: gymsLoading, error: gymsError, dataSource } = useNearbyGyms(
-    coords?.latitude, 
-    coords?.longitude
-  );
+  const {
+    data: gymsData,
+    loading: gymsLoading,
+    error: gymsError,
+    dataSource,
+  } = useNearbyGyms(coords?.latitude, coords?.longitude);
 
   const gym = useMemo(() => {
     console.log('🔍 Buscando gimnasio:', { gymId, gymsDataLength: gymsData?.length });
-    
+
     if (!gymsData || !gymId) {
       console.log('❌ No hay datos o gymId:', { gymsData: !!gymsData, gymId });
       return null;
     }
-    
-    console.log('📋 IDs disponibles:', gymsData.map(g => g.id));
-    
+
+    console.log(
+      '📋 IDs disponibles:',
+      gymsData.map((g) => g.id),
+    );
+
     const foundGym = gymsData.find((g: GymEntity) => g.id === gymId);
     if (!foundGym) {
       console.log('❌ Gimnasio no encontrado con ID:', gymId);
       return null;
     }
-    
+
     console.log('✅ Gimnasio encontrado:', foundGym.name);
-    
+
     // Mapear la entidad Gym al formato esperado por GymDetailScreen
     return {
       id: foundGym.id,
@@ -65,26 +70,26 @@ export function GymDetailScreenWrapper() {
           items: [
             { name: 'Prensa', quantity: 2 },
             { name: 'Polea', quantity: 3 },
-            { name: 'Extensión de piernas', quantity: 3 }
-          ]
+            { name: 'Extensión de piernas', quantity: 3 },
+          ],
         },
         {
           category: 'Cardio',
           icon: '🏃',
           items: [
             { name: 'Cintas de correr', quantity: 10 },
-            { name: 'Bicicletas fijas', quantity: 5 }
-          ]
+            { name: 'Bicicletas fijas', quantity: 5 },
+          ],
         },
         {
           category: 'Pesas libres',
           icon: '💪',
           items: [
             { name: 'Mancuernas', quantity: 12 },
-            { name: 'Barras', quantity: 8 }
-          ]
-        }
-      ]
+            { name: 'Barras', quantity: 8 },
+          ],
+        },
+      ],
     };
   }, [gymsData, gymId]);
 
@@ -111,7 +116,9 @@ export function GymDetailScreenWrapper() {
 
   if (gymsError) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+      <View
+        style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}
+      >
         <Text style={{ fontSize: 16, textAlign: 'center', color: 'red' }}>
           Error al cargar el gimnasio: {String(gymsError)}
         </Text>
@@ -121,7 +128,9 @@ export function GymDetailScreenWrapper() {
 
   if (!gym) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+      <View
+        style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}
+      >
         <Text style={{ fontSize: 16, textAlign: 'center' }}>
           Gimnasio no encontrado (ID: {gymId})
         </Text>
@@ -129,17 +138,16 @@ export function GymDetailScreenWrapper() {
           Datos disponibles: {gymsData?.length || 0} gimnasios
         </Text>
         <Text style={{ fontSize: 12, textAlign: 'center', marginTop: 4, color: 'blue' }}>
-          Origen: {dataSource === 'api' ? '🌐 API' : dataSource === 'mocks' ? '📦 Mocks' : '❓ Desconocido'}
+          Origen:{' '}
+          {dataSource === 'api'
+            ? '🌐 API'
+            : dataSource === 'mocks'
+              ? '📦 Mocks'
+              : '❓ Desconocido'}
         </Text>
       </View>
     );
   }
 
-  return (
-    <GymDetailScreen
-      gym={gym}
-      onBack={handleBack}
-      onCheckIn={handleCheckIn}
-    />
-  );
+  return <GymDetailScreen gym={gym} onBack={handleBack} onCheckIn={handleCheckIn} />;
 }

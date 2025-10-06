@@ -65,4 +65,3 @@ export const useHomeStore = create<HomeState>((set, get) => ({
 
   setUser: (user) => set({ user }),
 }));
-

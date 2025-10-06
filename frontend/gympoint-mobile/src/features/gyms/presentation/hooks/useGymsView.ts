@@ -5,7 +5,7 @@ export function useGymsView(initialView: 'map' | 'list' = 'map') {
 
   const switchToMap = () => setViewMode('map');
   const switchToList = () => setViewMode('list');
-  const toggleView = () => setViewMode(current => current === 'map' ? 'list' : 'map');
+  const toggleView = () => setViewMode((current) => (current === 'map' ? 'list' : 'map'));
 
   const isListView = viewMode === 'list';
   const isMapView = viewMode === 'map';

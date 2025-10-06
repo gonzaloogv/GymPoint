@@ -32,7 +32,8 @@ const Chip = styled.TouchableOpacity<{ $active?: boolean }>`
 `;
 
 const ChipText = styled.Text<{ $active?: boolean }>`
-  color: ${({ theme, $active }) => ($active ? theme.colors.onPrimary : theme.colors.text)};
+  color: ${({ theme, $active }) =>
+    $active ? theme.colors.onPrimary : theme.colors.text};
   font-size: ${({ theme }) => theme.typography.small}px;
   font-weight: 600;
 `;

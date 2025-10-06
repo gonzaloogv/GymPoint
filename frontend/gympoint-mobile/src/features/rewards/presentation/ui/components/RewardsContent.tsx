@@ -30,20 +30,12 @@ export const RewardsContent: React.FC<RewardsContentProps> = ({
 }) => {
   // Renderizado para REWARD ITEM
   const renderRewardItem = ({ item }: { item: Reward }) => (
-    <RewardItem 
-      reward={item} 
-      tokens={user.tokens} 
-      onGenerate={onGenerate} 
-    />
+    <RewardItem reward={item} tokens={user.tokens} onGenerate={onGenerate} />
   );
 
   // Renderizado para GENERATED CODE ITEM
   const renderCodeItem = ({ item }: { item: GeneratedCode }) => (
-    <GeneratedCodeItem 
-      item={item}
-      onCopy={onCopy}
-      onToggle={onToggleCode}
-    />
+    <GeneratedCodeItem item={item} onCopy={onCopy} onToggle={onToggleCode} />
   );
 
   return (

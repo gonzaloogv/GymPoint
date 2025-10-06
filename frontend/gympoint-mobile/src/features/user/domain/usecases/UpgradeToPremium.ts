@@ -8,4 +8,3 @@ export class UpgradeToPremium {
     return this.repository.upgradeToPremium();
   }
 }
-

@@ -2,7 +2,6 @@ import { memo } from 'react';
 import { SearchHeader } from '@shared/components/ui';
 import HeaderActions from './HeaderActions';
 
-
 type Props = {
   viewMode: 'map' | 'list';
   onChangeViewMode: (mode: 'map' | 'list') => void;

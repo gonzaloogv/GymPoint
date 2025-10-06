@@ -1,7 +1,13 @@
 import { useState } from 'react';
 
 import dumbbellIcon from '@assets/dumbbell.png';
-import { AuthCard, AuthCardTitle, DividerWithText, Screen, SocialButton } from '@shared/components/ui';
+import {
+  AuthCard,
+  AuthCardTitle,
+  DividerWithText,
+  Screen,
+  SocialButton,
+} from '@shared/components/ui';
 
 import { useAuthStore } from '../state/auth.store';
 import { RegisterForm } from './components/RegisterForm';
@@ -50,7 +56,9 @@ export default function RegisterScreen() {
   };
 
   const handleGoogle = () => console.log('Continuar con Google');
-  const handleBackToLogin = () => {navigation.navigate("Login")};
+  const handleBackToLogin = () => {
+    navigation.navigate('Login');
+  };
 
   return (
     <Screen

@@ -12,8 +12,13 @@ export const RewardsTabs: React.FC<RewardsTabsProps> = ({ activeTab, onTabChange
   return (
     <TabsContainer>
       <TabsList>
-        <TabsTrigger $active={activeTab === 'available'} onPress={() => onTabChange('available')}>
-          <TabsTriggerText $active={activeTab === 'available'}>Disponibles</TabsTriggerText>
+        <TabsTrigger
+          $active={activeTab === 'available'}
+          onPress={() => onTabChange('available')}
+        >
+          <TabsTriggerText $active={activeTab === 'available'}>
+            Disponibles
+          </TabsTriggerText>
         </TabsTrigger>
         <TabsTrigger $active={activeTab === 'codes'} onPress={() => onTabChange('codes')}>
           <TabsTriggerText $active={activeTab === 'codes'}>Mis códigos</TabsTriggerText>

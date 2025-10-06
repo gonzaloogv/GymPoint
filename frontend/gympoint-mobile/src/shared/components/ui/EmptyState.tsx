@@ -37,12 +37,7 @@ type Props = {
   onButtonPress?: () => void;
 };
 
-export function EmptyState({ 
-  title, 
-  description, 
-  buttonText, 
-  onButtonPress 
-}: Props) {
+export function EmptyState({ title, description, buttonText, onButtonPress }: Props) {
   return (
     <Container>
       <Card>
@@ -50,17 +45,15 @@ export function EmptyState({
           <Title>{title}</Title>
           <Description>{description}</Description>
           {buttonText && onButtonPress && (
-            <Button 
+            <Button
               variant="primary"
-              style={{ 
-                minHeight: 44, 
-                alignSelf: 'stretch'
-              }} 
+              style={{
+                minHeight: 44,
+                alignSelf: 'stretch',
+              }}
               onPress={onButtonPress}
             >
-              <ButtonText>
-                {buttonText}
-              </ButtonText>
+              <ButtonText>{buttonText}</ButtonText>
             </Button>
           )}
         </Content>

@@ -8,4 +8,3 @@ export interface GeneratedCode {
   used: boolean;
   usedAt?: Date;
 }
-

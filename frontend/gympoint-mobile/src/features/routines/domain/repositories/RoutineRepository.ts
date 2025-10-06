@@ -7,4 +7,3 @@ export interface RoutineRepository {
   getHistory(routineId: string): Promise<RoutineSession[]>;
   saveSession(session: RoutineSession): Promise<void>;
 }
-

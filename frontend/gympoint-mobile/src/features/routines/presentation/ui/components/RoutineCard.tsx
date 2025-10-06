@@ -53,7 +53,14 @@ type Routine = {
   difficulty: 'Principiante' | 'Intermedio' | 'Avanzado';
   nextScheduled?: string;
   lastPerformed?: string;
-  exercises: Array<{ id: string; name: string; sets: number | string; reps: string; rest: number; muscleGroups: string[] }>;
+  exercises: Array<{
+    id: string;
+    name: string;
+    sets: number | string;
+    reps: string;
+    rest: number;
+    muscleGroups: string[];
+  }>;
   muscleGroups: string[];
 };
 

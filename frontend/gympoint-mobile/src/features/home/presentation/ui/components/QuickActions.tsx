@@ -46,18 +46,20 @@ export default function QuickActions({ onFindGyms, onMyRoutines }: Props) {
 
   return (
     <QuickGrid>
-      {actions.map(({ key, label, description, icon, color, background, onPress }, index) => (
-        <ActionCard
-          key={key}
-          label={label}
-          description={description}
-          icon={icon}
-          iconColor={color}
-          iconBackground={background}
-          onPress={onPress}
-          spaced={index === 0}
-        />
-      ))}
+      {actions.map(
+        ({ key, label, description, icon, color, background, onPress }, index) => (
+          <ActionCard
+            key={key}
+            label={label}
+            description={description}
+            icon={icon}
+            iconColor={color}
+            iconBackground={background}
+            onPress={onPress}
+            spaced={index === 0}
+          />
+        ),
+      )}
     </QuickGrid>
   );
 }

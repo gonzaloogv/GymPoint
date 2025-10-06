@@ -18,4 +18,3 @@ export interface DailyChallengeDTO {
   reward: number;
   completed: boolean;
 }
-

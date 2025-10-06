@@ -1,4 +1,4 @@
-import styled from "styled-components/native";
+import styled from 'styled-components/native';
 import { Feather } from '@expo/vector-icons';
 
 const Wrapper = styled.View`

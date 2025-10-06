@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
 import dumbbellIcon from '@assets/dumbbell.png';
-import { DI } from '@di/container';
 import {
   AuthCard,
   AuthCardTitle,
@@ -57,7 +56,7 @@ export default function LoginScreen() {
   const handleGoogle = () => console.log('Continuar con Google');
   const handleForgotPassword = () => console.log('Olvidé mi contraseña');
   const handleRegister = () => {
-    navigation.navigate("Register"); // 👈 redirige al RegisterScreen
+    navigation.navigate('Register'); // 👈 redirige al RegisterScreen
   };
 
   return (

@@ -79,7 +79,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
 
   const handleNotificationToggle = async (
     key: keyof typeof notifications,
-    value: boolean
+    value: boolean,
   ) => {
     await updateNotifications(key, value);
   };
@@ -107,60 +107,58 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
         {/* 1. Header */}
         <ProfileHeader user={resolvedUser} theme={theme} />
 
-      {/* 2. Plan */}
-      {resolvedUser.plan === 'Free' ? (
-        <PremiumAlert onUpgrade={handleUpgradeToPremium} theme={theme} />
-      ) : (
-        <PremiumBadge theme={theme} />
-      )}
+        {/* 2. Plan */}
+        {resolvedUser.plan === 'Free' ? (
+          <PremiumAlert onUpgrade={handleUpgradeToPremium} theme={theme} />
+        ) : (
+          <PremiumBadge theme={theme} />
+        )}
 
-      {/* 3. Stats */}
-      <StatsSection
-        stats={stats || defaultStats}
-        isPremium={resolvedUser.plan === 'Premium'}
-        theme={theme}
-      />
-
-      {/* 4. Configuraciones */}
-      <SettingsCard
-        notifications={notifications}
-        onNotificationToggle={handleNotificationToggle}
-        locationEnabled={locationEnabled}
-        onLocationToggle={toggleLocation}
-        theme={theme}
-      />
-
-      {/* 5. Menú */}
-      <MenuOptions isPremium={resolvedUser.plan === 'Premium'} theme={theme} />
-
-      {/* 6. Beneficios Premium */}
-      {resolvedUser.plan === 'Free' && (
-        <PremiumBenefitsCard onUpgrade={handleUpgradeToPremium} theme={theme} />
-      )}
-
-      {/* 7. Footer */}
-      <LegalFooter theme={theme} />
-
-      {/* 8. Logout */}
-      <Button
-        onPress={handleLogoutPress}
-        style={{ 
-          marginBottom: theme.spacing(2),
-          backgroundColor: 'transparent',
-          borderWidth: 1,
-          borderColor: theme.colors.danger,
-        }}
-      >
-        <Feather
-          name="log-out"
-          size={16}
-          color={theme.colors.danger}
-          style={{ marginRight: 8 }}
+        {/* 3. Stats */}
+        <StatsSection
+          stats={stats || defaultStats}
+          isPremium={resolvedUser.plan === 'Premium'}
+          theme={theme}
         />
-        <ButtonText style={{ color: theme.colors.danger }}>
-          Cerrar sesión
-        </ButtonText>
-      </Button>
+
+        {/* 4. Configuraciones */}
+        <SettingsCard
+          notifications={notifications}
+          onNotificationToggle={handleNotificationToggle}
+          locationEnabled={locationEnabled}
+          onLocationToggle={toggleLocation}
+          theme={theme}
+        />
+
+        {/* 5. Menú */}
+        <MenuOptions isPremium={resolvedUser.plan === 'Premium'} theme={theme} />
+
+        {/* 6. Beneficios Premium */}
+        {resolvedUser.plan === 'Free' && (
+          <PremiumBenefitsCard onUpgrade={handleUpgradeToPremium} theme={theme} />
+        )}
+
+        {/* 7. Footer */}
+        <LegalFooter theme={theme} />
+
+        {/* 8. Logout */}
+        <Button
+          onPress={handleLogoutPress}
+          style={{
+            marginBottom: theme.spacing(2),
+            backgroundColor: 'transparent',
+            borderWidth: 1,
+            borderColor: theme.colors.danger,
+          }}
+        >
+          <Feather
+            name="log-out"
+            size={16}
+            color={theme.colors.danger}
+            style={{ marginRight: 8 }}
+          />
+          <ButtonText style={{ color: theme.colors.danger }}>Cerrar sesión</ButtonText>
+        </Button>
       </ContentWrapper>
     </Container>
   );

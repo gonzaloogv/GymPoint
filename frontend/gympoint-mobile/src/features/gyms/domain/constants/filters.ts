@@ -9,7 +9,12 @@ export const SERVICE_OPTIONS = [
   'Nutrición',
 ] as const;
 
-export const PRICE_OPTIONS = ['Gratis', '$5000-12000', '$12000-20000', '$20000+'] as const;
+export const PRICE_OPTIONS = [
+  'Gratis',
+  '$5000-12000',
+  '$12000-20000',
+  '$20000+',
+] as const;
 
 export const TIME_OPTIONS = [
   'Mañana (6-12)',

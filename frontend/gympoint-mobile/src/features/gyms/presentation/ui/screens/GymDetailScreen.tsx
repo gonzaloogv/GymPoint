@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { ScrollView, View, Text, TouchableOpacity, Linking, Alert } from "react-native";
-import styled from "styled-components/native";
+import React, { useState } from 'react';
+import { ScrollView, View, Text, TouchableOpacity, Linking, Alert } from 'react-native';
+import styled from 'styled-components/native';
 import { Feather } from '@expo/vector-icons';
-import { GymDetailScreenProps } from "./GymDetailScreen.types";
+import { GymDetailScreenProps } from './GymDetailScreen.types';
 
 const Container = styled.ScrollView`
   flex: 1;
@@ -109,18 +109,25 @@ const InfoText = styled.Text`
 const Badge = styled.View<{ variant?: 'primary' | 'secondary' | 'success' }>`
   background-color: ${({ theme, variant }) => {
     switch (variant) {
-      case 'primary': return theme.colors.primary + '20';
-      case 'success': return '#4CAF50' + '20';
-      default: return theme.colors.muted;
+      case 'primary':
+        return theme.colors.primary + '20';
+      case 'success':
+        return '#4CAF50' + '20';
+      default:
+        return theme.colors.muted;
     }
   }};
-  border: 1px solid ${({ theme, variant }) => {
-    switch (variant) {
-      case 'primary': return theme.colors.primary + '40';
-      case 'success': return '#4CAF50' + '40';
-      default: return theme.colors.border;
-    }
-  }};
+  border: 1px solid
+    ${({ theme, variant }) => {
+      switch (variant) {
+        case 'primary':
+          return theme.colors.primary + '40';
+        case 'success':
+          return '#4CAF50' + '40';
+        default:
+          return theme.colors.border;
+      }
+    }};
   border-radius: 16px;
   padding: 4px 12px;
   margin-left: 8px;
@@ -131,9 +138,12 @@ const BadgeText = styled.Text<{ variant?: 'primary' | 'secondary' | 'success' }>
   font-weight: 600;
   color: ${({ theme, variant }) => {
     switch (variant) {
-      case 'primary': return theme.colors.primary;
-      case 'success': return '#4CAF50';
-      default: return theme.colors.text;
+      case 'primary':
+        return theme.colors.primary;
+      case 'success':
+        return '#4CAF50';
+      default:
+        return theme.colors.text;
     }
   }};
 `;
@@ -141,18 +151,25 @@ const BadgeText = styled.Text<{ variant?: 'primary' | 'secondary' | 'success' }>
 const Button = styled.TouchableOpacity<{ variant?: 'primary' | 'outline' | 'disabled' }>`
   background-color: ${({ theme, variant }) => {
     switch (variant) {
-      case 'outline': return 'transparent';
-      case 'disabled': return theme.colors.muted;
-      default: return theme.colors.primary;
+      case 'outline':
+        return 'transparent';
+      case 'disabled':
+        return theme.colors.muted;
+      default:
+        return theme.colors.primary;
     }
   }};
-  border: 1px solid ${({ theme, variant }) => {
-    switch (variant) {
-      case 'outline': return theme.colors.border;
-      case 'disabled': return theme.colors.muted;
-      default: return theme.colors.primary;
-    }
-  }};
+  border: 1px solid
+    ${({ theme, variant }) => {
+      switch (variant) {
+        case 'outline':
+          return theme.colors.border;
+        case 'disabled':
+          return theme.colors.muted;
+        default:
+          return theme.colors.primary;
+      }
+    }};
   border-radius: 8px;
   padding: 12px 16px;
   flex-direction: row;
@@ -164,9 +181,12 @@ const Button = styled.TouchableOpacity<{ variant?: 'primary' | 'outline' | 'disa
 const ButtonText = styled.Text<{ variant?: 'primary' | 'outline' | 'disabled' }>`
   color: ${({ theme, variant }) => {
     switch (variant) {
-      case 'outline': return theme.colors.text;
-      case 'disabled': return theme.colors.textMuted;
-      default: return theme.colors.onPrimary;
+      case 'outline':
+        return theme.colors.text;
+      case 'disabled':
+        return theme.colors.textMuted;
+      default:
+        return theme.colors.onPrimary;
     }
   }};
   font-weight: 600;
@@ -355,8 +375,8 @@ const RuleText = styled.Text`
 `;
 
 const AlertCard = styled.View`
-  background-color: #FFF3CD;
-  border: 1px solid #FFE69C;
+  background-color: #fff3cd;
+  border: 1px solid #ffe69c;
   border-radius: 8px;
   padding: 12px;
   margin: 8px 16px;
@@ -372,7 +392,8 @@ const AlertText = styled.Text`
 `;
 
 const CheckInButton = styled.TouchableOpacity<{ disabled?: boolean }>`
-  background-color: ${({ theme, disabled }) => disabled ? theme.colors.muted : theme.colors.primary};
+  background-color: ${({ theme, disabled }) =>
+    disabled ? theme.colors.muted : theme.colors.primary};
   border-radius: 8px;
   padding: 16px;
   margin: 16px;
@@ -380,7 +401,8 @@ const CheckInButton = styled.TouchableOpacity<{ disabled?: boolean }>`
 `;
 
 const CheckInText = styled.Text<{ disabled?: boolean }>`
-  color: ${({ theme, disabled }) => disabled ? theme.colors.textMuted : theme.colors.onPrimary};
+  color: ${({ theme, disabled }) =>
+    disabled ? theme.colors.textMuted : theme.colors.onPrimary};
   font-size: 16px;
   font-weight: 600;
 `;
@@ -437,13 +459,13 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
     'Toalla obligatoria en equipos',
     'Horario límite: debe ingresar hasta 30min antes del cierre',
     'Protector obligatorio en piscina',
-    'No se permite el ingreso con ojotas'
+    'No se permite el ingreso con ojotas',
   ];
 
   const additionalInfo = {
     phone: '+54 11 4567-8900',
     website: 'www.fitmax.com.ar',
-    amenities: ['WiFi gratis', 'Estacionamiento', 'Lockers', 'Aire acondicionado']
+    amenities: ['WiFi gratis', 'Estacionamiento', 'Lockers', 'Aire acondicionado'],
   };
 
   const price = gym.price ?? 30000;
@@ -454,32 +476,30 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
       items: [
         { name: 'Prensa', quantity: 2 },
         { name: 'Polea', quantity: 3 },
-        { name: 'Extensión de piernas', quantity: 3 }
-      ]
+        { name: 'Extensión de piernas', quantity: 3 },
+      ],
     },
     {
       category: 'Cardio',
       icon: '🏃',
       items: [
         { name: 'Cintas de correr', quantity: 10 },
-        { name: 'Bicicletas fijas', quantity: 5 }
-      ]
+        { name: 'Bicicletas fijas', quantity: 5 },
+      ],
     },
     {
       category: 'Pesas libres',
       icon: '💪',
       items: [
         { name: 'Mancuernas', quantity: 12 },
-        { name: 'Barras', quantity: 8 }
-      ]
-    }
+        { name: 'Barras', quantity: 8 },
+      ],
+    },
   ];
 
   const toggleCategory = (category: string) => {
-    setExpandedCategories(prev =>
-      prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
+    setExpandedCategories((prev) =>
+      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category],
     );
   };
 
@@ -511,7 +531,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
       {/* Basic Info */}
       <BasicInfoSection>
         <GymName>{gym.name}</GymName>
-        
+
         {gym.rating && (
           <RatingRow>
             <Feather name="star" size={16} color="#FFD700" />
@@ -578,7 +598,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
         {equipment.map((category, index) => {
           const isExpanded = expandedCategories.includes(category.category);
           const totalQuantity = getTotalQuantity(category.items);
-          
+
           return (
             <View key={index}>
               <EquipmentItem onPress={() => toggleCategory(category.category)}>
@@ -589,17 +609,17 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
                   <EquipmentDetails>
                     <EquipmentName>{category.category}</EquipmentName>
                   </EquipmentDetails>
-                  <Feather 
-                    name={isExpanded ? "chevron-down" : "chevron-right"} 
-                    size={16} 
-                    color="#666" 
+                  <Feather
+                    name={isExpanded ? 'chevron-down' : 'chevron-right'}
+                    size={16}
+                    color="#666"
                   />
                 </EquipmentContent>
                 <Badge>
                   <BadgeText>{totalQuantity}</BadgeText>
                 </Badge>
               </EquipmentItem>
-              
+
               {isExpanded && (
                 <EquipmentSubItems>
                   {category.items.map((item, itemIndex) => (
@@ -623,7 +643,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
         <CardHeader>
           <CardTitle>Información de contacto</CardTitle>
         </CardHeader>
-        
+
         <TouchableOpacity onPress={handleCall}>
           <ContactRow>
             <Feather name="phone" size={16} color="#666" />
@@ -641,14 +661,18 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
           <AmenitiesGrid>
             {additionalInfo.amenities.map((amenity, index) => (
               <AmenityItem key={index}>
-                <Feather 
+                <Feather
                   name={
-                    amenity.includes('WiFi') ? 'wifi' :
-                    amenity.includes('Estacionamiento') ? 'truck' :
-                    amenity.includes('Lockers') ? 'lock' : 'check'
-                  } 
-                  size={12} 
-                  color="#666" 
+                    amenity.includes('WiFi')
+                      ? 'wifi'
+                      : amenity.includes('Estacionamiento')
+                        ? 'truck'
+                        : amenity.includes('Lockers')
+                          ? 'lock'
+                          : 'check'
+                  }
+                  size={12}
+                  color="#666"
                 />
                 <AmenityText>{amenity}</AmenityText>
               </AmenityItem>
@@ -677,8 +701,8 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
         <AlertCard>
           <Feather name="alert-triangle" size={16} color="#856404" />
           <AlertText>
-            Estás a {(gym.distance * 1000).toFixed(0)}m del gimnasio. 
-            Necesitás estar dentro de los 150m para hacer check-in.
+            Estás a {(gym.distance * 1000).toFixed(0)}m del gimnasio. Necesitás estar
+            dentro de los 150m para hacer check-in.
           </AlertText>
         </AlertCard>
       )}
@@ -686,7 +710,9 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
       {/* Check-in Button */}
       <CheckInButton disabled={!isInRange} onPress={onCheckIn}>
         <CheckInText disabled={!isInRange}>
-          {isInRange ? 'Hacer Check-in' : `Acercate ${(gym.distance * 1000 - 150).toFixed(0)}m más`}
+          {isInRange
+            ? 'Hacer Check-in'
+            : `Acercate ${(gym.distance * 1000 - 150).toFixed(0)}m más`}
         </CheckInText>
       </CheckInButton>
 
@@ -699,7 +725,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
         <CardHeader>
           <CardTitle>Actividad reciente</CardTitle>
         </CardHeader>
-        
+
         <ActivityItem>
           <Avatar bgColor="#3B82F6">
             <AvatarText>MG</AvatarText>

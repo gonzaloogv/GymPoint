@@ -10,4 +10,3 @@ export interface UserProfile {
   streak?: number;
   avatar?: string;
 }
-

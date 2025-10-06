@@ -14,10 +14,7 @@ import { AppTheme } from '@presentation/theme';
 
 interface SettingsCardProps {
   notifications: NotificationSettingsType;
-  onNotificationToggle: (
-    key: keyof NotificationSettingsType,
-    value: boolean
-  ) => void;
+  onNotificationToggle: (key: keyof NotificationSettingsType, value: boolean) => void;
   locationEnabled: boolean;
   onLocationToggle: (value: boolean) => void;
   theme: AppTheme;
@@ -33,7 +30,9 @@ export const SettingsCard: React.FC<SettingsCardProps> = ({
   return (
     <Card>
       {/* Título principal del card */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+      <View
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}
+      >
         <Feather name="settings" size={20} color={theme.colors.text} />
         <Text style={{ fontSize: 18, fontWeight: '700', color: theme.colors.text }}>
           Configuración

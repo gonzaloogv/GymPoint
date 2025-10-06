@@ -25,7 +25,7 @@ export function useNearbyGyms(lat?: number, lng?: number, radius = 10000) {
           console.log(`📦 Mocks cargados: ${MOCK_UI.length} gimnasios`);
         }
       }, 500); // Simular un pequeño delay
-      
+
       return () => {
         mounted = false;
       };
@@ -38,7 +38,9 @@ export function useNearbyGyms(lat?: number, lng?: number, radius = 10000) {
           setData(d);
           // Los mocks ya vienen con distancia calculada desde el repositorio
           setDataSource('api'); // Si llegamos aquí, los datos vienen del repositorio (que puede usar mocks internamente)
-          console.log(`📍 Hook useNearbyGyms: ${d.length} gimnasios cargados desde repositorio`);
+          console.log(
+            `📍 Hook useNearbyGyms: ${d.length} gimnasios cargados desde repositorio`,
+          );
         }
       })
       .catch((e) => {

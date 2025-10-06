@@ -8,4 +8,3 @@ export class GetRoutineHistory {
     return await this.repository.getHistory(routineId);
   }
 }
-

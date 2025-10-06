@@ -2,14 +2,14 @@ import React from 'react';
 import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { User } from '@features/auth/domain/entities/User';
-import { 
-  HeaderWrapper, 
-  HeaderTitle, 
-  HeaderSubtitle, 
-  TokenDisplay, 
-  TokenWrapper, 
-  TokenText, 
-  TokenLabel 
+import {
+  HeaderWrapper,
+  HeaderTitle,
+  HeaderSubtitle,
+  TokenDisplay,
+  TokenWrapper,
+  TokenText,
+  TokenLabel,
 } from '../styles/layout';
 
 type RewardsHeaderProps = {

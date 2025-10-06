@@ -24,7 +24,7 @@ export function useGymsFilters() {
     priceFilter,
     openNow,
     timeFilter,
-    
+
     // Actions
     setFilterVisible,
     setSelectedServices,

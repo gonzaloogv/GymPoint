@@ -103,4 +103,3 @@ export class RewardLocal {
     return [...this.initialCodes];
   }
 }
-

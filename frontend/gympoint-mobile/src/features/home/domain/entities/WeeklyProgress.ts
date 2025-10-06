@@ -3,4 +3,3 @@ export interface WeeklyProgress {
   current: number;
   percentage: number;
 }
-

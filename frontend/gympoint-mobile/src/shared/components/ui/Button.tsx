@@ -4,9 +4,13 @@ import { rad, sp, font } from '@shared/styles';
 
 export const Button = styled.TouchableOpacity<{ variant?: 'primary' | 'danger' }>`
   background-color: ${({ theme, variant }) =>
-    variant === 'danger' ? theme.colors.danger : (variant === 'primary' ? '#3b82f6' : theme.colors.primary)};
+    variant === 'danger'
+      ? theme.colors.danger
+      : variant === 'primary'
+        ? '#3b82f6'
+        : theme.colors.primary};
   border-radius: ${({ theme }) => theme.radius.lg || 12}px;
-  padding: ${({ theme }) => theme.spacing ? theme.spacing(1.75) : 14}px;
+  padding: ${({ theme }) => (theme.spacing ? theme.spacing(1.75) : 14)}px;
   align-items: center;
   justify-content: center;
   min-height: 44px;
@@ -37,7 +41,7 @@ export const ButtonIcon = styled(Image)`
   margin-bottom: ${({ theme }) => sp(theme, 1)}px;
 `;
 export const ButtonText = styled(Text)`
-  font-size: ${({ theme }) => font ? font(theme, 'small', 14) : 14}px;
+  font-size: ${({ theme }) => (font ? font(theme, 'small', 14) : 14)}px;
   color: ${({ theme }) => theme?.colors?.primaryText ?? '#ffffff'};
   text-align: center;
   font-weight: 600;

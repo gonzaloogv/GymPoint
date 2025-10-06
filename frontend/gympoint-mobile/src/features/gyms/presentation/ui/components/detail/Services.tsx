@@ -1,4 +1,4 @@
-import styled from "styled-components/native";
+import styled from 'styled-components/native';
 import { Feather } from '@expo/vector-icons';
 
 const Wrapper = styled.View`
@@ -34,10 +34,10 @@ interface Props {
 
 export const Services = ({ services }: Props) => {
   const icons: Record<string, string> = {
-    "Pesas": "activity",
-    "WiFi": "wifi",
-    "Cafetería": "coffee",
-    "Agua": "droplet",
+    Pesas: 'activity',
+    WiFi: 'wifi',
+    Cafetería: 'coffee',
+    Agua: 'droplet',
   };
 
   return (

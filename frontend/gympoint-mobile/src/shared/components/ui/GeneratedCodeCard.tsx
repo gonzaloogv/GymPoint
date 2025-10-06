@@ -79,10 +79,10 @@ type GeneratedCodeCardProps = {
   markAsUsedLabel?: string;
 };
 
-export function GeneratedCodeCard({ 
-  item, 
-  onCopy, 
-  onToggle, 
+export function GeneratedCodeCard({
+  item,
+  onCopy,
+  onToggle,
   formatDate,
   markAsUsedLabel = 'Marcar como usado',
 }: GeneratedCodeCardProps) {
@@ -91,19 +91,21 @@ export function GeneratedCodeCard({
   const statusColor = item.used
     ? palette.neutralText
     : isExpired
-    ? palette.danger
-    : palette.lifestylePrimary;
-  const statusText = item.used 
-    ? STATUS_LABELS.used 
-    : isExpired 
-    ? STATUS_LABELS.expired 
-    : STATUS_LABELS.available;
+      ? palette.danger
+      : palette.lifestylePrimary;
+  const statusText = item.used
+    ? STATUS_LABELS.used
+    : isExpired
+      ? STATUS_LABELS.expired
+      : STATUS_LABELS.available;
 
   return (
     <Card style={{ opacity: item.used ? 0.6 : 1 }}>
       <CodeHeader>
         <CodeFooterLabel>{item.title}</CodeFooterLabel>
-        {item.used && <Feather name="check-circle" size={20} color={palette.lifestylePrimary} />}
+        {item.used && (
+          <Feather name="check-circle" size={20} color={palette.lifestylePrimary} />
+        )}
       </CodeHeader>
 
       <GeneratedCodeWrapper>
@@ -120,14 +122,14 @@ export function GeneratedCodeCard({
         <CodeFooterLabel>{DATE_LABELS.generated}</CodeFooterLabel>
         <CodeFooterValue>{formatDate(item.generatedAt)}</CodeFooterValue>
       </CodeFooterRow>
-      
+
       <CodeFooterRow>
         <CodeFooterLabel>{DATE_LABELS.expires}</CodeFooterLabel>
         <CodeFooterValue $color={isExpired ? palette.danger : undefined}>
           {formatDate(item.expiresAt)}
         </CodeFooterValue>
       </CodeFooterRow>
-      
+
       {item.used && item.usedAt && (
         <CodeFooterRow>
           <CodeFooterLabel>{DATE_LABELS.used}</CodeFooterLabel>
@@ -136,17 +138,15 @@ export function GeneratedCodeCard({
       )}
 
       {!item.used && !isExpired && (
-        <Button 
+        <Button
           variant="primary"
-          onPress={() => onToggle(item)} 
-          style={{ 
+          onPress={() => onToggle(item)}
+          style={{
             marginTop: theme.spacing(1),
-            minHeight: 44
+            minHeight: 44,
           }}
         >
-          <ButtonText>
-            {markAsUsedLabel}
-          </ButtonText>
+          <ButtonText>{markAsUsedLabel}</ButtonText>
         </Button>
       )}
     </Card>

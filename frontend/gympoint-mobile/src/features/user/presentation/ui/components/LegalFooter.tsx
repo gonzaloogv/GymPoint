@@ -38,9 +38,7 @@ export const LegalFooter: React.FC<LegalFooterProps> = ({ theme }) => {
         </View>
 
         {/* Versión de la app */}
-        <Text style={{ fontSize: 12, opacity: 0.4 }}>
-          GymPoint v1.0.0
-        </Text>
+        <Text style={{ fontSize: 12, opacity: 0.4 }}>GymPoint v1.0.0</Text>
       </View>
     </Card>
   );

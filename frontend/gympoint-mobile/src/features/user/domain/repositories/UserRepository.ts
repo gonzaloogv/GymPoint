@@ -9,4 +9,3 @@ export interface UserRepository {
   updateLocationSettings(shareLocation: boolean): Promise<void>;
   upgradeToPremium(): Promise<UserProfile>;
 }
-

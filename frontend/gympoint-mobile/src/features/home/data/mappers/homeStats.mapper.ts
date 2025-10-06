@@ -23,4 +23,3 @@ export const mapDailyChallengeDTOToEntity = (dto: DailyChallengeDTO): DailyChall
   reward: dto.reward,
   completed: dto.completed,
 });
-

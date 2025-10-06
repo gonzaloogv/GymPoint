@@ -1,6 +1,8 @@
 import styled from 'styled-components/native';
 
-const StatusPillContainer = styled.View<{ $status: 'Active' | 'Scheduled' | 'Completed' }>`
+const StatusPillContainer = styled.View<{
+  $status: 'Active' | 'Scheduled' | 'Completed';
+}>`
   padding: ${({ theme }) => theme.spacing(0.5)}px ${({ theme }) => theme.spacing(1)}px;
   border-radius: ${({ theme }) => theme.radius.lg}px;
   background-color: ${({ theme, $status }) =>
@@ -34,7 +36,7 @@ const defaultLabels = {
 
 export function StatusPill({ status, labels = {} }: Props) {
   const finalLabels = { ...defaultLabels, ...labels };
-  
+
   return (
     <StatusPillContainer $status={status}>
       <StatusText $status={status}>{finalLabels[status]}</StatusText>

@@ -1,4 +1,4 @@
-import styled from "styled-components/native";
+import styled from 'styled-components/native';
 import { Gym } from '@features/gyms/domain/entities/Gym';
 
 const Wrapper = styled.View`
@@ -26,7 +26,7 @@ const Item = styled.Text`
 `;
 
 interface Props {
-  equipment?: Gym["equipment"];
+  equipment?: Gym['equipment'];
 }
 
 export const EquipmentList = ({ equipment }: Props) => {

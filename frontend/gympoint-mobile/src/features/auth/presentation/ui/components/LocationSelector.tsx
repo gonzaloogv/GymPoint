@@ -18,7 +18,7 @@ const SelectButton = styled(TouchableOpacity)`
 `;
 
 const SelectText = styled(Text)<{ $placeholder?: boolean }>`
-  color: ${({ theme, $placeholder }) => 
+  color: ${({ theme, $placeholder }) =>
     $placeholder ? theme.colors.subtext : theme.colors.text};
   font-size: 16px;
 `;
@@ -106,4 +106,3 @@ export function LocationSelector({ value, onChange }: Props) {
     </>
   );
 }
-

@@ -43,4 +43,3 @@ export class HomeRepositoryImpl implements HomeRepository {
     return mapDailyChallengeDTOToEntity(this.mockChallenge);
   }
 }
-

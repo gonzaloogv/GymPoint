@@ -1,6 +1,6 @@
-import styled from "styled-components/native";
+import styled from 'styled-components/native';
 import { Feather } from '@expo/vector-icons';
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity } from 'react-native';
 
 const Wrapper = styled.View`
   flex-direction: row;

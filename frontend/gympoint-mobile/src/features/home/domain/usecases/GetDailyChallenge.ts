@@ -8,4 +8,3 @@ export class GetDailyChallenge {
     return this.repository.getDailyChallenge();
   }
 }
-

@@ -24,4 +24,3 @@ export const mapGeneratedCodeDTOToEntity = (dto: GeneratedCodeDTO): GeneratedCod
   used: dto.used,
   usedAt: dto.usedAt,
 });
-

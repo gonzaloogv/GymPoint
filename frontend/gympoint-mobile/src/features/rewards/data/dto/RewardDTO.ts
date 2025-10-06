@@ -20,4 +20,3 @@ export interface GeneratedCodeDTO {
   used: boolean;
   usedAt?: Date;
 }
-

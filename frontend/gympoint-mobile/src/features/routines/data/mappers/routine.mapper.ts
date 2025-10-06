@@ -49,7 +49,9 @@ export const mapRoutineSessionDTOToEntity = (dto: RoutineSessionDTO): RoutineSes
 };
 
 // Mappers inversos (Entity → DTO) para cuando se necesiten
-export const mapRoutineSessionEntityToDTO = (session: RoutineSession): RoutineSessionDTO => {
+export const mapRoutineSessionEntityToDTO = (
+  session: RoutineSession,
+): RoutineSessionDTO => {
   return {
     id: session.id,
     routineId: session.routineId,
@@ -66,4 +68,3 @@ export const mapRoutineSessionEntityToDTO = (session: RoutineSession): RoutineSe
     })),
   };
 };
-

@@ -4,4 +4,3 @@ export interface UserStats {
   favoriteGym: string;
   monthlyVisits: number;
 }
-

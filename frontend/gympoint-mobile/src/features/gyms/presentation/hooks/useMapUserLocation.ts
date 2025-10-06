@@ -47,9 +47,7 @@ export function useMapUserLocation({
     focusUserRegion(USER_UPDATE_DURATION);
   }, [animateToUserOnChange, userLocation, focusUserRegion]);
 
-  const startRegion = userLocation
-    ? createRegion(userLocation, zoomDelta)
-    : undefined;
+  const startRegion = userLocation ? createRegion(userLocation, zoomDelta) : undefined;
 
   return {
     mapRef,

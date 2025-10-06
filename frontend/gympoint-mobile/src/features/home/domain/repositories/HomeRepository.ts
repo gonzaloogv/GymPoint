@@ -7,4 +7,3 @@ export interface HomeRepository {
   getWeeklyProgress(): Promise<WeeklyProgress>;
   getDailyChallenge(): Promise<DailyChallenge>;
 }
-

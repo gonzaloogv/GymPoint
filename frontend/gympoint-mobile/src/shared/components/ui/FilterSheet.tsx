@@ -23,8 +23,8 @@ const SheetBody = styled(View)`
   padding: ${({ theme }) => sp(theme, 2)}px;
 `;
 
-const ContentScroll = styled(ScrollView).attrs(({ theme }) => ({ 
-  contentContainerStyle: { paddingBottom: theme.spacing(1.5) } 
+const ContentScroll = styled(ScrollView).attrs(({ theme }) => ({
+  contentContainerStyle: { paddingBottom: theme.spacing(1.5) },
 }))``;
 
 const SheetTitle = styled(Text)`

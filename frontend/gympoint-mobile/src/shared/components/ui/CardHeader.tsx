@@ -25,21 +25,23 @@ type Props = {
   iconColor?: string;
 };
 
-export function CardHeader({ icon, title, badgeText, badgeVariant = 'secondary', iconColor }: Props) {
+export function CardHeader({
+  icon,
+  title,
+  badgeText,
+  badgeVariant = 'secondary',
+  iconColor,
+}: Props) {
   const theme = useTheme();
   const color = iconColor || theme.colors.text;
-  
+
   return (
     <HeaderRow>
       <TitleRow>
         <FeatherIcon name={icon} size={20} color={color} />
         <TitleText>{title}</TitleText>
       </TitleRow>
-      {badgeText && (
-        <UnifiedBadge variant={badgeVariant}>
-          {badgeText}
-        </UnifiedBadge>
-      )}
+      {badgeText && <UnifiedBadge variant={badgeVariant}>{badgeText}</UnifiedBadge>}
     </HeaderRow>
   );
 }

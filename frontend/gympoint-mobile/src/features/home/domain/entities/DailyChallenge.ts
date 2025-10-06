@@ -5,4 +5,3 @@ export interface DailyChallenge {
   reward: number;
   completed: boolean;
 }
-

@@ -4,4 +4,3 @@ export interface NotificationSettings {
   rewardUpdates: boolean;
   marketing: boolean;
 }
-

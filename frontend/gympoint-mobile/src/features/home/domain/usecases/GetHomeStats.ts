@@ -8,4 +8,3 @@ export class GetHomeStats {
     return this.repository.getHomeStats();
   }
 }
-

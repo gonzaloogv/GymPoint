@@ -14,7 +14,7 @@ export default function RoutineProgress({ completed, goal }: Props) {
     () => Math.max(0, Math.min(100, (completed / Math.max(1, goal)) * 100)),
     [completed, goal],
   );
-  
+
   return (
     <Wrap>
       <Card>

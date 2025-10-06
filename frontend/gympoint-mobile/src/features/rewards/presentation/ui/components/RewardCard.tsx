@@ -110,21 +110,23 @@ type RewardCardProps = {
   getCategoryName: (category: string) => string;
 };
 
-export function RewardCard({ 
-  reward, 
-  tokens, 
-  onGenerate, 
-  getCategoryColor, 
-  getCategoryName 
+export function RewardCard({
+  reward,
+  tokens,
+  onGenerate,
+  getCategoryColor,
+  getCategoryName,
 }: RewardCardProps) {
   const isAffordable = tokens >= reward.cost;
   const isDisabled = !reward.available || !isAffordable;
 
   return (
-    <Card style={{ 
-      opacity: reward.available ? 1 : 0.5,
-      borderColor: isAffordable ? palette.lifestylePrimary : palette.neutralBorder 
-    }}>
+    <Card
+      style={{
+        opacity: reward.available ? 1 : 0.5,
+        borderColor: isAffordable ? palette.lifestylePrimary : palette.neutralBorder,
+      }}
+    >
       <RewardCardContent>
         <RewardIcon>
           <RewardIconText>{reward.icon}</RewardIconText>
@@ -158,24 +160,26 @@ export function RewardCard({
 
           {reward.terms && <TermsText>{reward.terms}</TermsText>}
 
-          <Button 
-            variant={isDisabled ? undefined : 'primary'} 
+          <Button
+            variant={isDisabled ? undefined : 'primary'}
             onPress={() => onGenerate(reward)}
-            style={{ 
+            style={{
               opacity: isDisabled ? 0.5 : 1,
               backgroundColor: isDisabled ? palette.neutralBg : undefined,
-              minHeight: 44
+              minHeight: 44,
             }}
           >
-            <ButtonText style={{ 
-              color: isDisabled ? palette.textMuted : '#ffffff',
-              fontWeight: '600'
-            }}>
+            <ButtonText
+              style={{
+                color: isDisabled ? palette.textMuted : '#ffffff',
+                fontWeight: '600',
+              }}
+            >
               {!reward.available
                 ? 'Solo Premium'
                 : !isAffordable
-                ? `Faltan ${reward.cost - tokens} tokens`
-                : 'Generar código'}
+                  ? `Faltan ${reward.cost - tokens} tokens`
+                  : 'Generar código'}
             </ButtonText>
           </Button>
         </RewardInfo>

@@ -62,21 +62,21 @@ export function TipsBanner({ title = '💡 Tips', tips, iconColor }: TipsBannerP
         <TipsIcon name="info" size={20} />
         <TipsTitle>{title}</TipsTitle>
       </TipsHeader>
-      
+
       <TipsList>
         {tips.map((tip, index) => (
           <TipsRow key={index}>
             {tip.iconType === 'ionicons' ? (
-              <Ionicons 
-                name={tip.icon as keyof typeof Ionicons.glyphMap} 
-                size={14} 
-                color={iconColor || '#3B82F6'} 
+              <Ionicons
+                name={tip.icon as keyof typeof Ionicons.glyphMap}
+                size={14}
+                color={iconColor || '#3B82F6'}
               />
             ) : (
-              <Feather 
-                name={tip.icon as keyof typeof Feather.glyphMap} 
-                size={14} 
-                color={iconColor || '#3B82F6'} 
+              <Feather
+                name={tip.icon as keyof typeof Feather.glyphMap}
+                size={14}
+                color={iconColor || '#3B82F6'}
               />
             )}
             <TipsText>{tip.text}</TipsText>

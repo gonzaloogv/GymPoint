@@ -8,4 +8,3 @@ export class GetUserProfile {
     return this.repository.getUserProfile();
   }
 }
-

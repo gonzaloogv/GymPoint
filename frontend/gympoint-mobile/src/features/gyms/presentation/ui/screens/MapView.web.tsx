@@ -73,24 +73,21 @@ const SuggestionText = styled(Text)`
   margin-top: 8px;
 `;
 
-export default function MapView({
-  style,
-  mapHeight = 360,
-}: Props) {
+export default function MapView({ style, mapHeight = 360 }: Props) {
   return (
     <FallbackContainer style={[{ height: mapHeight }, style]}>
       <ContentContainer>
         <IconContainer>
           <Feather name="map-pin" size={28} color={palette.info} />
         </IconContainer>
-        
+
         <Title>Mapa no disponible en Web</Title>
-        
+
         <Description>
-          Los mapas interactivos no están disponibles en la versión web de la aplicación. 
+          Los mapas interactivos no están disponibles en la versión web de la aplicación.
           Para una experiencia completa con mapas, descarga la aplicación móvil.
         </Description>
-        
+
         <SuggestionText>
           Usa la vista de lista para explorar los gimnasios disponibles
         </SuggestionText>

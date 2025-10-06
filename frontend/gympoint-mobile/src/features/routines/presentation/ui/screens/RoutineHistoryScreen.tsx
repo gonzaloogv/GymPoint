@@ -4,7 +4,6 @@ import { HistoryLayout } from '@features/routines/presentation/ui/layouts/Histor
 import { HistoryHeader } from '@features/routines/presentation/ui/headers/HistoryHeader';
 import { HistoryList } from '@features/routines/presentation/ui/lists/HistoryList';
 
-
 export default function RoutineHistoryScreen({ route }: any) {
   const id = route?.params?.id as string | undefined;
   const routine = useRoutineById(id);

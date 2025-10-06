@@ -30,4 +30,3 @@ export class RoutineRepositoryImpl implements RoutineRepository {
     await this.local.saveSession(dto);
   }
 }
-

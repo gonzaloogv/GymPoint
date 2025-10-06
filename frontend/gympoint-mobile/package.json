@@ -6,7 +6,10 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\""
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
@@ -36,6 +39,7 @@
     "react-native-toast-message": "^2.3.3",
     "react-native-web": "^0.21.0",
     "styled-components": "^6.1.19",
+    "type-check": "^0.4.0",
     "zod": "^3.25.76",
     "zustand": "^5.0.8"
   },
@@ -47,6 +51,8 @@
     "babel-plugin-module-resolver": "^5.0.0",
     "babel-plugin-styled-components": "^2.1.4",
     "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-native": "^5.0.0",
     "prettier": "^3.6.2",
     "typescript": "~5.9.2"
   },

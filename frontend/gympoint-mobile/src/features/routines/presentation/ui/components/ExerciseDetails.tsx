@@ -1,6 +1,6 @@
 import React from 'react';
 import { Exercise } from '@features/routines/domain/entities';
-import { ExerciseCard  as SharedExerciseCard} from './ExerciseCard';
+import { ExerciseCard as SharedExerciseCard } from './ExerciseCard';
 
 type ExerciseDetailsProps = {
   exercise: Exercise;

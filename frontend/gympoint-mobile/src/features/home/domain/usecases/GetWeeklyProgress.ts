@@ -8,4 +8,3 @@ export class GetWeeklyProgress {
     return this.repository.getWeeklyProgress();
   }
 }
-

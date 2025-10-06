@@ -8,4 +8,3 @@ export class GenerateRewardCode {
     return this.repository.generateCode(rewardId);
   }
 }
-

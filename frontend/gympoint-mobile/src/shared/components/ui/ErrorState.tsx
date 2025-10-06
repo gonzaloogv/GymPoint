@@ -37,11 +37,11 @@ type Props = {
   onRetry?: () => void;
 };
 
-export function ErrorState({ 
-  title = "Error al cargar",
-  description = "Verificá tu conexión e intentá nuevamente.",
-  buttonText = "Reintentar",
-  onRetry 
+export function ErrorState({
+  title = 'Error al cargar',
+  description = 'Verificá tu conexión e intentá nuevamente.',
+  buttonText = 'Reintentar',
+  onRetry,
 }: Props) {
   return (
     <Container>

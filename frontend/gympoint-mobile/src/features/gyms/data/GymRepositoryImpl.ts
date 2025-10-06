@@ -26,30 +26,36 @@ export class GymRepositoryImpl implements GymRepository {
   async listNearby({ lat, lng, radius = 10000 }: ListNearbyParams): Promise<Gym[]> {
     try {
       console.log('🔄 Intentando obtener gimnasios de la API...');
-      
+
       // Intentar primero /cercanos:
       try {
         const res = await api.get('/api/gyms/cercanos', {
           params: { lat, lon: lng, radius },
         });
-        const list: GymDTO[] = Array.isArray(res.data) ? res.data : (res.data?.data ?? []);
-        
+        const list: GymDTO[] = Array.isArray(res.data)
+          ? res.data
+          : (res.data?.data ?? []);
+
         if (list.length > 0) {
-          console.log('✅ Datos obtenidos de /api/gyms/cercanos:', list.length, 'gimnasios');
+          console.log(
+            '✅ Datos obtenidos de /api/gyms/cercanos:',
+            list.length,
+            'gimnasios',
+          );
           return list
             .map(mapGymDTOtoEntity)
             .filter((g): g is Gym => !!g)
             .sort((a, b) => (a.distancia ?? Infinity) - (b.distancia ?? Infinity));
         }
-        
+
         throw new Error('No hay datos en /cercanos');
       } catch (cercanoError) {
         console.log('⚠️ /cercanos falló, intentando /api/gyms...');
-        
+
         // Fallback: /api/gyms
         const res = await api.get('/api/gyms');
         const list: GymDTO[] = Array.isArray(res.data) ? res.data : [];
-        
+
         if (list.length > 0) {
           console.log('✅ Datos obtenidos de /api/gyms:', list.length, 'gimnasios');
           return list
@@ -62,18 +68,17 @@ export class GymRepositoryImpl implements GymRepository {
             .filter((g) => (g.distancia ?? Infinity) <= radius)
             .sort((a, b) => (a.distancia ?? Infinity) - (b.distancia ?? Infinity));
         }
-        
+
         throw new Error('No hay datos en /api/gyms');
       }
     } catch (apiError) {
       console.log('❌ API falló completamente, usando mocks...', apiError);
-      
+
       // Fallback final: usar mocks
-      return MOCK_UI
-        .map((mockGym) => ({
-          ...mockGym,
-          distancia: distanceMeters({ lat, lng }, { lat: mockGym.lat, lng: mockGym.lng }),
-        }))
+      return MOCK_UI.map((mockGym) => ({
+        ...mockGym,
+        distancia: distanceMeters({ lat, lng }, { lat: mockGym.lat, lng: mockGym.lng }),
+      }))
         .filter((g) => (g.distancia ?? Infinity) <= radius)
         .sort((a, b) => (a.distancia ?? Infinity) - (b.distancia ?? Infinity));
     }
@@ -84,12 +89,12 @@ export class GymRepositoryImpl implements GymRepository {
       console.log('🔄 Obteniendo todos los gimnasios de la API...');
       const res = await api.get('/api/gyms');
       const list: GymDTO[] = Array.isArray(res.data) ? res.data : [];
-      
+
       if (list.length > 0) {
         console.log('✅ Datos obtenidos de /api/gyms:', list.length, 'gimnasios');
         return list.map(mapGymDTOtoEntity).filter((g): g is Gym => !!g);
       }
-      
+
       throw new Error('No hay datos en la API');
     } catch (apiError) {
       console.log('❌ API falló, usando mocks para listAll...', apiError);
@@ -102,22 +107,22 @@ export class GymRepositoryImpl implements GymRepository {
       console.log('🔄 Obteniendo gimnasio por ID de la API:', id);
       const res = await api.get(`/api/gyms/${id}`);
       const gym = mapGymDTOtoEntity(res.data);
-      
+
       if (gym) {
         console.log('✅ Gimnasio obtenido de la API:', gym.name);
         return gym;
       }
-      
+
       throw new Error('Gimnasio no encontrado en API');
     } catch (apiError) {
       console.log('❌ API falló, buscando en mocks...', apiError);
-      const mockGym = MOCK_UI.find(g => g.id === id);
-      
+      const mockGym = MOCK_UI.find((g) => g.id === id);
+
       if (mockGym) {
         console.log('✅ Gimnasio encontrado en mocks:', mockGym.name);
         return mockGym;
       }
-      
+
       console.log('❌ Gimnasio no encontrado ni en API ni en mocks');
       return null;
     }

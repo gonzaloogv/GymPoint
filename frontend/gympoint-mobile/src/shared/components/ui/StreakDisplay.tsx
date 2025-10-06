@@ -18,7 +18,7 @@ type Props = {
 
 export function StreakDisplay({ streak, size = 16, color }: Props) {
   const iconColor = color || '#ea580c';
-  
+
   return (
     <StreakRow>
       <MaterialCommunityIcons name="fire" size={size} color={iconColor} />

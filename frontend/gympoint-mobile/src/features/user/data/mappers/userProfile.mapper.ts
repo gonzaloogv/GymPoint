@@ -26,7 +26,7 @@ export const mapUserStatsDTOToEntity = (dto: UserStatsDTO): UserStats => ({
 });
 
 export const mapNotificationSettingsDTOToEntity = (
-  dto: NotificationSettingsDTO
+  dto: NotificationSettingsDTO,
 ): NotificationSettings => ({
   checkinReminders: dto.checkinReminders,
   streakAlerts: dto.streakAlerts,
@@ -35,11 +35,10 @@ export const mapNotificationSettingsDTOToEntity = (
 });
 
 export const mapNotificationSettingsEntityToDTO = (
-  entity: NotificationSettings
+  entity: NotificationSettings,
 ): NotificationSettingsDTO => ({
   checkinReminders: entity.checkinReminders,
   streakAlerts: entity.streakAlerts,
   rewardUpdates: entity.rewardUpdates,
   marketing: entity.marketing,
 });
-

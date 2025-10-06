@@ -33,14 +33,14 @@ type Props = {
   onPress?: (id: string | number) => void;
 };
 
-export function GymListItem({ 
-  id, 
-  name, 
-  distancia, 
-  address, 
-  hours, 
-  index, 
-  onPress 
+export function GymListItem({
+  id,
+  name,
+  distancia,
+  address,
+  hours,
+  index,
+  onPress,
 }: Props) {
   const formatDistance = (distance?: number) =>
     typeof distance === 'number' ? `${(distance / 1000).toFixed(1)} km` : '—';

@@ -6,7 +6,6 @@ import { RoutineDetailHeader } from '@features/routines/presentation/ui/headers/
 import { RoutineDetailFooter } from '@features/routines/presentation/ui/footers/RoutineDetailFooter';
 import { ExerciseList } from '@features/routines/presentation/ui/lists/ExerciseList';
 
-
 export default function RoutineDetailScreen({ route, navigation }: any) {
   const id = route?.params?.id as string | undefined;
   const routine: Routine = useRoutineById(id);
@@ -17,7 +16,9 @@ export default function RoutineDetailScreen({ route, navigation }: any) {
 
   const footerComponent = (
     <RoutineDetailFooter
-      onStartRoutine={() => navigation?.navigate?.('RoutineExecution', { id: routine.id })}
+      onStartRoutine={() =>
+        navigation?.navigate?.('RoutineExecution', { id: routine.id })
+      }
       onViewHistory={() => navigation?.navigate?.('RoutineHistory', { id: routine.id })}
     />
   );

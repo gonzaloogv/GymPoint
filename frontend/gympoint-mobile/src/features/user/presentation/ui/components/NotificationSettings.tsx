@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Switch as RNSwitch } from 'react-native';
 import { Feather } from '@expo/vector-icons';
@@ -35,9 +34,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
       {/* Recordatorios de check-in */}
       <SwitchRow theme={theme}>
         <SwitchRowLeft>
-          <BodyText style={{ fontWeight: '500' }}>
-            Recordatorios de check-in
-          </BodyText>
+          <BodyText style={{ fontWeight: '500' }}>Recordatorios de check-in</BodyText>
           <SmallText muted style={{ opacity: 0.6 }}>
             Te avisamos para mantener tu racha
           </SmallText>

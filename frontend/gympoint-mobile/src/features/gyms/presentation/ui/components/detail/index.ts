@@ -4,7 +4,7 @@ export * from './ContactInfo';
 export * from './EquipmentList';
 export * from './Header';
 export * from './HeroImage';
-export * from './PriceCard'
-export * from './RecentActivity'
-export * from './Rules'
-export * from './Services'
+export * from './PriceCard';
+export * from './RecentActivity';
+export * from './Rules';
+export * from './Services';

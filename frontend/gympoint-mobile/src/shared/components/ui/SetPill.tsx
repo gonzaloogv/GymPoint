@@ -24,7 +24,7 @@ type Props = {
 
 export function SetPill({ setNumber, done = false, current = false, label }: Props) {
   const displayLabel = label || `Serie ${setNumber}`;
-  
+
   return (
     <SetPillContainer $done={done} $current={current}>
       <SetLabel $done={done}>{displayLabel}</SetLabel>

@@ -36,4 +36,3 @@ export interface RoutineSessionDTO {
   notes?: string;
   logs: SetLogDTO[];
 }
-

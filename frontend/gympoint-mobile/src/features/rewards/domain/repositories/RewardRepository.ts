@@ -6,4 +6,3 @@ export interface RewardRepository {
   generateCode(rewardId: string): Promise<GeneratedCode>;
   getGeneratedCodes(): Promise<GeneratedCode[]>;
 }
-

@@ -8,4 +8,3 @@ export class GetRoutineById {
     return await this.repository.getById(id);
   }
 }
-

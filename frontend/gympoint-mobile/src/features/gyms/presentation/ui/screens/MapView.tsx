@@ -43,7 +43,7 @@ export default function MapView({
       />
     );
   }
-  
+
   // Importación dinámica solo para plataformas nativas
   let NativeMapView;
   try {
@@ -54,17 +54,12 @@ export default function MapView({
     return null;
   }
 
-  const {
-    mapRef,
-    startRegion,
-    tracksViewChanges,
-    handleReady,
-    handleUserMarkerLayout,
-  } = useMapUserLocation({
-    userLocation,
-    animateToUserOnChange,
-    zoomDelta,
-  });
+  const { mapRef, startRegion, tracksViewChanges, handleReady, handleUserMarkerLayout } =
+    useMapUserLocation({
+      userLocation,
+      animateToUserOnChange,
+      zoomDelta,
+    });
 
   return (
     <NativeMapView
