@@ -1,4 +1,12 @@
+process.env.GOOGLE_CLIENT_ID = 'test-client-id';
+
 jest.mock('../services/auth-service');
+jest.mock('../utils/auth-providers/google-provider', () => {
+  return jest.fn().mockImplementation(() => ({
+    verifyToken: jest.fn(),
+    validateGoogleUser: jest.fn()
+  }));
+});
 
 const authController = require('../controllers/auth-controller');
 const authService = require('../services/auth-service');

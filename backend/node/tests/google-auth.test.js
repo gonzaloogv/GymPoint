@@ -1,18 +1,9 @@
-/**
- * TESTS DE GOOGLE OAUTH - TEMPORALMENTE DESHABILITADOS
- * 
- * Estos tests tienen complejidad debido a cómo Sequelize maneja las asociaciones
- * de modelos. Se recomienda testing manual o tests de integración.
- * 
- * Ver: docs/TESTS_GOOGLE_AUTH.md para guía de testing manual
- */
-
-// Mock de dependencias ANTES de importar auth-service
 jest.mock('jsonwebtoken');
 jest.mock('bcryptjs');
 jest.mock('../services/frequency-service');
+jest.mock('../config/database', () => ({ transaction: jest.fn() }));
+jest.mock('../models/Frequency', () => ({}));
 
-// Mock del Google Provider
 jest.mock('../utils/auth-providers/google-provider', () => {
   return jest.fn().mockImplementation(() => ({
     verifyToken: jest.fn(),
@@ -20,12 +11,19 @@ jest.mock('../utils/auth-providers/google-provider', () => {
   }));
 });
 
-// Mock completo de modelos para evitar problemas de asociaciones
-jest.mock('../models/User', () => ({
-  findOne: jest.fn(),
-  create: jest.fn(),
-  findByPk: jest.fn()
-}));
+jest.mock('../models', () => {
+  class UserProfile {
+    constructor(data) { Object.assign(this, data); this.save = jest.fn(); }
+  }
+  UserProfile.create = jest.fn();
+  return {
+    Account: { findOne: jest.fn(), create: jest.fn() },
+    Role: { findOne: jest.fn() },
+    AccountRole: { create: jest.fn() },
+    UserProfile,
+    AdminProfile: class {}
+  };
+});
 
 jest.mock('../models/Streak', () => ({
   create: jest.fn()
@@ -37,27 +35,18 @@ jest.mock('../models/RefreshToken', () => ({
   findOne: jest.fn()
 }));
 
-jest.mock('../models/Frequency', () => ({
-  findOne: jest.fn(),
-  create: jest.fn(),
-  update: jest.fn()
-}));
-
-// Mockear GOOGLE_CLIENT_ID
 process.env.GOOGLE_CLIENT_ID = 'test-client-id-123';
+process.env.JWT_SECRET = 'secret';
+process.env.JWT_REFRESH_SECRET = 'refresh';
 
 const authService = require('../services/auth-service');
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
+const { Account } = require('../models');
 
-// Test simple para verificar que el login con password rechaza cuentas de Google
 describe('Google OAuth Authentication', () => {
   let mockReq;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
-    // Mock del request
     mockReq = {
       headers: {
         'user-agent': 'Mozilla/5.0'
@@ -66,22 +55,18 @@ describe('Google OAuth Authentication', () => {
     };
   });
 
-  // Test simplificado que sí funciona
   describe('login - Validación de Proveedor', () => {
-    it('debería rechazar login con contraseña si el usuario es de Google', async () => {
-      const googleUser = {
-        id_user: 4,
+    it('rechaza login con contraseña si la cuenta es de Google', async () => {
+      Account.findOne.mockResolvedValue({
+        id_account: 4,
         email: 'google@example.com',
         auth_provider: 'google',
-        password: null
-      };
-
-      User.findOne.mockResolvedValue(googleUser);
+        roles: [],
+        save: jest.fn()
+      });
 
       await expect(authService.login('google@example.com', 'password123', mockReq))
-        .rejects.toThrow('Esta cuenta fue creada con Google');
+        .rejects.toThrow('Esta cuenta fue creada con Google. Por favor, inicia sesión con Google.');
     });
   });
-
 });
-

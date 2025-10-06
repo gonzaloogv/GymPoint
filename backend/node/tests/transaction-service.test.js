@@ -1,3 +1,4 @@
+jest.mock('../models', () => ({ UserProfile: {} }));
 jest.mock('../models/Transaction', () => ({ findAll: jest.fn() }));
 jest.mock('../models/Reward', () => ({}));
 

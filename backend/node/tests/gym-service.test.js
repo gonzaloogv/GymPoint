@@ -1,7 +1,7 @@
 jest.mock('../models/Gym', () => ({
-    findAll: jest.fn(),
-    findByPk: jest.fn(),
-    create: jest.fn()
+  findAll: jest.fn(),
+  findByPk: jest.fn(),
+  create: jest.fn()
 }));
 jest.mock('../models/User', () => ({}));
 jest.mock('../models/GymType', () => jest.fn(() => ({})));
@@ -14,14 +14,14 @@ beforeEach(() => {
 });
 
 describe('buscarGimnasiosCercanos', () => {
-  it('orders gyms by distance', async () => {
-    const gym1 = { latitude: 0, longitude: 0, toJSON: () => ({ id: 1, latitude: 0, longitude: 0 }) };
-    const gym2 = { latitude: 0, longitude: 1, toJSON: () => ({ id: 2, latitude: 0, longitude: 1 }) };
-    Gym.findAll.mockResolvedValue([gym2, gym1]);
+  it('formatea distancia con dos decimales', async () => {
+    Gym.findAll.mockResolvedValue([
+      { id: 1, latitude: 0, longitude: 0, distance_km: '0.1234' }
+    ]);
 
-    const result = await gymService.buscarGimnasiosCercanos(0, 0);
+    const result = await gymService.buscarGimnasiosCercanos(0, 0, 5, 50, 0);
 
-    expect(result[0].id).toBe(1);
-    expect(result[1].id).toBe(2);
+    expect(Gym.findAll).toHaveBeenCalled();
+    expect(result).toEqual([{ id: 1, latitude: 0, longitude: 0, distance_km: '0.12' }]);
   });
 });

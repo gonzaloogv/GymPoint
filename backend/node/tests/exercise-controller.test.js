@@ -1,13 +1,23 @@
 jest.mock('../services/exercise-service');
+jest.mock('../models/Exercise', () => ({ findByPk: jest.fn() }));
 
 const controller = require('../controllers/exercise-controller');
 const service = require('../services/exercise-service');
+const Exercise = require('../models/Exercise');
 
-beforeEach(() => { jest.clearAllMocks(); });
+const createRes = () => ({
+  json: jest.fn(),
+  status: jest.fn().mockReturnThis(),
+  send: jest.fn()
+});
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('getAllExercises', () => {
   it('returns all exercises', async () => {
-    const res = { json: jest.fn() };
+    const res = createRes();
     service.getAllExercises.mockResolvedValue(['a']);
 
     await controller.getAllExercises({}, res);
@@ -19,7 +29,7 @@ describe('getAllExercises', () => {
 describe('getExerciseById', () => {
   it('returns exercise', async () => {
     const req = { params: { id: 1 } };
-    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const res = createRes();
     service.getExerciseById.mockResolvedValue('e');
 
     await controller.getExerciseById(req, res);
@@ -29,7 +39,7 @@ describe('getExerciseById', () => {
 
   it('returns 404 when not found', async () => {
     const req = { params: { id: 1 } };
-    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const res = createRes();
     service.getExerciseById.mockResolvedValue(null);
 
     await controller.getExerciseById(req, res);
@@ -40,23 +50,26 @@ describe('getExerciseById', () => {
 });
 
 describe('createExercise', () => {
-  it('creates exercise', async () => {
-    const req = { body: { a: 1 } };
-    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+  it('agrega created_by desde el usuario y retorna estructura con mensaje', async () => {
+    const req = { user: { id_user_profile: 5 }, body: { a: 1 } };
+    const res = createRes();
     service.createExercise.mockResolvedValue('x');
 
     await controller.createExercise(req, res);
 
-    expect(service.createExercise).toHaveBeenCalledWith({ a: 1 });
+    expect(service.createExercise).toHaveBeenCalledWith({ a: 1, created_by: 5 });
     expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith('x');
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'Ejercicio creado con éxito',
+      data: 'x'
+    });
   });
 });
 
 describe('updateExercise', () => {
   it('updates exercise', async () => {
     const req = { params: { id: 1 }, body: { a: 2 } };
-    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const res = createRes();
     service.updateExercise.mockResolvedValue('u');
 
     await controller.updateExercise(req, res);
@@ -67,7 +80,7 @@ describe('updateExercise', () => {
 
   it('returns 404 on error', async () => {
     const req = { params: { id: 1 }, body: {} };
-    const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const res = createRes();
     service.updateExercise.mockRejectedValue(new Error('no'));
 
     await controller.updateExercise(req, res);
@@ -78,26 +91,50 @@ describe('updateExercise', () => {
 });
 
 describe('deleteExercise', () => {
-  it('deletes exercise', async () => {
-    const req = { params: { id: 1 } };
-    const res = { status: jest.fn().mockReturnThis(), send: jest.fn(), json: jest.fn() };
-    service.deleteExercise.mockResolvedValue();
+  it('verifica ownership y elimina ejercicio', async () => {
+    const req = { params: { id: 1 }, user: { id_user_profile: 9 }, roles: [] };
+    const res = createRes();
+    Exercise.findByPk.mockResolvedValue({ created_by: 9 });
 
     await controller.deleteExercise(req, res);
 
+    expect(Exercise.findByPk).toHaveBeenCalledWith(1);
     expect(service.deleteExercise).toHaveBeenCalledWith(1);
     expect(res.status).toHaveBeenCalledWith(204);
     expect(res.send).toHaveBeenCalled();
   });
 
-  it('returns 404 on error', async () => {
+  it('retorna 404 cuando no existe', async () => {
     const req = { params: { id: 1 } };
-    const res = { status: jest.fn().mockReturnThis(), json: jest.fn(), send: jest.fn() };
-    service.deleteExercise.mockRejectedValue(new Error('fail'));
+    const res = createRes();
+    Exercise.findByPk.mockResolvedValue(null);
 
     await controller.deleteExercise(req, res);
 
     expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ error: 'fail' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: {
+        code: 'EXERCISE_NOT_FOUND',
+        message: 'Ejercicio no encontrado'
+      }
+    });
+    expect(service.deleteExercise).not.toHaveBeenCalled();
+  });
+
+  it('bloquea borrado cuando no es propietario', async () => {
+    const req = { params: { id: 1 }, user: { id_user_profile: 2 }, roles: [] };
+    const res = createRes();
+    Exercise.findByPk.mockResolvedValue({ created_by: 3 });
+
+    await controller.deleteExercise(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({
+      error: {
+        code: 'FORBIDDEN',
+        message: 'No eres el propietario de este ejercicio'
+      }
+    });
+    expect(service.deleteExercise).not.toHaveBeenCalled();
   });
 });
