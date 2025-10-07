@@ -12,7 +12,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 describe('getRoutineWithExercises', () => {
   it('throws when not found', async () => {
     Routine.findByPk.mockResolvedValue(null);
-    await expect(service.getRoutineWithExercises(1)).rejects.toThrow('Rutina no encontrada');
+    await expect(service.getRoutineWithExercises(1)).rejects.toThrow('Rutina no encontrado');
   });
 });
 

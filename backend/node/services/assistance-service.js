@@ -5,6 +5,7 @@ const tokenLedgerService = require('./token-ledger-service');
 const Gym = require('../models/Gym');
 const { Op } = require('sequelize');
 const frequencyService = require('../services/frequency-service');
+const { NotFoundError, ConflictError, BusinessError } = require('../utils/errors');
 
 // Utilidad para validar distancia
 function calcularDistancia(lat1, lon1, lat2, lon2) {
@@ -38,25 +39,28 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude }) => 
   const asistenciaHoy = await Assistance.findOne({
     where: { id_user: idUserProfile, id_gym, date: fecha }
   });
-  if (asistenciaHoy) throw new Error('Ya registraste asistencia hoy.');
+  if (asistenciaHoy) throw new ConflictError('Ya registraste asistencia hoy');
 
   // Validar gimnasio
   const gym = await Gym.findByPk(id_gym);
-  if (!gym) throw new Error('Gimnasio no encontrado');
-  
+  if (!gym) throw new NotFoundError('Gimnasio');
+
   // Validar proximidad
   const distancia = calcularDistancia(latitude, longitude, gym.latitude, gym.longitude);
   const PROXIMITY_M = parseInt(process.env.PROXIMITY_M || '180');
   if (distancia > PROXIMITY_M) {
-    throw new Error(`Estás fuera del rango del gimnasio (distancia: ${Math.round(distancia)} m, máximo: ${PROXIMITY_M} m)`);
+    throw new BusinessError(
+      `Estás fuera del rango del gimnasio (distancia: ${Math.round(distancia)} m, máximo: ${PROXIMITY_M} m)`,
+      'OUT_OF_RANGE'
+    );
   }
 
   // Cargar user profile
   const userProfile = await UserProfile.findByPk(idUserProfile);
-  if (!userProfile) throw new Error('Usuario no encontrado');
-  
+  if (!userProfile) throw new NotFoundError('Usuario');
+
   const racha = await Streak.findByPk(userProfile.id_streak);
-  if (!racha) throw new Error('Racha no encontrada');
+  if (!racha) throw new NotFoundError('Racha');
 
   // Crear asistencia
   const nuevaAsistencia = await Assistance.create({

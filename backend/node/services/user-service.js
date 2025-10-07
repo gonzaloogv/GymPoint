@@ -1,4 +1,5 @@
 const { Account, UserProfile } = require('../models');
+const { NotFoundError, ConflictError, ValidationError } = require('../utils/errors');
 
 /**
  * Obtener usuario completo (Account + UserProfile)
@@ -17,7 +18,7 @@ const obtenerUsuario = async (idAccount) => {
   });
 
   if (!account || !account.userProfile) {
-    throw new Error('Usuario no encontrado');
+    throw new NotFoundError('Usuario');
   }
 
   // Retornar datos combinados
@@ -59,7 +60,7 @@ const obtenerPerfilPorId = async (idUserProfile) => {
   });
 
   if (!userProfile) {
-    throw new Error('Perfil de usuario no encontrado');
+    throw new NotFoundError('Perfil de usuario');
   }
 
   return {
@@ -88,7 +89,7 @@ const actualizarPerfil = async (idUserProfile, datos) => {
   const userProfile = await UserProfile.findByPk(idUserProfile);
   
   if (!userProfile) {
-    throw new Error('Perfil de usuario no encontrado');
+    throw new NotFoundError('Perfil de usuario');
   }
 
   // Solo permitir actualizar campos específicos
@@ -136,13 +137,13 @@ const actualizarEmail = async (idAccount, newEmail) => {
   const account = await Account.findByPk(idAccount);
   
   if (!account) {
-    throw new Error('Cuenta no encontrada');
+    throw new NotFoundError('Cuenta');
   }
 
   // Verificar que el email no esté en uso
   const existing = await Account.findOne({ where: { email: newEmail } });
   if (existing && existing.id_account !== idAccount) {
-    throw new Error('El email ya está en uso');
+    throw new ConflictError('El email ya está en uso');
   }
 
   await account.update({ 
@@ -174,7 +175,7 @@ const eliminarCuenta = async (idAccount) => {
   });
   
   if (!account) {
-    throw new Error('Cuenta no encontrada');
+    throw new NotFoundError('Cuenta');
   }
 
   // Revocar todos los refresh tokens
@@ -224,13 +225,13 @@ const actualizarTokens = async (idUserProfile, delta, reason = 'manual') => {
  */
 const actualizarSuscripcion = async (idUserProfile, newSubscription) => {
   if (!['FREE', 'PREMIUM'].includes(newSubscription)) {
-    throw new Error('Suscripción inválida');
+    throw new ValidationError('Suscripción inválida. Debe ser FREE o PREMIUM');
   }
 
   const userProfile = await UserProfile.findByPk(idUserProfile);
   
   if (!userProfile) {
-    throw new Error('Perfil de usuario no encontrado');
+    throw new NotFoundError('Perfil de usuario');
   }
 
   await userProfile.update({ subscription: newSubscription });

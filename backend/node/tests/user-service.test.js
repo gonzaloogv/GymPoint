@@ -102,6 +102,6 @@ describe('eliminarCuenta', () => {
 
   it('lanza error si la cuenta no existe', async () => {
     Account.findByPk.mockResolvedValue(null);
-    await expect(userService.eliminarCuenta(1)).rejects.toThrow('Cuenta no encontrada');
+    await expect(userService.eliminarCuenta(1)).rejects.toThrow('Cuenta no encontrado');
   });
 });

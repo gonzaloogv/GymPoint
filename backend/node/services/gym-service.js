@@ -1,6 +1,7 @@
 const { Op, literal } = require('sequelize');
 const { Gym, GymType } = require('../models');
 const Joi = require('joi');
+const { NotFoundError, ValidationError } = require('../utils/errors');
 
 const tiposValidos = [
   'completo',
@@ -38,7 +39,7 @@ const updateGym = async (id, data) => {
   const { id_types, ...gymData } = data;
 
   const gym = await Gym.findByPk(id);
-  if (!gym) throw new Error('Gym not found');
+  if (!gym) throw new NotFoundError('Gimnasio');
 
   // actualiza los datos del gimnasio
   await gym.update(gymData);
@@ -53,7 +54,7 @@ const updateGym = async (id, data) => {
 
 const deleteGym = async (id) => {
   const gym = await Gym.findByPk(id);
-  if (!gym) throw new Error('Gym not found');
+  if (!gym) throw new NotFoundError('Gimnasio');
   return await gym.destroy();
 };
 
@@ -108,7 +109,10 @@ const buscarGimnasiosCercanos = async (lat, lng, radiusKm = 5, limit = 50, offse
 
   const { error, value } = schema.validate({ lat, lng, radiusKm, limit, offset });
   if (error) {
-    throw new Error(`Parámetros inválidos: ${error.details[0].message}`);
+    throw new ValidationError('Parámetros inválidos', error.details.map(d => ({
+      field: d.path.join('.'),
+      message: d.message
+    })));
   }
 
   const { lat: validLat, lng: validLng, radiusKm: validRadius } = value;

@@ -2,6 +2,7 @@ const Routine = require('../models/Routine');
 const Exercise = require('../models/Exercise');
 const RoutineExercise = require('../models/RoutineExercise');
 const { UserProfile } = require('../models');
+const { NotFoundError } = require('../utils/errors');
 
 /**
  * Obtener rutina con sus ejercicios
@@ -29,7 +30,7 @@ const getRoutineWithExercises = async (id_routine) => {
   });
 
   if (!rutina) {
-    throw new Error('Rutina no encontrada');
+    throw new NotFoundError('Rutina');
   }
 
   // ordena ejercicios por order
@@ -74,7 +75,7 @@ const createRoutineWithExercises = async ({ routine_name, description, exercises
 
 const updateRoutine = async (id, data) => {
     const rutina = await Routine.findByPk(id);
-    if (!rutina) throw new Error('Rutina no encontrada');
+    if (!rutina) throw new NotFoundError('Rutina');
     return await rutina.update(data);
 };
 
@@ -82,15 +83,15 @@ const updateRoutineExercise = async (id_routine, id_exercise, data) => {
     const entry = await RoutineExercise.findOne({
       where: { id_routine, id_exercise }
     });
-  
-    if (!entry) throw new Error('Ejercicio no encontrado en la rutina');
-  
+
+    if (!entry) throw new NotFoundError('Ejercicio en la rutina');
+
     return await entry.update(data);
 };
 
 const deleteRoutine = async (id) => {
     const rutina = await Routine.findByPk(id);
-    if (!rutina) throw new Error('Rutina no encontrada');
+    if (!rutina) throw new NotFoundError('Rutina');
     return await rutina.destroy();
 };
 
@@ -98,11 +99,11 @@ const deleteRoutineExercise = async (id_routine, id_exercise) => {
     const deleted = await RoutineExercise.destroy({
       where: { id_routine, id_exercise }
     });
-  
+
     if (!deleted) {
-      throw new Error('Ejercicio no encontrado en la rutina');
+      throw new NotFoundError('Ejercicio en la rutina');
     }
-  
+
     return deleted;
 };
 

@@ -26,7 +26,7 @@ beforeEach(() => {
 describe('registrarAsistencia', () => {
   it('throws if assistance already exists today', async () => {
     Assistance.findOne.mockResolvedValue({});
-    await expect(assistanceService.registrarAsistencia({ id_user:1,id_gym:1,latitude:0,longitude:0 })).rejects.toThrow('Ya registraste asistencia hoy.');
+    await expect(assistanceService.registrarAsistencia({ id_user:1,id_gym:1,latitude:0,longitude:0 })).rejects.toThrow('Ya registraste asistencia hoy');
   });
 
   it('creates assistance when valid', async () => {

@@ -6,6 +6,7 @@ const Streak = require('../models/Streak');
 const RefreshToken = require('../models/RefreshToken');
 const frequencyService = require('../services/frequency-service');
 const GoogleAuthProvider = require('../utils/auth-providers/google-provider');
+const { ConflictError, UnauthorizedError, NotFoundError } = require('../utils/errors');
 
 const ACCESS_EXPIRATION = '15m';
 const REFRESH_EXPIRATION_DAYS = 30;
@@ -25,7 +26,7 @@ const register = async (data) => {
     // 1. Verificar email
     const existing = await Account.findOne({ where: { email }, transaction });
     if (existing) {
-      throw new Error('El email ya está registrado');
+      throw new ConflictError('El email ya está registrado');
     }
 
     // 2. Crear Account
@@ -172,17 +173,17 @@ const login = async (email, password, req) => {
   });
 
   if (!account) {
-    throw new Error('Credenciales inválidas');
+    throw new UnauthorizedError('Credenciales inválidas');
   }
 
   // 2. Verificar que no sea cuenta de Google
   if (account.auth_provider === 'google') {
-    throw new Error('Esta cuenta fue creada con Google. Por favor, inicia sesión con Google.');
+    throw new UnauthorizedError('Esta cuenta fue creada con Google. Por favor, inicia sesión con Google.');
   }
 
   // 3. Verificar password
   if (!account.password_hash || !(await bcrypt.compare(password, account.password_hash))) {
-    throw new Error('Credenciales inválidas');
+    throw new UnauthorizedError('Credenciales inválidas');
   }
 
   // 4. Actualizar last_login
@@ -345,7 +346,7 @@ const refreshAccessToken = async (oldRefreshToken) => {
   try {
     decoded = jwt.verify(oldRefreshToken, process.env.JWT_REFRESH_SECRET);
   } catch (error) {
-    throw new Error('Refresh token inválido o expirado');
+    throw new UnauthorizedError('Refresh token inválido o expirado');
   }
 
   // Buscar refresh token en BD
@@ -354,12 +355,12 @@ const refreshAccessToken = async (oldRefreshToken) => {
   });
 
   if (!storedToken) {
-    throw new Error('Refresh token no encontrado o revocado');
+    throw new UnauthorizedError('Refresh token no encontrado o revocado');
   }
 
   // Verificar que no haya expirado
   if (new Date() > storedToken.expires_at) {
-    throw new Error('Refresh token expirado');
+    throw new UnauthorizedError('Refresh token expirado');
   }
 
   // Buscar UserProfile + Account
@@ -376,7 +377,7 @@ const refreshAccessToken = async (oldRefreshToken) => {
   });
 
   if (!userProfile) {
-    throw new Error('Usuario no encontrado');
+    throw new NotFoundError('Usuario');
   }
 
   // Revocar token antiguo

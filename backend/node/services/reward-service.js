@@ -6,6 +6,7 @@ const tokenLedgerService = require('./token-ledger-service');
 const rewardCodeService = require('./reward-code-service');
 const { Sequelize } = require('sequelize');
 const sequelize = require('../config/database');
+const { NotFoundError, ConflictError } = require('../utils/errors');
 
 /**
  * Listar recompensas disponibles
@@ -47,13 +48,13 @@ const canjearRecompensa = async ({ id_user, id_reward, id_gym }) => {
       transaction: t
     });
 
-    if (!reward) throw new Error('La recompensa no está disponible');
+    if (!reward) throw new NotFoundError('Recompensa disponible');
 
     // Verificar idempotencia: si ya existe el canje, retornar el existente
     const existingClaim = await tokenLedgerService.existeMovimiento('claimed_reward', id_reward);
     if (existingClaim) {
       await t.rollback();
-      throw new Error('Esta recompensa ya fue canjeada anteriormente');
+      throw new ConflictError('Esta recompensa ya fue canjeada anteriormente');
     }
 
     // Generar código primero

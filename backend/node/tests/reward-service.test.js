@@ -39,7 +39,7 @@ describe('canjearRecompensa', () => {
 
   it('throws when reward not available', async () => {
     Reward.findOne.mockResolvedValue(null);
-    await expect(rewardService.canjearRecompensa({ id_user:1, id_reward:1, id_gym:1 })).rejects.toThrow('La recompensa no está disponible');
+    await expect(rewardService.canjearRecompensa({ id_user:1, id_reward:1, id_gym:1 })).rejects.toThrow('Recompensa disponible no encontrado');
   });
 
   it('throws when reward already claimed', async () => {
