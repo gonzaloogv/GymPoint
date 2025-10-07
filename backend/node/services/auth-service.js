@@ -1,3 +1,18 @@
+/**
+ * Servicio de autenticación y autorización
+ *
+ * Gestiona el registro, login y refresh de tokens para usuarios.
+ * Soporta autenticación local (email/password) y OAuth con Google.
+ *
+ * Características:
+ * - Registro de usuarios con creación automática de perfil, frecuencia y racha
+ * - Login local y Google OAuth
+ * - Refresh token rotation para mayor seguridad
+ * - Generación de JWT con roles y permisos
+ *
+ * @module services/auth-service
+ */
+
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sequelize = require('../config/database');
@@ -15,8 +30,28 @@ const REFRESH_EXPIRATION_DAYS = REFRESH_TOKEN_TTL_DAYS;
 const googleProvider = new GoogleAuthProvider();
 
 /**
- * Registro de nuevo usuario (local)
- * Crea: Account + UserProfile + Frequency + Streak
+ * Registra un nuevo usuario local
+ *
+ * Crea en una transacción:
+ * - Account (con password hasheado)
+ * - UserProfile (con datos personales y 0 tokens)
+ * - Frequency (meta semanal de asistencias)
+ * - Streak (racha de asistencias)
+ *
+ * @async
+ * @param {Object} data - Datos del nuevo usuario
+ * @param {string} data.email - Email único del usuario
+ * @param {string} data.password - Contraseña (será hasheada con bcrypt)
+ * @param {string} data.name - Nombre
+ * @param {string} data.lastname - Apellido
+ * @param {string} [data.gender='O'] - Género (M, F, O)
+ * @param {string} [data.locality=''] - Localidad
+ * @param {number} [data.age=0] - Edad
+ * @param {number} [data.frequency_goal=3] - Meta semanal de asistencias
+ *
+ * @returns {Promise<Object>} Usuario creado con account y userProfile
+ *
+ * @throws {ConflictError} Si el email ya está registrado
  */
 const register = async (data) => {
   const { email, password, frequency_goal = 3, name, lastname, gender = 'O', locality = '', age = 0 } = data;
