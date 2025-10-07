@@ -1,5 +1,6 @@
 const { TokenLedger, UserProfile } = require('../models');
 const sequelize = require('../config/database');
+const { NotFoundError, BusinessError } = require('../utils/errors');
 
 /**
  * Registrar movimiento de tokens en el ledger
@@ -25,7 +26,7 @@ const registrarMovimiento = async ({ userId, delta, reason, refType = null, refI
     });
 
     if (!userProfile) {
-      throw new Error(`UserProfile ${userId} no encontrado`);
+      throw new NotFoundError('Usuario');
     }
 
     const currentBalance = userProfile.tokens;
@@ -33,7 +34,10 @@ const registrarMovimiento = async ({ userId, delta, reason, refType = null, refI
 
     // 2. Validar que no quede negativo
     if (newBalance < 0) {
-      throw new Error(`Saldo insuficiente. Actual: ${currentBalance}, Intento: ${delta}`);
+      throw new BusinessError(
+        `Saldo insuficiente. Balance actual: ${currentBalance} tokens, intentando gastar: ${Math.abs(delta)} tokens`,
+        'INSUFFICIENT_BALANCE'
+      );
     }
 
     // 3. Crear registro en ledger

@@ -6,6 +6,7 @@ const setupSwagger = require('./utils/swagger');
 const { runMigrations } = require('./migrate');
 const { startRewardStatsJob } = require('./jobs/reward-stats-job');
 const { startCleanupJob } = require('./jobs/cleanup-job');
+const { errorHandler, notFoundHandler } = require('./middlewares/error-handler');
 
 // Cargar variables de entorno
 dotenv.config();
@@ -73,32 +74,9 @@ app.use('/api/admin', adminRewardsRoutes);
 // Swagger UI
 setupSwagger(app);
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ 
-    error: {
-      code: 'NOT_FOUND',
-      message: 'Endpoint no encontrado',
-      path: req.path
-    }
-  });
-});
-
-// Error handler global
-app.use((err, req, res, next) => {
-  console.error('Error no manejado:', err);
-  
-  const statusCode = err.statusCode || 500;
-  const code = err.code || 'INTERNAL_ERROR';
-  
-  res.status(statusCode).json({
-    error: {
-      code,
-      message: err.message || 'Error interno del servidor',
-      ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-    }
-  });
-});
+// Manejo de errores - debe ir al final de todas las rutas
+app.use(notFoundHandler);  // 404 para rutas no encontradas
+app.use(errorHandler);     // Manejo centralizado de errores
 
 // Función para iniciar el servidor
 async function startServer() {

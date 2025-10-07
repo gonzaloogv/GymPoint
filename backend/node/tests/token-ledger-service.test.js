@@ -129,7 +129,7 @@ describe('Token Ledger Service', () => {
           delta: 10,
           reason: 'TEST'
         })
-      ).rejects.toThrow('UserProfile 999 no encontrado');
+      ).rejects.toThrow('Usuario no encontrado');
 
       expect(mockTransaction.rollback).toHaveBeenCalled();
     });
