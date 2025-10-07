@@ -1,6 +1,6 @@
 jest.mock('../models/UserGym', () => ({ findOne: jest.fn(), create: jest.fn(), count: jest.fn(), findAll: jest.fn() }));
 jest.mock('../models/Gym', () => ({}));
-jest.mock('../models/User', () => ({}));
+jest.mock('../models', () => ({ UserProfile: {} }));
 
 const service = require('../services/user-gym-service');
 const UserGym = require('../models/UserGym');

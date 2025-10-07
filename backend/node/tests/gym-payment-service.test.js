@@ -3,6 +3,7 @@ jest.mock('../models', () => ({ UserProfile: {} }));
 
 const service = require('../services/gym-payment-service');
 const GymPayment = require('../models/GymPayment');
+const { UserProfile } = require('../models');
 
 beforeEach(() => { jest.clearAllMocks(); });
 
@@ -43,7 +44,7 @@ describe('obtenerPagosPorGimnasio', () => {
 
     expect(GymPayment.findAll).toHaveBeenCalledWith({
       where: { id_gym: 2 },
-      include: { model: User, attributes: ['name', 'lastname', 'email'] },
+      include: { model: UserProfile, as: 'userProfile', attributes: ['name', 'lastname'] },
       order: [['payment_date', 'DESC']]
     });
     expect(res).toBe(pagos);

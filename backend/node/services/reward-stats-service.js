@@ -61,7 +61,7 @@ const runDailyUpsert = async (from, to) => {
         SUM(CASE WHEN tl.delta < 0 AND tl.reason = 'REWARD_CLAIM' THEN ABS(tl.delta) ELSE 0 END) as tokens_spent,
         SUM(CASE WHEN tl.delta > 0 AND tl.reason = 'REWARD_REFUND' THEN tl.delta ELSE 0 END) as tokens_refunded
       FROM token_ledger tl
-      JOIN claimed_reward cr ON tl.ref_type = 'claimed_reward' AND tl.ref_id = cr.id_claim
+      JOIN claimed_reward cr ON tl.ref_type = 'claimed_reward' AND tl.ref_id = cr.id_claimed_reward
       JOIN reward r ON cr.id_reward = r.id_reward
       WHERE
         r.provider = 'gym'
@@ -175,7 +175,7 @@ const getGymStatsRange = async (from, to) => {
         SUM(CASE WHEN tl.delta < 0 AND tl.reason = 'REWARD_CLAIM' THEN ABS(tl.delta) ELSE 0 END) as tokens_spent,
         SUM(CASE WHEN tl.delta > 0 AND tl.reason = 'REWARD_REFUND' THEN tl.delta ELSE 0 END) as tokens_refunded
       FROM token_ledger tl
-      JOIN claimed_reward cr ON tl.ref_type = 'claimed_reward' AND tl.ref_id = cr.id_claim
+      JOIN claimed_reward cr ON tl.ref_type = 'claimed_reward' AND tl.ref_id = cr.id_claimed_reward
       JOIN reward r ON cr.id_reward = r.id_reward
       WHERE
         r.provider = 'gym'
@@ -345,7 +345,7 @@ const getGymStatsById = async (gymId, from, to) => {
         SUM(CASE WHEN tl.delta < 0 AND tl.reason = 'REWARD_CLAIM' THEN ABS(tl.delta) ELSE 0 END) as tokens_spent,
         SUM(CASE WHEN tl.delta > 0 AND tl.reason = 'REWARD_REFUND' THEN tl.delta ELSE 0 END) as tokens_refunded
       FROM token_ledger tl
-      JOIN claimed_reward cr ON tl.ref_type = 'claimed_reward' AND tl.ref_id = cr.id_claim
+      JOIN claimed_reward cr ON tl.ref_type = 'claimed_reward' AND tl.ref_id = cr.id_claimed_reward
       JOIN reward r ON cr.id_reward = r.id_reward
       WHERE
         r.provider = 'gym'
