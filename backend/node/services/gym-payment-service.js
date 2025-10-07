@@ -19,11 +19,13 @@ const obtenerPagosPorUsuario = async (id_user) => {
 };
 
 const obtenerPagosPorGimnasio = async (id_gym) => {
+    const { UserProfile } = require('../models');
     return await GymPayment.findAll({
       where: { id_gym },
       include: {
-        model: require('../models/User'),
-        attributes: ['name', 'lastname', 'email']
+        model: UserProfile,
+        as: 'userProfile',
+        attributes: ['name', 'lastname']
       },
       order: [['payment_date', 'DESC']]
     });

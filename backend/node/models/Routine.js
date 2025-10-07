@@ -36,12 +36,4 @@ Routine.belongsToMany(Exercise, {
   otherKey: 'id_exercise'
 });
 
-// Relaciones con usuarios (rutinas activas/inactivas)
-const User = require('./User');
-const UserRoutine = require('./UserRoutine');
-
-Routine.belongsToMany(User, {
-  through: UserRoutine,
-  foreignKey: 'id_routine',
-  otherKey: 'id_user'
-});
+// Asociaciones definidas en models/index.js

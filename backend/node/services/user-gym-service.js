@@ -1,6 +1,6 @@
 const UserGym = require('../models/UserGym');
 const Gym = require('../models/Gym');
-const User = require('../models/User');
+const { UserProfile } = require('../models');
 
 const darAltaEnGimnasio = async ({ id_user, id_gym, plan }) => {
     const hoy = new Date();

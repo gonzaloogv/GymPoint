@@ -14,7 +14,6 @@ const UserProfile = require('./UserProfile');
 const AdminProfile = require('./AdminProfile');
 
 // Modelos de Dominio (existentes)
-const User = require('./User'); // Deprecated - mantener para compatibilidad
 const Assistance = require('./Assistance');
 const ClaimedReward = require('./ClaimedReward');
 const Exercise = require('./Exercise');
@@ -285,7 +284,6 @@ module.exports = {
   AdminProfile,
   
   // Modelos existentes
-  User, // Deprecated
   Assistance,
   ClaimedReward,
   Exercise,

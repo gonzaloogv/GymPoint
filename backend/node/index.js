@@ -5,6 +5,7 @@ const sequelize = require('./config/database');
 const setupSwagger = require('./utils/swagger');
 const { runMigrations } = require('./migrate');
 const { startRewardStatsJob } = require('./jobs/reward-stats-job');
+const { startCleanupJob } = require('./jobs/cleanup-job');
 
 // Cargar variables de entorno
 dotenv.config();
@@ -126,9 +127,10 @@ async function startServer() {
       console.log('');
     });
     
-    // 4. Iniciar job de estadísticas de recompensas
+    // 4. Iniciar jobs programados
     if (process.env.NODE_ENV !== 'test') {
       startRewardStatsJob(); // Cada 5 minutos
+      startCleanupJob(); // Diario a las 3 AM
     }
     
   } catch (error) {

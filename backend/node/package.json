@@ -21,6 +21,7 @@
     "joi": "^18.0.1",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.1",
+    "node-cron": "^3.0.3",
     "sequelize": "^6.37.7",
     "silent": "^0.2.3",
     "swagger-jsdoc": "^6.2.8",

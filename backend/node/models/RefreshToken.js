@@ -33,8 +33,7 @@ const RefreshToken = sequelize.define('RefreshToken', {
   tableName: 'refresh_token',
   timestamps: false 
 });
-// Asociación directa (opcional si no usás `models/index.js`)
-const User = require('./User');
-RefreshToken.belongsTo(User, { foreignKey: 'id_user', as: 'user' });
+
+// Asociaciones definidas en models/index.js
 
 module.exports = RefreshToken;

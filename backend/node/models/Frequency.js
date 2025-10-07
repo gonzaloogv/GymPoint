@@ -36,7 +36,5 @@ const Frequency = sequelize.define('Frequency', {
 });
 
 module.exports = Frequency;
-const User = require('./User');
-Frequency.belongsTo(User, { 
-    foreignKey: 'id_user' 
-});
+
+// Asociaciones definidas en models/index.js
