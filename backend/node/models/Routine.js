@@ -21,7 +21,11 @@ const Routine = sequelize.define('Routine', {
   }
 }, {
   tableName: 'routine',
-  timestamps: false
+  timestamps: true,
+  paranoid: true,
+  deletedAt: 'deleted_at',
+  createdAt: 'created_at',
+  updatedAt: 'updated_at'
 });
 
 module.exports = Routine;

@@ -52,7 +52,11 @@ const Reward = sequelize.define('Reward', {
   }
 }, {
   tableName: 'reward',
-  timestamps: false
+  timestamps: true,
+  paranoid: true,
+  deletedAt: 'deleted_at',
+  createdAt: 'created_at',
+  updatedAt: 'updated_at'
 });
 
 module.exports = Reward;

@@ -6,6 +6,7 @@ const Gym = require('../models/Gym');
 const { Op } = require('sequelize');
 const frequencyService = require('../services/frequency-service');
 const { NotFoundError, ConflictError, BusinessError } = require('../utils/errors');
+const { PROXIMITY_METERS, TOKENS, TOKEN_REASONS } = require('../config/constants');
 
 // Utilidad para validar distancia
 function calcularDistancia(lat1, lon1, lat2, lon2) {
@@ -47,10 +48,9 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude }) => 
 
   // Validar proximidad
   const distancia = calcularDistancia(latitude, longitude, gym.latitude, gym.longitude);
-  const PROXIMITY_M = parseInt(process.env.PROXIMITY_M || '180');
-  if (distancia > PROXIMITY_M) {
+  if (distancia > PROXIMITY_METERS) {
     throw new BusinessError(
-      `Estás fuera del rango del gimnasio (distancia: ${Math.round(distancia)} m, máximo: ${PROXIMITY_M} m)`,
+      `Estás fuera del rango del gimnasio (distancia: ${Math.round(distancia)} m, máximo: ${PROXIMITY_METERS} m)`,
       'OUT_OF_RANGE'
     );
   }
@@ -94,11 +94,10 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude }) => 
   await racha.save();
 
   // Otorgar tokens usando ledger
-  const TOKENS_ATTENDANCE = parseInt(process.env.TOKENS_ATTENDANCE || '10');
   const { newBalance } = await tokenLedgerService.registrarMovimiento({
     userId: idUserProfile,
-    delta: TOKENS_ATTENDANCE,
-    reason: 'ATTENDANCE',
+    delta: TOKENS.ATTENDANCE,
+    reason: TOKEN_REASONS.ATTENDANCE,
     refType: 'assistance',
     refId: nuevaAsistencia.id_assistance
   });

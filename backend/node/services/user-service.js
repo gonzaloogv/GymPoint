@@ -1,5 +1,6 @@
 const { Account, UserProfile } = require('../models');
 const { NotFoundError, ConflictError, ValidationError } = require('../utils/errors');
+const { SUBSCRIPTION_TYPES } = require('../config/constants');
 
 /**
  * Obtener usuario completo (Account + UserProfile)
@@ -224,8 +225,9 @@ const actualizarTokens = async (idUserProfile, delta, reason = 'manual') => {
  * @returns {Promise<Object>} Perfil actualizado
  */
 const actualizarSuscripcion = async (idUserProfile, newSubscription) => {
-  if (!['FREE', 'PREMIUM'].includes(newSubscription)) {
-    throw new ValidationError('Suscripción inválida. Debe ser FREE o PREMIUM');
+  const validSubscriptions = Object.values(SUBSCRIPTION_TYPES);
+  if (!validSubscriptions.includes(newSubscription)) {
+    throw new ValidationError(`Suscripción inválida. Debe ser ${validSubscriptions.join(' o ')}`);
   }
 
   const userProfile = await UserProfile.findByPk(idUserProfile);

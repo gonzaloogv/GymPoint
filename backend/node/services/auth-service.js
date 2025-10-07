@@ -7,9 +7,10 @@ const RefreshToken = require('../models/RefreshToken');
 const frequencyService = require('../services/frequency-service');
 const GoogleAuthProvider = require('../utils/auth-providers/google-provider');
 const { ConflictError, UnauthorizedError, NotFoundError } = require('../utils/errors');
+const { ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL_DAYS } = require('../config/constants');
 
-const ACCESS_EXPIRATION = '15m';
-const REFRESH_EXPIRATION_DAYS = 30;
+const ACCESS_EXPIRATION = ACCESS_TOKEN_TTL;
+const REFRESH_EXPIRATION_DAYS = REFRESH_TOKEN_TTL_DAYS;
 
 const googleProvider = new GoogleAuthProvider();
 

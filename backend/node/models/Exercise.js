@@ -25,7 +25,11 @@ const Exercise = sequelize.define('Exercise', {
   }
 }, {
   tableName: 'exercise',
-  timestamps: false
+  timestamps: true,
+  paranoid: true,
+  deletedAt: 'deleted_at',
+  createdAt: 'created_at',
+  updatedAt: 'updated_at'
 });
 
 module.exports = Exercise;
