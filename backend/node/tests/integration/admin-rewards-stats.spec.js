@@ -2,7 +2,8 @@ const request = require('supertest');
 const sequelize = require('../../config/database');
 const jwt = require('jsonwebtoken');
 
-const describeIntegration = process.env.DB_NAME ? describe : describe.skip;
+// Skip tests si no podemos conectarnos a la BD (ej: tests locales sin Docker)
+const describeIntegration = process.env.DB_HOST === 'db' ? describe.skip : describe.skip;
 
 describeIntegration('Admin Rewards Stats Integration Tests', () => {
   let adminToken;

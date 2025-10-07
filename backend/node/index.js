@@ -139,8 +139,13 @@ async function startServer() {
   }
 }
 
-// Iniciar servidor
-startServer();
+// Iniciar servidor solo si no estamos en modo test
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
+
+// Exportar app para tests
+module.exports = app;
 
 // Manejo de señales para shutdown graceful
 process.on('SIGTERM', async () => {
