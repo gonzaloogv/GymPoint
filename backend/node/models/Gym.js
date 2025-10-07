@@ -63,6 +63,11 @@ const Gym = sequelize.define('Gym', {
   week_price: {
     type: DataTypes.DOUBLE,
     allowNull: false
+  },
+  photo_url: {
+    type: DataTypes.STRING(500),
+    allowNull: true,
+    comment: 'URL de la foto principal del gimnasio'
   }
 }, {
   tableName: 'gym',
