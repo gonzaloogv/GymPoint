@@ -31,10 +31,22 @@ const UserGym = sequelize.define('UserGym', {
     type: DataTypes.ENUM('MENSUAL', 'SEMANAL', 'ANUAL'),
     allowNull: false,
     defaultValue: 'MENSUAL'
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
   }
 }, {
   tableName: 'user_gym',
-  timestamps: false,
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
   indexes: [
     {
       unique: true,

@@ -41,7 +41,9 @@ const Gym = sequelize.define('Gym', {
     type: DataTypes.STRING(500)
   },
   social_media: {
-    type: DataTypes.TEXT
+    type: DataTypes.JSON,
+    allowNull: true,
+    comment: '{"instagram": "@gym", "facebook": "...", "twitter": "..."}'
   },
   registration_date: {
     type: DataTypes.DATE,
@@ -49,8 +51,10 @@ const Gym = sequelize.define('Gym', {
     defaultValue: DataTypes.NOW
   },
   equipment: {
-    type: DataTypes.TEXT,
-    allowNull: false
+    type: DataTypes.JSON,
+    allowNull: false,
+    defaultValue: [],
+    comment: 'Array de equipamiento disponible'
   },
   month_price: {
     type: DataTypes.DOUBLE,
