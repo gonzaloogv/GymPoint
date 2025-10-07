@@ -6,6 +6,10 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:unit": "jest --testPathPattern=tests --testPathIgnorePatterns=tests/integration",
+    "test:integration": "jest --testPathPattern=tests/integration",
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint ."
   },
   "keywords": [],
