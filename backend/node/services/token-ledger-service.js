@@ -73,7 +73,7 @@ const registrarMovimiento = async ({ userId, delta, reason, refType = null, refI
   try {
     // 1. Obtener balance actual con SELECT FOR UPDATE (evita race conditions)
     const userProfile = await UserProfile.findByPk(userId, {
-      attributes: ['tokens'],
+      attributes: ['id_user_profile', 'tokens'],
       lock: true,
       transaction: t
     });
