@@ -30,7 +30,7 @@ export class GymRepositoryImpl implements GymRepository {
       // Intentar primero /cercanos:
       try {
         const res = await api.get('/api/gyms/cercanos', {
-          params: { lat, lon: lng, radius },
+          params: { lat, lng, radiusKm: radius / 1000 }, // Convertir metros a km
         });
         const list: GymDTO[] = Array.isArray(res.data)
           ? res.data

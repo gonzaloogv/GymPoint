@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker-compose logs:*)",
+      "Bash(npm test)",
+      "Bash(mkdir:*)",
+      "Bash(rm:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

@@ -16,4 +16,5 @@ export interface GymDTO {
   month_price?: number | string | null;
   week_price?: number | string | null;
   distancia?: number; // (si viene de /cercanos)
+  distance_km?: number | string; // Backend retorna distance_km
 }

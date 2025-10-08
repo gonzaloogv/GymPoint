@@ -21,6 +21,9 @@ export function mapGymDTOtoEntity(dto: GymDTO): Gym | null {
   const lng = toNum(dto.longitude);
   if (typeof lat !== 'number' || typeof lng !== 'number') return null;
 
+  // Backend retorna distance_km, mapearlo a distancia
+  const distancia = dto.distancia ?? (dto.distance_km ? toNum(dto.distance_km) : undefined);
+
   return {
     id: String(dto.id_gym),
     name: dto.name ?? 'Gym',
@@ -31,6 +34,6 @@ export function mapGymDTOtoEntity(dto: GymDTO): Gym | null {
     monthPrice: toNum(dto.month_price),
     weekPrice: toNum(dto.week_price),
     equipment: parseEquipment(dto.equipment),
-    distancia: dto.distancia,
+    distancia: distancia ? distancia * 1000 : undefined, // Convertir km a metros
   };
 }
