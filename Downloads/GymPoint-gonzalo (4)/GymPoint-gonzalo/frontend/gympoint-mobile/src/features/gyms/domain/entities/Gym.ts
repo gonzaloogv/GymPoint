@@ -1,1 +1,0 @@
-export interface Gym { id_gym: number; name: string; lat: number; lng: number; premium: boolean }
