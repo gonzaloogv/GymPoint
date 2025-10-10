@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components/native';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { rad } from '@shared/styles';
@@ -10,7 +9,7 @@ const ChipsGrid = styled(View)`
 `;
 
 const Chip = styled(TouchableOpacity)<{ $active?: boolean }>`
-  padding: 8px 12px;
+  padding: 10px 16px;
   border-radius: ${({ theme }) => rad(theme, 'md', 12)}px;
   border-width: 1px;
   border-color: ${({ theme, $active }) =>
@@ -18,12 +17,13 @@ const Chip = styled(TouchableOpacity)<{ $active?: boolean }>`
       ? (theme?.colors?.primary ?? '#635BFF')
       : (theme?.colors?.border ?? '#e5e7eb')};
   background-color: ${({ theme, $active }) =>
-    $active ? (theme?.colors?.primary ?? '#635BFF') : (theme?.colors?.bg ?? '#fafafa')};
+    $active ? (theme?.colors?.primary ?? '#635BFF') : (theme?.colors?.card ?? '#fff')};
 `;
 
 const ChipText = styled(Text)<{ $active?: boolean }>`
   color: ${({ theme, $active }) => ($active ? '#fff' : (theme?.colors?.text ?? '#111'))};
   font-weight: 600;
+  font-size: 14px;
 `;
 
 const SectionTitle = styled(Text)<{ $spaced?: boolean }>`

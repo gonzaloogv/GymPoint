@@ -14,7 +14,7 @@ type Props = {
 
 const Root = styled(View)`
   flex-direction: row;
-  align-self: flex-start; /* evita estirarse al máximo */
+  align-self: center; /* evita estirarse al máximo */
   border-width: 1px;
   border-color: ${({ theme }) => theme?.colors?.border ?? '#e5e7eb'};
   background-color: ${({ theme }) => theme?.colors?.card ?? '#fff'};

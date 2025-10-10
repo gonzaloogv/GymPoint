@@ -41,6 +41,7 @@ export * from './SegmentedControl';
 export * from './SetPill';
 export * from './StatusPill';
 export * from './StatsCard';
+export * from './StepContainer';
 export * from './StreakDisplay';
 export * from './SwitchRow';
 export * from './TabPill';

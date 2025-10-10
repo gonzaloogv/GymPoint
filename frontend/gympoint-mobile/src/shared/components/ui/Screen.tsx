@@ -83,7 +83,7 @@ export function Screen({
   return (
     <Bg>
       <Safe>
-        <View style={style as any}>{children}</View>
+        <View style={[{ flex: 1 }, style] as any}>{children}</View>
       </Safe>
     </Bg>
   );
