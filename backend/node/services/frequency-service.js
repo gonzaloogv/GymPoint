@@ -6,28 +6,42 @@ const { UserProfile } = require('../models');
  * @param {Object} data - Datos de la frecuencia
  * @param {number} data.id_user - ID del user_profile
  * @param {number} data.goal - Meta semanal
- * @returns {Promise<Frequency>} Frecuencia creada/actualizada
+ * @param {Object} [options]
+ * @param {Object} [options.transaction] - Transaccion opcional para envolver la operacion
+ * @returns {Promise<Frequency>} Frecuencia creada o actualizada
  */
-const crearMetaSemanal = async ({ id_user, goal }) => {
+const crearMetaSemanal = async ({ id_user, goal }, { transaction } = {}) => {
   // id_user ahora apunta a user_profiles.id_user_profile
-  const existente = await Frequency.findOne({ where: { id_user } });
+  const findOptions = { where: { id_user } };
+  if (transaction) {
+    findOptions.transaction = transaction;
+  }
+  const existente = await Frequency.findOne(findOptions);
 
   if (existente) {
     // si ya existe reinicia su meta y contador
     existente.goal = goal;
     existente.assist = 0;
     existente.achieved_goal = false;
-    await existente.save();
+    if (transaction) {
+      await existente.save({ transaction });
+    } else {
+      await existente.save();
+    }
     return existente;
   }
 
-  // crea nueva frecuencia si no existía
-  const nueva = await Frequency.create({
+  // crea nueva frecuencia si no existia
+  const nuevaData = {
     id_user, // id_user_profile
     goal,
     assist: 0,
     achieved_goal: false
-  });
+  };
+
+  const nueva = transaction
+    ? await Frequency.create(nuevaData, { transaction })
+    : await Frequency.create(nuevaData);
 
   return nueva;
 };
@@ -52,7 +66,7 @@ const actualizarAsistenciaSemanal = async (idUserProfile) => {
 
 /**
  * Reiniciar contadores semanales de todos los usuarios
- * (Ejecutar vía cron semanal)
+ * (Ejecutar via cron semanal)
  */
 const reiniciarSemana = async () => {
   await Frequency.update(
@@ -67,7 +81,7 @@ const reiniciarSemana = async () => {
  * @returns {Promise<Frequency>} Frecuencia del usuario
  */
 const consultarMetaSemanal = async (idUserProfile) => {
-  const frecuencia = await Frequency.findOne({ 
+  const frecuencia = await Frequency.findOne({
     where: { id_user: idUserProfile },
     include: {
       model: UserProfile,
@@ -85,21 +99,21 @@ const consultarMetaSemanal = async (idUserProfile) => {
 
 /**
  * Actualizar usuario asociado a una frecuencia
- * (Usado en migración de datos)
+ * (Usado en migracion de datos)
  * @param {number} id_frequency - ID de la frecuencia
  * @param {number} idUserProfile - ID del user_profile
  * @returns {Promise<Frequency>} Frecuencia actualizada
  */
 const actualizarUsuarioFrecuencia = async (id_frequency, idUserProfile) => {
   const frecuencia = await Frequency.findByPk(id_frequency);
-  
+
   if (!frecuencia) {
     throw new Error('Frecuencia no encontrada');
   }
-  
+
   frecuencia.id_user = idUserProfile;
   await frecuencia.save();
-  
+
   return frecuencia;
 };
 

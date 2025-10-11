@@ -87,6 +87,7 @@ module.exports = {
            t.result_balance as balance_after,
            TIMESTAMP(t.date) as created_at
          FROM transaction t
+         WHERE t.id_user IN (SELECT id_user_profile FROM user_profiles)
          ORDER BY t.id_transaction ASC`,
         { transaction }
       );

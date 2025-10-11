@@ -131,6 +131,38 @@ const getGymTypes = (req, res) => {
   res.json(tipos);
 };
 
+const obtenerFavoritos = async (req, res) => {
+  try {
+    const userProfile = req.account?.userProfile;
+    if (!userProfile) {
+      return res.status(403).json({ error: 'Perfil de usuario requerido' });
+    }
+    
+    const favoritos = await gymService.obtenerFavoritos(userProfile.id_user_profile);
+    res.json(favoritos);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ error: error.message });
+  }
+};
+
+const toggleFavorito = async (req, res) => {
+  try {
+    const userProfile = req.account?.userProfile;
+    if (!userProfile) {
+      return res.status(403).json({ error: 'Perfil de usuario requerido' });
+    }
+
+    const idGym = parseInt(req.params.id, 10);
+    if (Number.isNaN(idGym)) {
+      return res.status(400).json({ error: 'ID de gimnasio inválido' });
+    }
+
+    const resultado = await gymService.toggleFavorito(userProfile.id_user_profile, idGym);
+    res.json(resultado);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ error: error.message });
+  }
+};
 
 module.exports = {
   getAllGyms,
@@ -141,5 +173,7 @@ module.exports = {
   buscarGimnasiosCercanos,
   getGymsByCity,
   filtrarGimnasios,
-  getGymTypes
+  getGymTypes,
+  obtenerFavoritos,
+  toggleFavorito
 };

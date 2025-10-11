@@ -1,5 +1,5 @@
 const { Op, literal } = require('sequelize');
-const { Gym, GymType } = require('../models');
+const { Gym, GymType, UserFavoriteGym } = require('../models');
 const Joi = require('joi');
 const { NotFoundError, ValidationError } = require('../utils/errors');
 
@@ -201,6 +201,46 @@ const getGymTypes = () => {
   ];
 };
 
+const obtenerFavoritos = async (id_user_profile) => {
+  const favoritos = await UserFavoriteGym.findAll({
+    where: { id_user_profile },
+    include: [
+      {
+        model: Gym,
+        as: 'gym',
+        required: true
+      }
+    ],
+    order: [['created_at', 'DESC']]
+  });
+  return favoritos.map((fav) => ({
+    id_gym: fav.id_gym,
+    created_at: fav.created_at,
+    gym: fav.gym
+  }));
+};
+const toggleFavorito = async (id_user_profile, id_gym) => {
+  const gym = await Gym.findByPk(id_gym, { attributes: ['id_gym', 'name', 'city'] });
+  if (!gym) {
+    throw new NotFoundError('Gimnasio');
+  }
+  const existing = await UserFavoriteGym.findOne({
+    where: { id_user_profile, id_gym }
+  });
+  if (existing) {
+    await existing.destroy();
+    return {
+      id_gym,
+      favorite: false
+    };
+  }
+  await UserFavoriteGym.create({ id_user_profile, id_gym });
+  return {
+    id_gym,
+    favorite: true
+  };
+};
+
 module.exports = {
   getAllGyms,
   getGymById,
@@ -210,5 +250,7 @@ module.exports = {
   buscarGimnasiosCercanos,
   getGymsByCity,
   filtrarGimnasios,
-  getGymTypes
+  getGymTypes,
+  obtenerFavoritos,
+  toggleFavorito
 };

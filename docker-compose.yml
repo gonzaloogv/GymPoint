@@ -1,6 +1,7 @@
 services:
   db:
     image: mysql:8.4
+    container_name: gympoint-db
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: mitre280
@@ -10,9 +11,16 @@ services:
     volumes:
       - db-data:/var/lib/mysql
       - ./backend/db:/docker-entrypoint-initdb.d
+    networks:
+      - gympoint-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
   backend:
     build: ./backend/node
+    container_name: gympoint-backend
     environment:
       DB_HOST: db
       DB_USER: root
@@ -23,10 +31,19 @@ services:
       JWT_SECRET: clave_super_secreta_para_tokens
       JWT_REFRESH_SECRET: clave_distinta_para_refresh
       GOOGLE_CLIENT_ID: 287573324529-6dratpth8ik6jr9ppdpf2nv666e0mv9b.apps.googleusercontent.com
+      NODE_ENV: production
     ports:
       - '3000:3000'
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    networks:
+      - gympoint-network
+    restart: unless-stopped
 
 volumes:
   db-data:
+
+networks:
+  gympoint-network:
+    driver: bridge

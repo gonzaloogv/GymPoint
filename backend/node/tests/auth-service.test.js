@@ -109,7 +109,7 @@ describe('auth-service.register', () => {
     expect(Account.create).toHaveBeenCalledWith(expect.objectContaining({ email: data.email, password_hash: 'hashed' }), { transaction });
     expect(AccountRole.create).toHaveBeenCalledWith({ id_account: 1, id_role: 2 }, { transaction });
     expect(UserProfile.create).toHaveBeenCalledWith(expect.objectContaining({ id_account: 1 }), { transaction });
-    expect(frequencyService.crearMetaSemanal).toHaveBeenCalledWith({ id_user: 10, goal: 3 });
+    expect(frequencyService.crearMetaSemanal).toHaveBeenCalledWith({ id_user: 10, goal: 3 }, { transaction });
     expect(Streak.create).toHaveBeenCalledWith(expect.objectContaining({ id_user: 10 }), { transaction });
     expect(userProfileInstance.save).toHaveBeenCalledWith({ transaction });
     expect(transaction.commit).toHaveBeenCalled();
@@ -127,8 +127,54 @@ describe('auth-service.register', () => {
     Account.findOne.mockResolvedValue({ id_account: 1 });
 
     await expect(authService.register({ email: 'exists', password: 'a' }))
-      .rejects.toThrow('El email ya está registrado');
+      .rejects.toThrow('El email ya esta registrado');
     expect(transaction.rollback).toHaveBeenCalled();
+  });
+
+  it('reintenta el registro si ocurre un lock wait timeout', async () => {
+    const transaction1 = { commit: jest.fn(), rollback: jest.fn() };
+    const transaction2 = { commit: jest.fn(), rollback: jest.fn() };
+    sequelize.transaction
+      .mockResolvedValueOnce(transaction1)
+      .mockResolvedValueOnce(transaction2);
+
+    const account = { id_account: 5, email: 'retry@example.com' };
+    const userProfileInstance = new UserProfile({
+      id_account: 5,
+      id_user_profile: 50,
+      subscription: 'FREE',
+      name: 'Retry',
+      lastname: 'User'
+    });
+
+    const lockError = new Error('lock wait');
+    lockError.parent = { code: 'ER_LOCK_WAIT_TIMEOUT' };
+
+    Account.findOne.mockResolvedValue(null);
+    bcrypt.hash.mockResolvedValue('hashed');
+    Account.create
+      .mockRejectedValueOnce(lockError)
+      .mockResolvedValueOnce(account);
+    Role.findOne.mockResolvedValue({ id_role: 7 });
+    AccountRole.create.mockResolvedValue({});
+    UserProfile.create.mockResolvedValue(userProfileInstance);
+    frequencyService.crearMetaSemanal.mockResolvedValue({ id_frequency: 13 });
+    Streak.create.mockResolvedValue({ id_streak: 21 });
+
+    const result = await authService.register({
+      email: 'retry@example.com',
+      password: 'pass',
+      name: 'Retry',
+      lastname: 'User',
+      frequency_goal: 4
+    });
+
+    expect(sequelize.transaction).toHaveBeenCalledTimes(2);
+    expect(transaction1.rollback).toHaveBeenCalled();
+    expect(transaction2.commit).toHaveBeenCalled();
+    expect(Account.create).toHaveBeenCalledTimes(2);
+    expect(frequencyService.crearMetaSemanal).toHaveBeenCalledWith({ id_user: 50, goal: 4 }, { transaction: transaction2 });
+    expect(result.email).toBe('retry@example.com');
   });
 });
 

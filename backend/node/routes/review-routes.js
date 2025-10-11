@@ -1,0 +1,12 @@
+const express = require('express');
+const router = express.Router();
+const controller = require('../controllers/review-controller');
+const { verificarToken, verificarUsuarioApp } = require('../middlewares/auth');
+router.get('/gym/:id_gym', controller.listarPorGym);
+router.get('/gym/:id_gym/stats', controller.obtenerStats);
+router.post('/', verificarToken, verificarUsuarioApp, controller.crearReview);
+router.patch('/:id_review', verificarToken, controller.actualizarReview);
+router.delete('/:id_review', verificarToken, controller.eliminarReview);
+router.post('/:id_review/helpful', verificarToken, verificarUsuarioApp, controller.marcarUtil);
+router.delete('/:id_review/helpful', verificarToken, verificarUsuarioApp, controller.removerUtil);
+module.exports = router;

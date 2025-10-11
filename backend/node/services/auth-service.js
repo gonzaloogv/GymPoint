@@ -23,6 +23,7 @@ const frequencyService = require('../services/frequency-service');
 const GoogleAuthProvider = require('../utils/auth-providers/google-provider');
 const { ConflictError, UnauthorizedError, NotFoundError } = require('../utils/errors');
 const { ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL_DAYS } = require('../config/constants');
+const { runWithRetryableTransaction } = require('../utils/transaction-helper');
 
 const ACCESS_EXPIRATION = ACCESS_TOKEN_TTL;
 const REFRESH_EXPIRATION_DAYS = REFRESH_TOKEN_TTL_DAYS;
@@ -56,13 +57,11 @@ const googleProvider = new GoogleAuthProvider();
 const register = async (data) => {
   const { email, password, frequency_goal = 3, name, lastname, gender = 'O', locality = '', age = 0 } = data;
 
-  const transaction = await sequelize.transaction();
-
-  try {
+  return runWithRetryableTransaction(async (transaction) => {
     // 1. Verificar email
     const existing = await Account.findOne({ where: { email }, transaction });
     if (existing) {
-      throw new ConflictError('El email ya está registrado');
+      throw new ConflictError('El email ya esta registrado');
     }
 
     // 2. Crear Account
@@ -97,7 +96,7 @@ const register = async (data) => {
     const frequency = await frequencyService.crearMetaSemanal({
       id_user: userProfile.id_user_profile,
       goal: frequency_goal
-    });
+    }, { transaction });
 
     // 6. Crear Streak
     const streak = await Streak.create({
@@ -113,8 +112,6 @@ const register = async (data) => {
     userProfile.id_streak = streak.id_streak;
     await userProfile.save({ transaction });
 
-    await transaction.commit();
-
     // Retornar con formato compatible
     return {
       account,
@@ -125,10 +122,7 @@ const register = async (data) => {
       lastname: userProfile.lastname,
       subscription: userProfile.subscription
     };
-  } catch (error) {
-    await transaction.rollback();
-    throw error;
-  }
+  });
 };
 
 /**
@@ -321,7 +315,7 @@ const googleLogin = async (idToken, req) => {
       const frequency = await frequencyService.crearMetaSemanal({
         id_user: userProfile.id_user_profile,
         goal: 3
-      });
+      }, { transaction });
 
       // Crear Streak
       const streak = await Streak.create({

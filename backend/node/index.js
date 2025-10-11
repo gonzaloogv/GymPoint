@@ -32,6 +32,9 @@ const rewardCodeRoutes = require('./routes/reward-code-routes');
 const userRoutes = require('./routes/user-routes');
 const adminRoutes = require('./routes/admin-routes');
 const adminRewardsRoutes = require('./routes/admin-rewards-routes');
+const reviewRoutes = require('./routes/review-routes');
+const mediaRoutes = require('./routes/media-routes');
+const testRoutes = require('./routes/test-routes');
 
 // Inicializar app
 const app = express();
@@ -70,6 +73,9 @@ app.use('/api/reward-codes', rewardCodeRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin', adminRewardsRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/media', mediaRoutes);
+app.use('/api/test', testRoutes);
 
 // Swagger UI
 setupSwagger(app);

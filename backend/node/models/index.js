@@ -23,6 +23,11 @@ const GymPayment = require('./GymPayment');
 const GymSchedule = require('./GymSchedule');
 const GymSpecialSchedule = require('./GymSpecialSchedule');
 const GymType = require('./GymType');
+const GymReview = require('./GymReview'); 
+const GymRatingStats = require('./GymRatingStats');
+const ReviewHelpful = require('./ReviewHelpful');
+const Media = require('./Media');
+const UserFavoriteGym = require('./UserFavoriteGym');
 const Progress = require('./Progress');
 const ProgressExercise = require('./ProgressExercise');
 const RefreshToken = require('./RefreshToken');
@@ -234,6 +239,116 @@ TokenLedger.belongsTo(UserProfile, {
   as: 'userProfile'
 });
 
+// Gym - GymReview
+Gym.hasMany(GymReview, {
+  foreignKey: 'id_gym',
+  as: 'reviews'
+});
+
+GymReview.belongsTo(Gym, {
+  foreignKey: 'id_gym',
+  as: 'gym'
+});
+
+// UserProfile - GymReview
+UserProfile.hasMany(GymReview, {
+  foreignKey: 'id_user_profile',
+  as: 'reviews'
+});
+
+GymReview.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'author'
+});
+
+// Gym - GymRatingStats
+Gym.hasOne(GymRatingStats, {
+  foreignKey: 'id_gym',
+  as: 'ratingStats'
+});
+
+GymRatingStats.belongsTo(Gym, {
+  foreignKey: 'id_gym',
+  as: 'gym'
+});
+
+// GymReview - ReviewHelpful
+GymReview.hasMany(ReviewHelpful, {
+  foreignKey: 'id_review',
+  as: 'helpfulMarks'
+});
+
+ReviewHelpful.belongsTo(GymReview, {
+  foreignKey: 'id_review',
+  as: 'review'
+});
+
+ReviewHelpful.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'user'
+});
+
+UserProfile.hasMany(ReviewHelpful, {
+  foreignKey: 'id_user_profile',
+  as: 'helpfulReviews'
+});
+// Favorites
+
+UserProfile.belongsToMany(Gym, {
+  through: UserFavoriteGym,
+  foreignKey: 'id_user_profile',
+  otherKey: 'id_gym',
+  as: 'favoriteGyms'
+});
+
+Gym.belongsToMany(UserProfile, {
+  through: UserFavoriteGym,
+  foreignKey: 'id_gym',
+  otherKey: 'id_user_profile',
+  as: 'favoritedBy'
+});
+
+UserFavoriteGym.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'user'
+});
+
+UserFavoriteGym.belongsTo(Gym, {
+  foreignKey: 'id_gym',
+  as: 'gym'
+});
+
+// Media (polimorfico)
+UserProfile.hasMany(Media, {
+  foreignKey: 'entity_id',
+  as: 'media',
+  constraints: false,
+  scope: {
+    entity_type: 'USER_PROFILE'
+  }
+});
+
+Media.belongsTo(UserProfile, {
+  foreignKey: 'entity_id',
+  as: 'userProfile',
+  constraints: false
+});
+
+Gym.hasMany(Media, {
+  foreignKey: 'entity_id',
+  as: 'media',
+  constraints: false,
+  scope: {
+    entity_type: 'GYM'
+  }
+});
+
+Media.belongsTo(Gym, {
+  foreignKey: 'entity_id',
+  as: 'gymMedia',
+  constraints: false
+});
+
 // Gym ←→ Reward
 Gym.hasMany(Reward, {
   foreignKey: 'id_gym',
@@ -293,6 +408,11 @@ module.exports = {
   GymSchedule,
   GymSpecialSchedule,
   GymType,
+  GymReview,
+  GymRatingStats,
+  ReviewHelpful,
+  Media,
+  UserFavoriteGym,
   Progress,
   ProgressExercise,
   RefreshToken,
@@ -305,4 +425,3 @@ module.exports = {
   UserGym,
   UserRoutine
 };
-
