@@ -1,26 +1,73 @@
 const Frequency = require('../models/Frequency');
-const { UserProfile } = require('../models');
+const { UserProfile, FrequencyHistory } = require('../models');
+const sequelize = require('../config/database');
+const tokenLedgerService = require('./token-ledger-service');
+const { TOKENS, TOKEN_REASONS } = require('../config/constants');
+
+const MILLIS_IN_DAY = 24 * 60 * 60 * 1000;
+
+const startOfISOWeek = (date) => {
+  const result = new Date(date);
+  const day = result.getDay(); // 0 = Sunday, 1 = Monday
+  const diff = (day === 0 ? -6 : 1) - day;
+  result.setDate(result.getDate() + diff);
+  result.setHours(0, 0, 0, 0);
+  return result;
+};
+
+const getISOWeekNumber = (date) => {
+  const temp = new Date(date);
+  temp.setHours(0, 0, 0, 0);
+  temp.setDate(temp.getDate() + 3 - ((temp.getDay() + 6) % 7));
+  const week1 = new Date(temp.getFullYear(), 0, 4);
+  return (
+    1 +
+    Math.round(
+      ((temp.getTime() - week1.getTime()) / MILLIS_IN_DAY - 3 + ((week1.getDay() + 6) % 7)) /
+        7
+    )
+  );
+};
+
+const getWeekMetadata = (reference = new Date()) => {
+  const weekStartDate = startOfISOWeek(reference);
+  const weekNumber = getISOWeekNumber(weekStartDate);
+  const year = weekStartDate.getFullYear();
+  return { weekStartDate, weekNumber, year };
+};
+
+const formatDate = (date) => date.toISOString().slice(0, 10);
+
+const ensureWeekMetadata = (frequency, referenceDate = new Date()) => {
+  const { weekStartDate, weekNumber, year } = getWeekMetadata(referenceDate);
+  if (!frequency.week_start_date || frequency.week_start_date !== formatDate(weekStartDate)) {
+    frequency.week_start_date = formatDate(weekStartDate);
+    frequency.week_number = weekNumber;
+    frequency.year = year;
+    frequency.assist = 0;
+    frequency.achieved_goal = false;
+  }
+};
 
 /**
  * Crear o actualizar meta semanal de un usuario
- * @param {Object} data - Datos de la frecuencia
- * @param {number} data.id_user - ID del user_profile
- * @param {number} data.goal - Meta semanal
+ * @param {Object} data
+ * @param {number} data.id_user
+ * @param {number} data.goal
  * @param {Object} [options]
- * @param {Object} [options.transaction] - Transaccion opcional para envolver la operacion
- * @returns {Promise<Frequency>} Frecuencia creada o actualizada
+ * @returns {Promise<Frequency>}
  */
 const crearMetaSemanal = async ({ id_user, goal }, { transaction } = {}) => {
-  // id_user ahora apunta a user_profiles.id_user_profile
   const findOptions = { where: { id_user } };
   if (transaction) {
     findOptions.transaction = transaction;
   }
+
   const existente = await Frequency.findOne(findOptions);
 
   if (existente) {
-    // si ya existe reinicia su meta y contador
     existente.goal = goal;
+    ensureWeekMetadata(existente);
     existente.assist = 0;
     existente.achieved_goal = false;
     if (transaction) {
@@ -31,29 +78,33 @@ const crearMetaSemanal = async ({ id_user, goal }, { transaction } = {}) => {
     return existente;
   }
 
-  // crea nueva frecuencia si no existia
+  const { weekStartDate, weekNumber, year } = getWeekMetadata(new Date());
   const nuevaData = {
-    id_user, // id_user_profile
+    id_user,
     goal,
     assist: 0,
-    achieved_goal: false
+    achieved_goal: false,
+    week_start_date: formatDate(weekStartDate),
+    week_number: weekNumber,
+    year
   };
 
-  const nueva = transaction
+  return transaction
     ? await Frequency.create(nuevaData, { transaction })
     : await Frequency.create(nuevaData);
-
-  return nueva;
 };
 
 /**
  * Actualizar contador de asistencia semanal
- * @param {number} idUserProfile - ID del user_profile
+ * @param {number} idUserProfile
  */
 const actualizarAsistenciaSemanal = async (idUserProfile) => {
   const frecuencia = await Frequency.findOne({ where: { id_user: idUserProfile } });
+  if (!frecuencia) return;
 
-  if (!frecuencia || frecuencia.achieved_goal) return;
+  ensureWeekMetadata(frecuencia);
+
+  if (frecuencia.achieved_goal) return;
 
   frecuencia.assist += 1;
 
@@ -65,20 +116,84 @@ const actualizarAsistenciaSemanal = async (idUserProfile) => {
 };
 
 /**
+ * Archivar frecuencias de la semana anterior y resetear contadores
+ * @param {Date} [referenceDate]
+ */
+const archivarFrecuencias = async (referenceDate = new Date()) => {
+  const transaction = await sequelize.transaction();
+
+  try {
+    const frecuencias = await Frequency.findAll({ transaction });
+    const nextWeekMeta = getWeekMetadata(referenceDate);
+
+    for (const frecuencia of frecuencias) {
+      if (!frecuencia.week_start_date) {
+        frecuencia.week_start_date = formatDate(nextWeekMeta.weekStartDate);
+        frecuencia.week_number = nextWeekMeta.weekNumber;
+        frecuencia.year = nextWeekMeta.year;
+        frecuencia.assist = 0;
+        frecuencia.achieved_goal = false;
+        await frecuencia.save({ transaction });
+        continue;
+      }
+
+      const currentWeekStart = new Date(frecuencia.week_start_date);
+      currentWeekStart.setHours(0, 0, 0, 0);
+      const weekEndDate = new Date(currentWeekStart.getTime() + 6 * MILLIS_IN_DAY);
+
+      const goalMet = frecuencia.assist >= frecuencia.goal;
+      const tokensEarned =
+        goalMet && Number.isFinite(TOKENS.WEEKLY_BONUS) ? TOKENS.WEEKLY_BONUS : 0;
+
+      const history = await FrequencyHistory.create({
+        id_user_profile: frecuencia.id_user,
+        week_start_date: frecuencia.week_start_date,
+        week_end_date: formatDate(weekEndDate),
+        goal: frecuencia.goal,
+        achieved: frecuencia.assist,
+        goal_met: goalMet,
+        tokens_earned: goalMet ? tokensEarned : 0,
+        created_at: new Date()
+      }, { transaction });
+
+      if (goalMet && tokensEarned > 0) {
+        await tokenLedgerService.registrarMovimiento({
+          userId: frecuencia.id_user,
+          delta: tokensEarned,
+          reason: TOKEN_REASONS.WEEKLY_BONUS,
+          refType: 'frequency_history',
+          refId: history.id_history,
+          transaction
+        });
+      }
+
+      frecuencia.assist = 0;
+      frecuencia.achieved_goal = false;
+      frecuencia.week_start_date = formatDate(nextWeekMeta.weekStartDate);
+      frecuencia.week_number = nextWeekMeta.weekNumber;
+      frecuencia.year = nextWeekMeta.year;
+
+      await frecuencia.save({ transaction });
+    }
+
+    await transaction.commit();
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+};
+
+/**
  * Reiniciar contadores semanales de todos los usuarios
- * (Ejecutar via cron semanal)
  */
 const reiniciarSemana = async () => {
-  await Frequency.update(
-    { assist: 0, achieved_goal: false },
-    { where: {} }
-  );
+  await archivarFrecuencias();
 };
 
 /**
  * Consultar meta semanal de un usuario
- * @param {number} idUserProfile - ID del user_profile
- * @returns {Promise<Frequency>} Frecuencia del usuario
+ * @param {number} idUserProfile
+ * @returns {Promise<Frequency>}
  */
 const consultarMetaSemanal = async (idUserProfile) => {
   const frecuencia = await Frequency.findOne({
@@ -99,10 +214,9 @@ const consultarMetaSemanal = async (idUserProfile) => {
 
 /**
  * Actualizar usuario asociado a una frecuencia
- * (Usado en migracion de datos)
- * @param {number} id_frequency - ID de la frecuencia
- * @param {number} idUserProfile - ID del user_profile
- * @returns {Promise<Frequency>} Frecuencia actualizada
+ * @param {number} id_frequency
+ * @param {number} idUserProfile
+ * @returns {Promise<Frequency>}
  */
 const actualizarUsuarioFrecuencia = async (id_frequency, idUserProfile) => {
   const frecuencia = await Frequency.findByPk(id_frequency);
@@ -120,7 +234,11 @@ const actualizarUsuarioFrecuencia = async (id_frequency, idUserProfile) => {
 module.exports = {
   crearMetaSemanal,
   actualizarAsistenciaSemanal,
+  archivarFrecuencias,
   reiniciarSemana,
   consultarMetaSemanal,
-  actualizarUsuarioFrecuencia
+  actualizarUsuarioFrecuencia,
+  __private: {
+    getWeekMetadata
+  }
 };

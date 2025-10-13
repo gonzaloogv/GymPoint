@@ -34,6 +34,10 @@ const Gym = sequelize.define('Gym', {
   phone: {
     type: DataTypes.STRING(50)
   },
+  whatsapp: {
+    type: DataTypes.STRING(20),
+    allowNull: true
+  },
   email: {
     type: DataTypes.STRING(100)
   },
@@ -55,6 +59,36 @@ const Gym = sequelize.define('Gym', {
     allowNull: false,
     defaultValue: [],
     comment: 'Array de equipamiento disponible'
+  },
+  instagram: {
+    type: DataTypes.STRING(100),
+    allowNull: true
+  },
+  facebook: {
+    type: DataTypes.STRING(100),
+    allowNull: true
+  },
+  google_maps_url: {
+    type: DataTypes.STRING(500),
+    allowNull: true
+  },
+  max_capacity: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  area_sqm: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true
+  },
+  verified: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+  featured: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   },
   month_price: {
     type: DataTypes.DOUBLE,

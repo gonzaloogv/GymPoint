@@ -5,6 +5,9 @@ jest.mock('../models', () => ({
     create: jest.fn()
   },
   GymType: jest.fn(() => ({})),
+  GymAmenity: {
+    findAll: jest.fn()
+  },
   UserFavoriteGym: {
     findAll: jest.fn(),
     findByPk: jest.fn(),
@@ -15,7 +18,7 @@ jest.mock('../models', () => ({
 }));
 
 const gymService = require('../services/gym-service');
-const { Gym, UserFavoriteGym } = require('../models');
+const { Gym, UserFavoriteGym, GymAmenity } = require('../models');
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -65,16 +68,57 @@ describe('obtenerFavoritos', () => {
     expect(UserFavoriteGym.findAll).toHaveBeenCalledWith({
       where: { id_user_profile: 2 },
       include: [
-        {
+        expect.objectContaining({
           model: Gym,
           as: 'gym',
-          required: true
-        }
+          required: true,
+          include: expect.arrayContaining([
+            expect.objectContaining({
+              as: 'amenities',
+              through: expect.objectContaining({ attributes: [] })
+            })
+          ])
+        })
       ],
       order: [['created_at', 'DESC']]
     });
     expect(favoritos).toEqual([
       { id_gym: 1, created_at: '2025-01-01', gym: { id_gym: 1, name: 'Gym 1' } }
     ]);
+  });
+});
+
+describe('filtrarGimnasios', () => {
+  it('filtra gimnasios que cumplen todas las amenidades solicitadas', async () => {
+    Gym.findAll.mockResolvedValue([
+      {
+        id_gym: 10,
+        month_price: 100,
+        amenities: [{ id_amenity: 1 }, { id_amenity: 2 }]
+      },
+      {
+        id_gym: 20,
+        month_price: 80,
+        amenities: [{ id_amenity: 1 }]
+      }
+    ]);
+
+    const { resultados, advertencia } = await gymService.filtrarGimnasios({
+      city: null,
+      type: null,
+      minPrice: null,
+      maxPrice: null,
+      amenities: [1, 2]
+    });
+
+    expect(Gym.findAll).toHaveBeenCalledWith(expect.objectContaining({
+      include: expect.arrayContaining([
+        expect.objectContaining({ as: 'amenities' })
+      ]),
+      order: [['month_price', 'ASC']]
+    }));
+
+    expect(resultados.map((gym) => gym.id_gym)).toEqual([10]);
+    expect(advertencia).toBeTruthy();
   });
 });

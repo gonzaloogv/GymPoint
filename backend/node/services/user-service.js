@@ -1,6 +1,8 @@
-const { Account, UserProfile } = require('../models');
+const { Account, UserProfile, UserBodyMetric } = require('../models');
 const { NotFoundError, ConflictError, ValidationError } = require('../utils/errors');
-const { SUBSCRIPTION_TYPES } = require('../config/constants');
+const { TOKENS, TOKEN_REASONS, SUBSCRIPTION_TYPES } = require('../config/constants');
+const sequelize = require('../config/database');
+const tokenLedgerService = require('./token-ledger-service');
 
 /**
  * Obtener usuario completo (Account + UserProfile)
@@ -40,6 +42,11 @@ const obtenerUsuario = async (idAccount) => {
     tokens: account.userProfile.tokens,
     id_streak: account.userProfile.id_streak,
     profile_picture_url: account.userProfile.profile_picture_url,
+    premium_since: account.userProfile.premium_since,
+    premium_expires: account.userProfile.premium_expires,
+    onboarding_completed: account.userProfile.onboarding_completed,
+    preferred_language: account.userProfile.preferred_language,
+    timezone: account.userProfile.timezone,
     created_at: account.userProfile.created_at,
     updated_at: account.userProfile.updated_at
   };
@@ -76,7 +83,10 @@ const obtenerPerfilPorId = async (idUserProfile) => {
     subscription: userProfile.subscription,
     tokens: userProfile.tokens,
     id_streak: userProfile.id_streak,
-    profile_picture_url: userProfile.profile_picture_url
+    profile_picture_url: userProfile.profile_picture_url,
+    preferred_language: userProfile.preferred_language,
+    timezone: userProfile.timezone,
+    onboarding_completed: userProfile.onboarding_completed
   };
 };
 
@@ -94,7 +104,7 @@ const actualizarPerfil = async (idUserProfile, datos) => {
   }
 
   // Solo permitir actualizar campos específicos
-  const camposPermitidos = ['name', 'lastname', 'gender', 'age', 'locality', 'profile_picture_url'];
+  const camposPermitidos = ['name', 'lastname', 'gender', 'age', 'locality', 'profile_picture_url', 'preferred_language', 'timezone', 'onboarding_completed'];
   const datosLimpios = {};
   
   camposPermitidos.forEach(campo => {
@@ -124,6 +134,9 @@ const actualizarPerfil = async (idUserProfile, datos) => {
     subscription: userProfile.subscription,
     tokens: userProfile.tokens,
     profile_picture_url: userProfile.profile_picture_url,
+    preferred_language: userProfile.preferred_language,
+    timezone: userProfile.timezone,
+    onboarding_completed: userProfile.onboarding_completed,
     email: userProfile.account.email
   };
 };
@@ -203,9 +216,9 @@ const eliminarCuenta = async (idAccount) => {
  * @param {string} reason - Razón del cambio
  * @returns {Promise<number>} Nuevo balance de tokens
  */
-const actualizarTokens = async (idUserProfile, delta, reason = 'manual') => {
-  const tokenLedgerService = require('./token-ledger-service');
+const BODY_METRICS_TOKENS = Number.isFinite(TOKENS.BODY_METRICS) ? TOKENS.BODY_METRICS : 0;
 
+const actualizarTokens = async (idUserProfile, delta, reason = 'manual') => {
   const { newBalance } = await tokenLedgerService.registrarMovimiento({
     userId: idUserProfile,
     delta,
@@ -244,6 +257,107 @@ const actualizarSuscripcion = async (idUserProfile, newSubscription) => {
   };
 };
 
+const normalizarNumero = (valor) => {
+  if (valor === undefined || valor === null || valor === '') return null;
+  const numero = Number(valor);
+  return Number.isFinite(numero) ? numero : null;
+};
+
+const validarRango = (valor, minimo, maximo, campo) => {
+  if (valor === null || valor === undefined) return;
+  if (!Number.isFinite(valor) || valor < minimo || valor > maximo) {
+    throw new ValidationError(`${campo} debe estar entre ${minimo} y ${maximo}`);
+  }
+};
+
+const BODY_METRICS_SOURCES = new Set(['MANUAL', 'SMART_SCALE', 'TRAINER']);
+
+const registrarMetricasCorporales = async (id_user_profile, payload = {}) => {
+  const profile = await UserProfile.findByPk(id_user_profile, { attributes: ['id_user_profile'] });
+  if (!profile) throw new NotFoundError('Perfil de usuario');
+
+  const weight = normalizarNumero(payload.weight_kg);
+  const height = normalizarNumero(payload.height_cm);
+  const bodyFat = normalizarNumero(payload.body_fat_percent);
+  const muscleMass = normalizarNumero(payload.muscle_mass_kg);
+  const waist = normalizarNumero(payload.waist_cm);
+  const hip = normalizarNumero(payload.hip_cm);
+
+  validarRango(weight, 20, 400, 'Peso (kg)');
+  validarRango(height, 100, 250, 'Altura (cm)');
+  validarRango(bodyFat, 0, 75, 'Porcentaje de grasa corporal');
+  validarRango(muscleMass, 0, 200, 'Masa muscular');
+  validarRango(waist, 30, 250, 'Cintura (cm)');
+  validarRango(hip, 30, 250, 'Cadera (cm)');
+
+  let bmi = null;
+  if (weight && height) {
+    const heightMeters = height / 100;
+    if (heightMeters > 0) {
+      bmi = Number((weight / (heightMeters ** 2)).toFixed(2));
+      validarRango(bmi, 10, 80, 'IMC');
+    }
+  }
+
+  const source = (payload.source || 'MANUAL').toUpperCase();
+  if (!BODY_METRICS_SOURCES.has(source)) {
+    throw new ValidationError(`Fuente inv�lida. Debe ser ${Array.from(BODY_METRICS_SOURCES).join(', ')}`);
+  }
+
+  const measured_at = payload.measured_at ? new Date(payload.measured_at) : new Date();
+
+  return sequelize.transaction(async (transaction) => {
+    const metric = await UserBodyMetric.create({
+      id_user_profile,
+      measured_at,
+      weight_kg: weight,
+      height_cm: height,
+      bmi,
+      body_fat_percent: bodyFat,
+      muscle_mass_kg: muscleMass,
+      waist_cm: waist,
+      hip_cm: hip,
+      notes: payload.notes || null,
+      source
+    }, { transaction });
+
+    if (BODY_METRICS_TOKENS > 0) {
+      await tokenLedgerService.registrarMovimiento({
+        userId: id_user_profile,
+        delta: BODY_METRICS_TOKENS,
+        reason: TOKEN_REASONS.BODY_METRICS_ENTRY,
+        refType: 'user_body_metric',
+        refId: metric.id_body_metric,
+        transaction
+      });
+    }
+
+    return metric;
+  });
+};
+
+const listarMetricasCorporales = async (id_user_profile, { limit = 30, offset = 0 } = {}) => {
+  const profile = await UserProfile.findByPk(id_user_profile, { attributes: ['id_user_profile'] });
+  if (!profile) throw new NotFoundError('Perfil de usuario');
+
+  return UserBodyMetric.findAll({
+    where: { id_user_profile },
+    order: [['measured_at', 'DESC']],
+    limit,
+    offset
+  });
+};
+
+const obtenerUltimaMetricaCorporal = async (id_user_profile) => {
+  const profile = await UserProfile.findByPk(id_user_profile, { attributes: ['id_user_profile'] });
+  if (!profile) throw new NotFoundError('Perfil de usuario');
+
+  return UserBodyMetric.findOne({
+    where: { id_user_profile },
+    order: [['measured_at', 'DESC']]
+  });
+};
+
 module.exports = {
   obtenerUsuario,
   obtenerPerfilPorId,
@@ -251,6 +365,12 @@ module.exports = {
   actualizarEmail,
   eliminarCuenta,
   actualizarTokens,
-  actualizarSuscripcion
+  actualizarSuscripcion,
+  registrarMetricasCorporales,
+  listarMetricasCorporales,
+  obtenerUltimaMetricaCorporal
 };
+
+
+
 

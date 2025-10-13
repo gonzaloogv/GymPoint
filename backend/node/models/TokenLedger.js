@@ -41,6 +41,14 @@ const TokenLedger = sequelize.define('TokenLedger', {
     allowNull: false,
     comment: 'Balance después de aplicar delta'
   },
+  metadata: {
+    type: DataTypes.JSON,
+    allowNull: true
+  },
+  expires_at: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
   created_at: {
     type: DataTypes.DATE,
     allowNull: false,
@@ -66,3 +74,4 @@ const TokenLedger = sequelize.define('TokenLedger', {
 });
 
 module.exports = TokenLedger;
+

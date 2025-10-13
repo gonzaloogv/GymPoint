@@ -19,6 +19,18 @@ const Assistance = sequelize.define('Assistance', {
     type: DataTypes.TIME,
     allowNull: false
   },
+  check_in_time: {
+    type: DataTypes.TIME,
+    allowNull: true
+  },
+  check_out_time: {
+    type: DataTypes.TIME,
+    allowNull: true
+  },
+  duration_minutes: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
   id_gym: {
     type: DataTypes.INTEGER,
     allowNull: false
@@ -26,6 +38,11 @@ const Assistance = sequelize.define('Assistance', {
   id_streak: {
     type: DataTypes.INTEGER,
     allowNull: false
+  },
+  verified: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   },
   created_at: {
     type: DataTypes.DATE,

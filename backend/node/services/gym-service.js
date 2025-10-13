@@ -1,5 +1,5 @@
 const { Op, literal } = require('sequelize');
-const { Gym, GymType, UserFavoriteGym } = require('../models');
+const { Gym, GymType, UserFavoriteGym, GymAmenity } = require('../models');
 const Joi = require('joi');
 const { NotFoundError, ValidationError } = require('../utils/errors');
 
@@ -13,16 +13,38 @@ const tiposValidos = [
   'exclusivo'
 ];
 
+const amenityInclude = {
+  model: GymAmenity,
+  as: 'amenities',
+  through: { attributes: [] }
+};
+
 const getAllGyms = async () => {
-  return await Gym.findAll();
+  return await Gym.findAll({
+    include: [amenityInclude]
+  });
 };
 
 const getGymById = async (id) => {
-  return await Gym.findByPk(id);
+  return await Gym.findByPk(id, {
+    include: [amenityInclude]
+  });
+};
+
+const normalizeAmenityIds = (list) => {
+  if (!Array.isArray(list)) return [];
+  const unique = new Set();
+  list.forEach((value) => {
+    const parsed = Number(value);
+    if (Number.isInteger(parsed) && parsed > 0) {
+      unique.add(parsed);
+    }
+  });
+  return Array.from(unique);
 };
 
 const createGym = async (data) => {
-  const { id_types, ...gymData } = data;
+  const { id_types, amenities, ...gymData } = data;
 
   // creal gimnasio
   const gym = await Gym.create(gymData);
@@ -32,11 +54,18 @@ const createGym = async (data) => {
     await gym.addGymTypes(id_types);
   }
 
+  const amenityIds = normalizeAmenityIds(amenities);
+  if (amenityIds.length > 0) {
+    await gym.setAmenities(amenityIds);
+  }
+
+  await gym.reload({ include: [amenityInclude] });
+
   return gym;
 };
 
 const updateGym = async (id, data) => {
-  const { id_types, ...gymData } = data;
+  const { id_types, amenities, ...gymData } = data;
 
   const gym = await Gym.findByPk(id);
   if (!gym) throw new NotFoundError('Gimnasio');
@@ -48,6 +77,13 @@ const updateGym = async (id, data) => {
   if (Array.isArray(id_types)) {
     await gym.setGymTypes(id_types); // reemplaza todas las asociaciones anteriores
   }
+
+  if (amenities !== undefined) {
+    const amenityIds = normalizeAmenityIds(Array.isArray(amenities) ? amenities : []);
+    await gym.setAmenities(amenityIds);
+  }
+
+  await gym.reload({ include: [amenityInclude] });
 
   return gym;
 };
@@ -155,11 +191,12 @@ const getGymsByCity = async (city) => {
   return await Gym.findAll({
     where: {
       city
-    }
+    },
+    include: [amenityInclude]
   });
 };
 
-const filtrarGimnasios = async ({ city, type, minPrice, maxPrice }) => {
+const filtrarGimnasios = async ({ city, type, minPrice, maxPrice, amenities }) => {
   const include = [];
 
   if (type) {
@@ -170,6 +207,11 @@ const filtrarGimnasios = async ({ city, type, minPrice, maxPrice }) => {
       }
     });
   }
+
+  const amenityIds = Array.isArray(amenities) ? amenities : [];
+  const amenityFilter = normalizeAmenityIds(amenityIds);
+
+  include.push(amenityInclude);
 
   const where = {};
 
@@ -186,7 +228,23 @@ const filtrarGimnasios = async ({ city, type, minPrice, maxPrice }) => {
     order: [['month_price', 'ASC']]
   });
 
-  return { resultados, advertencia: null };
+  let filtrados = resultados;
+  let advertencia = null;
+
+  if (amenityFilter.length > 0) {
+    filtrados = resultados.filter((gym) => {
+      const gymAmenityIds = new Set((gym.amenities || []).map((amenity) => amenity.id_amenity));
+      return amenityFilter.every((id) => gymAmenityIds.has(id));
+    });
+
+    if (filtrados.length === 0) {
+      advertencia = 'No se encontraron gimnasios con todas las amenidades solicitadas.';
+    } else if (filtrados.length < resultados.length) {
+      advertencia = 'Se filtraron gimnasios que no cumplían todas las amenidades solicitadas.';
+    }
+  }
+
+  return { resultados: filtrados, advertencia };
 };
 
 const getGymTypes = () => {
@@ -208,7 +266,8 @@ const obtenerFavoritos = async (id_user_profile) => {
       {
         model: Gym,
         as: 'gym',
-        required: true
+        required: true,
+        include: [amenityInclude]
       }
     ],
     order: [['created_at', 'DESC']]
@@ -241,6 +300,15 @@ const toggleFavorito = async (id_user_profile, id_gym) => {
   };
 };
 
+const listarAmenidades = async () => {
+  return GymAmenity.findAll({
+    order: [
+      ['category', 'ASC'],
+      ['name', 'ASC']
+    ]
+  });
+};
+
 module.exports = {
   getAllGyms,
   getGymById,
@@ -252,5 +320,6 @@ module.exports = {
   filtrarGimnasios,
   getGymTypes,
   obtenerFavoritos,
-  toggleFavorito
+  toggleFavorito,
+  listarAmenidades
 };

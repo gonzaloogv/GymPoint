@@ -23,6 +23,10 @@ const RoutineExercise = sequelize.define('RoutineExercise', {
   order: {
     type: DataTypes.TINYINT,
     allowNull: false
+  },
+  id_routine_day: {
+    type: DataTypes.INTEGER,
+    allowNull: true
   }
 }, {
   tableName: 'routine_exercise',

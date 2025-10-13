@@ -5,7 +5,7 @@ const { verificarToken, verificarUsuarioApp, verificarAdmin } = require('../midd
 
 /**
  * @swagger
- * /api/frecuency:
+ * /api/frequency:
  *   post:
  *     summary: Crear o actualizar la frecuencia semanal (meta de asistencias)
  *     description: Define la meta semanal de asistencias del usuario autenticado
@@ -26,28 +26,23 @@ const { verificarToken, verificarUsuarioApp, verificarAdmin } = require('../midd
  *                 example: 3
  *                 minimum: 1
  *     responses:
- *       200:
+ *       201:
  *         description: Frecuencia creada o actualizada correctamente
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *                   properties:
- *                     id_frequency:
- *                       type: integer
- *                     id_user:
- *                       type: integer
- *                     goal:
- *                       type: integer
- *                     assist:
- *                       type: integer
- *                     achieved_goal:
- *                       type: boolean
+ *                 id_frequency:
+ *                   type: integer
+ *                 id_user:
+ *                   type: integer
+ *                 goal:
+ *                   type: integer
+ *                 assist:
+ *                   type: integer
+ *                 achieved_goal:
+ *                   type: boolean
  *       400:
  *         description: Datos inválidos
  *       401:
@@ -59,7 +54,7 @@ router.post('/', verificarToken, verificarUsuarioApp, controller.crearMeta);
 
 /**
  * @swagger
- * /api/frecuency/me:
+ * /api/frequency/me:
  *   get:
  *     summary: Consultar el estado actual de la frecuencia semanal
  *     description: Retorna la meta semanal y el progreso del usuario autenticado
@@ -74,34 +69,29 @@ router.post('/', verificarToken, verificarUsuarioApp, controller.crearMeta);
  *             schema:
  *               type: object
  *               properties:
- *                 message:
- *                   type: string
- *                 data:
+ *                 id_frequency:
+ *                   type: integer
+ *                 id_user:
+ *                   type: integer
+ *                 goal:
+ *                   type: integer
+ *                   description: Meta semanal propuesta por el usuario
+ *                   example: 3
+ *                 assist:
+ *                   type: integer
+ *                   description: Cantidad de asistencias realizadas esta semana
+ *                   example: 2
+ *                 achieved_goal:
+ *                   type: boolean
+ *                   description: Si el usuario alcanzó o no su meta
+ *                   example: false
+ *                 userProfile:
  *                   type: object
  *                   properties:
- *                     id_frequency:
- *                       type: integer
- *                     id_user:
- *                       type: integer
- *                     goal:
- *                       type: integer
- *                       description: Meta semanal propuesta por el usuario
- *                       example: 3
- *                     assist:
- *                       type: integer
- *                       description: Cantidad de asistencias realizadas esta semana
- *                       example: 2
- *                     achieved_goal:
- *                       type: boolean
- *                       description: Si el usuario alcanzó o no su meta
- *                       example: false
- *                     userProfile:
- *                       type: object
- *                       properties:
- *                         name:
- *                           type: string
- *                         lastname:
- *                           type: string
+ *                     name:
+ *                       type: string
+ *                     lastname:
+ *                       type: string
  *       404:
  *         description: Frecuencia no encontrada para el usuario
  *       401:
@@ -113,7 +103,7 @@ router.get('/me', verificarToken, verificarUsuarioApp, controller.consultarMetaS
 
 /**
  * @swagger
- * /api/frecuencia/reset:
+ * /api/frequency/reset:
  *   put:
  *     summary: Reiniciar todas las frecuencias semanales (Admin)
  *     description: Reinicia los contadores de asistencias y cumplimientos de todos los usuarios. Se ejecuta típicamente vía cron semanal.

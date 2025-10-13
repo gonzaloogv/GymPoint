@@ -28,9 +28,27 @@ const UserGym = sequelize.define('UserGym', {
     allowNull: false
   },
   plan: {
-    type: DataTypes.ENUM('MENSUAL', 'SEMANAL', 'ANUAL'),
+    type: DataTypes.ENUM('MENSUAL', 'SEMANAL', 'ANUAL', 'DIARIO'),
     allowNull: false,
     defaultValue: 'MENSUAL'
+  },
+  subscription_type: {
+    type: DataTypes.ENUM('MONTHLY', 'WEEKLY', 'DAILY', 'ANNUAL'),
+    allowNull: false,
+    defaultValue: 'MONTHLY'
+  },
+  auto_renew: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+  id_payment: {
+    type: DataTypes.BIGINT,
+    allowNull: true,
+    references: {
+      model: 'mercadopago_payment',
+      key: 'id_mp_payment'
+    }
   },
   created_at: {
     type: DataTypes.DATE,
@@ -60,4 +78,3 @@ const UserGym = sequelize.define('UserGym', {
 module.exports = UserGym;
 
 // Asociaciones definidas en models/index.js
-

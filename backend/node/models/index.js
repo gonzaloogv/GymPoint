@@ -26,6 +26,11 @@ const GymType = require('./GymType');
 const GymReview = require('./GymReview'); 
 const GymRatingStats = require('./GymRatingStats');
 const ReviewHelpful = require('./ReviewHelpful');
+const GymAmenity = require('./GymAmenity');
+const GymGymAmenity = require('./GymGymAmenity');
+const MercadoPagoPayment = require('./MercadoPagoPayment');
+const Notification = require('./Notification');
+const UserNotificationSetting = require('./UserNotificationSetting');
 const Media = require('./Media');
 const UserFavoriteGym = require('./UserFavoriteGym');
 const Progress = require('./Progress');
@@ -35,10 +40,15 @@ const Reward = require('./Reward');
 const RewardCode = require('./RewardCode');
 const Routine = require('./Routine');
 const RoutineExercise = require('./RoutineExercise');
+const RoutineDay = require('./RoutineDay');
 const Streak = require('./Streak');
 const TokenLedger = require('./TokenLedger');
 const UserGym = require('./UserGym');
 const UserRoutine = require('./UserRoutine');
+const UserBodyMetric = require('./UserBodyMetric');
+const FrequencyHistory = require('./FrequencyHistory');
+const WorkoutSession = require('./WorkoutSession');
+const WorkoutSet = require('./WorkoutSet');
 
 // ============================================
 // ASOCIACIONES - Nueva Arquitectura
@@ -118,6 +128,57 @@ Assistance.belongsTo(UserProfile, {
   as: 'user'
 });
 
+// Workout sessions
+UserProfile.hasMany(WorkoutSession, {
+  foreignKey: 'id_user_profile',
+  as: 'workoutSessions'
+});
+
+WorkoutSession.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'user'
+});
+
+Routine.hasMany(WorkoutSession, {
+  foreignKey: 'id_routine',
+  as: 'workoutSessions'
+});
+
+WorkoutSession.belongsTo(Routine, {
+  foreignKey: 'id_routine',
+  as: 'routine'
+});
+
+RoutineDay.hasMany(WorkoutSession, {
+  foreignKey: 'id_routine_day',
+  as: 'sessions'
+});
+
+WorkoutSession.belongsTo(RoutineDay, {
+  foreignKey: 'id_routine_day',
+  as: 'routineDay'
+});
+
+WorkoutSession.hasMany(WorkoutSet, {
+  foreignKey: 'id_workout_session',
+  as: 'sets'
+});
+
+WorkoutSet.belongsTo(WorkoutSession, {
+  foreignKey: 'id_workout_session',
+  as: 'session'
+});
+
+Exercise.hasMany(WorkoutSet, {
+  foreignKey: 'id_exercise',
+  as: 'workoutSets'
+});
+
+WorkoutSet.belongsTo(Exercise, {
+  foreignKey: 'id_exercise',
+  as: 'exercise'
+});
+
 // Gym ←→ Assistance
 Gym.hasMany(Assistance, {
   foreignKey: 'id_gym',
@@ -160,6 +221,31 @@ UserProfile.hasMany(Routine, {
 Routine.belongsTo(UserProfile, {
   foreignKey: 'created_by',
   as: 'creator'
+});
+
+Routine.hasMany(RoutineDay, {
+  foreignKey: 'id_routine',
+  as: 'days'
+});
+
+RoutineDay.belongsTo(Routine, {
+  foreignKey: 'id_routine',
+  as: 'routine'
+});
+
+RoutineDay.hasMany(RoutineExercise, {
+  foreignKey: 'id_routine_day',
+  as: 'routineExercises'
+});
+
+RoutineExercise.belongsTo(RoutineDay, {
+  foreignKey: 'id_routine_day',
+  as: 'routineDay'
+});
+
+RoutineExercise.belongsTo(Exercise, {
+  foreignKey: 'id_exercise',
+  as: 'exercise'
 });
 
 // UserProfile ←→ ClaimedReward
@@ -292,6 +378,114 @@ UserProfile.hasMany(ReviewHelpful, {
   foreignKey: 'id_user_profile',
   as: 'helpfulReviews'
 });
+
+// Notifications
+UserProfile.hasMany(Notification, {
+  foreignKey: 'id_user_profile',
+  as: 'notifications'
+});
+
+Notification.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'userProfile'
+});
+
+UserProfile.hasOne(UserNotificationSetting, {
+  foreignKey: 'id_user_profile',
+  as: 'notificationSettings'
+});
+
+UserNotificationSetting.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'userProfile'
+});
+
+// Gym amenities
+Gym.belongsToMany(GymAmenity, {
+  through: GymGymAmenity,
+  foreignKey: 'id_gym',
+  otherKey: 'id_amenity',
+  as: 'amenities'
+});
+
+GymAmenity.belongsToMany(Gym, {
+  through: GymGymAmenity,
+  foreignKey: 'id_amenity',
+  otherKey: 'id_gym',
+  as: 'gyms'
+});
+
+GymGymAmenity.belongsTo(Gym, {
+  foreignKey: 'id_gym',
+  as: 'gym'
+});
+
+GymGymAmenity.belongsTo(GymAmenity, {
+  foreignKey: 'id_amenity',
+  as: 'amenity'
+});
+
+Gym.hasMany(GymGymAmenity, {
+  foreignKey: 'id_gym',
+  as: 'gymAmenitiesLinks'
+});
+
+GymAmenity.hasMany(GymGymAmenity, {
+  foreignKey: 'id_amenity',
+  as: 'gymLinks'
+});
+
+// MercadoPago payments
+UserProfile.hasMany(MercadoPagoPayment, {
+  foreignKey: 'id_user_profile',
+  as: 'payments'
+});
+
+MercadoPagoPayment.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'userProfile'
+});
+
+Gym.hasMany(MercadoPagoPayment, {
+  foreignKey: 'id_gym',
+  as: 'mercadopagoPayments'
+});
+
+MercadoPagoPayment.belongsTo(Gym, {
+  foreignKey: 'id_gym',
+  as: 'gym'
+});
+
+MercadoPagoPayment.hasMany(UserGym, {
+  foreignKey: 'id_payment',
+  as: 'memberships'
+});
+
+UserGym.belongsTo(MercadoPagoPayment, {
+  foreignKey: 'id_payment',
+  as: 'payment'
+});
+
+UserProfile.hasMany(UserBodyMetric, {
+  foreignKey: 'id_user_profile',
+  as: 'bodyMetrics'
+});
+
+UserBodyMetric.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'userProfile'
+});
+
+UserProfile.hasMany(FrequencyHistory, {
+  foreignKey: 'id_user_profile',
+  as: 'frequencyHistory'
+});
+
+FrequencyHistory.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'userProfile'
+});
+
 // Favorites
 
 UserProfile.belongsToMany(Gym, {
@@ -405,6 +599,8 @@ module.exports = {
   Frequency,
   Gym,
   GymPayment,
+  GymAmenity,
+  GymGymAmenity,
   GymSchedule,
   GymSpecialSchedule,
   GymType,
@@ -412,6 +608,9 @@ module.exports = {
   GymRatingStats,
   ReviewHelpful,
   Media,
+  Notification,
+  UserNotificationSetting,
+  MercadoPagoPayment,
   UserFavoriteGym,
   Progress,
   ProgressExercise,
@@ -420,8 +619,13 @@ module.exports = {
   RewardCode,
   Routine,
   RoutineExercise,
+  RoutineDay,
   Streak,
   TokenLedger,
   UserGym,
-  UserRoutine
+  UserRoutine,
+  UserBodyMetric,
+  FrequencyHistory,
+  WorkoutSession,
+  WorkoutSet
 };

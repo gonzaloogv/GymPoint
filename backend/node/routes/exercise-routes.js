@@ -80,6 +80,8 @@ router.post('/', verificarToken, exerciseController.createExercise);
  *   put:
  *     summary: Actualizar un ejercicio existente
  *     tags: [Ejercicios]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -101,10 +103,12 @@ router.post('/', verificarToken, exerciseController.createExercise);
  *     responses:
  *       200:
  *         description: Ejercicio actualizado correctamente
+ *       401:
+ *         description: No autorizado
  *       404:
  *         description: Ejercicio no encontrado
  */
-router.put('/:id', exerciseController.updateExercise);
+router.put('/:id', verificarToken, exerciseController.updateExercise);
 
 /**
  * @swagger

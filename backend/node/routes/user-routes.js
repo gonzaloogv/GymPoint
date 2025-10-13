@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/user-controller');
+const bodyMetricsRoutes = require('./body-metrics-routes');
+const notificationRoutes = require('./notification-routes');
 const { verificarToken, verificarAdmin, verificarUsuarioApp } = require('../middlewares/auth');
 
 /**
@@ -141,6 +143,10 @@ router.put('/me/email', verificarToken, verificarUsuarioApp, controller.actualiz
  *         description: Error al eliminar cuenta
  */
 router.delete('/me', verificarToken, verificarUsuarioApp, controller.eliminarCuenta);
+
+// Subrutas especiales de usuario
+router.use('/me/body-metrics', bodyMetricsRoutes);
+router.use('/me/notifications', notificationRoutes);
 
 /**
  * @swagger

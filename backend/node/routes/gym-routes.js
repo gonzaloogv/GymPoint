@@ -35,6 +35,18 @@ router.get('/tipos', gymController.getGymTypes);
 
 /**
  * @swagger
+ * /api/gyms/amenities:
+ *   get:
+ *     summary: Listar amenidades disponibles para los gimnasios
+ *     tags: [Gimnasios]
+ *     responses:
+ *       200:
+ *         description: Lista de amenidades agrupadas por categoría
+ */
+router.get('/amenities', gymController.getAmenities);
+
+/**
+ * @swagger
  * /api/gyms/filtro:
  *   get:
  *     summary: Filtrar gimnasios por ciudad, precio y tipo (solo usuarios PREMIUM)
@@ -51,17 +63,22 @@ router.get('/tipos', gymController.getGymTypes);
  *         name: minPrice
  *         schema:
  *           type: number
- *         description: Precio mínimo mensual
+ *         description: Precio m�nimo mensual
  *       - in: query
  *         name: maxPrice
  *         schema:
  *           type: number
- *         description: Precio máximo mensual
+ *         description: Precio m�ximo mensual
  *       - in: query
  *         name: type
  *         schema:
  *           type: string
- *         description: Tipo de gimnasio (solo válido para usuarios PREMIUM)
+ *         description: Tipo de gimnasio (solo v�lido para usuarios PREMIUM)
+ *       - in: query
+ *         name: amenities
+ *         schema:
+ *           type: string
+ *         description: IDs de amenidades separados por coma (solo usuarios PREMIUM)
  *     responses:
  *       200:
  *         description: Lista filtrada de gimnasios y posible advertencia
@@ -79,13 +96,9 @@ router.get('/tipos', gymController.getGymTypes);
  *                   nullable: true
  *                   example: "Filtro por tipo ignorado para usuarios FREE"
  *       400:
- *         description: Parámetros inválidos
+ *         description: Parometros involidos
  *       403:
  *         description: Solo usuarios PREMIUM pueden filtrar por tipo
- */
-router.get('/filtro', verificarToken, gymController.filtrarGimnasios);
-
-/**
  * @swagger
  * /api/gyms/cercanos:
  *   get:
@@ -277,7 +290,6 @@ router.get('/:id', gymController.getGymById);
  *               latitude:
  *                 type: number
  *               longitude:
- *                 type: number
  *               phone:
  *                 type: string
  *               email:
@@ -294,11 +306,31 @@ router.get('/:id', gymController.getGymById);
  *                 type: number
  *               week_price:
  *                 type: number
+ *               whatsapp:
+ *                 type: string
+ *               instagram:
+ *                 type: string
+ *               facebook:
+ *                 type: string
+ *               google_maps_url:
+ *                 type: string
+ *               max_capacity:
+ *                 type: integer
+ *               area_sqm:
+ *                 type: number
+ *               verified:
+ *                 type: boolean
+ *               featured:
+ *                 type: boolean
+ *               amenities:
+ *                 type: array
+ *                 items:
+ *                   type: integer
  *     responses:
  *       201:
  *         description: Gimnasio creado correctamente
  *       400:
- *         description: Datos inválidos
+ *         description: Datos invalidos
  */
 router.post('/', verificarToken, verificarRol('ADMIN'), gymController.createGym);
 
@@ -350,33 +382,35 @@ router.post('/', verificarToken, verificarRol('ADMIN'), gymController.createGym)
  *                 type: number
  *               week_price:
  *                 type: number
+ *               whatsapp:
+ *                 type: string
+ *               instagram:
+ *                 type: string
+ *               facebook:
+ *                 type: string
+ *               google_maps_url:
+ *                 type: string
+ *               max_capacity:
+ *                 type: integer
+ *               area_sqm:
+ *                 type: number
+ *               verified:
+ *                 type: boolean
+ *               featured:
+ *                 type: boolean
+ *               amenities:
+ *                 type: array
+ *                 items:
+ *                   type: integer
  *     responses:
  *       200:
  *         description: Gimnasio actualizado correctamente
  *       404:
  *         description: Gimnasio no encontrado
  */
-router.put('/:id', verificarToken, verificarRol('ADMIN'), gymController.updateGym);
-
-/**
- * @swagger
- * /api/gyms/{id}:
- *   delete:
- *     summary: Eliminar un gimnasio por su ID
- *     tags: [Gimnasios]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID del gimnasio a eliminar
- *         schema:
- *           type: integer
- *     responses:
- *       204:
- *         description: Gimnasio eliminado correctamente
- *       404:
- *         description: Gimnasio no encontrado
- */
 router.delete('/:id', verificarToken, verificarRol('ADMIN'), gymController.deleteGym);
 
 module.exports = router;
+
+
+

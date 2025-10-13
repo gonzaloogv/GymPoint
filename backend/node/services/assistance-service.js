@@ -68,7 +68,8 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude }) => 
     id_gym,
     id_streak: userProfile.id_streak,
     date: fecha,
-    hour: hora
+    hour: hora,
+    check_in_time: hora
   });
 
   // Actualizar racha

@@ -34,6 +34,11 @@ const adminRoutes = require('./routes/admin-routes');
 const adminRewardsRoutes = require('./routes/admin-rewards-routes');
 const reviewRoutes = require('./routes/review-routes');
 const mediaRoutes = require('./routes/media-routes');
+const workoutRoutes = require('./routes/workout-routes');
+const bodyMetricsRoutes = require('./routes/body-metrics-routes');
+const notificationRoutes = require('./routes/notification-routes');
+const paymentRoutes = require('./routes/payment-routes');
+const webhookRoutes = require('./routes/webhook-routes');
 const testRoutes = require('./routes/test-routes');
 
 // Inicializar app
@@ -75,6 +80,11 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/admin', adminRewardsRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/media', mediaRoutes);
+app.use('/api/workouts', workoutRoutes);
+app.use('/api/body-metrics', bodyMetricsRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/webhooks', webhookRoutes);
 app.use('/api/test', testRoutes);
 
 // Swagger UI
@@ -143,4 +153,6 @@ process.on('SIGINT', async () => {
   await sequelize.close();
   process.exit(0);
 });
+
+
 

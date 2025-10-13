@@ -25,6 +25,18 @@ const Frequency = sequelize.define('Frequency', {
         allowNull: false,
         defaultValue: false
     },
+    week_start_date: {
+        type: DataTypes.DATEONLY,
+        allowNull: false
+    },
+    week_number: {
+        type: DataTypes.TINYINT,
+        allowNull: false
+    },
+    year: {
+        type: DataTypes.SMALLINT,
+        allowNull: false
+    },
     created_at: {
         type: DataTypes.DATE,
         allowNull: false,

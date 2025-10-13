@@ -1,15 +1,23 @@
 jest.mock('../models', () => ({
   Account: { findByPk: jest.fn(), findOne: jest.fn() },
-  UserProfile: { findByPk: jest.fn() }
+  UserProfile: { findByPk: jest.fn() },
+  UserBodyMetric: { create: jest.fn(), findAll: jest.fn(), findOne: jest.fn() }
 }));
 jest.mock('../models/RefreshToken', () => ({ update: jest.fn() }));
+jest.mock('../config/database', () => ({ transaction: jest.fn() }));
+jest.mock('../services/token-ledger-service', () => ({
+  registrarMovimiento: jest.fn()
+}));
 
 const userService = require('../services/user-service');
-const { Account, UserProfile } = require('../models');
+const { Account, UserProfile, UserBodyMetric } = require('../models');
+const sequelize = require('../config/database');
 const RefreshToken = require('../models/RefreshToken');
+const tokenLedgerService = require('../services/token-ledger-service');
 
 beforeEach(() => {
   jest.clearAllMocks();
+  sequelize.transaction.mockImplementation(async (fn) => fn({}));
 });
 
 describe('actualizarPerfil', () => {
@@ -103,5 +111,57 @@ describe('eliminarCuenta', () => {
   it('lanza error si la cuenta no existe', async () => {
     Account.findByPk.mockResolvedValue(null);
     await expect(userService.eliminarCuenta(1)).rejects.toThrow('Cuenta no encontrado');
+  });
+});
+
+describe('registros de métricas corporales', () => {
+  beforeEach(() => {
+    tokenLedgerService.registrarMovimiento.mockResolvedValue({});
+  });
+
+  it('registra métricas válidas y otorga tokens', async () => {
+    const metricCreated = { id_body_metric: 11 };
+    UserProfile.findByPk.mockResolvedValue({ id_user_profile: 3 });
+    UserBodyMetric.create.mockResolvedValue(metricCreated);
+
+    const metric = await userService.registrarMetricasCorporales(3, {
+      weight_kg: 80,
+      height_cm: 180,
+      source: 'manual'
+    });
+
+    expect(UserBodyMetric.create).toHaveBeenCalled();
+    expect(tokenLedgerService.registrarMovimiento).toHaveBeenCalledWith(expect.objectContaining({
+      userId: 3,
+      refId: 11
+    }));
+    expect(metric).toBe(metricCreated);
+  });
+
+  it('lanza error si el valor está fuera de rango', async () => {
+    UserProfile.findByPk.mockResolvedValue({ id_user_profile: 4 });
+    await expect(userService.registrarMetricasCorporales(4, { weight_kg: 500 }))
+      .rejects.toThrow('Peso (kg) debe estar entre 20 y 400');
+  });
+
+  it('lista métricas', async () => {
+    UserProfile.findByPk.mockResolvedValue({ id_user_profile: 5 });
+    UserBodyMetric.findAll.mockResolvedValue(['metric']);
+
+    const metrics = await userService.listarMetricasCorporales(5, { limit: 5 });
+    expect(UserBodyMetric.findAll).toHaveBeenCalledWith(expect.objectContaining({
+      where: { id_user_profile: 5 },
+      limit: 5
+    }));
+    expect(metrics).toEqual(['metric']);
+  });
+
+  it('obtiene última métrica', async () => {
+    UserProfile.findByPk.mockResolvedValue({ id_user_profile: 6 });
+    UserBodyMetric.findOne.mockResolvedValue('latest');
+
+    const metric = await userService.obtenerUltimaMetricaCorporal(6);
+    expect(UserBodyMetric.findOne).toHaveBeenCalled();
+    expect(metric).toBe('latest');
   });
 });
