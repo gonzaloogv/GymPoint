@@ -5,6 +5,7 @@ const { verificarToken, verificarUsuarioApp } = require('../middlewares/auth');
 
 router.use(verificarToken);
 
+router.get('/', verificarUsuarioApp, controller.historialPagos);
 router.post('/create-preference', verificarUsuarioApp, controller.crearPreferencia);
 router.get('/history', verificarUsuarioApp, controller.historialPagos);
 router.get('/:id', controller.obtenerPago);

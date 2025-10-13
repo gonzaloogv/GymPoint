@@ -16,7 +16,7 @@ const MercadoPagoPayment = sequelize.define('MercadoPagoPayment', {
     allowNull: false
   },
   subscription_type: {
-    type: DataTypes.ENUM('MONTHLY', 'WEEKLY', 'ANNUAL'),
+    type: DataTypes.ENUM('MONTHLY', 'WEEKLY', 'DAILY', 'ANNUAL'),
     allowNull: false,
     defaultValue: 'MONTHLY'
   },
@@ -110,4 +110,5 @@ const MercadoPagoPayment = sequelize.define('MercadoPagoPayment', {
 });
 
 module.exports = MercadoPagoPayment;
+
 
