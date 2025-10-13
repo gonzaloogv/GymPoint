@@ -5,7 +5,7 @@
  */
 
 const { Account, Role, AccountRole, AdminProfile } = require('../models');
-const { sequelize } = require('../config/database');
+const sequelize = require('../config/database');
 const bcrypt = require('bcryptjs');
 
 const ADMIN_EMAIL = 'admin@gympoint.com';
