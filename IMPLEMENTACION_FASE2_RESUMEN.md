@@ -247,3 +247,5 @@ backend/node/routes/
 **Próxima fase**: Integraciones Externas y Testing
 
 
+
+

@@ -130,19 +130,52 @@ router.put('/me/email', verificarToken, verificarUsuarioApp, controller.actualiz
  * @swagger
  * /api/users/me:
  *   delete:
- *     summary: Eliminar cuenta del usuario autenticado
+ *     summary: Solicitar eliminación programada de la cuenta
  *     tags: [Usuario]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Cuenta eliminada correctamente
+ *         description: Solicitud registrada correctamente
  *       401:
  *         description: No autorizado
+ *       409:
+ *         description: Ya existe una solicitud activa
  *       500:
- *         description: Error al eliminar cuenta
+ *         description: Error al registrar solicitud
  */
-router.delete('/me', verificarToken, verificarUsuarioApp, controller.eliminarCuenta);
+router.delete('/me', verificarToken, verificarUsuarioApp, controller.solicitarEliminacionCuenta);
+
+/**
+ * @swagger
+ * /api/users/me/deletion-request:
+ *   get:
+ *     summary: Obtener estado de la solicitud de eliminación
+ *     tags: [Usuario]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Estado recuperado correctamente
+ *       401:
+ *         description: No autorizado
+ *   delete:
+ *     summary: Cancelar solicitud de eliminación
+ *     tags: [Usuario]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Solicitud cancelada correctamente
+ *       401:
+ *         description: No autorizado
+ *       404:
+ *         description: No hay solicitud activa para cancelar
+ */
+router
+  .route('/me/deletion-request')
+  .get(verificarToken, verificarUsuarioApp, controller.obtenerEstadoEliminacion)
+  .delete(verificarToken, verificarUsuarioApp, controller.cancelarSolicitudEliminacion);
 
 // Subrutas especiales de usuario
 router.use('/me/body-metrics', bodyMetricsRoutes);

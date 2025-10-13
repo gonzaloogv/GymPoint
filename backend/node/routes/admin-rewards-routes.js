@@ -40,7 +40,7 @@ router.get('/rewards/stats', verificarToken, verificarAdmin, controller.getGloba
 
 /**
  * @swagger
- * /api/admin/gyms/{gymId}/rewards/summary:
+ * /api/admin/gyms/{id_gym}/rewards/summary:
  *   get:
  *     summary: Obtener resumen de recompensas de un gimnasio específico
  *     tags: [Admin - Rewards]
@@ -48,7 +48,7 @@ router.get('/rewards/stats', verificarToken, verificarAdmin, controller.getGloba
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: gymId
+ *         name: id_gym
  *         required: true
  *         schema:
  *           type: integer
@@ -78,6 +78,6 @@ router.get('/rewards/stats', verificarToken, verificarAdmin, controller.getGloba
  *       404:
  *         description: Gimnasio no encontrado
  */
-router.get('/gyms/:gymId/rewards/summary', verificarToken, verificarAdmin, controller.getGymRewardStats);
+router.get('/gyms/:id_gym/rewards/summary', verificarToken, verificarAdmin, controller.getGymRewardStats);
 
 module.exports = router;

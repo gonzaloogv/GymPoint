@@ -1,10 +1,10 @@
 ﻿'use strict';
 
 /**
- * MigraciÃ³n: Crear tabla de agregados diarios de recompensas por gimnasio
+ * Migración: Crear tabla de agregados diarios de recompensas por gimnasio
  * 
  * Tabla: reward_gym_stats_daily
- * PropÃ³sito: Almacenar estadÃ­sticas diarias consolidadas para mejorar performance
+ * Propósito: Almacenar estadísticas diarias consolidadas para mejorar performance
  */
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
     const transaction = await queryInterface.sequelize.transaction();
     
     try {
-      console.log('ðŸ”„ Creando tabla reward_gym_stats_daily...\n');
+      console.log('🔄 Creando tabla reward_gym_stats_daily...\n');
       
       await queryInterface.createTable('reward_gym_stats_daily', {
         day: {
@@ -68,9 +68,9 @@ module.exports = {
         }
       }, { transaction });
       
-      console.log('âœ… Tabla reward_gym_stats_daily creada');
+      console.log('✅ Tabla reward_gym_stats_daily creada');
       
-      // Crear Ã­ndice para consultas por rango de fechas
+      // Crear índice para consultas por rango de fechas
       await queryInterface.addIndex('reward_gym_stats_daily', ['day'], {
         name: 'idx_reward_gym_stats_day',
         transaction
@@ -81,14 +81,14 @@ module.exports = {
         transaction
       });
       
-      console.log('âœ… Ãndices creados');
+      console.log('✅ Índices creados');
       
       await transaction.commit();
-      console.log('\nâœ… MigraciÃ³n completada con Ã©xito\n');
+      console.log('\n✅ Migración completada con éxito\n');
       
     } catch (error) {
       await transaction.rollback();
-      console.error('âŒ Error en migraciÃ³n:', error.message);
+      console.error('❌ Error en migración:', error.message);
       throw error;
     }
   },
@@ -100,11 +100,11 @@ module.exports = {
       await queryInterface.dropTable('reward_gym_stats_daily', { transaction });
       
       await transaction.commit();
-      console.log('âœ… Rollback completado');
+      console.log('✅ Rollback completado');
       
     } catch (error) {
       await transaction.rollback();
-      console.error('âŒ Error en rollback:', error.message);
+      console.error('❌ Error en rollback:', error.message);
       throw error;
     }
   }

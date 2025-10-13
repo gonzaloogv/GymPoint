@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 /**
  * Migración: Redirigir Foreign Keys de user a user_profiles
@@ -87,13 +87,13 @@ module.exports = {
       console.log(`✅ Tablas a migrar: ${tables.length}/${potentialTables.length}\n`);
       
       if (tables.length === 0) {
-        console.log('⚠️ No hay tablas pendientes de migración');
+        console.log('🔍 No hay tablas pendientes de migración');
         await transaction.commit();
         return;
       }
       
       for (const table of tables) {
-        console.log(`📋 Procesando tabla: ${table.name}`);
+        console.log(`🔍 Procesando tabla: ${table.name}`);
 
         try {
           // Caso especial: eliminar datos de administradores (no tienen user_profiles)
@@ -108,16 +108,26 @@ module.exports = {
             );
 
             if (adminData[0].count > 0) {
-              console.log(`  ⚠️ Eliminando ${adminData[0].count} registros de administradores...`);
+              console.log(`  → Eliminando ${adminData[0].count} registros de administradores...`);
+
+              if (table.name === 'streak') {
+                console.log('  → Liberando referencias user.id_streak para administradores');
+                await queryInterface.sequelize.query(
+                  `UPDATE user
+                   SET id_streak = NULL
+                   WHERE subscription = 'ADMIN' AND id_streak IS NOT NULL`,
+                  { transaction }
+                );
+              }
+
               await queryInterface.sequelize.query(
                 `DELETE FROM \`${table.name}\`
                  WHERE \`${table.column}\` IN (SELECT id_user FROM user WHERE subscription = 'ADMIN')`,
                 { transaction }
               );
-              console.log(`  ✅ Registros de admin eliminados`);
+              console.log('  → Registros de admin eliminados');
             }
           }
-          
           // 1. Eliminar FK constraint antigua
           await queryInterface.sequelize.query(
             `ALTER TABLE \`${table.name}\` DROP FOREIGN KEY \`${table.fkName}\``,
@@ -153,7 +163,7 @@ module.exports = {
           );
           
           if (nullCheck.count > 0) {
-            throw new Error(`⚠️ ${nullCheck.count} registros en ${table.name} no pudieron ser mapeados`);
+            throw new Error(`🔍 ${nullCheck.count} registros en ${table.name} no pudieron ser mapeados`);
           }
           
           // 5. Eliminar columna antigua
@@ -252,7 +262,7 @@ module.exports = {
       ];
       
       for (const table of tables) {
-        console.log(`📋 Revirtiendo tabla: ${table.name}`);
+        console.log(`🔍 Revirtiendo tabla: ${table.name}`);
         
         // Eliminar FK nueva
         await queryInterface.sequelize.query(

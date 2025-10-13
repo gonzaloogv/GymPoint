@@ -5,7 +5,7 @@ module.exports = {
     const transaction = await queryInterface.sequelize.transaction();
     
     try {
-      console.log('ðŸ”„ Verificando y agregando columnas de snapshot...\n');
+      console.log('🔄 Verificando y agregando columnas de snapshot...\n');
       
       const [rewardColumns] = await queryInterface.sequelize.query(
         "SHOW COLUMNS FROM reward",
@@ -20,7 +20,7 @@ module.exports = {
           allowNull: false,
           defaultValue: 'system'
         }, { transaction });
-        console.log('âœ… Columna provider agregada a reward');
+        console.log('✅ Columna provider agregada a reward');
       }
       
       if (!rewardColumnNames.includes('id_gym')) {
@@ -28,7 +28,7 @@ module.exports = {
           type: Sequelize.BIGINT,
           allowNull: true
         }, { transaction });
-        console.log('âœ… Columna id_gym agregada a reward');
+        console.log('✅ Columna id_gym agregada a reward');
       }
       
       if (!rewardColumnNames.includes('fulfillment_type')) {
@@ -37,7 +37,7 @@ module.exports = {
           allowNull: false,
           defaultValue: 'auto'
         }, { transaction });
-        console.log('âœ… Columna fulfillment_type agregada a reward');
+        console.log('✅ Columna fulfillment_type agregada a reward');
       }
       
       const [claimedColumns] = await queryInterface.sequelize.query(
@@ -52,7 +52,7 @@ module.exports = {
           type: Sequelize.ENUM('system', 'gym'),
           allowNull: true
         }, { transaction });
-        console.log('âœ… Columna provider_snapshot agregada');
+        console.log('✅ Columna provider_snapshot agregada');
       }
       
       if (!claimedColumnNames.includes('gym_id_snapshot')) {
@@ -60,12 +60,12 @@ module.exports = {
           type: Sequelize.BIGINT,
           allowNull: true
         }, { transaction });
-        console.log('âœ… Columna gym_id_snapshot agregada');
+        console.log('✅ Columna gym_id_snapshot agregada');
       }
       
       const statusColumn = claimedColumns.find(c => c.Field === 'status');
       if (statusColumn && statusColumn.Type.includes('tinyint')) {
-        console.log('ðŸ”„ Migrando status de BOOLEAN a ENUM...');
+        console.log('🔄 Migrando status de BOOLEAN a ENUM...');
         
         await queryInterface.addColumn('claimed_reward', 'status_enum', {
           type: Sequelize.ENUM('pending', 'redeemed', 'revoked'),
@@ -85,17 +85,17 @@ module.exports = {
         await queryInterface.removeColumn('claimed_reward', 'status', { transaction });
         await queryInterface.renameColumn('claimed_reward', 'status_enum', 'status', { transaction });
         
-        console.log('âœ… status migrado a ENUM');
+        console.log('✅ status migrado a ENUM');
       }
       
-      console.log('ðŸ”„ Ejecutando backfill...');
+      console.log('🔄 Ejecutando backfill...');
       await queryInterface.sequelize.query(
         "UPDATE claimed_reward cr JOIN reward r ON cr.id_reward = r.id_reward SET cr.provider_snapshot = COALESCE(cr.provider_snapshot, r.provider), cr.gym_id_snapshot = COALESCE(cr.gym_id_snapshot, r.id_gym) WHERE cr.provider_snapshot IS NULL OR cr.gym_id_snapshot IS NULL",
         { transaction }
       );
-      console.log('âœ… Backfill completado');
+      console.log('✅ Backfill completado');
       
-      console.log('ðŸ”„ Creando Ã­ndices...');
+      console.log('🔄 Creando índices...');
       
       const [indexes] = await queryInterface.sequelize.query(
         "SHOW INDEX FROM claimed_reward",
@@ -146,14 +146,14 @@ module.exports = {
         });
       }
       
-      console.log('âœ… Ãndices creados');
+      console.log('✅ Índices creados');
       
       await transaction.commit();
-      console.log('\nâœ… MigraciÃ³n completada con Ã©xito\n');
+      console.log('\n✅ Migración completada con éxito\n');
       
     } catch (error) {
       await transaction.rollback();
-      console.error('âŒ Error en migraciÃ³n:', error.message);
+      console.error('❌ Error en migración:', error.message);
       throw error;
     }
   },
@@ -175,11 +175,11 @@ module.exports = {
       await queryInterface.removeColumn('reward', 'provider', { transaction }).catch(() => {});
       
       await transaction.commit();
-      console.log('âœ… Rollback completado');
+      console.log('✅ Rollback completado');
       
     } catch (error) {
       await transaction.rollback();
-      console.error('âŒ Error en rollback:', error.message);
+      console.error('❌ Error en rollback:', error.message);
       throw error;
     }
   }

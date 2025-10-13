@@ -40,6 +40,8 @@ const { verificarToken, verificarRol, verificarRolMultiple } = require('../middl
  *         description: Pago registrado correctamente
  *       400:
  *         description: Datos inválidos
+ *       401:
+ *         description: Token no válido o no proporcionado
  */
 router.post('/', verificarToken, controller.registrarPago);
 

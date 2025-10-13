@@ -83,18 +83,74 @@ const actualizarEmail = async (req, res) => {
 };
 
 /**
- * Eliminar cuenta del usuario actual
+ * Solicitar eliminación de cuenta (programada con período de gracia)
  * DELETE /api/users/me
  */
-const eliminarCuenta = async (req, res) => {
+const solicitarEliminacionCuenta = async (req, res) => {
   try {
-    await userService.eliminarCuenta(req.user.id_account);
-    res.json({ message: 'Cuenta eliminada correctamente' });
+    const reason = req.body?.reason || req.query?.reason || null;
+    const request = await userService.solicitarEliminacionCuenta(req.user.id_account, { reason });
+
+    const graceDays = request?.metadata?.grace_period_days;
+    const messageParts = [
+      'Solicitud de eliminación registrada.',
+      request?.scheduled_deletion_date
+        ? `La cuenta será eliminada el ${request.scheduled_deletion_date}.`
+        : null,
+      graceDays ? `Período de gracia: ${graceDays} días.` : null
+    ].filter(Boolean);
+
+    res.json({
+      message: messageParts.join(' '),
+      request
+    });
   } catch (err) {
-    res.status(500).json({ 
+    res.status(err.statusCode || 500).json({
       error: {
-        code: 'DELETE_FAILED',
-        message: err.message 
+        code: err.code || 'DELETE_REQUEST_FAILED',
+        message: err.message
+      }
+    });
+  }
+};
+
+/**
+ * Obtener estado de la solicitud de eliminación
+ * GET /api/users/me/deletion-request
+ */
+const obtenerEstadoEliminacion = async (req, res) => {
+  try {
+    const request = await userService.obtenerEstadoEliminacionCuenta(req.user.id_account);
+    res.json({
+      request,
+      has_active_request: request?.status === 'PENDING'
+    });
+  } catch (err) {
+    res.status(err.statusCode || 500).json({
+      error: {
+        code: err.code || 'DELETE_STATUS_FAILED',
+        message: err.message
+      }
+    });
+  }
+};
+
+/**
+ * Cancelar solicitud de eliminación vigente
+ * DELETE /api/users/me/deletion-request
+ */
+const cancelarSolicitudEliminacion = async (req, res) => {
+  try {
+    const request = await userService.cancelarSolicitudEliminacionCuenta(req.user.id_account);
+    res.json({
+      message: 'Solicitud de eliminación cancelada correctamente',
+      request
+    });
+  } catch (err) {
+    res.status(err.statusCode || 500).json({
+      error: {
+        code: err.code || 'DELETE_CANCEL_FAILED',
+        message: err.message
       }
     });
   }
@@ -200,9 +256,10 @@ module.exports = {
   obtenerPerfil,
   actualizarPerfil,
   actualizarEmail,
-  eliminarCuenta,
+  solicitarEliminacionCuenta,
+  obtenerEstadoEliminacion,
+  cancelarSolicitudEliminacion,
   obtenerUsuarioPorId,
   actualizarTokens,
   actualizarSuscripcion
 };
-

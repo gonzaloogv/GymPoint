@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/reward-code-controller');
-const { verificarToken, verificarAdmin, requireRole } = require('../middlewares/auth');
+const { verificarToken, verificarAdmin, verificarUsuarioApp, requireRole } = require('../middlewares/auth');
 
 /**
  * @swagger
- * /api/reward-code/estadisticas/gimnasios:
+ * /api/reward-codes/estadisticas/gimnasios:
  *   get:
  *     summary: Obtener cantidad de códigos generados por gimnasio (Solo Admin)
  *     tags: [Códigos de Recompensa]
@@ -37,27 +37,34 @@ router.get('/estadisticas/gimnasios', verificarToken, requireRole('ADMIN'), cont
 
 /**
  * @swagger
- * /api/reward-code/{id_code}/usar:
+ * /api/reward-codes/{id_code}/usar:
  *   put:
  *     summary: Marcar un código de recompensa como usado
  *     tags: [Códigos de Recompensa]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id_code
  *         required: true
  *         schema:
  *           type: integer
+ *         description: ID del código de recompensa
  *     responses:
  *       200:
  *         description: Código marcado como usado correctamente
  *       400:
  *         description: Código inválido, expirado o ya usado
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: Requiere rol de usuario de la app
  */
-router.put('/:id_code/usar', controller.marcarComoUsado);
+router.put('/:id_code/usar', verificarToken, verificarUsuarioApp, controller.marcarComoUsado);
 
 /**
  * @swagger
- * /api/reward-code/me/activos:
+ * /api/reward-codes/me/activos:
  *   get:
  *     summary: Obtener códigos de recompensa activos del usuario autenticado
  *     tags: [Códigos de Recompensa]
@@ -66,12 +73,14 @@ router.put('/:id_code/usar', controller.marcarComoUsado);
  *     responses:
  *       200:
  *         description: Lista de códigos activos y vigentes
+ *       401:
+ *         description: Token no válido o no proporcionado
  */
 router.get('/me/activos', verificarToken, controller.obtenerCodigosActivos);
 
 /**
  * @swagger
- * /api/reward-code/me/expirados:
+ * /api/reward-codes/me/expirados:
  *   get:
  *     summary: Obtener códigos de recompensa expirados o ya utilizados
  *     tags: [Códigos de Recompensa]
@@ -80,12 +89,14 @@ router.get('/me/activos', verificarToken, controller.obtenerCodigosActivos);
  *     responses:
  *       200:
  *         description: Lista de códigos expirados o utilizados
+ *       401:
+ *         description: Token no válido o no proporcionado
  */
 router.get('/me/expirados', verificarToken, controller.obtenerCodigosExpirados);
 
 /**
  * @swagger
- * /api/reward-code/me:
+ * /api/reward-codes/me:
  *   get:
  *     summary: Obtener todos los códigos de recompensa del usuario autenticado
  *     tags: [Códigos de Recompensa]
@@ -94,6 +105,8 @@ router.get('/me/expirados', verificarToken, controller.obtenerCodigosExpirados);
  *     responses:
  *       200:
  *         description: Lista de códigos de recompensa
+ *       401:
+ *         description: Token no válido o no proporcionado
  */
 router.get('/me', verificarToken, controller.obtenerCodigosPorUsuario);
 

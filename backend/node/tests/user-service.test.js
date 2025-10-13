@@ -1,23 +1,36 @@
 jest.mock('../models', () => ({
   Account: { findByPk: jest.fn(), findOne: jest.fn() },
   UserProfile: { findByPk: jest.fn() },
-  UserBodyMetric: { create: jest.fn(), findAll: jest.fn(), findOne: jest.fn() }
+  UserBodyMetric: { create: jest.fn(), findAll: jest.fn(), findOne: jest.fn() },
+  AccountDeletionRequest: { findOne: jest.fn(), findAll: jest.fn(), findByPk: jest.fn(), create: jest.fn() },
+  RefreshToken: { update: jest.fn() }
 }));
-jest.mock('../models/RefreshToken', () => ({ update: jest.fn() }));
 jest.mock('../config/database', () => ({ transaction: jest.fn() }));
 jest.mock('../services/token-ledger-service', () => ({
   registrarMovimiento: jest.fn()
 }));
 
 const userService = require('../services/user-service');
-const { Account, UserProfile, UserBodyMetric } = require('../models');
+const { Account, UserProfile, UserBodyMetric, AccountDeletionRequest, RefreshToken } = require('../models');
 const sequelize = require('../config/database');
-const RefreshToken = require('../models/RefreshToken');
 const tokenLedgerService = require('../services/token-ledger-service');
+const { ACCOUNT_DELETION } = require('../config/constants');
 
 beforeEach(() => {
   jest.clearAllMocks();
-  sequelize.transaction.mockImplementation(async (fn) => fn({}));
+  sequelize.transaction.mockImplementation(async (fn) => {
+    const transaction = {
+      LOCK: { UPDATE: 'UPDATE' },
+      commit: jest.fn().mockResolvedValue(),
+      rollback: jest.fn().mockResolvedValue()
+    };
+
+    if (typeof fn === 'function') {
+      return fn(transaction);
+    }
+
+    return transaction;
+  });
 });
 
 describe('actualizarPerfil', () => {
@@ -90,27 +103,110 @@ describe('obtenerUsuario', () => {
   });
 });
 
-describe('eliminarCuenta', () => {
-  it('revoca tokens y desactiva cuenta', async () => {
+describe('eliminarCuentaDefinitiva', () => {
+  it('anonimiza perfil, revoca tokens y desactiva cuenta', async () => {
+    const userProfile = {
+      id_user_profile: 10,
+      update: jest.fn().mockResolvedValue()
+    };
     const account = {
       id_account: 7,
-      update: jest.fn(),
-      userProfile: { id_user_profile: 10 }
+      update: jest.fn().mockResolvedValue(),
+      userProfile
     };
     Account.findByPk.mockResolvedValue(account);
 
-    await userService.eliminarCuenta(7);
+    await userService.eliminarCuentaDefinitiva(7);
 
+    expect(userProfile.update).toHaveBeenCalledWith(expect.objectContaining({
+      name: 'Usuario',
+      lastname: 'Eliminado',
+      tokens: 0
+    }), expect.any(Object));
     expect(RefreshToken.update).toHaveBeenCalledWith(
       { revoked: true },
-      { where: { id_user: 10 } }
+      expect.objectContaining({ where: { id_user: 10 } })
     );
-    expect(account.update).toHaveBeenCalledWith({ is_active: false });
+    expect(account.update).toHaveBeenCalledWith(expect.objectContaining({
+      is_active: false,
+      email_verified: false
+    }), expect.any(Object));
+    const updatedEmail = account.update.mock.calls[0][0].email;
+    expect(updatedEmail).toMatch(/^deleted_7_/);
   });
 
   it('lanza error si la cuenta no existe', async () => {
     Account.findByPk.mockResolvedValue(null);
-    await expect(userService.eliminarCuenta(1)).rejects.toThrow('Cuenta no encontrado');
+    await expect(userService.eliminarCuentaDefinitiva(1)).rejects.toThrow('Cuenta no encontrado');
+  });
+});
+
+describe('procesarSolicitudEliminacion', () => {
+  it('retorna null si no hay instancia', async () => {
+    await expect(userService.procesarSolicitudEliminacion(null)).resolves.toBeNull();
+  });
+
+  it('no procesa solicitudes no pendientes', async () => {
+    const plain = {
+      id_request: 4,
+      id_account: 10,
+      status: 'CANCELLED',
+      scheduled_deletion_date: '2025-10-01',
+      metadata: {}
+    };
+
+    AccountDeletionRequest.findByPk.mockResolvedValue({
+      ...plain,
+      get: jest.fn().mockReturnValue(plain)
+    });
+
+    const result = await userService.procesarSolicitudEliminacion({ id_request: 4 });
+    expect(result).toEqual(expect.objectContaining({ status: 'CANCELLED' }));
+  });
+
+  it('marca completada una solicitud pendiente', async () => {
+    const state = {
+      id_request: 6,
+      id_account: 12,
+      status: 'PENDING',
+      scheduled_deletion_date: '2025-10-05',
+      requested_at: new Date(),
+      cancelled_at: null,
+      completed_at: null,
+      metadata: {}
+    };
+
+    const requestInstance = {
+      ...state,
+      update: jest.fn(async (payload) => {
+        Object.assign(state, payload);
+        Object.assign(requestInstance, payload);
+      }),
+      get: jest.fn(() => ({ ...state }))
+    };
+    requestInstance.reload = jest.fn().mockResolvedValue(requestInstance);
+
+    AccountDeletionRequest.findByPk.mockResolvedValue(requestInstance);
+
+    const userProfile = {
+      id_user_profile: 22,
+      update: jest.fn().mockResolvedValue()
+    };
+    const account = {
+      id_account: 12,
+      userProfile,
+      update: jest.fn().mockResolvedValue()
+    };
+    Account.findByPk.mockResolvedValue(account);
+
+    const result = await userService.procesarSolicitudEliminacion({ id_request: 6 });
+
+    expect(userProfile.update).toHaveBeenCalled();
+    expect(account.update).toHaveBeenCalledWith(expect.objectContaining({ is_active: false }), expect.any(Object));
+    expect(requestInstance.update).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'COMPLETED'
+    }), expect.any(Object));
+    expect(result).toEqual(expect.objectContaining({ status: 'COMPLETED' }));
   });
 });
 
@@ -163,5 +259,155 @@ describe('registros de métricas corporales', () => {
     const metric = await userService.obtenerUltimaMetricaCorporal(6);
     expect(UserBodyMetric.findOne).toHaveBeenCalled();
     expect(metric).toBe('latest');
+  });
+});
+describe('solicitarEliminacionCuenta', () => {
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('crea solicitud y revoca tokens', async () => {
+    const baseDate = new Date('2025-10-15T00:00:00Z');
+    jest.useFakeTimers().setSystemTime(baseDate);
+
+    const expectedDeletion = new Date(baseDate);
+    expectedDeletion.setUTCDate(expectedDeletion.getUTCDate() + ACCOUNT_DELETION.GRACE_PERIOD_DAYS);
+    const expectedDeletionStr = expectedDeletion.toISOString().slice(0, 10);
+
+    Account.findByPk.mockResolvedValue({
+      id_account: 7,
+      userProfile: { id_user_profile: 10 }
+    });
+    AccountDeletionRequest.findOne.mockResolvedValue(null);
+
+    const plainRequest = {
+      id_request: 1,
+      id_account: 7,
+      reason: 'Prueba',
+      status: 'PENDING',
+      scheduled_deletion_date: expectedDeletionStr,
+      requested_at: new Date(),
+      cancelled_at: null,
+      completed_at: null,
+      metadata: { grace_period_days: ACCOUNT_DELETION.GRACE_PERIOD_DAYS }
+    };
+
+    AccountDeletionRequest.create.mockResolvedValue({
+      get: jest.fn().mockReturnValue(plainRequest)
+    });
+
+    const result = await userService.solicitarEliminacionCuenta(7, { reason: 'Prueba' });
+
+    expect(AccountDeletionRequest.create).toHaveBeenCalledWith(expect.objectContaining({
+      id_account: 7,
+      reason: 'Prueba',
+      status: 'PENDING',
+      scheduled_deletion_date: expectedDeletionStr
+    }), expect.any(Object));
+    expect(RefreshToken.update).toHaveBeenCalledWith(
+      { revoked: true },
+      expect.objectContaining({ where: { id_user: 10 } })
+    );
+    expect(result).toEqual(expect.objectContaining({
+      id_account: 7,
+      status: 'PENDING',
+      can_cancel: true
+    }));
+  });
+
+  it('impide solicitudes duplicadas', async () => {
+    Account.findByPk.mockResolvedValue({
+      id_account: 7,
+      userProfile: { id_user_profile: 10 }
+    });
+    AccountDeletionRequest.findOne.mockResolvedValue({ id_request: 5 });
+
+    await expect(userService.solicitarEliminacionCuenta(7))
+      .rejects.toThrow('Ya existe una solicitud de eliminación pendiente');
+    expect(AccountDeletionRequest.create).not.toHaveBeenCalled();
+  });
+
+  it('lanza error si la cuenta no existe', async () => {
+    Account.findByPk.mockResolvedValue(null);
+    await expect(userService.solicitarEliminacionCuenta(9))
+      .rejects.toThrow('Cuenta no encontrado');
+  });
+});
+
+describe('cancelarSolicitudEliminacionCuenta', () => {
+  it('cancela solicitud activa', async () => {
+    const state = {
+      id_request: 2,
+      id_account: 7,
+      status: 'PENDING',
+      scheduled_deletion_date: '2025-11-14',
+      requested_at: new Date(),
+      cancelled_at: null,
+      completed_at: null,
+      metadata: {}
+    };
+
+    const requestInstance = {
+      ...state,
+      update: jest.fn(async (payload) => {
+        Object.assign(state, payload);
+        Object.assign(requestInstance, payload);
+      }),
+      get: jest.fn(() => ({ ...state }))
+    };
+    requestInstance.reload = jest.fn().mockResolvedValue(requestInstance);
+
+    AccountDeletionRequest.findOne.mockResolvedValue(requestInstance);
+
+    const result = await userService.cancelarSolicitudEliminacionCuenta(7);
+
+    expect(requestInstance.update).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'CANCELLED'
+    }), expect.any(Object));
+    expect(result).toEqual(expect.objectContaining({
+      status: 'CANCELLED',
+      can_cancel: false
+    }));
+  });
+
+  it('lanza error si no hay solicitud', async () => {
+    AccountDeletionRequest.findOne.mockResolvedValue(null);
+    await expect(userService.cancelarSolicitudEliminacionCuenta(7))
+      .rejects.toThrow('Solicitud de eliminación no encontrado');
+  });
+});
+
+describe('obtenerEstadoEliminacionCuenta', () => {
+  it('retorna solicitud mapeada', async () => {
+    const plain = {
+      id_request: 3,
+      id_account: 8,
+      status: 'CANCELLED',
+      scheduled_deletion_date: '2025-11-10',
+      requested_at: new Date(),
+      cancelled_at: new Date(),
+      completed_at: null,
+      metadata: {}
+    };
+
+    AccountDeletionRequest.findOne.mockResolvedValue({
+      get: jest.fn().mockReturnValue(plain)
+    });
+
+    const result = await userService.obtenerEstadoEliminacionCuenta(8);
+
+    expect(AccountDeletionRequest.findOne).toHaveBeenCalled();
+    expect(result).toEqual(expect.objectContaining({
+      id_account: 8,
+      status: 'CANCELLED',
+      can_cancel: false
+    }));
+  });
+
+  it('retorna null si no existe solicitud', async () => {
+    AccountDeletionRequest.findOne.mockResolvedValue(null);
+
+    const result = await userService.obtenerEstadoEliminacionCuenta(8);
+    expect(result).toBeNull();
   });
 });

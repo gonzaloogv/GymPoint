@@ -6,6 +6,7 @@ const setupSwagger = require('./utils/swagger');
 const { runMigrations } = require('./migrate');
 const { startRewardStatsJob } = require('./jobs/reward-stats-job');
 const { startCleanupJob } = require('./jobs/cleanup-job');
+const { startAccountDeletionJob } = require('./jobs/account-deletion-job');
 const { errorHandler, notFoundHandler } = require('./middlewares/error-handler');
 
 // Cargar variables de entorno
@@ -35,8 +36,9 @@ const adminRewardsRoutes = require('./routes/admin-rewards-routes');
 const reviewRoutes = require('./routes/review-routes');
 const mediaRoutes = require('./routes/media-routes');
 const workoutRoutes = require('./routes/workout-routes');
-const bodyMetricsRoutes = require('./routes/body-metrics-routes');
-const notificationRoutes = require('./routes/notification-routes');
+// NOTA: body-metrics y notifications se montan como subrutas en user-routes.js (líneas 148-149)
+// const bodyMetricsRoutes = require('./routes/body-metrics-routes');
+// const notificationRoutes = require('./routes/notification-routes');
 const paymentRoutes = require('./routes/payment-routes');
 const webhookRoutes = require('./routes/webhook-routes');
 const testRoutes = require('./routes/test-routes');
@@ -81,8 +83,9 @@ app.use('/api/admin', adminRewardsRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/workouts', workoutRoutes);
-app.use('/api/body-metrics', bodyMetricsRoutes);
-app.use('/api/notifications', notificationRoutes);
+// NOTA: Estas rutas se montan en user-routes.js como subrutas de /api/users/me/
+// app.use('/api/body-metrics', bodyMetricsRoutes); // Ahora: /api/users/me/body-metrics
+// app.use('/api/notifications', notificationRoutes); // Ahora: /api/users/me/notifications
 app.use('/api/payments', paymentRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/test', testRoutes);
@@ -125,6 +128,7 @@ async function startServer() {
     if (process.env.NODE_ENV !== 'test') {
       startRewardStatsJob(); // Cada 5 minutos
       startCleanupJob(); // Diario a las 3 AM
+      startAccountDeletionJob(); // Diario a las 2 AM
     }
     
   } catch (error) {
@@ -153,6 +157,3 @@ process.on('SIGINT', async () => {
   await sequelize.close();
   process.exit(0);
 });
-
-
-

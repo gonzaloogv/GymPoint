@@ -1,8 +1,39 @@
-const { Account, UserProfile, UserBodyMetric } = require('../models');
+const { Account, UserProfile, UserBodyMetric, AccountDeletionRequest, RefreshToken } = require('../models');
 const { NotFoundError, ConflictError, ValidationError } = require('../utils/errors');
-const { TOKENS, TOKEN_REASONS, SUBSCRIPTION_TYPES } = require('../config/constants');
+const { TOKENS, TOKEN_REASONS, SUBSCRIPTION_TYPES, ACCOUNT_DELETION, ACCOUNT_DELETION_STATUS } = require('../config/constants');
 const sequelize = require('../config/database');
 const tokenLedgerService = require('./token-ledger-service');
+
+const addDaysUtc = (date, days) => {
+  const result = new Date(date);
+  result.setUTCDate(result.getUTCDate() + days);
+  return result;
+};
+
+const toDateOnly = (date) => {
+  return date.toISOString().slice(0, 10);
+};
+
+const mapDeletionRequest = (requestInstance) => {
+  if (!requestInstance) {
+    return null;
+  }
+
+  const request = requestInstance.get ? requestInstance.get({ plain: true }) : requestInstance;
+
+  return {
+    id_request: request.id_request,
+    id_account: request.id_account,
+    reason: request.reason,
+    status: request.status,
+    scheduled_deletion_date: request.scheduled_deletion_date,
+    requested_at: request.requested_at,
+    cancelled_at: request.cancelled_at,
+    completed_at: request.completed_at,
+    metadata: request.metadata || null,
+    can_cancel: request.status === ACCOUNT_DELETION_STATUS.PENDING
+  };
+};
 
 /**
  * Obtener usuario completo (Account + UserProfile)
@@ -173,40 +204,271 @@ const actualizarEmail = async (idAccount, newEmail) => {
 };
 
 /**
- * Eliminar cuenta de usuario (soft delete)
- * Marca la cuenta como inactiva y revoca refresh tokens
- * @param {number} idAccount - ID del account
+ * Obtener estado de la solicitud de eliminación más reciente
+ * @param {number} idAccount
+ * @returns {Promise<object|null>}
+ */
+const obtenerEstadoEliminacionCuenta = async (idAccount) => {
+  const request = await AccountDeletionRequest.findOne({
+    where: { id_account: idAccount },
+    order: [['requested_at', 'DESC']]
+  });
+
+  return mapDeletionRequest(request);
+};
+
+/**
+ * Crear una nueva solicitud de eliminación de cuenta
+ * @param {number} idAccount
+ * @param {object} options
+ * @param {string|null} options.reason
+ * @returns {Promise<object>}
+ */
+const solicitarEliminacionCuenta = async (idAccount, options = {}) => {
+  const { reason = null } = options;
+
+  const transaction = await sequelize.transaction();
+
+  try {
+    const account = await Account.findByPk(idAccount, {
+      include: {
+        model: UserProfile,
+        as: 'userProfile',
+        attributes: ['id_user_profile'],
+        required: false
+      },
+      lock: transaction.LOCK.UPDATE,
+      transaction
+    });
+
+    if (!account) {
+      throw new NotFoundError('Cuenta');
+    }
+
+    const existingPending = await AccountDeletionRequest.findOne({
+      where: {
+        id_account: idAccount,
+        status: ACCOUNT_DELETION_STATUS.PENDING
+      },
+      lock: transaction.LOCK.UPDATE,
+      transaction
+    });
+
+    if (existingPending) {
+      throw new ConflictError('Ya existe una solicitud de eliminación pendiente');
+    }
+
+    const scheduledDeletion = toDateOnly(
+      addDaysUtc(new Date(), ACCOUNT_DELETION.GRACE_PERIOD_DAYS)
+    );
+
+    const metadata = {
+      ...(options.metadata || {}),
+      grace_period_days: ACCOUNT_DELETION.GRACE_PERIOD_DAYS,
+      requested_via: options.requested_via || 'SELF_SERVICE'
+    };
+
+    const request = await AccountDeletionRequest.create({
+      id_account: idAccount,
+      reason,
+      scheduled_deletion_date: scheduledDeletion,
+      status: ACCOUNT_DELETION_STATUS.PENDING,
+      metadata
+    }, { transaction });
+
+    if (account.userProfile) {
+      await RefreshToken.update(
+        { revoked: true },
+        {
+          where: { id_user: account.userProfile.id_user_profile },
+          transaction
+        }
+      );
+    }
+
+    await transaction.commit();
+    return mapDeletionRequest(request);
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+};
+
+/**
+ * Cancelar una solicitud de eliminación activa
+ * @param {number} idAccount
+ * @returns {Promise<object>}
+ */
+const cancelarSolicitudEliminacionCuenta = async (idAccount) => {
+  const transaction = await sequelize.transaction();
+
+  try {
+    const request = await AccountDeletionRequest.findOne({
+      where: {
+        id_account: idAccount,
+        status: ACCOUNT_DELETION_STATUS.PENDING
+      },
+      lock: transaction.LOCK.UPDATE,
+      transaction
+    });
+
+    if (!request) {
+      throw new NotFoundError('Solicitud de eliminación');
+    }
+
+    await request.update({
+      status: ACCOUNT_DELETION_STATUS.CANCELLED,
+      cancelled_at: new Date(),
+      metadata: {
+        ...(request.metadata || {}),
+        cancelled_at: new Date().toISOString()
+      }
+    }, { transaction });
+
+    await request.reload({ transaction });
+    await transaction.commit();
+
+    return mapDeletionRequest(request);
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+};
+
+/**
+ * Anonimizar y desactivar definitivamente una cuenta
+ * @param {number} idAccount
+ * @param {object} options
+ * @param {object|null} options.transaction
  * @returns {Promise<void>}
  */
-const eliminarCuenta = async (idAccount) => {
-  const RefreshToken = require('../models/RefreshToken');
-  
-  const account = await Account.findByPk(idAccount, {
-    include: {
-      model: UserProfile,
-      as: 'userProfile'
+const eliminarCuentaDefinitiva = async (idAccount, options = {}) => {
+  const externalTransaction = options.transaction || null;
+  const ownsTransaction = !externalTransaction;
+  const transaction = externalTransaction || await sequelize.transaction();
+
+  try {
+    const account = await Account.findByPk(idAccount, {
+      include: {
+        model: UserProfile,
+        as: 'userProfile'
+      },
+      lock: transaction.LOCK.UPDATE,
+      transaction
+    });
+
+    if (!account) {
+      throw new NotFoundError('Cuenta');
     }
-  });
-  
-  if (!account) {
-    throw new NotFoundError('Cuenta');
+
+    if (account.userProfile) {
+      await account.userProfile.update({
+        name: 'Usuario',
+        lastname: 'Eliminado',
+        gender: 'O',
+        age: null,
+        locality: null,
+        subscription: SUBSCRIPTION_TYPES.FREE,
+        tokens: 0,
+        premium_since: null,
+        premium_expires: null,
+        onboarding_completed: false,
+        preferred_language: 'es',
+        timezone: 'UTC',
+        id_streak: null,
+        profile_picture_url: null
+      }, { transaction });
+
+      await RefreshToken.update(
+        { revoked: true },
+        {
+          where: { id_user: account.userProfile.id_user_profile },
+          transaction
+        }
+      );
+    }
+
+    const sanitizedEmail = `deleted_${account.id_account}_${Date.now()}@deleted.local`;
+
+    await account.update({
+      email: sanitizedEmail,
+      email_verified: false,
+      password_hash: null,
+      google_id: null,
+      is_active: false,
+      last_login: null
+    }, { transaction });
+
+    if (ownsTransaction) {
+      await transaction.commit();
+    }
+  } catch (error) {
+    if (ownsTransaction) {
+      await transaction.rollback();
+    }
+    throw error;
+  }
+};
+
+/**
+ * Procesar una solicitud de eliminación pendiente
+ * @param {AccountDeletionRequest} requestInstance
+ * @returns {Promise<object|null>}
+ */
+const procesarSolicitudEliminacion = async (requestInstance) => {
+  if (!requestInstance) {
+    return null;
   }
 
-  // Revocar todos los refresh tokens
-  await RefreshToken.update(
-    { revoked: true },
-    { 
-      where: { 
-        id_user: account.userProfile.id_user_profile 
-      } 
+  const transaction = await sequelize.transaction();
+
+  try {
+    const request = await AccountDeletionRequest.findByPk(requestInstance.id_request, {
+      lock: transaction.LOCK.UPDATE,
+      transaction
+    });
+
+    if (!request || request.status !== ACCOUNT_DELETION_STATUS.PENDING) {
+      await transaction.commit();
+      return mapDeletionRequest(request);
     }
-  );
 
-  // Soft delete: marcar como inactiva
-  await account.update({ is_active: false });
+    const metadata = {
+      ...(request.metadata || {}),
+      processed_at: new Date().toISOString()
+    };
 
-  // Nota: No eliminamos físicamente para mantener integridad referencial
-  // y permitir auditoría. Las FKs con CASCADE eliminarán relaciones si se hace hard delete.
+    try {
+      await eliminarCuentaDefinitiva(request.id_account, { transaction });
+      await request.update({
+        status: ACCOUNT_DELETION_STATUS.COMPLETED,
+        completed_at: new Date(),
+        metadata
+      }, { transaction });
+      await request.reload({ transaction });
+      await transaction.commit();
+      return mapDeletionRequest(request);
+    } catch (processingError) {
+      if (processingError instanceof NotFoundError) {
+        await request.update({
+          status: ACCOUNT_DELETION_STATUS.COMPLETED,
+          completed_at: new Date(),
+          metadata: {
+            ...metadata,
+            note: 'Account already removed'
+          }
+        }, { transaction });
+        await request.reload({ transaction });
+        await transaction.commit();
+        return mapDeletionRequest(request);
+      }
+
+      throw processingError;
+    }
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 };
 
 /**
@@ -363,7 +625,12 @@ module.exports = {
   obtenerPerfilPorId,
   actualizarPerfil,
   actualizarEmail,
-  eliminarCuenta,
+  obtenerEstadoEliminacionCuenta,
+  solicitarEliminacionCuenta,
+  cancelarSolicitudEliminacionCuenta,
+  eliminarCuentaDefinitiva,
+  procesarSolicitudEliminacion,
+  eliminarCuenta: eliminarCuentaDefinitiva,
   actualizarTokens,
   actualizarSuscripcion,
   registrarMetricasCorporales,

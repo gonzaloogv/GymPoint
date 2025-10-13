@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 /**
  * Migración: Limpieza de Datos Huérfanos + Foreign Keys Completas
@@ -28,11 +28,11 @@ module.exports = {
       console.log('🔄 Iniciando limpieza de datos y agregado de FKs...\n');
 
       // ========================================
-      // FASE 1: LIMPIEZA DE DATOS HUÉRFANOS
+      // FASE 1: LIMPIEZA DE DATOS HUÃ‰RFANOS
       // ========================================
-      console.log('📋 FASE 1: Limpieza de datos huérfanos\n');
+      console.log('🔍 FASE 1: Limpieza de datos huérfanos\n');
 
-      // 1. Limpiar user_profiles.id_streak huérfano
+      // 1. Limpiar user_profiles.id_streak huÃ©rfano
       console.log('  1️⃣ Limpiando user_profiles.id_streak...');
       await queryInterface.sequelize.query(
         `UPDATE user_profiles up
@@ -41,7 +41,7 @@ module.exports = {
          WHERE up.id_streak IS NOT NULL AND s.id_streak IS NULL`,
         { transaction }
       );
-      console.log('     ✅ Referencias huérfanas eliminadas\n');
+      console.log('  ✅ Referencias huérfanas eliminadas\n');
 
       // 2. Eliminar assistance que usa streak con frequency inexistente
       console.log('  2️⃣ Eliminando assistance con streak huérfano...');
@@ -59,12 +59,12 @@ module.exports = {
           `DELETE FROM assistance WHERE id_assistance IN (${idsToDelete})`,
           { transaction }
         );
-        console.log(`     ✅ ${assistanceToDelete.length} assistance eliminados\n`);
+        console.log(` ✅ ${assistanceToDelete.length} assistance eliminados\n`);
       } else {
-        console.log('     ⏭️  No hay assistance huérfanos\n');
+        console.log(' ⏭️  No hay assistance huérfanos\n');
       }
 
-      // 3. Limpiar referencias a streak huérfano desde tabla user antigua
+      // 3. Limpiar referencias a streak huÃ©rfano desde tabla user antigua
       console.log('  3️⃣ Limpiando referencias desde tabla user...');
       await queryInterface.sequelize.query(
         `UPDATE user u
@@ -82,7 +82,7 @@ module.exports = {
          WHERE f.id_frequency IS NULL`,
         { transaction }
       );
-      console.log('     ✅ Referencias limpiadas\n');
+      console.log('    ✅ Referencias limpiadas\n');
 
       // 4. Eliminar streak huérfanos (con frequency inexistente)
       console.log('  4️⃣ Eliminando streaks con frequency inexistente...');
@@ -98,9 +98,9 @@ module.exports = {
           `DELETE FROM streak WHERE id_frequency NOT IN (SELECT id_frequency FROM frequency)`,
           { transaction }
         );
-        console.log(`     ✅ ${orphanStreaks[0].count} streaks huérfanos eliminados\n`);
+        console.log(`    ✅ ${orphanStreaks[0].count} streaks huérfanos eliminados\n`);
       } else {
-        console.log('     ⏭️  No hay streaks huérfanos\n');
+        console.log('    ⏭️  No hay streaks huérfanos\n');
       }
 
       // 5. Eliminar frequency de admins (que no tienen user_profile)
@@ -125,9 +125,9 @@ module.exports = {
           `DELETE FROM frequency WHERE id_user NOT IN (SELECT id_user_profile FROM user_profiles)`,
           { transaction }
         );
-        console.log(`     ✅ ${adminFreq[0].count} frequency de admins eliminados\n`);
+        console.log(`    ✅ ${adminFreq[0].count} frequency de admins eliminados\n`);
       } else {
-        console.log('     ⏭️  No hay frequency de admins\n');
+        console.log('    ⏭️  No hay frequency de admins\n');
       }
 
       // 6. Verificar/crear frequency para usuario válido
@@ -151,10 +151,10 @@ module.exports = {
             { replacements: [userProfile.id_user_profile], transaction }
           );
           frequencyId = result;
-          console.log(`     ✅ Frequency creado (ID: ${frequencyId})\n`);
+          console.log(`    ✅ Frequency creado (ID: ${frequencyId})\n`);
         } else {
           frequencyId = existingFreq.id_frequency;
-          console.log(`     ⏭️  Frequency ya existe (ID: ${frequencyId})\n`);
+          console.log(`    🔍 Frequency ya existe (ID: ${frequencyId})\n`);
         }
 
         // 7. Verificar/crear streak para usuario
@@ -172,10 +172,10 @@ module.exports = {
             { replacements: [userProfile.id_user_profile, frequencyId], transaction }
           );
           streakId = result;
-          console.log(`     ✅ Streak creado (ID: ${streakId})\n`);
+          console.log(`    ✅ Streak creado (ID: ${streakId})\n`);
         } else {
           streakId = existingStreak.id_streak;
-          console.log(`     ⏭️  Streak ya existe (ID: ${streakId})\n`);
+          console.log(`    ⏭️  Streak ya existe (ID: ${streakId})\n`);
         }
 
         // 8. Actualizar user_profiles.id_streak
@@ -184,7 +184,7 @@ module.exports = {
           `UPDATE user_profiles SET id_streak = ? WHERE id_user_profile = ? AND id_streak IS NULL`,
           { replacements: [streakId, userProfile.id_user_profile], transaction }
         );
-        console.log('     ✅ user_profiles.id_streak actualizado\n');
+        console.log('    ✅ user_profiles.id_streak actualizado\n');
       }
 
       // ========================================
@@ -209,9 +209,9 @@ module.exports = {
            ON DELETE CASCADE ON UPDATE CASCADE`,
           { transaction }
         );
-        console.log('     ✅ FK agregada\n');
+        console.log('    ✅ FK agregada\n');
       } else {
-        console.log('     ⏭️  Ya existe\n');
+        console.log('    🔍 Ya existe\n');
       }
 
       // FK 2: progress.id_user → user_profiles
@@ -231,9 +231,9 @@ module.exports = {
            ON DELETE CASCADE ON UPDATE CASCADE`,
           { transaction }
         );
-        console.log('     ✅ FK agregada\n');
+        console.log('    ✅ FK agregada\n');
       } else {
-        console.log('     ⏭️  Ya existe\n');
+        console.log('    ⏭️ Ya existe\n');
       }
 
       // FK 3: streak.id_frequency → frequency
@@ -253,7 +253,7 @@ module.exports = {
            ON DELETE CASCADE ON UPDATE CASCADE`,
           { transaction }
         );
-        console.log('     ✅ FK agregada\n');
+        console.log('    ✅ FK agregada\n');
       } else {
         console.log('     ⏭️  Ya existe\n');
       }
@@ -275,7 +275,7 @@ module.exports = {
            ON DELETE CASCADE ON UPDATE CASCADE`,
           { transaction }
         );
-        console.log('     ✅ FK agregada\n');
+        console.log('    ✅ FK agregada\n');
       } else {
         console.log('     ⏭️  Ya existe\n');
       }
@@ -290,6 +290,35 @@ module.exports = {
       );
 
       if (paymentFk.length === 0) {
+        console.log('     -> Normalizando gym_payment sin perfil asociado');
+
+        await queryInterface.sequelize.query(
+          `UPDATE gym_payment gp
+           JOIN user u ON gp.id_user = u.id_user
+           JOIN accounts a ON u.email = a.email
+           JOIN user_profiles up ON a.id_account = up.id_account
+           SET gp.id_user = up.id_user_profile`,
+          { transaction }
+        );
+
+        const [[paymentOrphans]] = await queryInterface.sequelize.query(
+          `SELECT COUNT(*) AS count
+           FROM gym_payment
+           WHERE id_user NOT IN (SELECT id_user_profile FROM user_profiles)` ,
+          { transaction }
+        );
+
+        if (paymentOrphans.count > 0) {
+          console.log(`     -> Eliminando ${paymentOrphans.count} pagos sin perfil asociado`);
+          await queryInterface.sequelize.query(
+            `DELETE FROM gym_payment
+             WHERE id_user NOT IN (SELECT id_user_profile FROM user_profiles)`,
+            { transaction }
+          );
+        } else {
+          console.log('     -> Sin pagos huerfanos');
+        }
+
         await queryInterface.sequelize.query(
           `ALTER TABLE gym_payment
            ADD CONSTRAINT fk_gym_payment_user_profile
@@ -297,9 +326,9 @@ module.exports = {
            ON DELETE CASCADE ON UPDATE CASCADE`,
           { transaction }
         );
-        console.log('     ✅ FK agregada\n');
+        console.log('     -> FK agregada');
       } else {
-        console.log('     ⏭️  Ya existe\n');
+        console.log('    ⏭️  Ya existe\n');
       }
 
       // FK 6: user_profiles.id_streak → streak
@@ -329,9 +358,9 @@ module.exports = {
            ON DELETE SET NULL ON UPDATE CASCADE`,
           { transaction }
         );
-        console.log('     ✅ FK agregada\n');
+        console.log('    ✅ FK agregada\n');
       } else {
-        console.log('     ⏭️  Ya existe\n');
+        console.log('    ⏭️  Ya existe\n');
       }
 
       await transaction.commit();
@@ -373,9 +402,9 @@ module.exports = {
             `ALTER TABLE \`${fk.table}\` DROP FOREIGN KEY \`${fk.constraint}\``,
             { transaction }
           );
-          console.log(`  ✅ ${fk.table}.${fk.constraint} eliminada`);
+          console.log(` ✅ ${fk.table}.${fk.constraint} eliminada`);
         } catch (error) {
-          console.log(`  ⏭️  ${fk.table}.${fk.constraint} no existe`);
+          console.log(` ⏭️  ${fk.table}.${fk.constraint} no existe`);
         }
       }
 
@@ -389,3 +418,4 @@ module.exports = {
     }
   }
 };
+

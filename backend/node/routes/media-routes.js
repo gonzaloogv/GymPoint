@@ -143,7 +143,7 @@ router.get('/:entity_type/:entity_id', controller.listarMedia);
  *       403:
  *         description: Requiere rol de usuario de la app
  */
-router.get('/', controller.listarMedia);
+router.get('/', verificarToken, verificarUsuarioApp, controller.listarMedia);
 router.post('/', verificarToken, verificarUsuarioApp, controller.crearMedia);
 
 /**

@@ -64,7 +64,36 @@ const authController = require('../controllers/auth-controller');
  *       201:
  *         description: Usuario creado correctamente
  *       400:
- *         description: Email ya registrado o datos inválidos
+ *         description: Datos inválidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: INVALID_DATA
+ *                     message:
+ *                       type: string
+ *       409:
+ *         description: Email ya registrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: EMAIL_ALREADY_EXISTS
+ *                     message:
+ *                       type: string
+ *                       example: El email ya está registrado
  */
 router.post('/register', authController.register);
 
@@ -195,6 +224,22 @@ router.post('/login', authController.login);
  *                     message:
  *                       type: string
  *                       example: Token de Google inválido o expirado
+ *       500:
+ *         description: Error en integración con Google API
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: GOOGLE_API_ERROR
+ *                     message:
+ *                       type: string
+ *                       example: Error al comunicarse con Google
  */
 router.post('/google', authController.googleLogin);
 
