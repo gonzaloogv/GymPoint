@@ -301,7 +301,7 @@ const registrarMetricasCorporales = async (id_user_profile, payload = {}) => {
 
   const source = (payload.source || 'MANUAL').toUpperCase();
   if (!BODY_METRICS_SOURCES.has(source)) {
-    throw new ValidationError(`Fuente inválida. Debe ser ${Array.from(BODY_METRICS_SOURCES).join(', ')}`);
+    throw new ValidationError(`Fuente invï¿½lida. Debe ser ${Array.from(BODY_METRICS_SOURCES).join(', ')}`);
   }
 
   const measured_at = payload.measured_at ? new Date(payload.measured_at) : new Date();

@@ -63,17 +63,17 @@ router.get('/amenities', gymController.getAmenities);
  *         name: minPrice
  *         schema:
  *           type: number
- *         description: Precio mínimo mensual
+ *         description: Precio mï¿½nimo mensual
  *       - in: query
  *         name: maxPrice
  *         schema:
  *           type: number
- *         description: Precio máximo mensual
+ *         description: Precio mï¿½ximo mensual
  *       - in: query
  *         name: type
  *         schema:
  *           type: string
- *         description: Tipo de gimnasio (solo válido para usuarios PREMIUM)
+ *         description: Tipo de gimnasio (solo vï¿½lido para usuarios PREMIUM)
  *       - in: query
  *         name: amenities
  *         schema:
@@ -99,6 +99,9 @@ router.get('/amenities', gymController.getAmenities);
  *         description: Parometros involidos
  *       403:
  *         description: Solo usuarios PREMIUM pueden filtrar por tipo
+ */
+router.get('/filtro', verificarToken, gymController.filtrarGimnasios);
+/**
  * @swagger
  * /api/gyms/cercanos:
  *   get:

@@ -12,6 +12,7 @@ const Role = require('./Role');
 const AccountRole = require('./AccountRole');
 const UserProfile = require('./UserProfile');
 const AdminProfile = require('./AdminProfile');
+const AccountDeletionRequest = require('./AccountDeletionRequest');
 
 // Modelos de Dominio (existentes)
 const Assistance = require('./Assistance');
@@ -89,6 +90,16 @@ Role.hasMany(AccountRole, {
 AccountRole.belongsTo(Role, {
   foreignKey: 'id_role',
   as: 'role'
+});
+
+Account.hasMany(AccountDeletionRequest, {
+  foreignKey: 'id_account',
+  as: 'deletionRequests'
+});
+
+AccountDeletionRequest.belongsTo(Account, {
+  foreignKey: 'id_account',
+  as: 'account'
 });
 
 // Account ←→ UserProfile (1:1)
@@ -611,6 +622,7 @@ module.exports = {
   Notification,
   UserNotificationSetting,
   MercadoPagoPayment,
+  AccountDeletionRequest,
   UserFavoriteGym,
   Progress,
   ProgressExercise,

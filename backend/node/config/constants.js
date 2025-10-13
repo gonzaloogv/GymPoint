@@ -55,5 +55,16 @@ module.exports = {
   ROLES: {
     USER: 'USER',
     ADMIN: 'ADMIN'
+  },
+
+  // Account deletion
+  ACCOUNT_DELETION_STATUS: {
+    PENDING: 'PENDING',
+    CANCELLED: 'CANCELLED',
+    COMPLETED: 'COMPLETED'
+  },
+  ACCOUNT_DELETION: {
+    GRACE_PERIOD_DAYS: parseInt(process.env.ACCOUNT_DELETION_GRACE_DAYS || '30'),
+    BATCH_SIZE: parseInt(process.env.ACCOUNT_DELETION_BATCH_SIZE || '50')
   }
 };
