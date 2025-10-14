@@ -2,27 +2,11 @@ import { HomeRepository } from '../domain/repositories/HomeRepository';
 import { HomeStats } from '../domain/entities/HomeStats';
 import { WeeklyProgress } from '../domain/entities/WeeklyProgress';
 import { DailyChallenge } from '../domain/entities/DailyChallenge';
-import { HomeStatsDTO, WeeklyProgressDTO, DailyChallengeDTO } from './dto/HomeStatsDTO';
-import {
-  mapHomeStatsDTOToEntity,
-  mapWeeklyProgressDTOToEntity,
-  mapDailyChallengeDTOToEntity,
-} from './mappers/homeStats.mapper';
+import { DailyChallengeDTO } from './dto/HomeStatsDTO';
+import { mapDailyChallengeDTOToEntity } from './mappers/homeStats.mapper';
+import { HomeRemote } from './home.remote';
 
 export class HomeRepositoryImpl implements HomeRepository {
-  private mockStats: HomeStatsDTO = {
-    name: 'María Gómez',
-    plan: 'Free',
-    tokens: 150,
-    streak: 7,
-  };
-
-  private mockProgress: WeeklyProgressDTO = {
-    goal: 4,
-    current: 3,
-    percentage: 75,
-  };
-
   private mockChallenge: DailyChallengeDTO = {
     id: '1',
     title: 'Completá 3 rutinas',
@@ -32,14 +16,52 @@ export class HomeRepositoryImpl implements HomeRepository {
   };
 
   async getHomeStats(): Promise<HomeStats> {
-    return mapHomeStatsDTOToEntity(this.mockStats);
+    try {
+      const userProfile = await HomeRemote.getUserProfile();
+
+      return {
+        name: userProfile.name,
+        plan: 'Free', // TODO: Mapear desde subscription cuando esté disponible
+        tokens: userProfile.tokens,
+        streak: 0, // TODO: Obtener desde endpoint de streak cuando esté disponible
+      };
+    } catch (error) {
+      console.error('Error fetching home stats:', error);
+      // Fallback a datos vacíos
+      return {
+        name: '',
+        plan: 'Free',
+        tokens: 0,
+        streak: 0,
+      };
+    }
   }
 
   async getWeeklyProgress(): Promise<WeeklyProgress> {
-    return mapWeeklyProgressDTOToEntity(this.mockProgress);
+    try {
+      const frequency = await HomeRemote.getWeeklyFrequency();
+      const percentage = frequency.goal > 0
+        ? Math.round((frequency.assist / frequency.goal) * 100)
+        : 0;
+
+      return {
+        goal: frequency.goal,
+        current: frequency.assist,
+        percentage,
+      };
+    } catch (error) {
+      console.error('Error fetching weekly progress:', error);
+      // Fallback a datos vacíos
+      return {
+        goal: 0,
+        current: 0,
+        percentage: 0,
+      };
+    }
   }
 
   async getDailyChallenge(): Promise<DailyChallenge> {
+    // Por ahora mantenemos el mock hasta que exista el endpoint
     return mapDailyChallengeDTOToEntity(this.mockChallenge);
   }
 }

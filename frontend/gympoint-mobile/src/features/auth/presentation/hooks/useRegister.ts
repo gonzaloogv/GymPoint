@@ -7,10 +7,21 @@ interface RegisterData {
   email: string;
   password: string;
   location: string;
-  age: number;
+  birthDate: string;
   gender: string;
   weeklyFrequency: number;
 }
+
+// Mapear valores del frontend a los valores del backend
+const mapGenderToBackend = (gender: string): string => {
+  const genderMap: Record<string, string> = {
+    'male': 'M',
+    'female': 'F',
+    'other': 'O',
+    'prefer-not-to-say': 'O',
+  };
+  return genderMap[gender] || 'O';
+};
 
 export const useRegister = () => {
   const [loading, setLoading] = useState(false);
@@ -32,9 +43,9 @@ export const useRegister = () => {
         lastname,
         email: data.email,
         password: data.password,
-        gender: data.gender,
+        gender: mapGenderToBackend(data.gender),
         locality: data.location,
-        age: data.age,
+        birth_date: data.birthDate || null,
         frequency_goal: data.weeklyFrequency,
       });
 
