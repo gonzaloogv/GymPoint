@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Alert } from 'react-native';
 
 import dumbbellIcon from '@assets/dumbbell.png';
 import {
@@ -9,13 +9,13 @@ import {
   SocialButton,
 } from '@shared/components/ui';
 
-import { useAuthStore } from '../state/auth.store';
 import { RegisterForm } from './components/RegisterForm';
 import { RegisterHeader } from './components/RegisterHeader';
 import { RegisterFooter } from './components/RegisterFooter';
 import { Root, contentContainerStyle } from './RegisterScreen.styles';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import { useRegister } from '../hooks/useRegister';
 
 type RootStackParamList = {
   Login: undefined;
@@ -25,10 +25,7 @@ type RootStackParamList = {
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function RegisterScreen() {
   const navigation = useNavigation<Nav>();
-
-  const setUser = useAuthStore((state) => state.setUser);
-
-  const [loading, setLoading] = useState(false);
+  const { register, loading, error } = useRegister();
 
   const handleRegister = async (userData: {
     fullName: string;
@@ -39,19 +36,14 @@ export default function RegisterScreen() {
     gender: string;
     weeklyFrequency: number;
   }) => {
-    setLoading(true);
-    try {
-      // TODO: integrar con API real
-      setUser({
-        id_user: -1,
-        name: userData.fullName,
-        email: userData.email,
-        role: 'USER',
-        tokens: 0,
-        plan: 'Free',
-      });
-    } finally {
-      setLoading(false);
+    const result = await register(userData);
+
+    if (result.success) {
+      // Navegar a la app principal después del registro exitoso
+      navigation.navigate('App');
+    } else {
+      // Mostrar error al usuario
+      Alert.alert('Error de registro', result.error || 'No se pudo completar el registro');
     }
   };
 

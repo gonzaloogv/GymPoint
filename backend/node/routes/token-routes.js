@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/token-controller');
-const { verificarToken, verificarRol } = require('../middlewares/auth');
+const { verificarToken, verificarRol, verificarUsuarioApp } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -75,7 +75,7 @@ router.post('/ganar', verificarToken, verificarRol('ADMIN'), controller.otorgarT
  *       404:
  *         description: Usuario no encontrado
  */
-router.get('/me/saldo', verificarToken, controller.obtenerResumenTokens);
+router.get('/me/saldo', verificarToken, verificarUsuarioApp, controller.obtenerResumenTokens);
 
 /**
  * @swagger

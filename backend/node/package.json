@@ -10,6 +10,9 @@
     "test:watch": "jest --watch",
     "test:unit": "jest --testPathPattern=tests --testPathIgnorePatterns=tests/integration",
     "test:integration": "jest --testPathPattern=tests/integration",
+    "staging:migrate": "node migrate.js",
+    "staging:seed": "node seed/seed-staging.js",
+    "staging:setup": "npm run staging:migrate && npm run staging:seed",
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint ."
   },
   "keywords": [],

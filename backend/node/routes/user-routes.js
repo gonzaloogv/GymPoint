@@ -39,9 +39,10 @@ const { verificarToken, verificarAdmin, verificarUsuarioApp } = require('../midd
  *                 locality:
  *                   type: string
  *                   example: Resistencia
- *                 age:
- *                   type: integer
- *                   example: 23
+ *                 birth_date:
+ *                   type: string
+ *                   format: date
+ *                   example: 2002-04-15
  *                 role:
  *                   type: string
  *                   example: USER
@@ -82,9 +83,10 @@ router.get('/me', verificarToken, verificarUsuarioApp, controller.obtenerPerfil)
  *               locality:
  *                 type: string
  *                 example: Resistencia
- *               age:
- *                 type: integer
- *                 example: 23
+ *               birth_date:
+ *                 type: string
+ *                 format: date
+ *                 example: 2002-04-15
  *     responses:
  *       200:
  *         description: Perfil actualizado correctamente

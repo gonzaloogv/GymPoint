@@ -102,6 +102,59 @@ router.post('/', verificarToken, verificarUsuarioApp, controller.registrarAsiste
 
 /**
  * @swagger
+ * /api/assistances/auto-checkin:
+ *   post:
+ *     summary: Auto check-in del usuario en un gimnasio (usa geofence si existe)
+ *     tags: [Asistencias]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [id_gym, latitude, longitude]
+ *             properties:
+ *               id_gym:
+ *                 type: integer
+ *               latitude:
+ *                 type: number
+ *               longitude:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: Auto check-in registrado
+ *       400:
+ *         description: Error de validación o fuera de rango
+ */
+router.post('/auto-checkin', verificarToken, verificarUsuarioApp, controller.autoCheckIn);
+
+/**
+ * @swagger
+ * /api/assistances/{id}/checkout:
+ *   put:
+ *     summary: Registrar check-out y bonus por duración
+ *     tags: [Asistencias]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID de la asistencia
+ *     responses:
+ *       200:
+ *         description: Check-out registrado
+ *       400:
+ *         description: Error de validación
+ */
+router.put('/:id/checkout', verificarToken, verificarUsuarioApp, controller.checkOut);
+
+/**
+ * @swagger
  * /api/assistances/me:
  *   get:
  *     summary: Obtener historial de asistencias del usuario autenticado

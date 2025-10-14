@@ -35,6 +35,36 @@ router.get('/tipos', gymController.getGymTypes);
 
 /**
  * @swagger
+ * /api/gyms/amenidades:
+ *   get:
+ *     summary: Obtener lista de amenidades disponibles
+ *     description: Lista todas las amenidades que pueden tener los gimnasios
+ *     tags: [Gimnasios]
+ *     responses:
+ *       200:
+ *         description: Lista de amenidades disponibles
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id_amenity:
+ *                     type: integer
+ *                     description: ID de la amenidad
+ *                     example: 1
+ *                   name:
+ *                     type: string
+ *                     description: Nombre de la amenidad
+ *                     example: Estacionamiento
+ *       500:
+ *         description: Error al obtener amenidades
+ */
+router.get('/amenidades', gymController.getAmenities);
+
+/**
+ * @swagger
  * /api/gyms/filtro:
  *   get:
  *     summary: Filtrar gimnasios por ciudad, precio y tipo (solo usuarios PREMIUM)
@@ -47,6 +77,7 @@ router.get('/tipos', gymController.getGymTypes);
  *         schema:
  *           type: string
  *         description: Ciudad donde buscar gimnasios
+ *         example: Resistencia
  *       - in: query
  *         name: minPrice
  *         schema:
@@ -201,6 +232,9 @@ router.get('/filtro', verificarToken, gymController.filtrarGimnasios);
  *                       type: string
  */
 router.get('/cercanos', gymController.buscarGimnasiosCercanos);
+
+// Alias en inglés para compatibilidad con plan MVP (fase 1.1)
+router.get('/nearby', gymController.buscarGimnasiosCercanos);
 
 /**
  * @swagger

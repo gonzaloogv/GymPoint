@@ -113,9 +113,9 @@ router.get('/', verificarUsuarioApp, controller.historialPagos);
  *           schema:
  *             type: object
  *             required:
- *               - gymId
+ *               - id_gym
  *             properties:
- *               gymId:
+ *               id_gym:
  *                 type: integer
  *                 description: ID del gimnasio al que se suscribirá
  *                 example: 1
@@ -147,7 +147,7 @@ router.get('/', verificarUsuarioApp, controller.historialPagos);
  *                   type: string
  *                   description: URL de pago para entorno de pruebas
  *       400:
- *         description: Datos inválidos o gymId no proporcionado
+ *         description: Datos inválidos o id_gym no proporcionado
  *         content:
  *           application/json:
  *             schema:
@@ -161,7 +161,7 @@ router.get('/', verificarUsuarioApp, controller.historialPagos);
  *                       example: GYM_ID_REQUIRED
  *                     message:
  *                       type: string
- *                       example: gymId es requerido
+ *                       example: id_gym es requerido
  *       401:
  *         description: No autorizado
  *       403:

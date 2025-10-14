@@ -40,20 +40,20 @@ describe('actualizarPerfil', () => {
       subscription: 'FREE',
       tokens: 50,
       name: 'old',
-      age: 20,
+      birth_date: '2000-01-01',
       update: jest.fn(async (data) => Object.assign(profile, data)),
       reload: jest.fn().mockResolvedValue(),
       account: { email: 'a@a.com' }
     };
     UserProfile.findByPk.mockResolvedValue(profile);
 
-    const result = await userService.actualizarPerfil(1, { name: 'n', age: 30, password: 'ignore' });
+    const result = await userService.actualizarPerfil(1, { name: 'n', birth_date: '1995-05-20', password: 'ignore' });
 
-    expect(profile.update).toHaveBeenCalledWith({ name: 'n', age: 30 });
+    expect(profile.update).toHaveBeenCalledWith({ name: 'n', birth_date: '1995-05-20' });
     expect(profile.reload).toHaveBeenCalledWith({
       include: { model: expect.any(Object), as: 'account', attributes: ['email'] }
     });
-    expect(result).toEqual(expect.objectContaining({ name: 'n', age: 30, email: 'a@a.com' }));
+    expect(result).toEqual(expect.objectContaining({ name: 'n', birth_date: '1995-05-20', email: 'a@a.com' }));
   });
 
   it('lanza error si el perfil no existe', async () => {
@@ -76,7 +76,7 @@ describe('obtenerUsuario', () => {
         name: 'User',
         lastname: 'Test',
         gender: 'M',
-        age: 25,
+        birth_date: '1999-04-10',
         locality: 'City',
         subscription: 'FREE',
         tokens: 10,

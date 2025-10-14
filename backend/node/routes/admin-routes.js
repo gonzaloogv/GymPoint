@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/admin-controller');
+const adminTemplateController = require('../controllers/admin-template-controller');
 const { verificarToken, verificarAdmin } = require('../middlewares/auth');
 
 // Aplicar middlewares a todas las rutas de admin
@@ -96,6 +97,11 @@ router.get('/stats', controller.obtenerEstadisticas);
  *           type: string
  *           enum: [created_at, tokens, name]
  *           default: created_at
+ *         description: |
+ *           Campo por el cual ordenar los usuarios:
+ *           - created_at: Fecha de registro (más recientes primero por defecto)
+ *           - tokens: Cantidad de tokens del usuario
+ *           - name: Nombre del usuario (orden alfabético)
  *       - in: query
  *         name: order
  *         schema:
@@ -111,6 +117,98 @@ router.get('/stats', controller.obtenerEstadisticas);
  *         description: Requiere permisos de admin
  */
 router.get('/users', controller.listarUsuarios);
+
+/**
+ * @swagger
+ * /api/admin/routines/templates:
+ *   get:
+ *     summary: Listar plantillas de rutinas
+ *     tags: [Admin - Rutinas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: difficulty
+ *         schema:
+ *           type: string
+ *           enum: [BEGINNER, INTERMEDIATE, ADVANCED]
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200: { description: Lista de plantillas }
+ */
+router.get('/routines/templates', adminTemplateController.listTemplates);
+
+/**
+ * @swagger
+ * /api/admin/routines/templates:
+ *   post:
+ *     summary: Crear plantilla de rutina (sistema)
+ *     tags: [Admin - Rutinas]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [routine_name, exercises]
+ *             properties:
+ *               routine_name: { type: string }
+ *               description: { type: string }
+ *               recommended_for: { type: string, enum: [BEGINNER, INTERMEDIATE, ADVANCED] }
+ *               template_order: { type: integer }
+ *               exercises:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required: [id_exercise]
+ *                   properties:
+ *                     id_exercise: { type: integer }
+ *                     series: { type: integer }
+ *                     reps: { type: integer }
+ *                     order: { type: integer }
+ *     responses:
+ *       201: { description: Plantilla creada }
+ */
+router.post('/routines/templates', adminTemplateController.createTemplate);
+
+/**
+ * @swagger
+ * /api/admin/routines/templates/{id}:
+ *   put:
+ *     summary: Actualizar metadatos de plantilla de rutina
+ *     tags: [Admin - Rutinas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               routine_name: { type: string }
+ *               description: { type: string }
+ *               recommended_for: { type: string, enum: [BEGINNER, INTERMEDIATE, ADVANCED] }
+ *               template_order: { type: integer }
+ *     responses:
+ *       200: { description: Plantilla actualizada }
+ */
+router.put('/routines/templates/:id', adminTemplateController.updateTemplateMeta);
 
 /**
  * @swagger
@@ -338,4 +436,3 @@ router.get('/activity', controller.obtenerActividad);
 router.get('/transactions', controller.obtenerTransacciones);
 
 module.exports = router;
-

@@ -67,7 +67,7 @@ const obtenerUsuario = async (idAccount) => {
     name: account.userProfile.name,
     lastname: account.userProfile.lastname,
     gender: account.userProfile.gender,
-    age: account.userProfile.age,
+    birth_date: account.userProfile.birth_date,
     locality: account.userProfile.locality,
     subscription: account.userProfile.subscription,
     tokens: account.userProfile.tokens,
@@ -109,7 +109,7 @@ const obtenerPerfilPorId = async (idUserProfile) => {
     name: userProfile.name,
     lastname: userProfile.lastname,
     gender: userProfile.gender,
-    age: userProfile.age,
+    birth_date: userProfile.birth_date,
     locality: userProfile.locality,
     subscription: userProfile.subscription,
     tokens: userProfile.tokens,
@@ -124,7 +124,7 @@ const obtenerPerfilPorId = async (idUserProfile) => {
 /**
  * Actualizar perfil de usuario
  * @param {number} idUserProfile - ID del user_profile
- * @param {Object} datos - Datos a actualizar (name, lastname, gender, age, locality)
+ * @param {Object} datos - Datos a actualizar (name, lastname, gender, birth_date, locality)
  * @returns {Promise<Object>} Perfil actualizado
  */
 const actualizarPerfil = async (idUserProfile, datos) => {
@@ -135,7 +135,7 @@ const actualizarPerfil = async (idUserProfile, datos) => {
   }
 
   // Solo permitir actualizar campos específicos
-  const camposPermitidos = ['name', 'lastname', 'gender', 'age', 'locality', 'profile_picture_url', 'preferred_language', 'timezone', 'onboarding_completed'];
+  const camposPermitidos = ['name', 'lastname', 'gender', 'birth_date', 'locality', 'profile_picture_url', 'preferred_language', 'timezone', 'onboarding_completed'];
   const datosLimpios = {};
   
   camposPermitidos.forEach(campo => {
@@ -143,6 +143,19 @@ const actualizarPerfil = async (idUserProfile, datos) => {
       datosLimpios[campo] = datos[campo];
     }
   });
+
+  // Validación birth_date: formato y rango razonable (13-100 años)
+  if (datosLimpios.birth_date != null) {
+    const bd = new Date(datosLimpios.birth_date);
+    if (Number.isNaN(bd.getTime())) {
+      throw new ValidationError('birth_date inválida (use YYYY-MM-DD)');
+    }
+    const today = new Date();
+    const ageYears = Math.floor((today - bd) / (365.25 * 24 * 3600 * 1000));
+    if (ageYears < 13 || ageYears > 100) {
+      throw new ValidationError('Edad fuera de rango (13-100)');
+    }
+  }
 
   await userProfile.update(datosLimpios);
   
@@ -160,7 +173,7 @@ const actualizarPerfil = async (idUserProfile, datos) => {
     name: userProfile.name,
     lastname: userProfile.lastname,
     gender: userProfile.gender,
-    age: userProfile.age,
+    birth_date: userProfile.birth_date,
     locality: userProfile.locality,
     subscription: userProfile.subscription,
     tokens: userProfile.tokens,
@@ -366,7 +379,7 @@ const eliminarCuentaDefinitiva = async (idAccount, options = {}) => {
         name: 'Usuario',
         lastname: 'Eliminado',
         gender: 'O',
-        age: null,
+        birth_date: null,
         locality: null,
         subscription: SUBSCRIPTION_TYPES.FREE,
         tokens: 0,

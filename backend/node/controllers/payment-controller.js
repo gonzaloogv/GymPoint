@@ -21,20 +21,20 @@ const crearPreferencia = asyncHandler(async (req, res) => {
   const profile = requireUserProfile(req, res);
   if (!profile) return;
 
-  const { gymId, subscriptionType, autoRenew } = req.body || {};
+  const { id_gym, subscriptionType, autoRenew } = req.body || {};
 
-  if (!gymId) {
+  if (!id_gym) {
     return res.status(400).json({
       error: {
         code: 'GYM_ID_REQUIRED',
-        message: 'gymId es requerido'
+        message: 'id_gym es requerido'
       }
     });
   }
 
   const preference = await paymentService.createPreference({
     userProfileId: profile.id_user_profile,
-    gymId,
+    gymId: id_gym,
     subscriptionType,
     autoRenew
   });

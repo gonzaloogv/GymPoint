@@ -6,7 +6,7 @@ const authService = require('../services/auth-service');
  * Body esperado:
  * - email, password, name, lastname
  * - frequency_goal (opcional, default: 3)
- * - gender, locality, age (opcionales)
+ * - gender, locality, birth_date (opcionales)
  */
 const register = async (req, res) => {
   try {

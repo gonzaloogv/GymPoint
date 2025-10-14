@@ -12,7 +12,7 @@ interface Props {
     email: string;
     password: string;
     location: string;
-    age: number;
+    birth_date: string;
     gender: string;
     weeklyFrequency: number;
   }) => void;
@@ -25,7 +25,7 @@ export function RegisterForm({ loading, onSubmit }: Props) {
     password: '',
     confirmPassword: '',
     location: '',
-    age: '',
+    birth_date: '',
     gender: '',
     weeklyFrequency: 3,
   });
@@ -42,7 +42,7 @@ export function RegisterForm({ loading, onSubmit }: Props) {
       email: form.email,
       password: form.password,
       location: form.location,
-      age: parseInt(form.age) || 0,
+      birth_date: form.birth_date,
       gender: form.gender,
       weeklyFrequency: form.weeklyFrequency,
     });
@@ -80,12 +80,12 @@ export function RegisterForm({ loading, onSubmit }: Props) {
         onChange={(value) => handleChange('location', value)}
       />
 
-      <Label>Edad</Label>
+      <Label>Fecha de nacimiento</Label>
       <Input
-        value={form.age}
+        value={form.birth_date}
         keyboardType="number-pad"
         inputMode="numeric"
-        onChangeText={(t) => handleChange('age', t.replace(/\D/g, ''))}
+        onChangeText={(t) => handleChange('birth_date', t.replace(/\D/g, ''))}
         maxLength={3}
         placeholder="Ej: 25"
       />

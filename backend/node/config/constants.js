@@ -10,6 +10,7 @@ module.exports = {
 
   // Proximity
   PROXIMITY_METERS: parseInt(process.env.PROXIMITY_M || '180'),
+  ACCURACY_MAX_METERS: parseInt(process.env.GPS_ACCURACY_MAX_M || '100'),
 
   // Pagination
   DEFAULT_PAGE_SIZE: 50,
@@ -31,7 +32,8 @@ module.exports = {
     WEEKLY_BONUS: 'WEEKLY_BONUS',
     ADMIN_ADJUSTMENT: 'ADMIN_ADJUSTMENT',
     STREAK_RECOVERY: 'STREAK_RECOVERY',
-    REVIEW_SUBMITTED: 'REVIEW_SUBMITTED'
+    REVIEW_SUBMITTED: 'REVIEW_SUBMITTED',
+    DAILY_CHALLENGE_COMPLETED: 'DAILY_CHALLENGE_COMPLETED'
   },
 
   // Reward providers

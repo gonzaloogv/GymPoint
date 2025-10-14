@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const routineController = require('../controllers/routine-controller');
+const templateController = require('../controllers/template-controller');
 const { verificarToken, verificarUsuarioApp } = require('../middlewares/auth');
 
 /**
@@ -83,6 +84,28 @@ const { verificarToken, verificarUsuarioApp } = require('../middlewares/auth');
  *         description: Requiere rol de usuario de la app
  */
 router.post('/', verificarToken, verificarUsuarioApp, routineController.createRoutineWithExercises);
+
+/**
+ * @swagger
+ * /api/routines/templates:
+ *   get:
+ *     summary: Obtener rutinas plantilla recomendadas
+ *     tags: [Rutinas]
+ *     parameters:
+ *       - in: query
+ *         name: difficulty
+ *         schema:
+ *           type: string
+ *           enum: [BEGINNER, INTERMEDIATE, ADVANCED]
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lista de rutinas plantilla
+ */
+router.get('/templates', templateController.getTemplates);
 
 /**
  * @swagger
@@ -335,5 +358,25 @@ router.delete('/:id', verificarToken, verificarUsuarioApp, routineController.del
  *         description: Requiere rol de usuario de la app
  */
 router.delete('/:id/exercises/:id_exercise', verificarToken, verificarUsuarioApp, routineController.deleteRoutineExercise);
+
+/**
+ * @swagger
+ * /api/routines/{id}/import:
+ *   post:
+ *     summary: Importar una rutina plantilla al usuario autenticado
+ *     tags: [Rutinas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       201:
+ *         description: Rutina importada correctamente
+ */
+router.post('/:id/import', verificarToken, verificarUsuarioApp, templateController.importTemplate);
 
 module.exports = router;

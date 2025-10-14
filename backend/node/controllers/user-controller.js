@@ -23,7 +23,7 @@ const obtenerPerfil = async (req, res) => {
  * Actualizar perfil del usuario actual
  * PUT /api/users/me
  * 
- * Body: { name, lastname, gender, age, locality, profile_picture_url }
+ * Body: { name, lastname, gender, birth_date, locality, profile_picture_url }
  */
 const actualizarPerfil = async (req, res) => {
   try {

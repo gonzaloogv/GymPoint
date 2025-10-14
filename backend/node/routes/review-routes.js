@@ -277,8 +277,8 @@ router.post('/', verificarToken, verificarUsuarioApp, controller.crearReview);
  *       404:
  *         description: Review no encontrada
  */
-router.patch('/:id_review', verificarToken, controller.actualizarReview);
-router.delete('/:id_review', verificarToken, controller.eliminarReview);
+router.patch('/:id_review', verificarToken, verificarUsuarioApp, controller.actualizarReview);
+router.delete('/:id_review', verificarToken, verificarUsuarioApp, controller.eliminarReview);
 
 /**
  * @swagger

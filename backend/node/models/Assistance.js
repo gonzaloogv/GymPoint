@@ -31,6 +31,15 @@ const Assistance = sequelize.define('Assistance', {
     type: DataTypes.INTEGER,
     allowNull: true
   },
+  distance_meters: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: true
+  },
+  auto_checkin: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
   id_gym: {
     type: DataTypes.INTEGER,
     allowNull: false

@@ -1,5 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
-import { AuthRepository } from '../domain/repositories/AuthRepository';
+import { AuthRepository, RegisterParams } from '../domain/repositories/AuthRepository';
 import { AuthRemote } from './auth.remote';
 import { mapUser } from './auth.mapper';
 
@@ -21,5 +21,9 @@ export class AuthRepositoryImpl implements AuthRepository {
   async logout() {
     await SecureStore.deleteItemAsync('accessToken');
     await SecureStore.deleteItemAsync('refreshToken');
+  }
+  async register(params: RegisterParams) {
+    const data = await AuthRemote.register(params);
+    return data;
   }
 }

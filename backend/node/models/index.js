@@ -29,6 +29,10 @@ const GymRatingStats = require('./GymRatingStats');
 const ReviewHelpful = require('./ReviewHelpful');
 const GymAmenity = require('./GymAmenity');
 const GymGymAmenity = require('./GymGymAmenity');
+const DailyChallenge = require('./DailyChallenge');
+const UserDailyChallenge = require('./UserDailyChallenge');
+const UserImportedRoutine = require('./UserImportedRoutine');
+const GymGeofence = require('./GymGeofence');
 const MercadoPagoPayment = require('./MercadoPagoPayment');
 const Notification = require('./Notification');
 const UserNotificationSetting = require('./UserNotificationSetting');
@@ -188,6 +192,49 @@ Exercise.hasMany(WorkoutSet, {
 WorkoutSet.belongsTo(Exercise, {
   foreignKey: 'id_exercise',
   as: 'exercise'
+});
+
+// Daily Challenges associations
+UserProfile.hasMany(UserDailyChallenge, {
+  foreignKey: 'id_user_profile',
+  as: 'dailyChallenges'
+});
+
+UserDailyChallenge.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'user'
+});
+
+DailyChallenge.hasMany(UserDailyChallenge, {
+  foreignKey: 'id_challenge',
+  as: 'userProgress'
+});
+
+UserDailyChallenge.belongsTo(DailyChallenge, {
+  foreignKey: 'id_challenge',
+  as: 'challenge'
+});
+
+// UserImportedRoutine associations (opcionales para navegación)
+UserProfile.hasMany(UserImportedRoutine, {
+  foreignKey: 'id_user_profile',
+  as: 'importedRoutines'
+});
+
+UserImportedRoutine.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'user'
+});
+
+// Asociación Geofence por Gimnasio (1:1)
+Gym.hasOne(GymGeofence, {
+  foreignKey: 'id_gym',
+  as: 'geofence'
+});
+
+GymGeofence.belongsTo(Gym, {
+  foreignKey: 'id_gym',
+  as: 'gym'
 });
 
 // Gym ←→ Assistance
@@ -615,6 +662,7 @@ module.exports = {
   GymSchedule,
   GymSpecialSchedule,
   GymType,
+  GymGeofence,
   GymReview,
   GymRatingStats,
   ReviewHelpful,
@@ -639,5 +687,8 @@ module.exports = {
   UserBodyMetric,
   FrequencyHistory,
   WorkoutSession,
-  WorkoutSet
+  WorkoutSet,
+  DailyChallenge,
+  UserDailyChallenge,
+  UserImportedRoutine
 };

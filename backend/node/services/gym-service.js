@@ -43,15 +43,51 @@ const normalizeAmenityIds = (list) => {
   return Array.from(unique);
 };
 
-const createGym = async (data) => {
-  const { id_types, amenities, ...gymData } = data;
+const normalizeTypeNames = (list) => {
+  if (!Array.isArray(list)) return [];
+  const unique = new Set();
+  list.forEach((value) => {
+    if (typeof value !== 'string') return;
+    const name = value.trim();
+    if (name.length > 0) unique.add(name.toLowerCase());
+  });
+  return Array.from(unique);
+};
 
-  // creal gimnasio
+const ensureGymTypesByNames = async (typeNames) => {
+  const names = normalizeTypeNames(typeNames);
+  if (names.length === 0) return [];
+
+  // Buscar existentes
+  const existing = await GymType.findAll({ where: { name: names } });
+  const existingMap = new Map(existing.map((t) => [t.name.toLowerCase(), t]));
+
+  const toCreate = names.filter((n) => !existingMap.has(n));
+  if (toCreate.length > 0) {
+    // Crear de a uno para respetar índice único y evitar race simple
+    for (const n of toCreate) {
+      const [row] = await GymType.findOrCreate({ where: { name: n }, defaults: { name: n } });
+      existingMap.set(n, row);
+    }
+  }
+
+  return Array.from(existingMap.values()).map((t) => t.id_type);
+};
+
+const unionUnique = (a = [], b = []) => Array.from(new Set([...(a || []), ...(b || [])])).filter(Number.isInteger);
+
+const createGym = async (data) => {
+  const { id_types, type_names, amenities, ...gymData } = data;
+
   const gym = await Gym.create(gymData);
 
-  // asociar tipos si vienen
-  if (Array.isArray(id_types) && id_types.length > 0) {
-    await gym.addGymTypes(id_types);
+  // Resolver tipos por nombres (creando si faltan) y por IDs provistos
+  const createdTypeIds = await ensureGymTypesByNames(type_names);
+  const inputIds = Array.isArray(id_types) ? id_types.filter(Number.isInteger) : [];
+  const finalTypeIds = unionUnique(inputIds, createdTypeIds);
+
+  if (finalTypeIds.length > 0) {
+    await gym.addGymTypes(finalTypeIds);
   }
 
   const amenityIds = normalizeAmenityIds(amenities);
@@ -60,12 +96,11 @@ const createGym = async (data) => {
   }
 
   await gym.reload({ include: [amenityInclude] });
-
   return gym;
 };
 
 const updateGym = async (id, data) => {
-  const { id_types, amenities, ...gymData } = data;
+  const { id_types, type_names, amenities, ...gymData } = data;
 
   const gym = await Gym.findByPk(id);
   if (!gym) throw new NotFoundError('Gimnasio');
@@ -73,9 +108,12 @@ const updateGym = async (id, data) => {
   // actualiza los datos del gimnasio
   await gym.update(gymData);
 
-  // si se pasa nuevos tipos, reemplazarlos
-  if (Array.isArray(id_types)) {
-    await gym.setGymTypes(id_types); // reemplaza todas las asociaciones anteriores
+  // si se pasan nuevos tipos (por IDs o nombres), reemplazar asociaciones
+  if (Array.isArray(id_types) || Array.isArray(type_names)) {
+    const inputIds = Array.isArray(id_types) ? id_types.filter(Number.isInteger) : [];
+    const createdTypeIds = await ensureGymTypesByNames(type_names);
+    const finalTypeIds = unionUnique(inputIds, createdTypeIds);
+    await gym.setGymTypes(finalTypeIds);
   }
 
   if (amenities !== undefined) {
@@ -247,16 +285,13 @@ const filtrarGimnasios = async ({ city, type, minPrice, maxPrice, amenities }) =
   return { resultados: filtrados, advertencia };
 };
 
-const getGymTypes = () => {
-  return [
-    'completo',
-    'crossfit',
-    'powerlifting',
-    'femenino',
-    'boxeo',
-    'express',
-    'exclusivo'
-  ];
+const getGymTypes = async () => {
+  const rows = await GymType.findAll({
+    attributes: ['name'],
+    order: [['name', 'ASC']]
+  });
+  // Mantener compatibilidad: devolver array de strings
+  return rows.map(r => r.name);
 };
 
 const obtenerFavoritos = async (id_user_profile) => {

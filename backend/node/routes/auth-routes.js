@@ -28,7 +28,6 @@ const authController = require('../controllers/auth-controller');
  *               - password
  *               - gender
  *               - locality
- *               - age
  *               - frequency_goal
  *             properties:
  *               name:
@@ -54,9 +53,10 @@ const authController = require('../controllers/auth-controller');
  *                 example: USER
  *                 enum: [USER, PREMIUM, ADMIN]
  *                 default: USER
- *               age:
- *                 type: integer
- *                 example: 23
+ *               birth_date:
+ *                 type: string
+ *                 format: date
+ *                 example: 1995-05-20
  *               frequency_goal:
  *                 type: integer
  *                 example: 3

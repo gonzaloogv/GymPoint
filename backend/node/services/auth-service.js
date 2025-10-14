@@ -21,7 +21,7 @@ const Streak = require('../models/Streak');
 const RefreshToken = require('../models/RefreshToken');
 const frequencyService = require('../services/frequency-service');
 const GoogleAuthProvider = require('../utils/auth-providers/google-provider');
-const { ConflictError, UnauthorizedError, NotFoundError } = require('../utils/errors');
+const { ConflictError, UnauthorizedError, NotFoundError, ValidationError } = require('../utils/errors');
 const { ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL_DAYS } = require('../config/constants');
 const { runWithRetryableTransaction } = require('../utils/transaction-helper');
 
@@ -29,6 +29,20 @@ const ACCESS_EXPIRATION = ACCESS_TOKEN_TTL;
 const REFRESH_EXPIRATION_DAYS = REFRESH_TOKEN_TTL_DAYS;
 
 const googleProvider = new GoogleAuthProvider();
+
+const normalizeBirthDate = (value) => {
+  if (value == null || value === '') return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    throw new ValidationError('birth_date invalida (use YYYY-MM-DD)');
+  }
+  const today = new Date();
+  const ageYears = Math.floor((today - date) / (365.25 * 24 * 3600 * 1000));
+  if (ageYears < 13 || ageYears > 100) {
+    throw new ValidationError('Edad fuera de rango (13-100)');
+  }
+  return date.toISOString().slice(0, 10);
+};
 
 /**
  * Registra un nuevo usuario local
@@ -47,7 +61,7 @@ const googleProvider = new GoogleAuthProvider();
  * @param {string} data.lastname - Apellido
  * @param {string} [data.gender='O'] - Género (M, F, O)
  * @param {string} [data.locality=''] - Localidad
- * @param {number} [data.age=0] - Edad
+ * @param {string|null} [data.birth_date=null] - Fecha de nacimiento (YYYY-MM-DD)
  * @param {number} [data.frequency_goal=3] - Meta semanal de asistencias
  *
  * @returns {Promise<Object>} Usuario creado con account y userProfile
@@ -55,7 +69,19 @@ const googleProvider = new GoogleAuthProvider();
  * @throws {ConflictError} Si el email ya está registrado
  */
 const register = async (data) => {
-  const { email, password, frequency_goal = 3, name, lastname, gender = 'O', locality = '', age = 0 } = data;
+  const {
+    email,
+    password,
+    frequency_goal = 3,
+    name,
+    lastname,
+    gender = 'O',
+    locality = '',
+    birth_date: birthDateRaw = null,
+    birthDate: birthDateAlt = null
+  } = data;
+
+  const birthDate = normalizeBirthDate(birthDateRaw ?? birthDateAlt);
 
   return runWithRetryableTransaction(async (transaction) => {
     // 1. Verificar email
@@ -87,7 +113,7 @@ const register = async (data) => {
       lastname,
       gender,
       locality,
-      age,
+      birth_date: birthDate,
       subscription: 'FREE',
       tokens: 0
     }, { transaction });
@@ -120,6 +146,7 @@ const register = async (data) => {
       email: account.email,
       name: userProfile.name,
       lastname: userProfile.lastname,
+      birth_date: userProfile.birth_date,
       subscription: userProfile.subscription
     };
   });
@@ -300,13 +327,15 @@ const googleLogin = async (idToken, req) => {
       }, { transaction });
 
       // Crear UserProfile
+      const googleBirthDate = normalizeBirthDate(googleUser.birthDate || googleUser.birth_date || null);
+
       const userProfile = await UserProfile.create({
         id_account: account.id_account,
         name: googleUser.name || 'Usuario',
         lastname: googleUser.lastName || '',
         gender: 'O',
         locality: '',
-        age: 0,
+        birth_date: googleBirthDate,
         subscription: 'FREE',
         tokens: 0
       }, { transaction });
@@ -446,4 +475,3 @@ module.exports = {
   refreshAccessToken,
   logout
 };
-

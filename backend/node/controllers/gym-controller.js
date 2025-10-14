@@ -196,9 +196,9 @@ const filtrarGimnasios = async (req, res) => {
   }
 };
 
-const getGymTypes = (req, res) => {
+const getGymTypes = async (req, res) => {
   try {
-    const tipos = gymService.getGymTypes();
+    const tipos = await gymService.getGymTypes();
     res.json(tipos);
   } catch (err) {
     res.status(500).json({

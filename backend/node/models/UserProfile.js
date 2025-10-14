@@ -51,8 +51,8 @@ const UserProfile = sequelize.define('UserProfile', {
     allowNull: false,
     defaultValue: 'O'
   },
-  age: {
-    type: DataTypes.TINYINT,
+  birth_date: {
+    type: DataTypes.DATEONLY,
     allowNull: true
   },
   locality: {

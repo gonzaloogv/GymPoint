@@ -5,8 +5,18 @@ const Exercise = require('../models/Exercise');
 const RoutineExercise = require('../models/RoutineExercise');
 const RoutineDay = require('../models/RoutineDay');
 const WorkoutSession = require('../models/WorkoutSession');
+// const { UserProfile } = require('../models'); // already imported above
+const { NotFoundError, ValidationError, BusinessError } = require('../utils/errors');
+const { SUBSCRIPTION_TYPES } = require('../config/constants');
+const UserImportedRoutine = require('../models/UserImportedRoutine');
 const { UserProfile } = require('../models');
-const { NotFoundError, ValidationError } = require('../utils/errors');
+
+const getUserRoutineCounts = async (idUserProfile) => {
+  const totalOwned = await Routine.count({ where: { created_by: idUserProfile, is_template: false } });
+  const importedCount = await UserImportedRoutine.count({ where: { id_user_profile: idUserProfile } });
+  const createdCount = Math.max(0, totalOwned - importedCount);
+  return { totalOwned, importedCount, createdCount };
+};
 
 /**
  * Obtener una rutina con días y ejercicios
@@ -93,6 +103,23 @@ const createRoutineWithExercises = async ({
 }) => {
   if (!Array.isArray(exercises) || exercises.length === 0) {
     throw new ValidationError('Debe incluir al menos un ejercicio en la rutina');
+  }
+
+  // Limites por suscripción
+  const profile = await UserProfile.findByPk(id_user, { attributes: ['subscription'] });
+  const subscription = profile?.subscription || SUBSCRIPTION_TYPES.FREE;
+  const { totalOwned, createdCount } = await getUserRoutineCounts(id_user);
+  if (subscription === SUBSCRIPTION_TYPES.FREE) {
+    if (createdCount >= 3) {
+      throw new BusinessError('Límite de rutinas creadas para usuario FREE (máx 3)', 'LIMIT_EXCEEDED');
+    }
+    if (totalOwned >= 5) {
+      throw new BusinessError('Límite total de rutinas para usuario FREE (máx 5)', 'LIMIT_EXCEEDED');
+    }
+  } else if (subscription === SUBSCRIPTION_TYPES.PREMIUM) {
+    if (totalOwned >= 20) {
+      throw new BusinessError('Límite total de rutinas para usuario PREMIUM (máx 20)', 'LIMIT_EXCEEDED');
+    }
   }
 
   return sequelize.transaction(async (transaction) => {

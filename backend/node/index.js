@@ -4,9 +4,11 @@ const cors = require('cors');
 const sequelize = require('./config/database');
 const setupSwagger = require('./utils/swagger');
 const { runMigrations } = require('./migrate');
+const { requestTimer } = require('./utils/monitoring');
 const { startRewardStatsJob } = require('./jobs/reward-stats-job');
 const { startCleanupJob } = require('./jobs/cleanup-job');
 const { startAccountDeletionJob } = require('./jobs/account-deletion-job');
+const { startDailyChallengeJob } = require('./jobs/daily-challenge-job');
 const { errorHandler, notFoundHandler } = require('./middlewares/error-handler');
 
 // Cargar variables de entorno
@@ -36,6 +38,8 @@ const adminRewardsRoutes = require('./routes/admin-rewards-routes');
 const reviewRoutes = require('./routes/review-routes');
 const mediaRoutes = require('./routes/media-routes');
 const workoutRoutes = require('./routes/workout-routes');
+const locationRoutes = require('./routes/location-routes');
+const challengeRoutes = require('./routes/challenge-routes');
 // NOTA: body-metrics y notifications se montan como subrutas en user-routes.js (líneas 148-149)
 // const bodyMetricsRoutes = require('./routes/body-metrics-routes');
 // const notificationRoutes = require('./routes/notification-routes');
@@ -53,6 +57,9 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Monitoring: latencia HTTP (log en lentas) y header X-Response-Time
+app.use(requestTimer({ thresholdMs: Number(process.env.SLOW_HTTP_MS || 300) }));
 
 // Confiar en proxies (para obtener IP real detrás de reverse proxy)
 app.set('trust proxy', true);
@@ -83,6 +90,8 @@ app.use('/api/admin', adminRewardsRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/workouts', workoutRoutes);
+app.use('/api/location', locationRoutes);
+app.use('/api/challenges', challengeRoutes);
 // NOTA: Estas rutas se montan en user-routes.js como subrutas de /api/users/me/
 // app.use('/api/body-metrics', bodyMetricsRoutes); // Ahora: /api/users/me/body-metrics
 // app.use('/api/notifications', notificationRoutes); // Ahora: /api/users/me/notifications
@@ -129,6 +138,7 @@ async function startServer() {
       startRewardStatsJob(); // Cada 5 minutos
       startCleanupJob(); // Diario a las 3 AM
       startAccountDeletionJob(); // Diario a las 2 AM
+      startDailyChallengeJob(); // Diario a las 00:01 UTC
     }
     
   } catch (error) {
