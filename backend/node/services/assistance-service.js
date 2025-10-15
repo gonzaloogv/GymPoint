@@ -1,4 +1,5 @@
 ﻿const Assistance = require('../models/Assistance');
+﻿const Assistance = require('../models/Assistance');
 const Streak = require('../models/Streak');
 const { UserProfile } = require('../models');
 const Frequency = require('../models/Frequency');
@@ -215,10 +216,73 @@ const obtenerHistorialAsistencias = async (idUserProfile) => {
   });
 };
 
+/**
+ * Check-in con validación de geofence
+ * NOTA: "auto" en el nombre es legacy. El usuario DEBE presionar el botón de check-in.
+ * Esta función solo VALIDA que el usuario esté dentro del geofence del gimnasio.
+ */
+const autoCheckIn = async ({ id_user, id_gym, latitude, longitude, accuracy = null }) => {
+  const hoy = new Date();
+  const fecha = hoy.toISOString().split('T')[0];
+  const hora = hoy.toTimeString().split(' ')[0];
+  const idUserProfile = id_user;
+
+  // Validar que no haya registrado ya hoy
+  const asistenciaHoy = await Assistance.findOne({
+    where: { id_user: idUserProfile, date: fecha }
+  });
+  if (asistenciaHoy) throw new ConflictError('Ya registraste asistencia hoy');
+
+  // Gym + config geofence (ahora integrada en gym)
+  const gym = await Gym.findByPk(id_gym, {
+    attributes: [
+      'id_gym',
+      'name',
+      'latitude',
+      'longitude',
+      'auto_checkin_enabled',
+      'geofence_radius_meters',
+      'min_stay_minutes'
+    ]
+  });
+  if (!gym) throw new NotFoundError('Gimnasio');
+
+  // Verificar que auto check-in esté habilitado
+  if (gym.auto_checkin_enabled === false) {
+    throw new BusinessError('Auto check-in deshabilitado...', 'AUTO_CHECKIN_DISABLED');
+  }
+
+  // Usar radio del geofence del gym
+  const radius = gym.geofence_radius_meters ?? PROXIMITY_METERS;
+
+  // Validar proximidad
+  const distancia = calcularDistancia(latitude, longitude, gym.latitude, gym.longitude);
+  if (distancia > radius) {
+    throw new BusinessError(
+      `Estás fuera del rango del geofence (distancia: ${Math.round(distancia)} m, máximo: ${radius} m)`,
+      'OUT_OF_GEOFENCE_RANGE'
+    );
+  }
+
+  // Crear asistencia
+  const nuevaAsistencia = await Assistance.create({
+    id_user: idUserProfile,
+    id_gym,
+    date: fecha,
+    check_in_time: hora
+  });
+
+  return {
+    asistencia: nuevaAsistencia,
+    distancia: Math.round(distancia)
+  };
+};
+
 module.exports = {
   registrarAsistencia,
   obtenerHistorialAsistencias,
   checkOut,
+  autoCheckIn,
   // Export util for unit tests
   calculateDistance: calcularDistancia
 };
