@@ -1,6 +1,6 @@
 ﻿const Assistance = require('../models/Assistance');
 const Streak = require('../models/Streak');
-const { UserProfile, GymGeofence } = require('../models');
+const { UserProfile } = require('../models');
 const Frequency = require('../models/Frequency');
 const tokenLedgerService = require('./token-ledger-service');
 const Gym = require('../models/Gym');
@@ -132,128 +132,6 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude, accur
 };
 
 /**
- * Auto check-in basado en geofence por gimnasio
- * @param {Object} data
- * @param {number} data.id_user - ID del user_profile
- * @param {number} data.id_gym - ID del gimnasio
- * @param {number} data.latitude
- * @param {number} data.longitude
- */
-const autoCheckIn = async ({ id_user, id_gym, latitude, longitude, accuracy = null }) => {
-  const hoy = new Date();
-  const fecha = hoy.toISOString().split('T')[0];
-  const hora = hoy.toTimeString().split(' ')[0];
-
-  const idUserProfile = id_user;
-
-  // No duplicar asistencia del dÃ­a
-  const asistenciaHoy = await Assistance.findOne({ where: { id_user: idUserProfile, id_gym, date: fecha } });
-  if (asistenciaHoy) throw new ConflictError('Ya registraste asistencia hoy');
-
-  // Validar precisión GPS si se envía
-  if (accuracy != null) {
-    const acc = Number(accuracy);
-    if (Number.isFinite(acc) && acc > ACCURACY_MAX_METERS) {
-      throw new ValidationError(`GPS con baja precisión (> ${ACCURACY_MAX_METERS} m)`, [{ field: 'accuracy', message: 'GPS_INACCURATE' }]);
-    }
-  }
-
-  // Gym + config geofence
-  const gym = await Gym.findByPk(id_gym);
-  if (!gym) throw new NotFoundError('Gimnasio');
-
-  const geofence = await GymGeofence.findOne({ where: { id_gym } });
-  if (!geofence) {
-    throw new BusinessError('Auto check-in no configurado para este gimnasio', 'GEOFENCE_NOT_CONFIGURED');
-  }
-  if (geofence.auto_checkin_enabled === false) {
-    throw new BusinessError('Auto check-in deshabilitado para este gimnasio', 'AUTO_CHECKIN_DISABLED');
-  }
-
-  const radius = geofence?.radius_meters ?? PROXIMITY_METERS;
-  const distancia = calcularDistancia(latitude, longitude, gym.latitude, gym.longitude);
-  if (distancia > radius) {
-    throw new BusinessError(
-      `EstÃ¡s fuera del rango del gimnasio (distancia: ${Math.round(distancia)} m, mÃ¡ximo: ${radius} m)`,
-      'OUT_OF_RANGE'
-    );
-  }
-
-  // Perfil y racha
-  const userProfile = await UserProfile.findByPk(idUserProfile);
-  if (!userProfile) throw new NotFoundError('Usuario');
-  let racha = await Streak.findByPk(userProfile.id_streak);
-  if (!racha) {
-    // Inicializar frecuencia + racha para usuarios nuevos
-    const now = new Date();
-    const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() - ((now.getDay() + 6) % 7)); // lunes
-    const onejan = new Date(weekStart.getFullYear(), 0, 1);
-    const week = Math.ceil((((weekStart - onejan) / 86400000) + onejan.getDay() + 1) / 7);
-    const freq = await Frequency.create({
-      id_user: idUserProfile,
-      goal: 3,
-      assist: 0,
-      achieved_goal: false,
-      week_start_date: weekStart.toISOString().slice(0, 10),
-      week_number: week,
-      year: weekStart.getFullYear()
-    });
-    racha = await Streak.create({ id_user: idUserProfile, value: 0, id_frequency: freq.id_frequency, last_value: 0, recovery_items: 0 });
-    await userProfile.update({ id_streak: racha.id_streak });
-  }
-
-  // Crear asistencia (auto)
-  let nuevaAsistencia;
-  try {
-    nuevaAsistencia = await Assistance.create({
-      id_user: idUserProfile,
-      id_gym,
-      id_streak: userProfile.id_streak,
-      date: fecha,
-      hour: hora,
-      check_in_time: hora,
-      auto_checkin: true,
-      distance_meters: Math.round(distancia * 100) / 100
-    });
-  } catch (e) {
-    if (e?.name === 'SequelizeUniqueConstraintError' || e?.parent?.code === 'ER_DUP_ENTRY') {
-      throw new ConflictError('Ya registraste asistencia hoy');
-    }
-    throw e;
-  }
-
-  // Racha
-  const ayer = new Date(hoy); ayer.setDate(hoy.getDate() - 1);
-  const fechaAyer = ayer.toISOString().split('T')[0];
-  const ultimaAsistencia = await Assistance.findOne({ where: { id_user: idUserProfile, id_gym, date: fechaAyer } });
-  if (ultimaAsistencia) { racha.value += 1; }
-  else {
-    if (racha.recovery_items > 0) racha.recovery_items -= 1;
-    else { racha.last_value = racha.value; racha.value = 1; }
-  }
-  await racha.save();
-
-  // Tokens base
-  const { newBalance } = await tokenLedgerService.registrarMovimiento({
-    userId: idUserProfile,
-    delta: TOKENS.ATTENDANCE,
-    reason: TOKEN_REASONS.ATTENDANCE,
-    refType: 'assistance',
-    refId: nuevaAsistencia.id_assistance
-  });
-
-  await frequencyService.actualizarAsistenciaSemanal(idUserProfile);
-
-  return {
-    asistencia: nuevaAsistencia,
-    distancia: Math.round(distancia),
-    tokens_actuales: newBalance,
-    racha_actual: racha.value
-  };
-};
-
-/**
  * Check-out de asistencia: registra hora de salida y otorga bonus por duraciÃ³n (top-up)
  * @param {number} assistanceId
  * @param {number} idUserProfile
@@ -333,14 +211,13 @@ const obtenerHistorialAsistencias = async (idUserProfile) => {
       as: 'gym',
       attributes: ['name', 'city', 'address']
     },
-    order: [['date', 'DESC'], ['hour', 'DESC']]
+    order: [['date', 'DESC'], ['check_in_time', 'DESC']] // Usar check_in_time en lugar de hour
   });
 };
 
 module.exports = {
   registrarAsistencia,
   obtenerHistorialAsistencias,
-  autoCheckIn,
   checkOut,
   // Export util for unit tests
   calculateDistance: calcularDistancia

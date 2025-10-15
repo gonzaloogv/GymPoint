@@ -32,7 +32,6 @@ const GymGymAmenity = require('./GymGymAmenity');
 const DailyChallenge = require('./DailyChallenge');
 const UserDailyChallenge = require('./UserDailyChallenge');
 const UserImportedRoutine = require('./UserImportedRoutine');
-const GymGeofence = require('./GymGeofence');
 const MercadoPagoPayment = require('./MercadoPagoPayment');
 const Notification = require('./Notification');
 const UserNotificationSetting = require('./UserNotificationSetting');
@@ -54,6 +53,7 @@ const UserBodyMetric = require('./UserBodyMetric');
 const FrequencyHistory = require('./FrequencyHistory');
 const WorkoutSession = require('./WorkoutSession');
 const WorkoutSet = require('./WorkoutSet');
+const UserDeviceToken = require('./UserDeviceToken');
 
 // ============================================
 // ASOCIACIONES - Nueva Arquitectura
@@ -226,17 +226,6 @@ UserImportedRoutine.belongsTo(UserProfile, {
   as: 'user'
 });
 
-// Asociación Geofence por Gimnasio (1:1)
-Gym.hasOne(GymGeofence, {
-  foreignKey: 'id_gym',
-  as: 'geofence'
-});
-
-GymGeofence.belongsTo(Gym, {
-  foreignKey: 'id_gym',
-  as: 'gym'
-});
-
 // Gym ←→ Assistance
 Gym.hasMany(Assistance, {
   foreignKey: 'id_gym',
@@ -370,6 +359,17 @@ UserProfile.hasOne(Streak, {
 Streak.belongsTo(UserProfile, {
   foreignKey: 'id_user',
   as: 'userProfile'
+});
+
+// Frequency ←→ Streak
+Frequency.hasOne(Streak, {
+  foreignKey: 'id_frequency',
+  as: 'streak'
+});
+
+Streak.belongsTo(Frequency, {
+  foreignKey: 'id_frequency',
+  as: 'frequency'
 });
 
 // UserProfile ←→ TokenLedger
@@ -662,7 +662,6 @@ module.exports = {
   GymSchedule,
   GymSpecialSchedule,
   GymType,
-  GymGeofence,
   GymReview,
   GymRatingStats,
   ReviewHelpful,

@@ -63,8 +63,15 @@ const { verificarToken, verificarUsuarioApp } = require('../middlewares/auth');
  *                         date:
  *                           type: string
  *                           format: date
+ *                         check_in_time:
+ *                           type: string
+ *                           format: time
+ *                           example: "14:30:00"
+ *                           description: Hora de check-in (campo principal)
  *                         hour:
  *                           type: string
+ *                           deprecated: true
+ *                           description: DEPRECATED - Usar check_in_time en su lugar
  *                     distancia:
  *                       type: integer
  *                       description: Distancia en metros desde el gimnasio
@@ -188,9 +195,20 @@ router.put('/:id/checkout', verificarToken, verificarUsuarioApp, controller.chec
  *                         type: string
  *                         format: date
  *                         example: 2025-10-04
+ *                       check_in_time:
+ *                         type: string
+ *                         format: time
+ *                         example: 14:30:00
+ *                         description: Hora de check-in
+ *                       check_out_time:
+ *                         type: string
+ *                         format: time
+ *                         example: 16:00:00
+ *                         description: Hora de check-out (si existe)
  *                       hour:
  *                         type: string
- *                         example: 14:30:00
+ *                         deprecated: true
+ *                         description: DEPRECATED - Usar check_in_time
  *                       gym:
  *                         type: object
  *                         properties:

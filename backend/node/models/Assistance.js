@@ -15,13 +15,16 @@ const Assistance = sequelize.define('Assistance', {
     type: DataTypes.DATEONLY,
     allowNull: false
   },
+  // @deprecated - Usar check_in_time en su lugar. Campo mantenido temporalmente por compatibilidad
   hour: {
     type: DataTypes.TIME,
-    allowNull: false
+    allowNull: false,
+    comment: 'DEPRECATED: Usar check_in_time. Se eliminará en futuras versiones'
   },
   check_in_time: {
     type: DataTypes.TIME,
-    allowNull: true
+    allowNull: false,  // Ahora es NOT NULL después de la migración
+    comment: 'Hora de check-in (campo principal, reemplaza a hour)'
   },
   check_out_time: {
     type: DataTypes.TIME,
