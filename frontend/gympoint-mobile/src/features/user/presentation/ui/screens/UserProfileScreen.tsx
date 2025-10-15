@@ -39,16 +39,6 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   onUpdateUser,
 }) => {
   const theme = lightTheme;
-  const defaultUser: UserProfile = {
-    id_user: 0,
-    name: 'GymPoint User',
-    email: 'usuario@gympoint.com',
-    role: 'USER',
-    tokens: 0,
-    plan: 'Free',
-    streak: 0,
-  };
-  const resolvedUser = user ?? defaultUser;
 
   // ============================================
   // ZUSTAND STORE
@@ -71,6 +61,22 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   }, []);
 
   // ============================================
+  // USER DATA - Prioriza datos del store sobre props
+  // ============================================
+  const defaultUser: UserProfile = {
+    id_user: 0,
+    name: 'Cargando...',
+    email: '',
+    role: 'USER',
+    tokens: 0,
+    plan: 'Free',
+    streak: 0,
+  };
+
+  // Prioridad: profile del store > user de props > defaultUser
+  const resolvedUser = profile ?? user ?? defaultUser;
+
+  // ============================================
   // HANDLERS
   // ============================================
   const handleLogoutPress = useCallback(() => {
@@ -86,6 +92,8 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
 
   const handleUpgradeToPremium = async () => {
     await upgradeToPremium();
+    // Refrescar datos del perfil después del upgrade
+    await fetchUserProfile();
     if (onUpdateUser && profile) {
       onUpdateUser(profile);
     }

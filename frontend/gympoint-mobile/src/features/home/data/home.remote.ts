@@ -8,8 +8,8 @@ export type FrequencyResponseDTO = {
   assist: number;
   achieved_goal: boolean;
   userProfile?: {
-    name: string;
-    lastname: string;
+  name: string;
+  lastname: string;
   };
 };
 
@@ -23,6 +23,24 @@ export type UserProfileResponseDTO = {
   birth_date: string | null;
   role: string;
   tokens: number;
+  subscription?: 'FREE' | 'PREMIUM';
+};
+
+export type StreakResponseDTO = {
+  id_streak: number;
+  value: number;
+  last_value: number;
+  recovery_items: number;
+  user?: {
+    id_user_profile: number;
+    name: string;
+    lastname: string;
+  };
+  frequency?: {
+    goal: number;
+    assist: number;
+    achieved_goal: boolean;
+  };
 };
 
 export const HomeRemote = {
@@ -30,7 +48,11 @@ export const HomeRemote = {
   getWeeklyFrequency: () =>
     api.get<FrequencyResponseDTO>('/api/frequency/me').then((r) => r.data),
 
-  // Obtener perfil del usuario (incluye tokens)
+  // Obtener perfil del usuario (incluye tokens y subscription)
   getUserProfile: () =>
     api.get<UserProfileResponseDTO>('/api/users/me').then((r) => r.data),
+
+  // Obtener racha actual del usuario
+  getStreak: () =>
+    api.get<StreakResponseDTO>('/api/streak/me').then((r) => r.data),
 };

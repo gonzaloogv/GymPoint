@@ -17,13 +17,20 @@ export class HomeRepositoryImpl implements HomeRepository {
 
   async getHomeStats(): Promise<HomeStats> {
     try {
-      const userProfile = await HomeRemote.getUserProfile();
+      // Llamar en paralelo para mejorar performance
+      const [userProfile, streak] = await Promise.all([
+        HomeRemote.getUserProfile(),
+        HomeRemote.getStreak().catch(() => ({ value: 0 })), // Fallback si falla
+      ]);
+
+      // Mapear subscription a plan
+      const plan = userProfile.subscription === 'PREMIUM' ? 'Premium' : 'Free';
 
       return {
         name: userProfile.name,
-        plan: 'Free', // TODO: Mapear desde subscription cuando esté disponible
+        plan,
         tokens: userProfile.tokens,
-        streak: 0, // TODO: Obtener desde endpoint de streak cuando esté disponible
+        streak: streak.value,
       };
     } catch (error) {
       console.error('Error fetching home stats:', error);
