@@ -11,10 +11,12 @@ import HomeIcon from '@assets/icons/home.svg';
 import MapIcon from '@assets/icons/map.svg';
 import StoreIcon from '@assets/icons/gift.svg';
 import UserIcon from '@assets/icons/user.svg';
+import ChartIcon from '@assets/icons/chart.svg';
 import { useAuthStore } from '@features/auth';
 import { GymsScreen } from '@features/gyms';
 import { GymDetailScreenWrapper } from '@features/gyms/presentation/ui/screens/GymDetailScreenWrapper';
 import { HomeScreen } from '@features/home';
+import { ProgressScreen, PhysicalProgressScreen, ExerciseProgressScreen, AchievementsScreen } from '@features/progress';
 import { RewardsScreen } from '@features/rewards';
 import { UserProfileScreen } from '@features/user';
 import {
@@ -27,7 +29,7 @@ import {
 } from '@features/routines';
 
 import { TabIcon } from './components/TabIcon';
-import type { RoutinesStackParamList, GymsStackParamList } from './types';
+import type { RoutinesStackParamList, GymsStackParamList, ProgressStackParamList } from './types';
 
 const Tabs = createBottomTabNavigator();
 
@@ -88,6 +90,36 @@ function GymsStackNavigator() {
         options={{ title: 'Detalle del gimnasio' }}
       />
     </GymsStack.Navigator>
+  );
+}
+
+// ====== Progress nested stack ======
+const ProgressStack = createNativeStackNavigator<ProgressStackParamList>();
+
+function ProgressStackNavigator() {
+  return (
+    <ProgressStack.Navigator>
+      <ProgressStack.Screen
+        name="ProgressMain"
+        component={ProgressScreen}
+        options={{ headerShown: false }}
+      />
+      <ProgressStack.Screen
+        name="PhysicalProgress"
+        component={PhysicalProgressScreen}
+        options={{ headerShown: false }}
+      />
+      <ProgressStack.Screen
+        name="ExerciseProgress"
+        component={ExerciseProgressScreen}
+        options={{ headerShown: false }}
+      />
+      <ProgressStack.Screen
+        name="Achievements"
+        component={AchievementsScreen}
+        options={{ headerShown: false }}
+      />
+    </ProgressStack.Navigator>
   );
 }
 
@@ -216,6 +248,23 @@ export default function AppTabs() {
                 color={focused ? theme.colors.primary : theme.colors.textMuted}
               />,
               'Tienda',
+            ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="Progreso"
+        component={ProgressStackNavigator}
+        options={{
+          tabBarIcon: ({ focused, size = 20 }) =>
+            renderTabPill(
+              focused,
+              <TabIcon
+                source={ChartIcon}
+                size={size}
+                color={focused ? theme.colors.primary : theme.colors.textMuted}
+              />,
+              'Progreso',
             ),
         }}
       />

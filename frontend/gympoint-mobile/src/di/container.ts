@@ -46,6 +46,20 @@ import { GetUserProfile } from '@features/user/domain/usecases/GetUserProfile';
 import { UpdateUserSettings } from '@features/user/domain/usecases/UpdateUserSettings';
 import { UpgradeToPremium } from '@features/user/domain/usecases/UpgradeToPremium';
 
+// ===== Progress =====
+import { ProgressRepository } from '@features/progress/domain/repositories/ProgressRepository';
+import { ProgressRepositoryImpl } from '@features/progress/data/ProgressRepositoryImpl';
+import { ProgressLocal } from '@features/progress/data/datasources/ProgressLocal';
+import { GetProgress } from '@features/progress/domain/usecases/GetProgress';
+import { ExerciseProgressRepository } from '@features/progress/domain/repositories/ExerciseProgressRepository';
+import { ExerciseProgressRepositoryImpl } from '@features/progress/data/ExerciseProgressRepositoryImpl';
+import { ExerciseProgressLocal } from '@features/progress/data/datasources/ExerciseProgressLocal';
+import { GetExerciseProgress } from '@features/progress/domain/usecases/GetExerciseProgress';
+import { AchievementRepository } from '@features/progress/domain/repositories/AchievementRepository';
+import { AchievementRepositoryImpl } from '@features/progress/data/AchievementRepositoryImpl';
+import { AchievementLocal } from '@features/progress/data/datasources/AchievementLocal';
+import { GetAchievements } from '@features/progress/domain/usecases/GetAchievements';
+
 class Container {
   // Auth
   authRepository: AuthRepository;
@@ -88,6 +102,17 @@ class Container {
   updateUserSettings: UpdateUserSettings;
   upgradeToPremium: UpgradeToPremium;
 
+  // Progress
+  progressLocal: ProgressLocal;
+  progressRepository: ProgressRepository;
+  getProgress: GetProgress;
+  exerciseProgressLocal: ExerciseProgressLocal;
+  exerciseProgressRepository: ExerciseProgressRepository;
+  getExerciseProgress: GetExerciseProgress;
+  achievementLocal: AchievementLocal;
+  achievementRepository: AchievementRepository;
+  getAchievements: GetAchievements;
+
   constructor() {
     // Auth
     this.authRepository = new AuthRepositoryImpl();
@@ -129,6 +154,19 @@ class Container {
     this.getUserProfile = new GetUserProfile(this.userRepository);
     this.updateUserSettings = new UpdateUserSettings(this.userRepository);
     this.upgradeToPremium = new UpgradeToPremium(this.userRepository);
+
+    // Progress
+    this.progressLocal = new ProgressLocal();
+    this.progressRepository = new ProgressRepositoryImpl(this.progressLocal);
+    this.getProgress = new GetProgress(this.progressRepository);
+
+    this.exerciseProgressLocal = new ExerciseProgressLocal();
+    this.exerciseProgressRepository = new ExerciseProgressRepositoryImpl(this.exerciseProgressLocal);
+    this.getExerciseProgress = new GetExerciseProgress(this.exerciseProgressRepository);
+
+    this.achievementLocal = new AchievementLocal();
+    this.achievementRepository = new AchievementRepositoryImpl(this.achievementLocal);
+    this.getAchievements = new GetAchievements(this.achievementRepository);
   }
 }
 
