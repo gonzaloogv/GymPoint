@@ -1,5 +1,4 @@
 ﻿const Assistance = require('../models/Assistance');
-﻿const Assistance = require('../models/Assistance');
 const Streak = require('../models/Streak');
 const { UserProfile } = require('../models');
 const Frequency = require('../models/Frequency');
@@ -9,17 +8,8 @@ const { Op } = require('sequelize');
 const frequencyService = require('../services/frequency-service');
 const { NotFoundError, ConflictError, BusinessError, ValidationError } = require('../utils/errors');
 const { PROXIMITY_METERS, ACCURACY_MAX_METERS, TOKENS, TOKEN_REASONS } = require('../config/constants');
-
-// Utilidad para validar distancia
-function calcularDistancia(lat1, lon1, lat2, lon2) {
-  const R = 6378137;
-  const rad = Math.PI / 180;
-  const dLat = (lat2 - lat1) * rad;
-  const dLon = (lon2 - lon1) * rad;
-  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLon / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
+const Presence = require('../models/Presence');
+const { calculateDistance } = require('../utils/geo');
 
 /**
  * Registrar asistencia a un gimnasio
@@ -57,7 +47,7 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude, accur
   if (!gym) throw new NotFoundError('Gimnasio');
 
   // Validar proximidad
-  const distancia = calcularDistancia(latitude, longitude, gym.latitude, gym.longitude);
+  const distancia = calculateDistance(latitude, longitude, gym.latitude, gym.longitude);
   if (distancia > PROXIMITY_METERS) {
     throw new BusinessError(
       `EstÃ¡s fuera del rango del gimnasio (distancia: ${Math.round(distancia)} m, mÃ¡ximo: ${PROXIMITY_METERS} m)`,
@@ -249,14 +239,14 @@ const autoCheckIn = async ({ id_user, id_gym, latitude, longitude, accuracy = nu
 
   // Verificar que auto check-in esté habilitado
   if (gym.auto_checkin_enabled === false) {
-    throw new BusinessError('Auto check-in deshabilitado...', 'AUTO_CHECKIN_DISABLED');
+    throw new BusinessError('Auto check-in deshabilitado', 'AUTO_CHECKIN_DISABLED');
   }
 
   // Usar radio del geofence del gym
   const radius = gym.geofence_radius_meters ?? PROXIMITY_METERS;
 
   // Validar proximidad
-  const distancia = calcularDistancia(latitude, longitude, gym.latitude, gym.longitude);
+  const distancia = calculateDistance(latitude, longitude, gym.latitude, gym.longitude);
   if (distancia > radius) {
     throw new BusinessError(
       `Estás fuera del rango del geofence (distancia: ${Math.round(distancia)} m, máximo: ${radius} m)`,
@@ -264,17 +254,276 @@ const autoCheckIn = async ({ id_user, id_gym, latitude, longitude, accuracy = nu
     );
   }
 
-  // Crear asistencia
+  // Cargar user profile y racha (igual que registrarAsistencia)
+  const userProfile = await UserProfile.findByPk(idUserProfile);
+  if (!userProfile) throw new NotFoundError('Usuario');
+
+  const racha = await Streak.findByPk(userProfile.id_streak);
+  if (!racha) throw new NotFoundError('Racha');
+
+  // Crear asistencia con id_streak
   const nuevaAsistencia = await Assistance.create({
     id_user: idUserProfile,
     id_gym,
+    id_streak: userProfile.id_streak,
     date: fecha,
-    check_in_time: hora
+    hour: hora,
+    check_in_time: hora,
+    auto_checkin: true,
+    distance_meters: Math.round(distancia),
+    verified: true
   });
+
+  // Actualizar racha
+  const ayer = new Date(hoy);
+  ayer.setDate(hoy.getDate() - 1);
+  const fechaAyer = ayer.toISOString().split('T')[0];
+
+  const ultimaAsistencia = await Assistance.findOne({
+    where: { id_user: idUserProfile, id_gym, date: fechaAyer }
+  });
+
+  if (ultimaAsistencia) {
+    racha.value += 1;
+  } else {
+    if (racha.recovery_items > 0) {
+      racha.recovery_items -= 1;
+    } else {
+      racha.last_value = racha.value;
+      racha.value = 1;
+    }
+  }
+
+  await racha.save();
+
+  // Otorgar tokens usando ledger
+  const { newBalance } = await tokenLedgerService.registrarMovimiento({
+    userId: idUserProfile,
+    delta: TOKENS.ATTENDANCE,
+    reason: TOKEN_REASONS.ATTENDANCE,
+    refType: 'assistance',
+    refId: nuevaAsistencia.id_assistance
+  });
+
+  // Actualizar frecuencia semanal
+  await frequencyService.actualizarAsistenciaSemanal(idUserProfile);
 
   return {
     asistencia: nuevaAsistencia,
-    distancia: Math.round(distancia)
+    distancia: Math.round(distancia),
+    tokens_actuales: newBalance,
+    racha_actual: racha.value
+  };
+};
+
+/**
+ * Registrar presencia del usuario en el rango geofence
+ * Si ya existe una presencia activa, actualizar last_seen_at
+ * Si no existe, crear nueva presencia
+ * 
+ * @param {Object} data
+ * @param {number} data.id_user - ID del user_profile
+ * @param {number} data.id_gym - ID del gimnasio
+ * @param {number} data.latitude - Latitud actual
+ * @param {number} data.longitude - Longitud actual
+ * @returns {Promise<Object>} Presencia registrada/actualizada
+ */
+const registrarPresencia = async ({ id_user, id_gym, latitude, longitude }) => {
+  // ⭐ VERIFICAR QUE USUARIO ES PREMIUM
+  const userProfile = await UserProfile.findByPk(id_user);
+  if (!userProfile) throw new NotFoundError('Usuario');
+
+  if (userProfile.subscription !== 'PREMIUM') {
+    throw new BusinessError(
+      'Auto check-in es una función exclusiva para usuarios PREMIUM. ¡Actualiza tu suscripción para disfrutar de esta y otras ventajas!',
+      'PREMIUM_FEATURE_REQUIRED'
+    );
+  }
+
+  const gym = await Gym.findByPk(id_gym, {
+    attributes: ['id_gym', 'name', 'latitude', 'longitude', 'geofence_radius_meters', 'min_stay_minutes']
+  });
+  if (!gym) throw new NotFoundError('Gimnasio');
+
+  const radius = gym.geofence_radius_meters ?? PROXIMITY_METERS;
+  const distancia = calculateDistance(latitude, longitude, gym.latitude, gym.longitude);
+  
+  if (distancia > radius) {
+    throw new BusinessError(
+      `Fuera de rango geofence (distancia: ${Math.round(distancia)}m, máximo: ${radius}m)`,
+      'OUT_OF_GEOFENCE_RANGE'
+    );
+  }
+
+  const ahora = new Date();
+
+  // Verificar presencia activa (DETECTING o CONFIRMED)
+  let presencia = await Presence.findOne({
+    where: {
+      id_user_profile: id_user,
+      id_gym,
+      status: { [Op.in]: ['DETECTING', 'CONFIRMED'] }
+    }
+  });
+
+  if (presencia) {
+    // Actualizar presencia existente
+    presencia.last_seen_at = ahora;
+    presencia.distance_meters = Math.round(distancia);
+    presencia.location_updates_count += 1;
+    await presencia.save();
+
+    // Calcular duración de permanencia
+    const duracionMinutos = (ahora - presencia.first_seen_at) / 60000;
+
+    return {
+      presencia,
+      duracion_minutos: Math.round(duracionMinutos),
+      min_stay_minutes: gym.min_stay_minutes || 10,
+      listo_para_checkin: duracionMinutos >= (gym.min_stay_minutes || 10)
+    };
+  }
+
+  // Crear nueva presencia
+  presencia = await Presence.create({
+    id_user_profile: id_user,
+    id_gym,
+    first_seen_at: ahora,
+    last_seen_at: ahora,
+    status: 'DETECTING',
+    distance_meters: Math.round(distancia),
+    location_updates_count: 1
+  });
+
+  return {
+    presencia,
+    duracion_minutos: 0,
+    min_stay_minutes: gym.min_stay_minutes || 10,
+    listo_para_checkin: false
+  };
+};
+
+/**
+ * Verificar si usuario cumplió permanencia mínima
+ * Si sí, registrar auto check-in y marcar presencia como completada
+ * 
+ * @param {Object} data
+ * @param {number} data.id_user - ID del user_profile
+ * @param {number} data.id_gym - ID del gimnasio
+ * @returns {Promise<Object>} Resultado del auto check-in
+ */
+const verificarAutoCheckIn = async ({ id_user, id_gym }) => {
+  // ⭐ VERIFICAR QUE USUARIO ES PREMIUM
+  const userProfile = await UserProfile.findByPk(id_user);
+  if (!userProfile) throw new NotFoundError('Usuario');
+
+  if (userProfile.subscription !== 'PREMIUM') {
+    throw new BusinessError(
+      'Auto check-in es una función exclusiva para usuarios PREMIUM. ¡Actualiza tu suscripción!',
+      'PREMIUM_FEATURE_REQUIRED'
+    );
+  }
+
+  const presencia = await Presence.findOne({
+    where: {
+      id_user_profile: id_user,
+      id_gym,
+      status: 'DETECTING',
+      converted_to_assistance: false
+    }
+  });
+
+  if (!presencia) {
+    throw new BusinessError('No hay presencia activa para verificar', 'NO_ACTIVE_PRESENCE');
+  }
+
+  const gym = await Gym.findByPk(id_gym);
+  if (!gym) throw new NotFoundError('Gimnasio');
+
+  const ahora = new Date();
+  const duracionMinutos = (ahora - presencia.first_seen_at) / 60000;
+  const minStayMinutes = gym.min_stay_minutes || 10;
+
+  if (duracionMinutos < minStayMinutes) {
+    throw new BusinessError(
+      `Permanencia insuficiente (${Math.round(duracionMinutos)}/${minStayMinutes} min)`,
+      'MIN_STAY_NOT_MET'
+    );
+  }
+
+  // Verificar que no haya registrado asistencia hoy
+  const hoy = ahora.toISOString().split('T')[0];
+  const asistenciaHoy = await Assistance.findOne({
+    where: { id_user: id_user, date: hoy }
+  });
+
+  if (asistenciaHoy) {
+    throw new ConflictError('Ya registraste asistencia hoy');
+  }
+
+  // Cargar racha (userProfile ya se cargó al inicio para verificar premium)
+  const racha = await Streak.findByPk(userProfile.id_streak);
+  if (!racha) throw new NotFoundError('Racha');
+
+  // Registrar asistencia
+  const hora = ahora.toTimeString().split(' ')[0];
+  const nuevaAsistencia = await Assistance.create({
+    id_user,
+    id_gym,
+    id_streak: userProfile.id_streak,
+    date: hoy,
+    hour: hora,
+    check_in_time: hora,
+    auto_checkin: true,
+    distance_meters: presencia.distance_meters,
+    verified: true
+  });
+
+  // Actualizar racha
+  const ayer = new Date(ahora);
+  ayer.setDate(ahora.getDate() - 1);
+  const fechaAyer = ayer.toISOString().split('T')[0];
+
+  const ultimaAsistencia = await Assistance.findOne({
+    where: { id_user, id_gym, date: fechaAyer }
+  });
+
+  if (ultimaAsistencia) {
+    racha.value += 1;
+  } else {
+    if (racha.recovery_items > 0) {
+      racha.recovery_items -= 1;
+    } else {
+      racha.last_value = racha.value;
+      racha.value = 1;
+    }
+  }
+
+  await racha.save();
+
+  // Otorgar tokens
+  const { newBalance } = await tokenLedgerService.registrarMovimiento({
+    userId: id_user,
+    delta: TOKENS.ATTENDANCE,
+    reason: TOKEN_REASONS.ATTENDANCE,
+    refType: 'assistance',
+    refId: nuevaAsistencia.id_assistance
+  });
+
+  // Actualizar frecuencia
+  await frequencyService.actualizarAsistenciaSemanal(id_user);
+
+  // Marcar presencia como completada
+  presencia.status = 'CONFIRMED';
+  presencia.converted_to_assistance = true;
+  presencia.id_assistance = nuevaAsistencia.id_assistance;
+  await presencia.save();
+
+  return {
+    asistencia: nuevaAsistencia,
+    duracion_minutos: Math.round(duracionMinutos),
+    tokens_actuales: newBalance,
+    racha_actual: racha.value
   };
 };
 
@@ -283,6 +532,6 @@ module.exports = {
   obtenerHistorialAsistencias,
   checkOut,
   autoCheckIn,
-  // Export util for unit tests
-  calculateDistance: calcularDistancia
+  registrarPresencia,
+  verificarAutoCheckIn
 };

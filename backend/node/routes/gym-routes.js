@@ -233,7 +233,38 @@ router.get('/filtro', verificarToken, gymController.filtrarGimnasios);
  */
 router.get('/cercanos', gymController.buscarGimnasiosCercanos);
 
-// Alias en inglés para compatibilidad con plan MVP (fase 1.1)
+/**
+ * @swagger
+ * /api/gyms/nearby:
+ *   get:
+ *     summary: Buscar gimnasios cercanos (alias en inglés)
+ *     description: Alias en inglés de /cercanos para compatibilidad con plan MVP (fase 1.1). Usa el mismo algoritmo optimizado (bounding box + Haversine).
+ *     tags: [Gimnasios]
+ *     parameters:
+ *       - in: query
+ *         name: lat
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Latitud del centro de búsqueda
+ *       - in: query
+ *         name: lng
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Longitud del centro de búsqueda
+ *       - in: query
+ *         name: radiusKm
+ *         schema:
+ *           type: number
+ *           default: 10
+ *         description: Radio de búsqueda en kilómetros
+ *     responses:
+ *       200:
+ *         description: Lista de gimnasios cercanos ordenada por distancia
+ *       400:
+ *         description: Parámetros inválidos
+ */
 router.get('/nearby', gymController.buscarGimnasiosCercanos);
 
 /**

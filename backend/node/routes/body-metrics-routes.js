@@ -7,7 +7,7 @@ router.use(verificarToken, verificarUsuarioApp);
 
 /**
  * @swagger
- * /api/body-metrics:
+ * /api/users/me/body-metrics:
  *   get:
  *     summary: Listar métricas corporales del usuario
  *     description: Retorna el historial de métricas corporales ordenadas por fecha
@@ -160,7 +160,7 @@ router.post('/', controller.registrarMetricas);
 
 /**
  * @swagger
- * /api/body-metrics/latest:
+ * /api/users/me/body-metrics/latest:
  *   get:
  *     summary: Obtener la métrica más reciente del usuario
  *     tags: [Body Metrics]

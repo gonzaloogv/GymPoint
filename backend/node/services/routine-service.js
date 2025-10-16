@@ -108,13 +108,14 @@ const createRoutineWithExercises = async ({
   // Limites por suscripción
   const profile = await UserProfile.findByPk(id_user, { attributes: ['subscription'] });
   const subscription = profile?.subscription || SUBSCRIPTION_TYPES.FREE;
-  const { totalOwned, createdCount } = await getUserRoutineCounts(id_user);
+  const { totalOwned } = await getUserRoutineCounts(id_user);
+  
   if (subscription === SUBSCRIPTION_TYPES.FREE) {
-    if (createdCount >= 3) {
-      throw new BusinessError('Límite de rutinas creadas para usuario FREE (máx 3)', 'LIMIT_EXCEEDED');
-    }
     if (totalOwned >= 5) {
-      throw new BusinessError('Límite total de rutinas para usuario FREE (máx 5)', 'LIMIT_EXCEEDED');
+      throw new BusinessError(
+        'Límite total de rutinas para usuario FREE (máx 5 entre creadas e importadas)',
+        'LIMIT_EXCEEDED'
+      );
     }
   } else if (subscription === SUBSCRIPTION_TYPES.PREMIUM) {
     if (totalOwned >= 20) {

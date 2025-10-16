@@ -28,13 +28,14 @@ const importTemplate = async (userId, templateRoutineId) => {
   // Limites por suscripción para importación
   const profile = await UserProfile.findByPk(userId, { attributes: ['subscription'] });
   const subscription = profile?.subscription || SUBSCRIPTION_TYPES.FREE;
-  const { totalOwned, importedCount } = await getUserRoutineCounts(userId);
+  const { totalOwned } = await getUserRoutineCounts(userId);
+  
   if (subscription === SUBSCRIPTION_TYPES.FREE) {
-    if (importedCount >= 2) {
-      throw new BusinessError('Límite de rutinas importadas para usuario FREE (máx 2)', 'LIMIT_EXCEEDED');
-    }
     if (totalOwned >= 5) {
-      throw new BusinessError('Límite total de rutinas para usuario FREE (máx 5)', 'LIMIT_EXCEEDED');
+      throw new BusinessError(
+        'Límite total de rutinas para usuario FREE (máx 5 entre creadas e importadas)',
+        'LIMIT_EXCEEDED'
+      );
     }
   } else if (subscription === SUBSCRIPTION_TYPES.PREMIUM) {
     if (totalOwned >= 20) {

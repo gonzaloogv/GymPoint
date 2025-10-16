@@ -76,6 +76,8 @@ POST /api/location/check-auto-checkin
 
 **Corrección crítica**: Check-in NO es automático (usuario debe presionar botón)
 
+**Corrección crítica**: Check-in será AUTOMÁTICO (el usuario no debe presionar botón, la app lo registra al detectar proximidad)
+
 **Documentación detallada**: [FASE-4-COMPLETADA.md](node/FASE-4-COMPLETADA.md)
 
 ---

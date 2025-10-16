@@ -54,6 +54,7 @@ const FrequencyHistory = require('./FrequencyHistory');
 const WorkoutSession = require('./WorkoutSession');
 const WorkoutSet = require('./WorkoutSet');
 const UserDeviceToken = require('./UserDeviceToken');
+const Presence = require('./Presence');
 
 // ============================================
 // ASOCIACIONES - Nueva Arquitectura
@@ -633,6 +634,21 @@ UserRoutine.belongsTo(UserProfile, {
   foreignKey: 'id_user',
   as: 'userProfile'
 });
+// Relaciones Presence
+Presence.associate = (models) => {
+  Presence.belongsTo(models.UserProfile, {
+    foreignKey: 'id_user_profile',
+    as: 'user'
+  });
+  Presence.belongsTo(models.Gym, {
+    foreignKey: 'id_gym',
+    as: 'gym'
+  });
+  Presence.belongsTo(models.Assistance, {
+    foreignKey: 'id_assistance',
+    as: 'assistance'
+  });
+};
 
 // ============================================
 // ASOCIACIONES - Otras relaciones existentes
@@ -689,5 +705,6 @@ module.exports = {
   WorkoutSet,
   DailyChallenge,
   UserDailyChallenge,
-  UserImportedRoutine
+  UserImportedRoutine,
+  Presence
 };

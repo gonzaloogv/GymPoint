@@ -138,9 +138,155 @@ const checkOut = async (req, res) => {
   }
 };
 
+/**
+ * Registrar presencia del usuario en el rango geofence
+ * @route POST /api/assistances/presence
+ * @access Private (Usuario app)
+ * 
+ * Esta función se llama cada 30 segundos desde el frontend
+ * para trackear la presencia del usuario en el gym.
+ */
+const registrarPresencia = async (req, res) => {
+  try {
+    const { id_gym, latitude, longitude, accuracy } = req.body;
+    const id_user_profile = req.user.id_user_profile;
+
+    if (id_gym == null || latitude == null || longitude == null) {
+      return res.status(400).json({
+        error: {
+          code: 'MISSING_FIELDS',
+          message: 'Faltan datos requeridos: id_gym, latitude, longitude'
+        }
+      });
+    }
+
+    // Registrar o actualizar presencia
+    const resultado = await assistanceService.registrarPresencia({
+      id_user: id_user_profile,
+      id_gym,
+      latitude,
+      longitude
+    });
+
+    return res.status(200).json({
+      message: 'Presencia actualizada',
+      data: {
+        duracion_minutos: resultado.duracion_minutos,
+        min_stay_minutes: resultado.min_stay_minutes,
+        listo_para_checkin: resultado.listo_para_checkin,
+        progreso: `${resultado.duracion_minutos}/${resultado.min_stay_minutes} min`
+      }
+    });
+  } catch (err) {
+    console.error('Error en registrarPresencia:', err.message);
+    
+    // Error específico si no es premium
+    if (err.code === 'PREMIUM_FEATURE_REQUIRED') {
+      return res.status(403).json({
+        error: {
+          code: 'PREMIUM_FEATURE_REQUIRED',
+          message: err.message,
+          upgrade_info: {
+            feature: 'Auto Check-in',
+            description: 'Registra tu asistencia automáticamente al permanecer 10 minutos en el gym',
+            benefits: [
+              '✅ Check-in automático',
+              '✅ Sin olvidar registrar asistencia',
+              '✅ Tracking en tiempo real',
+              '✅ Notificaciones cuando estés listo'
+            ]
+          }
+        }
+      });
+    }
+
+    return res.status(400).json({
+      error: {
+        code: 'PRESENCE_REGISTRATION_FAILED',
+        message: err.message
+      }
+    });
+  }
+};
+
+/**
+ * Verificar y registrar auto check-in si usuario cumplió permanencia mínima
+ * @route POST /api/assistances/auto-checkin  
+ * @access Private (Usuario app)
+ * 
+ * El frontend llama a esta función cuando detecta que
+ * el usuario cumplió el tiempo mínimo de permanencia.
+ */
+const verificarAutoCheckIn = async (req, res) => {
+  try {
+    const { id_gym } = req.body;
+    const id_user_profile = req.user.id_user_profile;
+
+    if (id_gym == null) {
+      return res.status(400).json({
+        error: {
+          code: 'MISSING_FIELDS',
+          message: 'Falta dato requerido: id_gym'
+        }
+      });
+    }
+
+    // Verificar presencia y crear auto check-in
+    const resultado = await assistanceService.verificarAutoCheckIn({
+      id_user: id_user_profile,
+      id_gym
+    });
+
+    return res.status(201).json({
+      message: '¡Auto check-in completado! 🎉',
+      data: {
+        asistencia: resultado.asistencia,
+        duracion_minutos: resultado.duracion_minutos,
+        tokens_actuales: resultado.tokens_actuales,
+        racha_actual: resultado.racha_actual
+      }
+    });
+  } catch (err) {
+    console.error('Error en verificarAutoCheckIn:', err.message);
+    
+    // Error específico si no es premium
+    if (err.code === 'PREMIUM_FEATURE_REQUIRED') {
+      return res.status(403).json({
+        error: {
+          code: 'PREMIUM_FEATURE_REQUIRED',
+          message: err.message,
+          upgrade_info: {
+            feature: 'Auto Check-in',
+            description: 'Registra tu asistencia automáticamente al permanecer 10 minutos en el gym'
+          }
+        }
+      });
+    }
+
+    // Error específico si no cumple permanencia
+    if (err.code === 'MIN_STAY_NOT_MET') {
+      return res.status(400).json({
+        error: {
+          code: 'MIN_STAY_NOT_MET',
+          message: err.message
+        }
+      });
+    }
+
+    return res.status(400).json({
+      error: {
+        code: 'AUTO_CHECKIN_VERIFICATION_FAILED',
+        message: err.message
+      }
+    });
+  }
+};
+
 module.exports = {
   registrarAsistencia,
   obtenerHistorialAsistencias,
   autoCheckIn,
-  checkOut
+  checkOut,
+  registrarPresencia,
+  verificarAutoCheckIn
 };

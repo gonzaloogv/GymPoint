@@ -58,8 +58,10 @@ backend/db/migrations/
 
 **Modelos Sequelize actualizados**:
 - `backend/node/models/Gym.js` - Agregados campos geofencing
-- `backend/node/models/Assistance.js` - Marcado `hour` como deprecated
-- `backend/node/models/GymGeofence.js` - Marcado como deprecated
+- `backend/node/models/Presence.js` - Nuevo modelo para presencia y auto check-in
+
+**Scripts SQL nuevos**:
+- `backend/db/migrations/20251015_create_presence_table.sql` - Crea tabla presence para lógica de auto check-in
 
 ---
 

@@ -10,6 +10,14 @@ const { startCleanupJob } = require('./jobs/cleanup-job');
 const { startAccountDeletionJob } = require('./jobs/account-deletion-job');
 const { startDailyChallengeJob } = require('./jobs/daily-challenge-job');
 const { errorHandler, notFoundHandler } = require('./middlewares/error-handler');
+const { initSentry, sentryRequestHandler, sentryErrorHandler } = require('./config/sentry');
+const { 
+  apiLimiter, 
+  authLimiter, 
+  registerLimiter, 
+  webhookLimiter, 
+  paymentLimiter 
+} = require('./config/rate-limit');
 
 // Cargar variables de entorno
 dotenv.config();
@@ -51,6 +59,12 @@ const testRoutes = require('./routes/test-routes');
 // Inicializar app
 const app = express();
 
+// Inicializar Sentry (debe ser lo primero)
+const sentryEnabled = initSentry(app);
+if (sentryEnabled) {
+  app.use(sentryRequestHandler());
+}
+
 // Middlewares
 app.use(cors({
   origin: process.env.CORS_ORIGIN?.split(',') || '*',
@@ -68,7 +82,13 @@ app.set('trust proxy', true);
 // Health checks (sin autenticación, para load balancers/kubernetes)
 app.use('/', healthRoutes);
 
-// Rutas de API
+// Rate limiting general para todas las rutas de API
+app.use('/api/', apiLimiter);
+
+// Rutas de API con rate limiting específico
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/google', authLimiter);
+app.use('/api/auth/register', registerLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/gyms', gymRoutes);
 app.use('/api/assistances', assistanceRoutes);
@@ -97,8 +117,8 @@ app.use('/api/challenges', challengeRoutes);
 // NOTA: Estas rutas se montan en user-routes.js como subrutas de /api/users/me/
 // app.use('/api/body-metrics', bodyMetricsRoutes); // Ahora: /api/users/me/body-metrics
 // app.use('/api/notifications', notificationRoutes); // Ahora: /api/users/me/notifications
-app.use('/api/payments', paymentRoutes);
-app.use('/api/webhooks', webhookRoutes);
+app.use('/api/payments', paymentLimiter, paymentRoutes);
+app.use('/api/webhooks', webhookLimiter, webhookRoutes);
 app.use('/api/test', testRoutes);
 
 // Swagger UI
@@ -106,6 +126,12 @@ setupSwagger(app);
 
 // Manejo de errores - debe ir al final de todas las rutas
 app.use(notFoundHandler);  // 404 para rutas no encontradas
+
+// Sentry error handler (DEBE IR ANTES del error handler general)
+if (sentryEnabled) {
+  app.use(sentryErrorHandler());
+}
+
 app.use(errorHandler);     // Manejo centralizado de errores
 
 // Función para iniciar el servidor

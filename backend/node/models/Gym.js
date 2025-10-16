@@ -103,6 +103,25 @@ const Gym = sequelize.define('Gym', {
     allowNull: true,
     comment: 'URL de la foto principal del gimnasio'
   }
+    ,
+    auto_checkin_enabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false, // ✅ CORREGIDO: no NULL
+      defaultValue: true, // ✅ CORREGIDO: true por defecto
+      comment: 'Auto check-in habilitado'
+    },
+    geofence_radius_meters: {
+      type: DataTypes.INTEGER,
+      allowNull: false, // ✅ CORREGIDO
+      defaultValue: 150, // ✅ CORREGIDO: 150m por defecto
+      comment: 'Radio de geofence en metros'
+    },
+    min_stay_minutes: {
+      type: DataTypes.INTEGER,
+      allowNull: false, // ✅ CORREGIDO
+      defaultValue: 10, // ✅ CORREGIDO: 10 min por defecto
+      comment: 'Tiempo mínimo de estadía en minutos'
+    }
 }, {
   tableName: 'gym',
   timestamps: true,

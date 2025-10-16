@@ -109,9 +109,9 @@ router.post('/', verificarToken, verificarUsuarioApp, controller.registrarAsiste
 
 /**
  * @swagger
- * /api/assistances/auto-checkin:
+ * /api/assistances/presence:
  *   post:
- *     summary: Auto check-in del usuario en un gimnasio (usa geofence si existe)
+ *     summary: Registrar presencia del usuario en el rango geofence
  *     tags: [Asistencias]
  *     security:
  *       - bearerAuth: []
@@ -131,11 +131,37 @@ router.post('/', verificarToken, verificarUsuarioApp, controller.registrarAsiste
  *                 type: number
  *     responses:
  *       201:
- *         description: Auto check-in registrado
+ *         description: Presencia registrada
  *       400:
  *         description: Error de validación o fuera de rango
  */
-router.post('/auto-checkin', verificarToken, verificarUsuarioApp, controller.autoCheckIn);
+router.post('/presence', verificarToken, verificarUsuarioApp, controller.registrarPresencia);
+
+/**
+ * @swagger
+ * /api/assistances/auto-checkin:
+ *   post:
+ *     summary: Verificar y registrar auto check-in si usuario cumplió permanencia mínima
+ *     tags: [Asistencias]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [id_gym]
+ *             properties:
+ *               id_gym:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Auto check-in registrado
+ *       400:
+ *         description: Permanencia insuficiente o error
+ */
+router.post('/auto-checkin', verificarToken, verificarUsuarioApp, controller.verificarAutoCheckIn);
 
 /**
  * @swagger
