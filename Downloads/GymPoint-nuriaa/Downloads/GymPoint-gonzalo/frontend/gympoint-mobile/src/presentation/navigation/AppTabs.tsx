@@ -16,7 +16,7 @@ import { useAuthStore } from '@features/auth';
 import { GymsScreen } from '@features/gyms';
 import { GymDetailScreenWrapper } from '@features/gyms/presentation/ui/screens/GymDetailScreenWrapper';
 import { HomeScreen } from '@features/home';
-import { ProgressScreen, PhysicalProgressScreen, ExerciseProgressScreen, AchievementsScreen } from '@features/progress';
+import { ProgressScreen, PhysicalProgressScreen, ExerciseProgressScreen, AchievementsScreen, TokenHistoryScreen } from '@features/progress';
 import { RewardsScreen } from '@features/rewards';
 import { UserProfileScreen } from '@features/user';
 import {
@@ -29,7 +29,7 @@ import {
 } from '@features/routines';
 
 import { TabIcon } from './components/TabIcon';
-import type { RoutinesStackParamList, GymsStackParamList, ProgressStackParamList } from './types';
+import type { RoutinesStackParamList, GymsStackParamList, ProgressStackParamList, UserStackParamList } from './types';
 
 const Tabs = createBottomTabNavigator();
 
@@ -120,6 +120,42 @@ function ProgressStackNavigator() {
         options={{ headerShown: false }}
       />
     </ProgressStack.Navigator>
+  );
+}
+
+// ====== User nested stack ======
+const UserStack = createNativeStackNavigator<UserStackParamList>();
+
+function UserStackNavigator() {
+  const user = useAuthStore((s) => s.user);
+  const updateUser = useAuthStore((s) => s.updateUser);
+  const setUser = useAuthStore((s) => s.setUser);
+
+  const handleLogout = React.useCallback(() => {
+    setUser(null);
+  }, [setUser]);
+
+  return (
+    <UserStack.Navigator>
+      <UserStack.Screen
+        name="UserProfile"
+        options={{ headerShown: false }}
+      >
+        {({ navigation }) => (
+          <UserProfileScreen
+            user={user}
+            onUpdateUser={updateUser}
+            onLogout={handleLogout}
+            navigation={navigation}
+          />
+        )}
+      </UserStack.Screen>
+      <UserStack.Screen
+        name="TokenHistory"
+        component={TokenHistoryScreen}
+        options={{ headerShown: false }}
+      />
+    </UserStack.Navigator>
   );
 }
 
@@ -271,7 +307,7 @@ export default function AppTabs() {
 
       <Tabs.Screen
         name="Usuario"
-        children={renderUserProfileScreen}
+        component={UserStackNavigator}
         options={{
           tabBarIcon: ({ focused, size = 20 }) =>
             renderTabPill(

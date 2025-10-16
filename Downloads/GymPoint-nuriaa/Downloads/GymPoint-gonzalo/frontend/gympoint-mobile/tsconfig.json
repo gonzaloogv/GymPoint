@@ -1,0 +1,51 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@app/*": ["app/*"],
+
+      // Features - acceso directo a capas
+      "@features/*": ["src/features/*"],
+      "@features/auth/data": ["src/features/auth/data"],
+      "@features/auth/domain": ["src/features/auth/domain"],
+      "@features/auth/state": ["src/features/auth/state"],
+      "@features/auth/ui": ["src/features/auth/ui"],
+
+      "@features/gyms/data": ["src/features/gyms/data"],
+      "@features/gyms/domain": ["src/features/gyms/domain"],
+      "@features/gyms/state": ["src/features/gyms/state"],
+      "@features/gyms/ui": ["src/features/gyms/ui"],
+
+      "@features/routines/data": ["src/features/routines/data"],
+      "@features/routines/domain": ["src/features/routines/domain"],
+      "@features/routines/state": ["src/features/routines/state"],
+      "@features/routines/ui": ["src/features/routines/ui"],
+
+      "@features/rewards/data": ["src/features/rewards/data"],
+      "@features/rewards/domain": ["src/features/rewards/domain"],
+      "@features/rewards/state": ["src/features/rewards/state"],
+      "@features/rewards/ui": ["src/features/rewards/ui"],
+
+      "@features/home/data": ["src/features/home/data"],
+      "@features/home/domain": ["src/features/home/domain"],
+      "@features/home/state": ["src/features/home/state"],
+      "@features/home/ui": ["src/features/home/ui"],
+
+      "@features/user/data": ["src/features/user/data"],
+      "@features/user/domain": ["src/features/user/domain"],
+      "@features/user/state": ["src/features/user/state"],
+      "@features/user/ui": ["src/features/user/ui"],
+
+      // Infraestructura
+      "@presentation/*": ["src/presentation/*"],
+      "@shared/*": ["src/shared/*"],
+      "@di/*": ["src/di/*"],
+      "@assets/*": ["assets/*"]
+    },
+    "skipLibCheck": true
+  },
+  "include": ["app", "src", "App.tsx", "src/types/**/*.d.ts"]
+}
