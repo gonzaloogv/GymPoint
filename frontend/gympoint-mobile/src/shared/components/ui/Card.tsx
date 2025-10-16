@@ -1,49 +1,51 @@
-import styled from 'styled-components/native';
-import { rad, sp, font } from '@shared/styles';
-import { Text } from 'react-native';
+import { useTheme } from '@shared/hooks';
+import React from 'react';
+import { View } from 'react-native';
 
-export const Card = styled.View`
-  background-color: ${(p) => p.theme?.colors?.card ?? '#fff'};
-  border-width: 1px;
-  border-color: ${(p) => p.theme?.colors?.border ?? '#e5e7eb'};
-  border-radius: ${(p) => rad(p.theme, 'lg', 12)}px;
-  padding: ${(p) => sp(p.theme, 2)}px;
-  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.06);
-  elevation: 2;
-`;
+type CardVariant = 'default' | 'elevated' | 'outlined';
+type CardPadding = 'none' | 'sm' | 'md' | 'lg';
 
-export const CardRow = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-`;
+interface CardProps {
+  children: React.ReactNode;
+  variant?: CardVariant;
+  padding?: CardPadding;
+  className?: string;
+}
 
-export const CardTitle = styled.Text`
-  color: ${(p) => p.theme?.colors?.text ?? '#111'};
-  font-weight: 600;
-`;
+export const Card: React.FC<CardProps> = ({
+  children,
+  variant = 'default',
+  padding = 'md',
+  className = '',
+}) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
-export const AuthCard = styled.View`
-  width: 100%;
-  max-width: 460px;
-  background-color: ${(p) => p.theme?.colors?.card ?? '#fff'};
-  border-width: 1px;
-  border-color: ${(p) => p.theme?.colors?.border ?? '#e5e7eb'};
-  border-radius: ${(p) => rad(p.theme, 'xl', 16)}px;
-  padding: ${(p) => sp(p.theme, 3)}px;
-  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.06);
-  elevation: 2;
-`;
+  const baseClasses = `rounded-2xl ${isDark ? 'bg-surface-dark' : 'bg-surface'}`;
 
-export const AuthCardTitle = styled.Text`
-  color: ${(p) => p.theme?.colors?.text ?? '#111'};
-  font-size: ${(p) => font(p.theme, 'h4', 18)}px;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: ${(p) => sp(p.theme, 2)}px;
-`;
+  const variantClasses = {
+    default: '',
+    elevated: 'shadow-lg',
+    outlined: isDark ? 'border-2 border-border-dark' : 'border-2 border-border',
+  };
 
-export const CardMeta = styled(Text)`
-  color: ${({ theme }) => theme?.colors?.subtext ?? '#6b7280'};
-  font-size: 12px;
-`;
+  const paddingClasses = {
+    none: '',
+    sm: 'p-4',
+    md: 'p-6',
+    lg: 'p-8',
+  };
+
+  const cardClasses = `
+    ${baseClasses}
+    ${variantClasses[variant]}
+    ${paddingClasses[padding]}
+    ${className}
+  `.trim();
+
+  return (
+    <View className={cardClasses}>
+      {children}
+    </View>
+  );
+};

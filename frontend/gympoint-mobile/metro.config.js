@@ -15,5 +15,5 @@ config.resolver.sourceExts = [...sourceExts, 'svg'];
 // Envolver la configuración con withNativeWind
 module.exports = withNativeWind(config, { 
     // Asegúrate de que este archivo exista en tu raíz y tenga las directivas @tailwind
-    input: './index.css' 
+    input: './global.css' 
 });

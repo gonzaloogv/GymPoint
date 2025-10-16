@@ -1,31 +1,28 @@
-import styled from 'styled-components/native';
+import { useTheme } from '@shared/hooks';
+import React from 'react';
+import { View, Text } from 'react-native';
 
-const Row = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  margin-vertical: ${(p) =>
-    typeof p.theme?.spacing === 'function' ? p.theme.spacing(1.5) : 12}px;
-`;
-const Line = styled.View`
-  flex: 1;
-  height: 1px;
-  background-color: ${(p) => p.theme?.colors?.border ?? '#e5e7eb'};
-`;
-const Dot = styled.Text`
-  color: ${(p) => p.theme?.colors?.subtext ?? '#6b7280'};
-`;
-
-export function DividerWithText({ children = 'o' }: { children?: string }) {
-  return (
-    <Row>
-      <Line />
-      <Dot>{children}</Dot>
-      <Line />
-    </Row>
-  );
+interface DividerProps {
+  text?: string;
+  className?: string;
 }
 
-export const Separator = styled.View`
-  height: ${({ theme }) => theme.spacing(1.5)}px;
-`;
+export const Divider: React.FC<DividerProps> = ({ text, className = '' }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const lineColor = isDark ? 'bg-divider-dark' : 'bg-divider';
+  const textColor = isDark ? 'text-textSecondary-dark' : 'text-textSecondary';
+
+  if (text) {
+    return (
+      <View className={`flex-row items-center my-6 ${className}`}>
+        <View className={`flex-1 h-[1px] ${lineColor}`} />
+        <Text className={`mx-4 text-sm ${textColor}`}>{text}</Text>
+        <View className={`flex-1 h-[1px] ${lineColor}`} />
+      </View>
+    );
+  }
+
+  return <View className={`h-[1px] ${lineColor} ${className}`} />;
+};

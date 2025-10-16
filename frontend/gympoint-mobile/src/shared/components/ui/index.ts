@@ -1,8 +1,3 @@
-/**
- * Shared UI Components
- * Re-exports of all reusable UI components
- */
-
 export * from './ActionCard';
 export * from './AlertCard';
 export * from './Avatar';
@@ -30,7 +25,6 @@ export * from './MapMarker';
 export * from './MenuItem';
 export * from './MenuList';
 export * from './MetaChip';
-export * from './PremiumCard';
 export * from './ProgressBar';
 export * from './ProgressSection';
 export * from './ResultsInfo';
@@ -45,8 +39,8 @@ export * from './StepContainer';
 export * from './StreakDisplay';
 export * from './SwitchRow';
 export * from './TabPill';
-export * from './Text';
 export * from './TipsBanner';
 export * from './TokenPill';
 export * from './UnifiedBadge';
 export * from './UserLocationPin';
+export * from './Heading';
