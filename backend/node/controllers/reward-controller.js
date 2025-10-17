@@ -114,15 +114,67 @@ const obtenerEstadisticasDeRecompensas = async (req, res) => {
 };
 
 /**
+ * Listar todas las recompensas (Admin)
+ * @route GET /api/rewards/admin/all
+ * @access Private (Admin)
+ */
+const listarTodasLasRecompensas = async (req, res) => {
+  try {
+    console.log('📝 [CONTROLLER] Ejecutando listarTodasLasRecompensas...');
+    const recompensas = await rewardService.listarTodasLasRecompensas();
+    console.log(`✅ [CONTROLLER] ${recompensas.length} recompensas encontradas`);
+    
+    res.json({
+      message: 'Recompensas obtenidas con éxito',
+      data: recompensas
+    });
+  } catch (err) {
+    console.error('❌ [CONTROLLER] Error en listarTodasLasRecompensas:', err.message);
+    console.error(err.stack);
+    res.status(500).json({ 
+      error: { 
+        code: 'GET_ALL_REWARDS_FAILED', 
+        message: err.message 
+      } 
+    });
+  }
+};
+
+/**
+ * Obtener una recompensa por ID (Admin)
+ * @route GET /api/rewards/:id
+ * @access Private (Admin)
+ */
+const obtenerRecompensaPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const recompensa = await rewardService.obtenerRecompensaPorId(Number(id));
+    
+    res.json({
+      message: 'Recompensa obtenida con éxito',
+      data: recompensa
+    });
+  } catch (err) {
+    const statusCode = err.name === 'NotFoundError' ? 404 : 500;
+    res.status(statusCode).json({ 
+      error: { 
+        code: 'GET_REWARD_FAILED', 
+        message: err.message 
+      } 
+    });
+  }
+};
+
+/**
  * Crear nueva recompensa (Admin)
  * @route POST /api/rewards
  * @access Private (Admin)
  */
 const crearRecompensa = async (req, res) => {
   try {
-    const { name, description, cost_tokens, type, stock, start_date, finish_date } = req.body;
+    const { name, description, cost_tokens, type, stock, start_date, finish_date, available } = req.body;
 
-    if (!name || !description || !cost_tokens || !type || !stock || !start_date || !finish_date) {
+    if (!name || !description || !cost_tokens || !type || stock === undefined || !start_date || !finish_date) {
       return res.status(400).json({ 
         error: { 
           code: 'MISSING_FIELDS', 
@@ -138,7 +190,8 @@ const crearRecompensa = async (req, res) => {
       type,
       stock,
       start_date,
-      finish_date
+      finish_date,
+      available
     });
 
     res.status(201).json({
@@ -155,10 +208,65 @@ const crearRecompensa = async (req, res) => {
   }
 };
 
+/**
+ * Actualizar recompensa (Admin)
+ * @route PUT /api/rewards/:id
+ * @access Private (Admin)
+ */
+const actualizarRecompensa = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = req.body;
+
+    const recompensa = await rewardService.actualizarRecompensa(Number(id), data);
+
+    res.json({
+      message: 'Recompensa actualizada con éxito',
+      data: recompensa
+    });
+  } catch (err) {
+    const statusCode = err.name === 'NotFoundError' ? 404 : 400;
+    res.status(statusCode).json({ 
+      error: { 
+        code: 'UPDATE_REWARD_FAILED', 
+        message: err.message 
+      } 
+    });
+  }
+};
+
+/**
+ * Eliminar recompensa (Admin)
+ * @route DELETE /api/rewards/:id
+ * @access Private (Admin)
+ */
+const eliminarRecompensa = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await rewardService.eliminarRecompensa(Number(id));
+
+    res.json({
+      message: 'Recompensa eliminada con éxito'
+    });
+  } catch (err) {
+    const statusCode = err.name === 'NotFoundError' ? 404 : 400;
+    res.status(statusCode).json({ 
+      error: { 
+        code: 'DELETE_REWARD_FAILED', 
+        message: err.message 
+      } 
+    });
+  }
+};
+
 module.exports = {
   listarRecompensas,
+  listarTodasLasRecompensas,
+  obtenerRecompensaPorId,
   canjearRecompensa,
   obtenerHistorialRecompensas,
   obtenerEstadisticasDeRecompensas,
-  crearRecompensa
+  crearRecompensa,
+  actualizarRecompensa,
+  eliminarRecompensa
 };

@@ -19,6 +19,9 @@ export const Navbar = () => {
           <Link to="/">Panel</Link>
           <Link to="/users">Usuarios</Link>
           <Link to="/gyms">Gimnasios</Link>
+          <Link to="/routines">Rutinas</Link>
+          <Link to="/exercises">Ejercicios</Link>
+          <Link to="/reviews">Reviews</Link>
           <Link to="/transactions">Transacciones</Link>
           <Link to="/rewards">Recompensas</Link>
         </div>

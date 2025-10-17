@@ -4,3 +4,6 @@ export * from './Transactions';
 export * from './Rewards';
 export * from './Gyms';
 export * from './Login';
+export * from './Reviews';
+export * from './RoutineTemplates';
+export * from './Exercises';

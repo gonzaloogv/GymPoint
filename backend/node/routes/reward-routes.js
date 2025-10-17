@@ -143,6 +143,47 @@ router.get('/stats', verificarToken, verificarAdmin, controller.obtenerEstadisti
 
 /**
  * @swagger
+ * /api/rewards/admin/all:
+ *   get:
+ *     summary: Listar todas las recompensas (Admin)
+ *     description: Obtiene todas las recompensas sin filtros de disponibilidad
+ *     tags: [Recompensas]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de todas las recompensas
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: Requiere permisos de administrador
+ */
+router.get('/admin/all', verificarToken, verificarAdmin, controller.listarTodasLasRecompensas);
+
+/**
+ * @swagger
+ * /api/rewards/{id}:
+ *   get:
+ *     summary: Obtener una recompensa por ID (Admin)
+ *     tags: [Recompensas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Recompensa encontrada
+ *       404:
+ *         description: Recompensa no encontrada
+ */
+router.get('/:id', verificarToken, verificarAdmin, controller.obtenerRecompensaPorId);
+
+/**
+ * @swagger
  * /api/rewards:
  *   post:
  *     summary: Crear una nueva recompensa (Admin)
@@ -181,6 +222,9 @@ router.get('/stats', verificarToken, verificarAdmin, controller.obtenerEstadisti
  *                 type: string
  *                 format: date
  *                 example: 2025-12-31
+ *               available:
+ *                 type: boolean
+ *                 example: true
  *     responses:
  *       201:
  *         description: Recompensa creada con éxito
@@ -214,5 +258,75 @@ router.get('/stats', verificarToken, verificarAdmin, controller.obtenerEstadisti
  *         description: Requiere permisos de administrador
  */
 router.post('/', verificarToken, verificarAdmin, controller.crearRecompensa);
+
+/**
+ * @swagger
+ * /api/rewards/{id}:
+ *   put:
+ *     summary: Actualizar una recompensa (Admin)
+ *     tags: [Recompensas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               cost_tokens:
+ *                 type: integer
+ *               type:
+ *                 type: string
+ *               stock:
+ *                 type: integer
+ *               start_date:
+ *                 type: string
+ *                 format: date
+ *               finish_date:
+ *                 type: string
+ *                 format: date
+ *               available:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Recompensa actualizada
+ *       404:
+ *         description: Recompensa no encontrada
+ */
+router.put('/:id', verificarToken, verificarAdmin, controller.actualizarRecompensa);
+
+/**
+ * @swagger
+ * /api/rewards/{id}:
+ *   delete:
+ *     summary: Eliminar una recompensa (Admin)
+ *     description: Realiza soft delete de la recompensa
+ *     tags: [Recompensas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Recompensa eliminada con éxito
+ *       404:
+ *         description: Recompensa no encontrada
+ */
+router.delete('/:id', verificarToken, verificarAdmin, controller.eliminarRecompensa);
 
 module.exports = router;

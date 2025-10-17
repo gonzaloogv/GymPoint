@@ -34,5 +34,17 @@ const updateTemplateMeta = async (req, res) => {
   }
 };
 
-module.exports = { createTemplate, listTemplates, updateTemplateMeta };
+// DELETE /api/admin/routines/templates/:id
+const deleteTemplate = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!Number.isInteger(id)) return res.status(400).json({ error: { code: 'INVALID_ID', message: 'ID inválido' } });
+    await templateService.deleteTemplate(id);
+    res.status(204).send();
+  } catch (err) {
+    res.status(400).json({ error: { code: 'DELETE_TEMPLATE_FAILED', message: err.message } });
+  }
+};
+
+module.exports = { createTemplate, listTemplates, updateTemplateMeta, deleteTemplate };
 

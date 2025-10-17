@@ -49,14 +49,15 @@ const Reward = sequelize.define('Reward', {
   creation_date: {
     type: DataTypes.DATE,
     allowNull: false
+  },
+  deleted_at: {
+    type: DataTypes.DATE,
+    allowNull: true
   }
 }, {
   tableName: 'reward',
-  timestamps: true,
-  paranoid: true,
-  deletedAt: 'deleted_at',
-  createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  timestamps: false, // La tabla no tiene created_at ni updated_at
+  paranoid: false // Manejamos soft delete manualmente
 });
 
 module.exports = Reward;

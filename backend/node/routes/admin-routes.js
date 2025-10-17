@@ -212,6 +212,26 @@ router.put('/routines/templates/:id', adminTemplateController.updateTemplateMeta
 
 /**
  * @swagger
+ * /api/admin/routines/templates/{id}:
+ *   delete:
+ *     summary: Eliminar plantilla de rutina
+ *     tags: [Admin - Rutinas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     responses:
+ *       204: { description: Plantilla eliminada }
+ *       404: { description: Plantilla no encontrada }
+ */
+router.delete('/routines/templates/:id', adminTemplateController.deleteTemplate);
+
+/**
+ * @swagger
  * /api/admin/users/search:
  *   get:
  *     summary: Buscar usuario por email

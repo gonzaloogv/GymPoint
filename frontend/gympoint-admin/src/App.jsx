@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Layout } from './presentation/components';
-import { Dashboard, Users, Transactions, Rewards, Gyms, Login } from './presentation/pages';
+import { Dashboard, Users, Transactions, Rewards, Gyms, Reviews, Login, RoutineTemplates, Exercises } from './presentation/pages';
 import './App.css';
 
 const queryClient = new QueryClient({
@@ -39,7 +39,10 @@ function App() {
             <Route path="users" element={<Users />} />
             <Route path="transactions" element={<Transactions />} />
             <Route path="rewards" element={<Rewards />} />
+            <Route path="reviews" element={<Reviews />} />
             <Route path="gyms" element={<Gyms />} />
+            <Route path="routines" element={<RoutineTemplates />} />
+            <Route path="exercises" element={<Exercises />} />
           </Route>
         </Routes>
       </BrowserRouter>

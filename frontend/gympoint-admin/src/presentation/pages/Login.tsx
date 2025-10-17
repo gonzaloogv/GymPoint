@@ -60,7 +60,7 @@ export const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="admin@gympoint.com"
+              placeholder="administrador@administrador.com"
             />
           </div>
 
@@ -83,7 +83,7 @@ export const Login = () => {
 
           <div className="login-info">
             <p className="info-text">
-              Usa tus credenciales de administrador del backend para iniciar sesión.
+              Usa tus credenciales de administrador para iniciar sesión.
             </p>
           </div>
         </form>

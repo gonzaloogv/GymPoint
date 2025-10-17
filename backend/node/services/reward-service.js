@@ -129,19 +129,56 @@ const obtenerHistorialRecompensas = async (idUserProfile) => {
  * @returns {Promise<Array>} Lista de recompensas con total de canjeos
  */
 const obtenerEstadisticasDeRecompensas = async () => {
-  return await ClaimedReward.findAll({
+  const results = await ClaimedReward.findAll({
     attributes: [
       'id_reward',
-      [Sequelize.fn('COUNT', Sequelize.col('ClaimedReward.id_reward')), 'total_canjeos']
+      [Sequelize.fn('COUNT', Sequelize.col('ClaimedReward.id_reward')), 'total_canjes'],
+      [Sequelize.fn('SUM', Sequelize.col('reward.cost_tokens')), 'total_tokens_gastados']
     ],
     include: {
       model: Reward,
       as: 'reward',
       attributes: ['name', 'description', 'cost_tokens']
     },
-    group: ['ClaimedReward.id_reward', 'Reward.id_reward'],
-    order: [[Sequelize.literal('total_canjeos'), 'DESC']]
+    group: ['ClaimedReward.id_reward', 'Reward.id_reward', 'reward.name', 'reward.description', 'reward.cost_tokens'],
+    order: [[Sequelize.literal('total_canjes'), 'DESC']],
+    raw: true
   });
+  
+  // Transformar el resultado para que tenga la estructura esperada por el frontend
+  return results.map(row => ({
+    id_reward: row.id_reward,
+    name: row['reward.name'],
+    total_canjes: parseInt(row.total_canjes || 0),
+    total_tokens_gastados: parseInt(row.total_tokens_gastados || 0)
+  }));
+};
+
+/**
+ * Listar todas las recompensas (admin)
+ * Incluye todas las recompensas, sin filtros de disponibilidad
+ * @returns {Promise<Array>} Lista de todas las recompensas
+ */
+const listarTodasLasRecompensas = async () => {
+  return await Reward.findAll({
+    where: {
+      deleted_at: null // Solo recompensas no eliminadas
+    },
+    order: [['creation_date', 'DESC']]
+  });
+};
+
+/**
+ * Obtener una recompensa por ID (admin)
+ * @param {number} id_reward - ID de la recompensa
+ * @returns {Promise<Reward>} Recompensa encontrada
+ */
+const obtenerRecompensaPorId = async (id_reward) => {
+  const reward = await Reward.findByPk(id_reward);
+  if (!reward) {
+    throw new NotFoundError('Recompensa');
+  }
+  return reward;
 };
 
 /**
@@ -149,7 +186,7 @@ const obtenerEstadisticasDeRecompensas = async () => {
  * @param {Object} data - Datos de la recompensa
  * @returns {Promise<Reward>} Recompensa creada
  */
-const crearRecompensa = async ({ name, description, cost_tokens, type, stock, start_date, finish_date }) => {
+const crearRecompensa = async ({ name, description, cost_tokens, type, stock, start_date, finish_date, available = true }) => {
   return await Reward.create({
     name,
     description,
@@ -158,15 +195,62 @@ const crearRecompensa = async ({ name, description, cost_tokens, type, stock, st
     stock,
     start_date,
     finish_date,
-    available: true,
+    available,
     creation_date: new Date()
   });
 };
 
+/**
+ * Actualizar recompensa (admin)
+ * @param {number} id_reward - ID de la recompensa
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Reward>} Recompensa actualizada
+ */
+const actualizarRecompensa = async (id_reward, data) => {
+  const reward = await Reward.findByPk(id_reward);
+  if (!reward) {
+    throw new NotFoundError('Recompensa');
+  }
+
+  const { name, description, cost_tokens, type, stock, start_date, finish_date, available } = data;
+
+  if (name !== undefined) reward.name = name;
+  if (description !== undefined) reward.description = description;
+  if (cost_tokens !== undefined) reward.cost_tokens = cost_tokens;
+  if (type !== undefined) reward.type = type;
+  if (stock !== undefined) reward.stock = stock;
+  if (start_date !== undefined) reward.start_date = start_date;
+  if (finish_date !== undefined) reward.finish_date = finish_date;
+  if (available !== undefined) reward.available = available;
+
+  await reward.save();
+  return reward;
+};
+
+/**
+ * Eliminar recompensa (admin) - Soft delete
+ * @param {number} id_reward - ID de la recompensa
+ * @returns {Promise<void>}
+ */
+const eliminarRecompensa = async (id_reward) => {
+  const reward = await Reward.findByPk(id_reward);
+  if (!reward) {
+    throw new NotFoundError('Recompensa');
+  }
+
+  // Soft delete manual porque timestamps está deshabilitado
+  reward.deleted_at = new Date();
+  await reward.save();
+};
+
 module.exports = {
   listarRecompensas,
+  listarTodasLasRecompensas,
+  obtenerRecompensaPorId,
   canjearRecompensa,
   obtenerHistorialRecompensas,
   obtenerEstadisticasDeRecompensas,
-  crearRecompensa
+  crearRecompensa,
+  actualizarRecompensa,
+  eliminarRecompensa
 };

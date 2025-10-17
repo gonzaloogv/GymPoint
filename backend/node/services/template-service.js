@@ -133,5 +133,17 @@ module.exports = {
     for (const f of fields) if (data[f] !== undefined) payload[f] = data[f];
     await routine.update(payload);
     return routine;
+  },
+
+  async deleteTemplate(id) {
+    const routine = await Routine.findByPk(id);
+    if (!routine || !routine.is_template) throw new Error('Plantilla no encontrada');
+    
+    // Eliminar primero los ejercicios asociados
+    await RoutineExercise.destroy({ where: { id_routine: id } });
+    
+    // Eliminar la plantilla
+    await routine.destroy();
+    return true;
   }
 };
