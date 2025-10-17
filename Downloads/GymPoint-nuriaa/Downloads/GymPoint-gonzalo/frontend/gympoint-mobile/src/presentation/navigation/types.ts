@@ -33,9 +33,11 @@ export type ProgressStackParamList = {
   PhysicalProgress: { userId?: string };
   ExerciseProgress: { userId?: string };
   Achievements: { userId?: string };
+  Rewards: undefined;
 };
 
 export type UserStackParamList = {
   UserProfile: undefined;
   TokenHistory: { userId?: string };
+  Rewards: undefined;
 };

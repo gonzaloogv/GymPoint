@@ -47,8 +47,8 @@ const ProgressScreen: React.FC<ProgressScreenProps> = ({ navigation, userId = 'u
   }
 
   const handleTokenTips = () => {
-    // TODO: Navegar a pantalla de tips
-    console.log('Mostrar tips para ganar tokens');
+    // Navegar a pantalla de Recompensas
+    navigation?.navigate?.('Rewards');
   };
 
   const handlePhysicalProgress = () => {

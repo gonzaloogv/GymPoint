@@ -93,8 +93,8 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   }, [navigation, resolvedUser.id_user]);
 
   const handleRewards = useCallback(() => {
-    // Navegar a la tab de Recompensas
-    navigation?.navigate?.('Recompensa');
+    // Navegar a la screen de Recompensas
+    navigation?.navigate?.('Rewards');
   }, [navigation]);
 
   // ============================================
