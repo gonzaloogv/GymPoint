@@ -1,9 +1,5 @@
 import styled from 'styled-components/native';
-import { Button, ButtonText } from '@shared/components/ui/Button';
-import { Card, Row } from '@shared/components/ui';
-import { CardHeader } from '@shared/components/ui/CardHeader';
-import { ProgressSection } from '@shared/components/ui/ProgressSection';
-import { StreakDisplay } from '@shared/components/ui/StreakDisplay';
+import { Ionicons } from '@expo/vector-icons';
 
 type Props = {
   current: number;
@@ -13,46 +9,93 @@ type Props = {
   onStats?: () => void;
 };
 
-const Spread = styled(Row).attrs({ $justify: 'space-between' })``;
-
-const StatsButton = styled(Button)`
-  min-height: 40px;
+const Container = styled.TouchableOpacity.attrs({
+  activeOpacity: 0.7,
+})`
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 18px;
+  gap: 4px;
+  position: relative;
+  border: 1px solid #e5e7eb;
 `;
 
-const StatsLabel = styled(ButtonText)`
-  color: #ffffff;
+const StreakBadge = styled.View`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background-color: #ffffff;
+  border-radius: 16px;
+`;
+
+const StreakText = styled.Text`
+  font-size: 13px;
+  font-weight: 700;
+  color: #16a34a;
+`;
+
+const Content = styled.View`
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+`;
+
+const IconCircle = styled.View`
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  background-color: #dbeafe;
+  align-items: center;
+  justify-content: center;
+`;
+
+const IconText = styled.Text`
+  font-size: 18px;
+`;
+
+const TextContent = styled.View`
+  flex: 1;
+`;
+
+const Title = styled.Text`
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+`;
+
+const Subtitle = styled.Text`
+  font-size: 19px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-top: 2px;
 `;
 
 export default function WeeklyProgressCard({
   current,
   goal,
-  progressPct,
   streak,
   onStats,
 }: Props) {
   return (
-    <Card>
-      <CardHeader
-        icon="target"
-        title="Progreso semanal"
-        badgeText={`${current}/${goal}`}
-        badgeVariant="secondary"
-      />
+    <Container onPress={onStats}>
+      <StreakBadge>
+        <Ionicons name="trending-up" size={14} color="#16a34a" />
+        <StreakText>{streak}</StreakText>
+      </StreakBadge>
 
-      <ProgressSection
-        current={current}
-        goal={goal}
-        progressPct={progressPct}
-        label="Meta semanal"
-        description={`${current} de ${goal} entrenamientos`}
-      />
-
-      <Spread>
-        <StreakDisplay streak={streak} />
-        <StatsButton onPress={onStats}>
-          <StatsLabel>Ver estadísticas</StatsLabel>
-        </StatsButton>
-      </Spread>
-    </Card>
+      <Content>
+        <IconCircle>
+          <IconText>🎯</IconText>
+        </IconCircle>
+        <TextContent>
+          <Title>Meta semanal</Title>
+          <Subtitle>{current} de {goal} entrenamientos</Subtitle>
+        </TextContent>
+      </Content>
+    </Container>
   );
 }

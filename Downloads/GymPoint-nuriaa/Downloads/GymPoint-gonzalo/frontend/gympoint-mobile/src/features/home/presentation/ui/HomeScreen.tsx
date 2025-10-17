@@ -11,7 +11,6 @@ import {
   QuickActions,
   LocationBanner,
   DailyChallengeCard,
-  PremiumUpsellBanner,
 } from './components';
 
 type AppTabsParamList = {
@@ -33,24 +32,25 @@ export default function HomeScreen() {
 
   const goToGyms = () => navigation.navigate('Mapa');
   const goToRoutines = () => navigation.navigate('Rutinas');
+  const goToProgress = () => navigation.navigate('Progreso' as any);
 
   const contentSpacing = {
     paddingHorizontal: 16,
-    paddingTop: 4,
+    paddingTop: 16,
     paddingBottom: tabBarHeight + bottom + 8,
     rowGap: 16,
   };
 
   return (
     <Screen scroll contentContainerStyle={contentSpacing}>
-      <HomeHeader userName={user.name} plan={user.plan} tokens={user.tokens} />
+      <HomeHeader userName={user.name} tokens={user.tokens} streak={user.streak} />
 
       <WeeklyProgressCard
         current={currentProgress}
         goal={weeklyGoal}
         progressPct={progressPct}
         streak={user.streak}
-        onStats={() => {}}
+        onStats={goToProgress}
       />
 
       <QuickActions
@@ -60,7 +60,6 @@ export default function HomeScreen() {
 
       <LocationBanner visible={perm !== 'granted'} onEnable={requestLocation} />
       <DailyChallengeCard />
-      <PremiumUpsellBanner visible={user.plan === 'Free'} onPress={() => {}} />
     </Screen>
   );
 }
