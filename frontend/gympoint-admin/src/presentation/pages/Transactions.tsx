@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTransactions } from '../hooks';
-import { Card, Loading } from '../components';
+import { Card, Loading, Button, Input, Table } from '../components';
+import { Transaction } from '@/domain';
 
 export const Transactions = () => {
   const [page, setPage] = useState(1);
@@ -12,98 +13,69 @@ export const Transactions = () => {
     user_id: userId ? parseInt(userId) : undefined,
   });
 
-  if (isLoading) {
-    return <Loading />;
-  }
+  const columns = [
+    { key: 'id_ledger', label: 'ID' },
+    {
+      key: 'user', label: 'Usuario', render: (t: Transaction) => (
+        <div>
+          <p className="font-semibold">{t.user?.name || 'N/A'}</p>
+          <p className="text-xs text-text-muted">{t.user?.email}</p>
+        </div>
+      )
+    },
+    {
+      key: 'delta', label: 'Delta', render: (t: Transaction) => (
+        <span className={`font-bold ${t.delta > 0 ? 'text-success' : 'text-danger'}`}>
+          {t.delta > 0 ? '+' : ''}{t.delta}
+        </span>
+      )
+    },
+    { key: 'balance_after', label: 'Balance Final' },
+    { key: 'reason', label: 'Razón' },
+    {
+      key: 'ref', label: 'Referencia', render: (t: Transaction) => (
+        t.ref_type ? <code>{t.ref_type}:{t.ref_id}</code> : 'N/A'
+      )
+    },
+    {
+      key: 'created_at', label: 'Fecha', render: (t: Transaction) => (
+        new Date(t.created_at).toLocaleString('es-ES')
+      )
+    },
+  ];
+
+  if (isLoading) return <Loading fullPage />;
 
   return (
-    <div className="transactions-page">
-      <h2>Transacciones de Tokens</h2>
-
-      <Card>
-        <div className="filters">
-          <input
-            type="number"
-            placeholder="Filtrar por ID de Usuario..."
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            className="search-input"
-          />
+    <div className="p-6 bg-bg dark:bg-bg-dark min-h-screen">
+      <header className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-text dark:text-text-dark">Transacciones de Tokens</h1>
+          <p className="text-text-muted">Historial de todos los movimientos de tokens</p>
         </div>
+      </header>
+
+      <Card className="mb-6">
+        <Input
+          type="number"
+          placeholder="Filtrar por ID de Usuario..."
+          value={userId}
+          onChange={(e) => setUserId(e.target.value)}
+        />
       </Card>
 
-      <Card title="Historial de Transacciones">
-        <div className="table-container">
-          <table className="transactions-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Usuario</th>
-                <th>Delta</th>
-                <th>Balance Final</th>
-                <th>Razón</th>
-                <th>Referencia</th>
-                <th>Fecha</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data?.data?.map((transaction) => (
-                <tr key={transaction.id_ledger}>
-                  <td>{transaction.id_ledger}</td>
-                  <td>
-                    {transaction.user ? (
-                      <>
-                        {transaction.user.name}
-                        <br />
-                        <small>{transaction.user.email}</small>
-                      </>
-                    ) : (
-                      'N/A'
-                    )}
-                  </td>
-                  <td>
-                    <span className={`delta ${transaction.delta > 0 ? 'positive' : 'negative'}`}>
-                      {transaction.delta > 0 ? '+' : ''}
-                      {transaction.delta}
-                    </span>
-                  </td>
-                  <td>{transaction.balance_after}</td>
-                  <td>{transaction.reason}</td>
-                  <td>
-                    {transaction.ref_type ? (
-                      <>
-                        {transaction.ref_type}:{transaction.ref_id}
-                      </>
-                    ) : (
-                      'N/A'
-                    )}
-                  </td>
-                  <td>{new Date(transaction.created_at).toLocaleString('es-ES')}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
+      <Card>
+        <Table
+          columns={columns}
+          data={data?.data || []}
+          loading={isLoading}
+          emptyMessage="No hay transacciones que coincidan con los filtros."
+        />
         {data?.pagination && (
-          <div className="pagination">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="btn-pagination"
-            >
-              Anterior
-            </button>
-            <span>
-              Página {data.pagination.page} de {data.pagination.total_pages}
-            </span>
-            <button
-              onClick={() => setPage((p) => p + 1)}
-              disabled={page >= data.pagination.total_pages}
-              className="btn-pagination"
-            >
-              Siguiente
-            </button>
+          <div className="flex justify-center items-center gap-4 mt-6">
+            <Button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} variant="secondary">Anterior</Button>
+            <span>Página {data.pagination.page} de {data.pagination.total_pages}</span>
+            <Button onClick={() => setPage((p) => p + 1)} disabled={page >= data.pagination.total_pages} variant="secondary">Siguiente</Button>
           </div>
         )}
       </Card>

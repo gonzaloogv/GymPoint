@@ -6,13 +6,15 @@ import {
   useGrantTokens,
   useUpdateSubscription,
 } from '../hooks';
-import { Card, Loading, UserCard } from '../components';
+import { Card, Loading, Button, Input, Select, Modal, Badge, Table } from '../components';
+import { UserCard } from '../components/ui/UserCard'; // Assuming migrated component
+import { User } from '@/domain';
 
 export const Users = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [subscription, setSubscription] = useState<'FREE' | 'PREMIUM' | ''>('');
-  const [selectedUser, setSelectedUser] = useState<number | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [tokenDelta, setTokenDelta] = useState('');
   const [tokenReason, setTokenReason] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
@@ -29,265 +31,136 @@ export const Users = () => {
   const grantTokensMutation = useGrantTokens();
   const updateSubscriptionMutation = useUpdateSubscription();
 
-  const handleGrantTokens = (userId: number) => {
-    console.log('handleGrantTokens called with userId:', userId);
-
-    if (!userId) {
-      alert('Error: ID de usuario no válido');
-      return;
-    }
-
-    if (!tokenDelta) {
-      alert('Por favor ingresa la cantidad de tokens');
-      return;
-    }
-
+  const handleGrantTokens = () => {
+    if (!selectedUser) return;
     const deltaValue = parseInt(tokenDelta);
     if (isNaN(deltaValue)) {
       alert('La cantidad de tokens debe ser un número válido');
       return;
     }
-
-    console.log('Sending grant tokens request:', { userId, delta: deltaValue, reason: tokenReason });
-
     grantTokensMutation.mutate(
+      { userId: selectedUser.id_user_profile, delta: deltaValue, reason: tokenReason || undefined },
       {
-        userId,
-        delta: deltaValue,
-        reason: tokenReason || undefined,
-      },
-      {
-        onSuccess: (data) => {
-          console.log('Tokens granted successfully:', data);
+        onSuccess: () => {
           setSelectedUser(null);
           setTokenDelta('');
           setTokenReason('');
           alert('Tokens otorgados exitosamente');
         },
         onError: (error: any) => {
-          console.error('Error al otorgar tokens:', error);
-          console.error('Error response:', error.response);
-          const errorMessage = error.response?.data?.error?.message || error.message || 'Error desconocido';
-          alert(`Error al otorgar tokens: ${errorMessage}`);
+          alert(`Error al otorgar tokens: ${error.response?.data?.error?.message || error.message}`);
         },
       }
     );
   };
 
-  if (isLoading) {
-    return <Loading />;
-  }
+  const columns = [
+    { key: 'id_user_profile', label: 'ID' },
+    { key: 'email', label: 'Email' },
+    { key: 'name', label: 'Nombre', render: (user: User) => `${user.name} ${user.lastname}` },
+    { key: 'subscription', label: 'Suscripción', render: (user: User) => <Badge variant={user.subscription.toLowerCase() as 'premium' | 'free'}>{user.subscription}</Badge> },
+    { key: 'tokens', label: 'Tokens' },
+    { key: 'is_active', label: 'Estado', render: (user: User) => <Badge variant={user.is_active ? 'active' : 'inactive'}>{user.is_active ? 'Activo' : 'Inactivo'}</Badge> },
+    {
+      key: 'actions', label: 'Acciones', render: (user: User) => (
+        <div className="flex gap-2">
+          {user.is_active ? (
+            <Button onClick={() => deactivateMutation.mutate(user.id_account)} variant="danger" size="sm">Desactivar</Button>
+          ) : (
+            <Button onClick={() => activateMutation.mutate(user.id_account)} variant="success" size="sm">Activar</Button>
+          )}
+          <Button onClick={() => setSelectedUser(user)} variant="primary" size="sm">Tokens</Button>
+          <Button onClick={() => updateSubscriptionMutation.mutate({ userId: user.id_user_profile, subscription: user.subscription === 'FREE' ? 'PREMIUM' : 'FREE' })} variant="secondary" size="sm">Sub</Button>
+        </div>
+      )
+    },
+  ];
+
+  if (isLoading) return <Loading fullPage />;
 
   return (
-    <div className="users-page">
-      <h2>Gestión de Usuarios</h2>
+    <div className="p-6 bg-bg dark:bg-bg-dark min-h-screen">
+      <header className="mb-6">
+        <h1 className="text-2xl font-bold text-text dark:text-text-dark">Gestión de Usuarios</h1>
+        <p className="text-sm text-text-muted mt-1">Total: {data?.total || 0} usuarios</p>
+      </header>
 
-      <Card>
-        <div className="filters">
-          <input
+      <Card as="section" aria-label="Filtros de búsqueda">
+        <div className="flex flex-wrap items-center gap-4">
+          <Input
             type="text"
             placeholder="Buscar por nombre, apellido o email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="search-input"
+            className="flex-grow"
           />
-
-          <select
+          <Select
             value={subscription}
             onChange={(e) => setSubscription(e.target.value as 'FREE' | 'PREMIUM' | '')}
-            className="filter-select"
-          >
-            <option value="">Todas las Suscripciones</option>
-            <option value="FREE">FREE</option>
-            <option value="PREMIUM">PREMIUM</option>
-          </select>
-
-          <div className="view-toggle">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-            >
-              Cuadrícula
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={`view-btn ${viewMode === 'table' ? 'active' : ''}`}
-            >
-              Tabla
-            </button>
+            options={[{ value: '', label: 'Todas las Suscripciones' }, { value: 'FREE', label: 'FREE' }, { value: 'PREMIUM', label: 'PREMIUM' }]}
+          />
+          <div className="flex rounded-lg bg-bg p-1">
+            <Button variant={viewMode === 'grid' ? 'primary' : 'secondary'} onClick={() => setViewMode('grid')} size="sm">Cuadrícula</Button>
+            <Button variant={viewMode === 'table' ? 'primary' : 'secondary'} onClick={() => setViewMode('table')} size="sm">Tabla</Button>
           </div>
         </div>
       </Card>
 
-      {viewMode === 'grid' ? (
-        <div className="users-grid">
-          {data?.data?.map((user) => (
-            <UserCard
-              key={user.id_user_profile}
-              user={user}
-              onDeactivate={(id) => deactivateMutation.mutate(id)}
-              onActivate={(id) => activateMutation.mutate(id)}
-              onGrantTokens={(id) => setSelectedUser(id)}
-              onToggleSubscription={(id, sub) =>
-                updateSubscriptionMutation.mutate({
-                  userId: id,
-                  subscription: sub === 'FREE' ? 'PREMIUM' : 'FREE',
-                })
-              }
-            />
-          ))}
-        </div>
-      ) : (
-        <Card title="Lista de Usuarios">
-        <div className="table-container">
-          <table className="users-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Email</th>
-                <th>Nombre</th>
-                <th>Suscripción</th>
-                <th>Tokens</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data?.data?.map((user) => (
-                <tr key={user.id_user_profile}>
-                  <td>{user.id_user_profile}</td>
-                  <td>{user.email}</td>
-                  <td>
-                    {user.name} {user.lastname}
-                  </td>
-                  <td>
-                    <span className={`badge ${user.subscription.toLowerCase()}`}>
-                      {user.subscription}
-                    </span>
-                  </td>
-                  <td>{user.tokens}</td>
-                  <td>
-                    <span className={`status ${user.is_active ? 'active' : 'inactive'}`}>
-                      {user.is_active ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="action-buttons">
-                      {user.is_active ? (
-                        <button
-                          onClick={() => deactivateMutation.mutate(user.id_account)}
-                          className="btn-danger"
-                        >
-                          Desactivar
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => activateMutation.mutate(user.id_account)}
-                          className="btn-success"
-                        >
-                          Activar
-                        </button>
-                      )}
-
-                      <button
-                        onClick={() => setSelectedUser(user.id_user_profile)}
-                        className="btn-primary"
-                      >
-                        Otorgar Tokens
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          updateSubscriptionMutation.mutate({
-                            userId: user.id_user_profile,
-                            subscription: user.subscription === 'FREE' ? 'PREMIUM' : 'FREE',
-                          })
-                        }
-                        className="btn-secondary"
-                      >
-                        Cambiar Sub
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {data?.pagination && (
-          <div className="pagination">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="btn-pagination"
-            >
-              Anterior
-            </button>
-            <span>
-              Página {data.pagination.page} de {data.pagination.total_pages}
-            </span>
-            <button
-              onClick={() => setPage((p) => p + 1)}
-              disabled={page >= data.pagination.total_pages}
-              className="btn-pagination"
-            >
-              Siguiente
-            </button>
+      <section className="mt-6" aria-label="Lista de usuarios">
+        {viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {data?.data?.map((user) => (
+              <UserCard
+                key={user.id_user_profile}
+                user={user}
+                onDeactivate={(id) => deactivateMutation.mutate(id)}
+                onActivate={(id) => activateMutation.mutate(id)}
+                onGrantTokens={() => setSelectedUser(user)}
+                onToggleSubscription={(id, sub) => updateSubscriptionMutation.mutate({ userId: id, subscription: sub === 'FREE' ? 'PREMIUM' : 'FREE' })}
+              />
+            ))}
           </div>
+        ) : (
+          <Card>
+            <Table 
+              columns={columns} 
+              data={data?.data || []} 
+              loading={isLoading}
+              caption="Tabla de usuarios del sistema"
+              aria-label="Tabla de usuarios"
+            />
+          </Card>
         )}
-      </Card>
+      </section>
+
+      {data?.pagination && (
+        <nav className="flex justify-center items-center gap-4 mt-6" aria-label="Paginación de usuarios">
+          <Button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} aria-label="Página anterior">Anterior</Button>
+          <span aria-current="page">Página {data.pagination.page} de {data.pagination.total_pages}</span>
+          <Button onClick={() => setPage((p) => p + 1)} disabled={page >= data.pagination.total_pages} aria-label="Página siguiente">Siguiente</Button>
+        </nav>
       )}
 
-      {data?.pagination && viewMode === 'grid' && (
-        <div className="pagination">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="btn-pagination"
-          >
-            Anterior
-          </button>
-          <span>
-            Página {data.pagination.page} de {data.pagination.total_pages}
-          </span>
-          <button
-            onClick={() => setPage((p) => p + 1)}
-            disabled={page >= data.pagination.total_pages}
-            className="btn-pagination"
-          >
-            Siguiente
-          </button>
+      <Modal isOpen={!!selectedUser} onClose={() => setSelectedUser(null)} title={`Otorgar Tokens a ${selectedUser?.name}`}>
+        <div className="space-y-4">
+          <Input
+            type="number"
+            placeholder="Cantidad de tokens (positivo o negativo)"
+            value={tokenDelta}
+            onChange={(e) => setTokenDelta(e.target.value)}
+          />
+          <Input
+            type="text"
+            placeholder="Razón (opcional)"
+            value={tokenReason}
+            onChange={(e) => setTokenReason(e.target.value)}
+          />
         </div>
-      )}
-
-      {selectedUser && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Otorgar Tokens al Usuario #{selectedUser}</h3>
-            <input
-              type="number"
-              placeholder="Cantidad de tokens (positivo o negativo)"
-              value={tokenDelta}
-              onChange={(e) => setTokenDelta(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Razón (opcional)"
-              value={tokenReason}
-              onChange={(e) => setTokenReason(e.target.value)}
-            />
-            <div className="modal-actions">
-              <button onClick={() => handleGrantTokens(selectedUser)} className="btn-primary">
-                Otorgar
-              </button>
-              <button onClick={() => setSelectedUser(null)} className="btn-secondary">
-                Cancelar
-              </button>
-            </div>
-          </div>
+        <div className="flex justify-end gap-4 mt-6">
+          <Button onClick={() => setSelectedUser(null)} variant="secondary">Cancelar</Button>
+          <Button onClick={handleGrantTokens} variant="primary" disabled={grantTokensMutation.isPending}>Otorgar</Button>
         </div>
-      )}
+      </Modal>
     </div>
   );
 };

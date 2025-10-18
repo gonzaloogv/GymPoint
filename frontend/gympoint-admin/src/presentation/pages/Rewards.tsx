@@ -6,14 +6,14 @@ import {
   useDeleteReward,
   useRewardStats
 } from '../hooks';
-import { Card, Loading, RewardForm, RewardCard } from '../components';
+import { Card, Loading, Button, Input, Badge } from '../components';
+import { RewardForm } from '../components/ui/RewardForm';
+import { RewardCard } from '../components/ui/RewardCard';
 import { CreateRewardDTO, UpdateRewardDTO, Reward } from '@/domain';
 
 export const Rewards = () => {
   const { data: rewards, isLoading, error } = useRewards();
-  // Temporalmente deshabilitado hasta que se arregle el backend
-  // const { data: stats, isLoading: isLoadingStats } = useRewardStats();
-  const stats = null;
+  const { data: stats } = useRewardStats();
   const createRewardMutation = useCreateReward();
   const updateRewardMutation = useUpdateReward();
   const deleteRewardMutation = useDeleteReward();
@@ -29,29 +29,16 @@ export const Rewards = () => {
   };
 
   const handleDelete = async (id: number, name: string) => {
-    if (window.confirm(`¿Estás seguro que deseas eliminar la recompensa "${name}"?\n\nEsta acción no se puede deshacer.`)) {
-      try {
-        await deleteRewardMutation.mutateAsync(id);
-        alert(`✅ Recompensa "${name}" eliminada con éxito`);
-      } catch (err: any) {
-        alert(`❌ Error al eliminar recompensa: ${err.response?.data?.error?.message || err.message}`);
-      }
+    if (window.confirm(`¿Eliminar "${name}"?`)) {
+      await deleteRewardMutation.mutateAsync(id);
     }
   };
 
   const handleSubmit = async (data: CreateRewardDTO) => {
+    const mutation = editingReward ? updateRewardMutation.mutateAsync({ id_reward: editingReward.id_reward, ...data }) : createRewardMutation.mutateAsync(data);
     try {
-      if (editingReward) {
-        const updateData: UpdateRewardDTO = {
-          id_reward: editingReward.id_reward,
-          ...data,
-        };
-        await updateRewardMutation.mutateAsync(updateData);
-        alert('✅ Recompensa actualizada con éxito');
-      } else {
-        await createRewardMutation.mutateAsync(data);
-        alert('✅ Recompensa creada con éxito');
-      }
+      await mutation;
+      alert(`✅ Recompensa ${editingReward ? 'actualizada' : 'creada'} con éxito`);
       setShowForm(false);
       setEditingReward(null);
     } catch (err: any) {
@@ -59,182 +46,76 @@ export const Rewards = () => {
     }
   };
 
-  // Filter rewards
   const filteredRewards = rewards?.filter((reward) => {
-    const matchesSearch = reward.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          reward.description.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const now = new Date();
-    const finishDate = new Date(reward.finish_date);
-    const isExpired = finishDate < now;
+    const matchesSearch = reward.name.toLowerCase().includes(searchTerm.toLowerCase()) || reward.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const isExpired = new Date(reward.finish_date) < new Date();
     const isActive = reward.available && reward.stock > 0 && !isExpired;
-    
     if (filterStatus === 'active') return isActive && matchesSearch;
     if (filterStatus === 'inactive') return !reward.available && matchesSearch;
     if (filterStatus === 'expired') return isExpired && matchesSearch;
     return matchesSearch;
   });
 
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  if (error) {
-    return (
-      <div className="rewards-page">
-        <h1>🎁 Gestión de Recompensas</h1>
-        <p className="error-message">Error al cargar recompensas: {error.message}</p>
-      </div>
-    );
-  }
+  if (isLoading) return <Loading fullPage />;
+  if (error) return <div className="p-6"><h1 className="text-xl font-bold">🎁 Gestión de Recompensas</h1><p className="text-danger">Error al cargar: {error.message}</p></div>;
 
   return (
-    <div className="rewards-page">
-      <div className="page-header">
+    <div className="p-6 bg-bg dark:bg-bg-dark min-h-screen">
+      <div className="flex justify-between items-center mb-6">
         <div>
-          <h1>🎁 Gestión de Recompensas</h1>
-          <p className="page-subtitle">
-            Administra las recompensas que los usuarios pueden canjear por tokens
-          </p>
+          <h1 className="text-2xl font-bold text-text dark:text-text-dark">🎁 Gestión de Recompensas</h1>
+          <p className="text-text-muted">Administra las recompensas que los usuarios pueden canjear por tokens</p>
         </div>
-        {!showForm && (
-          <button 
-            onClick={() => {
-              setShowForm(true);
-              setEditingReward(null);
-            }} 
-            className="btn-primary"
-          >
-            ➕ Nueva Recompensa
-          </button>
-        )}
+        {!showForm && <Button onClick={() => { setShowForm(true); setEditingReward(null); }} variant="primary">➕ Nueva Recompensa</Button>}
       </div>
 
-      {/* Statistics */}
-      {!showForm && stats && stats.length > 0 && (
-        <Card title="📊 Estadísticas de Canjes">
-          <div className="stats-grid">
-            {stats.slice(0, 5).map((stat) => (
-              <div key={stat.id_reward} className="stat-card">
-                <div className="stat-label">{stat.name}</div>
-                <div className="stat-value">{stat.total_canjes} canjes</div>
-                <div className="stat-subtitle">{stat.total_tokens_gastados} tokens</div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {/* Form */}
-      {showForm && (
+      {showForm ? (
         <Card title={editingReward ? 'Editar Recompensa' : 'Agregar Nueva Recompensa'}>
-          <RewardForm
-            reward={editingReward || undefined}
-            onSubmit={handleSubmit}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingReward(null);
-            }}
-            isLoading={createRewardMutation.isPending || updateRewardMutation.isPending}
-          />
+          <RewardForm reward={editingReward || undefined} onSubmit={handleSubmit} onCancel={() => { setShowForm(false); setEditingReward(null); }} isLoading={createRewardMutation.isPending || updateRewardMutation.isPending} />
         </Card>
-      )}
-
-      {/* Filters and List */}
-      {!showForm && (
-        <>
-          <div className="rewards-filters">
-            <div className="search-box">
-              <span className="search-icon">🔍</span>
-              <input
-                type="text"
-                placeholder="Buscar por nombre o descripción..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
-              {searchTerm && (
-                <button 
-                  className="clear-search" 
-                  onClick={() => setSearchTerm('')}
-                  title="Limpiar búsqueda"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-
-            <div className="filter-tabs">
-              <button
-                className={`filter-tab ${filterStatus === 'all' ? 'active' : ''}`}
-                onClick={() => setFilterStatus('all')}
-              >
-                <span className="filter-icon">📋</span>
-                Todas
-                <span className="filter-count">{rewards?.length || 0}</span>
-              </button>
-              <button
-                className={`filter-tab ${filterStatus === 'active' ? 'active' : ''}`}
-                onClick={() => setFilterStatus('active')}
-              >
-                <span className="filter-icon">✅</span>
-                Activas
-                <span className="filter-count">
-                  {rewards?.filter(r => {
-                    const now = new Date();
-                    const finishDate = new Date(r.finish_date);
-                    return r.available && r.stock > 0 && finishDate >= now;
-                  }).length || 0}
-                </span>
-              </button>
-              <button
-                className={`filter-tab ${filterStatus === 'inactive' ? 'active' : ''}`}
-                onClick={() => setFilterStatus('inactive')}
-              >
-                <span className="filter-icon">🚫</span>
-                No Disponibles
-                <span className="filter-count">
-                  {rewards?.filter(r => !r.available).length || 0}
-                </span>
-              </button>
-              <button
-                className={`filter-tab ${filterStatus === 'expired' ? 'active' : ''}`}
-                onClick={() => setFilterStatus('expired')}
-              >
-                <span className="filter-icon">⏰</span>
-                Expiradas
-                <span className="filter-count">
-                  {rewards?.filter(r => new Date(r.finish_date) < new Date()).length || 0}
-                </span>
-              </button>
-            </div>
-          </div>
-
-          <Card title={`Recompensas (${filteredRewards?.length || 0})`}>
-            {filteredRewards && filteredRewards.length > 0 ? (
-              <div className="rewards-grid">
-                {filteredRewards.map((reward) => (
-                  <RewardCard
-                    key={reward.id_reward}
-                    reward={reward}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    isDeleting={deleteRewardMutation.isPending}
-                  />
+      ) : (
+        <div className="space-y-6">
+          {stats && stats.length > 0 && (
+            <Card title="📊 Estadísticas de Canjes">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                {stats.slice(0, 5).map((stat) => (
+                  <div key={stat.id_reward} className="bg-bg p-4 rounded-lg text-center">
+                    <div className="font-semibold text-text-muted text-sm">{stat.name}</div>
+                    <div className="text-2xl font-bold text-primary">{stat.total_canjes} canjes</div>
+                    <div className="text-xs text-text-muted">{stat.total_tokens_gastados} tokens</div>
+                  </div>
                 ))}
               </div>
-            ) : (
-              <div className="empty-message">
-                <p>📦 No hay recompensas que coincidan con los filtros</p>
-                {searchTerm && (
-                  <button onClick={() => setSearchTerm('')} className="btn-secondary">
-                    Limpiar búsqueda
-                  </button>
-                )}
+            </Card>
+          )}
+
+          <Card>
+            <div className="space-y-4">
+              <Input type="text" placeholder="🔍 Buscar por nombre o descripción..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              <div className="flex flex-wrap gap-2">
+                <Button variant={filterStatus === 'all' ? 'primary' : 'secondary'} onClick={() => setFilterStatus('all')}>Todas <Badge variant="free">{rewards?.length || 0}</Badge></Button>
+                <Button variant={filterStatus === 'active' ? 'primary' : 'secondary'} onClick={() => setFilterStatus('active')}>Activas <Badge variant="active">{rewards?.filter(r => r.available && r.stock > 0 && new Date(r.finish_date) >= new Date()).length || 0}</Badge></Button>
+                <Button variant={filterStatus === 'inactive' ? 'primary' : 'secondary'} onClick={() => setFilterStatus('inactive')}>Inactivas <Badge variant="inactive">{rewards?.filter(r => !r.available).length || 0}</Badge></Button>
+                <Button variant={filterStatus === 'expired' ? 'primary' : 'secondary'} onClick={() => setFilterStatus('expired')}>Expiradas <Badge variant="warning">{rewards?.filter(r => new Date(r.finish_date) < new Date()).length || 0}</Badge></Button>
               </div>
-            )}
+            </div>
           </Card>
-        </>
+
+          {filteredRewards && filteredRewards.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredRewards.map((reward) => (
+                <RewardCard key={reward.id_reward} reward={reward} onEdit={handleEdit} onDelete={handleDelete} isDeleting={deleteRewardMutation.isPending && deleteRewardMutation.variables === reward.id_reward} />
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center min-h-[200px] text-text-muted">
+              <div className="text-center">
+                <p className="text-lg">📦 No hay recompensas que coincidan</p>
+                {searchTerm && <Button onClick={() => setSearchTerm('')} variant="secondary" className="mt-4">Limpiar búsqueda</Button>}
+              </div>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

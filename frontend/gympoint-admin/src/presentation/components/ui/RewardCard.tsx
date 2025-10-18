@@ -1,4 +1,5 @@
 import { Reward } from '@/domain';
+import { Card, Button, Badge } from './index';
 
 interface RewardCardProps {
   reward: Reward;
@@ -8,20 +9,19 @@ interface RewardCardProps {
 }
 
 export const RewardCard = ({ reward, onEdit, onDelete, isDeleting }: RewardCardProps) => {
-  const isActive = reward.available && reward.stock > 0;
   const isExpired = new Date(reward.finish_date) < new Date();
-  
+
   const getStatusBadge = () => {
     if (isExpired) {
-      return <span className="badge badge-expired">⏰ Expirada</span>;
+      return <Badge variant="warning">⏰ Expirada</Badge>;
     }
     if (!reward.available) {
-      return <span className="badge badge-inactive">🚫 No Disponible</span>;
+      return <Badge variant="inactive">🚫 No Disponible</Badge>;
     }
     if (reward.stock === 0) {
-      return <span className="badge badge-out-of-stock">📦 Sin Stock</span>;
+      return <Badge variant="inactive">📦 Sin Stock</Badge>;
     }
-    return <span className="badge badge-active">✅ Activa</span>;
+    return <Badge variant="active">✅ Activa</Badge>;
   };
 
   const formatDate = (dateString: string) => {
@@ -34,63 +34,63 @@ export const RewardCard = ({ reward, onEdit, onDelete, isDeleting }: RewardCardP
   };
 
   return (
-    <div className={`reward-card ${!isActive ? 'inactive' : ''}`}>
-      <div className="reward-header">
-        <h3>{reward.name}</h3>
+    <Card className={`flex flex-col ${!reward.available || reward.stock === 0 ? 'opacity-60' : ''}`}>
+      <div className="flex justify-between items-start mb-4">
+        <h3 className="text-lg font-bold text-text dark:text-text-dark flex-1 mr-2">{reward.name}</h3>
         {getStatusBadge()}
       </div>
 
-      <div className="reward-body">
-        <p className="reward-description">{reward.description}</p>
+      <div className="flex-grow">
+        <p className="text-sm text-text-muted mb-4">{reward.description}</p>
 
-        <div className="reward-details">
-          <div className="detail-item">
-            <span className="detail-label">💰 Costo:</span>
-            <span className="detail-value">{reward.cost_tokens} tokens</span>
+        <div className="grid grid-cols-2 gap-4 mb-4 border-t border-border dark:border-border-dark pt-4 text-text dark:text-text-dark">
+          <div className="flex flex-col">
+            <span className="text-xs text-text-muted uppercase">💰 Costo:</span>
+            <span className="font-semibold">{reward.cost_tokens} tokens</span>
           </div>
 
-          <div className="detail-item">
-            <span className="detail-label">📦 Stock:</span>
-            <span className="detail-value">{reward.stock} unidades</span>
+          <div className="flex flex-col">
+            <span className="text-xs text-text-muted uppercase">📦 Stock:</span>
+            <span className="font-semibold">{reward.stock} unidades</span>
           </div>
 
-          <div className="detail-item">
-            <span className="detail-label">📦 Tipo:</span>
-            <span className="detail-value">{reward.type.replace(/_/g, ' ')}</span>
+          <div className="flex flex-col">
+            <span className="text-xs text-text-muted uppercase">🏷️ Tipo:</span>
+            <span className="font-semibold">{reward.type.replace(/_/g, ' ')}</span>
           </div>
 
-          <div className="detail-item">
-            <span className="detail-label">📅 Inicio:</span>
-            <span className="detail-value">{formatDate(reward.start_date)}</span>
+          <div className="flex flex-col">
+            <span className="text-xs text-text-muted uppercase">📅 Inicio:</span>
+            <span className="font-semibold">{formatDate(reward.start_date)}</span>
           </div>
 
-          <div className="detail-item">
-            <span className="detail-label">📅 Fin:</span>
-            <span className="detail-value">{formatDate(reward.finish_date)}</span>
+          <div className="flex flex-col">
+            <span className="text-xs text-text-muted uppercase">📅 Fin:</span>
+            <span className="font-semibold">{formatDate(reward.finish_date)}</span>
           </div>
         </div>
       </div>
 
-      <div className="reward-actions">
-        <button
+      <div className="flex gap-2 mt-auto">
+        <Button
           onClick={() => onEdit(reward)}
-          className="btn-edit"
+          variant="primary"
+          size="sm"
           disabled={isDeleting}
+          className="flex-1"
         >
           ✏️ Editar
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => onDelete(reward.id_reward, reward.name)}
-          className="btn-danger-sm"
+          variant="danger"
+          size="sm"
           disabled={isDeleting}
+          className="flex-1"
         >
           {isDeleting ? '⏳' : '🗑️'} Eliminar
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 };
-
-
-
-

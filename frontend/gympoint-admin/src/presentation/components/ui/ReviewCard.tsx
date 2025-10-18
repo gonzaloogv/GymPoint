@@ -1,4 +1,5 @@
 import { Review } from '@/domain';
+import { Card, Button, Badge } from './index';
 
 interface ReviewCardProps {
   review: Review;
@@ -20,10 +21,10 @@ export const ReviewCard = ({ review, onApprove, onDelete, isProcessing }: Review
 
   const renderStars = (rating: number) => {
     return (
-      <div className="review-stars">
+      <div className="flex">
         {[1, 2, 3, 4, 5].map((star) => (
-          <span key={star} className={star <= rating ? 'star-filled' : 'star-empty'}>
-            {star <= rating ? '⭐' : '☆'}
+          <span key={star} className={star <= rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}>
+            {star <= rating ? '★' : '☆'}
           </span>
         ))}
       </div>
@@ -31,70 +32,67 @@ export const ReviewCard = ({ review, onApprove, onDelete, isProcessing }: Review
   };
 
   return (
-    <div className={`review-card ${review.is_approved ? 'approved' : 'pending'}`}>
-      <div className="review-header">
-        <div className="review-user-info">
-          <span className="user-name">👤 {review.user?.name || 'Usuario'}</span>
-          <span className="user-email">{review.user?.email || ''}</span>
+    <Card className={`border-l-4 ${review.is_approved ? 'border-success' : 'border-warning'}`}>
+      <div className="flex justify-between items-start mb-4">
+        <div className="flex flex-col text-text dark:text-text-dark">
+          <span className="font-semibold">👤 {review.user?.name || 'Usuario'}</span>
+          <span className="text-sm text-text-muted">{review.user?.email || ''}</span>
         </div>
-        <div className="review-status">
-          {review.is_approved ? (
-            <span className="badge badge-approved">✅ Aprobada</span>
-          ) : (
-            <span className="badge badge-pending">⏳ Pendiente</span>
-          )}
-        </div>
+        <Badge variant={review.is_approved ? 'active' : 'pending'}>
+          {review.is_approved ? 'Aprobada' : 'Pendiente'}
+        </Badge>
       </div>
 
-      <div className="review-gym-info">
-        <span className="gym-name">🏋️ {review.gym?.name || 'Gimnasio'}</span>
-        {review.gym?.city && <span className="gym-city">📍 {review.gym.city}</span>}
+      <div className="bg-bg dark:bg-bg-dark p-2 rounded-lg flex items-center gap-4 mb-4 text-sm text-text dark:text-text-dark">
+        <span className="font-semibold">🏋️ {review.gym?.name || 'Gimnasio'}</span>
+        {review.gym?.city && <span className="text-text-muted">📍 {review.gym.city}</span>}
       </div>
 
-      <div className="review-rating">
+      <div className="flex items-center gap-2 mb-4">
         {renderStars(review.rating)}
-        <span className="rating-number">({review.rating}/5)</span>
+        <span className="text-sm font-semibold text-text-muted">({review.rating}/5)</span>
       </div>
 
       {review.comment && (
-        <div className="review-comment">
+        <div className="bg-bg dark:bg-bg-dark p-3 rounded-lg border-l-4 border-primary italic mb-4 text-text dark:text-text-dark">
           <p>"{review.comment}"</p>
         </div>
       )}
 
-      <div className="review-date">
+      <div className="text-xs text-text-muted mb-4">
         <span>📅 {formatDate(review.review_date)}</span>
       </div>
 
-      <div className="review-actions">
+      <div className="flex gap-2">
         {!review.is_approved && (
-          <button
+          <Button
             onClick={() => onApprove(review.id_review, true)}
-            className="btn-approve"
+            variant="success"
+            size="sm"
             disabled={isProcessing}
           >
             ✅ Aprobar
-          </button>
+          </Button>
         )}
         {review.is_approved && (
-          <button
+          <Button
             onClick={() => onApprove(review.id_review, false)}
-            className="btn-reject"
+            variant="danger"
+            size="sm"
             disabled={isProcessing}
           >
             ❌ Rechazar
-          </button>
+          </Button>
         )}
-        <button
+        <Button
           onClick={() => onDelete(review.id_review)}
-          className="btn-delete"
+          variant="danger"
+          size="sm"
           disabled={isProcessing}
         >
           🗑️ Eliminar
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 };
-
-

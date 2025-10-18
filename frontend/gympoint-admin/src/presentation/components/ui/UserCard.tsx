@@ -1,4 +1,5 @@
 import { User } from '@/domain';
+import { Card, Button, Badge } from './index';
 
 interface UserCardProps {
   user: User;
@@ -16,66 +17,67 @@ export const UserCard = ({
   onToggleSubscription,
 }: UserCardProps) => {
   return (
-    <div className="user-card">
-      <div className="user-card-header">
-        <div className="user-avatar">
+    <Card>
+      <div className="flex items-center gap-4 mb-4 pb-4 border-b border-border dark:border-border-dark">
+        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary text-primary-text font-bold text-lg">
           {user.name.charAt(0)}
           {user.lastname.charAt(0)}
         </div>
-        <div className="user-info">
-          <h3 className="user-name">
+        <div className="flex-1">
+          <h3 className="font-semibold text-text dark:text-text-dark">
             {user.name} {user.lastname}
           </h3>
-          <p className="user-email">{user.email}</p>
+          <p className="text-sm text-text-muted">{user.email}</p>
         </div>
-        <span className={`status-badge ${user.is_active ? 'active' : 'inactive'}`}>
+        <Badge variant={user.is_active ? 'active' : 'inactive'}>
           {user.is_active ? 'Activo' : 'Inactivo'}
-        </span>
+        </Badge>
       </div>
 
-      <div className="user-card-body">
-        <div className="user-stat">
-          <span className="stat-label">Suscripción</span>
-          <span className={`subscription-badge ${user.subscription.toLowerCase()}`}>
+      <div className="grid grid-cols-2 gap-4 mb-4 text-text dark:text-text-dark">
+        <div className="flex flex-col">
+          <span className="text-xs text-text-muted uppercase">Suscripción</span>
+          <Badge variant={user.subscription.toLowerCase() as 'premium' | 'free'}>
             {user.subscription}
-          </span>
+          </Badge>
         </div>
-        <div className="user-stat">
-          <span className="stat-label">Tokens</span>
-          <span className="stat-value">{user.tokens}</span>
+        <div className="flex flex-col">
+          <span className="text-xs text-text-muted uppercase">Tokens</span>
+          <span className="font-semibold">{user.tokens}</span>
         </div>
-        <div className="user-stat">
-          <span className="stat-label">Proveedor</span>
-          <span className="stat-value">{user.auth_provider}</span>
+        <div className="flex flex-col">
+          <span className="text-xs text-text-muted uppercase">Proveedor</span>
+          <span className="font-semibold">{user.auth_provider}</span>
         </div>
-        <div className="user-stat">
-          <span className="stat-label">Último Acceso</span>
-          <span className="stat-value">
+        <div className="flex flex-col">
+          <span className="text-xs text-text-muted uppercase">Último Acceso</span>
+          <span className="font-semibold">
             {user.last_login ? new Date(user.last_login).toLocaleDateString('es-ES') : 'Nunca'}
           </span>
         </div>
       </div>
 
-      <div className="user-card-actions">
+      <div className="flex gap-2">
         {user.is_active ? (
-          <button onClick={() => onDeactivate(user.id_account)} className="btn-danger-sm">
+          <Button onClick={() => onDeactivate(user.id_account)} variant="danger" size="sm">
             Desactivar
-          </button>
+          </Button>
         ) : (
-          <button onClick={() => onActivate(user.id_account)} className="btn-success-sm">
+          <Button onClick={() => onActivate(user.id_account)} variant="success" size="sm">
             Activar
-          </button>
+          </Button>
         )}
-        <button onClick={() => onGrantTokens(user.id_user_profile)} className="btn-primary-sm">
+        <Button onClick={() => onGrantTokens(user.id_user_profile)} variant="primary" size="sm">
           Otorgar Tokens
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => onToggleSubscription(user.id_user_profile, user.subscription)}
-          className="btn-secondary-sm"
+          variant="secondary"
+          size="sm"
         >
           {user.subscription === 'FREE' ? '→ Premium' : '→ Gratis'}
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 };

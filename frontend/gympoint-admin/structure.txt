@@ -1,2 +1,0 @@
-src:
-App.css  App.jsx  assets  data	domain	index.css  main.jsx  presentation

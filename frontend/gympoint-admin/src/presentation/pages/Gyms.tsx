@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useGyms, useCreateGym, useUpdateGym, useDeleteGym, useGymTypes } from '../hooks';
-import { Card, Loading, GymForm, GymCard, GymScheduleManager, GymSpecialScheduleManager } from '../components';
+import { Card, Loading, Button, Input, Select } from '../components';
+import { GymForm } from '../components/ui/GymForm';
+import { GymCard } from '../components/ui/GymCard';
+import { GymScheduleManager } from '../components/ui/GymScheduleManager';
+import { GymSpecialScheduleManager } from '../components/ui/GymSpecialScheduleManager';
 import { CreateGymDTO, UpdateGymDTO, Gym } from '@/domain';
 
 export const Gyms = () => {
@@ -17,32 +21,19 @@ export const Gyms = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCity, setFilterCity] = useState('');
 
-  const handleCreate = async (data: CreateGymDTO) => {
-    try {
-      await createGymMutation.mutateAsync(data);
-      alert('✅ Gimnasio creado exitosamente');
-      setShowForm(false);
-    } catch (error: any) {
-      alert(`❌ Error: ${error.response?.data?.error?.message || 'No se pudo crear el gimnasio'}`);
-    }
-  };
-
-  const handleUpdate = async (data: UpdateGymDTO) => {
-    try {
-      await updateGymMutation.mutateAsync(data);
-      alert('✅ Gimnasio actualizado exitosamente');
-      setEditingGym(null);
-      setShowForm(false);
-    } catch (error: any) {
-      alert(`❌ Error: ${error.response?.data?.error?.message || 'No se pudo actualizar el gimnasio'}`);
-    }
-  };
-
   const handleSubmit = async (data: CreateGymDTO | UpdateGymDTO) => {
-    if (editingGym) {
-      await handleUpdate(data as UpdateGymDTO);
-    } else {
-      await handleCreate(data);
+    try {
+      if (editingGym) {
+        await updateGymMutation.mutateAsync(data as UpdateGymDTO);
+        alert('✅ Gimnasio actualizado exitosamente');
+      } else {
+        await createGymMutation.mutateAsync(data as CreateGymDTO);
+        alert('✅ Gimnasio creado exitosamente');
+      }
+      setShowForm(false);
+      setEditingGym(null);
+    } catch (error: any) {
+      alert(`❌ Error: ${error.response?.data?.error?.message || 'Ocurrió un error'}`);
     }
   };
 
@@ -52,13 +43,8 @@ export const Gyms = () => {
   };
 
   const handleDelete = async (id: number, name: string) => {
-    if (window.confirm(`¿Estás seguro de eliminar el gimnasio "${name}"?\n\nEsta acción no se puede deshacer.`)) {
-      try {
-        await deleteGymMutation.mutateAsync(id);
-        alert('✅ Gimnasio eliminado exitosamente');
-      } catch (error: any) {
-        alert(`❌ Error: ${error.response?.data?.error?.message || 'No se pudo eliminar el gimnasio'}`);
-      }
+    if (window.confirm(`¿Estás seguro de eliminar "${name}"?`)) {
+      await deleteGymMutation.mutateAsync(id);
     }
   };
 
@@ -67,43 +53,48 @@ export const Gyms = () => {
     setEditingGym(null);
   };
 
-  // Filtrar gimnasios
-  const filteredGyms = gyms?.filter((gym) => {
-    const matchesSearch = gym.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         gym.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCity = !filterCity || gym.city === filterCity;
-    return matchesSearch && matchesCity;
-  });
+  const filteredGyms = gyms?.filter(gym => 
+    (gym.name.toLowerCase().includes(searchTerm.toLowerCase()) || gym.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    (!filterCity || gym.city === filterCity)
+  );
 
-  // Obtener ciudades únicas
   const cities = Array.from(new Set(gyms?.map(g => g.city) || [])).sort();
+  const cityOptions = [{ value: '', label: 'Todas las ciudades' }, ...cities.map(c => ({ value: c, label: c }))];
 
-  if (isLoading) {
-    return <Loading />;
+  if (isLoading) return <Loading fullPage />;
+
+  if (managingScheduleGym) {
+    return (
+      <div className="p-6">
+        <Button onClick={() => setManagingScheduleGym(null)} variant="secondary" className="mb-6">← Volver</Button>
+        <GymScheduleManager id_gym={managingScheduleGym.id_gym} gymName={managingScheduleGym.name} />
+      </div>
+    );
+  }
+
+  if (managingSpecialScheduleGym) {
+    return (
+      <div className="p-6">
+        <Button onClick={() => setManagingSpecialScheduleGym(null)} variant="secondary" className="mb-6">← Volver</Button>
+        <GymSpecialScheduleManager id_gym={managingSpecialScheduleGym.id_gym} gymName={managingSpecialScheduleGym.name} />
+      </div>
+    );
   }
 
   return (
-    <div className="gyms-page">
-      <div className="page-header">
+    <div className="p-6 bg-bg dark:bg-bg-dark min-h-screen">
+      <header className="flex justify-between items-center mb-6">
         <div>
-          <h2>Gestión de Gimnasios</h2>
-          <p className="page-subtitle">
-            {gyms?.length || 0} gimnasio{gyms?.length !== 1 ? 's' : ''} registrado{gyms?.length !== 1 ? 's' : ''}
-          </p>
+          <h1 className="text-2xl font-bold text-text dark:text-text-dark">Gestión de Gimnasios</h1>
+          <p className="text-text-muted">{gyms?.length || 0} gimnasios registrados</p>
         </div>
-        <button 
-          onClick={() => {
-            setEditingGym(null);
-            setShowForm(!showForm);
-          }} 
-          className="btn-primary"
-        >
+        <Button onClick={() => { setEditingGym(null); setShowForm(!showForm); }} variant={showForm ? 'secondary' : 'primary'}>
           {showForm ? '✕ Cancelar' : '+ Nuevo Gimnasio'}
-        </button>
-      </div>
+        </Button>
+      </header>
 
-      {showForm && (
-        <Card title={editingGym ? `Editar: ${editingGym.name}` : 'Crear Nuevo Gimnasio'}>
+      {showForm ? (
+        <Card as="section" title={editingGym ? `Editar: ${editingGym.name}` : 'Crear Nuevo Gimnasio'}>
           <GymForm
             gym={editingGym || undefined}
             gymTypes={gymTypes || []}
@@ -112,111 +103,49 @@ export const Gyms = () => {
             isLoading={createGymMutation.isPending || updateGymMutation.isPending}
           />
         </Card>
-      )}
-
-      {!showForm && (
-        <>
-          <Card title="Filtros">
-            <div className="filters-container">
-              <div className="form-group">
-                <label>🔍 Buscar</label>
-                <input
-                  type="text"
-                  placeholder="Buscar por nombre o descripción..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>📍 Ciudad</label>
-                <select
-                  value={filterCity}
-                  onChange={(e) => setFilterCity(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="">Todas las ciudades</option>
-                  {cities.map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
+      ) : (
+        <section className="space-y-6" aria-label="Lista de Gimnasios">
+          <Card>
+            <div className="flex flex-wrap items-end gap-4">
+              <Input
+                label="🔍 Buscar"
+                placeholder="Buscar por nombre o descripción..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="flex-grow"
+              />
+              <Select
+                label="📍 Ciudad"
+                value={filterCity}
+                onChange={(e) => setFilterCity(e.target.value)}
+                options={cityOptions}
+              />
               {(searchTerm || filterCity) && (
-                <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setFilterCity('');
-                  }}
-                  className="btn-secondary"
-                >
-                  Limpiar filtros
-                </button>
+                <Button onClick={() => { setSearchTerm(''); setFilterCity(''); }} variant="secondary">Limpiar</Button>
               )}
             </div>
           </Card>
 
-          <Card title={`Gimnasios (${filteredGyms?.length || 0})`}>
-            <div className="gyms-grid">
-              {filteredGyms?.map((gym) => (
-                <GymCard
-                  key={gym.id_gym}
-                  gym={gym}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onManageSchedule={(gym) => setManagingScheduleGym(gym)}
-                  onManageSpecialSchedule={(gym) => setManagingSpecialScheduleGym(gym)}
-                  isDeleting={deleteGymMutation.isPending}
-                />
-              ))}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {filteredGyms?.map((gym) => (
+              <GymCard
+                key={gym.id_gym}
+                gym={gym}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onManageSchedule={setManagingScheduleGym}
+                onManageSpecialSchedule={setManagingSpecialScheduleGym}
+                isDeleting={deleteGymMutation.isPending && deleteGymMutation.variables === gym.id_gym}
+              />
+            ))}
+          </div>
+
+          {(!filteredGyms || filteredGyms.length === 0) && (
+            <div className="text-center py-16 text-text-muted">
+              <p>{searchTerm || filterCity ? 'No se encontraron gimnasios con los filtros aplicados' : 'No hay gimnasios registrados. ¡Crea el primero!'}</p>
             </div>
-
-            {(!filteredGyms || filteredGyms.length === 0) && (
-              <div className="empty-message">
-                {searchTerm || filterCity ? (
-                  <p>No se encontraron gimnasios con los filtros aplicados</p>
-                ) : (
-                  <p>No hay gimnasios registrados. ¡Crea el primero!</p>
-                )}
-              </div>
-            )}
-          </Card>
-
-          {managingScheduleGym && !managingSpecialScheduleGym && (
-            <Card title="">
-              <button
-                onClick={() => setManagingScheduleGym(null)}
-                className="btn-secondary"
-                style={{ marginBottom: '1rem' }}
-              >
-                ← Volver a la lista
-              </button>
-              <GymScheduleManager
-                id_gym={managingScheduleGym.id_gym}
-                gymName={managingScheduleGym.name}
-              />
-            </Card>
           )}
-
-          {managingSpecialScheduleGym && !managingScheduleGym && (
-            <Card title="">
-              <button
-                onClick={() => setManagingSpecialScheduleGym(null)}
-                className="btn-secondary"
-                style={{ marginBottom: '1rem' }}
-              >
-                ← Volver a la lista
-              </button>
-              <GymSpecialScheduleManager
-                id_gym={managingSpecialScheduleGym.id_gym}
-                gymName={managingSpecialScheduleGym.name}
-              />
-            </Card>
-          )}
-        </>
+        </section>
       )}
     </div>
   );

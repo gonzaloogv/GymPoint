@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { CreateGymDTO, UpdateGymDTO, Gym, COMMON_AMENITIES } from '@/domain';
+import { Input, Select, Textarea, Button } from './index';
 
 interface GymFormProps {
   gym?: Gym;
@@ -41,49 +42,30 @@ export const GymForm = ({ gym, gymTypes, onSubmit, onCancel, isLoading }: GymFor
   const [isExtractingFromMaps, setIsExtractingFromMaps] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
 
-  // Función para extraer datos de URL de Google Maps
   const extractFromGoogleMaps = async (url: string) => {
     try {
       setIsExtractingFromMaps(true);
-      
-      // Patrones para extraer coordenadas de diferentes formatos de URLs de Google Maps
-      // Formato 1: https://www.google.com/maps/place/.../@-27.4511,-58.9867,17z/...
-      // Formato 2: https://maps.google.com/?q=-27.4511,-58.9867
-      // Formato 3: https://www.google.com/maps/@-27.4511,-58.9867,17z
-      // Formato 4: https://maps.app.goo.gl/... (shortened URL)
-      
       let latitude = 0;
       let longitude = 0;
       let placeName = '';
-      let placeAddress = '';
-
-      // Intentar extraer coordenadas del formato @lat,lng
       const coordPattern1 = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
       const match1 = url.match(coordPattern1);
-      
       if (match1) {
         latitude = parseFloat(match1[1]);
         longitude = parseFloat(match1[2]);
       } else {
-        // Intentar extraer del formato ?q=lat,lng
         const coordPattern2 = /[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/;
         const match2 = url.match(coordPattern2);
-        
         if (match2) {
           latitude = parseFloat(match2[1]);
           longitude = parseFloat(match2[2]);
         }
       }
-
-      // Intentar extraer nombre del lugar del formato /place/Nombre+Del+Lugar/
       const placePattern = /\/place\/([^/@]+)/;
       const placeMatch = url.match(placePattern);
-      
       if (placeMatch) {
         placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
       }
-
-      // Si encontramos coordenadas, actualizar el formulario
       if (latitude !== 0 && longitude !== 0) {
         setFormData((prev) => ({
           ...prev,
@@ -92,11 +74,6 @@ export const GymForm = ({ gym, gymTypes, onSubmit, onCancel, isLoading }: GymFor
           google_maps_url: url,
           ...(placeName && !prev.name ? { name: placeName } : {}),
         }));
-
-        // Intentar obtener más información usando Reverse Geocoding de Google Maps
-        // Nota: Esto requiere una API key de Google Maps
-        // Por ahora, solo extraemos lo que podemos de la URL
-        
         alert(`✅ Datos extraídos de Google Maps:\n\nLatitud: ${latitude}\nLongitud: ${longitude}${placeName ? `\nNombre: ${placeName}` : ''}\n\n${!placeName ? 'Completa manualmente el nombre, dirección y otros datos.' : 'Completa la información faltante.'}`);
       } else {
         alert('⚠️ No se pudieron extraer las coordenadas de esta URL.\n\nPor favor, verifica que la URL sea válida o ingresa las coordenadas manualmente.');
@@ -109,12 +86,9 @@ export const GymForm = ({ gym, gymTypes, onSubmit, onCancel, isLoading }: GymFor
     }
   };
 
-  // Detectar cuando se pega o cambia la URL de Google Maps
   const handleGoogleMapsUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const url = e.target.value;
     setFormData((prev) => ({ ...prev, google_maps_url: url }));
-    
-    // Si la URL parece válida de Google Maps, intentar extraer datos
     if (url && (url.includes('google.com/maps') || url.includes('maps.app.goo.gl'))) {
       extractFromGoogleMaps(url);
     }
@@ -148,12 +122,9 @@ export const GymForm = ({ gym, gymTypes, onSubmit, onCancel, isLoading }: GymFor
         geofence_radius_meters: gym.geofence_radius_meters,
         min_stay_minutes: gym.min_stay_minutes,
       });
-
       if (Array.isArray(gym.equipment)) {
         setEquipmentInput(gym.equipment.join(', '));
       }
-
-      // Cargar amenidades si existen
       if (gym.amenities && Array.isArray(gym.amenities)) {
         setSelectedAmenities(gym.amenities.map((a: any) => a.name || a));
       }
@@ -172,7 +143,6 @@ export const GymForm = ({ gym, gymTypes, onSubmit, onCancel, isLoading }: GymFor
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
-    
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({ ...prev, [name]: checked }));
@@ -194,378 +164,183 @@ export const GymForm = ({ gym, gymTypes, onSubmit, onCancel, isLoading }: GymFor
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     const submitData = gym 
       ? { ...formData, id_gym: gym.id_gym } as UpdateGymDTO
       : formData;
-
     await onSubmit(submitData);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="gym-form">
-      <div className="form-section">
-        <h3>Información Básica</h3>
-        
-        <div className="form-row">
-          <div className="form-group">
-            <label>Nombre *</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-              placeholder="Ej: Gimnasio Central"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Ciudad *</label>
-            <input
-              type="text"
-              name="city"
-              value={formData.city}
-              onChange={handleInputChange}
-              required
-              placeholder="Ej: Resistencia"
-            />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>Descripción *</label>
-          <textarea
-            name="description"
-            value={formData.description}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-6 p-6 bg-card dark:bg-card-dark rounded-xl border border-border dark:border-border-dark">
+        <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-4">Información Básica</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Input
+            label="Nombre *"
+            type="text"
+            name="name"
+            value={formData.name}
             onChange={handleInputChange}
             required
-            rows={3}
-            placeholder="Describe el gimnasio..."
+            placeholder="Ej: Gimnasio Central"
           />
-        </div>
-
-        <div className="form-group">
-          <label>Dirección *</label>
-          <input
+          <Input
+            label="Ciudad *"
             type="text"
-            name="address"
-            value={formData.address}
+            name="city"
+            value={formData.city}
             onChange={handleInputChange}
             required
-            placeholder="Ej: Av. Sarmiento 1234"
+            placeholder="Ej: Resistencia"
           />
         </div>
+        <Textarea
+          label="Descripción *"
+          name="description"
+          value={formData.description}
+          onChange={handleInputChange}
+          required
+          rows={3}
+          placeholder="Describe el gimnasio..."
+        />
+        <Input
+          label="Dirección *"
+          type="text"
+          name="address"
+          value={formData.address}
+          onChange={handleInputChange}
+          required
+          placeholder="Ej: Av. Sarmiento 1234"
+        />
       </div>
 
-      <div className="form-section">
-        <h3>Ubicación</h3>
-        
-        <div className="form-group">
-          <label>🗺️ URL de Google Maps {isExtractingFromMaps && '(Extrayendo datos...)'}</label>
-          <input
-            type="url"
-            name="google_maps_url"
-            value={formData.google_maps_url}
-            onChange={handleGoogleMapsUrlChange}
-            placeholder="Pega aquí la URL de Google Maps para autocompletar coordenadas..."
-            disabled={isExtractingFromMaps}
-          />
-          <small>
-            💡 Pega una URL de Google Maps y se extraerán automáticamente las coordenadas, nombre y más datos.
-            <br />
-            Ejemplo: https://www.google.com/maps/place/Gimnasio/@-27.4511,-58.9867,17z
-          </small>
-        </div>
-        
-        <div className="form-row">
-          <div className="form-group">
-            <label>Latitud *</label>
-            <input
-              type="number"
-              step="any"
-              name="latitude"
-              value={formData.latitude}
-              onChange={handleInputChange}
-              required
-              placeholder="-27.4511"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Longitud *</label>
-            <input
-              type="number"
-              step="any"
-              name="longitude"
-              value={formData.longitude}
-              onChange={handleInputChange}
-              required
-              placeholder="-58.9867"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="form-section">
-        <h3>Contacto</h3>
-        
-        <div className="form-row">
-          <div className="form-group">
-            <label>Teléfono</label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              placeholder="+54 362 1234567"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>WhatsApp</label>
-            <input
-              type="tel"
-              name="whatsapp"
-              value={formData.whatsapp}
-              onChange={handleInputChange}
-              placeholder="+54 362 1234567"
-            />
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              placeholder="info@gimnasio.com"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Sitio Web</label>
-            <input
-              type="url"
-              name="website"
-              value={formData.website}
-              onChange={handleInputChange}
-              placeholder="https://gimnasio.com"
-            />
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label>Instagram</label>
-            <input
-              type="text"
-              name="instagram"
-              value={formData.instagram}
-              onChange={handleInputChange}
-              placeholder="@gimnasiocentral"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Facebook</label>
-            <input
-              type="text"
-              name="facebook"
-              value={formData.facebook}
-              onChange={handleInputChange}
-              placeholder="facebook.com/gimnasiocentral"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="form-section">
-        <h3>Características</h3>
-        
-        <div className="form-group">
-          <label>Equipamiento * (separado por comas)</label>
-          <input
-            type="text"
-            value={equipmentInput}
-            onChange={handleEquipmentChange}
+      <div className="space-y-6 p-6 bg-card dark:bg-card-dark rounded-xl border border-border dark:border-border-dark">
+        <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-4">Ubicación</h3>
+        <Input
+          label={`🗺️ URL de Google Maps ${isExtractingFromMaps ? '(Extrayendo datos...)' : ''}`}
+          type="url"
+          name="google_maps_url"
+          value={formData.google_maps_url}
+          onChange={handleGoogleMapsUrlChange}
+          placeholder="Pega aquí la URL de Google Maps para autocompletar coordenadas..."
+          disabled={isExtractingFromMaps}
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Input
+            label="Latitud *"
+            type="number"
+            step="any"
+            name="latitude"
+            value={formData.latitude}
+            onChange={handleInputChange}
             required
-            placeholder="Ej: Pesas, Máquinas, Cardio, Funcional"
+            placeholder="-27.4511"
           />
-          <small>Ingrese los equipamientos separados por comas</small>
+          <Input
+            label="Longitud *"
+            type="number"
+            step="any"
+            name="longitude"
+            value={formData.longitude}
+            onChange={handleInputChange}
+            required
+            placeholder="-58.9867"
+          />
         </div>
+      </div>
 
-        <div className="form-row">
-          <div className="form-group">
-            <label>Capacidad Máxima</label>
-            <input
-              type="number"
-              name="max_capacity"
-              value={formData.max_capacity || ''}
-              onChange={handleInputChange}
-              placeholder="Ej: 50"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Área (m²)</label>
-            <input
-              type="number"
-              step="0.01"
-              name="area_sqm"
-              value={formData.area_sqm || ''}
-              onChange={handleInputChange}
-              placeholder="Ej: 200"
-            />
-          </div>
+      <div className="space-y-6 p-6 bg-card dark:bg-card-dark rounded-xl border border-border dark:border-border-dark">
+        <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-4">Contacto</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Input label="Teléfono" type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="+54 362 1234567" />
+          <Input label="WhatsApp" type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} placeholder="+54 362 1234567" />
+          <Input label="Email" type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="info@gimnasio.com" />
+          <Input label="Sitio Web" type="url" name="website" value={formData.website} onChange={handleInputChange} placeholder="https://gimnasio.com" />
+          <Input label="Instagram" type="text" name="instagram" value={formData.instagram} onChange={handleInputChange} placeholder="@gimnasiocentral" />
+          <Input label="Facebook" type="text" name="facebook" value={formData.facebook} onChange={handleInputChange} placeholder="facebook.com/gimnasiocentral" />
         </div>
+      </div>
 
-        <div className="form-group">
-          <label>Amenidades ({selectedAmenities.length} seleccionadas)</label>
-          <div className="amenities-grid">
+      <div className="space-y-6 p-6 bg-card dark:bg-card-dark rounded-xl border border-border dark:border-border-dark">
+        <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-4">Características</h3>
+        <Input
+          label="Equipamiento * (separado por comas)"
+          type="text"
+          value={equipmentInput}
+          onChange={handleEquipmentChange}
+          required
+          placeholder="Ej: Pesas, Máquinas, Cardio, Funcional"
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Input label="Capacidad Máxima" type="number" name="max_capacity" value={formData.max_capacity || ''} onChange={handleInputChange} placeholder="Ej: 50" />
+          <Input label="Área (m²)" type="number" step="0.01" name="area_sqm" value={formData.area_sqm || ''} onChange={handleInputChange} placeholder="Ej: 200" />
+        </div>
+        <div>
+          <label className="text-text dark:text-text-dark font-medium text-sm mb-2 block">Amenidades ({selectedAmenities.length} seleccionadas)</label>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {COMMON_AMENITIES.map((amenity) => (
               <button
                 key={amenity.name}
                 type="button"
-                className={`amenity-button ${selectedAmenities.includes(amenity.name) ? 'selected' : ''}`}
+                className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${selectedAmenities.includes(amenity.name) ? 'border-primary bg-primary/10' : 'border-border'}`}
                 onClick={() => toggleAmenity(amenity.name)}
               >
-                <span className="amenity-icon">{amenity.icon}</span>
-                <span className="amenity-name">{amenity.name}</span>
+                <span className="text-2xl">{amenity.icon}</span>
+                <span className="font-medium">{amenity.name}</span>
               </button>
             ))}
           </div>
-          <small>💡 Las amenidades seleccionadas se mostrarán como información visual. El sistema no las guarda automáticamente en el backend.</small>
         </div>
       </div>
 
-      <div className="form-section">
-        <h3>Precios</h3>
-        
-        <div className="form-row">
-          <div className="form-group">
-            <label>Precio Mensual *</label>
-            <input
-              type="number"
-              step="0.01"
-              name="month_price"
-              value={formData.month_price}
-              onChange={handleInputChange}
-              required
-              placeholder="0.00"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Precio Semanal *</label>
-            <input
-              type="number"
-              step="0.01"
-              name="week_price"
-              value={formData.week_price}
-              onChange={handleInputChange}
-              required
-              placeholder="0.00"
-            />
-          </div>
+      <div className="space-y-6 p-6 bg-card dark:bg-card-dark rounded-xl border border-border dark:border-border-dark">
+        <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-4">Precios</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Input label="Precio Mensual *" type="number" step="0.01" name="month_price" value={formData.month_price} onChange={handleInputChange} required placeholder="0.00" />
+          <Input label="Precio Semanal *" type="number" step="0.01" name="week_price" value={formData.week_price} onChange={handleInputChange} required placeholder="0.00" />
         </div>
       </div>
 
-      <div className="form-section">
-        <h3>Configuración de Auto Check-in</h3>
-        
-        <div className="form-group checkbox-group">
-          <label>
-            <input
-              type="checkbox"
-              name="auto_checkin_enabled"
-              checked={formData.auto_checkin_enabled}
-              onChange={handleInputChange}
-            />
-            <span>Habilitar Auto Check-in</span>
-          </label>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label>Radio de Geofence (metros)</label>
-            <input
-              type="number"
-              name="geofence_radius_meters"
-              value={formData.geofence_radius_meters}
-              onChange={handleInputChange}
-              placeholder="150"
-            />
-            <small>Distancia máxima para auto check-in</small>
-          </div>
-
-          <div className="form-group">
-            <label>Tiempo Mínimo de Estadía (minutos)</label>
-            <input
-              type="number"
-              name="min_stay_minutes"
-              value={formData.min_stay_minutes}
-              onChange={handleInputChange}
-              placeholder="10"
-            />
-            <small>Tiempo mínimo para validar asistencia</small>
-          </div>
-        </div>
-      </div>
-
-      <div className="form-section">
-        <h3>Opciones Adicionales</h3>
-        
-        <div className="form-group">
-          <label>URL de Foto</label>
+      <div className="space-y-6 p-6 bg-card dark:bg-card-dark rounded-xl border border-border dark:border-border-dark">
+        <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-4">Configuración de Auto Check-in</h3>
+        <div className="flex items-center gap-2">
           <input
-            type="url"
-            name="photo_url"
-            value={formData.photo_url}
+            type="checkbox"
+            name="auto_checkin_enabled"
+            id="auto_checkin_enabled"
+            checked={formData.auto_checkin_enabled}
             onChange={handleInputChange}
-            placeholder="https://ejemplo.com/foto.jpg"
+            className="h-4 w-4 rounded border-input-border dark:border-input-border-dark bg-input-bg dark:bg-input-bg-dark text-primary focus:ring-primary"
           />
+          <label htmlFor="auto_checkin_enabled" className="text-text dark:text-text-dark font-medium text-sm">Habilitar Auto Check-in</label>
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Input label="Radio de Geofence (metros)" type="number" name="geofence_radius_meters" value={formData.geofence_radius_meters} onChange={handleInputChange} placeholder="150" />
+          <Input label="Tiempo Mínimo de Estadía (minutos)" type="number" name="min_stay_minutes" value={formData.min_stay_minutes} onChange={handleInputChange} placeholder="10" />
+        </div>
+      </div>
 
-        <div className="form-row">
-          <div className="form-group checkbox-group">
-            <label>
-              <input
-                type="checkbox"
-                name="verified"
-                checked={formData.verified}
-                onChange={handleInputChange}
-              />
-              <span>Verificado</span>
-            </label>
+      <div className="space-y-6 p-6 bg-card dark:bg-card-dark rounded-xl border border-border dark:border-border-dark">
+        <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-4">Opciones Adicionales</h3>
+        <Input label="URL de Foto" type="url" name="photo_url" value={formData.photo_url} onChange={handleInputChange} placeholder="https://ejemplo.com/foto.jpg" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex items-center gap-2">
+            <input type="checkbox" name="verified" id="verified" checked={formData.verified} onChange={handleInputChange} className="h-4 w-4 rounded border-input-border dark:border-input-border-dark bg-input-bg dark:bg-input-bg-dark text-primary focus:ring-primary" />
+            <label htmlFor="verified" className="text-text dark:text-text-dark font-medium text-sm">Verificado</label>
           </div>
-
-          <div className="form-group checkbox-group">
-            <label>
-              <input
-                type="checkbox"
-                name="featured"
-                checked={formData.featured}
-                onChange={handleInputChange}
-              />
-              <span>Destacado</span>
-            </label>
+          <div className="flex items-center gap-2">
+            <input type="checkbox" name="featured" id="featured" checked={formData.featured} onChange={handleInputChange} className="h-4 w-4 rounded border-input-border dark:border-input-border-dark bg-input-bg dark:bg-input-bg-dark text-primary focus:ring-primary" />
+            <label htmlFor="featured" className="text-text dark:text-text-dark font-medium text-sm">Destacado</label>
           </div>
         </div>
       </div>
 
-      <div className="form-actions">
-        <button type="submit" className="btn-primary" disabled={isLoading}>
+      <div className="flex justify-end gap-4 mt-6">
+        <Button type="button" variant="secondary" onClick={onCancel} disabled={isLoading}>Cancelar</Button>
+        <Button type="submit" variant="primary" disabled={isLoading}>
           {isLoading ? 'Guardando...' : gym ? 'Actualizar Gimnasio' : 'Crear Gimnasio'}
-        </button>
-        <button type="button" onClick={onCancel} className="btn-secondary" disabled={isLoading}>
-          Cancelar
-        </button>
+        </Button>
       </div>
     </form>
   );
 };
-

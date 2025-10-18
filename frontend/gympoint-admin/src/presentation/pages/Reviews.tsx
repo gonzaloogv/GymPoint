@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useReviews, useReviewStats, useApproveReview, useDeleteReview } from '../hooks';
-import { Card, Loading, ReviewCard } from '../components';
+import { Card, Loading, Button, Input, Badge } from '../components';
+import { ReviewCard } from '../components/ui/ReviewCard';
 
 export const Reviews = () => {
   const { data: reviews, isLoading } = useReviews();
@@ -13,97 +14,53 @@ export const Reviews = () => {
   const [filterRating, setFilterRating] = useState<number | null>(null);
 
   const handleApprove = async (id: number, isApproved: boolean) => {
-    const action = isApproved ? 'aprobar' : 'rechazar';
-    if (window.confirm(`¿Estás seguro de ${action} esta review?`)) {
-      try {
-        await approveReviewMutation.mutateAsync({ id_review: id, is_approved: isApproved });
-        alert(`✅ Review ${isApproved ? 'aprobada' : 'rechazada'} exitosamente`);
-      } catch (error: any) {
-        alert(`❌ Error: ${error.response?.data?.error?.message || error.message}`);
-      }
-    }
+    await approveReviewMutation.mutateAsync({ id_review: id, is_approved: isApproved });
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('¿Estás seguro de eliminar esta review?\n\nEsta acción no se puede deshacer.')) {
-      try {
-        await deleteReviewMutation.mutateAsync(id);
-        alert('✅ Review eliminada exitosamente');
-      } catch (error: any) {
-        alert(`❌ Error: ${error.response?.data?.error?.message || error.message}`);
-      }
+    if (window.confirm('¿Eliminar esta review permanentemente?')) {
+      await deleteReviewMutation.mutateAsync(id);
     }
   };
 
-  // Filtrar reviews
   const filteredReviews = reviews?.filter((review) => {
-    const matchesStatus =
-      filterStatus === 'all' ||
-      (filterStatus === 'approved' && review.is_approved) ||
-      (filterStatus === 'pending' && !review.is_approved);
-
-    const matchesSearch =
-      !searchTerm ||
-      review.user?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      review.gym?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      review.comment?.toLowerCase().includes(searchTerm.toLowerCase());
-
+    const matchesStatus = filterStatus === 'all' || (filterStatus === 'approved' && review.is_approved) || (filterStatus === 'pending' && !review.is_approved);
+    const matchesSearch = !searchTerm || review.user?.name.toLowerCase().includes(searchTerm.toLowerCase()) || review.gym?.name.toLowerCase().includes(searchTerm.toLowerCase()) || review.comment?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRating = filterRating === null || review.rating === filterRating;
-
     return matchesStatus && matchesSearch && matchesRating;
   });
 
-  if (isLoading) {
-    return <Loading />;
-  }
+  if (isLoading) return <Loading fullPage />;
 
   return (
-    <div className="reviews-page">
-      <div className="page-header">
+    <div className="p-6 bg-bg dark:bg-bg-dark min-h-screen">
+      <header className="flex justify-between items-center mb-6">
         <div>
-          <h2>⭐ Gestión de Reviews</h2>
-          <p className="page-subtitle">
-            {reviews?.length || 0} review{reviews?.length !== 1 ? 's' : ''} en el sistema
-          </p>
+          <h1 className="text-2xl font-bold text-text dark:text-text-dark">⭐ Gestión de Reviews</h1>
+          <p className="text-text-muted">{reviews?.length || 0} reviews en el sistema</p>
         </div>
-      </div>
+      </header>
 
-      {/* Estadísticas */}
       {stats && (
-        <div className="reviews-stats-grid">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <Card title="📊 Estadísticas Generales">
-            <div className="stats-content">
-              <div className="stat-item">
-                <span className="stat-label">Total Reviews:</span>
-                <span className="stat-value">{stats.total_reviews}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Calificación Promedio:</span>
-                <span className="stat-value">⭐ {stats.avg_rating.toFixed(1)}/5</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Aprobadas:</span>
-                <span className="stat-value approved">{stats.total_approved}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Pendientes:</span>
-                <span className="stat-value pending">{stats.total_pending}</span>
-              </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-bg p-3 rounded-lg text-center"><p className="text-sm text-text-muted">Total</p><p className="text-2xl font-bold">{stats.total_reviews}</p></div>
+              <div className="bg-bg p-3 rounded-lg text-center"><p className="text-sm text-text-muted">Promedio</p><p className="text-2xl font-bold">⭐ {stats.avg_rating.toFixed(1)}</p></div>
+              <div className="bg-bg p-3 rounded-lg text-center"><p className="text-sm text-text-muted">Aprobadas</p><p className="text-2xl font-bold text-success">{stats.total_approved}</p></div>
+              <div className="bg-bg p-3 rounded-lg text-center"><p className="text-sm text-text-muted">Pendientes</p><p className="text-2xl font-bold text-warning">{stats.total_pending}</p></div>
             </div>
           </Card>
-
           <Card title="📈 Distribución por Rating">
-            <div className="rating-distribution">
+            <div className="space-y-2">
               {[5, 4, 3, 2, 1].map((rating) => {
                 const count = stats.rating_distribution[`rating_${rating}` as keyof typeof stats.rating_distribution] || 0;
                 const percentage = stats.total_reviews > 0 ? (count / stats.total_reviews) * 100 : 0;
                 return (
-                  <div key={rating} className="rating-bar">
-                    <span className="rating-label">{rating}⭐</span>
-                    <div className="bar-container">
-                      <div className="bar-fill" style={{ width: `${percentage}%` }}></div>
-                    </div>
-                    <span className="rating-count">{count}</span>
+                  <div key={rating} className="flex items-center gap-2">
+                    <span className="text-sm font-semibold w-8">{rating}⭐</span>
+                    <div className="flex-1 h-4 bg-gray-200 rounded-full"><div className="h-4 bg-yellow-400 rounded-full" style={{ width: `${percentage}%` }}></div></div>
+                    <span className="text-sm font-bold w-10 text-right">{count}</span>
                   </div>
                 );
               })}
@@ -112,102 +69,32 @@ export const Reviews = () => {
         </div>
       )}
 
-      {/* Filtros */}
-      <Card title="🔍 Filtros">
-        <div className="reviews-filters">
-          <div className="search-box">
-            <span className="search-icon">🔍</span>
-            <input
-              type="text"
-              placeholder="Buscar por usuario, gimnasio o comentario..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-            {searchTerm && (
-              <button 
-                className="clear-search" 
-                onClick={() => setSearchTerm('')}
-                title="Limpiar búsqueda"
-              >
-                ✕
-              </button>
-            )}
+      <Card className="mb-6">
+        <div className="space-y-4">
+          <Input type="text" placeholder="🔍 Buscar por usuario, gimnasio o comentario..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          <div className="flex flex-wrap gap-2">
+            <Button variant={filterStatus === 'all' ? 'primary' : 'secondary'} onClick={() => setFilterStatus('all')}>Todas <Badge variant="free">{reviews?.length || 0}</Badge></Button>
+            <Button variant={filterStatus === 'approved' ? 'primary' : 'secondary'} onClick={() => setFilterStatus('approved')}>Aprobadas <Badge variant="active">{reviews?.filter(r => r.is_approved).length || 0}</Badge></Button>
+            <Button variant={filterStatus === 'pending' ? 'primary' : 'secondary'} onClick={() => setFilterStatus('pending')}>Pendientes <Badge variant="pending">{reviews?.filter(r => !r.is_approved).length || 0}</Badge></Button>
           </div>
-
-          <div className="filter-tabs">
-            <button
-              className={`filter-tab ${filterStatus === 'all' ? 'active' : ''}`}
-              onClick={() => setFilterStatus('all')}
-            >
-              <span className="filter-icon">📋</span>
-              Todas
-              <span className="filter-count">{reviews?.length || 0}</span>
-            </button>
-            <button
-              className={`filter-tab ${filterStatus === 'approved' ? 'active' : ''}`}
-              onClick={() => setFilterStatus('approved')}
-            >
-              <span className="filter-icon">✅</span>
-              Aprobadas
-              <span className="filter-count">{reviews?.filter(r => r.is_approved).length || 0}</span>
-            </button>
-            <button
-              className={`filter-tab ${filterStatus === 'pending' ? 'active' : ''}`}
-              onClick={() => setFilterStatus('pending')}
-            >
-              <span className="filter-icon">⏳</span>
-              Pendientes
-              <span className="filter-count">{reviews?.filter(r => !r.is_approved).length || 0}</span>
-            </button>
-          </div>
-
-          <div className="rating-filters">
-            <button
-              className={`rating-filter ${filterRating === null ? 'active' : ''}`}
-              onClick={() => setFilterRating(null)}
-            >
-              Todas las calificaciones
-            </button>
-            {[5, 4, 3, 2, 1].map((rating) => (
-              <button
-                key={rating}
-                className={`rating-filter ${filterRating === rating ? 'active' : ''}`}
-                onClick={() => setFilterRating(rating)}
-              >
-                {rating}⭐
-              </button>
-            ))}
+          <div className="flex flex-wrap gap-2">
+            <Button variant={filterRating === null ? 'primary' : 'secondary'} size="sm" onClick={() => setFilterRating(null)}>Todas las estrellas</Button>
+            {[5, 4, 3, 2, 1].map(r => <Button key={r} variant={filterRating === r ? 'primary' : 'secondary'} size="sm" onClick={() => setFilterRating(r)}>{r}⭐</Button>)}
           </div>
         </div>
       </Card>
 
-      {/* Lista de Reviews */}
-      <Card title={`Reviews (${filteredReviews?.length || 0})`}>
-        {(!filteredReviews || filteredReviews.length === 0) ? (
-          <div className="empty-message">
-            {searchTerm || filterStatus !== 'all' || filterRating !== null ? (
-              <p>No se encontraron reviews con los filtros aplicados</p>
-            ) : (
-              <p>No hay reviews registradas en el sistema</p>
-            )}
-          </div>
-        ) : (
-          <div className="reviews-grid">
-            {filteredReviews.map((review) => (
-              <ReviewCard
-                key={review.id_review}
-                review={review}
-                onApprove={handleApprove}
-                onDelete={handleDelete}
-                isProcessing={approveReviewMutation.isPending || deleteReviewMutation.isPending}
-              />
-            ))}
-          </div>
-        )}
-      </Card>
+      {(!filteredReviews || filteredReviews.length === 0) ? (
+        <div className="flex items-center justify-center min-h-[200px] text-text-muted">
+          <p>No se encontraron reviews con los filtros aplicados</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {filteredReviews.map((review) => (
+            <ReviewCard key={review.id_review} review={review} onApprove={handleApprove} onDelete={handleDelete} isProcessing={approveReviewMutation.isPending || deleteReviewMutation.isPending} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
-
-
