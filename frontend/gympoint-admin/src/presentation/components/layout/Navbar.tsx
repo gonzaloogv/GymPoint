@@ -20,6 +20,7 @@ export const Navbar = () => {
     { path: '/reviews', label: 'Reviews' },
     { path: '/transactions', label: 'Transacciones' },
     { path: '/rewards', label: 'Recompensas' },
+    { path: '/daily-challenges', label: 'Desafios Diarios' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -81,3 +82,6 @@ export const Navbar = () => {
     </nav>
   );
 };
+
+
+

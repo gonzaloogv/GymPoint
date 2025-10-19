@@ -30,6 +30,8 @@ const ReviewHelpful = require('./ReviewHelpful');
 const GymAmenity = require('./GymAmenity');
 const GymGymAmenity = require('./GymGymAmenity');
 const DailyChallenge = require('./DailyChallenge');
+const DailyChallengeTemplate = require('./DailyChallengeTemplate');
+const DailyChallengeSettings = require('./DailyChallengeSettings');
 const UserDailyChallenge = require('./UserDailyChallenge');
 const UserImportedRoutine = require('./UserImportedRoutine');
 const MercadoPagoPayment = require('./MercadoPagoPayment');
@@ -214,6 +216,16 @@ DailyChallenge.hasMany(UserDailyChallenge, {
 UserDailyChallenge.belongsTo(DailyChallenge, {
   foreignKey: 'id_challenge',
   as: 'challenge'
+});
+
+DailyChallenge.belongsTo(DailyChallengeTemplate, {
+  foreignKey: 'id_template',
+  as: 'template'
+});
+
+DailyChallengeTemplate.hasMany(DailyChallenge, {
+  foreignKey: 'id_template',
+  as: 'instances'
 });
 
 // UserImportedRoutine associations (opcionales para navegación)
@@ -704,7 +716,12 @@ module.exports = {
   WorkoutSession,
   WorkoutSet,
   DailyChallenge,
+  DailyChallengeTemplate,
+  DailyChallengeSettings,
   UserDailyChallenge,
   UserImportedRoutine,
   Presence
 };
+
+
+

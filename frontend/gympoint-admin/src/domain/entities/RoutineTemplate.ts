@@ -44,6 +44,7 @@ export interface Exercise {
   difficulty: string | null;
   instructions: string | null;
   video_url: string | null;
+  created_by?: number | null;
 }
 
 /**
@@ -66,7 +67,7 @@ export interface UpdateExerciseDTO {
   id_exercise: number;
   exercise_name?: string;
   description?: string;
-  muscle_group?: string;
+  muscular_group?: string;
   equipment_needed?: string;
   difficulty?: string;
   instructions?: string;

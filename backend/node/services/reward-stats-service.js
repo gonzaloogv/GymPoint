@@ -76,10 +76,10 @@ const runDailyUpsert = async (from, to) => {
       type: sequelize.QueryTypes.INSERT
     });
     
-    console.log(`âœ… Upsert completado para ventana ${fromDate.toISOString()} - ${toDate.toISOString()}`);
+    console.log(`✅ Upsert completado para ventana ${fromDate.toISOString()} - ${toDate.toISOString()}`);
     
   } catch (error) {
-    console.error('âŒ Error en runDailyUpsert:', error.message);
+    console.error('🛑 Error en runDailyUpsert:', error.message);
     throw error;
   }
 };

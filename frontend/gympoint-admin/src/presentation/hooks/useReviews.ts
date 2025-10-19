@@ -3,11 +3,14 @@ import { ReviewRepositoryImpl } from '@/data';
 import { ApproveReviewDTO } from '@/domain';
 
 const reviewRepository = new ReviewRepositoryImpl();
+const EMPTY_FILTERS = Object.freeze({});
 
-export const useReviews = (filters: { limit?: number; offset?: number; is_approved?: boolean; sortBy?: string; order?: string; searchTerm?: string }) => {
+export const useReviews = (filters?: { limit?: number; offset?: number; is_approved?: boolean; sortBy?: string; order?: string; searchTerm?: string }) => {
+  const normalizedFilters = filters ?? EMPTY_FILTERS;
+
   return useQuery({
-    queryKey: ['reviews', filters],
-    queryFn: () => reviewRepository.getAllReviews(filters),
+    queryKey: ['reviews', normalizedFilters],
+    queryFn: () => reviewRepository.getAllReviews(filters ?? {}),
   });
 };
 

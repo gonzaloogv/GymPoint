@@ -9,7 +9,7 @@ export class RewardRepositoryImpl implements RewardRepository {
    * Obtener todas las recompensas (admin - sin filtros)
    */
   async getAllRewards(): Promise<Reward[]> {
-    const response = await apiClient.get<{ message: string; data: Reward[] }>('/admin/rewards/all');
+    const response = await apiClient.get<{ message: string; data: Reward[] }>('/admin/rewards');
     return response.data.data;
   }
 
@@ -53,4 +53,3 @@ export class RewardRepositoryImpl implements RewardRepository {
     return response.data.data;
   }
 }
-

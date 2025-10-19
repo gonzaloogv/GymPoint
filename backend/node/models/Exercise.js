@@ -15,6 +15,26 @@ const Exercise = sequelize.define('Exercise', {
     type: DataTypes.STRING(100),
     allowNull: false
   },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  equipment_needed: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  difficulty: {
+    type: DataTypes.STRING(50),
+    allowNull: true
+  },
+  instructions: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  video_url: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
   created_by: {
     type: DataTypes.INTEGER,
     allowNull: true, // NULL = ejercicio del sistema

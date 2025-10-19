@@ -1,16 +1,11 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const DailyChallenge = sequelize.define('DailyChallenge', {
-  id_challenge: {
+const DailyChallengeTemplate = sequelize.define('DailyChallengeTemplate', {
+  id_template: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true
-  },
-  challenge_date: {
-    type: DataTypes.DATEONLY,
-    allowNull: false,
-    unique: true
   },
   title: {
     type: DataTypes.STRING(100),
@@ -42,40 +37,26 @@ const DailyChallenge = sequelize.define('DailyChallenge', {
     allowNull: false,
     defaultValue: 'MEDIUM'
   },
-  id_template: {
+  rotation_weight: {
     type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  auto_generated: {
-    type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: false
-  },
-  created_by: {
-    type: DataTypes.INTEGER,
-    allowNull: true
+    defaultValue: 1
   },
   is_active: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: true
   },
-  created_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
-  },
-  updated_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
+  created_by: {
+    type: DataTypes.INTEGER,
+    allowNull: true
   }
 }, {
-  tableName: 'daily_challenge',
+  tableName: 'daily_challenge_template',
   timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at'
 });
 
-module.exports = DailyChallenge;
+module.exports = DailyChallengeTemplate;
 

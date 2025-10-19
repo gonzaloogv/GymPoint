@@ -1,6 +1,6 @@
-import { CreateGymDTO, UpdateGymDTO, Gym } from '@/domain';
+import { CreateGymDTO, UpdateGymDTO, Gym, Amenity } from '@/domain';
 import { Button } from './index';
-import { useGymForm } from '@/presentation/hooks';
+import { useAmenities, useGymForm } from '@/presentation/hooks';
 import {
   GymFormBasicInfo,
   GymFormLocation,
@@ -22,7 +22,7 @@ export const GymForm = ({ gym, onSubmit, onCancel, isLoading }: GymFormProps) =>
   const {
     formData,
     equipmentInput,
-    selectedAmenities,
+    selectedAmenityIds,
     isExtracting,
     handleInputChange,
     handleGoogleMapsUrlChange,
@@ -30,6 +30,9 @@ export const GymForm = ({ gym, onSubmit, onCancel, isLoading }: GymFormProps) =>
     toggleAmenity,
     handleSubmit,
   } = useGymForm({ gym, onSubmit });
+
+  const { data: amenitiesData, isLoading: amenitiesLoading } = useAmenities();
+  const amenityOptions: Amenity[] = amenitiesData ?? [];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -46,7 +49,9 @@ export const GymForm = ({ gym, onSubmit, onCancel, isLoading }: GymFormProps) =>
         handleEquipmentChange={handleEquipmentChange}
         formData={formData}
         handleInputChange={handleInputChange}
-        selectedAmenities={selectedAmenities}
+        amenities={amenityOptions}
+        selectedAmenityIds={selectedAmenityIds}
+        amenitiesLoading={amenitiesLoading}
         toggleAmenity={toggleAmenity}
       />
       <GymFormPricing formData={formData} handleInputChange={handleInputChange} />

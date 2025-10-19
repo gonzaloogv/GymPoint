@@ -1,27 +1,50 @@
 const Exercise = require('../models/Exercise');
 
+const ALLOWED_FIELDS = new Set([
+  'exercise_name',
+  'muscular_group',
+  'description',
+  'equipment_needed',
+  'difficulty',
+  'instructions',
+  'video_url',
+  'created_by'
+]);
+
+const sanitizePayload = (payload = {}) => {
+  return Object.fromEntries(
+    Object.entries(payload).filter(
+      ([key, value]) => ALLOWED_FIELDS.has(key) && value !== undefined
+    )
+  );
+};
+
 const getAllExercises = async () => {
-  return await Exercise.findAll();
+  return Exercise.findAll();
 };
 
 const getExerciseById = async (id) => {
-  return await Exercise.findByPk(id);
+  return Exercise.findByPk(id);
 };
 
 const createExercise = async (data) => {
-  return await Exercise.create(data);
+  const sanitized = sanitizePayload(data);
+  return Exercise.create(sanitized);
 };
 
 const updateExercise = async (id, data) => {
   const exercise = await Exercise.findByPk(id);
   if (!exercise) throw new Error('Exercise not found');
-  return await exercise.update(data);
+
+  const sanitized = sanitizePayload(data);
+  await exercise.update(sanitized);
+  return exercise.reload();
 };
 
 const deleteExercise = async (id) => {
   const exercise = await Exercise.findByPk(id);
   if (!exercise) throw new Error('Exercise not found');
-  return await exercise.destroy();
+  return exercise.destroy();
 };
 
 module.exports = {

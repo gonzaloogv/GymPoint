@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './context';
 import { Layout } from './presentation/components';
-import { Login, Dashboard, Users, Transactions, RoutineTemplates, Rewards, Reviews, Gyms, Exercises } from './presentation/pages';
+import { Login, Dashboard, Users, Transactions, RoutineTemplates, Rewards, Reviews, Gyms, Exercises, DailyChallenges } from './presentation/pages';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,7 +43,7 @@ function App() {
               <Route path="reviews" element={<Reviews />} />
               <Route path="gyms" element={<Gyms />} />
               <Route path="routines" element={<RoutineTemplates />} />
-              <Route path="exercises" element={<Exercises />} />
+              <Route path="exercises" element={<Exercises />} />`n              <Route path="daily-challenges" element={<DailyChallenges />} />
             </Route>
           </Routes>
         </BrowserRouter>
@@ -53,3 +53,4 @@ function App() {
 }
 
 export default App;
+

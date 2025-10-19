@@ -12,4 +12,4 @@ export * from './Streak';
 export * from './DailyChallenge';
 export * from './Review';
 export * from './Common';
-export * from './Auth';
+export * from './Auth';export * from './DailyChallenge';

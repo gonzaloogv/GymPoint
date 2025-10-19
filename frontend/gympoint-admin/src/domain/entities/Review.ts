@@ -1,31 +1,32 @@
-/**
- * Review de Gimnasio
- */
 export interface Review {
   id_review: number;
-  id_user: number;
+  id_user_profile: number;
   id_gym: number;
-  rating: number; // 1-5
-  comment: string | null;
-  review_date: string; // ISO date
+  rating: number;
+  title?: string | null;
+  comment?: string | null;
+  cleanliness_rating?: number | null;
+  equipment_rating?: number | null;
+  staff_rating?: number | null;
+  value_rating?: number | null;
+  helpful_count: number;
+  reported: boolean;
   is_approved: boolean;
+  review_date: string;
   created_at: string;
   updated_at: string;
   user?: {
-    id_user: number;
+    id_user_profile: number;
     name: string;
-    email: string;
+    email: string | null;
   };
   gym?: {
     id_gym: number;
     name: string;
-    city: string;
+    city?: string | null;
   };
 }
 
-/**
- * Estadísticas de reviews
- */
 export interface ReviewStats {
   total_reviews: number;
   avg_rating: number;
@@ -40,12 +41,8 @@ export interface ReviewStats {
   };
 }
 
-/**
- * DTO para aprobar/rechazar review
- */
 export interface ApproveReviewDTO {
   id_review: number;
   is_approved: boolean;
 }
-
 

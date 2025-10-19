@@ -44,6 +44,7 @@ const rewardCodeRoutes = require('./routes/reward-code-routes');
 const userRoutes = require('./routes/user-routes');
 const adminRoutes = require('./routes/admin-routes');
 const adminRewardsRoutes = require('./routes/admin-rewards-routes');
+const adminDailyChallengeRoutes = require('./routes/admin-daily-challenge-routes');
 const adminReviewRoutes = require('./routes/admin-review-routes.js');
 const reviewRoutes = require('./routes/review-routes');
 const mediaRoutes = require('./routes/media-routes');
@@ -108,9 +109,10 @@ app.use('/api/special-schedules', specialScheduleRoutes);
 app.use('/api/gym-payments', gymPaymentRoutes);
 app.use('/api/reward-codes', rewardCodeRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/admin', adminRewardsRoutes);
 app.use('/api/admin/reviews', adminReviewRoutes);
+app.use('/api/admin/rewards', adminRewardsRoutes);
+app.use('/api/admin/daily-challenges', adminDailyChallengeRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/workouts', workoutRoutes);
@@ -197,3 +199,5 @@ process.on('SIGINT', async () => {
   await sequelize.close();
   process.exit(0);
 });
+
+

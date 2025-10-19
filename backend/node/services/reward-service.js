@@ -140,7 +140,7 @@ const obtenerEstadisticasDeRecompensas = async () => {
       as: 'reward',
       attributes: ['name', 'description', 'cost_tokens']
     },
-    group: ['ClaimedReward.id_reward', 'Reward.id_reward', 'reward.name', 'reward.description', 'reward.cost_tokens'],
+    group: ['ClaimedReward.id_reward', 'reward.name', 'reward.description', 'reward.cost_tokens'],
     order: [[Sequelize.literal('total_canjes'), 'DESC']],
     raw: true
   });

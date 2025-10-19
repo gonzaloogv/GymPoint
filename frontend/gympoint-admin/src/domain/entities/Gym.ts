@@ -1,3 +1,5 @@
+import { Amenity } from './Amenity';
+
 export interface Gym {
   id_gym: number;
   name: string;
@@ -29,7 +31,7 @@ export interface Gym {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
-  amenities?: any[];
+  amenities?: Amenity[];
 }
 
 export interface CreateGymDTO {
@@ -58,6 +60,7 @@ export interface CreateGymDTO {
   auto_checkin_enabled?: boolean;
   geofence_radius_meters?: number;
   min_stay_minutes?: number;
+  amenities?: number[];
 }
 
 export interface UpdateGymDTO extends Partial<CreateGymDTO> {

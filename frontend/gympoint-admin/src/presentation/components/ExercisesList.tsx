@@ -30,72 +30,123 @@ export const ExercisesList: React.FC<ExercisesListProps> = ({
 }) => {
   const groupOptions = [
     { value: 'ALL', label: `Todos (${totalExercises})` },
-    ...muscularGroups.map(g => ({
-      value: g,
-      label: `${g} (${exercises.filter(e => e.muscular_group === g).length})`
-    }))
+    ...muscularGroups.map((group) => ({
+      value: group,
+      label: `${group} (${exercises.filter((exercise) => exercise.muscular_group === group).length})`,
+    })),
   ];
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
       <div className="flex flex-wrap items-end gap-4 mb-4">
-        <Input 
-          placeholder="🔍 Buscar ejercicio..." 
-          value={searchTerm} 
-          onChange={e => setSearchTerm(e.target.value)} 
-          className="flex-grow" 
+        <Input
+          placeholder="Buscar ejercicio..."
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          className="flex-grow"
         />
-        <Select 
-          label="Grupo Muscular" 
-          value={filterMuscularGroup} 
-          onChange={e => setFilterMuscularGroup(e.target.value)} 
-          options={groupOptions} 
+        <Select
+          label="Grupo muscular"
+          value={filterMuscularGroup}
+          onChange={(event) => setFilterMuscularGroup(event.target.value)}
+          options={groupOptions}
         />
       </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full">
-          <thead>
+
+      <div className="overflow-x-auto rounded-lg border border-border dark:border-border-dark">
+        <table className="min-w-full text-text dark:text-text-dark">
+          <thead className="bg-bg dark:bg-bg-dark">
             <tr>
-              <th className="px-4 py-3 bg-bg text-left font-semibold border-b border-border">Nombre</th>
-              <th className="px-4 py-3 bg-bg text-left font-semibold border-b border-border">Grupo Muscular</th>
-              <th className="px-4 py-3 bg-bg text-left font-semibold border-b border-border">Dificultad</th>
-              <th className="px-4 py-3 bg-bg text-left font-semibold border-b border-border">Descripción</th>
-              <th className="px-4 py-3 bg-bg text-left font-semibold border-b border-border">Acciones</th>
+              <th className="px-4 py-3 text-left font-semibold border-b border-border dark:border-border-dark">
+                Nombre
+              </th>
+              <th className="px-4 py-3 text-left font-semibold border-b border-border dark:border-border-dark">
+                Grupo muscular
+              </th>
+              <th className="px-4 py-3 text-left font-semibold border-b border-border dark:border-border-dark">
+                Dificultad
+              </th>
+              <th className="px-4 py-3 text-left font-semibold border-b border-border dark:border-border-dark">
+                Descripcion
+              </th>
+              <th className="px-4 py-3 text-left font-semibold border-b border-border dark:border-border-dark">
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody>
-            {exercises.map(ex => (
-              <tr key={ex.id_exercise} className="hover:bg-bg">
-                <td className="px-4 py-3 border-b border-border font-semibold">
-                  {ex.exercise_name} 
-                  {ex.video_url && <a href={ex.video_url} target="_blank" rel="noopener noreferrer" className="ml-2 text-lg">🎥</a>}
-                </td>
-                <td className="px-4 py-3 border-b border-border">{ex.muscular_group || '-'}</td>
-                <td className="px-4 py-3 border-b border-border">
-                  <Badge variant={ex.difficulty === 'Principiante' ? 'active' : ex.difficulty === 'Intermedio' ? 'warning' : 'danger'}>
-                    {ex.difficulty || 'N/A'}
-                  </Badge>
-                </td>
-                <td className="px-4 py-3 border-b border-border text-sm text-text-muted max-w-xs truncate">{ex.description || '-'}</td>
-                <td className="px-4 py-3 border-b border-border">
-                  <div className="flex gap-2">
-                    <Button onClick={() => onEdit(ex)} size="sm" className="px-2 py-2 text-base hover:opacity-85">✏️</Button>
-                    <Button 
-                      onClick={() => onDelete(ex.id_exercise, ex.exercise_name)} 
-                      variant="danger" 
-                      size="sm" 
-                      disabled={deleteMutation.isPending && deleteMutation.variables === ex.id_exercise}
-                      className="px-2 py-2 text-base hover:opacity-85"
+            {exercises.map((exercise) => {
+              const isDeleting =
+                deleteMutation.isPending && deleteMutation.variables === exercise.id_exercise;
+
+              return (
+                <tr
+                  key={exercise.id_exercise}
+                  className="transition-colors hover:bg-muted dark:hover:bg-muted-dark"
+                >
+                  <td className="px-4 py-3 border-b border-border dark:border-border-dark font-semibold">
+                    {exercise.exercise_name}
+                    {exercise.video_url && (
+                      <a
+                        href={exercise.video_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-2 text-lg text-primary hover:text-primary-hover transition-colors"
+                      >
+                        <span className="underline text-sm">Video</span>
+                      </a>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 border-b border-border dark:border-border-dark">
+                    {exercise.muscular_group || '-'}
+                  </td>
+                  <td className="px-4 py-3 border-b border-border dark:border-border-dark">
+                    <Badge
+                      variant={
+                        exercise.difficulty === 'Principiante'
+                          ? 'active'
+                          : exercise.difficulty === 'Intermedio'
+                          ? 'warning'
+                          : 'danger'
+                      }
                     >
-                      🗑️
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      {exercise.difficulty || 'N/A'}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3 border-b border-border dark:border-border-dark text-sm text-text-muted max-w-xs truncate">
+                    {exercise.description || '-'}
+                  </td>
+                  <td className="px-4 py-3 border-b border-border dark:border-border-dark">
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => onEdit(exercise)}
+                        size="sm"
+                        className="px-2 py-2 text-base hover:opacity-85"
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        onClick={() => onDelete(exercise.id_exercise, exercise.exercise_name)}
+                        variant="danger"
+                        size="sm"
+                        disabled={isDeleting}
+                        className="px-2 py-2 text-base hover:opacity-85"
+                      >
+                        Eliminar
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
-        {exercises.length === 0 && <p className="text-center py-8 text-text-muted">No se encontraron ejercicios.</p>}
+
+        {exercises.length === 0 && (
+          <p className="text-center py-8 text-text-muted bg-bg dark:bg-bg-dark">
+            No se encontraron ejercicios.
+          </p>
+        )}
       </div>
     </Card>
   );

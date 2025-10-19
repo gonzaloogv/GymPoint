@@ -1,29 +1,39 @@
 const rewardStatsService = require('../services/reward-stats-service');
 
-/**
- * Obtener estadísticas globales de recompensas por gimnasio
- * @route GET /api/admin/rewards/stats?from=&to=
- * @access Private (Admin global)
- */
+const DEFAULT_RANGE_DAYS = 30;
+
+const resolveDateRange = (from, to) => {
+  const end = to ? new Date(to) : new Date();
+  if (Number.isNaN(end.getTime())) {
+    throw new Error('Fecha final invalida');
+  }
+
+  const start = from ? new Date(from) : new Date(end.getTime() - DEFAULT_RANGE_DAYS * 24 * 60 * 60 * 1000);
+  if (Number.isNaN(start.getTime())) {
+    throw new Error('Fecha inicial invalida');
+  }
+
+  if (start > end) {
+    throw new Error('La fecha de inicio debe ser anterior o igual a la fecha fin');
+  }
+
+  return {
+    from: start.toISOString(),
+    to: end.toISOString()
+  };
+};
+
 const getGlobalRewardStats = async (req, res) => {
   try {
     const { from, to } = req.query;
-    
-    if (!from || !to) {
-      return res.status(400).json({
-        error: {
-          code: 'MISSING_PARAMS',
-          message: 'Parámetros requeridos: from, to (ISO date-time)'
-        }
-      });
-    }
-    
-    const stats = await rewardStatsService.getGymStatsRange(from, to);
-    
+    const { from: resolvedFrom, to: resolvedTo } = resolveDateRange(from, to);
+
+    const stats = await rewardStatsService.getGymStatsRange(resolvedFrom, resolvedTo);
+
     res.json({
-      message: 'Estadísticas globales obtenidas con éxito',
+      message: 'Estadisticas globales obtenidas con exito',
       data: {
-        period: { from, to },
+        period: { from: resolvedFrom, to: resolvedTo },
         gyms: stats,
         summary: {
           total_gyms: stats.length,
@@ -44,41 +54,25 @@ const getGlobalRewardStats = async (req, res) => {
   }
 };
 
-/**
- * Obtener estadísticas de un gimnasio específico
- * @route GET /api/admin/gyms/:gymId/rewards/summary?from=&to=
- * @access Private (Admin del gym o Admin global)
- */
 const getGymRewardStats = async (req, res) => {
   try {
-    const { gymId } = req.params;
+    const { id_gym } = req.params;
     const { from, to } = req.query;
-    
-    if (!from || !to) {
-      return res.status(400).json({
-        error: {
-          code: 'MISSING_PARAMS',
-          message: 'Parámetros requeridos: from, to (ISO date-time)'
-        }
-      });
-    }
-    
-    // TODO: Validar que el admin tiene permiso sobre este gym
-    // Por ahora, cualquier admin puede ver cualquier gym
-    
+    const { from: resolvedFrom, to: resolvedTo } = resolveDateRange(from, to);
+
     const stats = await rewardStatsService.getGymStatsById(
-      parseInt(gymId),
-      from,
-      to
+      parseInt(id_gym, 10),
+      resolvedFrom,
+      resolvedTo
     );
-    
+
     res.json({
       message: 'Estadísticas del gimnasio obtenidas con éxito',
       data: stats
     });
   } catch (err) {
     console.error('Error en getGymRewardStats:', err.message);
-    
+
     if (err.message === 'Gimnasio no encontrado') {
       return res.status(404).json({
         error: {
@@ -87,7 +81,7 @@ const getGymRewardStats = async (req, res) => {
         }
       });
     }
-    
+
     res.status(400).json({
       error: {
         code: 'GET_GYM_STATS_FAILED',

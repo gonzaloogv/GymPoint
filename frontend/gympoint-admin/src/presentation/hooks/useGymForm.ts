@@ -36,7 +36,7 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
   });
 
   const [equipmentInput, setEquipmentInput] = useState('');
-  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [selectedAmenityIds, setSelectedAmenityIds] = useState<number[]>([]);
   const { isExtracting, extractData } = useGoogleMapsExtractor();
 
   useEffect(() => {
@@ -72,9 +72,14 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
       if (Array.isArray(gym.equipment)) {
         setEquipmentInput(gym.equipment.join(', '));
       }
-      if (gym.amenities && Array.isArray(gym.amenities)) {
-        setSelectedAmenities(gym.amenities.map((a: any) => a.name || a));
+      if (Array.isArray(gym.amenities)) {
+        const ids = gym.amenities
+          .map((amenity: any) => Number(amenity?.id_amenity))
+          .filter((id) => Number.isInteger(id) && id > 0);
+        setSelectedAmenityIds(ids);
       }
+    } else {
+      setSelectedAmenityIds([]);
     }
   }, [gym]);
 
@@ -127,26 +132,26 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
     setFormData(prev => ({ ...prev, equipment: equipmentArray }));
   };
 
-  const toggleAmenity = (amenityName: string) => {
-    setSelectedAmenities(prev =>
-      prev.includes(amenityName)
-        ? prev.filter(a => a !== amenityName)
-        : [...prev, amenityName]
+  const toggleAmenity = (amenityId: number) => {
+    setSelectedAmenityIds(prev =>
+      prev.includes(amenityId)
+        ? prev.filter(id => id !== amenityId)
+        : [...prev, amenityId]
     );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const submitData = gym
-      ? { ...formData, id_gym: gym.id_gym } as UpdateGymDTO
-      : formData;
+      ? ({ ...formData, id_gym: gym.id_gym, amenities: selectedAmenityIds } as UpdateGymDTO)
+      : ({ ...formData, amenities: selectedAmenityIds } as CreateGymDTO);
     await onSubmit(submitData);
   };
 
   return {
     formData,
     equipmentInput,
-    selectedAmenities,
+    selectedAmenityIds,
     isExtracting,
     handleInputChange,
     handleGoogleMapsUrlChange,

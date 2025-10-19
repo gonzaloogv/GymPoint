@@ -7,3 +7,4 @@ export * from './Login';
 export * from './Reviews';
 export * from './RoutineTemplates';
 export * from './Exercises';
+export * from './DailyChallenges';

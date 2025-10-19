@@ -9,3 +9,4 @@ export * from './StreakRepository';
 export * from './DailyChallengeRepository';
 export * from './ReviewRepository';
 export * from './ExerciseRepository';
+export * from './DailyChallengeRepository';
