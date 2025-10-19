@@ -1,85 +1,105 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  useDailyChallenges,
-  useDailyChallengeTemplates,
-  useDailyChallengeConfig,
   useCreateDailyChallenge,
-  useUpdateDailyChallenge,
-  useDeleteDailyChallenge,
   useCreateDailyChallengeTemplate,
-  useUpdateDailyChallengeTemplate,
+  useDailyChallengeConfig,
+  useDailyChallengeTemplates,
+  useDailyChallenges,
+  useDeleteDailyChallenge,
   useDeleteDailyChallengeTemplate,
+  useRunDailyChallengeRotation,
+  useUpdateDailyChallenge,
   useUpdateDailyChallengeConfig,
-  useRunDailyChallengeRotation
+  useUpdateDailyChallengeTemplate,
 } from '../hooks';
-import { Button, Card, Input, Select, Textarea, Badge } from '../components';
 import {
-  DailyChallenge,
-  DailyChallengeTemplate,
+  Card
+} from '../components';
+import { 
+  DailyChallengeTable,
+  DailyChallengeConfigCard,
+  DailyChallengeFilters,
+  DailyChallengeFiltersState,
+  DailyChallengeForm,
+  DailyChallengeTemplateForm,
+  DailyChallengeTemplateTable,
+ } from '../components/daily-challenges';
+import {
   CreateDailyChallengeDTO,
   CreateDailyChallengeTemplateDTO,
+  DailyChallenge as DailyChallengeEntity,
+  DailyChallengeDifficulty,
+  DailyChallengeTemplate,
   DailyChallengeType,
-  DailyChallengeDifficulty
 } from '@/domain';
+import { cronToTime, timeToCron } from '../utils/cron';
 
-const TYPE_OPTIONS: { value: DailyChallengeType; label: string }[] = [
+type ChallengeOption = { value: DailyChallengeType; label: string };
+type DifficultyOption = { value: DailyChallengeDifficulty; label: string };
+
+const TYPE_OPTIONS: ChallengeOption[] = [
   { value: 'MINUTES', label: 'Minutos entrenados' },
   { value: 'EXERCISES', label: 'Ejercicios completados' },
-  { value: 'FREQUENCY', label: 'Asistencias al gimnasio' }
+  { value: 'FREQUENCY', label: 'Asistencias al gimnasio' },
 ];
 
-const DIFFICULTY_OPTIONS: { value: DailyChallengeDifficulty; label: string }[] = [
+const DIFFICULTY_OPTIONS: DifficultyOption[] = [
   { value: 'EASY', label: 'Facil' },
   { value: 'MEDIUM', label: 'Media' },
-  { value: 'HARD', label: 'Dificil' }
+  { value: 'HARD', label: 'Dificil' },
 ];
 
-const TEMPLATE_DIFFICULTY_OPTIONS: { value: DailyChallengeDifficulty; label: string }[] = [
+const TEMPLATE_DIFFICULTY_OPTIONS: DifficultyOption[] = [
   { value: 'BEGINNER', label: 'Principiante' },
   { value: 'INTERMEDIATE', label: 'Intermedio' },
-  { value: 'ADVANCED', label: 'Avanzado' }
+  { value: 'ADVANCED', label: 'Avanzado' },
 ];
 
-const cronToTime = (cron?: string) => {
-  if (!cron) return '00:01';
-  const parts = cron.trim().split(' ');
-  if (parts.length < 2) return '00:01';
-  const minute = Number(parts[0]);
-  const hour = Number(parts[1]);
-  if (Number.isNaN(hour) || Number.isNaN(minute)) return '00:01';
-  const hh = Math.max(0, Math.min(23, hour)).toString().padStart(2, '0');
-  const mm = Math.max(0, Math.min(59, minute)).toString().padStart(2, '0');
-  return `${hh}:${mm}`;
+const createDefaultChallengeForm = (): CreateDailyChallengeDTO => ({
+  challenge_date: '',
+  title: '',
+  challenge_type: 'MINUTES',
+  target_value: 30,
+  tokens_reward: 10,
+  difficulty: 'MEDIUM',
+});
+
+const createDefaultTemplateForm = (): CreateDailyChallengeTemplateDTO => ({
+  title: '',
+  challenge_type: 'MINUTES',
+  target_value: 30,
+  tokens_reward: 10,
+  rotation_weight: 1,
+  difficulty: 'BEGINNER',
+});
+
+const DEFAULT_FILTERS: DailyChallengeFiltersState = {
+  include_inactive: false,
 };
 
-const timeToCron = (time: string) => {
-  const [hh, mm] = time.split(':');
-  const hour = Math.max(0, Math.min(23, Number(hh)));
-  const minute = Math.max(0, Math.min(59, Number(mm)));
-  return `${minute} ${hour} * * *`;
+const extractErrorMessage = (error: unknown): string | undefined => {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'response' in error &&
+    typeof (error as any).response?.data?.error?.message === 'string'
+  ) {
+    return (error as any).response.data.error.message as string;
+  }
+  return undefined;
 };
 
 export const DailyChallenges = () => {
-  const [filters, setFilters] = useState<{ from?: string; to?: string; include_inactive?: boolean }>({ include_inactive: false });
-  const [challengeForm, setChallengeForm] = useState<CreateDailyChallengeDTO>({
-    challenge_date: '',
-    title: '',
-    challenge_type: 'MINUTES',
-    target_value: 30,
-    tokens_reward: 10,
-    difficulty: 'MEDIUM'
-  });
-  const [templateForm, setTemplateForm] = useState<CreateDailyChallengeTemplateDTO>({
-    title: '',
-    challenge_type: 'MINUTES',
-    target_value: 30,
-    tokens_reward: 10,
-    rotation_weight: 1,
-    difficulty: 'BEGINNER'
-  });
+  const [filters, setFilters] = useState<DailyChallengeFiltersState>(() => ({ ...DEFAULT_FILTERS }));
+  const [challengeForm, setChallengeForm] = useState<CreateDailyChallengeDTO>(
+    createDefaultChallengeForm,
+  );
+  const [templateForm, setTemplateForm] = useState<CreateDailyChallengeTemplateDTO>(
+    createDefaultTemplateForm,
+  );
   const [configForm, setConfigForm] = useState<{ autoRotation: boolean; cronTime: string }>({
     autoRotation: true,
-    cronTime: '00:01'
+    cronTime: '00:01',
   });
 
   const challengesQuery = useDailyChallenges(filters);
@@ -95,78 +115,97 @@ export const DailyChallenges = () => {
   const updateConfigMutation = useUpdateDailyChallengeConfig();
   const runRotationMutation = useRunDailyChallengeRotation();
 
-  const challenges = challengesQuery.data || [];
-  const templates = templatesQuery.data || [];
+  const challenges = challengesQuery.data ?? [];
+  const templates = templatesQuery.data ?? [];
   const config = configQuery.data;
 
   useEffect(() => {
-    if (config) {
-      setConfigForm({
-        autoRotation: config.auto_rotation_enabled,
-        cronTime: cronToTime(config.rotation_cron)
-      });
+    if (!config) {
+      return;
     }
+    setConfigForm({
+      autoRotation: config.auto_rotation_enabled,
+      cronTime: cronToTime(config.rotation_cron),
+    });
   }, [config]);
 
-  const sortedTemplates = useMemo(
+  const sortedTemplates = useMemo<DailyChallengeTemplate[]>(
     () => [...templates].sort((a, b) => b.rotation_weight - a.rotation_weight),
-    [templates]
+    [templates],
   );
 
-  const handleChallengeSubmit = async (event: React.FormEvent) => {
+  const handleChallengeFieldChange = useCallback(
+    <K extends keyof CreateDailyChallengeDTO>(field: K, value: CreateDailyChallengeDTO[K]) => {
+      setChallengeForm((prev) => ({ ...prev, [field]: value }));
+    },
+    [],
+  );
+
+  const handleTemplateFieldChange = useCallback(
+    <K extends keyof CreateDailyChallengeTemplateDTO>(
+      field: K,
+      value: CreateDailyChallengeTemplateDTO[K],
+    ) => {
+      setTemplateForm((prev) => ({ ...prev, [field]: value }));
+    },
+    [],
+  );
+
+  const handleFilterChange = useCallback(
+    <K extends keyof DailyChallengeFiltersState>(
+      field: K,
+      value: DailyChallengeFiltersState[K],
+    ) => {
+      setFilters((prev) => ({ ...prev, [field]: value }));
+    },
+    [],
+  );
+
+  const handleChallengeSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
       await createChallengeMutation.mutateAsync({
         ...challengeForm,
         target_value: Number(challengeForm.target_value),
         tokens_reward: Number(challengeForm.tokens_reward ?? 0),
-        id_template: challengeForm.id_template ? Number(challengeForm.id_template) : undefined
+        id_template: challengeForm.id_template
+          ? Number(challengeForm.id_template)
+          : undefined,
       });
-      setChallengeForm({
-        challenge_date: '',
-        title: '',
-        challenge_type: 'MINUTES',
-        target_value: 30,
-        tokens_reward: 10,
-        difficulty: 'MEDIUM'
-      });
+      setChallengeForm(createDefaultChallengeForm());
       window.alert('Desafio creado correctamente');
-    } catch (error: any) {
-      window.alert(error?.response?.data?.error?.message || 'No se pudo crear el desafio');
+    } catch (error) {
+      const message = extractErrorMessage(error) ?? 'No se pudo crear el desafio';
+      window.alert(message);
     }
   };
 
-  const handleTemplateSubmit = async (event: React.FormEvent) => {
+  const handleTemplateSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
       await createTemplateMutation.mutateAsync({
         ...templateForm,
         target_value: Number(templateForm.target_value),
         tokens_reward: Number(templateForm.tokens_reward ?? 0),
-        rotation_weight: Number(templateForm.rotation_weight ?? 1)
+        rotation_weight: Number(templateForm.rotation_weight ?? 1),
       });
-      setTemplateForm({
-        title: '',
-        challenge_type: 'MINUTES',
-        target_value: 30,
-        tokens_reward: 10,
-        rotation_weight: 1,
-        difficulty: 'BEGINNER'
-      });
+      setTemplateForm(createDefaultTemplateForm());
       window.alert('Plantilla creada correctamente');
-    } catch (error: any) {
-      window.alert(error?.response?.data?.error?.message || 'No se pudo crear la plantilla');
+    } catch (error) {
+      const message = extractErrorMessage(error) ?? 'No se pudo crear la plantilla';
+      window.alert(message);
     }
   };
 
-  const toggleChallengeActive = async (challenge: DailyChallenge) => {
+  const toggleChallengeActive = async (challenge: DailyChallengeEntity) => {
     try {
       await updateChallengeMutation.mutateAsync({
         id_challenge: challenge.id_challenge,
-        is_active: !challenge.is_active
+        is_active: !challenge.is_active,
       });
-    } catch (error: any) {
-      window.alert(error?.response?.data?.error?.message || 'No se pudo actualizar el desafio');
+    } catch (error) {
+      const message = extractErrorMessage(error) ?? 'No se pudo actualizar el desafio';
+      window.alert(message);
     }
   };
 
@@ -174,10 +213,11 @@ export const DailyChallenges = () => {
     try {
       await updateTemplateMutation.mutateAsync({
         id_template: template.id_template,
-        is_active: !template.is_active
+        is_active: !template.is_active,
       });
-    } catch (error: any) {
-      window.alert(error?.response?.data?.error?.message || 'No se pudo actualizar la plantilla');
+    } catch (error) {
+      const message = extractErrorMessage(error) ?? 'No se pudo actualizar la plantilla';
+      window.alert(message);
     }
   };
 
@@ -185,11 +225,12 @@ export const DailyChallenges = () => {
     try {
       await updateConfigMutation.mutateAsync({
         auto_rotation_enabled: configForm.autoRotation,
-        rotation_cron: timeToCron(configForm.cronTime)
+        rotation_cron: timeToCron(configForm.cronTime),
       });
       window.alert('Configuracion guardada');
-    } catch (error: any) {
-      window.alert(error?.response?.data?.error?.message || 'No se pudo actualizar la configuracion');
+    } catch (error) {
+      const message = extractErrorMessage(error) ?? 'No se pudo actualizar la configuracion';
+      window.alert(message);
     }
   };
 
@@ -201,309 +242,117 @@ export const DailyChallenges = () => {
       } else {
         window.alert('No se genero ningun desafio (rotacion deshabilitada o sin plantillas activas)');
       }
-    } catch (error: any) {
-      window.alert(error?.response?.data?.error?.message || 'No se pudo ejecutar la rotacion');
+    } catch (error) {
+      const message = extractErrorMessage(error) ?? 'No se pudo ejecutar la rotacion';
+      window.alert(message);
     }
   };
 
+  const handleDeleteChallenge = (challenge: DailyChallengeEntity) => {
+    if (!window.confirm('Eliminar este desafio?')) {
+      return;
+    }
+    deleteChallengeMutation.mutate(challenge.id_challenge, {
+      onError: (error) => {
+        const message = extractErrorMessage(error) ?? 'No se pudo eliminar el desafio';
+        window.alert(message);
+      },
+    });
+  };
+
+  const handleDeleteTemplate = (template: DailyChallengeTemplate) => {
+    if (!window.confirm('Eliminar esta plantilla?')) {
+      return;
+    }
+    deleteTemplateMutation.mutate(template.id_template, {
+      onError: (error) => {
+        const message = extractErrorMessage(error) ?? 'No se pudo eliminar la plantilla';
+        window.alert(message);
+      },
+    });
+  };
+
+  const resetFilters = () => {
+    setFilters({ ...DEFAULT_FILTERS });
+    challengesQuery.refetch();
+  };
+
   return (
-    <div className="p-6 bg-bg dark:bg-bg-dark min-h-screen space-y-6">
+    <div className="min-h-screen space-y-6 bg-bg p-6 dark:bg-bg-dark">
       <header className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold text-text dark:text-text-dark">Gestion de Desafios Diarios</h1>
-        <p className="text-text-muted">Configura la rotacion automatica, crea desafios manuales y administra las plantillas disponibles.</p>
+        <h1 className="text-2xl font-bold text-text dark:text-text-dark">
+          Gestion de Desafios Diarios
+        </h1>
+        <p className="text-text-muted">
+          Configura la rotacion automatica, crea desafios manuales y administra las plantillas
+          disponibles.
+        </p>
       </header>
 
-      <Card title="Configuracion general">
-        <div className="flex flex-col md:flex-row md:items-end gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-text dark:text-text-dark font-medium">Rotacion automatica:</span>
-            <Button
-              size="sm"
-              variant={configForm.autoRotation ? 'success' : 'secondary'}
-              onClick={() => setConfigForm((prev) => ({ ...prev, autoRotation: !prev.autoRotation }))}
-              disabled={updateConfigMutation.isPending || configQuery.isLoading}
-            >
-              {configForm.autoRotation ? 'Activa' : 'Desactivada'}
-            </Button>
-          </div>
-          <Input
-            type="time"
-            label="Hora de ejecucion (UTC)"
-            value={configForm.cronTime}
-            onChange={(event) => setConfigForm((prev) => ({ ...prev, cronTime: event.target.value }))}
-          />
-          <Button onClick={saveConfig} disabled={updateConfigMutation.isPending}>Guardar configuracion</Button>
-          <Button onClick={runRotation} disabled={runRotationMutation.isPending}>Ejecutar rotacion ahora</Button>
-        </div>
-      </Card>
+      <DailyChallengeConfigCard
+        autoRotation={configForm.autoRotation}
+        cronTime={configForm.cronTime}
+        onToggleAutoRotation={() =>
+          setConfigForm((prev) => ({ ...prev, autoRotation: !prev.autoRotation }))
+        }
+        onCronTimeChange={(value) => setConfigForm((prev) => ({ ...prev, cronTime: value }))}
+        onSave={saveConfig}
+        onRunRotation={runRotation}
+        isSaving={updateConfigMutation.isPending}
+        isRunning={runRotationMutation.isPending}
+        isLoadingConfig={configQuery.isLoading}
+      />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card title="Crear desafio manual">
-          <form className="space-y-4" onSubmit={handleChallengeSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                type="date"
-                label="Fecha *"
-                value={challengeForm.challenge_date}
-                onChange={(event) => setChallengeForm({ ...challengeForm, challenge_date: event.target.value })}
-                required
-              />
-              <Select
-                label="Tipo"
-                value={challengeForm.challenge_type}
-                onChange={(event) => setChallengeForm({ ...challengeForm, challenge_type: event.target.value as DailyChallengeType })}
-                options={TYPE_OPTIONS.map((option) => ({ value: option.value, label: option.label }))}
-              />
-              <Input
-                label="Objetivo *"
-                type="number"
-                value={challengeForm.target_value}
-                onChange={(event) => setChallengeForm({ ...challengeForm, target_value: Number(event.target.value) })}
-                required
-              />
-              <Input
-                label="Unidad"
-                value={challengeForm.target_unit || ''}
-                onChange={(event) => setChallengeForm({ ...challengeForm, target_unit: event.target.value })}
-                placeholder="min, reps, etc."
-              />
-              <Input
-                label="Tokens"
-                type="number"
-                value={challengeForm.tokens_reward ?? 10}
-                onChange={(event) => setChallengeForm({ ...challengeForm, tokens_reward: Number(event.target.value) })}
-              />
-              <Select
-                label="Dificultad"
-                value={challengeForm.difficulty}
-                onChange={(event) => setChallengeForm({ ...challengeForm, difficulty: event.target.value as DailyChallengeDifficulty })}
-                options={DIFFICULTY_OPTIONS.map((option) => ({ value: option.value, label: option.label }))}
-              />
-            </div>
-            <Textarea
-              label="Descripcion"
-              value={challengeForm.description || ''}
-              onChange={(event) => setChallengeForm({ ...challengeForm, description: event.target.value })}
-              rows={3}
-            />
-            <div className="flex justify-end gap-2">
-              <Button type="submit" disabled={createChallengeMutation.isPending}>Crear desafio</Button>
-            </div>
-          </form>
-        </Card>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <DailyChallengeForm
+          title="Crear desafio manual"
+          form={challengeForm}
+          typeOptions={TYPE_OPTIONS}
+          difficultyOptions={DIFFICULTY_OPTIONS}
+          onSubmit={handleChallengeSubmit}
+          onChange={handleChallengeFieldChange}
+          isSubmitting={createChallengeMutation.isPending}
+        />
 
-        <Card title="Crear plantilla">
-          <form className="space-y-4" onSubmit={handleTemplateSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                label="Titulo *"
-                value={templateForm.title}
-                onChange={(event) => setTemplateForm({ ...templateForm, title: event.target.value })}
-                required
-              />
-              <Select
-                label="Tipo"
-                value={templateForm.challenge_type}
-                onChange={(event) => setTemplateForm({ ...templateForm, challenge_type: event.target.value as DailyChallengeType })}
-                options={TYPE_OPTIONS.map((option) => ({ value: option.value, label: option.label }))}
-              />
-              <Input
-                label="Objetivo *"
-                type="number"
-                value={templateForm.target_value}
-                onChange={(event) => setTemplateForm({ ...templateForm, target_value: Number(event.target.value) })}
-                required
-              />
-              <Input
-                label="Unidad"
-                value={templateForm.target_unit || ''}
-                onChange={(event) => setTemplateForm({ ...templateForm, target_unit: event.target.value })}
-              />
-              <Input
-                label="Tokens"
-                type="number"
-                value={templateForm.tokens_reward ?? 10}
-                onChange={(event) => setTemplateForm({ ...templateForm, tokens_reward: Number(event.target.value) })}
-              />
-              <Select
-                label="Dificultad"
-                value={templateForm.difficulty}
-                onChange={(event) => setTemplateForm({ ...templateForm, difficulty: event.target.value as DailyChallengeDifficulty })}
-                options={TEMPLATE_DIFFICULTY_OPTIONS.map((option) => ({ value: option.value, label: option.label }))}
-              />
-              <Input
-                label="Peso de rotacion"
-                type="number"
-                value={templateForm.rotation_weight ?? 1}
-                min={0}
-                onChange={(event) => setTemplateForm({ ...templateForm, rotation_weight: Number(event.target.value) })}
-              />
-            </div>
-            <Textarea
-              label="Descripcion"
-              value={templateForm.description || ''}
-              onChange={(event) => setTemplateForm({ ...templateForm, description: event.target.value })}
-              rows={3}
-            />
-            <div className="flex justify-end gap-2">
-              <Button type="submit" disabled={createTemplateMutation.isPending}>Crear plantilla</Button>
-            </div>
-          </form>
-        </Card>
+        <DailyChallengeTemplateForm
+          title="Crear plantilla"
+          form={templateForm}
+          typeOptions={TYPE_OPTIONS}
+          difficultyOptions={TEMPLATE_DIFFICULTY_OPTIONS}
+          onSubmit={handleTemplateSubmit}
+          onChange={handleTemplateFieldChange}
+          isSubmitting={createTemplateMutation.isPending}
+        />
       </div>
 
       <Card title="Desafios programados">
-        <div className="flex flex-wrap gap-4 mb-4">
-          <Input
-            type="date"
-            label="Desde"
-            value={filters.from || ''}
-            onChange={(event) => setFilters((prev) => ({ ...prev, from: event.target.value }))}
-            className="w-48"
-          />
-          <Input
-            type="date"
-            label="Hasta"
-            value={filters.to || ''}
-            onChange={(event) => setFilters((prev) => ({ ...prev, to: event.target.value }))}
-            className="w-48"
-          />
-          <label className="flex items-center gap-2 text-sm text-text dark:text-text-dark">
-            <input
-              type="checkbox"
-              checked={Boolean(filters.include_inactive)}
-              onChange={(event) => setFilters((prev) => ({ ...prev, include_inactive: event.target.checked }))}
-            />
-            Incluir inactivos
-          </label>
-          <Button size="sm" onClick={() => challengesQuery.refetch()} disabled={challengesQuery.isFetching}>Aplicar filtros</Button>
-        </div>
-        {challengesQuery.isLoading ? (
-          <p className="text-text-muted">Cargando desafios...</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left">
-              <thead>
-                <tr className="border-b border-border dark:border-border-dark">
-                  <th className="px-4 py-2">Fecha</th>
-                  <th className="px-4 py-2">Titulo</th>
-                  <th className="px-4 py-2">Tipo</th>
-                  <th className="px-4 py-2">Objetivo</th>
-                  <th className="px-4 py-2">Tokens</th>
-                  <th className="px-4 py-2">Origen</th>
-                  <th className="px-4 py-2 text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {challenges.map((challenge) => (
-                  <tr key={challenge.id_challenge} className="border-b border-border dark:border-border-dark hover:bg-muted/40 dark:hover:bg-muted-dark/40">
-                    <td className="px-4 py-2 text-sm">{challenge.challenge_date}</td>
-                    <td className="px-4 py-2">
-                      <p className="font-medium text-text dark:text-text-dark">{challenge.title}</p>
-                      {challenge.description && <p className="text-xs text-text-muted max-w-xs truncate">{challenge.description}</p>}
-                    </td>
-                    <td className="px-4 py-2 text-sm">{challenge.challenge_type}</td>
-                    <td className="px-4 py-2 text-sm">{challenge.target_value} {challenge.target_unit || ''}</td>
-                    <td className="px-4 py-2 text-sm">{challenge.tokens_reward}</td>
-                    <td className="px-4 py-2 text-sm">
-                      {challenge.auto_generated ? <Badge variant="free">Automatico</Badge> : <Badge variant="active">Manual</Badge>}
-                    </td>
-                    <td className="px-4 py-2 flex justify-end gap-2">
-                      <Button
-                        size="sm"
-                        variant={challenge.is_active ? 'secondary' : 'success'}
-                        onClick={() => toggleChallengeActive(challenge)}
-                        disabled={updateChallengeMutation.isPending}
-                      >
-                        {challenge.is_active ? 'Desactivar' : 'Activar'}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="danger"
-                        onClick={() => {
-                          if (window.confirm('Eliminar este desafio?')) {
-                            deleteChallengeMutation.mutate(challenge.id_challenge);
-                          }
-                        }}
-                        disabled={deleteChallengeMutation.isPending}
-                      >
-                        Eliminar
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {challenges.length === 0 && <p className="text-center py-6 text-text-muted">No hay desafios para el rango seleccionado.</p>}
-          </div>
-        )}
+        <DailyChallengeFilters
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          onApply={() => challengesQuery.refetch()}
+          onReset={resetFilters}
+          isApplying={challengesQuery.isFetching}
+        />
+        <DailyChallengeTable
+          challenges={challenges}
+          isLoading={challengesQuery.isLoading}
+          onToggleActive={toggleChallengeActive}
+          onDelete={handleDeleteChallenge}
+          isToggling={updateChallengeMutation.isPending}
+          isDeleting={deleteChallengeMutation.isPending}
+        />
       </Card>
 
       <Card title="Plantillas">
-        {templatesQuery.isLoading ? (
-          <p className="text-text-muted">Cargando plantillas...</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left">
-              <thead>
-                <tr className="border-b border-border dark:border-border-dark">
-                  <th className="px-4 py-2">Titulo</th>
-                  <th className="px-4 py-2">Tipo</th>
-                  <th className="px-4 py-2">Objetivo</th>
-                  <th className="px-4 py-2">Tokens</th>
-                  <th className="px-4 py-2">Peso</th>
-                  <th className="px-4 py-2">Estado</th>
-                  <th className="px-4 py-2 text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedTemplates.map((template) => (
-                  <tr key={template.id_template} className="border-b border-border dark:border-border-dark hover:bg-muted/40 dark:hover:bg-muted-dark/40">
-                    <td className="px-4 py-2">
-                      <p className="font-medium text-text dark:text-text-dark">{template.title}</p>
-                      {template.description && <p className="text-xs text-text-muted max-w-xs truncate">{template.description}</p>}
-                    </td>
-                    <td className="px-4 py-2 text-sm">{template.challenge_type}</td>
-                    <td className="px-4 py-2 text-sm">{template.target_value} {template.target_unit || ''}</td>
-                    <td className="px-4 py-2 text-sm">{template.tokens_reward}</td>
-                    <td className="px-4 py-2 text-sm">{template.rotation_weight}</td>
-                    <td className="px-4 py-2 text-sm">
-                      <Badge variant={template.is_active ? 'active' : 'inactive'}>
-                        {template.is_active ? 'Activa' : 'Inactiva'}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-2 flex justify-end gap-2">
-                      <Button
-                        size="sm"
-                        variant={template.is_active ? 'secondary' : 'success'}
-                        onClick={() => toggleTemplateActive(template)}
-                        disabled={updateTemplateMutation.isPending}
-                      >
-                        {template.is_active ? 'Desactivar' : 'Activar'}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="danger"
-                        onClick={() => {
-                          if (window.confirm('Eliminar esta plantilla?')) {
-                            deleteTemplateMutation.mutate(template.id_template);
-                          }
-                        }}
-                        disabled={deleteTemplateMutation.isPending}
-                      >
-                        Eliminar
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {templates.length === 0 && <p className="text-center py-6 text-text-muted">No hay plantillas registradas.</p>}
-          </div>
-        )}
+        <DailyChallengeTemplateTable
+          templates={sortedTemplates}
+          isLoading={templatesQuery.isLoading}
+          onToggleActive={toggleTemplateActive}
+          onDelete={handleDeleteTemplate}
+          isToggling={updateTemplateMutation.isPending}
+          isDeleting={deleteTemplateMutation.isPending}
+        />
       </Card>
     </div>
   );
 };
-
-

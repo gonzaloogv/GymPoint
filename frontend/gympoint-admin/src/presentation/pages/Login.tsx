@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useLogin } from '../hooks';
 import Button from '../components/ui/Button';
-import { AxiosError } from 'axios';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
@@ -12,75 +12,88 @@ export const Login = () => {
   const loginMutation = useLogin();
 
   useEffect(() => {
-    if (loginMutation.isError) {
-      const err = loginMutation.error as AxiosError<{ error: { message: string } }>;
-      if (err.response?.status === 401) {
-        setErrorMessage('Credenciales inválidas. Verifica tu email y contraseña.');
-      } else if (err.response?.data?.error?.message) {
-        setErrorMessage(err.response.data.error.message);
-      } else {
-        setErrorMessage('Error al iniciar sesión. Por favor intenta de nuevo.');
-      }
+    if (!loginMutation.isError) {
+      return;
     }
-  }, [loginMutation.isError, loginMutation.error]);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+    const err = loginMutation.error as AxiosError<{ error: { message: string } }>;
+    if (err.response?.status === 401) {
+      setErrorMessage('Credenciales invalidas. Verifica tu email y contrasena.');
+      return;
+    }
+
+    if (err.response?.data?.error?.message) {
+      setErrorMessage(err.response.data.error.message);
+      return;
+    }
+
+    setErrorMessage('Error al iniciar sesion. Por favor intenta de nuevo.');
+  }, [loginMutation.error, loginMutation.isError]);
+
+  const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setErrorMessage('');
 
-    loginMutation.mutate({ email, password }, {
-      onSuccess: (data) => {
-        const { accessToken, user } = data;
+    loginMutation.mutate(
+      { email, password },
+      {
+        onSuccess: (data) => {
+          const { accessToken, user } = data;
 
-        if (!user.roles || !user.roles.includes('ADMIN')) {
-          setErrorMessage('Acceso denegado. Se requieren privilegios de administrador.');
-          return;
-        }
+          if (!user.roles || !user.roles.includes('ADMIN')) {
+            setErrorMessage('Acceso denegado. Se requieren privilegios de administrador.');
+            return;
+          }
 
-        localStorage.setItem('admin_token', accessToken);
-        navigate('/');
+          localStorage.setItem('admin_token', accessToken);
+          navigate('/');
+        },
       },
-    });
+    );
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg dark:bg-bg-dark">
-      <div className="bg-card dark:bg-card-dark p-12 rounded-xl border border-border dark:border-border-dark shadow-lg max-w-[420px] w-full">
-        <h1 className="text-primary text-center mb-8 font-bold text-2xl">GymPoint Admin</h1>
+    <div className="flex min-h-screen items-center justify-center bg-bg dark:bg-bg-dark">
+      <div className="w-full max-w-[420px] rounded-xl border border-border bg-card p-12 shadow-lg dark:border-border-dark dark:bg-card-dark">
+        <h1 className="mb-8 text-center text-2xl font-bold text-primary">GymPoint Admin</h1>
         <form onSubmit={handleLogin} className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <label className="text-text dark:text-text-dark font-medium text-sm">Email</label>
+            <label className="text-sm font-medium text-text dark:text-text-dark">Email</label>
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(event) => setEmail(event.target.value)}
               required
               placeholder="administrador@administrador.com"
-              className="px-4 py-[0.85rem] border border-input-border dark:border-input-border-dark rounded-lg bg-input-bg dark:bg-input-bg-dark text-text dark:text-text-dark focus:outline-none focus:border-primary"
+              className="rounded-lg border border-input-border bg-input-bg px-4 py-[0.85rem] text-text focus:border-primary focus:outline-none dark:border-input-border-dark dark:bg-input-bg-dark dark:text-text-dark"
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-text dark:text-text-dark font-medium text-sm">Contraseña</label>
+            <label className="text-sm font-medium text-text dark:text-text-dark">Contrasena</label>
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(event) => setPassword(event.target.value)}
               required
-              placeholder="Ingresa tu contraseña"
-              className="px-4 py-[0.85rem] border border-input-border dark:border-input-border-dark rounded-lg bg-input-bg dark:bg-input-bg-dark text-text dark:text-text-dark focus:outline-none focus:border-primary"
+              placeholder="Ingresa tu contrasena"
+              className="rounded-lg border border-input-border bg-input-bg px-4 py-[0.85rem] text-text focus:border-primary focus:outline-none dark:border-input-border-dark dark:bg-input-bg-dark dark:text-text-dark"
             />
           </div>
 
-          {errorMessage && <div className="bg-danger/15 text-danger px-[0.85rem] py-[0.85rem] rounded-lg text-center border border-danger/30 text-sm">{errorMessage}</div>}
+          {errorMessage && (
+            <div className="rounded-lg border border-danger/30 bg-danger/15 px-[0.85rem] py-[0.85rem] text-center text-sm text-danger">
+              {errorMessage}
+            </div>
+          )}
 
           <Button type="submit" disabled={loginMutation.isPending} className="w-full">
             {loginMutation.isPending ? 'Ingresando...' : 'Ingresar'}
           </Button>
 
           <div className="mt-2 text-center">
-            <p className="text-text-muted text-sm">
-              Usa tus credenciales de administrador para iniciar sesión.
+            <p className="text-sm text-text-muted">
+              Usa tus credenciales de administrador para iniciar sesion.
             </p>
           </div>
         </form>

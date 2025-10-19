@@ -72,13 +72,7 @@ export class AdminRepositoryImpl implements AdminRepository {
   }
 
   async grantTokens(userId: number, delta: number, reason?: string): Promise<void> {
-    console.log('AdminRepositoryImpl.grantTokens called with:', { userId, delta, reason });
-    console.log('Making POST request to:', `/admin/users/${userId}/tokens`);
-    console.log('Request body:', { delta, reason });
-
-    const response = await apiClient.post(`/admin/users/${userId}/tokens`, { delta, reason });
-    console.log('Grant tokens response:', response.data);
-    return response.data;
+    await apiClient.post(`/admin/users/${userId}/tokens`, { delta, reason });
   }
 
   async updateSubscription(userId: number, subscription: 'FREE' | 'PREMIUM'): Promise<void> {

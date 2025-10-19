@@ -6,3 +6,4 @@ export * from './ExercisesList';
 export * from './reviews';
 export * from './rewards';
 export * from './routine-templates';
+export * from './daily-challenges';

@@ -1,8 +1,20 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import type { ReactElement } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './context';
 import { Layout } from './presentation/components';
-import { Login, Dashboard, Users, Transactions, RoutineTemplates, Rewards, Reviews, Gyms, Exercises, DailyChallenges } from './presentation/pages';
+import {
+  DailyChallenges,
+  Dashboard,
+  Exercises,
+  Gyms,
+  Login,
+  Reviews,
+  Rewards,
+  RoutineTemplates,
+  Transactions,
+  Users,
+} from './presentation/pages';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -13,7 +25,11 @@ const queryClient = new QueryClient({
   },
 });
 
-const ProtectedRoute = ({ children }) => {
+interface ProtectedRouteProps {
+  children: ReactElement;
+}
+
+const ProtectedRoute = ({ children }: ProtectedRouteProps): ReactElement => {
   const token = localStorage.getItem('admin_token');
   if (!token) {
     return <Navigate to="/login" replace />;
@@ -21,7 +37,7 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-function App() {
+const App = (): ReactElement => {
   return (
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
@@ -43,14 +59,14 @@ function App() {
               <Route path="reviews" element={<Reviews />} />
               <Route path="gyms" element={<Gyms />} />
               <Route path="routines" element={<RoutineTemplates />} />
-              <Route path="exercises" element={<Exercises />} />`n              <Route path="daily-challenges" element={<DailyChallenges />} />
+              <Route path="exercises" element={<Exercises />} />
+              <Route path="daily-challenges" element={<DailyChallenges />} />
             </Route>
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>
     </ThemeProvider>
   );
-}
+};
 
 export default App;
-
