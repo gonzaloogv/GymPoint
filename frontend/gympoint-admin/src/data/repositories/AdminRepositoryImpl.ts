@@ -1,7 +1,5 @@
 import {
   AdminRepository,
-  ListUsersParams,
-  TransactionParams,
   Stats,
   Activity,
   User,
@@ -51,7 +49,7 @@ export class AdminRepositoryImpl implements AdminRepository {
     return mapActivityDTOToActivity(response.data);
   }
 
-  async listUsers(params?: ListUsersParams): Promise<PaginatedResponse<User>> {
+  async listUsers(params?: any): Promise<PaginatedResponse<User>> {
     const response = await apiClient.get<PaginatedResponseDTO<UserDTO>>('/admin/users', {
       params,
     });
@@ -87,7 +85,7 @@ export class AdminRepositoryImpl implements AdminRepository {
     await apiClient.put(`/admin/users/${userId}/subscription`, { subscription });
   }
 
-  async getTransactions(params?: TransactionParams): Promise<PaginatedResponse<Transaction>> {
+  async getTransactions(params?: any): Promise<PaginatedResponse<Transaction>> {
     const response = await apiClient.get<PaginatedResponseDTO<TransactionDTO>>(
       '/admin/transactions',
       { params }
@@ -107,8 +105,10 @@ export class AdminRepositoryImpl implements AdminRepository {
 
   async getGymRewardStats(gymId: number, from: string, to: string): Promise<RewardStatsData> {
     const response = await apiClient.get<RewardStatsResponseDTO>(
-      `/admin/gyms/${gymId}/rewards/summary`,
-      { params: { from, to } }
+      `/admin/gyms/${gymId}/rewards/stats`,
+      {
+        params: { from, to },
+      }
     );
     return mapRewardStatsResponseDTOToRewardStatsData(response.data);
   }

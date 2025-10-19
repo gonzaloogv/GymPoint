@@ -9,3 +9,6 @@ export * from './useStreaks';
 export * from './useDailyChallenges';
 export * from './useReviews';
 export * from './useExercises';
+export * from './useGoogleMapsExtractor';
+export * from './useGymForm';
+export * from './useLogin';

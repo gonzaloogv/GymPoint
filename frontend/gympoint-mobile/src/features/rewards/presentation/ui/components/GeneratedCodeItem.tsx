@@ -7,12 +7,14 @@ type GeneratedCodeItemProps = {
   item: GeneratedCode;
   onCopy: (code: string) => void;
   onToggle: (code: GeneratedCode) => void;
+  showActions?: boolean;
 };
 
 export const GeneratedCodeItem: React.FC<GeneratedCodeItemProps> = ({
   item,
   onCopy,
   onToggle,
+  showActions = false,
 }) => {
   return (
     <GeneratedCodeCard
@@ -20,6 +22,7 @@ export const GeneratedCodeItem: React.FC<GeneratedCodeItemProps> = ({
       onCopy={onCopy}
       onToggle={onToggle}
       formatDate={formatDate}
+      showActions={showActions}
     />
   );
 };

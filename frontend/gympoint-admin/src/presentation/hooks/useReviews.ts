@@ -4,10 +4,10 @@ import { ApproveReviewDTO } from '@/domain';
 
 const reviewRepository = new ReviewRepositoryImpl();
 
-export const useReviews = () => {
+export const useReviews = (filters: { limit?: number; offset?: number; is_approved?: boolean; sortBy?: string; order?: string; searchTerm?: string }) => {
   return useQuery({
-    queryKey: ['reviews'],
-    queryFn: () => reviewRepository.getAllReviews(),
+    queryKey: ['reviews', filters],
+    queryFn: () => reviewRepository.getAllReviews(filters),
   });
 };
 

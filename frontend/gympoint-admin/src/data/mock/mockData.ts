@@ -1,13 +1,14 @@
-import {
-  AdminProfile,
-  Stats,
-  Activity,
-  User,
-  UserDetail,
-  Transaction,
-  PaginatedResponse,
-  RewardStatsData,
+import { 
+  Stats, 
+  Activity, 
+  User, 
+  UserDetail, 
+  Transaction, 
+  PaginatedResponse, 
+  AdminProfile, 
+  RewardStatsData 
 } from '@/domain';
+import { RewardStats } from '@/domain/entities/Reward';
 
 export const mockAdminProfile: AdminProfile = {
   id_admin_profile: 1,

@@ -1,5 +1,6 @@
 import { Stats, Activity, User, UserDetail, Transaction, PaginatedResponse, RewardStatsData, AdminProfile } from '../entities';
 
+
 export interface ListUsersParams {
   page?: number;
   limit?: number;

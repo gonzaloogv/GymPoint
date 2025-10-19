@@ -161,9 +161,6 @@ const obtenerEstadisticasDeRecompensas = async () => {
  */
 const listarTodasLasRecompensas = async () => {
   return await Reward.findAll({
-    where: {
-      deleted_at: null // Solo recompensas no eliminadas
-    },
     order: [['creation_date', 'DESC']]
   });
 };

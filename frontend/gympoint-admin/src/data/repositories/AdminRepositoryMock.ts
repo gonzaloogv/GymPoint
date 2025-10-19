@@ -1,7 +1,5 @@
 import {
   AdminRepository,
-  ListUsersParams,
-  TransactionParams,
   Stats,
   Activity,
   User,
@@ -9,7 +7,7 @@ import {
   Transaction,
   PaginatedResponse,
   RewardStatsData,
-  AdminProfile,
+  AdminProfile 
 } from '@/domain';
 import {
   mockAdminProfile,
@@ -18,9 +16,20 @@ import {
   mockUsersPaginated,
   mockUserDetail,
   mockTransactionsPaginated,
-  mockRewardStats,
+  mockRewardStats 
 } from '../mock';
 
+// Dummy interfaces to fix type errors
+interface ListUsersParams {
+  search?: string;
+  subscription?: 'FREE' | 'PREMIUM';
+  page?: number;
+  limit?: number;
+}
+interface TransactionParams {
+  page?: number;
+  limit?: number;
+}
 export class AdminRepositoryMock implements AdminRepository {
   async getAdminProfile(): Promise<AdminProfile> {
     // Simular delay de red
@@ -101,12 +110,12 @@ export class AdminRepositoryMock implements AdminRepository {
   }
 
   async getGlobalRewardStats(from: string, to: string): Promise<RewardStatsData> {
-    await this.delay(300);
+    console.log('MOCK: getGlobalRewardStats', { from, to });
     return mockRewardStats;
   }
 
   async getGymRewardStats(gymId: number, from: string, to: string): Promise<RewardStatsData> {
-    await this.delay(300);
+    console.log('MOCK: getGymRewardStats', { gymId, from, to });
     return mockRewardStats;
   }
 

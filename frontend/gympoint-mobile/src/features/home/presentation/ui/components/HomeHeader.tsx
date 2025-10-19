@@ -1,65 +1,92 @@
 import styled from 'styled-components/native';
-import FeatherIcon from '@expo/vector-icons/Feather';
-import { Avatar, Row, TokenPill } from '@shared/components/ui';
+import { Row } from '@shared/components/ui';
 import { palette } from '@shared/styles';
 
-const Container = styled(Row).attrs({ $justify: 'space-between' })``;
+const Container = styled(Row).attrs({ $justify: 'space-between', $align: 'flex-start' })``;
 
-const Identity = styled(Row)`
+const Identity = styled.View`
   flex: 1;
 `;
 
-const IdentityText = styled.View`
-  margin-left: 12px;
-`;
-
 const Heading = styled.Text`
+  font-size: 26px;
   font-weight: 700;
   color: ${({ theme }) => theme?.colors?.text ?? palette.textStrong};
+  margin-bottom: 2px;
 `;
 
 const Subtext = styled.Text`
-  margin-top: 2px;
+  font-size: 15px;
   color: ${({ theme }) => theme?.colors?.subtext ?? palette.textMuted};
 `;
 
 const Actions = styled(Row)`
-  margin-left: 12px;
+  gap: 8px;
 `;
 
-const IconButton = styled.TouchableOpacity`
-  margin-left: 8px;
-  min-width: 44px;
-  min-height: 44px;
+const TokenBadge = styled.View`
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
+  gap: 4px;
+  background-color: #fef3c7;
+  padding: 8px 12px;
+  border-radius: 20px;
+`;
+
+const TokenIcon = styled.Text`
+  font-size: 18px;
+`;
+
+const TokenCount = styled.Text`
+  font-size: 15px;
+  font-weight: 700;
+  color: #92400e;
+`;
+
+const FireBadge = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  background-color: #fed7d7;
+  padding: 8px 12px;
+  border-radius: 20px;
+`;
+
+const FireIcon = styled.Text`
+  font-size: 18px;
+`;
+
+const FireCount = styled.Text`
+  font-size: 15px;
+  font-weight: 700;
+  color: #991b1b;
 `;
 
 type Props = {
   userName: string;
-  plan: 'Free' | 'Premium';
   tokens: number;
-  onBellPress?: () => void;
+  streak?: number;
 };
 
-export default function HomeHeader({ userName, plan, tokens, onBellPress }: Props) {
+export default function HomeHeader({ userName, tokens, streak = 7 }: Props) {
   const parts = userName.trim().split(/\s+/);
   const firstName = parts[0] ?? userName;
   return (
     <Container>
       <Identity>
-        <Avatar userName={userName} />
-        <IdentityText>
-          <Heading>¡Hola, {firstName}!</Heading>
-          <Subtext>Usuario {plan}</Subtext>
-        </IdentityText>
+        <Heading>¡Hola, {firstName}!</Heading>
+        <Subtext>¿Listo para entrenar hoy?</Subtext>
       </Identity>
 
       <Actions>
-        <TokenPill value={tokens} />
-        <IconButton onPress={onBellPress}>
-          <FeatherIcon name="bell" size={20} color={palette.textStrong} />
-        </IconButton>
+        <TokenBadge>
+          <TokenIcon>⚡</TokenIcon>
+          <TokenCount>{tokens}</TokenCount>
+        </TokenBadge>
+        <FireBadge>
+          <FireIcon>🔥</FireIcon>
+          <FireCount>{streak}</FireCount>
+        </FireBadge>
       </Actions>
     </Container>
   );

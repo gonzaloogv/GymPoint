@@ -151,8 +151,12 @@ export default function ExerciseProgressScreen({ navigation, route }: Props) {
         <FlatList
           data={exercises}
           keyExtractor={(item) => item.exerciseId}
-          renderItem={({ item }) => (
-            <ExerciseCard exercise={item} onPress={() => setSelectedExercise(item)} />
+          renderItem={({ item, index }) => (
+            <ExerciseCard
+              exercise={item}
+              onPress={() => setSelectedExercise(item)}
+              style={index === 0 ? { marginTop: 16 } : {}}
+            />
           )}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 24 }}

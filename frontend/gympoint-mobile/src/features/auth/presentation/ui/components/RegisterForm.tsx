@@ -4,7 +4,6 @@ import { Button, ButtonText, Input, Label } from '@shared/components/ui';
 import { LocationSelector } from './LocationSelector';
 import { GenderRadioGroup } from './GenderRadioGroup';
 import { FrequencySlider } from './FrequencySlider';
-import { BirthDatePicker } from './BirthDatePicker';
 
 interface Props {
   loading: boolean;
@@ -13,7 +12,7 @@ interface Props {
     email: string;
     password: string;
     location: string;
-    birthDate: string;
+    birth_date: string;
     gender: string;
     weeklyFrequency: number;
   }) => void;
@@ -26,7 +25,7 @@ export function RegisterForm({ loading, onSubmit }: Props) {
     password: '',
     confirmPassword: '',
     location: '',
-    birthDate: '',
+    birth_date: '',
     gender: '',
     weeklyFrequency: 3,
   });
@@ -43,7 +42,7 @@ export function RegisterForm({ loading, onSubmit }: Props) {
       email: form.email,
       password: form.password,
       location: form.location,
-      birthDate: form.birthDate,
+      birth_date: form.birth_date,
       gender: form.gender,
       weeklyFrequency: form.weeklyFrequency,
     });
@@ -82,9 +81,13 @@ export function RegisterForm({ loading, onSubmit }: Props) {
       />
 
       <Label>Fecha de nacimiento</Label>
-      <BirthDatePicker
-        value={form.birthDate}
-        onChange={(value) => handleChange('birthDate', value)}
+      <Input
+        value={form.birth_date}
+        keyboardType="number-pad"
+        inputMode="numeric"
+        onChangeText={(t) => handleChange('birth_date', t.replace(/\D/g, ''))}
+        maxLength={3}
+        placeholder="Ej: 25"
       />
 
       <Label>Género</Label>

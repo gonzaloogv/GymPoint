@@ -5,7 +5,6 @@ import { HomeStats } from '../../domain/entities/HomeStats';
 import { WeeklyProgress } from '../../domain/entities/WeeklyProgress';
 import { DailyChallenge } from '../../domain/entities/DailyChallenge';
 import { DI } from '@di/container';
-import { useAuthStore } from '@features/auth/presentation/state/auth.store';
 
 type PermissionStatus = 'granted' | 'denied' | 'prompt';
 
@@ -36,14 +35,6 @@ export const useHomeStore = create<HomeState>((set, get) => ({
   fetchHomeData: async () => {
     set({ isLoading: true });
     try {
-      // Verificar si el usuario está autenticado
-      const authUser = useAuthStore.getState().user;
-      if (!authUser) {
-        console.log('No authenticated user, skipping home data fetch');
-        set({ isLoading: false });
-        return;
-      }
-
       const [user, progress, challenge] = await Promise.all([
         DI.getHomeStats.execute(),
         DI.getWeeklyProgress.execute(),
@@ -57,7 +48,6 @@ export const useHomeStore = create<HomeState>((set, get) => ({
       });
     } catch (error) {
       console.error('Error fetching home data:', error);
-      // No mostrar error al usuario, solo log para debug
     } finally {
       set({ isLoading: false });
     }

@@ -14,8 +14,6 @@ import {
   RewardsTabs,
   RewardsContent,
   LoadingState,
-  PremiumUpsell,
-  TokensTips,
 } from '@features/rewards/presentation/ui/components';
 
 // 3. IMPORTACIONES DE ESTILOS MODULARES
@@ -50,9 +48,6 @@ const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser }) => 
 
   // Handlers
   const handleViewRewards = () => setActiveTab('available');
-  const handlePremiumPress = () => {
-    // TODO: Navegar a la pantalla Premium o modal
-  };
 
   return (
     <SafeAreaView
@@ -69,11 +64,8 @@ const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser }) => 
         bounces={true}
       >
         <Container>
-          {/* Header con título y tokens */}
+          {/* Header con título y barra de progreso */}
           <RewardsHeader user={user} />
-
-          {/* Banner Premium para usuarios Free */}
-          {user.plan === 'Free' && <PremiumUpsell onPress={handlePremiumPress} />}
 
           {/* Sistema de pestañas */}
           <RewardsTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -89,9 +81,6 @@ const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser }) => 
             onToggleCode={handleToggleCode}
             onViewRewards={handleViewRewards}
           />
-
-          {/* Banner de consejos */}
-          <TokensTips />
         </Container>
       </ScrollContainer>
       <Toast />

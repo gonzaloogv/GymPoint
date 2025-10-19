@@ -1,48 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useLogin } from '../hooks';
 import Button from '../components/ui/Button';
+import { AxiosError } from 'axios';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
+  const loginMutation = useLogin();
+
+  useEffect(() => {
+    if (loginMutation.isError) {
+      const err = loginMutation.error as AxiosError<{ error: { message: string } }>;
+      if (err.response?.status === 401) {
+        setErrorMessage('Credenciales inválidas. Verifica tu email y contraseña.');
+      } else if (err.response?.data?.error?.message) {
+        setErrorMessage(err.response.data.error.message);
+      } else {
+        setErrorMessage('Error al iniciar sesión. Por favor intenta de nuevo.');
+      }
+    }
+  }, [loginMutation.isError, loginMutation.error]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
+    setErrorMessage('');
 
-    try {
-      const response = await axios.post('http://localhost:3000/api/auth/login', {
-        email,
-        password,
-      });
+    loginMutation.mutate({ email, password }, {
+      onSuccess: (data) => {
+        const { accessToken, user } = data;
 
-      const { accessToken, user } = response.data;
+        if (!user.roles || !user.roles.includes('ADMIN')) {
+          setErrorMessage('Acceso denegado. Se requieren privilegios de administrador.');
+          return;
+        }
 
-      if (!user.roles || !user.roles.includes('ADMIN')) {
-        setError('Acceso denegado. Se requieren privilegios de administrador.');
-        setLoading(false);
-        return;
-      }
-
-      localStorage.setItem('admin_token', accessToken);
-
-      navigate('/');
-    } catch (err: any) {
-      console.error('Login error:', err);
-      if (err.response?.status === 401) {
-        setError('Credenciales inválidas. Verifica tu email y contraseña.');
-      } else if (err.response?.data?.error?.message) {
-        setError(err.response.data.error.message);
-      } else {
-        setError('Error al iniciar sesión. Por favor intenta de nuevo.');
-      }
-      setLoading(false);
-    }
+        localStorage.setItem('admin_token', accessToken);
+        navigate('/');
+      },
+    });
   };
 
   return (
@@ -74,10 +72,10 @@ export const Login = () => {
             />
           </div>
 
-          {error && <div className="bg-danger/15 text-danger px-[0.85rem] py-[0.85rem] rounded-lg text-center border border-danger/30 text-sm">{error}</div>}
+          {errorMessage && <div className="bg-danger/15 text-danger px-[0.85rem] py-[0.85rem] rounded-lg text-center border border-danger/30 text-sm">{errorMessage}</div>}
 
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? 'Ingresando...' : 'Ingresar'}
+          <Button type="submit" disabled={loginMutation.isPending} className="w-full">
+            {loginMutation.isPending ? 'Ingresando...' : 'Ingresar'}
           </Button>
 
           <div className="mt-2 text-center">

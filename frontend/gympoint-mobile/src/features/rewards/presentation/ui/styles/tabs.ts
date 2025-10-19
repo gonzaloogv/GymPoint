@@ -3,36 +3,41 @@ import { View, Text, TouchableOpacity } from 'react-native';
 
 export const TabsContainer = styled(View)`
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  margin-top: 16px;
 `;
 
 export const TabsList = styled(View)`
   flex-direction: row;
-  background-color: ${({ theme }) => theme.colors.bgSecondary};
-  border-radius: 12px;
-  padding: 6px;
-  border-width: 1px;
-  border-color: ${({ theme }) => theme.colors.border};
+  background-color: #f3f4f6;
+  border-radius: 10px;
+  padding: 4px;
+  gap: 6px;
 `;
 
 export const TabsTrigger = styled(TouchableOpacity)<{ $active: boolean }>`
   flex: 1;
-  padding: 12px 16px;
+  padding: 10px 16px;
   border-radius: 8px;
-  background-color: ${({ $active, theme }) =>
-    $active ? theme.colors.primary : 'transparent'};
+  background-color: ${({ $active }) =>
+    $active ? '#ffffff' : 'transparent'};
   align-items: center;
   justify-content: center;
+  shadow-color: ${({ $active }) => ($active ? '#000' : 'transparent')};
+  shadow-offset: ${({ $active }) => ($active ? '0px 1px' : '0px 0px')};
+  shadow-opacity: ${({ $active }) => ($active ? 0.1 : 0)};
+  shadow-radius: ${({ $active }) => ($active ? 2 : 0)};
+  elevation: ${({ $active }) => ($active ? 1 : 0)};
 `;
 
 export const TabsTriggerText = styled(Text)<{ $active: boolean }>`
   text-align: center;
-  font-weight: 600;
-  font-size: 15px;
-  color: ${({ $active, theme }) => ($active ? '#ffffff' : theme.colors.textMuted)};
+  font-weight: ${({ $active }) => ($active ? '600' : '500')};
+  font-size: 14px;
+  color: ${({ $active }) => ($active ? '#1f2937' : '#6b7280')};
 `;
 
 export const TabsContent = styled(View)`
-  padding-top: 20px;
+  padding-top: 16px;
   min-height: 200px;
 `;

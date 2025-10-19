@@ -18,6 +18,11 @@ const MenuItemLeft = styled.View`
   flex: 1;
 `;
 
+const TextContainer = styled.View`
+  flex: 1;
+  gap: 2px;
+`;
+
 const MenuItemRight = styled.View`
   flex-direction: row;
   align-items: center;
@@ -57,10 +62,12 @@ export function MenuItem({
     <MenuItemContainer onPress={onPress}>
       <MenuItemLeft>
         <Feather name={icon as any} size={18} color="#666" />
-        <MenuText>{title}</MenuText>
+        <TextContainer>
+          <MenuText>{title}</MenuText>
+          {subtitle && <MenuSubtext>{subtitle}</MenuSubtext>}
+        </TextContainer>
       </MenuItemLeft>
       <MenuItemRight>
-        {subtitle && <MenuSubtext>{subtitle}</MenuSubtext>}
         {rightComponent}
         {showChevron && <Feather name="chevron-right" size={16} color="#666" />}
       </MenuItemRight>

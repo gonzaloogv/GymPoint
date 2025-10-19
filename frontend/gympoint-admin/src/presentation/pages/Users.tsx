@@ -7,6 +7,7 @@ import {
   useUpdateSubscription,
 } from '../hooks';
 import { Card, Loading, Button, Input, Select, Modal, Badge, Table } from '../components';
+import { Column } from '../components/ui/Table';
 import { UserCard } from '../components/ui/UserCard'; // Assuming migrated component
 import { User } from '@/domain';
 
@@ -54,7 +55,7 @@ export const Users = () => {
     );
   };
 
-  const columns = [
+  const columns: Column<User>[] = [
     { key: 'id_user_profile', label: 'ID' },
     { key: 'email', label: 'Email' },
     { key: 'name', label: 'Nombre', render: (user: User) => `${user.name} ${user.lastname}` },
@@ -82,7 +83,7 @@ export const Users = () => {
     <div className="p-6 bg-bg dark:bg-bg-dark min-h-screen">
       <header className="mb-6">
         <h1 className="text-2xl font-bold text-text dark:text-text-dark">Gestión de Usuarios</h1>
-        <p className="text-sm text-text-muted mt-1">Total: {data?.total || 0} usuarios</p>
+        <p className="text-sm text-text-muted mt-1">Total: {data?.pagination.total || 0} usuarios</p>
       </header>
 
       <Card as="section" aria-label="Filtros de búsqueda">
@@ -125,6 +126,7 @@ export const Users = () => {
             <Table 
               columns={columns} 
               data={data?.data || []} 
+              rowKey="id_user_profile"
               loading={isLoading}
               caption="Tabla de usuarios del sistema"
               aria-label="Tabla de usuarios"

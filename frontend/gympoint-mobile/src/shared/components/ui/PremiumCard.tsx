@@ -8,38 +8,38 @@ import { palette } from '@shared/styles';
 
 const CardContent = styled.View`
   align-items: center;
-  gap: ${({ theme }) => theme.spacing(1.5)}px;
+  gap: ${({ theme }) => theme.spacing(1)}px;
 `;
 
 const IconContainer = styled.View`
-  width: 48px;
-  height: 48px;
-  border-radius: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
   background-color: ${palette.premiumBg};
   align-items: center;
   justify-content: center;
-  margin-bottom: ${({ theme }) => theme.spacing(1)}px;
+  margin-bottom: ${({ theme }) => theme.spacing(0.5)}px;
 `;
 
 const Title = styled.Text`
-  font-size: ${({ theme }) => theme.typography.h2}px;
+  font-size: 18px;
   font-weight: 700;
   color: ${palette.premiumLight};
   text-align: center;
 `;
 
 const Description = styled.Text`
-  font-size: ${({ theme }) => theme.typography.body}px;
+  font-size: 13px;
   color: ${palette.premiumLight};
   text-align: center;
   opacity: 0.8;
-  margin-bottom: ${({ theme }) => theme.spacing(1)}px;
+  margin-bottom: ${({ theme }) => theme.spacing(0.5)}px;
 `;
 
 const BenefitsList = styled.View`
   width: 100%;
-  gap: ${({ theme }) => theme.spacing(1)}px;
-  margin-bottom: ${({ theme }) => theme.spacing(2)}px;
+  gap: ${({ theme }) => theme.spacing(0.5)}px;
+  margin-bottom: ${({ theme }) => theme.spacing(1)}px;
 `;
 
 const BenefitItem = styled.View`
@@ -82,7 +82,7 @@ export function PremiumCard({
     <Card style={{ borderColor: palette.premiumBorderAlt, borderWidth: 1 }}>
       <CardContent>
         <IconContainer>
-          <Feather name={icon as any} size={24} color={palette.premiumLight} />
+          <Feather name={icon as any} size={20} color={palette.premiumLight} />
         </IconContainer>
 
         <Title>{title}</Title>

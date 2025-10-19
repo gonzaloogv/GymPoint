@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Alert } from 'react-native';
 
 import dumbbellIcon from '@assets/dumbbell.png';
 import {
@@ -10,14 +9,13 @@ import {
   SocialButton,
 } from '@shared/components/ui';
 
+import { useAuthStore } from '../state/auth.store';
 import { LoginFooter } from './components/LoginFooter';
 import { LoginForm } from './components/LoginForm';
 import { LoginHeader } from './components/LoginHeader';
 import { Root, contentContainerStyle } from './LoginScreen.styles';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useLogin } from '../hooks/useLogin';
-
 type RootStackParamList = {
   Login: undefined;
   Register: undefined;
@@ -27,19 +25,31 @@ type RootStackParamList = {
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function LoginScreen() {
   const navigation = useNavigation<Nav>();
-  const { login, loading, error } = useLogin();
+
+  const setUser = useAuthStore((state) => state.setUser);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    const result = await login({ email, password });
+    setLoading(true);
+    setError(null);
+    try {
+      // TODO: Integrar con la API real cuando esté disponible.
+      // const { user } = await DI.loginUser.execute({ email, password });
+      // setUser(user);
 
-    if (result.success) {
-      // Navegar a la app principal después del login exitoso
-      navigation.navigate('App');
-    } else {
-      // Mostrar error al usuario
-      Alert.alert('Error de inicio de sesión', result.error || 'Credenciales inválidas');
+      setUser({
+        id_user: -1,
+        name: 'Usuario Demo',
+        email: email || 'demo@gympoint.app',
+        role: 'USER',
+        tokens: 0,
+        plan: 'Free',
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -65,7 +75,7 @@ export default function LoginScreen() {
           <LoginForm
             email={email}
             password={password}
-            error={error || null}
+            error={error}
             loading={loading}
             onEmailChange={setEmail}
             onPasswordChange={setPassword}

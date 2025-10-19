@@ -34,7 +34,7 @@ export const Navbar = () => {
             className="flex-shrink-0"
           >
             <h1 className="text-2xl font-bold text-primary hover:text-primary/80 transition-colors">
-              GymPoint Admin
+              Admin
             </h1>
           </Link>
 

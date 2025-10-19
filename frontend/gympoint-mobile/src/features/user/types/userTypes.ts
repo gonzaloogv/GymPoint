@@ -37,6 +37,7 @@ export interface UserProfileScreenProps {
   user: UserProfile | null;
   onLogout?: () => void;
   onUpdateUser?: (user: UserProfile) => void;
+  navigation?: any;
 }
 
 //

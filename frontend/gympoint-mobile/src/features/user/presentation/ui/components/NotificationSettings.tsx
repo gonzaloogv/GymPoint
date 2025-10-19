@@ -1,15 +1,8 @@
 import React from 'react';
-import { Switch as RNSwitch } from 'react-native';
+import { View, Text, Switch as RNSwitch } from 'react-native';
+import styled from 'styled-components/native';
 import { Feather } from '@expo/vector-icons';
-import {
-  Section,
-  SectionTitle,
-  BodyText,
-  SmallText,
-  SwitchRow,
-  SwitchRowLeft,
-} from '../styles/ProfileStyles';
-import { NotificationSettings as NotificationSettingsType } from '../types/UserTypes';
+import { NotificationSettings as NotificationSettingsType } from '../../../types/userTypes';
 import { AppTheme } from '@presentation/theme';
 
 interface NotificationSettingsProps {
@@ -18,66 +11,136 @@ interface NotificationSettingsProps {
   theme: AppTheme;
 }
 
+const Container = styled(View)`
+  margin-top: 16px;
+  margin-bottom: 24px;
+`;
+
+const SectionTitle = styled(Text)`
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 12px;
+`;
+
+const Card = styled(View)`
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-width: 1px;
+  border-color: #f0f0f0;
+`;
+
+const Row = styled(View)`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const LeftContent = styled(View)`
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+`;
+
+const IconContainer = styled(View)`
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background-color: #f5f5f5;
+  align-items: center;
+  justify-content: center;
+`;
+
+const TextContent = styled(View)`
+  flex: 1;
+`;
+
+const Title = styled(Text)`
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
+  margin-bottom: 2px;
+`;
+
+const Subtitle = styled(Text)`
+  font-size: 13px;
+  color: #666;
+`;
+
 export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
   notifications,
   onToggle,
   theme,
 }) => {
   return (
-    <Section theme={theme}>
-      {/* Título de la sección */}
-      <SectionTitle theme={theme}>
-        <Feather name="bell" size={16} color={theme.colors.text} />
-        <BodyText style={{ fontWeight: '600' }}>Notificaciones</BodyText>
-      </SectionTitle>
+    <Container>
+      <SectionTitle>Notificaciones</SectionTitle>
 
       {/* Recordatorios de check-in */}
-      <SwitchRow theme={theme}>
-        <SwitchRowLeft>
-          <BodyText style={{ fontWeight: '500' }}>Recordatorios de check-in</BodyText>
-          <SmallText muted style={{ opacity: 0.6 }}>
-            Te avisamos para mantener tu racha
-          </SmallText>
-        </SwitchRowLeft>
-        <RNSwitch
-          value={notifications.checkinReminders}
-          onValueChange={(value) => onToggle('checkinReminders', value)}
-          trackColor={{ false: '#D1D5DB', true: '#4F9CF9' }}
-          thumbColor="#FFFFFF"
-        />
-      </SwitchRow>
+      <Card>
+        <Row>
+          <LeftContent>
+            <IconContainer>
+              <Feather name="bell" size={20} color="#635BFF" />
+            </IconContainer>
+            <TextContent>
+              <Title>Recordatorios de check-in</Title>
+              <Subtitle>Recibe avisos para registrar tu entrenamiento</Subtitle>
+            </TextContent>
+          </LeftContent>
+          <RNSwitch
+            value={notifications.checkinReminders}
+            onValueChange={(value) => onToggle('checkinReminders', value)}
+            trackColor={{ false: '#E5E7EB', true: '#635BFF' }}
+            thumbColor="#FFFFFF"
+          />
+        </Row>
+      </Card>
 
       {/* Alertas de racha */}
-      <SwitchRow theme={theme}>
-        <SwitchRowLeft>
-          <BodyText style={{ fontWeight: '500' }}>Alertas de racha</BodyText>
-          <SmallText muted style={{ opacity: 0.6 }}>
-            Notificaciones sobre milestones
-          </SmallText>
-        </SwitchRowLeft>
-        <RNSwitch
-          value={notifications.streakAlerts}
-          onValueChange={(value) => onToggle('streakAlerts', value)}
-          trackColor={{ false: '#D1D5DB', true: '#4F9CF9' }}
-          thumbColor="#FFFFFF"
-        />
-      </SwitchRow>
+      <Card>
+        <Row>
+          <LeftContent>
+            <IconContainer>
+              <Feather name="bell" size={20} color="#635BFF" />
+            </IconContainer>
+            <TextContent>
+              <Title>Alertas de racha</Title>
+              <Subtitle>Te avisamos si tu racha está en riesgo</Subtitle>
+            </TextContent>
+          </LeftContent>
+          <RNSwitch
+            value={notifications.streakAlerts}
+            onValueChange={(value) => onToggle('streakAlerts', value)}
+            trackColor={{ false: '#E5E7EB', true: '#635BFF' }}
+            thumbColor="#FFFFFF"
+          />
+        </Row>
+      </Card>
 
       {/* Nuevas recompensas */}
-      <SwitchRow theme={theme}>
-        <SwitchRowLeft>
-          <BodyText style={{ fontWeight: '500' }}>Nuevas recompensas</BodyText>
-          <SmallText muted style={{ opacity: 0.6 }}>
-            Cuando hay nuevos canjes disponibles
-          </SmallText>
-        </SwitchRowLeft>
-        <RNSwitch
-          value={notifications.rewardUpdates}
-          onValueChange={(value) => onToggle('rewardUpdates', value)}
-          trackColor={{ false: '#D1D5DB', true: '#4F9CF9' }}
-          thumbColor="#FFFFFF"
-        />
-      </SwitchRow>
-    </Section>
+      <Card>
+        <Row>
+          <LeftContent>
+            <IconContainer>
+              <Feather name="bell" size={20} color="#635BFF" />
+            </IconContainer>
+            <TextContent>
+              <Title>Nuevas recompensas</Title>
+              <Subtitle>Notificaciones de tokens y ofertas disponibles</Subtitle>
+            </TextContent>
+          </LeftContent>
+          <RNSwitch
+            value={notifications.rewardUpdates}
+            onValueChange={(value) => onToggle('rewardUpdates', value)}
+            trackColor={{ false: '#E5E7EB', true: '#635BFF' }}
+            thumbColor="#FFFFFF"
+          />
+        </Row>
+      </Card>
+    </Container>
   );
 };

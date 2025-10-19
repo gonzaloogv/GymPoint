@@ -9,13 +9,10 @@ import styled from 'styled-components/native';
 import { Feather } from '@expo/vector-icons';
 import { Button, ButtonText } from '@shared/components/ui';
 import { ProfileHeader } from '../components/ProfileHeader';
-import { PremiumAlert } from '../components/PremiumAlert';
-import { PremiumBadge } from '../components/PremiumBadge';
-import { StatsSection } from '../components/StatsSection';
-import { SettingsCard } from '../components/SettingsCard';
+import { NotificationSettings } from '../components/NotificationSettings';
+import { LocationSettings } from '../components/LocationSettings';
 import { MenuOptions } from '../components/MenuOptions';
 import { PremiumBenefitsCard } from '../components/PremiumBenefitsCard';
-import { LegalFooter } from '../components/LegalFooter';
 import { useUserProfileStore } from '../../state/userProfile.store';
 import { UserProfile, UserProfileScreenProps } from '../../../types/userTypes';
 
@@ -24,21 +21,31 @@ import { lightTheme } from '@presentation/theme';
 
 const Container = styled(SafeAreaView)`
   flex: 1;
-  background-color: ${({ theme }) => theme.colors.bg};
+  background-color: #f5f5f5;
 `;
 
 const ContentWrapper = styled(ScrollView)`
   flex: 1;
-  padding: ${({ theme }) => theme.spacing(2)}px;
-  gap: ${({ theme }) => theme.spacing(2)}px;
+  padding: 16px;
 `;
 
 const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   user,
   onLogout,
   onUpdateUser,
+  navigation,
 }) => {
   const theme = lightTheme;
+  const defaultUser: UserProfile = {
+    id_user: 0,
+    name: 'GymPoint User',
+    email: 'usuario@gympoint.com',
+    role: 'USER',
+    tokens: 0,
+    plan: 'Free',
+    streak: 0,
+  };
+  const resolvedUser = user ?? defaultUser;
 
   // ============================================
   // ZUSTAND STORE
@@ -61,22 +68,6 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   }, []);
 
   // ============================================
-  // USER DATA - Prioriza datos del store sobre props
-  // ============================================
-  const defaultUser: UserProfile = {
-    id_user: 0,
-    name: 'Cargando...',
-    email: '',
-    role: 'USER',
-    tokens: 0,
-    plan: 'Free',
-    streak: 0,
-  };
-
-  // Prioridad: profile del store > user de props > defaultUser
-  const resolvedUser = profile ?? user ?? defaultUser;
-
-  // ============================================
   // HANDLERS
   // ============================================
   const handleLogoutPress = useCallback(() => {
@@ -92,12 +83,19 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
 
   const handleUpgradeToPremium = async () => {
     await upgradeToPremium();
-    // Refrescar datos del perfil después del upgrade
-    await fetchUserProfile();
     if (onUpdateUser && profile) {
       onUpdateUser(profile);
     }
   };
+
+  const handleTokenHistory = useCallback(() => {
+    navigation?.navigate?.('TokenHistory', { userId: resolvedUser.id_user.toString() });
+  }, [navigation, resolvedUser.id_user]);
+
+  const handleRewards = useCallback(() => {
+    // Navegar a la screen de Recompensas
+    navigation?.navigate?.('Rewards');
+  }, [navigation]);
 
   // ============================================
   // RENDER
@@ -112,48 +110,45 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   return (
     <Container edges={['top', 'left', 'right']}>
       <ContentWrapper showsVerticalScrollIndicator={false}>
-        {/* 1. Header */}
+        {/* 1. Header con avatar y email */}
         <ProfileHeader user={resolvedUser} theme={theme} />
 
-        {/* 2. Plan */}
-        {resolvedUser.plan === 'Free' ? (
-          <PremiumAlert onUpgrade={handleUpgradeToPremium} theme={theme} />
-        ) : (
-          <PremiumBadge theme={theme} />
-        )}
+        {/* 2. Notificaciones */}
+        <NotificationSettings
+          notifications={notifications}
+          onToggle={handleNotificationToggle}
+          theme={theme}
+        />
 
-        {/* 3. Stats */}
-        <StatsSection
-          stats={stats || defaultStats}
+        {/* 3. Ubicación */}
+        <LocationSettings
+          locationEnabled={locationEnabled}
+          onToggle={toggleLocation}
+          theme={theme}
+        />
+
+        {/* 4. Apariencia (Modo oscuro) */}
+        {/* TODO: Implementar en el futuro */}
+
+        {/* 5. General - Menú de opciones */}
+        <MenuOptions
           isPremium={resolvedUser.plan === 'Premium'}
           theme={theme}
+          onTokenHistoryPress={handleTokenHistory}
+          onRewardsPress={handleRewards}
         />
 
-        {/* 4. Configuraciones */}
-        <SettingsCard
-          notifications={notifications}
-          onNotificationToggle={handleNotificationToggle}
-          locationEnabled={locationEnabled}
-          onLocationToggle={toggleLocation}
-          theme={theme}
-        />
-
-        {/* 5. Menú */}
-        <MenuOptions isPremium={resolvedUser.plan === 'Premium'} theme={theme} />
-
-        {/* 6. Beneficios Premium */}
+        {/* 6. Beneficios Premium - Solo si es Free */}
         {resolvedUser.plan === 'Free' && (
           <PremiumBenefitsCard onUpgrade={handleUpgradeToPremium} theme={theme} />
         )}
 
-        {/* 7. Footer */}
-        <LegalFooter theme={theme} />
-
-        {/* 8. Logout */}
+        {/* 7. Logout */}
         <Button
           onPress={handleLogoutPress}
           style={{
-            marginBottom: theme.spacing(2),
+            marginTop: theme.spacing(2),
+            marginBottom: theme.spacing(4),
             backgroundColor: 'transparent',
             borderWidth: 1,
             borderColor: theme.colors.danger,

@@ -1,17 +1,40 @@
+import { useMemo } from 'react';
 import { useStats, useActivity, useGyms } from '../hooks';
 import { Card, Loading } from '../components';
 
 export const Dashboard = () => {
-  const { data: stats, isLoading: statsLoading } = useStats();
-  const { data: activity, isLoading: activityLoading } = useActivity(7);
-  const { data: gyms, isLoading: gymsLoading } = useGyms();
+  const { data: stats, isLoading: statsLoading, isError: statsError, error: statsErrorData } = useStats();
+  const { data: activity, isLoading: activityLoading, isError: activityError, error: activityErrorData } = useActivity(7);
+  const { data: gyms, isLoading: gymsLoading, isError: gymsError, error: gymsErrorData } = useGyms();
 
-  if (statsLoading || activityLoading || gymsLoading) {
+  const isLoading = statsLoading || activityLoading || gymsLoading;
+  const isError = statsError || activityError || gymsError;
+
+  const freeUsers = useMemo(() => 
+    stats?.users.by_subscription.find((s) => s.subscription === 'FREE')?.count || '0'
+  , [stats]);
+
+  const premiumUsers = useMemo(() =>
+    stats?.users.by_subscription.find((s) => s.subscription === 'PREMIUM')?.count || '0'
+  , [stats]);
+
+  if (isLoading) {
     return <Loading fullPage />;
   }
 
-  const freeUsers = stats?.users.by_subscription.find((s) => s.subscription === 'FREE')?.count || '0';
-  const premiumUsers = stats?.users.by_subscription.find((s) => s.subscription === 'PREMIUM')?.count || '0';
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-bg dark:bg-bg-dark p-6 text-center">
+        <h1 className="text-2xl font-bold text-red-500">❌ Error en el Panel de Control</h1>
+        <p className="text-text-muted mt-2">No se pudieron cargar algunos datos. Intenta refrescar la página.</p>
+        <div className="mt-4 text-left bg-card dark:bg-card-dark p-4 rounded-lg max-w-lg mx-auto">
+          {statsError && <p className="text-sm text-red-400">- Error de Estadísticas: {statsErrorData?.message}</p>}
+          {activityError && <p className="text-sm text-red-400">- Error de Actividad: {activityErrorData?.message}</p>}
+          {gymsError && <p className="text-sm text-red-400">- Error de Gimnasios: {gymsErrorData?.message}</p>}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-bg dark:bg-bg-dark p-6">

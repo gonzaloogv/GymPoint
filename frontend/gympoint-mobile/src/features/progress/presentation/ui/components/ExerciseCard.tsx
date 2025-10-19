@@ -1,5 +1,4 @@
-import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, ViewStyle } from 'react-native';
 import styled from 'styled-components/native';
 import { ExerciseProgressDetail } from '@features/progress/domain/entities';
 import { Card } from '@shared/components/ui/Card';
@@ -58,11 +57,12 @@ const StatValue = styled.Text`
 interface Props {
   exercise: ExerciseProgressDetail;
   onPress: () => void;
+  style?: ViewStyle;
 }
 
-export function ExerciseCard({ exercise, onPress }: Props) {
+export function ExerciseCard({ exercise, onPress, style }: Props) {
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={style}>
       <Container>
         <Header>
           <Title>{exercise.exerciseName}</Title>

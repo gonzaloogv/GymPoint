@@ -7,6 +7,8 @@ import { TimeRangeSelector } from '../components/TimeRangeSelector';
 import { PhysicalMetrics } from '../components/PhysicalMetrics';
 import { ProgressChart } from '../components/ProgressChart';
 import { TokenTipsButton } from '../components/TokenTipsButton';
+import { AddMeasurementButton } from '../components/AddMeasurementButton';
+import { AddMeasurementModal, MeasurementData } from '../components/AddMeasurementModal';
 import * as S from './PhysicalProgressScreen.styles';
 
 interface PhysicalProgressScreenProps {
@@ -19,6 +21,7 @@ const PhysicalProgressScreen: React.FC<PhysicalProgressScreenProps> = ({
   userId = 'user-1',
 }) => {
   const [timeRange, setTimeRange] = useState('90d');
+  const [modalVisible, setModalVisible] = useState(false);
   const { measurements, loading, error } = usePhysicalMeasurements(userId);
 
   const handleBack = () => {
@@ -29,8 +32,19 @@ const PhysicalProgressScreen: React.FC<PhysicalProgressScreenProps> = ({
     console.log('Show info');
   };
 
+  const handleTokenTips = () => {
+    // Navegar a pantalla de Recompensas (Usuario tab -> Rewards screen)
+    navigation?.navigate?.('Usuario', { screen: 'Rewards' });
+  };
+
   const handleAddMeasurement = () => {
-    console.log('Add measurement');
+    setModalVisible(true);
+  };
+
+  const handleSaveMeasurement = (data: MeasurementData) => {
+    console.log('Guardando medición:', data);
+    // TODO: Implementar lógica para guardar la medición
+    // Por ahora solo mostramos en consola
   };
 
   if (loading) {
@@ -73,9 +87,17 @@ const PhysicalProgressScreen: React.FC<PhysicalProgressScreenProps> = ({
               timeRange={timeRange}
             />
 
-            <TokenTipsButton onPress={handleAddMeasurement} />
+            <AddMeasurementButton onPress={handleAddMeasurement} />
+
+            <TokenTipsButton onPress={handleTokenTips} />
           </S.Content>
         </S.ScrollView>
+
+        <AddMeasurementModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          onSave={handleSaveMeasurement}
+        />
       </S.Container>
     </SafeAreaView>
   );

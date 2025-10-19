@@ -59,6 +59,10 @@ import { AchievementRepository } from '@features/progress/domain/repositories/Ac
 import { AchievementRepositoryImpl } from '@features/progress/data/AchievementRepositoryImpl';
 import { AchievementLocal } from '@features/progress/data/datasources/AchievementLocal';
 import { GetAchievements } from '@features/progress/domain/usecases/GetAchievements';
+import { TokenHistoryRepository } from '@features/progress/domain/repositories/TokenHistoryRepository';
+import { TokenHistoryRepositoryImpl } from '@features/progress/data/TokenHistoryRepositoryImpl';
+import { TokenHistoryLocal } from '@features/progress/data/datasources/TokenHistoryLocal';
+import { GetTokenHistory } from '@features/progress/domain/usecases/GetTokenHistory';
 
 class Container {
   // Auth
@@ -112,6 +116,9 @@ class Container {
   achievementLocal: AchievementLocal;
   achievementRepository: AchievementRepository;
   getAchievements: GetAchievements;
+  tokenHistoryLocal: TokenHistoryLocal;
+  tokenHistoryRepository: TokenHistoryRepository;
+  getTokenHistory: GetTokenHistory;
 
   constructor() {
     // Auth
@@ -167,6 +174,10 @@ class Container {
     this.achievementLocal = new AchievementLocal();
     this.achievementRepository = new AchievementRepositoryImpl(this.achievementLocal);
     this.getAchievements = new GetAchievements(this.achievementRepository);
+
+    this.tokenHistoryLocal = new TokenHistoryLocal();
+    this.tokenHistoryRepository = new TokenHistoryRepositoryImpl(this.tokenHistoryLocal);
+    this.getTokenHistory = new GetTokenHistory(this.tokenHistoryRepository);
   }
 }
 

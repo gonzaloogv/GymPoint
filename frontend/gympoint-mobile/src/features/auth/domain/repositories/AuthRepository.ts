@@ -7,7 +7,7 @@ export interface RegisterParams {
   password: string;
   gender: string;
   locality: string;
-  birth_date: string | null;
+  age: number;
   frequency_goal: number;
 }
 

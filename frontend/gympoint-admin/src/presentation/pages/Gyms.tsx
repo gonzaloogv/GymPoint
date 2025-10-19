@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useGyms, useCreateGym, useUpdateGym, useDeleteGym, useGymTypes } from '../hooks';
-import { Card, Loading, Button, Input, Select } from '../components';
+import { Card, Loading, Button, GymsList } from '../components';
 import { GymForm } from '../components/ui/GymForm';
 import { GymCard } from '../components/ui/GymCard';
 import { GymScheduleManager } from '../components/ui/GymScheduleManager';
@@ -8,8 +8,7 @@ import { GymSpecialScheduleManager } from '../components/ui/GymSpecialScheduleMa
 import { CreateGymDTO, UpdateGymDTO, Gym } from '@/domain';
 
 export const Gyms = () => {
-  const { data: gyms, isLoading } = useGyms();
-  const { data: gymTypes } = useGymTypes();
+  const { data: gyms, isLoading, isError, error } = useGyms();
   const createGymMutation = useCreateGym();
   const updateGymMutation = useUpdateGym();
   const deleteGymMutation = useDeleteGym();
@@ -20,6 +19,12 @@ export const Gyms = () => {
   const [managingSpecialScheduleGym, setManagingSpecialScheduleGym] = useState<Gym | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCity, setFilterCity] = useState('');
+
+  const handleApiError = (error: any, context: string) => {
+    const errorMessage = error.response?.data?.error?.message || 'Ocurrió un error inesperado';
+    console.error(`Error en ${context}:`, error);
+    alert(`❌ Error en ${context}: ${errorMessage}`);
+  };
 
   const handleSubmit = async (data: CreateGymDTO | UpdateGymDTO) => {
     try {
@@ -32,8 +37,8 @@ export const Gyms = () => {
       }
       setShowForm(false);
       setEditingGym(null);
-    } catch (error: any) {
-      alert(`❌ Error: ${error.response?.data?.error?.message || 'Ocurrió un error'}`);
+    } catch (error) {
+      handleApiError(error, editingGym ? 'actualización' : 'creación');
     }
   };
 
@@ -43,8 +48,13 @@ export const Gyms = () => {
   };
 
   const handleDelete = async (id: number, name: string) => {
-    if (window.confirm(`¿Estás seguro de eliminar "${name}"?`)) {
-      await deleteGymMutation.mutateAsync(id);
+    if (window.confirm(`¿Estás seguro de que deseas eliminar "${name}"?`)) {
+      try {
+        await deleteGymMutation.mutateAsync(id);
+        alert('✅ Gimnasio eliminado exitosamente');
+      } catch (error) {
+        handleApiError(error, 'eliminación');
+      }
     }
   };
 
@@ -53,15 +63,28 @@ export const Gyms = () => {
     setEditingGym(null);
   };
 
-  const filteredGyms = gyms?.filter(gym => 
-    (gym.name.toLowerCase().includes(searchTerm.toLowerCase()) || gym.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (!filterCity || gym.city === filterCity)
-  );
+  const filteredGyms = useMemo(() => {
+    return gyms?.filter(gym => 
+      (gym.name.toLowerCase().includes(searchTerm.toLowerCase()) || gym.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (!filterCity || gym.city === filterCity)
+    );
+  }, [gyms, searchTerm, filterCity]);
 
-  const cities = Array.from(new Set(gyms?.map(g => g.city) || [])).sort();
-  const cityOptions = [{ value: '', label: 'Todas las ciudades' }, ...cities.map(c => ({ value: c, label: c }))];
+  const cityOptions = useMemo(() => {
+    const cities = Array.from(new Set(gyms?.map(g => g.city) || [])).sort();
+    return [{ value: '', label: 'Todas las ciudades' }, ...cities.map(c => ({ value: c, label: c }))];
+  }, [gyms]);
 
   if (isLoading) return <Loading fullPage />;
+
+  if (isError) {
+    return (
+      <div className="p-6 text-center text-red-500">
+        <p>❌ Error al cargar los gimnasios.</p>
+        <p className="text-sm text-text-muted">{error.message}</p>
+      </div>
+    );
+  }
 
   if (managingScheduleGym) {
     return (
@@ -97,55 +120,25 @@ export const Gyms = () => {
         <Card as="section" title={editingGym ? `Editar: ${editingGym.name}` : 'Crear Nuevo Gimnasio'}>
           <GymForm
             gym={editingGym || undefined}
-            gymTypes={gymTypes || []}
             onSubmit={handleSubmit}
             onCancel={handleCancelForm}
             isLoading={createGymMutation.isPending || updateGymMutation.isPending}
           />
         </Card>
       ) : (
-        <section className="space-y-6" aria-label="Lista de Gimnasios">
-          <Card>
-            <div className="flex flex-wrap items-end gap-4">
-              <Input
-                label="🔍 Buscar"
-                placeholder="Buscar por nombre o descripción..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-grow"
-              />
-              <Select
-                label="📍 Ciudad"
-                value={filterCity}
-                onChange={(e) => setFilterCity(e.target.value)}
-                options={cityOptions}
-              />
-              {(searchTerm || filterCity) && (
-                <Button onClick={() => { setSearchTerm(''); setFilterCity(''); }} variant="secondary">Limpiar</Button>
-              )}
-            </div>
-          </Card>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {filteredGyms?.map((gym) => (
-              <GymCard
-                key={gym.id_gym}
-                gym={gym}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onManageSchedule={setManagingScheduleGym}
-                onManageSpecialSchedule={setManagingSpecialScheduleGym}
-                isDeleting={deleteGymMutation.isPending && deleteGymMutation.variables === gym.id_gym}
-              />
-            ))}
-          </div>
-
-          {(!filteredGyms || filteredGyms.length === 0) && (
-            <div className="text-center py-16 text-text-muted">
-              <p>{searchTerm || filterCity ? 'No se encontraron gimnasios con los filtros aplicados' : 'No hay gimnasios registrados. ¡Crea el primero!'}</p>
-            </div>
-          )}
-        </section>
+        <GymsList 
+          gyms={filteredGyms || []}
+          cityOptions={cityOptions}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          filterCity={filterCity}
+          setFilterCity={setFilterCity}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onManageSchedule={setManagingScheduleGym}
+          onManageSpecialSchedule={setManagingSpecialScheduleGym}
+          deleteGymMutation={deleteGymMutation}
+        />
       )}
     </div>
   );

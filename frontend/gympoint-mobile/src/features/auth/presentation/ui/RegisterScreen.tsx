@@ -32,7 +32,7 @@ export default function RegisterScreen() {
     email: string;
     password: string;
     location: string;
-    birthDate: string;
+    age: number;
     gender: string;
     weeklyFrequency: number;
   }) => {

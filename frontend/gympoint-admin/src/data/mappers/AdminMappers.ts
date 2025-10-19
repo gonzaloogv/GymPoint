@@ -1,14 +1,13 @@
-import {
-  User,
-  UserDetail,
-  Stats,
-  Activity,
-  Transaction,
-  PaginatedResponse,
+import { 
+  Stats, 
+  Activity, 
+  User, 
+  UserDetail, 
+  Transaction, 
+  PaginatedResponse, 
   RewardStatsData,
-  AdminProfile,
-} from '@/domain';
-import {
+  AdminProfile 
+} from '@/domain';import {
   UserDTO,
   UserDetailDTO,
   StatsDTO,

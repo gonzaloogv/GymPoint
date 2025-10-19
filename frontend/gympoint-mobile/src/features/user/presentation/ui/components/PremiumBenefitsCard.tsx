@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { View } from 'react-native';
 import { PremiumCard } from '@shared/components/ui';
 
 interface PremiumBenefitsCardProps {
@@ -11,12 +12,10 @@ interface PremiumBenefitsCardProps {
   theme?: any;
 }
 
-// Lista de beneficios del plan Premium
+// Lista de beneficios del plan Premium (reducida)
 const PREMIUM_BENEFITS = [
-  'Estadísticas detalladas ilimitadas',
-  'Filtros de búsqueda avanzados',
-  'Recompensas exclusivas Premium',
-  'Soporte prioritario',
+  'Estadísticas detalladas',
+  'Recompensas exclusivas',
   'Sin publicidad',
 ];
 
@@ -25,13 +24,15 @@ export const PremiumBenefitsCard: React.FC<PremiumBenefitsCardProps> = ({
   theme,
 }) => {
   return (
-    <PremiumCard
-      title="Beneficios Premium"
-      description="Desbloqueá todas las funcionalidades premium"
-      benefits={PREMIUM_BENEFITS}
-      buttonText="Actualizar a Premium"
-      onButtonPress={onUpgrade}
-      icon="gift"
-    />
+    <View style={{ marginTop: 8 }}>
+      <PremiumCard
+        title="Beneficios Premium"
+        description="Desbloqueá todas las funcionalidades premium"
+        benefits={PREMIUM_BENEFITS}
+        buttonText="Actualizar a Premium"
+        onButtonPress={onUpgrade}
+        icon="gift"
+      />
+    </View>
   );
 };

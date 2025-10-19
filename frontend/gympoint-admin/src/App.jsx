@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './context';
 import { Layout } from './presentation/components';
-import { Dashboard, Users, Transactions, Rewards, Gyms, Reviews, Login, RoutineTemplates, Exercises } from './presentation/pages';
+import { Login, Dashboard, Users, Transactions, RoutineTemplates, Rewards, Reviews, Gyms, Exercises } from './presentation/pages';
 
 const queryClient = new QueryClient({
   defaultOptions: {

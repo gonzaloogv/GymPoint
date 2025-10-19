@@ -40,8 +40,8 @@ api.interceptors.response.use(
         const refreshToken = await SecureStore.getItemAsync('refreshToken');
         if (!refreshToken) throw new Error('No refresh token');
 
-        const { data } = await axios.post(`${API_BASE_URL}/api/auth/refresh-token`, {
-          token: refreshToken,
+        const { data } = await axios.post(`${API_BASE_URL}/api/v1/auth/refresh`, {
+          refreshToken,
         });
 
         await SecureStore.setItemAsync('accessToken', data.accessToken);

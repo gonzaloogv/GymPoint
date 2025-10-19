@@ -9,14 +9,13 @@ import { TabPill } from '@shared/components/ui';
 import WorkoutIcon from '@assets/icons/workout.svg';
 import HomeIcon from '@assets/icons/home.svg';
 import MapIcon from '@assets/icons/map.svg';
-import StoreIcon from '@assets/icons/gift.svg';
 import UserIcon from '@assets/icons/user.svg';
 import ChartIcon from '@assets/icons/chart.svg';
 import { useAuthStore } from '@features/auth';
 import { GymsScreen } from '@features/gyms';
 import { GymDetailScreenWrapper } from '@features/gyms/presentation/ui/screens/GymDetailScreenWrapper';
 import { HomeScreen } from '@features/home';
-import { ProgressScreen, PhysicalProgressScreen, ExerciseProgressScreen, AchievementsScreen } from '@features/progress';
+import { ProgressScreen, PhysicalProgressScreen, ExerciseProgressScreen, AchievementsScreen, TokenHistoryScreen } from '@features/progress';
 import { RewardsScreen } from '@features/rewards';
 import { UserProfileScreen } from '@features/user';
 import {
@@ -29,7 +28,7 @@ import {
 } from '@features/routines';
 
 import { TabIcon } from './components/TabIcon';
-import type { RoutinesStackParamList, GymsStackParamList, ProgressStackParamList } from './types';
+import type { RoutinesStackParamList, GymsStackParamList, ProgressStackParamList, UserStackParamList } from './types';
 
 const Tabs = createBottomTabNavigator();
 
@@ -97,6 +96,9 @@ function GymsStackNavigator() {
 const ProgressStack = createNativeStackNavigator<ProgressStackParamList>();
 
 function ProgressStackNavigator() {
+  const user = useAuthStore((s) => s.user);
+  const updateUser = useAuthStore((s) => s.updateUser);
+
   return (
     <ProgressStack.Navigator>
       <ProgressStack.Screen
@@ -119,20 +121,62 @@ function ProgressStackNavigator() {
         component={AchievementsScreen}
         options={{ headerShown: false }}
       />
+      <ProgressStack.Screen
+        name="Rewards"
+        options={{ headerShown: false }}
+      >
+        {() => <RewardsScreen user={user} onUpdateUser={updateUser} />}
+      </ProgressStack.Screen>
     </ProgressStack.Navigator>
+  );
+}
+
+// ====== User nested stack ======
+const UserStack = createNativeStackNavigator<UserStackParamList>();
+
+function UserStackNavigator() {
+  const user = useAuthStore((s) => s.user);
+  const updateUser = useAuthStore((s) => s.updateUser);
+  const setUser = useAuthStore((s) => s.setUser);
+
+  const handleLogout = React.useCallback(() => {
+    setUser(null);
+  }, [setUser]);
+
+  return (
+    <UserStack.Navigator>
+      <UserStack.Screen
+        name="UserProfile"
+        options={{ headerShown: false }}
+      >
+        {({ navigation }) => (
+          <UserProfileScreen
+            user={user}
+            onUpdateUser={updateUser}
+            onLogout={handleLogout}
+            navigation={navigation}
+          />
+        )}
+      </UserStack.Screen>
+      <UserStack.Screen
+        name="TokenHistory"
+        component={TokenHistoryScreen}
+        options={{ headerShown: false }}
+      />
+      <UserStack.Screen
+        name="Rewards"
+        options={{ headerShown: false }}
+      >
+        {() => <RewardsScreen user={user} onUpdateUser={updateUser} />}
+      </UserStack.Screen>
+    </UserStack.Navigator>
   );
 }
 
 export default function AppTabs() {
   const theme = useAppTheme();
-  const user = useAuthStore((s) => s.user);
-  const setUser = useAuthStore((s) => s.setUser);
-  const updateUser = useAuthStore((s) => s.updateUser);
-
-  const ITEM_MIN_WIDTH = 72;
-  const primary10 = `${theme.colors.primary}1A`;
-
   const insets = useSafeAreaInsets();
+  const ITEM_MIN_WIDTH = 72;
   const TAB_BASE_HEIGHT = 64;
 
   const renderTabPill = (focused: boolean, children: React.ReactNode, label: string) => (
@@ -144,22 +188,6 @@ export default function AppTabs() {
     >
       {children}
     </TabPill>
-  );
-
-  const renderRewardsScreen = React.useCallback(
-    () => <RewardsScreen user={user} onUpdateUser={updateUser} />,
-    [user, updateUser],
-  );
-
-  const handleLogout = React.useCallback(() => {
-    setUser(null);
-  }, [setUser]);
-
-  const renderUserProfileScreen = React.useCallback(
-    () => (
-      <UserProfileScreen user={user} onUpdateUser={updateUser} onLogout={handleLogout} />
-    ),
-    [user, updateUser, handleLogout],
   );
 
   return (
@@ -236,23 +264,6 @@ export default function AppTabs() {
       />
 
       <Tabs.Screen
-        name="Recompensa"
-        children={renderRewardsScreen}
-        options={{
-          tabBarIcon: ({ focused, size = 20 }) =>
-            renderTabPill(
-              focused,
-              <TabIcon
-                source={StoreIcon}
-                size={size}
-                color={focused ? theme.colors.primary : theme.colors.textMuted}
-              />,
-              'Tienda',
-            ),
-        }}
-      />
-
-      <Tabs.Screen
         name="Progreso"
         component={ProgressStackNavigator}
         options={{
@@ -271,7 +282,7 @@ export default function AppTabs() {
 
       <Tabs.Screen
         name="Usuario"
-        children={renderUserProfileScreen}
+        component={UserStackNavigator}
         options={{
           tabBarIcon: ({ focused, size = 20 }) =>
             renderTabPill(

@@ -1,68 +1,120 @@
-import React from 'react';
 import { Feather } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { useTheme } from 'styled-components/native';
 
 import { Card } from './Card';
 import { Button } from './Button';
 import { ButtonText } from './Button';
-import { palette } from '@shared/styles';
 import { GeneratedCode } from '@features/rewards/domain/entities';
 
 // Styled components específicos para GeneratedCodeCard
-const GeneratedCodeWrapper = styled(View)`
-  background-color: ${({ theme }) => theme.colors.muted || '#f3f4f6'};
-  padding: ${({ theme }) => theme.spacing(1.5)}px;
-  border-radius: ${({ theme }) => theme.radius.md}px;
-  margin: ${({ theme }) => theme.spacing(1)}px 0;
+const CodeCardContent = styled(View)`
+  gap: 12px;
 `;
 
 const CodeHeader = styled(View)`
   flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: ${({ theme }) => theme.spacing(1)}px;
+  align-items: flex-start;
+  gap: 12px;
 `;
 
-const CodeState = styled(Text)<{ $statusColor: string }>`
-  font-size: 12px;
-  font-weight: bold;
-  color: ${({ $statusColor }) => $statusColor};
-  text-transform: uppercase;
+const StatusIcon = styled(View)<{ $status: 'used' | 'expired' | 'available' }>`
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  align-items: center;
+  justify-content: center;
+  background-color: ${({ $status }) =>
+    $status === 'used' ? '#d1fae5' :
+    $status === 'expired' ? '#fee2e2' : '#e5e7eb'};
+  margin-top: 2px;
+`;
+
+const CodeHeaderTexts = styled(View)`
+  flex: 1;
+  gap: 4px;
+`;
+
+const CodeDiscount = styled(Text)`
+  font-size: 16px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text};
+  line-height: 22px;
+`;
+
+const CodeTitle = styled(Text)`
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 20px;
+`;
+
+const StatusBadge = styled(View)<{ $status: 'used' | 'expired' | 'available' }>`
+  background-color: ${({ $status }) =>
+    $status === 'used' ? '#d1fae5' :
+    $status === 'expired' ? '#fee2e2' : '#dbeafe'};
+  padding: 4px 10px;
+  border-radius: 12px;
+  align-self: flex-start;
+`;
+
+const StatusText = styled(Text)<{ $status: 'used' | 'expired' | 'available' }>`
+  font-size: 11px;
+  font-weight: 600;
+  color: ${({ $status }) =>
+    $status === 'used' ? '#059669' :
+    $status === 'expired' ? '#dc2626' : '#2563eb'};
+`;
+
+const CodeBoxWrapper = styled(View)`
+  background-color: #e5e7eb;
+  padding: 14px 16px;
+  border-radius: 8px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const CodeText = styled(Text)`
   font-family: monospace;
-  font-size: 18px;
-  font-weight: bold;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-const CodeFooterRow = styled(View)`
-  flex-direction: row;
-  justify-content: space-between;
-  margin-bottom: ${({ theme }) => theme.spacing(0.5)}px;
-`;
-
-const CodeFooterLabel = styled(Text)`
-  font-size: ${({ theme }) => theme.typography.small}px;
-  color: ${({ theme }) => theme.colors.subtext};
-`;
-
-const CodeFooterValue = styled(Text)<{ $color?: string }>`
-  font-size: ${({ theme }) => theme.typography.small}px;
-  color: ${({ theme, $color }) => $color ?? theme.colors.subtext};
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+  letter-spacing: 0.5px;
 `;
 
 const IconButton = styled(TouchableOpacity)`
-  padding: ${({ theme }) => theme.spacing(0.5)}px;
+  padding: 4px;
+`;
+
+const DateRow = styled(View)`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const DateLabel = styled(Text)`
+  font-size: 12px;
+  color: #6b7280;
+`;
+
+const DateValue = styled(Text)<{ $isExpired?: boolean; $isUsed?: boolean }>`
+  font-size: 12px;
+  color: ${({ $isExpired, $isUsed }) =>
+    $isUsed ? '#059669' :
+    $isExpired ? '#dc2626' : '#6b7280'};
+  font-weight: 500;
+`;
+
+const ButtonsRow = styled(View)`
+  flex-direction: row;
+  gap: 8px;
+  margin-top: 4px;
 `;
 
 const STATUS_LABELS = {
-  used: 'USADO',
-  expired: 'VENCIDO',
-  available: 'DISPONIBLE',
+  used: 'Usado',
+  expired: 'Vencido',
+  available: 'Disponible',
 } as const;
 
 const DATE_LABELS = {
@@ -76,7 +128,8 @@ type GeneratedCodeCardProps = {
   onCopy: (code: string) => void;
   onToggle: (code: GeneratedCode) => void;
   formatDate: (date: Date | undefined) => string;
-  markAsUsedLabel?: string;
+  onViewQR?: (code: GeneratedCode) => void;
+  showActions?: boolean;
 };
 
 export function GeneratedCodeCard({
@@ -84,71 +137,134 @@ export function GeneratedCodeCard({
   onCopy,
   onToggle,
   formatDate,
-  markAsUsedLabel = 'Marcar como usado',
+  onViewQR,
+  showActions = false,
 }: GeneratedCodeCardProps) {
-  const theme = useTheme();
   const isExpired = item.expiresAt ? new Date() > item.expiresAt : false;
-  const statusColor = item.used
-    ? palette.neutralText
-    : isExpired
-      ? palette.danger
-      : palette.lifestylePrimary;
-  const statusText = item.used
-    ? STATUS_LABELS.used
-    : isExpired
-      ? STATUS_LABELS.expired
-      : STATUS_LABELS.available;
+  const status = item.used ? 'used' : isExpired ? 'expired' : 'available';
+  const statusText = STATUS_LABELS[status];
+
+  // Extraer descuento del título
+  const discountMatch = item.title.match(/(\d+%)/);
+  const discount = discountMatch ? discountMatch[1] + ' descuento' : item.title;
 
   return (
-    <Card style={{ opacity: item.used ? 0.6 : 1 }}>
-      <CodeHeader>
-        <CodeFooterLabel>{item.title}</CodeFooterLabel>
-        {item.used && (
-          <Feather name="check-circle" size={20} color={palette.lifestylePrimary} />
-        )}
-      </CodeHeader>
-
-      <GeneratedCodeWrapper>
+    <Card
+      style={{
+        opacity: item.used || isExpired ? 0.8 : 1,
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
+        backgroundColor: '#ffffff',
+      }}
+    >
+      <CodeCardContent>
+        {/* Header con icono de check/reloj y textos */}
         <CodeHeader>
+          <StatusIcon $status={status}>
+            {item.used ? (
+              <Feather name="check" size={14} color="#059669" />
+            ) : isExpired ? (
+              <Feather name="clock" size={14} color="#dc2626" />
+            ) : (
+              <Feather name="clock" size={14} color="#6b7280" />
+            )}
+          </StatusIcon>
+          <CodeHeaderTexts>
+            <CodeDiscount>{discount}</CodeDiscount>
+            <CodeTitle>
+              {item.title.replace(/\d+%\s*descuento\s*/i, '').trim()}
+            </CodeTitle>
+          </CodeHeaderTexts>
+          <StatusBadge $status={status}>
+            <StatusText $status={status}>{statusText}</StatusText>
+          </StatusBadge>
+        </CodeHeader>
+
+        {/* Código con botón de copiar */}
+        <CodeBoxWrapper>
           <CodeText>{item.code}</CodeText>
           <IconButton onPress={() => onCopy(item.code)}>
-            <Feather name="copy" size={18} color={palette.neutralText} />
+            <Feather name="copy" size={18} color="#6b7280" />
           </IconButton>
-        </CodeHeader>
-        <CodeState $statusColor={statusColor}>{statusText}</CodeState>
-      </GeneratedCodeWrapper>
+        </CodeBoxWrapper>
 
-      <CodeFooterRow>
-        <CodeFooterLabel>{DATE_LABELS.generated}</CodeFooterLabel>
-        <CodeFooterValue>{formatDate(item.generatedAt)}</CodeFooterValue>
-      </CodeFooterRow>
+        {/* Fechas */}
+        <DateRow>
+          <DateLabel>{DATE_LABELS.generated}</DateLabel>
+          <DateValue>{formatDate(item.generatedAt)}</DateValue>
+        </DateRow>
 
-      <CodeFooterRow>
-        <CodeFooterLabel>{DATE_LABELS.expires}</CodeFooterLabel>
-        <CodeFooterValue $color={isExpired ? palette.danger : undefined}>
-          {formatDate(item.expiresAt)}
-        </CodeFooterValue>
-      </CodeFooterRow>
+        <DateRow>
+          <DateLabel>{DATE_LABELS.expires}</DateLabel>
+          <DateValue $isExpired={isExpired}>{formatDate(item.expiresAt)}</DateValue>
+        </DateRow>
 
-      {item.used && item.usedAt && (
-        <CodeFooterRow>
-          <CodeFooterLabel>{DATE_LABELS.used}</CodeFooterLabel>
-          <CodeFooterValue>{formatDate(item.usedAt)}</CodeFooterValue>
-        </CodeFooterRow>
-      )}
+        {item.used && item.usedAt && (
+          <DateRow>
+            <DateLabel>{DATE_LABELS.used}</DateLabel>
+            <DateValue $isUsed={true}>{formatDate(item.usedAt)}</DateValue>
+          </DateRow>
+        )}
 
-      {!item.used && !isExpired && (
-        <Button
-          variant="primary"
-          onPress={() => onToggle(item)}
-          style={{
-            marginTop: theme.spacing(1),
-            minHeight: 44,
-          }}
-        >
-          <ButtonText>{markAsUsedLabel}</ButtonText>
-        </Button>
-      )}
+        {/* Botones de acción para códigos disponibles (pestaña "Disponibles") */}
+        {showActions && !item.used && !isExpired && (
+          <ButtonsRow>
+            <Button
+              variant="primary"
+              onPress={() => {
+                // Acción de canjear (podría abrir un navegador, etc.)
+                console.log('Canjear código:', item.code);
+              }}
+              style={{
+                flex: 1,
+                backgroundColor: '#3b82f6',
+                minHeight: 44,
+              }}
+            >
+              <ButtonText style={{ color: '#ffffff', fontWeight: '600' }}>
+                Canjear
+              </ButtonText>
+            </Button>
+            <Button
+              onPress={() => onToggle(item)}
+              style={{
+                flex: 1,
+                backgroundColor: '#ffffff',
+                borderWidth: 1,
+                borderColor: '#e5e7eb',
+                minHeight: 44,
+              }}
+            >
+              <ButtonText style={{ color: '#6b7280', fontWeight: '600' }}>
+                Marcar usado
+              </ButtonText>
+            </Button>
+          </ButtonsRow>
+        )}
+
+        {/* Botón Ver QR solo para códigos usados (pestaña "Mis códigos") */}
+        {!showActions && item.used && onViewQR && (
+          <Button
+            variant="primary"
+            onPress={() => onViewQR(item)}
+            style={{
+              backgroundColor: '#ffffff',
+              borderWidth: 1,
+              borderColor: '#e5e7eb',
+              minHeight: 44,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+            }}
+          >
+            <Feather name="maximize" size={16} color="#6b7280" />
+            <ButtonText style={{ color: '#1f2937', fontWeight: '500' }}>
+              Ver QR
+            </ButtonText>
+          </Button>
+        )}
+      </CodeCardContent>
     </Card>
   );
 }
