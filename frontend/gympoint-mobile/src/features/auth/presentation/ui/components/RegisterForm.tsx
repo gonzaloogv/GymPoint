@@ -4,6 +4,7 @@ import { Button, ButtonText, Input, Label } from '@shared/components/ui';
 import { LocationSelector } from './LocationSelector';
 import { GenderRadioGroup } from './GenderRadioGroup';
 import { FrequencySlider } from './FrequencySlider';
+import { BirthDatePicker } from './BirthDatePicker';
 
 interface Props {
   loading: boolean;
@@ -81,13 +82,9 @@ export function RegisterForm({ loading, onSubmit }: Props) {
       />
 
       <Label>Fecha de nacimiento</Label>
-      <Input
+      <BirthDatePicker
         value={form.birth_date}
-        keyboardType="number-pad"
-        inputMode="numeric"
-        onChangeText={(t) => handleChange('birth_date', t.replace(/\D/g, ''))}
-        maxLength={3}
-        placeholder="Ej: 25"
+        onChange={(value) => handleChange('birth_date', value)}
       />
 
       <Label>Género</Label>

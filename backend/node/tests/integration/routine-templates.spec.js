@@ -47,14 +47,26 @@ describeIntegration('Rutinas plantilla (E2E)', () => {
   });
 
   afterAll(async () => {
+    if (auth?.profile?.id_user_profile) {
+      const userRoutines = await Routine.findAll({
+        where: { created_by: auth.profile.id_user_profile, is_template: false }
+      });
+      const routineIds = userRoutines.map((r) => r.id_routine);
+      if (routineIds.length) {
+        await RoutineExercise.destroy({ where: { id_routine: routineIds } });
+        await Routine.destroy({ where: { id_routine: routineIds }, force: true });
+      }
+    }
+
+    if (template) {
+      await RoutineExercise.destroy({ where: { id_routine: template.id_routine } });
+      await Routine.destroy({ where: { id_routine: template.id_routine }, force: true });
+    }
+
     if (auth?.account?.id_account) {
       await UserProfile.destroy({ where: { id_account: auth.account.id_account } });
       await AccountRole.destroy({ where: { id_account: auth.account.id_account } });
       await Account.destroy({ where: { id_account: auth.account.id_account } });
-    }
-    if (template) {
-      await RoutineExercise.destroy({ where: { id_routine: template.id_routine } });
-      await Routine.destroy({ where: { id_routine: template.id_routine }, force: true });
     }
   });
 

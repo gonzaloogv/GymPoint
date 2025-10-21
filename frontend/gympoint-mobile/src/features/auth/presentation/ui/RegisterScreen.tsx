@@ -25,14 +25,14 @@ type RootStackParamList = {
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function RegisterScreen() {
   const navigation = useNavigation<Nav>();
-  const { register, loading, error } = useRegister();
+  const { register, loading } = useRegister();
 
   const handleRegister = async (userData: {
     fullName: string;
     email: string;
     password: string;
     location: string;
-    age: number;
+    birth_date: string;
     gender: string;
     weeklyFrequency: number;
   }) => {

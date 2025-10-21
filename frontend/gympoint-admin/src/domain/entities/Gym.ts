@@ -28,6 +28,7 @@ export interface Gym {
   auto_checkin_enabled: boolean;
   geofence_radius_meters: number;
   min_stay_minutes: number;
+  rules: string[] | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -60,6 +61,7 @@ export interface CreateGymDTO {
   auto_checkin_enabled?: boolean;
   geofence_radius_meters?: number;
   min_stay_minutes?: number;
+  rules?: string[];
   amenities?: number[];
 }
 

@@ -12,3 +12,4 @@ export * from './useExercises';
 export * from './useGoogleMapsExtractor';
 export * from './useGymForm';
 export * from './useLogin';
+export * from './useAchievements';

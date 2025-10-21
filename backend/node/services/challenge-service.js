@@ -7,7 +7,11 @@ const {
   Notification
 } = require('../models');
 const tokenLedgerService = require('./token-ledger-service');
+const achievementService = require('./achievement-service');
+const { processUnlockResults } = require('./achievement-side-effects');
 const { TOKEN_REASONS } = require('../config/constants');
+
+const CHALLENGE_ACHIEVEMENT_CATEGORIES = ['CHALLENGE', 'TOKEN'];
 
 function todayDateOnly() {
   const d = new Date();
@@ -16,6 +20,17 @@ function todayDateOnly() {
   const day = String(d.getUTCDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
 }
+
+const syncChallengeAchievements = async (idUserProfile) => {
+  try {
+    const results = await achievementService.syncAllAchievementsForUser(idUserProfile, {
+      categories: CHALLENGE_ACHIEVEMENT_CATEGORIES
+    });
+    await processUnlockResults(idUserProfile, results);
+  } catch (error) {
+    console.error('[challenge-service] Error sincronizando logros', error);
+  }
+};
 
 const getSettings = async () => {
   return DailyChallengeSettings.getSingleton();
@@ -148,6 +163,8 @@ const updateProgress = async (userId, challengeId, value) => {
     } catch (_) {
       /* ignore best-effort */
     }
+
+    await syncChallengeAchievements(userId);
   }
 
   await userChallenge.save();
@@ -195,5 +212,7 @@ module.exports = {
   getActiveTemplates,
   pickTemplateForDate
 };
+
+
 
 

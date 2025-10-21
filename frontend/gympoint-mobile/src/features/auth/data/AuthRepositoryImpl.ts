@@ -16,7 +16,16 @@ export class AuthRepositoryImpl implements AuthRepository {
   }
   async me() {
     const data = await AuthRemote.me();
-    return mapUser(data.user);
+    return mapUser({
+      id: data.id,
+      id_user_profile: data.id_user_profile,
+      email: data.email,
+      name: data.name,
+      lastname: data.lastname,
+      subscription: data.subscription,
+      tokens: data.tokens,
+      roles: data.subscription === 'PREMIUM' ? ['PREMIUM'] : ['USER'],
+    });
   }
   async logout() {
     await SecureStore.deleteItemAsync('accessToken');

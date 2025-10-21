@@ -42,6 +42,7 @@ const useHomeHook = () => {
     weeklyGoal: weeklyProgress?.goal || 0,
     currentProgress: weeklyProgress?.current || 0,
     progressPct,
+    dailyChallenge,
     perm: locationPermission,
     requestLocation: requestLocationPermission,
     contentPaddingBottom,

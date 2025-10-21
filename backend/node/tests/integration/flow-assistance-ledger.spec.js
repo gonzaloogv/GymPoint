@@ -7,7 +7,7 @@ const sequelize = require('../../config/database');
 const { runMigrations } = require('../../migrate');
 const app = require('../../index');
 
-const { Account, UserProfile, AccountRole, Role, Gym, GymGeofence, TokenLedger, Assistance } = require('../../models');
+const { Account, UserProfile, AccountRole, Role, Gym, TokenLedger, Assistance, Frequency, Streak } = require('../../models');
 
 const describeIntegration = process.env.RUN_E2E_FLOW_ASSIST === 'true' ? describe : describe.skip;
 
@@ -21,14 +21,18 @@ describeIntegration('Flujo completo: check-in -> check-out -> tokens (E2E)', () 
     process.env.JWT_SECRET = secret;
     const [role] = await Role.findOrCreate({ where: { role_name: 'USER' }, defaults: { description: 'rol' } });
     auth = await buildUser(role);
-    gym = await Gym.create({ name: 'FlowGym', description: 'd', city: 'c', address: 'a', latitude: 0, longitude: 0, month_price: 10, week_price: 5 });
-    
-    // Configurar geofence para permitir auto check-in
-    await GymGeofence.create({ 
-      id_gym: gym.id_gym, 
-      radius_meters: 150, 
-      auto_checkin_enabled: true, 
-      min_stay_minutes: 1 
+    gym = await Gym.create({
+      name: 'FlowGym',
+      description: 'd',
+      city: 'c',
+      address: 'a',
+      latitude: 0,
+      longitude: 0,
+      month_price: 10,
+      week_price: 5,
+      auto_checkin_enabled: true,
+      geofence_radius_meters: 150,
+      min_stay_minutes: 1
     });
 
     // Nota: autoCheckIn inicializa Frequency+Streak si no existen
@@ -37,6 +41,14 @@ describeIntegration('Flujo completo: check-in -> check-out -> tokens (E2E)', () 
   afterAll(async () => {
     await Assistance.destroy({ where: { id_user: auth.profile.id_user_profile } });
     await TokenLedger.destroy({ where: { id_user_profile: auth.profile.id_user_profile } });
+    if (auth?.profile) {
+      await UserProfile.update(
+        { id_streak: null },
+        { where: { id_user_profile: auth.profile.id_user_profile } }
+      );
+      await Streak.destroy({ where: { id_user: auth.profile.id_user_profile } });
+      await Frequency.destroy({ where: { id_user: auth.profile.id_user_profile } });
+    }
     if (gym) await gym.destroy({ force: true });
     await UserProfile.destroy({ where: { id_account: auth.account.id_account } });
     await AccountRole.destroy({ where: { id_account: auth.account.id_account } });
@@ -46,8 +58,33 @@ describeIntegration('Flujo completo: check-in -> check-out -> tokens (E2E)', () 
   const buildUser = async (role) => {
     const unique = `${Date.now()}_${Math.floor(Math.random()*100000)}`;
     const account = await Account.create({ email: `flow-${unique}@ex.com`, password_hash: null, auth_provider: 'local', email_verified: true, is_active: true });
-    const profile = await UserProfile.create({ id_account: account.id_account, name: 'Flow', lastname: 'User', gender: 'O', tokens: 0 });
+    const profile = await UserProfile.create({
+      id_account: account.id_account,
+      name: 'Flow',
+      lastname: 'User',
+      gender: 'O',
+      tokens: 0,
+      subscription: 'PREMIUM'
+    });
     await AccountRole.create({ id_account: account.id_account, id_role: role.id_role });
+
+    const freq = await Frequency.create({
+      id_user: profile.id_user_profile,
+      goal: 3,
+      assist: 0,
+      achieved_goal: false,
+      week_start_date: new Date().toISOString().slice(0, 10),
+      week_number: 1,
+      year: new Date().getFullYear()
+    });
+    const streak = await Streak.create({
+      id_user: profile.id_user_profile,
+      value: 0,
+      id_frequency: freq.id_frequency,
+      last_value: 0,
+      recovery_items: 0
+    });
+    await profile.update({ id_streak: streak.id_streak });
 
     const token = jwt.sign({ id: account.id_account, id_user_profile: profile.id_user_profile, roles: ['USER'] }, secret, { expiresIn: '1h' });
     return { account, profile, token };

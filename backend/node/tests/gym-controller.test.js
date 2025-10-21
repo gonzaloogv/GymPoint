@@ -43,7 +43,12 @@ describe('getGymById', () => {
     await controller.getGymById(req, res);
 
     expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Gym no encontrado' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: {
+        code: 'GYM_NOT_FOUND',
+        message: 'Gimnasio no encontrado'
+      }
+    });
   });
 });
 
@@ -81,7 +86,12 @@ describe('updateGym', () => {
     await controller.updateGym(req, res);
 
     expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ error: 'err' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: {
+        code: 'UPDATE_GYM_FAILED',
+        message: 'err'
+      }
+    });
   });
 });
 
@@ -105,7 +115,12 @@ describe('deleteGym', () => {
     await controller.deleteGym(req, res);
 
     expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ error: 'fail' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: {
+        code: 'DELETE_GYM_FAILED',
+        message: 'fail'
+      }
+    });
   });
 });
 
@@ -154,7 +169,12 @@ describe('getGymsByCity', () => {
     await controller.getGymsByCity(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Parámetro city requerido' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: {
+        code: 'MISSING_CITY',
+        message: 'Parámetro city requerido'
+      }
+    });
   });
 
   it('returns gyms', async () => {
@@ -171,21 +191,29 @@ describe('getGymsByCity', () => {
 
 describe('filtrarGimnasios', () => {
   it('blocks type filter for non premium', async () => {
-    const req = { user: { id: 1, rol: 'FREE' }, query: { type: 'x' } };
+    const req = {
+      user: { id_user_profile: 1 },
+      account: { userProfile: { subscription: 'FREE' } },
+      query: { type: 'x' }
+    };
     const res = createRes();
 
     await controller.filtrarGimnasios(req, res);
 
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.json).toHaveBeenCalledWith({
-      error: 'Solo usuarios PREMIUM pueden filtrar por tipo de gimnasio.'
+      error: {
+        code: 'PREMIUM_REQUIRED',
+        message: 'Solo usuarios PREMIUM pueden filtrar por tipo o amenidades.'
+      }
     });
   });
 
   it('calls service with params', async () => {
     const req = {
-      user: { id: 1, rol: 'PREMIUM' },
-      query: { city: 'a', type: 't', minPrice: '1', maxPrice: '2' }
+      user: { id_user_profile: 1 },
+      account: { userProfile: { subscription: 'PREMIUM' } },
+      query: { city: 'a', type: 't', minPrice: '1', maxPrice: '2', amenities: '3,4' }
     };
     const res = createRes();
     service.filtrarGimnasios.mockResolvedValue({ resultados: ['g'], advertencia: null });
@@ -197,18 +225,19 @@ describe('filtrarGimnasios', () => {
       city: 'a',
       type: 't',
       minPrice: 1,
-      maxPrice: 2
+      maxPrice: 2,
+      amenities: [3, 4]
     });
     expect(res.json).toHaveBeenCalledWith({ gimnasios: ['g'], advertencia: null });
   });
 });
 
 describe('getGymTypes', () => {
-  it('returns types', () => {
+  it('returns types', async () => {
     const res = createRes();
     service.getGymTypes.mockReturnValue([1]);
 
-    controller.getGymTypes({}, res);
+    await controller.getGymTypes({}, res);
 
     expect(res.json).toHaveBeenCalledWith([1]);
   });

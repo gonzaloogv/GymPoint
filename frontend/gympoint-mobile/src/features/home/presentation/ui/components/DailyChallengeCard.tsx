@@ -1,5 +1,11 @@
 import styled from 'styled-components/native';
 import { palette } from '@shared/styles';
+import { DailyChallenge } from '../../../domain/entities/DailyChallenge';
+
+type Props = {
+  challenge?: DailyChallenge | null;
+  onPress?: () => void;
+};
 
 const Container = styled.TouchableOpacity.attrs({ activeOpacity: 0.6 })`
   background-color: #ffffff;
@@ -33,6 +39,7 @@ const IconCircle = styled.View`
 
 const IconText = styled.Text`
   font-size: 20px;
+  font-weight: 700;
 `;
 
 const Title = styled.Text`
@@ -71,29 +78,47 @@ const ProgressBarFill = styled.View<{ progress: number }>`
   border-radius: 4px;
 `;
 
-export default function DailyChallengeCard() {
-  const progress = 33; // 1/3 completado
+const FooterText = styled.Text`
+  font-size: 12px;
+  color: ${palette.textMuted};
+`;
+
+export default function DailyChallengeCard({ challenge, onPress }: Props) {
+  const hasChallenge = !!challenge;
+  const current = challenge?.progress ?? 0;
+  const target = challenge?.target ?? 0;
+  const unit = challenge?.unit ? ` ${challenge.unit}` : '';
+  const progressPct =
+    target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0;
+
+  const title = hasChallenge ? challenge?.title : 'Sin desafio disponible';
+  const description = hasChallenge
+    ? challenge?.description
+    : 'Revisa mas tarde para conocer tu reto diario.';
 
   return (
-    <Container>
+    <Container onPress={onPress} disabled={!onPress}>
       <Header>
         <TitleSection>
           <IconCircle>
-            <IconText>📅</IconText>
+            <IconText>DC</IconText>
           </IconCircle>
-          <Title>Desafío del día</Title>
+          <Title>Desafio del dia</Title>
         </TitleSection>
-        <Arrow>›</Arrow>
+        <Arrow>{'>'}</Arrow>
       </Header>
       <ProgressContainer>
-        <ProgressLabel>Entrena 3 grupos musculares</ProgressLabel>
+        <ProgressLabel numberOfLines={2}>{title}</ProgressLabel>
         <ProgressBarBackground>
-          <ProgressBarFill progress={progress} />
+          <ProgressBarFill progress={progressPct} />
         </ProgressBarBackground>
       </ProgressContainer>
-      <ProgressLabel style={{ fontSize: 12, color: palette.textMuted }}>
-        Progreso: 1/3 completado
-      </ProgressLabel>
+      <FooterText>
+        {hasChallenge
+          ? `Progreso: ${current}/${target}${unit} | Recompensa: ${challenge?.reward ?? 0} tokens`
+          : description}
+      </FooterText>
     </Container>
   );
 }
+

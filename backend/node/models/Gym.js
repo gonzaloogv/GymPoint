@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+﻿const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Gym = sequelize.define('Gym', {
@@ -102,25 +102,30 @@ const Gym = sequelize.define('Gym', {
     type: DataTypes.STRING(500),
     allowNull: true,
     comment: 'URL de la foto principal del gimnasio'
-  }
-    ,
-    auto_checkin_enabled: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false, // ✅ CORREGIDO: no NULL
-      defaultValue: true, // ✅ CORREGIDO: true por defecto
-      comment: 'Auto check-in habilitado'
-    },
-    geofence_radius_meters: {
+  },
+  rules: {
+    type: DataTypes.JSON,
+    allowNull: false,
+    defaultValue: [],
+    comment: 'Listado de reglas de convivencia (array de strings)'
+  },
+  auto_checkin_enabled: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+    comment: 'Auto check-in habilitado'
+  },
+  geofence_radius_meters: {
       type: DataTypes.INTEGER,
-      allowNull: false, // ✅ CORREGIDO
-      defaultValue: 150, // ✅ CORREGIDO: 150m por defecto
+      allowNull: false, // âœ… CORREGIDO
+      defaultValue: 150, // âœ… CORREGIDO: 150m por defecto
       comment: 'Radio de geofence en metros'
     },
     min_stay_minutes: {
       type: DataTypes.INTEGER,
-      allowNull: false, // ✅ CORREGIDO
-      defaultValue: 10, // ✅ CORREGIDO: 10 min por defecto
-      comment: 'Tiempo mínimo de estadía en minutos'
+      allowNull: false, // âœ… CORREGIDO
+      defaultValue: 10, // âœ… CORREGIDO: 10 min por defecto
+      comment: 'Tiempo mÃ­nimo de estadÃ­a en minutos'
     }
 }, {
   tableName: 'gym',
@@ -133,37 +138,37 @@ const Gym = sequelize.define('Gym', {
 
 module.exports = Gym;
 
-// Relación Gym - Assistance
+// RelaciÃ³n Gym - Assistance
 const Assistance = require('./Assistance');
 Gym.hasMany(Assistance, {
   foreignKey: 'id_gym'
 });
 
-// Relación Gym - GymSchedule
+// RelaciÃ³n Gym - GymSchedule
 const GymSchedule = require('./GymSchedule');
 Gym.hasMany(GymSchedule, {
   foreignKey: 'id_gym'
 });
 
-// Relación Gym - GymSpecialSchedule
+// RelaciÃ³n Gym - GymSpecialSchedule
 const GymSpecialSchedule = require('./GymSpecialSchedule');
 Gym.hasMany(GymSpecialSchedule, {
   foreignKey: 'id_gym'
 });
 
-// Relación Gym - GymPayment
+// RelaciÃ³n Gym - GymPayment
 const GymPayment = require('./GymPayment');
 Gym.hasMany(GymPayment, {
   foreignKey: 'id_gym'
 });
 
-// Relación Gym - RewardCode
+// RelaciÃ³n Gym - RewardCode
 const RewardCode = require('./RewardCode');
 Gym.hasMany(RewardCode, {
   foreignKey: 'id_gym'
 });
 
-// Relación N:M con GymType (belongsToMany)
+// RelaciÃ³n N:M con GymType (belongsToMany)
 const GymType = require('./GymType');
 
 Gym.belongsToMany(GymType, {
@@ -181,3 +186,7 @@ GymType.belongsToMany(Gym, {
   timestamps: false,
   as: 'gyms'
 });
+
+
+
+

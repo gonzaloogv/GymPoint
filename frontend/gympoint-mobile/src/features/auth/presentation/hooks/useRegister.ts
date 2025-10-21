@@ -7,10 +7,27 @@ interface RegisterData {
   email: string;
   password: string;
   location: string;
-  age: number;
+  birth_date?: string;
   gender: string;
   weeklyFrequency: number;
 }
+
+const mapGenderToBackend = (gender: string): 'M' | 'F' | 'O' => {
+  switch (gender) {
+    case 'male':
+    case 'M':
+      return 'M';
+    case 'female':
+    case 'F':
+      return 'F';
+    case 'other':
+    case 'prefer-not-to-say':
+    case 'O':
+      return 'O';
+    default:
+      return 'O';
+  }
+};
 
 export const useRegister = () => {
   const [loading, setLoading] = useState(false);
@@ -26,15 +43,28 @@ export const useRegister = () => {
       const nameParts = data.fullName.trim().split(' ');
       const name = nameParts[0] || '';
       const lastname = nameParts.slice(1).join(' ') || name;
+      const normalizedBirthDate = (() => {
+        const raw = data.birth_date?.trim();
+        if (!raw) return undefined;
+        if (raw.includes('-') && raw.length >= 8) {
+          return raw;
+        }
+        const age = Number.parseInt(raw, 10);
+        if (!Number.isFinite(age) || age <= 0) return undefined;
+        const today = new Date();
+        const birthYear = today.getFullYear() - age;
+        const birthDate = new Date(Date.UTC(birthYear, today.getMonth(), today.getDate()));
+        return birthDate.toISOString().slice(0, 10);
+      })();
 
       const response = await DI.registerUser.execute({
         name,
         lastname,
         email: data.email,
         password: data.password,
-        gender: data.gender,
+        gender: mapGenderToBackend(data.gender),
         locality: data.location,
-        age: data.age,
+        birth_date: normalizedBirthDate,
         frequency_goal: data.weeklyFrequency,
       });
 

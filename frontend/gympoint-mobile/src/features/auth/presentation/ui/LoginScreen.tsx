@@ -9,13 +9,14 @@ import {
   SocialButton,
 } from '@shared/components/ui';
 
-import { useAuthStore } from '../state/auth.store';
 import { LoginFooter } from './components/LoginFooter';
 import { LoginForm } from './components/LoginForm';
 import { LoginHeader } from './components/LoginHeader';
 import { Root, contentContainerStyle } from './LoginScreen.styles';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useLogin } from '../hooks/useLogin';
+
 type RootStackParamList = {
   Login: undefined;
   Register: undefined;
@@ -26,37 +27,21 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 export default function LoginScreen() {
   const navigation = useNavigation<Nav>();
 
-  const setUser = useAuthStore((state) => state.setUser);
+  const { login, loading, error } = useLogin();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      // TODO: Integrar con la API real cuando esté disponible.
-      // const { user } = await DI.loginUser.execute({ email, password });
-      // setUser(user);
-
-      setUser({
-        id_user: -1,
-        name: 'Usuario Demo',
-        email: email || 'demo@gympoint.app',
-        role: 'USER',
-        tokens: 0,
-        plan: 'Free',
-      });
-    } finally {
-      setLoading(false);
+    const result = await login({ email, password });
+    if (result.success) {
+      navigation.navigate('App');
     }
   };
 
   const handleGoogle = () => console.log('Continuar con Google');
   const handleForgotPassword = () => console.log('Olvidé mi contraseña');
   const handleRegister = () => {
-    navigation.navigate('Register'); // 👈 redirige al RegisterScreen
+    navigation.navigate('Register');
   };
 
   return (
@@ -95,3 +80,4 @@ export default function LoginScreen() {
     </Screen>
   );
 }
+

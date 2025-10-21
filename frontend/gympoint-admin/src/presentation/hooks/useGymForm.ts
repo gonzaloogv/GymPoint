@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { CreateGymDTO, UpdateGymDTO, Gym } from '@/domain';
 import { useGoogleMapsExtractor } from './useGoogleMapsExtractor';
 
@@ -11,6 +11,7 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
   const [formData, setFormData] = useState<CreateGymDTO>({
     name: '',
     description: '',
+    rules: [],
     city: '',
     address: '',
     latitude: 0,
@@ -44,6 +45,7 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
       const initialFormData = {
         name: gym.name,
         description: gym.description,
+        rules: Array.isArray(gym.rules) ? gym.rules : [],
         city: gym.city,
         address: gym.address,
         latitude: typeof gym.latitude === 'string' ? parseFloat(gym.latitude) : gym.latitude,
@@ -116,11 +118,11 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
         ...(name && !prev.name ? { name } : {}),
       }));
       alert(
-        `✅ Datos extraídos de Google Maps:\n\nLatitud: ${latitude}\nLongitud: ${longitude}${name ? `\nNombre: ${name}` : ''}\n\n${!name ? 'Completa manualmente el nombre, dirección y otros datos.' : 'Completa la información faltante.'}`
+        `Datos extraidos de Google Maps:\n\nLatitud: ${latitude}\nLongitud: ${longitude}${name ? `\nNombre: ${name}` : ''}\n\n${!name ? 'Completa manualmente el nombre, direccion y otros datos.' : 'Completa la informacion faltante.'}`
       );
     } else if (url.trim() !== '' && !url.includes('goo.gl/maps')) {
       alert(
-        '⚠️ No se pudieron extraer las coordenadas de esta URL.\n\nPor favor, verifica que la URL sea válida o ingresa las coordenadas manualmente.'
+        'No se pudieron extraer las coordenadas de esta URL.\n\nPor favor, verifica que la URL sea valida o ingresa las coordenadas manualmente.'
       );
     }
   };
@@ -142,10 +144,35 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const normalizedRules = (formData.rules || [])
+      .map((rule) => rule.trim())
+      .filter((rule) => rule.length > 0);
+
+    const baseData = {
+      ...formData,
+      rules: normalizedRules
+    };
+
     const submitData = gym
-      ? ({ ...formData, id_gym: gym.id_gym, amenities: selectedAmenityIds } as UpdateGymDTO)
-      : ({ ...formData, amenities: selectedAmenityIds } as CreateGymDTO);
+      ? ({ ...baseData, id_gym: gym.id_gym, amenities: selectedAmenityIds } as UpdateGymDTO)
+      : ({ ...baseData, amenities: selectedAmenityIds } as CreateGymDTO);
+
     await onSubmit(submitData);
+  };
+
+  const addRule = (rule: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      rules: [...(prev.rules || []), rule]
+    }));
+    console.log('Form Data after adding rule:', formData);
+  };
+
+  const removeRule = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      rules: (prev.rules || []).filter((_, idx) => idx !== index)
+    }));
   };
 
   return {
@@ -158,5 +185,8 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
     handleEquipmentChange,
     toggleAmenity,
     handleSubmit,
+    addRule,
+    removeRule,
   };
 };
+

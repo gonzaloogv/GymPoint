@@ -1,58 +1,64 @@
 import { api } from '@shared/http/apiClient';
 
-// DTOs que coinciden con la respuesta del backend
 export type FrequencyResponseDTO = {
   id_frequency: number;
   id_user: number;
   goal: number;
   assist: number;
   achieved_goal: boolean;
-  userProfile?: {
-  name: string;
-  lastname: string;
-  };
+  week_start_date?: string | null;
+  week_number?: number | null;
+  year?: number | null;
 };
 
 export type UserProfileResponseDTO = {
-  id_user: number;
+  id: number;
+  id_user_profile: number;
   name: string;
   lastname: string;
   email: string;
-  gender: string;
-  locality: string;
-  birth_date: string | null;
-  role: string;
-  tokens: number;
   subscription?: 'FREE' | 'PREMIUM';
+  tokens?: number;
 };
 
 export type StreakResponseDTO = {
   id_streak: number;
   value: number;
-  last_value: number;
+  last_value: number | null;
   recovery_items: number;
-  user?: {
-    id_user_profile: number;
-    name: string;
-    lastname: string;
-  };
-  frequency?: {
-    goal: number;
-    assist: number;
-    achieved_goal: boolean;
-  };
+};
+
+export type DailyChallengeResponseDTO = {
+  id_challenge: number;
+  challenge_date: string;
+  title: string;
+  description: string;
+  challenge_type: string | null;
+  target_value: number;
+  target_unit: string | null;
+  tokens_reward: number;
+  difficulty: string | null;
+  progress: number;
+  completed: boolean;
 };
 
 export const HomeRemote = {
-  // Obtener meta semanal y progreso
-  getWeeklyFrequency: () =>
-    api.get<FrequencyResponseDTO>('/api/frequency/me').then((r) => r.data),
-
-  // Obtener perfil del usuario (incluye tokens y subscription)
-  getUserProfile: () =>
-    api.get<UserProfileResponseDTO>('/api/users/me').then((r) => r.data),
-
-  // Obtener racha actual del usuario
-  getStreak: () =>
-    api.get<StreakResponseDTO>('/api/streak/me').then((r) => r.data),
+  getWeeklyFrequency: async () => {
+    const { data } = await api.get<FrequencyResponseDTO>('/api/frequency/me');
+    return data;
+  },
+  getUserProfile: async () => {
+    const { data } = await api.get<UserProfileResponseDTO>('/api/users/me');
+    return data;
+  },
+  getStreak: async () => {
+    const { data } = await api.get<StreakResponseDTO>('/api/streak/me');
+    return data;
+  },
+  getDailyChallenge: async () => {
+    const { data } = await api.get<{ challenge: DailyChallengeResponseDTO | null }>(
+      '/api/challenges/today',
+    );
+    return data.challenge;
+  },
 };

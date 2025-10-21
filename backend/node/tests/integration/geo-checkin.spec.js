@@ -20,7 +20,6 @@ const {
   Streak,
   Frequency,
   Gym,
-  GymGeofence,
   Assistance,
   TokenLedger
 } = require('../../models');
@@ -59,13 +58,9 @@ describeIntegration('Geolocalización y Auto Check-in (E2E)', () => {
       longitude: -58.38159,
       phone: '000',
       month_price: 1000,
-      week_price: 400
-    });
-
-    await GymGeofence.create({
-      id_gym: gym.id_gym,
-      radius_meters: 200,
+      week_price: 400,
       auto_checkin_enabled: true,
+      geofence_radius_meters: 200,
       min_stay_minutes: 1
     });
   });
@@ -79,7 +74,6 @@ describeIntegration('Geolocalización y Auto Check-in (E2E)', () => {
       await Frequency.destroy({ where: { id_user: auth.profile.id_user_profile } });
     }
     if (gym) {
-      await GymGeofence.destroy({ where: { id_gym: gym.id_gym } });
       await Gym.destroy({ where: { id_gym: gym.id_gym }, force: true });
     }
     if (auth?.account?.id_account) {

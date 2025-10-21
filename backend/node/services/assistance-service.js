@@ -3,6 +3,8 @@ const Streak = require('../models/Streak');
 const { UserProfile } = require('../models');
 const Frequency = require('../models/Frequency');
 const tokenLedgerService = require('./token-ledger-service');
+const achievementService = require('./achievement-service');
+const { processUnlockResults } = require('./achievement-side-effects');
 const Gym = require('../models/Gym');
 const { Op } = require('sequelize');
 const frequencyService = require('../services/frequency-service');
@@ -10,6 +12,19 @@ const { NotFoundError, ConflictError, BusinessError, ValidationError } = require
 const { PROXIMITY_METERS, ACCURACY_MAX_METERS, TOKENS, TOKEN_REASONS } = require('../config/constants');
 const Presence = require('../models/Presence');
 const { calculateDistance } = require('../utils/geo');
+
+const ATTENDANCE_ACHIEVEMENT_CATEGORIES = ['STREAK', 'ATTENDANCE', 'FREQUENCY'];
+
+const syncAttendanceAchievements = async (idUserProfile) => {
+  try {
+    const results = await achievementService.syncAllAchievementsForUser(idUserProfile, {
+      categories: ATTENDANCE_ACHIEVEMENT_CATEGORIES
+    });
+    await processUnlockResults(idUserProfile, results);
+  } catch (error) {
+    console.error('[assistance-service] Error sincronizando logros', error);
+  }
+};
 
 /**
  * Registrar asistencia a un gimnasio
@@ -113,6 +128,8 @@ const registrarAsistencia = async ({ id_user, id_gym, latitude, longitude, accur
 
   // Actualizar frecuencia semanal
   await frequencyService.actualizarAsistenciaSemanal(idUserProfile);
+  await syncAttendanceAchievements(idUserProfile);
+  await syncAttendanceAchievements(idUserProfile);
 
   return {
     asistencia: nuevaAsistencia,
@@ -512,6 +529,7 @@ const verificarAutoCheckIn = async ({ id_user, id_gym }) => {
 
   // Actualizar frecuencia
   await frequencyService.actualizarAsistenciaSemanal(id_user);
+  await syncAttendanceAchievements(id_user);
 
   // Marcar presencia como completada
   presencia.status = 'CONFIRMED';
@@ -533,5 +551,6 @@ module.exports = {
   checkOut,
   autoCheckIn,
   registrarPresencia,
-  verificarAutoCheckIn
+  verificarAutoCheckIn,
+  calculateDistance
 };

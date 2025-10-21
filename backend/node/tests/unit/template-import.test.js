@@ -5,9 +5,20 @@ const sequelize = require('../../config/database');
 const { runMigrations } = require('../../migrate');
 const templateService = require('../../services/template-service');
 
-const { Account, UserProfile, AccountRole, Role, Routine, RoutineExercise } = require('../../models');
+const {
+  Account,
+  UserProfile,
+  AccountRole,
+  Role,
+  Routine,
+  RoutineExercise,
+  UserImportedRoutine
+} = require('../../models');
 
-describe('template-service.importTemplate (unit-ish)', () => {
+const runDbTests = process.env.RUN_DB_TESTS === 'true';
+const describeIfDb = runDbTests ? describe : describe.skip;
+
+describeIfDb('template-service.importTemplate (unit-ish)', () => {
   let user;
   let tpl;
   let freeUser;
@@ -23,18 +34,32 @@ describe('template-service.importTemplate (unit-ish)', () => {
   });
 
   afterAll(async () => {
-    if (tpl) await Routine.destroy({ where: { id_routine: tpl.id_routine }, force: true });
-    await Routine.destroy({ where: { created_by: user.profile.id_user_profile }, force: true });
+    const deleteRoutinesForUser = async (id_user_profile) => {
+      const routines = await Routine.findAll({ where: { created_by: id_user_profile } });
+      const routineIds = routines.map((r) => r.id_routine);
+      if (routineIds.length) {
+        await RoutineExercise.destroy({ where: { id_routine: routineIds } });
+        await Routine.destroy({ where: { id_routine: routineIds }, force: true });
+      }
+    };
+
+    if (tpl) {
+      await RoutineExercise.destroy({ where: { id_routine: tpl.id_routine } });
+      await Routine.destroy({ where: { id_routine: tpl.id_routine }, force: true });
+    }
+
+    await deleteRoutinesForUser(user.profile.id_user_profile);
+
     if (freeUser) {
       await UserImportedRoutine.destroy({ where: { id_user_profile: freeUser.profile.id_user_profile } });
-      await Routine.destroy({ where: { created_by: freeUser.profile.id_user_profile }, force: true });
+      await deleteRoutinesForUser(freeUser.profile.id_user_profile);
       await UserProfile.destroy({ where: { id_account: freeUser.account.id_account } });
       await AccountRole.destroy({ where: { id_account: freeUser.account.id_account } });
       await Account.destroy({ where: { id_account: freeUser.account.id_account } });
     }
     if (freeUser2) {
       await UserImportedRoutine.destroy({ where: { id_user_profile: freeUser2.profile.id_user_profile } });
-      await Routine.destroy({ where: { created_by: freeUser2.profile.id_user_profile }, force: true });
+      await deleteRoutinesForUser(freeUser2.profile.id_user_profile);
       await UserProfile.destroy({ where: { id_account: freeUser2.account.id_account } });
       await AccountRole.destroy({ where: { id_account: freeUser2.account.id_account } });
       await Account.destroy({ where: { id_account: freeUser2.account.id_account } });
@@ -66,15 +91,27 @@ describe('template-service.importTemplate (unit-ish)', () => {
     expect(copy.id_routine).toBeDefined();
   });
 
-  it('rechaza importación para FREE cuando ya importó 2 rutinas', async () => {
+  it('rechaza importación para FREE cuando alcanza el límite total (5)', async () => {
     const [role] = await Role.findOrCreate({ where: { role_name: 'USER' }, defaults: { description: 'rol' } });
     freeUser = await buildUserWithSubscription(role, 'FREE');
 
-    // Crear 2 importaciones previas
-    const copy1 = await Routine.create({ routine_name: 'C1', description: 'd', created_by: freeUser.profile.id_user_profile, is_template: false });
-    const copy2 = await Routine.create({ routine_name: 'C2', description: 'd', created_by: freeUser.profile.id_user_profile, is_template: false });
-    await UserImportedRoutine.create({ id_user_profile: freeUser.profile.id_user_profile, id_routine_original: tpl.id_routine, id_routine_copy: copy1.id_routine });
-    await UserImportedRoutine.create({ id_user_profile: freeUser.profile.id_user_profile, id_routine_original: tpl.id_routine, id_routine_copy: copy2.id_routine });
+    // Simular que ya alcanzó el máximo de 5 (mezcla de importadas y propias)
+    const copies = [];
+    for (let i = 0; i < 5; i++) {
+      const routine = await Routine.create({
+        routine_name: `FREE-${i}`,
+        description: 'd',
+        created_by: freeUser.profile.id_user_profile,
+        is_template: false
+      });
+      copies.push(routine);
+    }
+
+    // Marcar dos como importadas para que la métrica contemple ambos casos
+    await UserImportedRoutine.bulkCreate([
+      { id_user_profile: freeUser.profile.id_user_profile, id_routine_original: tpl.id_routine, id_routine_copy: copies[0].id_routine },
+      { id_user_profile: freeUser.profile.id_user_profile, id_routine_original: tpl.id_routine, id_routine_copy: copies[1].id_routine }
+    ]);
 
     try {
       await templateService.importTemplate(freeUser.profile.id_user_profile, tpl.id_routine);

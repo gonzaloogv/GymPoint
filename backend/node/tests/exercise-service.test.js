@@ -8,22 +8,26 @@ const exerciseService = require('../services/exercise-service');
 const Exercise = require('../models/Exercise');
 
 beforeEach(() => {
-    jest.clearAllMocks();
+  jest.clearAllMocks();
 });
 
 describe('updateExercise', () => {
-    it('updates existing exercise', async () => {
-        const inst = { update: jest.fn().mockResolvedValue('ok') };
-        Exercise.findByPk.mockResolvedValue(inst);
+  it('updates existing exercise', async () => {
+    const inst = {
+      update: jest.fn().mockResolvedValue(),
+      reload: jest.fn().mockResolvedValue('ok')
+    };
+    Exercise.findByPk.mockResolvedValue(inst);
 
-        const result = await exerciseService.updateExercise(1, { name: 'x' });
+    const result = await exerciseService.updateExercise(1, { exercise_name: 'x' });
 
-        expect(inst.update).toHaveBeenCalledWith({ name: 'x' });
-        expect(result).toBe('ok');
-});
+    expect(inst.update).toHaveBeenCalledWith({ exercise_name: 'x' });
+    expect(inst.reload).toHaveBeenCalled();
+    expect(result).toBe('ok');
+  });
 
-    it('throws when not found', async () => {
-        Exercise.findByPk.mockResolvedValue(null);
-        await expect(exerciseService.updateExercise(1, {})).rejects.toThrow('Exercise not found');
-    });
+  it('throws when not found', async () => {
+    Exercise.findByPk.mockResolvedValue(null);
+    await expect(exerciseService.updateExercise(1, {})).rejects.toThrow('Exercise not found');
+  });
 });

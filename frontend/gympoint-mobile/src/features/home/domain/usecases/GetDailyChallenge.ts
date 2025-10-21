@@ -4,7 +4,7 @@ import { DailyChallenge } from '../entities/DailyChallenge';
 export class GetDailyChallenge {
   constructor(private repository: HomeRepository) {}
 
-  async execute(): Promise<DailyChallenge> {
+  async execute(): Promise<DailyChallenge | null> {
     return this.repository.getDailyChallenge();
   }
 }

@@ -1,4 +1,4 @@
-import { CreateGymDTO, UpdateGymDTO, Gym, Amenity } from '@/domain';
+﻿import { CreateGymDTO, UpdateGymDTO, Gym, Amenity } from '@/domain';
 import { Button } from './index';
 import { useAmenities, useGymForm } from '@/presentation/hooks';
 import {
@@ -9,6 +9,7 @@ import {
   GymFormPricing,
   GymFormAutoCheckin,
   GymFormExtraOptions,
+  GymFormRules,
 } from './gym-form';
 
 interface GymFormProps {
@@ -29,6 +30,8 @@ export const GymForm = ({ gym, onSubmit, onCancel, isLoading }: GymFormProps) =>
     handleEquipmentChange,
     toggleAmenity,
     handleSubmit,
+    addRule,
+    removeRule,
   } = useGymForm({ gym, onSubmit });
 
   const { data: amenitiesData, isLoading: amenitiesLoading } = useAmenities();
@@ -37,6 +40,11 @@ export const GymForm = ({ gym, onSubmit, onCancel, isLoading }: GymFormProps) =>
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <GymFormBasicInfo formData={formData} handleInputChange={handleInputChange} />
+      <GymFormRules
+        rules={formData.rules || []}
+        onAddRule={addRule}
+        onRemoveRule={removeRule}
+      />
       <GymFormLocation
         formData={formData}
         handleInputChange={handleInputChange}
@@ -58,7 +66,7 @@ export const GymForm = ({ gym, onSubmit, onCancel, isLoading }: GymFormProps) =>
       <GymFormAutoCheckin formData={formData} handleInputChange={handleInputChange} />
       <GymFormExtraOptions formData={formData} handleInputChange={handleInputChange} />
 
-      <div className="flex justify-end gap-4 mt-6">
+      <div className="mt-6 flex justify-end gap-4">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isLoading}>
           Cancelar
         </Button>
@@ -69,3 +77,4 @@ export const GymForm = ({ gym, onSubmit, onCancel, isLoading }: GymFormProps) =>
     </form>
   );
 };
+

@@ -14,6 +14,7 @@ import {
   RoutineTemplates,
   Transactions,
   Users,
+  Achievements,
 } from './presentation/pages';
 
 const queryClient = new QueryClient({
@@ -61,6 +62,7 @@ const App = (): ReactElement => {
               <Route path="routines" element={<RoutineTemplates />} />
               <Route path="exercises" element={<Exercises />} />
               <Route path="daily-challenges" element={<DailyChallenges />} />
+              <Route path="achievements" element={<Achievements />} />
             </Route>
           </Routes>
         </BrowserRouter>

@@ -1,14 +1,25 @@
-export interface HomeStatsDTO {
+export interface UserProfileDTO {
+  id_user_profile: number;
   name: string;
-  plan: 'Free' | 'Premium';
+  lastname: string;
+  email: string;
   tokens: number;
-  streak: number;
+  subscription?: 'FREE' | 'PREMIUM';
 }
 
-export interface WeeklyProgressDTO {
+export interface FrequencyDTO {
+  id_frequency: number;
+  id_user: number;
   goal: number;
-  current: number;
-  percentage: number;
+  assist: number;
+  achieved_goal: boolean;
+}
+
+export interface StreakDTO {
+  id_streak: number;
+  value: number;
+  last_value: number | null;
+  recovery_items: number;
 }
 
 export interface DailyChallengeDTO {
@@ -16,5 +27,10 @@ export interface DailyChallengeDTO {
   title: string;
   description: string;
   reward: number;
+  progress: number;
+  target: number;
+  unit?: string | null;
   completed: boolean;
+  challengeType?: string | null;
+  date?: string | null;
 }

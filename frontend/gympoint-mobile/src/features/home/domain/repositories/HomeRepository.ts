@@ -5,5 +5,5 @@ import { DailyChallenge } from '../entities/DailyChallenge';
 export interface HomeRepository {
   getHomeStats(): Promise<HomeStats>;
   getWeeklyProgress(): Promise<WeeklyProgress>;
-  getDailyChallenge(): Promise<DailyChallenge>;
+  getDailyChallenge(): Promise<DailyChallenge | null>;
 }

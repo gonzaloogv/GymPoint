@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Input, Textarea } from '../index';
 
 interface GymFormBasicInfoProps {
@@ -9,20 +9,15 @@ interface GymFormBasicInfoProps {
     address: string;
   };
   handleInputChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;
 }
 
-export const GymFormBasicInfo: React.FC<GymFormBasicInfoProps> = ({
-  formData,
-  handleInputChange,
-}) => {
+export const GymFormBasicInfo: React.FC<GymFormBasicInfoProps> = ({ formData, handleInputChange }) => {
   return (
-    <div className="space-y-6 p-6 bg-card dark:bg-card-dark rounded-xl border border-border dark:border-border-dark">
-      <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-4">
-        Información Básica
-      </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="space-y-6 rounded-xl border border-border bg-card p-6 dark:border-border-dark dark:bg-card-dark">
+      <h3 className="mb-4 text-lg font-semibold text-text dark:text-text-dark">Informacion basica</h3>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Input
           label="Nombre *"
           type="text"
@@ -43,7 +38,7 @@ export const GymFormBasicInfo: React.FC<GymFormBasicInfoProps> = ({
         />
       </div>
       <Textarea
-        label="Descripción *"
+        label="Descripcion *"
         name="description"
         value={formData.description}
         onChange={handleInputChange}
@@ -52,7 +47,7 @@ export const GymFormBasicInfo: React.FC<GymFormBasicInfoProps> = ({
         placeholder="Describe el gimnasio..."
       />
       <Input
-        label="Dirección *"
+        label="Direccion *"
         type="text"
         name="address"
         value={formData.address}

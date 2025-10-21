@@ -35,6 +35,9 @@ const DailyChallengeSettings = require('./DailyChallengeSettings');
 const UserDailyChallenge = require('./UserDailyChallenge');
 const UserImportedRoutine = require('./UserImportedRoutine');
 const MercadoPagoPayment = require('./MercadoPagoPayment');
+const AchievementDefinition = require('./AchievementDefinition');
+const UserAchievement = require('./UserAchievement');
+const UserAchievementEvent = require('./UserAchievementEvent');
 const Notification = require('./Notification');
 const UserNotificationSetting = require('./UserNotificationSetting');
 const Media = require('./Media');
@@ -367,6 +370,36 @@ GymPayment.belongsTo(UserProfile, {
 UserProfile.hasOne(Streak, {
   foreignKey: 'id_user',
   as: 'streak'
+});
+
+UserProfile.hasMany(UserAchievement, {
+  foreignKey: 'id_user_profile',
+  as: 'achievements'
+});
+
+UserAchievement.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'userProfile'
+});
+
+AchievementDefinition.hasMany(UserAchievement, {
+  foreignKey: 'id_achievement_definition',
+  as: 'userAchievements'
+});
+
+UserAchievement.belongsTo(AchievementDefinition, {
+  foreignKey: 'id_achievement_definition',
+  as: 'achievement'
+});
+
+UserAchievement.hasMany(UserAchievementEvent, {
+  foreignKey: 'id_user_achievement',
+  as: 'events'
+});
+
+UserAchievementEvent.belongsTo(UserAchievement, {
+  foreignKey: 'id_user_achievement',
+  as: 'userAchievement'
 });
 
 Streak.belongsTo(UserProfile, {
@@ -720,6 +753,9 @@ module.exports = {
   DailyChallengeSettings,
   UserDailyChallenge,
   UserImportedRoutine,
+  UserAchievement,
+  UserAchievementEvent,
+  AchievementDefinition,
   Presence
 };
 

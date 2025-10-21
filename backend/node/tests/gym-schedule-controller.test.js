@@ -56,11 +56,18 @@ describe('actualizarHorario', () => {
   it('handles errors', async () => {
     const req = { params:{ id_schedule:1 }, body:{} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
-    service.actualizarHorario.mockRejectedValue(new Error('err'));
+    const error = new Error('err');
+    error.statusCode = 400;
+    service.actualizarHorario.mockRejectedValue(error);
 
     await controller.actualizarHorario(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'err' });
+    expect(res.json).toHaveBeenCalledWith({
+      error: {
+        code: 'UPDATE_SCHEDULE_FAILED',
+        message: 'err'
+      }
+    });
   });
 });

@@ -51,6 +51,7 @@ const mediaRoutes = require('./routes/media-routes');
 const workoutRoutes = require('./routes/workout-routes');
 const locationRoutes = require('./routes/location-routes');
 const challengeRoutes = require('./routes/challenge-routes');
+const achievementRoutes = require('./routes/achievement-routes');
 // NOTA: body-metrics y notifications se montan como subrutas en user-routes.js (líneas 148-149)
 // const bodyMetricsRoutes = require('./routes/body-metrics-routes');
 // const notificationRoutes = require('./routes/notification-routes');
@@ -118,6 +119,7 @@ app.use('/api/media', mediaRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/location', locationRoutes);
 app.use('/api/challenges', challengeRoutes);
+app.use('/api/achievements', achievementRoutes);
 // NOTA: Estas rutas se montan en user-routes.js como subrutas de /api/users/me/
 // app.use('/api/body-metrics', bodyMetricsRoutes); // Ahora: /api/users/me/body-metrics
 // app.use('/api/notifications', notificationRoutes); // Ahora: /api/users/me/notifications

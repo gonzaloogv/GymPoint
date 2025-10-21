@@ -8,24 +8,26 @@ interface SelectOption {
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
-  options: SelectOption[];
+  options?: SelectOption[];
   placeholder?: string;
   value?: string | number;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   error?: string;
   disabled?: boolean;
   className?: string;
+  children?: React.ReactNode;
 }
 
 const Select: React.FC<SelectProps> = ({
   label,
-  options,
+  options = [],
   placeholder,
   value,
   onChange,
   error,
   disabled = false,
   className,
+  children,
   ...props
 }) => {
   const selectClasses = clsx(
@@ -47,11 +49,13 @@ const Select: React.FC<SelectProps> = ({
         {...props}
       >
         {placeholder && <option value="" disabled>{placeholder}</option>}
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
+        {options.length > 0
+          ? options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))
+          : children}
       </select>
       {error && <p className="text-danger text-sm mt-1">{error}</p>}
     </div>

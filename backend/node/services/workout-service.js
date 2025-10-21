@@ -8,6 +8,21 @@ const RoutineDay = require('../models/RoutineDay');
 const Exercise = require('../models/Exercise');
 const { NotFoundError, ValidationError, ConflictError } = require('../utils/errors');
 const tokenLedgerService = require('./token-ledger-service');
+const achievementService = require('./achievement-service');
+const { processUnlockResults } = require('./achievement-side-effects');
+
+const WORKOUT_ACHIEVEMENT_CATEGORIES = ['ROUTINE', 'PROGRESS', 'TOKEN'];
+
+const syncWorkoutAchievements = async (idUserProfile) => {
+  try {
+    const results = await achievementService.syncAllAchievementsForUser(idUserProfile, {
+      categories: WORKOUT_ACHIEVEMENT_CATEGORIES
+    });
+    await processUnlockResults(idUserProfile, results);
+  } catch (error) {
+    console.error('[workout-service] Error sincronizando logros', error);
+  }
+};
 
 const ensureRoutineExists = async (id_routine, transaction) => {
   if (!id_routine) return;
@@ -142,34 +157,42 @@ const recalcularTotales = async (session, transaction) => {
 };
 
 const completarSesion = async (id_workout_session, { ended_at = new Date(), notes = null }) => {
-  return sequelize.transaction(async (transaction) => {
-    const session = await WorkoutSession.findByPk(id_workout_session, { transaction, lock: transaction.LOCK.UPDATE });
-    if (!session) throw new NotFoundError('Sesión de entrenamiento');
-    if (session.status !== 'IN_PROGRESS') {
+  const session = await sequelize.transaction(async (transaction) => {
+    const workout = await WorkoutSession.findByPk(id_workout_session, { transaction, lock: transaction.LOCK.UPDATE });
+    if (!workout) throw new NotFoundError('Sesión de entrenamiento');
+    if (workout.status !== 'IN_PROGRESS') {
       throw new ValidationError('La sesión no está en progreso');
     }
 
-    await recalcularTotales(session, transaction);
+    await recalcularTotales(workout, transaction);
 
-    session.status = 'COMPLETED';
-    session.ended_at = ended_at;
-    session.duration_seconds = session.started_at ? Math.floor((new Date(ended_at) - new Date(session.started_at)) / 1000) : null;
-    session.notes = notes ?? session.notes;
-    await session.save({ transaction });
+    workout.status = 'COMPLETED';
+    workout.ended_at = ended_at;
+    workout.duration_seconds = workout.started_at ? Math.floor((new Date(ended_at) - new Date(workout.started_at)) / 1000) : null;
+    workout.notes = notes ?? workout.notes;
+    await workout.save({ transaction });
 
     if (TOKENS.WORKOUT_SESSION > 0) {
       await tokenLedgerService.registrarMovimiento({
-        userId: session.id_user_profile,
+        userId: workout.id_user_profile,
         delta: TOKENS.WORKOUT_SESSION,
         reason: TOKEN_REASONS.WORKOUT_COMPLETED,
         refType: 'workout_session',
-        refId: session.id_workout_session,
+        refId: workout.id_workout_session,
         transaction
       });
     }
 
-    return session;
+    return workout;
   });
+
+  try {
+    await syncWorkoutAchievements(session.id_user_profile);
+  } catch (error) {
+    console.error('[workout-service] Error post-completar sesión', error);
+  }
+
+  return session;
 };
 
 const cancelarSesion = async (id_workout_session, { reason = null } = {}) => {
@@ -205,3 +228,4 @@ module.exports = {
   cancelarSesion,
   obtenerSesionesPorUsuario
 };
+

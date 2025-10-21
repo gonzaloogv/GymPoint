@@ -3,13 +3,25 @@ export type LoginResponseDTO = {
   accessToken: string;
   refreshToken: string;
   user: {
-    id_user: number;
-    name: string;
+    id: number;
+    id_user_profile?: number;
     email: string;
-    role: 'USER' | 'PREMIUM';
+    name?: string;
+    lastname?: string;
+    subscription?: 'FREE' | 'PREMIUM';
+    tokens?: number;
+    roles?: string[];
   };
 };
-export type MeResponseDTO = { user: LoginResponseDTO['user'] };
+export type MeResponseDTO = {
+  id: number;
+  email: string;
+  id_user_profile: number;
+  name?: string;
+  lastname?: string;
+  subscription?: 'FREE' | 'PREMIUM';
+  tokens?: number;
+};
 
 export type RegisterRequestDTO = {
   name: string;
@@ -18,7 +30,7 @@ export type RegisterRequestDTO = {
   password: string;
   gender: string;
   locality: string;
-  birth_date: string;
+  birth_date?: string | null;
   frequency_goal: number;
 };
 

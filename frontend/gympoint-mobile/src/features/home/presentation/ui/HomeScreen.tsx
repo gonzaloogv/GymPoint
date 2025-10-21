@@ -27,7 +27,15 @@ export default function HomeScreen() {
   const { bottom } = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
 
-  const { user, weeklyGoal, currentProgress, progressPct, perm, requestLocation } =
+  const {
+    user,
+    weeklyGoal,
+    currentProgress,
+    progressPct,
+    dailyChallenge,
+    perm,
+    requestLocation,
+  } =
     useHome();
 
   const goToGyms = () => navigation.navigate('Mapa');
@@ -59,7 +67,7 @@ export default function HomeScreen() {
       />
 
       <LocationBanner visible={perm !== 'granted'} onEnable={requestLocation} />
-      <DailyChallengeCard />
+      <DailyChallengeCard challenge={dailyChallenge} />
     </Screen>
   );
 }

@@ -1,4 +1,4 @@
-const { Op, literal } = require('sequelize');
+﻿const { Op, literal } = require('sequelize');
 const { Gym, GymType, UserFavoriteGym, GymAmenity } = require('../models');
 const Joi = require('joi');
 const { NotFoundError, ValidationError } = require('../utils/errors');
@@ -64,7 +64,7 @@ const ensureGymTypesByNames = async (typeNames) => {
 
   const toCreate = names.filter((n) => !existingMap.has(n));
   if (toCreate.length > 0) {
-    // Crear de a uno para respetar índice único y evitar race simple
+    // Crear de a uno para respetar Ã­ndice Ãºnico y evitar race simple
     for (const n of toCreate) {
       const [row] = await GymType.findOrCreate({ where: { name: n }, defaults: { name: n } });
       existingMap.set(n, row);
@@ -76,8 +76,31 @@ const ensureGymTypesByNames = async (typeNames) => {
 
 const unionUnique = (a = [], b = []) => Array.from(new Set([...(a || []), ...(b || [])])).filter(Number.isInteger);
 
+const normalizeRules = (value) => {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => (typeof item === 'string' ? item.trim() : ''))
+      .filter((item) => item.length > 0);
+  }
+
+  if (typeof value === 'string') {
+    return value
+      .split(/\r?\n|,/) // admitir saltos de línea o comas
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+  }
+
+  if (value == null) {
+    return [];
+  }
+
+  throw new ValidationError('El campo rules debe ser una lista de strings');
+};
+
 const createGym = async (data) => {
   const { id_types, type_names, amenities, ...gymData } = data;
+
+  gymData.rules = normalizeRules(gymData.rules);
 
   const gym = await Gym.create(gymData);
 
@@ -104,6 +127,10 @@ const updateGym = async (id, data) => {
 
   const gym = await Gym.findByPk(id);
   if (!gym) throw new NotFoundError('Gimnasio');
+
+  if (gymData.rules !== undefined) {
+    gymData.rules = normalizeRules(gymData.rules);
+  }
 
   // actualiza los datos del gimnasio
   await gym.update(gymData);
@@ -149,11 +176,11 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
  * Calcular bounding box para pre-filtrado
  * @param {number} lat - Latitud central
  * @param {number} lng - Longitud central
- * @param {number} km - Radio en kilómetros
+ * @param {number} km - Radio en kilÃ³metros
  * @returns {Object} Bounding box {minLat, maxLat, minLng, maxLng}
  */
 const calculateBoundingBox = (lat, lng, km) => {
-  const d = km / 111; // 1 grado ≈ 111 km
+  const d = km / 111; // 1 grado â‰ˆ 111 km
   return {
     minLat: lat - d,
     maxLat: lat + d,
@@ -166,13 +193,13 @@ const calculateBoundingBox = (lat, lng, km) => {
  * Buscar gimnasios cercanos usando bounding box + Haversine
  * @param {number} lat - Latitud
  * @param {number} lng - Longitud
- * @param {number} radiusKm - Radio de búsqueda en km (default: 5)
- * @param {number} limit - Límite de resultados (default: 50)
- * @param {number} offset - Offset para paginación (default: 0)
+ * @param {number} radiusKm - Radio de bÃºsqueda en km (default: 5)
+ * @param {number} limit - LÃ­mite de resultados (default: 50)
+ * @param {number} offset - Offset para paginaciÃ³n (default: 0)
  * @returns {Promise<Array>} Gimnasios dentro del radio ordenados por distancia
  */
 const buscarGimnasiosCercanos = async (lat, lng, radiusKm = 5, limit = 50, offset = 0) => {
-  // Validar parámetros con Joi
+  // Validar parÃ¡metros con Joi
   const schema = Joi.object({
     lat: Joi.number().min(-90).max(90).required(),
     lng: Joi.number().min(-180).max(180).required(),
@@ -183,7 +210,7 @@ const buscarGimnasiosCercanos = async (lat, lng, radiusKm = 5, limit = 50, offse
 
   const { error, value } = schema.validate({ lat, lng, radiusKm, limit, offset });
   if (error) {
-    throw new ValidationError('Parámetros inválidos', error.details.map(d => ({
+    throw new ValidationError('ParÃ¡metros invÃ¡lidos', error.details.map(d => ({
       field: d.path.join('.'),
       message: d.message
     })));
@@ -194,7 +221,7 @@ const buscarGimnasiosCercanos = async (lat, lng, radiusKm = 5, limit = 50, offse
   // Paso 1: Pre-filtro con bounding box
   const bbox = calculateBoundingBox(validLat, validLng, validRadius);
 
-  // Paso 2: Expresión Haversine para calcular distancia exacta
+  // Paso 2: ExpresiÃ³n Haversine para calcular distancia exacta
   const distanceExpr = literal(`
     6371 * 2 * ASIN(SQRT(
       POWER(SIN(RADIANS((${validLat}) - latitude) / 2), 2) +
@@ -278,7 +305,7 @@ const filtrarGimnasios = async ({ city, type, minPrice, maxPrice, amenities }) =
     if (filtrados.length === 0) {
       advertencia = 'No se encontraron gimnasios con todas las amenidades solicitadas.';
     } else if (filtrados.length < resultados.length) {
-      advertencia = 'Se filtraron gimnasios que no cumplían todas las amenidades solicitadas.';
+      advertencia = 'Se filtraron gimnasios que no cumplÃ­an todas las amenidades solicitadas.';
     }
   }
 
@@ -358,3 +385,6 @@ module.exports = {
   toggleFavorito,
   listarAmenidades
 };
+
+
+

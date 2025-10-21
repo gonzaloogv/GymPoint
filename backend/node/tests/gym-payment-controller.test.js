@@ -7,7 +7,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('registrarPago', () => {
   it('creates payment', async () => {
-    const req = { user:{ id:1 }, body:{ id_gym:1,mount:10,payment_method:'cash',payment_date:'d',status:'OK' } };
+    const req = { user:{ id_user_profile:1 }, body:{ id_gym:1,mount:10,payment_method:'cash',payment_date:'d',status:'OK' } };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.registrarPago.mockResolvedValue('p');
 
@@ -19,19 +19,25 @@ describe('registrarPago', () => {
   });
 
   it('validates body fields', async () => {
-    const req = { user:{ id:1 }, body:{} };
+    const req = { user:{ id_user_profile:1 }, body:{} };
     const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
 
     await controller.registrarPago(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      error: {
+        code: 'MISSING_FIELDS',
+        message: 'Faltan datos requeridos: id_gym, mount, payment_method, payment_date, status'
+      }
+    });
     expect(service.registrarPago).not.toHaveBeenCalled();
   });
 });
 
 describe('obtenerPagosPorUsuario', () => {
   it('returns list', async () => {
-    const req = { user:{ id:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
+    const req = { user:{ id_user_profile:1 } }; const res = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     service.obtenerPagosPorUsuario.mockResolvedValue(['p']);
 
     await controller.obtenerPagosPorUsuario(req, res);
@@ -61,6 +67,12 @@ describe('actualizarEstadoPago', () => {
     await controller.actualizarEstadoPago(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      error: {
+        code: 'MISSING_STATUS',
+        message: 'Falta el campo "status".'
+      }
+    });
     expect(service.actualizarEstadoPago).not.toHaveBeenCalled();
   });
 

@@ -1,4 +1,4 @@
-import { Gym } from '@/domain';
+﻿import { Gym } from '@/domain';
 import Badge from './Badge';
 import Button from './Button';
 import Card from './Card';
@@ -41,7 +41,19 @@ export const GymCard = ({
         </div>
 
         {gym.description && (
-          <p className="mb-4 flex-grow text-sm text-text-muted">{gym.description}</p>
+          <p className="mb-4 text-sm text-text-muted">{gym.description}</p>
+        )}
+        {Array.isArray(gym.rules) && gym.rules.length > 0 && (
+          <div className="mb-4 rounded-lg bg-bg p-3 text-sm text-text dark:bg-bg-dark dark:text-text-dark">
+            <span className="block font-semibold text-text-muted">Reglas de convivencia</span>
+            <ul className="mt-2 space-y-1 list-disc pl-4">
+              {gym.rules.map((rule, index) => (
+                <li key={`${rule}-${index}`} className="leading-relaxed text-text dark:text-text-dark">
+                  {rule}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
 
         <div className="mb-4 flex flex-col gap-2 border-y border-border py-4 text-sm text-text dark:border-border-dark dark:text-text-dark">
@@ -153,3 +165,4 @@ export const GymCard = ({
     </Card>
   );
 };
+

@@ -28,9 +28,11 @@
 | `created_by` | Admin que lo creó manualmente (opcional). |
 
 ### `daily_challenge_template`
-- Contiene datos base (título, tipo, objetivo, tokens, dificultad).
-- `rotation_weight` >= 0 determina el peso al elegirlo en la rotación.
-- `is_active` controla si participa del sorteo automático.
+- **Catálogo de retos reutilizables.** La rotación automática nunca inventa un reto “de la nada”: cada madrugada toma una de estas plantillas y clona sus datos en `daily_challenge`.
+- Se pueden preparar tantas plantillas como se desee con distintos objetivos, recompensas y dificultades.
+- `rotation_weight` (>= 0) define la frecuencia relativa. Un peso 2 aparecerá el doble de veces que otro peso 1.
+- `is_active` = `false` excluye la plantilla del sorteo sin borrarla.
+- `created_by` guarda al admin que la registró (opcional), útil para auditoría.
 
 ### `daily_challenge_settings`
 - Solo una fila (`id_config = 1`).
@@ -96,11 +98,25 @@ Disponible como pestaña **Daily Challenges**.
 ---
 
 ## Flujo típico
-1. **Crear plantillas** con peso de rotación e `is_active = true`.
-2. **Verificar configuración** (`auto_rotation_enabled = true`).
-3. **Job diario** genera reto si no existe manual.
-4. **Reto especial**: crear manualmente para fecha específica; rotación respetará ese reto.
-5. **Usuario app** reporta progreso; al completar, se otorgan tokens y notificación.
+1. **Armar la biblioteca**  
+   El equipo admin crea varias plantillas acordes a los objetivos del negocio, ajusta `rotation_weight` y mantiene solo las necesarias activas.
+2. **Configurar la rotación**  
+   En `daily_challenge_settings` se deja `auto_rotation_enabled = true` y se define la hora. El job cron se encargará del resto.
+3. **Generación diaria**  
+   A las 00:01 UTC `ensureTodayChallenge()` verifica si ya existe un reto para hoy. Si no, elige una plantilla activa, la copia a `daily_challenge` y marca `auto_generated = true`.
+4. **Desafíos manuales (one-shot o override)**  
+   Si se necesita un reto puntual (por ejemplo, una campaña especial), se crea vía admin UI/API con fecha específica. Ese registro bloquea la rotación para ese día: la plantilla no se usa y el reto manual toma prioridad. Además, se pueden activar/desactivar manualmente en cualquier momento.
+5. **Participación del usuario**  
+   La app móvil consulta `/api/challenges/today`, muestra el reto vigente y permite enviar progreso. Al completarlo, se emite el movimiento de tokens y la notificación correspondiente.
+
+---
+
+## Desafíos manuales en detalle
+- **Uso principal:** campañas, eventos o correcciones puntuales que no deberían depender de la rotación (ej. “Happy Hour de viernes”).
+- **Creación:** desde la pantalla admin (formulario “Crear desafío manual”) o `POST /api/admin/daily-challenges` indicando `challenge_date`.
+- **Prioridad:** si existe un registro para una fecha determinada, el job lo respeta y no genera otra entrada automática para ese día. Puede convivir con retos auto-generados en fechas distintas.
+- **Gestión:** se pueden activar/desactivar, editar o eliminar mientras ningún usuario haya registrado progreso (la API bloquea el borrado si hay filas en `user_daily_challenge`).
+- **Campo `created_by`:** permite saber quién lo cargó y distinguirlos de los automáticos (`auto_generated = false`).
 
 ---
 
@@ -129,4 +145,3 @@ Disponible como pestaña **Daily Challenges**.
   - Navbar/App updates (`Navbar.tsx`, `App.jsx`)
 
 Con esto deberías tener una referencia completa del funcionamiento del sistema de Daily Challenges.
-

@@ -8,3 +8,4 @@ export * from './Reviews';
 export * from './RoutineTemplates';
 export * from './Exercises';
 export * from './DailyChallenges';
+export * from './Achievements';
