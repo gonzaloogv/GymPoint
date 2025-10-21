@@ -71,29 +71,6 @@ const UserProfile = sequelize.define('UserProfile', {
     defaultValue: 0,
     comment: 'Tokens acumulados'
   },
-  premium_since: {
-    type: DataTypes.DATEONLY,
-    allowNull: true
-  },
-  premium_expires: {
-    type: DataTypes.DATEONLY,
-    allowNull: true
-  },
-  onboarding_completed: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false
-  },
-  preferred_language: {
-    type: DataTypes.STRING(5),
-    allowNull: false,
-    defaultValue: 'es'
-  },
-  timezone: {
-    type: DataTypes.STRING(50),
-    allowNull: false,
-    defaultValue: 'America/Argentina/Buenos_Aires'
-  },
   id_streak: {
     type: DataTypes.INTEGER,
     allowNull: true,
@@ -101,23 +78,33 @@ const UserProfile = sequelize.define('UserProfile', {
   },
   profile_picture_url: {
     type: DataTypes.STRING(500),
-    allowNull: true
+    allowNull: true,
+    comment: 'URL de la foto de perfil'
   }
 }, {
   tableName: 'user_profiles',
   timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at',
+  paranoid: true,
+  deletedAt: 'deleted_at',
   indexes: [
     {
       unique: true,
-      fields: ['id_account']
+      fields: ['id_account'],
+      name: 'idx_user_profiles_account'
     },
     {
-      fields: ['subscription']
+      fields: ['subscription'],
+      name: 'idx_user_profiles_subscription'
     },
     {
-      fields: ['tokens']
+      fields: ['tokens'],
+      name: 'idx_user_profiles_tokens'
+    },
+    {
+      fields: ['deleted_at'],
+      name: 'idx_user_profiles_deleted'
     }
   ]
 });

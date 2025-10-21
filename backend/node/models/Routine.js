@@ -7,43 +7,42 @@ const Routine = sequelize.define('Routine', {
     autoIncrement: true,
     primaryKey: true
   },
-  routine_name: {
+  name: {
     type: DataTypes.STRING(100),
-    allowNull: false
+    allowNull: false,
+    comment: 'Nombre de la rutina'
   },
   description: {
-    type: DataTypes.STRING(500),
-    allowNull: true
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: 'Descripción de la rutina'
   },
-  created_by: {  // antes: id_user
+  created_by: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
+    comment: 'Usuario creador (NULL = rutina del sistema)'
   },
   is_template: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: false
+    defaultValue: false,
+    comment: 'Si es una rutina template predefinida'
+  },
+  classification: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+    comment: 'Clasificación de la rutina'
   },
   recommended_for: {
     type: DataTypes.ENUM('BEGINNER', 'INTERMEDIATE', 'ADVANCED'),
-    allowNull: true
+    allowNull: true,
+    comment: 'Nivel recomendado'
   },
   template_order: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 0
-  },
-  category: {
-    type: DataTypes.ENUM('STRENGTH', 'CARDIO', 'FLEXIBILITY', 'HIIT', 'FUNCTIONAL', 'MIXED'),
-    allowNull: true
-  },
-  target_goal: {
-    type: DataTypes.ENUM('MUSCLE_GAIN', 'WEIGHT_LOSS', 'ENDURANCE', 'DEFINITION', 'GENERAL_FITNESS'),
-    allowNull: true
-  },
-  equipment_level: {
-    type: DataTypes.ENUM('NO_EQUIPMENT', 'BASIC', 'FULL_GYM'),
-    allowNull: true
+    defaultValue: 0,
+    comment: 'Orden de visualización en templates'
   }
 }, {
   tableName: 'routine',
@@ -51,19 +50,23 @@ const Routine = sequelize.define('Routine', {
   paranoid: true,
   deletedAt: 'deleted_at',
   createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  updatedAt: 'updated_at',
+  indexes: [
+    {
+      fields: ['is_template', 'template_order'],
+      name: 'idx_routine_template'
+    },
+    {
+      fields: ['created_by'],
+      name: 'idx_routine_created_by'
+    },
+    {
+      fields: ['deleted_at'],
+      name: 'idx_routine_deleted'
+    }
+  ]
 });
 
 module.exports = Routine;
 
-// Relaciones con ejercicios
-const Exercise = require('./Exercise');
-const RoutineExercise = require('./RoutineExercise');
-
-Routine.belongsToMany(Exercise, {
-  through: RoutineExercise,
-  foreignKey: 'id_routine',
-  otherKey: 'id_exercise'
-});
-
-// Asociaciones definidas en models/index.js
+// Las asociaciones se definen en index.js para evitar referencias circulares

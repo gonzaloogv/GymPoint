@@ -190,10 +190,10 @@ const registrarPresencia = async (req, res) => {
             feature: 'Auto Check-in',
             description: 'Registra tu asistencia automáticamente al permanecer 10 minutos en el gym',
             benefits: [
-              '✅ Check-in automático',
-              '✅ Sin olvidar registrar asistencia',
-              '✅ Tracking en tiempo real',
-              '✅ Notificaciones cuando estés listo'
+              ' Check-in automático',
+              ' Sin olvidar registrar asistencia',
+              ' Tracking en tiempo real',
+              ' Notificaciones cuando estés listo'
             ]
           }
         }

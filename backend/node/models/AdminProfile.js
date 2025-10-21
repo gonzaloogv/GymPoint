@@ -54,7 +54,8 @@ const AdminProfile = sequelize.define('AdminProfile', {
   indexes: [
     {
       unique: true,
-      fields: ['id_account']
+      fields: ['id_account'],
+      name: 'idx_admin_profiles_account'
     }
   ]
 });

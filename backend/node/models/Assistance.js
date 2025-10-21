@@ -7,63 +7,81 @@ const Assistance = sequelize.define('Assistance', {
     autoIncrement: true,
     primaryKey: true
   },
-  id_user: {
+  id_user_profile: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    comment: 'Referencia al perfil de usuario'
+  },
+  id_gym: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    comment: 'Gimnasio donde se realizó la asistencia'
+  },
+  id_streak: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    comment: 'Racha asociada a esta asistencia'
   },
   date: {
     type: DataTypes.DATEONLY,
-    allowNull: false
-  },
-  // @deprecated - Usar check_in_time en su lugar. Campo mantenido temporalmente por compatibilidad
-  hour: {
-    type: DataTypes.TIME,
     allowNull: false,
-    comment: 'DEPRECATED: Usar check_in_time. Se eliminará en futuras versiones'
+    comment: 'Fecha de la asistencia'
   },
   check_in_time: {
     type: DataTypes.TIME,
-    allowNull: false,  // Ahora es NOT NULL después de la migración
-    comment: 'Hora de check-in (campo principal, reemplaza a hour)'
+    allowNull: false,
+    comment: 'Hora de entrada'
   },
   check_out_time: {
     type: DataTypes.TIME,
-    allowNull: true
+    allowNull: true,
+    comment: 'Hora de salida'
   },
   duration_minutes: {
     type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  distance_meters: {
-    type: DataTypes.DECIMAL(6, 2),
-    allowNull: true
+    allowNull: true,
+    comment: 'Duración en minutos'
   },
   auto_checkin: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: false
+    defaultValue: false,
+    comment: 'Si fue auto check-in por geofence'
   },
-  id_gym: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  id_streak: {
-    type: DataTypes.INTEGER,
-    allowNull: false
+  distance_meters: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: true,
+    comment: 'Distancia en metros al momento del check-in'
   },
   verified: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: false
-  },
-  created_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
+    defaultValue: false,
+    comment: 'Si la asistencia fue verificada'
   }
 }, {
   tableName: 'assistance',
-  timestamps: false
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: false,
+  indexes: [
+    {
+      fields: ['id_user_profile', 'date'],
+      name: 'idx_assistance_user_date'
+    },
+    {
+      fields: ['id_gym', 'date'],
+      name: 'idx_assistance_gym_date'
+    },
+    {
+      fields: ['auto_checkin', 'date'],
+      name: 'idx_assistance_auto_date'
+    },
+    {
+      fields: ['duration_minutes'],
+      name: 'idx_assistance_duration'
+    }
+  ]
 });
 
 module.exports = Assistance;

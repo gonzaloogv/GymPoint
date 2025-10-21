@@ -35,7 +35,10 @@ const UserDailyChallenge = sequelize.define('UserDailyChallenge', {
   tableName: 'user_daily_challenge',
   timestamps: false,
   indexes: [
-    { fields: ['id_user_profile', 'completed', 'completed_at'], name: 'idx_completed' }
+    {
+      fields: ['id_user_profile', 'completed', 'completed_at'],
+      name: 'idx_user_daily_challenge_completed'
+    }
   ]
 });
 

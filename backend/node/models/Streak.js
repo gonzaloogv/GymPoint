@@ -7,39 +7,66 @@ const Streak = sequelize.define('Streak', {
     autoIncrement: true,
     primaryKey: true
   },
-  id_user: {
+  id_user_profile: {
     type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  value: {
-    type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    comment: 'Usuario al que pertenece la racha'
   },
   id_frequency: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    comment: 'Frecuencia asociada'
+  },
+  value: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+    comment: 'Racha actual (días consecutivos)'
   },
   last_value: {
     type: DataTypes.INTEGER,
-    defaultValue: 0
+    allowNull: false,
+    defaultValue: 0,
+    comment: 'Última racha (antes de perderla)'
+  },
+  max_value: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+    comment: 'Racha máxima histórica'
   },
   recovery_items: {
     type: DataTypes.INTEGER,
-    defaultValue: 0
-  },
-  created_at: {
-    type: DataTypes.DATE,
     allowNull: false,
-    defaultValue: DataTypes.NOW
+    defaultValue: 0,
+    comment: 'Ítems de recuperación de racha disponibles'
   },
-  updated_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
+  last_assistance_date: {
+    type: DataTypes.DATEONLY,
+    allowNull: true,
+    comment: 'Fecha de la última asistencia'
   }
 }, {
   tableName: 'streak',
-  timestamps: false
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  indexes: [
+    {
+      fields: ['id_user_profile'],
+      name: 'idx_streak_user'
+    },
+    {
+      fields: ['id_frequency'],
+      name: 'idx_streak_frequency'
+    },
+    {
+      fields: ['value'],
+      name: 'idx_streak_value'
+    }
+  ]
 });
 
 module.exports = Streak;
+
+// Las asociaciones se definen en index.js para evitar referencias circulares

@@ -23,17 +23,17 @@ export const Gyms = () => {
   const handleApiError = (error: any, context: string) => {
     const errorMessage = error.response?.data?.error?.message || 'OcurriÃ³ un error inesperado';
     console.error(`Error en ${context}:`, error);
-    alert(`âŒ Error en ${context}: ${errorMessage}`);
+    alert(`Error en ${context}: ${errorMessage}`);
   };
 
   const handleSubmit = async (data: CreateGymDTO | UpdateGymDTO) => {
     try {
       if (editingGym) {
         await updateGymMutation.mutateAsync(data as UpdateGymDTO);
-        alert('âœ… Gimnasio actualizado exitosamente');
+        alert(' Gimnasio actualizado exitosamente');
       } else {
         await createGymMutation.mutateAsync(data as CreateGymDTO);
-        alert('âœ… Gimnasio creado exitosamente');
+        alert(' Gimnasio creado exitosamente');
       }
       setShowForm(false);
       setEditingGym(null);
@@ -48,12 +48,12 @@ export const Gyms = () => {
   };
 
   const handleDelete = async (id: number, name: string) => {
-    if (window.confirm(`Â¿EstÃ¡s seguro de que deseas eliminar "${name}"?`)) {
+    if (window.confirm(`¿Estas seguro de que deseas eliminar "${name}"?`)) {
       try {
         await deleteGymMutation.mutateAsync(id);
-        alert('âœ… Gimnasio eliminado exitosamente');
+        alert(' Gimnasio eliminado exitosamente');
       } catch (error) {
-        handleApiError(error, 'eliminaciÃ³n');
+        handleApiError(error, 'eliminacion');
       }
     }
   };
@@ -86,7 +86,7 @@ export const Gyms = () => {
   if (isError) {
     return (
       <div className="p-6 text-center text-red-500">
-        <p>âŒ Error al cargar los gimnasios.</p>
+        <p> Error al cargar los gimnasios.</p>
         <p className="text-sm text-text-muted">{error.message}</p>
       </div>
     );

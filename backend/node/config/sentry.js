@@ -2,12 +2,6 @@ const Sentry = require('@sentry/node');
 
 /**
  * Configuración de Sentry para monitoring y error tracking
- * 
- * Para obtener tu DSN:
- * 1. Crear cuenta en https://sentry.io
- * 2. Crear proyecto Node.js
- * 3. Copiar el DSN
- * 4. Agregar SENTRY_DSN a .env
  */
 
 const initSentry = (app) => {
@@ -16,7 +10,7 @@ const initSentry = (app) => {
 
   // Solo inicializar en producción o si hay DSN configurado
   if (!sentryDsn || sentryDsn === 'your-sentry-dsn-here') {
-    console.log('📊 Sentry no configurado (modo development)');
+    console.log(' Sentry no configurado (modo development)');
     return false;
   }
 
@@ -51,10 +45,10 @@ const initSentry = (app) => {
       }
     });
 
-    console.log('✅ Sentry inicializado correctamente');
+    console.log(' Sentry inicializado correctamente');
     return true;
   } catch (error) {
-    console.error('❌ Error al inicializar Sentry:', error.message);
+    console.error(' Error al inicializar Sentry:', error.message);
     return false;
   }
 };

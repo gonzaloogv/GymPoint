@@ -8,8 +8,9 @@ const Media = sequelize.define('Media', {
     autoIncrement: true
   },
   entity_type: {
-    type: DataTypes.ENUM('USER_PROFILE', 'GYM', 'EXERCISE', 'PROGRESS'),
-    allowNull: false
+    type: DataTypes.ENUM('USER_PROFILE', 'GYM', 'EXERCISE', 'PROGRESS', 'REVIEW'),
+    allowNull: false,
+    comment: 'Tipo de entidad a la que pertenece'
   },
   entity_id: {
     type: DataTypes.INTEGER,

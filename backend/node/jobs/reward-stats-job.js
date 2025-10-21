@@ -11,7 +11,7 @@ let isRunning = false;
 
 const runRewardStatsJob = async () => {
   if (isRunning) {
-    console.log('⏭️ Job reward-stats ya en ejecución, saltando...');
+    console.log(' Job reward-stats ya en ejecución, saltando...');
     return;
   }
   
@@ -21,15 +21,15 @@ const runRewardStatsJob = async () => {
     const now = new Date();
     const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
     
-    console.log(`🔄 [${now.toISOString()}] Ejecutando reward-stats-job...`);
+    console.log(` [${now.toISOString()}] Ejecutando reward-stats-job...`);
     console.log(`   Ventana: ${tenMinutesAgo.toISOString()} → ${now.toISOString()}`);
     
     await rewardStatsService.runDailyUpsert(tenMinutesAgo, now);
     
-    console.log(`✅ [${now.toISOString()}] reward-stats-job completado`);
+    console.log(` [${now.toISOString()}] reward-stats-job completado`);
     
   } catch (error) {
-    console.error(`❌ [${new Date().toISOString()}] Error en reward-stats-job:`, error.message);
+    console.error(` [${new Date().toISOString()}] Error en reward-stats-job:`, error.message);
     console.error(error.stack);
   } finally {
     isRunning = false;
@@ -41,7 +41,7 @@ const runRewardStatsJob = async () => {
  * @param {number} intervalMs - Intervalo en milisegundos (default: 5 minutos)
  */
 const startRewardStatsJob = (intervalMs = 5 * 60 * 1000) => {
-  console.log(`🚀 Iniciando reward-stats-job (cada ${intervalMs / 1000}s)`);
+  console.log(` Iniciando reward-stats-job (cada ${intervalMs / 1000}s)`);
   
   // Ejecutar inmediatamente al iniciar (opcional)
   // runRewardStatsJob();
@@ -51,13 +51,13 @@ const startRewardStatsJob = (intervalMs = 5 * 60 * 1000) => {
   
   // Manejar cierre graceful
   process.on('SIGINT', () => {
-    console.log('\n🔄 Deteniendo reward-stats-job...');
+    console.log('\n Deteniendo reward-stats-job...');
     clearInterval(interval);
     process.exit(0);
   });
   
   process.on('SIGTERM', () => {
-    console.log('\n🛑 Deteniendo reward-stats-job...');
+    console.log('\n Deteniendo reward-stats-job...');
     clearInterval(interval);
     process.exit(0);
   });

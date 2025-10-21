@@ -2,43 +2,54 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const GymSpecialSchedule = sequelize.define('GymSpecialSchedule', {
-  id_special: {
+  id_special_schedule: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
   id_gym: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    comment: 'Referencia al gimnasio'
   },
   date: {
     type: DataTypes.DATEONLY,
-    allowNull: false
+    allowNull: false,
+    comment: 'Fecha específica (feriados, eventos especiales)'
   },
-  opening_time: {
+  open_time: {
     type: DataTypes.TIME,
-    allowNull: true
+    allowNull: true,
+    comment: 'Hora de apertura especial'
   },
-  closing_time: {
+  close_time: {
     type: DataTypes.TIME,
-    allowNull: true
+    allowNull: true,
+    comment: 'Hora de cierre especial'
   },
-  closed: {
+  is_closed: {
     type: DataTypes.BOOLEAN,
-    allowNull: false
+    allowNull: false,
+    defaultValue: false,
+    comment: 'Si está cerrado ese día'
   },
-  motive: {
-    type: DataTypes.STRING(100),
-    allowNull: true
+  reason: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    comment: 'Razón del horario especial'
   }
 }, {
   tableName: 'gym_special_schedule',
-  timestamps: false
+  timestamps: false,
+  indexes: [
+    {
+      unique: true,
+      fields: ['id_gym', 'date'],
+      name: 'idx_gym_special_schedule_gym_date'
+    }
+  ]
 });
 
 module.exports = GymSpecialSchedule;
 
-const Gym = require('./Gym');
-GymSpecialSchedule.belongsTo(Gym, { 
-    foreignKey: 'id_gym' 
-});
+// Las asociaciones se definen en index.js para evitar referencias circulares

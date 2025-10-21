@@ -41,14 +41,14 @@ export const GymSpecialScheduleManager = ({ id_gym, gymName }: GymSpecialSchedul
     try {
       if (editingSchedule) {
         await updateMutation.mutateAsync({ id_special_schedule: editingSchedule.id_special_schedule, ...formData });
-        alert('✅ Horario especial actualizado exitosamente');
+        alert(' Horario especial actualizado exitosamente');
       } else {
         await createMutation.mutateAsync(formData);
-        alert('✅ Horario especial creado exitosamente');
+        alert(' Horario especial creado exitosamente');
       }
       handleCancel();
     } catch (err: any) {
-      alert(`❌ Error: ${err.response?.data?.error?.message || err.message}`);
+      alert(` Error: ${err.response?.data?.error?.message || err.message}`);
     }
   };
 
@@ -69,9 +69,9 @@ export const GymSpecialScheduleManager = ({ id_gym, gymName }: GymSpecialSchedul
     if (window.confirm(`¿Eliminar horario especial del ${schedule.date}?\n\nMotivo: ${schedule.motive}`)) {
       try {
         await deleteMutation.mutateAsync({ id: schedule.id_special_schedule, id_gym });
-        alert('✅ Horario especial eliminado exitosamente');
+        alert(' Horario especial eliminado exitosamente');
       } catch (err: any) {
-        alert(`❌ Error al eliminar: ${err.response?.data?.error?.message || err.message}`);
+        alert(` Error al eliminar: ${err.response?.data?.error?.message || err.message}`);
       }
     }
   };

@@ -9,58 +9,67 @@ const Exercise = sequelize.define('Exercise', {
   },
   exercise_name: {
     type: DataTypes.STRING(100),
-    allowNull: false
+    allowNull: false,
+    comment: 'Nombre del ejercicio'
   },
   muscular_group: {
     type: DataTypes.STRING(100),
-    allowNull: false
+    allowNull: false,
+    comment: 'Grupo muscular principal'
+  },
+  secondary_muscles: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    comment: 'Músculos secundarios trabajados (array)'
   },
   description: {
     type: DataTypes.TEXT,
-    allowNull: true
+    allowNull: true,
+    comment: 'Descripción del ejercicio'
   },
   equipment_needed: {
-    type: DataTypes.STRING(255),
-    allowNull: true
+    type: DataTypes.JSON,
+    allowNull: true,
+    comment: 'Equipamiento necesario (array)'
   },
-  difficulty: {
-    type: DataTypes.STRING(50),
-    allowNull: true
-  },
-  instructions: {
-    type: DataTypes.TEXT,
-    allowNull: true
+  difficulty_level: {
+    type: DataTypes.ENUM('BEGINNER', 'INTERMEDIATE', 'ADVANCED'),
+    allowNull: true,
+    comment: 'Nivel de dificultad'
   },
   video_url: {
-    type: DataTypes.STRING(255),
-    allowNull: true
+    type: DataTypes.STRING(500),
+    allowNull: true,
+    comment: 'URL del video instructivo'
   },
   created_by: {
     type: DataTypes.INTEGER,
-    allowNull: true, // NULL = ejercicio del sistema
-    references: {
-      model: 'user_profiles',
-      key: 'id_user_profile'
-    }
+    allowNull: true,
+    comment: 'Usuario creador (NULL = ejercicio del sistema)'
   }
 }, {
   tableName: 'exercise',
-  timestamps: false
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  paranoid: true,
+  deletedAt: 'deleted_at',
+  indexes: [
+    {
+      fields: ['muscular_group'],
+      name: 'idx_exercise_muscle_group'
+    },
+    {
+      fields: ['difficulty_level'],
+      name: 'idx_exercise_difficulty'
+    },
+    {
+      fields: ['deleted_at'],
+      name: 'idx_exercise_deleted'
+    }
+  ]
 });
 
 module.exports = Exercise;
-const Routine = require('./Routine');
-const RoutineExercise = require('./RoutineExercise');
-Exercise.belongsToMany(Routine, {
-  through: RoutineExercise,
-  foreignKey: 'id_exercise',
-  otherKey: 'id_routine'
-});
 
-const Progress = require('./Progress');
-const ProgressExercise = require('./ProgressExercise');
-Exercise.belongsToMany(Progress, {
-    through: ProgressExercise,
-    foreignKey: 'id_exercise',
-    otherKey: 'id_progress'
-  });
+// Las asociaciones se definen en index.js para evitar referencias circulares

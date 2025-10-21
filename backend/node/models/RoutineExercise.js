@@ -2,35 +2,62 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const RoutineExercise = sequelize.define('RoutineExercise', {
-  id_routine: {
+  id_routine_exercise: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  id_routine_day: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    primaryKey: true
+    comment: 'Día de la rutina'
   },
   id_exercise: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    primaryKey: true
+    comment: 'Ejercicio asignado'
   },
-  series: {
-    type: DataTypes.TINYINT,
-    allowNull: false
+  exercise_order: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+    comment: 'Orden del ejercicio en el día'
+  },
+  sets: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    comment: 'Número de series sugeridas'
   },
   reps: {
-    type: DataTypes.TINYINT,
-    allowNull: false
-  },
-  order: {
-    type: DataTypes.TINYINT,
-    allowNull: false
-  },
-  id_routine_day: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
+    comment: 'Número de repeticiones sugeridas'
+  },
+  rest_seconds: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    comment: 'Descanso entre series en segundos'
+  },
+  notes: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: 'Notas adicionales del ejercicio'
   }
 }, {
   tableName: 'routine_exercise',
-  timestamps: false
+  timestamps: false,
+  indexes: [
+    {
+      fields: ['id_routine_day', 'exercise_order'],
+      name: 'idx_routine_exercise_day_order'
+    },
+    {
+      fields: ['id_exercise'],
+      name: 'idx_routine_exercise_exercise'
+    }
+  ]
 });
 
 module.exports = RoutineExercise;
+
+// Las asociaciones se definen en index.js para evitar referencias circulares

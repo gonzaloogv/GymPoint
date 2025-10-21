@@ -4,28 +4,51 @@ const sequelize = require('../config/database');
 const Progress = sequelize.define('Progress', {
   id_progress: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
-  id_user: {
+  id_user_profile: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'user_profiles',
+      key: 'id_user_profile'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
   date: {
     type: DataTypes.DATEONLY,
     allowNull: false
   },
-  body_weight: {
+  total_weight_lifted: {
+    type: DataTypes.DECIMAL(12, 2),
+    allowNull: true
+  },
+  total_reps: {
     type: DataTypes.INTEGER,
     allowNull: true
   },
-  body_fat: {
-    type: DataTypes.TINYINT,
+  total_sets: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  notes: {
+    type: DataTypes.TEXT,
     allowNull: true
   }
 }, {
   tableName: 'progress',
-  timestamps: false
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: false,
+  indexes: [
+    {
+      unique: true,
+      fields: ['id_user_profile', 'date'],
+      name: 'idx_progress_user_date'
+    }
+  ]
 });
 
 const Exercise = require('./Exercise');

@@ -7,51 +7,49 @@ const Frequency = sequelize.define('Frequency', {
         autoIncrement: true,
         primaryKey: true
     },
-    id_user: {
+    id_user_profile: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        comment: 'Usuario al que pertenece la frecuencia'
     },
     goal: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 3,
+        comment: 'Meta de asistencias por semana'
     },
     assist: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 0
+        defaultValue: 0,
+        comment: 'Asistencias en la semana actual'
     },
     achieved_goal: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: false
+        defaultValue: 0,
+        comment: 'Cantidad de semanas con meta cumplida'
     },
     week_start_date: {
         type: DataTypes.DATEONLY,
-        allowNull: false
-    },
-    week_number: {
-        type: DataTypes.TINYINT,
-        allowNull: false
-    },
-    year: {
-        type: DataTypes.SMALLINT,
-        allowNull: false
-    },
-    created_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
-    },
-    updated_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
+        allowNull: true,
+        comment: 'Fecha de inicio de la semana actual'
     }
 }, {
   tableName: 'frequency',
   timestamps: true,
   createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  updatedAt: 'updated_at',
+  indexes: [
+    {
+      fields: ['id_user_profile'],
+      name: 'idx_frequency_user'
+    },
+    {
+      fields: ['week_start_date'],
+      name: 'idx_frequency_week'
+    }
+  ]
 });
 
 module.exports = Frequency;

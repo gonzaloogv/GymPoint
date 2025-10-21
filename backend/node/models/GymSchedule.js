@@ -9,31 +9,41 @@ const GymSchedule = sequelize.define('GymSchedule', {
   },
   id_gym: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    comment: 'Referencia al gimnasio'
   },
   day_of_week: {
-    type: DataTypes.STRING(10),
-    allowNull: false
+    type: DataTypes.TINYINT,
+    allowNull: false,
+    comment: '0=Domingo, 1=Lunes, ..., 6=Sábado'
   },
-  opening_time: {
+  open_time: {
     type: DataTypes.TIME,
-    allowNull: true
+    allowNull: false,
+    comment: 'Hora de apertura'
   },
-  closing_time: {
+  close_time: {
     type: DataTypes.TIME,
-    allowNull: true
+    allowNull: false,
+    comment: 'Hora de cierre'
   },
-  closed: {
+  is_closed: {
     type: DataTypes.BOOLEAN,
-    allowNull: false
+    allowNull: false,
+    defaultValue: false,
+    comment: 'Si está cerrado ese día'
   }
 }, {
   tableName: 'gym_schedule',
-  timestamps: false
+  timestamps: false,
+  indexes: [
+    {
+      fields: ['id_gym', 'day_of_week'],
+      name: 'idx_gym_schedule_gym_day'
+    }
+  ]
 });
 
 module.exports = GymSchedule;
-const Gym = require('./Gym');
-GymSchedule.belongsTo(Gym, { 
-    foreignKey: 'id_gym' 
-});
+
+// Las asociaciones se definen en index.js para evitar referencias circulares

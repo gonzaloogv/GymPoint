@@ -43,32 +43,26 @@ const TokenLedger = sequelize.define('TokenLedger', {
   },
   metadata: {
     type: DataTypes.JSON,
-    allowNull: true
-  },
-  expires_at: {
-    type: DataTypes.DATE,
-    allowNull: true
-  },
-  created_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
+    allowNull: true,
+    comment: 'Metadata adicional del movimiento (JSON)'
   }
 }, {
   tableName: 'token_ledger',
-  timestamps: false,
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: false,
   indexes: [
     {
       fields: ['id_user_profile', 'created_at'],
-      name: 'idx_ledger_user_date'
+      name: 'idx_token_ledger_user_date'
     },
     {
       fields: ['ref_type', 'ref_id'],
-      name: 'idx_ledger_ref'
+      name: 'idx_token_ledger_ref'
     },
     {
       fields: ['reason'],
-      name: 'idx_ledger_reason'
+      name: 'idx_token_ledger_reason'
     }
   ]
 });

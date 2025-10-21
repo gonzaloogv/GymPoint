@@ -10,72 +10,82 @@ const DailyChallenge = sequelize.define('DailyChallenge', {
   challenge_date: {
     type: DataTypes.DATEONLY,
     allowNull: false,
-    unique: true
+    unique: true,
+    comment: 'Fecha del desafío'
   },
   title: {
     type: DataTypes.STRING(100),
-    allowNull: false
+    allowNull: false,
+    comment: 'Título del desafío'
   },
   description: {
     type: DataTypes.TEXT,
-    allowNull: true
+    allowNull: true,
+    comment: 'Descripción detallada'
   },
   challenge_type: {
-    type: DataTypes.ENUM('MINUTES', 'EXERCISES', 'FREQUENCY'),
-    allowNull: false
+    type: DataTypes.ENUM('MINUTES', 'EXERCISES', 'FREQUENCY', 'SETS', 'REPS'),
+    allowNull: false,
+    comment: 'Tipo de desafío'
   },
   target_value: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    comment: 'Valor objetivo a alcanzar'
   },
   target_unit: {
     type: DataTypes.STRING(20),
-    allowNull: true
+    allowNull: true,
+    comment: 'Unidad del objetivo'
   },
   tokens_reward: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 10
+    defaultValue: 10,
+    comment: 'Tokens de recompensa'
   },
   difficulty: {
-    type: DataTypes.STRING(20),
+    type: DataTypes.ENUM('EASY', 'MEDIUM', 'HARD'),
     allowNull: false,
-    defaultValue: 'MEDIUM'
+    defaultValue: 'MEDIUM',
+    comment: 'Nivel de dificultad'
   },
   id_template: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
+    comment: 'Template usado (si es auto-generado)'
   },
   auto_generated: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: false
+    defaultValue: false,
+    comment: 'Si fue generado automáticamente'
   },
   created_by: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
+    comment: 'Admin que lo creó (NULL si auto-generado)'
   },
   is_active: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: true
-  },
-  created_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
-  },
-  updated_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
+    defaultValue: true,
+    comment: 'Si el desafío está activo'
   }
 }, {
   tableName: 'daily_challenge',
   timestamps: true,
   createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  updatedAt: 'updated_at',
+  indexes: [
+    {
+      fields: ['challenge_date', 'is_active'],
+      name: 'idx_daily_challenge_date_active'
+    }
+  ]
 });
 
 module.exports = DailyChallenge;
+
+// Las asociaciones se definen en index.js para evitar referencias circulares
 

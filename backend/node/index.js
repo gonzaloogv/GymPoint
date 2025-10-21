@@ -146,23 +146,23 @@ async function startServer() {
   
   try {
     // 1. Verificar conexión a base de datos
-    console.log('🔄 Verificando conexión a MySQL...');
+    console.log('Verificando conexión a MySQL...');
     await sequelize.authenticate();
-    console.log('✅ Conexión con MySQL establecida correctamente');
+    console.log('Conexión con MySQL establecida correctamente');
 
     // 2. Ejecutar migraciones automáticamente
-    console.log('🔄 Ejecutando migraciones...');
+    console.log('Ejecutando migraciones...');
     await runMigrations();
     
     // 3. Iniciar servidor
     app.listen(PORT, '0.0.0.0', () => {
       console.log('');
       console.log('='.repeat(50));
-      console.log(`🚀 Servidor GymPoint corriendo en puerto ${PORT}`);
-      console.log(`📚 Documentación API: http://localhost:${PORT}/api-docs`);
-      console.log(`❤️  Health check: http://localhost:${PORT}/health`);
-      console.log(`✅ Ready check: http://localhost:${PORT}/ready`);
-      console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
+      console.log(` Servidor GymPoint corriendo en puerto ${PORT}`);
+      console.log(` Documentación API: http://localhost:${PORT}/api-docs`);
+      console.log(` Health check: http://localhost:${PORT}/health`);
+      console.log(` Ready check: http://localhost:${PORT}/ready`);
+      console.log(` Entorno: ${process.env.NODE_ENV || 'development'}`);
       console.log('='.repeat(50));
       console.log('');
     });
@@ -176,7 +176,7 @@ async function startServer() {
     }
     
   } catch (error) {
-    console.error('❌ Error fatal al iniciar el servidor:', error);
+    console.error(' Error fatal al iniciar el servidor:', error);
     process.exit(1);
   }
 }
@@ -191,13 +191,13 @@ module.exports = app;
 
 // Manejo de señales para shutdown graceful
 process.on('SIGTERM', async () => {
-  console.log('⚠️  SIGTERM recibido. Cerrando conexiones...');
+  console.log('  SIGTERM recibido. Cerrando conexiones...');
   await sequelize.close();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
-  console.log('\n⚠️  SIGINT recibido. Cerrando servidor...');
+  console.log('\n  SIGINT recibido. Cerrando servidor...');
   await sequelize.close();
   process.exit(0);
 });

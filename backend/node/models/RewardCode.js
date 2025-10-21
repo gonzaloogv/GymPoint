@@ -9,44 +9,39 @@ const RewardCode = sequelize.define('RewardCode', {
   },
   id_reward: {
     type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  id_gym: {
-    type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    comment: 'Recompensa asociada al código'
   },
   code: {
     type: DataTypes.STRING(50),
-    allowNull: false
+    allowNull: false,
+    unique: true,
+    comment: 'Código único de la recompensa'
   },
-  expiration_date: {
-    type: DataTypes.DATE,
-    allowNull: true
-  },
-  used: {
+  is_used: {
     type: DataTypes.BOOLEAN,
-    allowNull: false
-  },
-  creation_date: {
-    type: DataTypes.DATE,
-    allowNull: false
+    allowNull: false,
+    defaultValue: false,
+    comment: 'Si el código ya fue usado'
   }
 }, {
   tableName: 'reward_code',
-  timestamps: false
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: false,
+  indexes: [
+    {
+      unique: true,
+      fields: ['code'],
+      name: 'idx_reward_code_code'
+    },
+    {
+      fields: ['id_reward', 'is_used'],
+      name: 'idx_reward_code_reward_used'
+    }
+  ]
 });
 
 module.exports = RewardCode;
-const Reward = require('./Reward');
-const ClaimedReward = require('./ClaimedReward');
-const Gym = require('./Gym');
 
-RewardCode.belongsTo(Reward, {
-    foreignKey: 'id_reward'
-});
-RewardCode.belongsTo(Gym, { 
-    foreignKey: 'id_gym' 
-});
-RewardCode.hasOne(ClaimedReward, {
-  foreignKey: 'id_code'
-});
+// Las asociaciones se definen en index.js para evitar referencias circulares

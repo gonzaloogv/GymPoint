@@ -9,42 +9,50 @@ const FrequencyHistory = sequelize.define('FrequencyHistory', {
   },
   id_user_profile: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    comment: 'Referencia al perfil de usuario'
   },
   week_start_date: {
     type: DataTypes.DATEONLY,
-    allowNull: false
+    allowNull: false,
+    comment: 'Inicio de la semana'
   },
   week_end_date: {
     type: DataTypes.DATEONLY,
-    allowNull: false
+    allowNull: false,
+    comment: 'Fin de la semana'
   },
   goal: {
-    type: DataTypes.TINYINT,
-    allowNull: false
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    comment: 'Meta de la semana'
   },
   achieved: {
-    type: DataTypes.TINYINT,
-    allowNull: false
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    comment: 'Asistencias logradas'
   },
   goal_met: {
     type: DataTypes.BOOLEAN,
-    allowNull: false
-  },
-  tokens_earned: {
-    type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 0
-  },
-  created_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
+    defaultValue: false,
+    comment: 'Si se cumplió la meta'
   }
 }, {
   tableName: 'frequency_history',
-  timestamps: false
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: false,
+  indexes: [
+    {
+      unique: true,
+      fields: ['id_user_profile', 'week_start_date'],
+      name: 'idx_frequency_history_user_week'
+    }
+  ]
 });
 
 module.exports = FrequencyHistory;
+
+// Las asociaciones se definen en index.js para evitar referencias circulares
 

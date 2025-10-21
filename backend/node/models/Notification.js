@@ -3,13 +3,19 @@ const sequelize = require('../config/database');
 
 const Notification = sequelize.define('Notification', {
   id_notification: {
-    type: DataTypes.BIGINT,
+    type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true
   },
   id_user_profile: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'user_profiles',
+      key: 'id_user_profile'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
   type: {
     type: DataTypes.ENUM(
@@ -19,7 +25,8 @@ const Notification = sequelize.define('Notification', {
       'GYM_UPDATE',
       'PAYMENT',
       'SOCIAL',
-      'SYSTEM'
+      'SYSTEM',
+      'CHALLENGE'
     ),
     allowNull: false
   },
@@ -31,13 +38,15 @@ const Notification = sequelize.define('Notification', {
     type: DataTypes.TEXT,
     allowNull: false
   },
-  action_url: {
-    type: DataTypes.STRING(500),
-    allowNull: true
+  data: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    comment: 'Datos adicionales (deep links, etc.)'
   },
-  icon: {
-    type: DataTypes.STRING(50),
-    allowNull: true
+  priority: {
+    type: DataTypes.ENUM('LOW', 'NORMAL', 'HIGH'),
+    allowNull: false,
+    defaultValue: 'NORMAL'
   },
   is_read: {
     type: DataTypes.BOOLEAN,
@@ -48,28 +57,35 @@ const Notification = sequelize.define('Notification', {
     type: DataTypes.DATE,
     allowNull: true
   },
-  priority: {
-    type: DataTypes.ENUM('LOW', 'NORMAL', 'HIGH'),
-    allowNull: false,
-    defaultValue: 'NORMAL'
-  },
   scheduled_for: {
     type: DataTypes.DATE,
-    allowNull: true
+    allowNull: true,
+    comment: 'Fecha programada de envío'
   },
   sent_at: {
     type: DataTypes.DATE,
-    allowNull: true
-  },
-  expires_at: {
-    type: DataTypes.DATE,
-    allowNull: true
+    allowNull: true,
+    comment: 'Fecha real de envío'
   }
 }, {
   tableName: 'notification',
   timestamps: true,
   createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  updatedAt: false,
+  indexes: [
+    {
+      fields: ['id_user_profile', 'is_read', 'created_at'],
+      name: 'idx_notification_user_read'
+    },
+    {
+      fields: ['scheduled_for', 'sent_at'],
+      name: 'idx_notification_scheduled'
+    },
+    {
+      fields: ['type'],
+      name: 'idx_notification_type'
+    }
+  ]
 });
 
 module.exports = Notification;

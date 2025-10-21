@@ -236,11 +236,11 @@ routeFiles.forEach(file => {
     const coverage = Math.round((documented / codeRoutes.length) * 100);
     
     if (coverage === 100) {
-      log(colors.green, `   ✅ 100% documentado`);
+      log(colors.green, `   100% documentado`);
     } else if (coverage >= 80) {
-      log(colors.yellow, `   ⚠️  ${coverage}% documentado (${notDocumented} ruta(s) sin documentar)`);
+      log(colors.yellow, `   ${coverage}% documentado (${notDocumented} ruta(s) sin documentar)`);
     } else {
-      log(colors.red, `   ❌ ${coverage}% documentado (${notDocumented} ruta(s) sin documentar)`);
+      log(colors.red, `   ${coverage}% documentado (${notDocumented} ruta(s) sin documentar)`);
     }
     
     console.log('');
@@ -249,7 +249,7 @@ routeFiles.forEach(file => {
 
 // Resumen
 log(colors.cyan, '='.repeat(60));
-log(colors.cyan, '\n📊 RESUMEN DE VALIDACIÓN\n');
+log(colors.cyan, '\n RESUMEN DE VALIDACIÓN\n');
 
 const coverage = totalRoutes > 0 ? Math.round((documentedRoutes / totalRoutes) * 100) : 0;
 
@@ -259,16 +259,16 @@ console.log(`Rutas sin documentar: ${undocumentedRoutes.length}`);
 console.log('');
 
 if (coverage >= 95) {
-  log(colors.green, `✅ Cobertura de documentación: ${coverage}% - EXCELENTE`);
+  log(colors.green, ` Cobertura de documentación: ${coverage}% - EXCELENTE`);
 } else if (coverage >= 80) {
-  log(colors.yellow, `⚠️  Cobertura de documentación: ${coverage}% - BUENO`);
+  log(colors.yellow, `  Cobertura de documentación: ${coverage}% - BUENO`);
 } else {
-  log(colors.red, `❌ Cobertura de documentación: ${coverage}% - NECESITA MEJORA`);
+  log(colors.red, ` Cobertura de documentación: ${coverage}% - NECESITA MEJORA`);
 }
 
 if (undocumentedRoutes.length > 0) {
   console.log('');
-  log(colors.yellow, '⚠️  Rutas sin documentación Swagger:\n');
+  log(colors.yellow, '  Rutas sin documentación Swagger:\n');
   
   // Agrupar por archivo
   const byFile = {};
@@ -288,7 +288,7 @@ if (undocumentedRoutes.length > 0) {
 
 // Problemas en bloques
 log(colors.cyan, '='.repeat(60));
-log(colors.cyan, '\n🔍 VALIDACIÓN DE BLOQUES SWAGGER\n');
+log(colors.cyan, '\n VALIDACIÓN DE BLOQUES SWAGGER\n');
 
 console.log(`Total bloques Swagger: ${totalSwaggerBlocks}`);
 console.log(`Bloques válidos: ${totalSwaggerBlocks - problemBlocks.length}`);
@@ -296,7 +296,7 @@ console.log(`Bloques con problemas: ${problemBlocks.length}`);
 
 if (problemBlocks.length > 0) {
   console.log('');
-  log(colors.yellow, '⚠️  Bloques con problemas:\n');
+  log(colors.yellow, '  Bloques con problemas:\n');
   problemBlocks.forEach(block => {
     console.log(`   ${block.file} (línea ${block.line + 1}):`);
     console.log(`      - ${block.issue}`);
@@ -305,7 +305,7 @@ if (problemBlocks.length > 0) {
 
 // Calificación final
 log(colors.cyan, '\n' + '='.repeat(60));
-log(colors.cyan, '\n⭐ CALIFICACIÓN FINAL\n');
+log(colors.cyan, '\n CALIFICACIÓN FINAL\n');
 
 let rating = 0;
 if (coverage >= 95 && problemBlocks.length === 0) rating = 100;
@@ -319,11 +319,11 @@ else rating = Math.max(coverage / 2, 30);
 rating = Math.round(rating);
 
 if (rating >= 90) {
-  log(colors.green, `Calificación: ${rating}/100 - EXCELENTE ✅`);
+  log(colors.green, `Calificación: ${rating}/100 - EXCELENTE `);
 } else if (rating >= 75) {
-  log(colors.yellow, `Calificación: ${rating}/100 - BUENO ⚠️`);
+  log(colors.yellow, `Calificación: ${rating}/100 - BUENO `);
 } else {
-  log(colors.red, `Calificación: ${rating}/100 - NECESITA MEJORA ❌`);
+  log(colors.red, `Calificación: ${rating}/100 - NECESITA MEJORA `);
 }
 
 console.log('');

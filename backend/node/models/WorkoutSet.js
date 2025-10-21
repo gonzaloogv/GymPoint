@@ -9,51 +9,71 @@ const WorkoutSet = sequelize.define('WorkoutSet', {
   },
   id_workout_session: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'workout_session',
+      key: 'id_workout_session'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
   id_exercise: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'exercise',
+      key: 'id_exercise'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
   set_number: {
-    type: DataTypes.SMALLINT,
-    allowNull: false
-  },
-  weight: {
-    type: DataTypes.DECIMAL(8, 2),
-    allowNull: true
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    comment: 'Número de serie del ejercicio'
   },
   reps: {
-    type: DataTypes.SMALLINT,
+    type: DataTypes.INTEGER,
     allowNull: true
   },
-  rpe: {
-    type: DataTypes.DECIMAL(3, 1),
+  weight_kg: {
+    type: DataTypes.DECIMAL(6, 2),
     allowNull: true
+  },
+  duration_seconds: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    comment: 'Para ejercicios de tiempo'
   },
   rest_seconds: {
     type: DataTypes.INTEGER,
     allowNull: true
   },
-  is_warmup: {
+  is_pr: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: false
+    defaultValue: false,
+    comment: 'Si es un récord personal'
   },
   notes: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.TEXT,
     allowNull: true
-  },
-  performed_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
   }
 }, {
   tableName: 'workout_set',
   timestamps: true,
   createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  updatedAt: false,
+  indexes: [
+    {
+      fields: ['id_workout_session'],
+      name: 'idx_workout_set_session'
+    },
+    {
+      fields: ['id_exercise', 'is_pr'],
+      name: 'idx_workout_set_exercise_pr'
+    }
+  ]
 });
 
 module.exports = WorkoutSet;

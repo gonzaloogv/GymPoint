@@ -7,34 +7,34 @@ const sequelize = require('./config/database');
  */
 async function runMigrations() {
   try {
-    console.log('🔄 Verificando conexión a la base de datos...');
+    console.log('Verificando conexión a la base de datos...');
     await sequelize.authenticate();
-    console.log('✅ Conexión establecida correctamente');
+    console.log('Conexión establecida correctamente');
 
-    console.log('🔄 Verificando migraciones pendientes...');
+    console.log('Verificando migraciones pendientes...');
     const pending = await migrator.pending();
     
     if (pending.length === 0) {
-      console.log('✅ No hay migraciones pendientes');
+      console.log('No hay migraciones pendientes');
       return { executed: [], pending: [] };
     }
 
-    console.log(`📋 Migraciones pendientes: ${pending.length}`);
+    console.log(`Migraciones pendientes: ${pending.length}`);
     pending.forEach(migration => {
       console.log(`   - ${migration.name}`);
     });
 
-    console.log('🔄 Ejecutando migraciones...');
+    console.log('Ejecutando migraciones...');
     const executed = await migrator.up();
-    
-    console.log('✅ Migraciones completadas exitosamente');
+
+    console.log('Migraciones completadas exitosamente');
     executed.forEach(migration => {
       console.log(`   ✓ ${migration.name}`);
     });
 
     return { executed, pending: [] };
   } catch (error) {
-    console.error('❌ Error en migraciones:', error.message);
+    console.error('Error en migraciones:', error.message);
     throw error;
   }
 }
@@ -53,7 +53,7 @@ async function checkMigrations() {
       executed: executed.map(m => m.name),
     };
   } catch (error) {
-    console.error('❌ Error al verificar migraciones:', error.message);
+    console.error('Error al verificar migraciones:', error.message);
     throw error;
   }
 }
@@ -62,11 +62,11 @@ async function checkMigrations() {
 if (require.main === module) {
   runMigrations()
     .then(() => {
-      console.log('✅ Proceso de migración finalizado');
+      console.log('Proceso de migración finalizado');
       process.exit(0);
     })
     .catch((error) => {
-      console.error('❌ Fallo en migraciones:', error);
+      console.error('Fallo en migraciones:', error);
       process.exit(1);
     });
 }

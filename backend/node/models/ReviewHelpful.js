@@ -4,6 +4,7 @@ const sequelize = require('../config/database');
 const ReviewHelpful = sequelize.define('ReviewHelpful', {
   id_review: {
     type: DataTypes.INTEGER,
+    primaryKey: true,
     allowNull: false,
     references: {
       model: 'gym_review',
@@ -14,6 +15,7 @@ const ReviewHelpful = sequelize.define('ReviewHelpful', {
   },
   id_user_profile: {
     type: DataTypes.INTEGER,
+    primaryKey: true,
     allowNull: false,
     references: {
       model: 'user_profiles',

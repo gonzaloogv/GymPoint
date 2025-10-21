@@ -2,62 +2,73 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const UserBodyMetric = sequelize.define('UserBodyMetric', {
-  id_body_metric: {
+  id_metric: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
   id_user_profile: {
     type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'user_profiles',
+      key: 'id_user_profile'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+  },
+  date: {
+    type: DataTypes.DATEONLY,
     allowNull: false
   },
-  measured_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
-  },
   weight_kg: {
-    type: DataTypes.DECIMAL(6, 2),
-    allowNull: true
-  },
-  height_cm: {
-    type: DataTypes.DECIMAL(6, 2),
-    allowNull: true
-  },
-  bmi: {
-    type: DataTypes.DECIMAL(6, 2),
-    allowNull: true
-  },
-  body_fat_percent: {
     type: DataTypes.DECIMAL(5, 2),
     allowNull: true
   },
-  muscle_mass_kg: {
-    type: DataTypes.DECIMAL(6, 2),
+  height_cm: {
+    type: DataTypes.DECIMAL(5, 2),
     allowNull: true
+  },
+  body_fat_percentage: {
+    type: DataTypes.DECIMAL(4, 2),
+    allowNull: true
+  },
+  muscle_mass_kg: {
+    type: DataTypes.DECIMAL(5, 2),
+    allowNull: true
+  },
+  bmi: {
+    type: DataTypes.DECIMAL(4, 2),
+    allowNull: true,
+    comment: 'Índice de masa corporal'
   },
   waist_cm: {
-    type: DataTypes.DECIMAL(6, 2),
+    type: DataTypes.DECIMAL(5, 2),
     allowNull: true
   },
-  hip_cm: {
-    type: DataTypes.DECIMAL(6, 2),
+  chest_cm: {
+    type: DataTypes.DECIMAL(5, 2),
+    allowNull: true
+  },
+  arms_cm: {
+    type: DataTypes.DECIMAL(5, 2),
     allowNull: true
   },
   notes: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.TEXT,
     allowNull: true
-  },
-  source: {
-    type: DataTypes.ENUM('MANUAL', 'SMART_SCALE', 'TRAINER'),
-    allowNull: false,
-    defaultValue: 'MANUAL'
   }
 }, {
   tableName: 'user_body_metrics',
   timestamps: true,
   createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  updatedAt: false,
+  indexes: [
+    {
+      fields: ['id_user_profile', 'date'],
+      name: 'idx_body_metrics_user_date'
+    }
+  ]
 });
 
 module.exports = UserBodyMetric;

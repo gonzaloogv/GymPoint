@@ -7,58 +7,86 @@ const Gym = sequelize.define('Gym', {
     autoIncrement: true,
     primaryKey: true
   },
+  id_type: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'gym_type',
+      key: 'id_type'
+    },
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+    comment: 'Tipo de gimnasio'
+  },
   name: {
-    type: DataTypes.STRING(50),
-    allowNull: false
+    type: DataTypes.STRING(100),
+    allowNull: false,
+    comment: 'Nombre del gimnasio'
   },
   description: {
     type: DataTypes.TEXT,
-    allowNull: false
+    allowNull: false,
+    comment: 'Descripción del gimnasio'
   },
   city: {
     type: DataTypes.STRING(50),
-    allowNull: false
+    allowNull: false,
+    comment: 'Ciudad'
   },
   address: {
     type: DataTypes.STRING(100),
-    allowNull: false
+    allowNull: false,
+    comment: 'Dirección física'
   },
   latitude: {
-    type: DataTypes.DECIMAL,
-    allowNull: false
+    type: DataTypes.DECIMAL(10, 8),
+    allowNull: false,
+    comment: 'Latitud geográfica'
   },
   longitude: {
-    type: DataTypes.DECIMAL,
-    allowNull: false
+    type: DataTypes.DECIMAL(11, 8),
+    allowNull: false,
+    comment: 'Longitud geográfica'
   },
   phone: {
-    type: DataTypes.STRING(50)
+    type: DataTypes.STRING(20),
+    allowNull: true,
+    comment: 'Teléfono de contacto'
   },
   whatsapp: {
     type: DataTypes.STRING(20),
-    allowNull: true
+    allowNull: true,
+    comment: 'Número de WhatsApp'
   },
   email: {
-    type: DataTypes.STRING(100)
+    type: DataTypes.STRING(100),
+    allowNull: true,
+    comment: 'Email de contacto'
   },
   website: {
-    type: DataTypes.STRING(500)
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    comment: 'Sitio web'
+  },
+  logo_url: {
+    type: DataTypes.STRING(500),
+    allowNull: true,
+    comment: 'URL del logo del gimnasio'
   },
   social_media: {
     type: DataTypes.JSON,
     allowNull: true,
-    comment: '{"instagram": "@gym", "facebook": "...", "twitter": "..."}'
-  },
-  registration_date: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
+    comment: 'Redes sociales (JSON)'
   },
   equipment: {
     type: DataTypes.JSON,
-    allowNull: false,
-    defaultValue: [],
-    comment: 'Array de equipamiento disponible'
+    allowNull: true,
+    comment: 'Equipamiento disponible (JSON)'
+  },
+  services: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    comment: 'Servicios ofrecidos (JSON)'
   },
   instagram: {
     type: DataTypes.STRING(100),
@@ -92,11 +120,19 @@ const Gym = sequelize.define('Gym', {
   },
   month_price: {
     type: DataTypes.DOUBLE,
-    allowNull: false
+    allowNull: true,
+    comment: 'Precio mensual'
   },
   week_price: {
     type: DataTypes.DOUBLE,
-    allowNull: false
+    allowNull: true,
+    comment: 'Precio semanal'
+  },
+  registration_date: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+    comment: 'Fecha de registro del gimnasio'
   },
   photo_url: {
     type: DataTypes.STRING(500),
@@ -105,88 +141,59 @@ const Gym = sequelize.define('Gym', {
   },
   rules: {
     type: DataTypes.JSON,
-    allowNull: false,
-    defaultValue: [],
-    comment: 'Listado de reglas de convivencia (array de strings)'
+    allowNull: true,
+    defaultValue: '[]',
+    comment: 'Reglas de convivencia del gimnasio'
   },
   auto_checkin_enabled: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: true,
     comment: 'Auto check-in habilitado'
-  },
+  },  
   geofence_radius_meters: {
-      type: DataTypes.INTEGER,
-      allowNull: false, // âœ… CORREGIDO
-      defaultValue: 150, // âœ… CORREGIDO: 150m por defecto
-      comment: 'Radio de geofence en metros'
-    },
-    min_stay_minutes: {
-      type: DataTypes.INTEGER,
-      allowNull: false, // âœ… CORREGIDO
-      defaultValue: 10, // âœ… CORREGIDO: 10 min por defecto
-      comment: 'Tiempo mÃ­nimo de estadÃ­a en minutos'
-    }
+    type: DataTypes.INTEGER,
+    allowNull: false, // âœ… CORREGIDO
+    defaultValue: 150, // âœ… CORREGIDO: 150m por defecto
+    comment: 'Radio de geofence en metros'
+  },
+  min_stay_minutes: {
+    type: DataTypes.INTEGER,
+    allowNull: false, // âœ… CORREGIDO
+    defaultValue: 10, // âœ… CORREGIDO: 10 min por defecto
+    comment: 'Tiempo mi­nimo de estadi­a en minutos'
+  }
 }, {
   tableName: 'gym',
   timestamps: true,
   paranoid: true,
   deletedAt: 'deleted_at',
   createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  updatedAt: 'updated_at',
+  indexes: [
+    {
+      fields: ['city'],
+      name: 'idx_gym_city'
+    },
+    {
+      fields: ['verified', 'featured'],
+      name: 'idx_gym_verified_featured'
+    },
+    {
+      fields: ['latitude', 'longitude'],
+      name: 'idx_gym_location'
+    },
+    {
+      fields: ['deleted_at'],
+      name: 'idx_gym_deleted'
+    },
+    {
+      fields: ['instagram'],
+      name: 'idx_gym_instagram'
+    }
+  ]
 });
 
 module.exports = Gym;
 
-// RelaciÃ³n Gym - Assistance
-const Assistance = require('./Assistance');
-Gym.hasMany(Assistance, {
-  foreignKey: 'id_gym'
-});
-
-// RelaciÃ³n Gym - GymSchedule
-const GymSchedule = require('./GymSchedule');
-Gym.hasMany(GymSchedule, {
-  foreignKey: 'id_gym'
-});
-
-// RelaciÃ³n Gym - GymSpecialSchedule
-const GymSpecialSchedule = require('./GymSpecialSchedule');
-Gym.hasMany(GymSpecialSchedule, {
-  foreignKey: 'id_gym'
-});
-
-// RelaciÃ³n Gym - GymPayment
-const GymPayment = require('./GymPayment');
-Gym.hasMany(GymPayment, {
-  foreignKey: 'id_gym'
-});
-
-// RelaciÃ³n Gym - RewardCode
-const RewardCode = require('./RewardCode');
-Gym.hasMany(RewardCode, {
-  foreignKey: 'id_gym'
-});
-
-// RelaciÃ³n N:M con GymType (belongsToMany)
-const GymType = require('./GymType');
-
-Gym.belongsToMany(GymType, {
-  through: 'gym_gym_type',
-  foreignKey: 'id_gym',
-  otherKey: 'id_type',
-  timestamps: false,
-  as: 'gymTypes'
-});
-
-GymType.belongsToMany(Gym, {
-  through: 'gym_gym_type',
-  foreignKey: 'id_type',
-  otherKey: 'id_gym',
-  timestamps: false,
-  as: 'gyms'
-});
-
-
-
-
+// Las asociaciones se definen en index.js para evitar referencias circulares

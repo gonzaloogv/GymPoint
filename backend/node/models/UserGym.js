@@ -7,58 +7,36 @@ const UserGym = sequelize.define('UserGym', {
     autoIncrement: true,
     primaryKey: true
   },
-  id_user: {
+  id_user_profile: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    comment: 'Usuario suscrito al gimnasio'
   },
   id_gym: {
     type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  start_date: {
-    type: DataTypes.DATE,
-    allowNull: false
-  },
-  finish_date: {
-    type: DataTypes.DATE,
-    allowNull: true
-  },
-  active: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false
-  },
-  plan: {
-    type: DataTypes.ENUM('MENSUAL', 'SEMANAL', 'ANUAL', 'DIARIO'),
     allowNull: false,
-    defaultValue: 'MENSUAL'
+    comment: 'Gimnasio al que está suscrito'
   },
-  subscription_type: {
+  subscription_plan: {
     type: DataTypes.ENUM('MONTHLY', 'WEEKLY', 'DAILY', 'ANNUAL'),
-    allowNull: false,
-    defaultValue: 'MONTHLY'
+    allowNull: true,
+    comment: 'Tipo de plan contratado'
   },
-  auto_renew: {
+  subscription_start: {
+    type: DataTypes.DATEONLY,
+    allowNull: true,
+    comment: 'Inicio de la suscripción'
+  },
+  subscription_end: {
+    type: DataTypes.DATEONLY,
+    allowNull: true,
+    comment: 'Fin de la suscripción'
+  },
+  is_active: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: false
-  },
-  id_payment: {
-    type: DataTypes.BIGINT,
-    allowNull: true,
-    references: {
-      model: 'mercadopago_payment',
-      key: 'id_mp_payment'
-    }
-  },
-  created_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
-  },
-  updated_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
+    defaultValue: true,
+    comment: 'Si la suscripción está activa'
   }
 }, {
   tableName: 'user_gym',
@@ -68,9 +46,12 @@ const UserGym = sequelize.define('UserGym', {
   indexes: [
     {
       unique: true,
-      fields: ['id_user', 'id_gym', 'active'],
-      where: { active: true },
-      name: 'unique_active_gym'
+      fields: ['id_user_profile', 'id_gym'],
+      name: 'idx_user_gym_user_gym'
+    },
+    {
+      fields: ['is_active', 'subscription_end'],
+      name: 'idx_user_gym_active_end'
     }
   ]
 });

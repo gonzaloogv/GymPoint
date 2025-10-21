@@ -4,6 +4,7 @@ const sequelize = require('../config/database');
 const UserFavoriteGym = sequelize.define('UserFavoriteGym', {
   id_user_profile: {
     type: DataTypes.INTEGER,
+    primaryKey: true,
     allowNull: false,
     references: {
       model: 'user_profiles',
@@ -14,6 +15,7 @@ const UserFavoriteGym = sequelize.define('UserFavoriteGym', {
   },
   id_gym: {
     type: DataTypes.INTEGER,
+    primaryKey: true,
     allowNull: false,
     references: {
       model: 'gym',

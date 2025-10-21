@@ -13,7 +13,7 @@ const ADMIN_PASSWORD = 'AdminGPMitre280!';
 
 async function seedAdmin() {
   try {
-    console.log('🔍 Verificando si existe el usuario admin...');
+    console.log(' Verificando si existe el usuario admin...');
 
     // Verificar si ya existe
     const existingAdmin = await Account.findOne({
@@ -21,11 +21,11 @@ async function seedAdmin() {
     });
 
     if (existingAdmin) {
-      console.log('✅ Usuario admin ya existe:', ADMIN_EMAIL);
+      console.log(' Usuario admin ya existe:', ADMIN_EMAIL);
       return;
     }
 
-    console.log('🌱 Creando usuario admin inicial...');
+    console.log(' Creando usuario admin inicial...');
 
     // Hashear contraseña
     const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 10);
@@ -70,13 +70,13 @@ async function seedAdmin() {
       return account;
     });
 
-    console.log('✅ Usuario admin creado exitosamente!');
-    console.log('📧 Email:', ADMIN_EMAIL);
-    console.log('🔑 Password: AdminGPMitre280!');
-    console.log('⚠️  IMPORTANTE: Cambiar la contraseña en producción\n');
+    console.log(' Usuario admin creado exitosamente!');
+    console.log(' Email:', ADMIN_EMAIL);
+    console.log(' Password: AdminGPMitre280!');
+    console.log('  IMPORTANTE: Cambiar la contraseña en producción\n');
 
   } catch (error) {
-    console.error('❌ Error creando usuario admin:', error.message);
+    console.error(' Error creando usuario admin:', error.message);
     throw error;
   }
 }
@@ -85,11 +85,11 @@ async function seedAdmin() {
 if (require.main === module) {
   seedAdmin()
     .then(() => {
-      console.log('🎉 Seed completado');
+      console.log(' Seed completado');
       process.exit(0);
     })
     .catch(err => {
-      console.error('💥 Error en seed:', err);
+      console.error(' Error en seed:', err);
       process.exit(1);
     });
 }

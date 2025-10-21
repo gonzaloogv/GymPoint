@@ -8,11 +8,23 @@ const GymReview = sequelize.define('GymReview', {
   },
   id_gym: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'gym',
+      key: 'id_gym'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
   id_user_profile: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'user_profiles',
+      key: 'id_user_profile'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
   rating: {
     type: DataTypes.DECIMAL(2, 1),
@@ -61,6 +73,22 @@ const GymReview = sequelize.define('GymReview', {
   tableName: 'gym_review',
   timestamps: true,
   createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  updatedAt: 'updated_at',
+  indexes: [
+    {
+      unique: true,
+      fields: ['id_user_profile', 'id_gym'],
+      name: 'uniq_user_gym_review'
+    },
+    {
+      fields: ['id_gym', 'rating'],
+      name: 'idx_gym_rating'
+    },
+    {
+      fields: ['created_at'],
+      name: 'idx_review_created_at'
+    }
+  ]
 });
+
 module.exports = GymReview;

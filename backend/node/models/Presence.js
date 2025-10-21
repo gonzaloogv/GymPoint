@@ -15,7 +15,9 @@ const Presence = sequelize.define('Presence', {
     references: {
       model: 'user_profiles',
       key: 'id_user_profile'
-    }
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
   id_gym: {
     type: DataTypes.INTEGER,
@@ -23,7 +25,9 @@ const Presence = sequelize.define('Presence', {
     references: {
       model: 'gym',
       key: 'id_gym'
-    }
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
   
   // Timestamps (coincide con SQL)
@@ -63,7 +67,9 @@ const Presence = sequelize.define('Presence', {
     references: {
       model: 'assistance',
       key: 'id_assistance'
-    }
+    },
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE'
   },
   
   // Metadata
@@ -85,5 +91,19 @@ const Presence = sequelize.define('Presence', {
   timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at',
-  underscored: true
+  underscored: true,
+  indexes: [
+    {
+      fields: ['id_user_profile', 'id_gym'],
+      name: 'idx_presence_user_gym'
+    },
+    {
+      fields: ['status'],
+      name: 'idx_presence_status'
+    },
+    {
+      fields: ['id_assistance'],
+      name: 'idx_presence_assistance'
+    }
+  ]
 });

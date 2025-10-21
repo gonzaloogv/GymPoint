@@ -4,50 +4,50 @@ const sequelize = require('../config/database');
 const UserRoutine = sequelize.define('UserRoutine', {
   id_user_routine: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+    primaryKey: true,
+    autoIncrement: true
   },
-  id_user: {
+  id_user_profile: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'user_profiles',
+      key: 'id_user_profile'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
   id_routine: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'routine',
+      key: 'id_routine'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
-  start_date: {
+  is_active: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
+  },
+  started_at: {
     type: DataTypes.DATE,
-    allowNull: false
+    allowNull: false,
+    defaultValue: DataTypes.NOW
   },
-  finish_date: {
+  completed_at: {
     type: DataTypes.DATE,
     allowNull: true
-  },
-  active: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false
-  },
-  created_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
-  },
-  updated_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
   }
 }, {
   tableName: 'user_routine',
-  timestamps: true,
-  createdAt: 'created_at',
-  updatedAt: 'updated_at',
+  timestamps: false,
   indexes: [
     {
-      unique: true,
-      fields: ['id_user', 'id_routine', 'active'],
-      where: { active: true },
-      name: 'unique_active_routine'
+      fields: ['id_user_profile', 'is_active'],
+      name: 'idx_user_routine_user_active'
     }
   ]
 });

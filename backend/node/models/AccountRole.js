@@ -50,12 +50,6 @@ const AccountRole = sequelize.define('AccountRole', {
       unique: true,
       fields: ['id_account', 'id_role'],
       name: 'unique_account_role'
-    },
-    {
-      fields: ['id_account']
-    },
-    {
-      fields: ['id_role']
     }
   ]
 });

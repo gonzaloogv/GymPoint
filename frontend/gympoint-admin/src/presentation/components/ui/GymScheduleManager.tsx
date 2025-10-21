@@ -56,9 +56,9 @@ export const GymScheduleManager = ({ id_gym, gymName }: GymScheduleManagerProps)
         await createMutation.mutateAsync({ id_gym, day_of_week: editingDay, ...formData });
       }
       setEditingDay(null);
-      alert('✅ Horario guardado correctamente');
+      alert(' Horario guardado correctamente');
     } catch (error: any) {
-      alert(`❌ Error: ${error.response?.data?.error?.message || 'No se pudo guardar el horario'}`);
+      alert(` Error: ${error.response?.data?.error?.message || 'No se pudo guardar el horario'}`);
     }
   };
 
@@ -72,7 +72,7 @@ export const GymScheduleManager = ({ id_gym, gymName }: GymScheduleManagerProps)
 
   return (
     <div className="bg-card dark:bg-card-dark p-6 rounded-xl border border-border dark:border-border-dark">
-      <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-4">📅 Horarios de {gymName}</h3>
+      <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-4"> Horarios de {gymName}</h3>
       
       <div className="space-y-2">
         {/* Header */}
@@ -133,7 +133,7 @@ export const GymScheduleManager = ({ id_gym, gymName }: GymScheduleManagerProps)
                   <div>{schedule?.closed ? '-' : schedule?.closing_time || 'N/A'}</div>
                   <div>
                     <Badge variant={schedule ? (schedule.closed ? 'inactive' : 'active') : 'warning'}>
-                      {schedule ? (schedule.closed ? '🔒 Cerrado' : '✅ Abierto') : '⚠️ Sin configurar'}
+                      {schedule ? (schedule.closed ? ' Cerrado' : ' Abierto') : ' Sin configurar'}
                     </Badge>
                   </div>
                   <div className="text-right">

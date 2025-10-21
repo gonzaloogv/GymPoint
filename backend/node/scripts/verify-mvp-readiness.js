@@ -8,7 +8,7 @@
 const sequelize = require('../config/database');
 
 async function verifyMVPReadiness() {
-  console.log('🔍 Verificando readiness de BD para producción MVP...\n');
+  console.log(' Verificando readiness de BD para producción MVP...\n');
 
   const results = {
     phase1_1: { name: 'Geolocalización y Auto Check-in', checks: [] },
@@ -176,7 +176,7 @@ async function verifyMVPReadiness() {
     );
 
   } catch (error) {
-    console.error('❌ Error durante verificación:', error.message);
+    console.error(' Error durante verificación:', error.message);
     throw error;
   }
 
@@ -211,17 +211,17 @@ async function verifyMVPReadiness() {
   }
 
   console.log('═══════════════════════════════════════════════════════════════');
-  console.log(`\n📊 RESUMEN: ${passedChecks}/${totalChecks} checks pasados\n`);
+  console.log(`\n RESUMEN: ${passedChecks}/${totalChecks} checks pasados\n`);
 
   if (criticalFails === 0) {
-    console.log('✅ BASE DE DATOS LISTA PARA PRODUCCIÓN MVP\n');
+    console.log(' BASE DE DATOS LISTA PARA PRODUCCIÓN MVP\n');
     console.log('Próximos pasos:');
     console.log('  1. Ejecutar seeds para geofences y rutinas plantilla');
     console.log('  2. Configurar cron job para desafíos diarios');
     console.log('  3. Ejecutar tests de integración');
     console.log('  4. Deploy a staging\n');
   } else {
-    console.log(`❌ FALTAN ${criticalFails} CHECKS CRÍTICOS\n`);
+    console.log(` FALTAN ${criticalFails} CHECKS CRÍTICOS\n`);
     console.log('Acción requerida:');
     console.log('  1. Ejecutar migraciones faltantes');
     console.log('  2. Volver a ejecutar este script\n');
