@@ -11,7 +11,7 @@ interface ThemeContextType {
   isDark: boolean;
 }
 
-export const ThemeContext = createContext<ThemeContextType>({} as ThemeContextType);
+export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const THEME_STORAGE_KEY = 'app_theme_mode';
 
@@ -56,8 +56,15 @@ export const ThemeProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     return null;
   }
 
+  const contextValue: ThemeContextType = {
+    theme,
+    themeMode,
+    setThemeMode,
+    isDark,
+  };
+
   return (
-    <ThemeContext.Provider value={{ theme, themeMode, setThemeMode, isDark }}>
+    <ThemeContext.Provider value={contextValue}>
       {children}
     </ThemeContext.Provider>
   );

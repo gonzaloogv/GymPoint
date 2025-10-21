@@ -3,8 +3,8 @@ import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useTheme as useAppTheme } from 'styled-components/native';
-import { TabPill } from '@shared/components/ui';
+import { useTheme } from '@shared/hooks';
+import { TabPill } from '@shared/components/ui/TabPill';
 
 import WorkoutIcon from '@assets/icons/workout.svg';
 import HomeIcon from '@assets/icons/home.svg';
@@ -92,13 +92,13 @@ function GymsStackNavigator() {
 }
 
 export default function AppTabs() {
-  const theme = useAppTheme();
+  const { theme, isDark } = useTheme();
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
   const updateUser = useAuthStore((s) => s.updateUser);
 
   const ITEM_MIN_WIDTH = 72;
-  const primary10 = `${theme.colors.primary}1A`;
+  const primary10 = isDark ? '#635BFF1A' : '#635BFF1A';
 
   const insets = useSafeAreaInsets();
   const TAB_BASE_HEIGHT = 64;
@@ -107,8 +107,8 @@ export default function AppTabs() {
     <TabPill
       focused={focused}
       label={label}
-      primaryColor={theme.colors.primary}
-      textMuted={theme.colors.textMuted}
+      primaryColor={isDark ? '#635BFF' : '#635BFF'}
+      textMuted={isDark ? '#9CA3AF' : '#6B7280'}
     >
       {children}
     </TabPill>
@@ -136,8 +136,8 @@ export default function AppTabs() {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: theme.colors.card,
-          borderTopColor: theme.colors.border,
+          backgroundColor: isDark ? '#1F2937' : '#FFFFFF',
+          borderTopColor: isDark ? '#374151' : '#E5E7EB',
           elevation: 0,
           height: TAB_BASE_HEIGHT + insets.bottom,
           paddingTop: 10,
@@ -161,7 +161,7 @@ export default function AppTabs() {
               <TabIcon
                 source={HomeIcon}
                 size={size}
-                color={focused ? theme.colors.primary : theme.colors.textMuted}
+                color={focused ? '#635BFF' : (isDark ? '#9CA3AF' : '#6B7280')}
               />,
               'Inicio',
             ),
@@ -179,7 +179,7 @@ export default function AppTabs() {
               <TabIcon
                 source={WorkoutIcon}
                 size={size}
-                color={focused ? theme.colors.primary : theme.colors.textMuted}
+                color={focused ? '#635BFF' : (isDark ? '#9CA3AF' : '#6B7280')}
               />,
               'Rutinas',
             ),
@@ -196,7 +196,7 @@ export default function AppTabs() {
               <TabIcon
                 source={MapIcon}
                 size={size}
-                color={focused ? theme.colors.primary : theme.colors.textMuted}
+                color={focused ? '#635BFF' : (isDark ? '#9CA3AF' : '#6B7280')}
               />,
               'Mapa',
             ),
@@ -213,7 +213,7 @@ export default function AppTabs() {
               <TabIcon
                 source={StoreIcon}
                 size={size}
-                color={focused ? theme.colors.primary : theme.colors.textMuted}
+                color={focused ? '#635BFF' : (isDark ? '#9CA3AF' : '#6B7280')}
               />,
               'Tienda',
             ),
@@ -230,7 +230,7 @@ export default function AppTabs() {
               <TabIcon
                 source={UserIcon}
                 size={size}
-                color={focused ? theme.colors.primary : theme.colors.textMuted}
+                color={focused ? '#635BFF' : (isDark ? '#9CA3AF' : '#6B7280')}
               />,
               'Perfil',
             ),

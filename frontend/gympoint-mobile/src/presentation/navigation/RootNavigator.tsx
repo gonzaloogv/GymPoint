@@ -1,26 +1,34 @@
-// Importamos las pantallas de Login y Registro
-import { LoginScreen } from '@features/auth';
-import { RegisterScreen } from '@features/auth';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { LoginScreen, RegisterScreen, useAuthStore } from '@features/auth';
+import AppTabs from './AppTabs';
 
-// Definimos los tipos para las rutas del stack de autenticación
-type AuthStackParamList = {
+type RootStackParamList = {
+  App: undefined;
   Login: undefined;
   Register: undefined;
 };
 
-const Stack = createNativeStackNavigator<AuthStackParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
-// Este navegador se encargará del flujo de autenticación para las pruebas
 export default function RootNavigator() {
+  const user = useAuthStore((state) => state.user);
+
   return (
-    <Stack.Navigator
-      initialRouteName="Login"
-      screenOptions={{ headerShown: false }}
-    >
-      {/* Añadimos ambas pantallas al stack */}
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
-    </Stack.Navigator>
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName={user ? "App" : "Login"}
+        screenOptions={{ headerShown: false }}
+      >
+        {user ? (
+          <Stack.Screen name="App" component={AppTabs} />
+        ) : (
+          <>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+          </>
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }

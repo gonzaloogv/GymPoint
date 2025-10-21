@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import dumbbellIcon from '@assets/dumbbell.png';
 import {
   Button,
   Card,
@@ -14,13 +15,13 @@ import {
   H2,
   Row,
 } from '@shared/components/ui';
+import { BrandMark } from '@shared/components/brand';
 import { useRegister } from '../hooks/useRegister';
-import { useTheme } from '@shared/hooks';
 
-// Importamos los componentes de formulario refactorizados
-import { GenderRadioGroup } from './components'; 
-import { LocationSelector } from './components'; 
-import { FrequencySlider } from './components';
+import { GenderRadioGroup } from './components/GenderRadioGroup';
+import { LocationSelector } from './components/LocationSelector';
+import { FrequencySlider } from './components/FrequencySlider';
+import { useTheme } from '@shared/hooks';
 
 type RootStackParamList = {
   Login: undefined;
@@ -32,10 +33,10 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export default function RegisterScreen() {
   const navigation = useNavigation<Nav>();
-  const { isDark } = useTheme();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const { register, loading, error } = useRegister();
 
-  // ----- Estado del Formulario -----
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,7 +45,6 @@ export default function RegisterScreen() {
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
   const [weeklyFrequency, setWeeklyFrequency] = useState(3);
-  // ------------------------------------
 
   const handleRegister = async () => {
     if (password !== confirmPassword) {
@@ -65,7 +65,10 @@ export default function RegisterScreen() {
     if (result.success) {
       navigation.navigate('App');
     } else {
-      Alert.alert('Error de registro', result.error || 'No se pudo completar el registro');
+      Alert.alert(
+        'Error de registro',
+        result.error || 'No se pudo completar el registro'
+      );
     }
   };
 
@@ -73,7 +76,6 @@ export default function RegisterScreen() {
   const handleBackToLogin = () => navigation.navigate('Login');
 
   const subtitleColor = isDark ? 'text-textSecondary-dark' : 'text-textSecondary';
-  const errorColor = isDark ? 'text-error-dark' : 'text-error';
 
   return (
     <Screen
@@ -82,8 +84,8 @@ export default function RegisterScreen() {
       contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 16 }}
       keyboardShouldPersistTaps="handled"
     >
-      <View className="flex-1 justify-center items-center">
-        {/* ----- Header ----- */}
+      <View className="flex-1 justify-center items-center py-6">
+        {/* Header */}
         <View className="items-center mb-6">
           <View className="w-16 h-16 bg-primary rounded-full items-center justify-center mb-3">
             <Text className="text-3xl">🏋️</Text>
@@ -93,15 +95,13 @@ export default function RegisterScreen() {
             Unite a la comunidad fitness
           </Text>
         </View>
-        {/* ----------------- */}
 
         <Card variant="elevated" padding="lg" className="w-full max-w-md">
           <H2 align="center" className="mb-6">
             Crear cuenta
           </H2>
 
-          {/* ----- Formulario ----- */}
-          <View className="w-full" style={{ gap: 12 }}>
+          <View className="w-full">
             <FormField label="Nombre completo">
               <Input
                 placeholder="Juan Pérez"
@@ -119,7 +119,7 @@ export default function RegisterScreen() {
                 keyboardType="email-address"
               />
             </FormField>
-            
+
             <FormField label="Contraseña">
               <Input
                 placeholder="••••••••"
@@ -156,12 +156,19 @@ export default function RegisterScreen() {
               <GenderRadioGroup value={gender} onChange={setGender} />
             </FormField>
 
-            <FormField label={`Frecuencia semanal: ${weeklyFrequency} ${weeklyFrequency === 1 ? 'día' : 'días'}`}>
-              <FrequencySlider value={weeklyFrequency} onChange={setWeeklyFrequency} />
+            <FormField
+              label={`Frecuencia semanal: ${weeklyFrequency} ${
+                weeklyFrequency === 1 ? 'día' : 'días'
+              }`}
+            >
+              <FrequencySlider
+                value={weeklyFrequency}
+                onChange={setWeeklyFrequency}
+              />
             </FormField>
-            
+
             {error && (
-              <Text className={`text-sm ${errorColor} mt-2 text-center`}>
+              <Text className="text-sm text-error mt-2 text-center">
                 {error}
               </Text>
             )}
@@ -176,7 +183,6 @@ export default function RegisterScreen() {
               Crear cuenta
             </Button>
           </View>
-          {/* -------------------- */}
 
           <Divider text="o" />
 
@@ -184,7 +190,6 @@ export default function RegisterScreen() {
             Continuar con Google
           </Button>
 
-          {/* ----- Footer ----- */}
           <View className="items-center mt-4">
             <Row justify="center">
               <Text className={subtitleColor}>¿Ya tenés cuenta? </Text>
@@ -195,10 +200,8 @@ export default function RegisterScreen() {
               </TouchableOpacity>
             </Row>
           </View>
-          {/* ----------------- */}
         </Card>
       </View>
     </Screen>
   );
 }
-

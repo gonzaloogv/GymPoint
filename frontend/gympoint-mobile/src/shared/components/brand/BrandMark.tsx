@@ -1,30 +1,45 @@
-import styled from 'styled-components/native';
-import { ImageSourcePropType, ViewProps } from 'react-native';
-import { rad, sp } from '@shared/styles';
+import React from 'react';
+import { View, Image, ImageSourcePropType, ViewProps } from 'react-native';
 
-const Wrap = styled.View`
-  width: 64px;
-  height: 64px;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: ${({ theme }) => sp(theme, 2)}px;
-  border-radius: ${({ theme }) => rad(theme, 'md', 16)}px;
-  background-color: ${({ theme }) => theme.colors.primary ?? '#111827'};
-`;
-
-const Icon = styled.Image`
-  width: 36px;
-  height: 36px;
-`;
-
-type Props = ViewProps & {
+interface BrandMarkProps extends ViewProps {
   icon: ImageSourcePropType;
   tintColor?: string;
-};
-export function BrandMark({ icon, tintColor = '#fff', ...rest }: Props) {
-  return (
-    <Wrap {...rest}>
-      <Icon source={icon} tintColor={tintColor} />
-    </Wrap>
-  );
+  size?: 'sm' | 'md' | 'lg';
 }
+
+export const BrandMark: React.FC<BrandMarkProps> = ({
+  icon,
+  tintColor = '#fff',
+  size = 'md',
+  style,
+  ...rest
+}) => {
+  const sizeClasses = {
+    sm: 'w-12 h-12',
+    md: 'w-16 h-16',
+    lg: 'w-20 h-20',
+  };
+
+  const iconSizes = {
+    sm: { width: 24, height: 24 },
+    md: { width: 36, height: 36 },
+    lg: { width: 48, height: 48 },
+  };
+
+  return (
+    <View
+      className={`${sizeClasses[size]} items-center justify-center rounded-2xl bg-primary mb-4`}
+      style={style}
+      {...rest}
+    >
+      <Image
+        source={icon}
+        style={[
+          iconSizes[size],
+          { tintColor },
+        ]}
+        resizeMode="contain"
+      />
+    </View>
+  );
+};

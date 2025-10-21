@@ -1,29 +1,25 @@
-import styled from 'styled-components/native';
+import { View, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useTheme } from '@shared/hooks';
 
-const Wrapper = styled.View`
-  padding: 16px;
-`;
-
-const Row = styled.View`
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 6px;
-`;
-
-const Text = styled.Text`
-  margin-left: 8px;
-`;
-
-export const ContactInfo = () => (
-  <Wrapper>
-    <Row>
-      <Feather name="phone" size={16} />
-      <Text>(011) 4567-8901</Text>
-    </Row>
-    <Row>
-      <Feather name="globe" size={16} />
-      <Text>www.gympoint.com</Text>
-    </Row>
-  </Wrapper>
-);
+export const ContactInfo = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  
+  return (
+    <View className="px-4 py-4">
+      <View className="flex-row items-center mb-1.5">
+        <Feather name="phone" size={16} color={isDark ? '#fff' : '#000'} />
+        <Text className={isDark ? 'ml-2 text-textPrimary-dark' : 'ml-2 text-textPrimary'}>
+          (011) 4567-8901
+        </Text>
+      </View>
+      <View className="flex-row items-center mb-1.5">
+        <Feather name="globe" size={16} color={isDark ? '#fff' : '#000'} />
+        <Text className={isDark ? 'ml-2 text-textPrimary-dark' : 'ml-2 text-textPrimary'}>
+          www.gympoint.com
+        </Text>
+      </View>
+    </View>
+  );
+};

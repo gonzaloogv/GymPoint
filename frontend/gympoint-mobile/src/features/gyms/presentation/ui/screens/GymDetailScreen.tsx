@@ -1,457 +1,13 @@
 import React, { useState } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Linking, Alert } from 'react-native';
-import styled from 'styled-components/native';
 import { Feather } from '@expo/vector-icons';
 import { GymDetailScreenProps } from './GymDetailScreen.types';
+import { useTheme } from '@shared/hooks';
 
-const Container = styled.ScrollView`
-  flex: 1;
-  background-color: ${({ theme }) => theme.colors.bg};
-`;
-
-const Section = styled.View`
-  padding: 16px;
-  margin-bottom: 8px;
-`;
-
-const Card = styled.View`
-  background-color: ${({ theme }) => theme.colors.card};
-  border-radius: 12px;
-  padding: 16px;
-  margin: 8px 16px;
-  shadow-color: #000;
-  shadow-offset: 0px 1px;
-  shadow-opacity: 0.1;
-  shadow-radius: 2px;
-  elevation: 2;
-`;
-
-const CardHeader = styled.View`
-  margin-bottom: 12px;
-`;
-
-const CardTitle = styled.Text`
-  font-size: 18px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-const HeroSection = styled.View`
-  height: 180px;
-  background-color: ${({ theme }) => theme.colors.primary}15;
-  border-radius: 12px;
-  margin: 16px;
-  justify-content: center;
-  align-items: center;
-`;
-
-const HeroContent = styled.View`
-  align-items: center;
-`;
-
-const HeroIcon = styled.View`
-  width: 64px;
-  height: 64px;
-  background-color: ${({ theme }) => theme.colors.primary}30;
-  border-radius: 32px;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 8px;
-`;
-
-const HeroText = styled.Text`
-  font-size: 14px;
-  color: ${({ theme }) => theme.colors.textMuted};
-`;
-
-const BasicInfoSection = styled.View`
-  padding: 16px;
-`;
-
-const GymName = styled.Text`
-  font-size: 24px;
-  font-weight: bold;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: 8px;
-`;
-
-const RatingRow = styled.View`
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 12px;
-`;
-
-const RatingText = styled.Text`
-  font-weight: 600;
-  margin-left: 4px;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-const ReviewText = styled.Text`
-  font-size: 14px;
-  color: ${({ theme }) => theme.colors.textMuted};
-  margin-left: 4px;
-`;
-
-const InfoRow = styled.View`
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 8px;
-`;
-
-const InfoText = styled.Text`
-  font-size: 14px;
-  color: ${({ theme }) => theme.colors.text};
-  margin-left: 8px;
-  flex: 1;
-`;
-
-const Badge = styled.View<{ variant?: 'primary' | 'secondary' | 'success' }>`
-  background-color: ${({ theme, variant }) => {
-    switch (variant) {
-      case 'primary':
-        return theme.colors.primary + '20';
-      case 'success':
-        return '#4CAF50' + '20';
-      default:
-        return theme.colors.muted;
-    }
-  }};
-  border: 1px solid
-    ${({ theme, variant }) => {
-      switch (variant) {
-        case 'primary':
-          return theme.colors.primary + '40';
-        case 'success':
-          return '#4CAF50' + '40';
-        default:
-          return theme.colors.border;
-      }
-    }};
-  border-radius: 16px;
-  padding: 4px 12px;
-  margin-left: 8px;
-`;
-
-const BadgeText = styled.Text<{ variant?: 'primary' | 'secondary' | 'success' }>`
-  font-size: 12px;
-  font-weight: 600;
-  color: ${({ theme, variant }) => {
-    switch (variant) {
-      case 'primary':
-        return theme.colors.primary;
-      case 'success':
-        return '#4CAF50';
-      default:
-        return theme.colors.text;
-    }
-  }};
-`;
-
-const Button = styled.TouchableOpacity<{ variant?: 'primary' | 'outline' | 'disabled' }>`
-  background-color: ${({ theme, variant }) => {
-    switch (variant) {
-      case 'outline':
-        return 'transparent';
-      case 'disabled':
-        return theme.colors.muted;
-      default:
-        return theme.colors.primary;
-    }
-  }};
-  border: 1px solid
-    ${({ theme, variant }) => {
-      switch (variant) {
-        case 'outline':
-          return theme.colors.border;
-        case 'disabled':
-          return theme.colors.muted;
-        default:
-          return theme.colors.primary;
-      }
-    }};
-  border-radius: 8px;
-  padding: 12px 16px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  margin-top: 12px;
-`;
-
-const ButtonText = styled.Text<{ variant?: 'primary' | 'outline' | 'disabled' }>`
-  color: ${({ theme, variant }) => {
-    switch (variant) {
-      case 'outline':
-        return theme.colors.text;
-      case 'disabled':
-        return theme.colors.textMuted;
-      default:
-        return theme.colors.onPrimary;
-    }
-  }};
-  font-weight: 600;
-  margin-left: 8px;
-`;
-
-const ServicesGrid = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 8px;
-`;
-
-const ServiceBadge = styled.View`
-  background-color: ${({ theme }) => theme.colors.muted};
-  border-radius: 20px;
-  padding: 8px 16px;
-  margin: 4px;
-`;
-
-const ServiceText = styled.Text`
-  font-size: 14px;
-  color: ${({ theme }) => theme.colors.text};
-  text-align: center;
-`;
-
-const PriceCard = styled.View`
-  background-color: ${({ theme }) => theme.colors.primary}10;
-  border: 1px solid ${({ theme }) => theme.colors.primary}30;
-  border-radius: 12px;
-  padding: 20px;
-  margin: 8px 16px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const PriceContent = styled.View`
-  flex-direction: row;
-  align-items: center;
-`;
-
-const PriceIcon = styled.View`
-  width: 48px;
-  height: 48px;
-  background-color: ${({ theme }) => theme.colors.primary}20;
-  border-radius: 24px;
-  justify-content: center;
-  align-items: center;
-  margin-right: 16px;
-`;
-
-const PriceInfo = styled.View``;
-
-const PriceLabel = styled.Text`
-  font-size: 14px;
-  color: ${({ theme }) => theme.colors.textMuted};
-`;
-
-const PriceAmount = styled.Text`
-  font-size: 24px;
-  font-weight: bold;
-  color: ${({ theme }) => theme.colors.primary};
-`;
-
-const EquipmentItem = styled.TouchableOpacity`
-  background-color: ${({ theme }) => theme.colors.muted}50;
-  border: 1px solid ${({ theme }) => theme.colors.border}50;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 8px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const EquipmentContent = styled.View`
-  flex-direction: row;
-  align-items: center;
-  flex: 1;
-`;
-
-const EquipmentIcon = styled.View`
-  width: 40px;
-  height: 40px;
-  background-color: ${({ theme }) => theme.colors.primary}20;
-  border-radius: 8px;
-  justify-content: center;
-  align-items: center;
-  margin-right: 12px;
-`;
-
-const EquipmentDetails = styled.View`
-  flex: 1;
-`;
-
-const EquipmentName = styled.Text`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-const EquipmentSubItems = styled.View`
-  margin-left: 52px;
-  margin-top: 8px;
-`;
-
-const SubItem = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px;
-  background-color: ${({ theme }) => theme.colors.bg}50;
-  border-radius: 6px;
-  margin-bottom: 4px;
-`;
-
-const SubItemContent = styled.View`
-  flex-direction: row;
-  align-items: center;
-`;
-
-const Dot = styled.View`
-  width: 6px;
-  height: 6px;
-  background-color: ${({ theme }) => theme.colors.primary};
-  border-radius: 3px;
-  margin-right: 8px;
-`;
-
-const SubItemText = styled.Text`
-  font-size: 14px;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-const SubItemQuantity = styled.Text`
-  font-size: 14px;
-  color: ${({ theme }) => theme.colors.textMuted};
-`;
-
-const ContactRow = styled.View`
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 12px;
-`;
-
-const ContactText = styled.Text`
-  font-size: 14px;
-  color: ${({ theme }) => theme.colors.text};
-  margin-left: 8px;
-`;
-
-const AmenitiesGrid = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
-`;
-
-const AmenityItem = styled.View`
-  flex-direction: row;
-  align-items: center;
-  width: 48%;
-  margin-bottom: 4px;
-`;
-
-const AmenityText = styled.Text`
-  font-size: 12px;
-  color: ${({ theme }) => theme.colors.text};
-  margin-left: 8px;
-`;
-
-const RulesList = styled.View`
-  gap: 8px;
-`;
-
-const RuleItem = styled.View`
-  flex-direction: row;
-  align-items: flex-start;
-`;
-
-const RuleText = styled.Text`
-  font-size: 14px;
-  color: ${({ theme }) => theme.colors.text};
-  flex: 1;
-  margin-left: 8px;
-`;
-
-const AlertCard = styled.View`
-  background-color: #fff3cd;
-  border: 1px solid #ffe69c;
-  border-radius: 8px;
-  padding: 12px;
-  margin: 8px 16px;
-  flex-direction: row;
-  align-items: flex-start;
-`;
-
-const AlertText = styled.Text`
-  font-size: 14px;
-  color: #856404;
-  margin-left: 8px;
-  flex: 1;
-`;
-
-const CheckInButton = styled.TouchableOpacity<{ disabled?: boolean }>`
-  background-color: ${({ theme, disabled }) =>
-    disabled ? theme.colors.muted : theme.colors.primary};
-  border-radius: 8px;
-  padding: 16px;
-  margin: 16px;
-  align-items: center;
-`;
-
-const CheckInText = styled.Text<{ disabled?: boolean }>`
-  color: ${({ theme, disabled }) =>
-    disabled ? theme.colors.textMuted : theme.colors.onPrimary};
-  font-size: 16px;
-  font-weight: 600;
-`;
-
-const CheckInSubtext = styled.Text`
-  font-size: 12px;
-  color: ${({ theme }) => theme.colors.textMuted};
-  text-align: center;
-  margin: 8px 16px;
-`;
-
-const ActivityItem = styled.View`
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 12px;
-`;
-
-const Avatar = styled.View<{ bgColor: string }>`
-  width: 32px;
-  height: 32px;
-  background-color: ${({ bgColor }) => bgColor};
-  border-radius: 16px;
-  justify-content: center;
-  align-items: center;
-  margin-right: 12px;
-`;
-
-const AvatarText = styled.Text`
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-`;
-
-const ActivityContent = styled.View`
-  flex: 1;
-`;
-
-const ActivityName = styled.Text`
-  font-size: 14px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-const ActivityTime = styled.Text`
-  font-size: 12px;
-  color: ${({ theme }) => theme.colors.textMuted};
-`;
 
 export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const isInRange = gym.distance <= 0.15;
 
@@ -517,150 +73,190 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
   };
 
   return (
-    <Container>
+    <ScrollView className={`flex-1 ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
       {/* Hero Image */}
-      <HeroSection>
-        <HeroContent>
-          <HeroIcon>
+      <View className={`h-44 ${isDark ? 'bg-primary/20' : 'bg-primary/20'} rounded-xl mx-4 justify-center items-center`}>
+        <View className="items-center">
+          <View className={`w-16 h-16 ${isDark ? 'bg-primary/30' : 'bg-primary/30'} rounded-full justify-center items-center mb-2`}>
             <Text style={{ fontSize: 32 }}>🏋️</Text>
-          </HeroIcon>
-          <HeroText>Foto del gimnasio</HeroText>
-        </HeroContent>
-      </HeroSection>
+          </View>
+          <Text className={`text-sm ${isDark ? 'text-textMuted-dark' : 'text-textMuted'}`}>Foto del gimnasio</Text>
+        </View>
+      </View>
 
       {/* Basic Info */}
-      <BasicInfoSection>
-        <GymName>{gym.name}</GymName>
+      <View className="px-4 py-4">
+        <Text className={`text-2xl font-bold mb-2 ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+          {gym.name}
+        </Text>
 
         {gym.rating && (
-          <RatingRow>
+          <View className="flex-row items-center mb-3">
             <Feather name="star" size={16} color="#FFD700" />
-            <RatingText>{gym.rating}</RatingText>
-            <ReviewText>(127 reseñas)</ReviewText>
-          </RatingRow>
+            <Text className={`font-semibold ml-1 ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+              {gym.rating}
+            </Text>
+            <Text className={`text-sm ml-1 ${isDark ? 'text-textMuted-dark' : 'text-textMuted'}`}>
+              (127 reseñas)
+            </Text>
+          </View>
         )}
 
-        <InfoRow>
+        <View className="flex-row items-center mb-2">
           <Feather name="map-pin" size={16} color="#666" />
-          <InfoText>{gym.address}</InfoText>
-          <Text style={{ color: '#666' }}>• {gym.distance.toFixed(1)} km</Text>
-        </InfoRow>
+          <Text className={`text-sm ml-2 flex-1 ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+            {gym.address}
+          </Text>
+          <Text className="text-sm text-gray-600">• {gym.distance.toFixed(1)} km</Text>
+        </View>
 
-        <InfoRow>
+        <View className="flex-row items-center mb-2">
           <Feather name="clock" size={16} color="#666" />
-          <InfoText>{gym.hours}</InfoText>
-          <Badge variant="success">
-            <BadgeText variant="success">Abierto ahora</BadgeText>
-          </Badge>
-        </InfoRow>
+          <Text className={`text-sm ml-2 flex-1 ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+            {gym.hours}
+          </Text>
+          <View className="bg-green-500/20 border border-green-500/40 rounded-2xl px-3 py-1 ml-2">
+            <Text className="text-xs font-semibold text-green-600">Abierto ahora</Text>
+          </View>
+        </View>
 
-        <Button variant="outline" onPress={openInMaps}>
+        <TouchableOpacity 
+          className="border border-gray-300 rounded-lg px-4 py-3 flex-row items-center justify-center mt-3"
+          onPress={openInMaps}
+        >
           <Feather name="external-link" size={16} color="#666" />
-          <ButtonText variant="outline">Abrir en Maps</ButtonText>
-        </Button>
-      </BasicInfoSection>
+          <Text className={`ml-2 font-semibold ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+            Abrir en Maps
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Services */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Servicios disponibles</CardTitle>
-        </CardHeader>
-        <ServicesGrid>
+      <View className={`${isDark ? 'bg-card-dark' : 'bg-card'} rounded-xl p-4 mx-2 my-2 shadow-sm`}>
+        <View className="mb-3">
+          <Text className={`text-lg font-semibold ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+            Servicios disponibles
+          </Text>
+        </View>
+        <View className="flex-row flex-wrap gap-2">
           {gym.services.map((service, index) => (
-            <ServiceBadge key={index}>
-              <ServiceText>{service}</ServiceText>
-            </ServiceBadge>
+            <View key={index} className={`${isDark ? 'bg-muted-dark' : 'bg-muted'} rounded-full px-4 py-2 m-1`}>
+              <Text className={`text-sm text-center ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+                {service}
+              </Text>
+            </View>
           ))}
-        </ServicesGrid>
-      </Card>
+        </View>
+      </View>
 
       {/* Price */}
-      <PriceCard>
-        <PriceContent>
-          <PriceIcon>
+      <View className={`${isDark ? 'bg-primary/10 border-primary/30' : 'bg-primary/10 border-primary/30'} border rounded-xl p-5 mx-2 my-2 flex-row items-center justify-between`}>
+        <View className="flex-row items-center">
+          <View className={`w-12 h-12 ${isDark ? 'bg-primary/20' : 'bg-primary/20'} rounded-full justify-center items-center mr-4`}>
             <Feather name="dollar-sign" size={24} color="#4F9CF9" />
-          </PriceIcon>
-          <PriceInfo>
-            <PriceLabel>Precio mensual</PriceLabel>
-            <PriceAmount>${price.toLocaleString('es-AR')}</PriceAmount>
-          </PriceInfo>
-        </PriceContent>
-        <Badge variant="success">
-          <BadgeText variant="success">Por mes</BadgeText>
-        </Badge>
-      </PriceCard>
+          </View>
+          <View>
+            <Text className={`text-sm ${isDark ? 'text-textMuted-dark' : 'text-textMuted'}`}>Precio mensual</Text>
+            <Text className={`text-2xl font-bold ${isDark ? 'text-primary-dark' : 'text-primary'}`}>
+              ${price.toLocaleString('es-AR')}
+            </Text>
+          </View>
+        </View>
+        <View className="bg-green-500/20 border border-green-500/40 rounded-2xl px-3 py-1">
+          <Text className="text-xs font-semibold text-green-600">Por mes</Text>
+        </View>
+      </View>
 
       {/* Equipment */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Maquinaria disponible</CardTitle>
-        </CardHeader>
+      <View className={`${isDark ? 'bg-card-dark' : 'bg-card'} rounded-xl p-4 mx-2 my-2 shadow-sm`}>
+        <View className="mb-3">
+          <Text className={`text-lg font-semibold ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+            Maquinaria disponible
+          </Text>
+        </View>
         {equipment.map((category, index) => {
           const isExpanded = expandedCategories.includes(category.category);
           const totalQuantity = getTotalQuantity(category.items);
 
           return (
             <View key={index}>
-              <EquipmentItem onPress={() => toggleCategory(category.category)}>
-                <EquipmentContent>
-                  <EquipmentIcon>
+              <TouchableOpacity 
+                className={`${isDark ? 'bg-muted/50 border-border/50' : 'bg-muted/50 border-border/50'} border rounded-lg p-3 mb-2 flex-row items-center justify-between`}
+                onPress={() => toggleCategory(category.category)}
+              >
+                <View className="flex-row items-center flex-1">
+                  <View className={`w-10 h-10 ${isDark ? 'bg-primary/20' : 'bg-primary/20'} rounded-lg justify-center items-center mr-3`}>
                     <Text style={{ fontSize: 20 }}>{category.icon}</Text>
-                  </EquipmentIcon>
-                  <EquipmentDetails>
-                    <EquipmentName>{category.category}</EquipmentName>
-                  </EquipmentDetails>
+                  </View>
+                  <View className="flex-1">
+                    <Text className={`text-base font-semibold ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+                      {category.category}
+                    </Text>
+                  </View>
                   <Feather
                     name={isExpanded ? 'chevron-down' : 'chevron-right'}
                     size={16}
                     color="#666"
                   />
-                </EquipmentContent>
-                <Badge>
-                  <BadgeText>{totalQuantity}</BadgeText>
-                </Badge>
-              </EquipmentItem>
+                </View>
+                <View className={`${isDark ? 'bg-muted-dark' : 'bg-muted'} rounded-2xl px-3 py-1 ml-2`}>
+                  <Text className={`text-xs font-semibold ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+                    {totalQuantity}
+                  </Text>
+                </View>
+              </TouchableOpacity>
 
               {isExpanded && (
-                <EquipmentSubItems>
+                <View className="ml-13 mt-2">
                   {category.items.map((item, itemIndex) => (
-                    <SubItem key={itemIndex}>
-                      <SubItemContent>
-                        <Dot />
-                        <SubItemText>{item.name}</SubItemText>
-                      </SubItemContent>
-                      <SubItemQuantity>{item.quantity}</SubItemQuantity>
-                    </SubItem>
+                    <View key={itemIndex} className="flex-row items-center justify-between p-2 bg-bg/50 rounded-md mb-1">
+                      <View className="flex-row items-center">
+                        <View className={`w-1.5 h-1.5 ${isDark ? 'bg-primary-dark' : 'bg-primary'} rounded-full mr-2`} />
+                        <Text className={`text-sm ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+                          {item.name}
+                        </Text>
+                      </View>
+                      <Text className={`text-sm ${isDark ? 'text-textMuted-dark' : 'text-textMuted'}`}>
+                        {item.quantity}
+                      </Text>
+                    </View>
                   ))}
-                </EquipmentSubItems>
+                </View>
               )}
             </View>
           );
         })}
-      </Card>
+      </View>
 
       {/* Contact & Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Información de contacto</CardTitle>
-        </CardHeader>
+      <View className={`${isDark ? 'bg-card-dark' : 'bg-card'} rounded-xl p-4 mx-2 my-2 shadow-sm`}>
+        <View className="mb-3">
+          <Text className={`text-lg font-semibold ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+            Información de contacto
+          </Text>
+        </View>
 
         <TouchableOpacity onPress={handleCall}>
-          <ContactRow>
+          <View className="flex-row items-center mb-3">
             <Feather name="phone" size={16} color="#666" />
-            <ContactText>{additionalInfo.phone}</ContactText>
-          </ContactRow>
+            <Text className={`text-sm ml-2 ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+              {additionalInfo.phone}
+            </Text>
+          </View>
         </TouchableOpacity>
 
-        <ContactRow>
+        <View className="flex-row items-center mb-3">
           <Feather name="globe" size={16} color="#666" />
-          <ContactText style={{ color: '#4F9CF9' }}>{additionalInfo.website}</ContactText>
-        </ContactRow>
+          <Text className="text-sm ml-2 text-blue-500">{additionalInfo.website}</Text>
+        </View>
 
-        <View style={{ marginTop: 16 }}>
-          <Text style={{ fontWeight: '600', marginBottom: 8 }}>Comodidades</Text>
-          <AmenitiesGrid>
+        <View className="mt-4">
+          <Text className={`font-semibold mb-2 ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+            Comodidades
+          </Text>
+          <View className="flex-row flex-wrap gap-2 mt-2">
             {additionalInfo.amenities.map((amenity, index) => (
-              <AmenityItem key={index}>
+              <View key={index} className="flex-row items-center w-1/2 mb-1">
                 <Feather
                   name={
                     amenity.includes('WiFi')
@@ -674,99 +270,129 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
                   size={12}
                   color="#666"
                 />
-                <AmenityText>{amenity}</AmenityText>
-              </AmenityItem>
+                <Text className={`text-xs ml-2 ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+                  {amenity}
+                </Text>
+              </View>
             ))}
-          </AmenitiesGrid>
+          </View>
         </View>
-      </Card>
+      </View>
 
       {/* Rules */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Reglas del gimnasio</CardTitle>
-        </CardHeader>
-        <RulesList>
+      <View className={`${isDark ? 'bg-card-dark' : 'bg-card'} rounded-xl p-4 mx-2 my-2 shadow-sm`}>
+        <View className="mb-3">
+          <Text className={`text-lg font-semibold ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+            Reglas del gimnasio
+          </Text>
+        </View>
+        <View className="gap-2">
           {gymRules.map((rule, index) => (
-            <RuleItem key={index}>
-              <Dot />
-              <RuleText>{rule}</RuleText>
-            </RuleItem>
+            <View key={index} className="flex-row items-start">
+              <View className={`w-1.5 h-1.5 ${isDark ? 'bg-primary-dark' : 'bg-primary'} rounded-full mr-2 mt-2`} />
+              <Text className={`text-sm flex-1 ml-2 ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+                {rule}
+              </Text>
+            </View>
           ))}
-        </RulesList>
-      </Card>
+        </View>
+      </View>
 
       {/* Check-in Alert */}
       {!isInRange && (
-        <AlertCard>
+        <View className="bg-yellow-100 border border-yellow-300 rounded-lg p-3 mx-2 my-2 flex-row items-start">
           <Feather name="alert-triangle" size={16} color="#856404" />
-          <AlertText>
+          <Text className="text-sm text-yellow-800 ml-2 flex-1">
             Estás a {(gym.distance * 1000).toFixed(0)}m del gimnasio. Necesitás estar
             dentro de los 150m para hacer check-in.
-          </AlertText>
-        </AlertCard>
+          </Text>
+        </View>
       )}
 
       {/* Check-in Button */}
-      <CheckInButton disabled={!isInRange} onPress={onCheckIn}>
-        <CheckInText disabled={!isInRange}>
+      <TouchableOpacity 
+        className={`${!isInRange ? 'bg-gray-400' : isDark ? 'bg-primary-dark' : 'bg-primary'} rounded-lg p-4 mx-4 my-2 items-center`}
+        disabled={!isInRange} 
+        onPress={onCheckIn}
+      >
+        <Text className={`text-base font-semibold ${!isInRange ? 'text-gray-600' : 'text-white'}`}>
           {isInRange
             ? 'Hacer Check-in'
             : `Acercate ${(gym.distance * 1000 - 150).toFixed(0)}m más`}
-        </CheckInText>
-      </CheckInButton>
+        </Text>
+      </TouchableOpacity>
 
-      <CheckInSubtext>
+      <Text className={`text-xs text-center mx-4 my-2 ${isDark ? 'text-textMuted-dark' : 'text-textMuted'}`}>
         Al hacer check-in ganarás +10 tokens y extenderás tu racha
-      </CheckInSubtext>
+      </Text>
 
       {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Actividad reciente</CardTitle>
-        </CardHeader>
+      <View className={`${isDark ? 'bg-card-dark' : 'bg-card'} rounded-xl p-4 mx-2 my-2 shadow-sm`}>
+        <View className="mb-3">
+          <Text className={`text-lg font-semibold ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+            Actividad reciente
+          </Text>
+        </View>
 
-        <ActivityItem>
-          <Avatar bgColor="#3B82F6">
-            <AvatarText>MG</AvatarText>
-          </Avatar>
-          <ActivityContent>
-            <ActivityName>María G.</ActivityName>
-            <ActivityTime>Hizo check-in hace 2 horas</ActivityTime>
-          </ActivityContent>
-          <Badge>
-            <BadgeText>Racha 12 días</BadgeText>
-          </Badge>
-        </ActivityItem>
+        <View className="flex-row items-center mb-3">
+          <View className="w-8 h-8 bg-blue-500 rounded-full justify-center items-center mr-3">
+            <Text className="text-white text-xs font-bold">MG</Text>
+          </View>
+          <View className="flex-1">
+            <Text className={`text-sm font-semibold ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+              María G.
+            </Text>
+            <Text className={`text-xs ${isDark ? 'text-textMuted-dark' : 'text-textMuted'}`}>
+              Hizo check-in hace 2 horas
+            </Text>
+          </View>
+          <View className={`${isDark ? 'bg-muted-dark' : 'bg-muted'} rounded-2xl px-3 py-1`}>
+            <Text className={`text-xs font-semibold ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+              Racha 12 días
+            </Text>
+          </View>
+        </View>
 
-        <ActivityItem>
-          <Avatar bgColor="#10B981">
-            <AvatarText>JL</AvatarText>
-          </Avatar>
-          <ActivityContent>
-            <ActivityName>Juan L.</ActivityName>
-            <ActivityTime>Hizo check-in hace 4 horas</ActivityTime>
-          </ActivityContent>
-          <Badge>
-            <BadgeText>Racha 5 días</BadgeText>
-          </Badge>
-        </ActivityItem>
+        <View className="flex-row items-center mb-3">
+          <View className="w-8 h-8 bg-green-500 rounded-full justify-center items-center mr-3">
+            <Text className="text-white text-xs font-bold">JL</Text>
+          </View>
+          <View className="flex-1">
+            <Text className={`text-sm font-semibold ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+              Juan L.
+            </Text>
+            <Text className={`text-xs ${isDark ? 'text-textMuted-dark' : 'text-textMuted'}`}>
+              Hizo check-in hace 4 horas
+            </Text>
+          </View>
+          <View className={`${isDark ? 'bg-muted-dark' : 'bg-muted'} rounded-2xl px-3 py-1`}>
+            <Text className={`text-xs font-semibold ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+              Racha 5 días
+            </Text>
+          </View>
+        </View>
 
-        <ActivityItem>
-          <Avatar bgColor="#8B5CF6">
-            <AvatarText>AS</AvatarText>
-          </Avatar>
-          <ActivityContent>
-            <ActivityName>Ana S.</ActivityName>
-            <ActivityTime>Hizo check-in ayer</ActivityTime>
-          </ActivityContent>
-          <Badge>
-            <BadgeText>Racha 21 días</BadgeText>
-          </Badge>
-        </ActivityItem>
-      </Card>
+        <View className="flex-row items-center mb-3">
+          <View className="w-8 h-8 bg-purple-500 rounded-full justify-center items-center mr-3">
+            <Text className="text-white text-xs font-bold">AS</Text>
+          </View>
+          <View className="flex-1">
+            <Text className={`text-sm font-semibold ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+              Ana S.
+            </Text>
+            <Text className={`text-xs ${isDark ? 'text-textMuted-dark' : 'text-textMuted'}`}>
+              Hizo check-in ayer
+            </Text>
+          </View>
+          <View className={`${isDark ? 'bg-muted-dark' : 'bg-muted'} rounded-2xl px-3 py-1`}>
+            <Text className={`text-xs font-semibold ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+              Racha 21 días
+            </Text>
+          </View>
+        </View>
+      </View>
 
-      <View style={{ height: 32 }} />
-    </Container>
+      <View className="h-8" />
+    </ScrollView>
   );
 }

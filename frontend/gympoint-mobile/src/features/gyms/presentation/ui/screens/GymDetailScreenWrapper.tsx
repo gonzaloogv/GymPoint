@@ -8,11 +8,14 @@ import { useCurrentLocation } from '@features/gyms/presentation/hooks/useCurrent
 import type { Gym as GymEntity } from '@features/gyms/domain/entities/Gym';
 import { GymDetailScreen } from './GymDetailScreen';
 import type { GymsStackParamList } from '@presentation/navigation/types';
+import { useTheme } from '@shared/hooks';
 
 type GymDetailRouteProp = RouteProp<GymsStackParamList, 'GymDetail'>;
 type GymDetailNavigationProp = NativeStackNavigationProp<GymsStackParamList, 'GymDetail'>;
 
 export function GymDetailScreenWrapper() {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const route = useRoute<GymDetailRouteProp>();
   const navigation = useNavigation<GymDetailNavigationProp>();
   const { gymId } = route.params;
@@ -107,19 +110,19 @@ export function GymDetailScreenWrapper() {
   // Estados de loading y error
   if (gymsLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-        <Text style={{ marginTop: 16 }}>Cargando gimnasio...</Text>
+      <View className="flex-1 justify-center items-center">
+        <ActivityIndicator size="large" color={isDark ? '#fff' : '#000'} />
+        <Text className={`mt-4 ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+          Cargando gimnasio...
+        </Text>
       </View>
     );
   }
 
   if (gymsError) {
     return (
-      <View
-        style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}
-      >
-        <Text style={{ fontSize: 16, textAlign: 'center', color: 'red' }}>
+      <View className="flex-1 justify-center items-center p-5">
+        <Text className={`text-base text-center text-red-500 ${isDark ? 'text-red-400' : 'text-red-500'}`}>
           Error al cargar el gimnasio: {String(gymsError)}
         </Text>
       </View>
@@ -128,16 +131,14 @@ export function GymDetailScreenWrapper() {
 
   if (!gym) {
     return (
-      <View
-        style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}
-      >
-        <Text style={{ fontSize: 16, textAlign: 'center' }}>
+      <View className="flex-1 justify-center items-center p-5">
+        <Text className={`text-base text-center ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
           Gimnasio no encontrado (ID: {gymId})
         </Text>
-        <Text style={{ fontSize: 14, textAlign: 'center', marginTop: 8, color: 'gray' }}>
+        <Text className={`text-sm text-center mt-2 ${isDark ? 'text-textMuted-dark' : 'text-textMuted'}`}>
           Datos disponibles: {gymsData?.length || 0} gimnasios
         </Text>
-        <Text style={{ fontSize: 12, textAlign: 'center', marginTop: 4, color: 'blue' }}>
+        <Text className={`text-xs text-center mt-1 ${isDark ? 'text-blue-400' : 'text-blue-500'}`}>
           Origen:{' '}
           {dataSource === 'api'
             ? '🌐 API'

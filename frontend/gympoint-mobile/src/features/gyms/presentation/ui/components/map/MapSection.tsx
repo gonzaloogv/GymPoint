@@ -1,20 +1,15 @@
-import { ActivityIndicator } from 'react-native';
-import styled from 'styled-components/native';
+import { ActivityIndicator, View, Text } from 'react-native';
 
-import {
-  Card as BaseCard,
-  CardTitle as BaseCardTitle,
-  MapBox,
-  Subtle,
-} from '@shared/components/ui';
+import { Card as BaseCard } from '@shared/components/ui';
 import { GymListItem } from '../list/GymListItem';
-import { palette, rad, sp } from '@shared/styles';
+import { useTheme } from '@shared/hooks';
 
 import { LOCATION_FALLBACK_MESSAGE } from '@features/gyms/domain/constants/map';
 import { GymLite, LatLng, MapLocation, Region } from '@features/gyms/presentation/types';
 import { getMapHeight } from '@features/gyms/presentation/utils/layout';
 
 import MapView from '../../screens/MapView';
+import { MapBox } from '@shared/components/ui/MapBox';
 
 type Props = {
   initialRegion: Region;
@@ -29,31 +24,6 @@ type Props = {
   onGymPress?: (gymId: string | number) => void;
 };
 
-const SectionCard = styled(BaseCard)`
-  margin: ${({ theme }) => sp(theme, 2)}px;
-  padding: 0;
-  overflow: hidden;
-  elevation: 0;
-`;
-
-const SectionHeader = styled.View`
-  padding: ${({ theme }) => `${sp(theme, 1.5)}px ${sp(theme, 2)}px 0`};
-`;
-
-const LoadingIndicator = styled(ActivityIndicator)`
-  position: absolute;
-  top: ${({ theme }) => sp(theme, 1.5)}px;
-  right: ${({ theme }) => sp(theme, 1.5)}px;
-`;
-
-const ErrorBanner = styled(Subtle)`
-  position: absolute;
-  top: ${({ theme }) => sp(theme, 1.5)}px;
-  left: ${({ theme }) => sp(theme, 1.5)}px;
-  padding: ${({ theme }) => sp(theme, 0.75)}px;
-  background-color: ${palette.surfaceOverlay};
-  border-radius: ${({ theme }) => rad(theme, 'overlay', 8)}px;
-`;
 
 const formatDistance = (distance?: number) =>
   typeof distance === 'number' ? `${(distance / 1000).toFixed(1)} km` : '—';
@@ -72,6 +42,8 @@ export default function MapSection({
   showUserFallbackPin = false,
   onGymPress,
 }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const computedHeight = getMapHeight(mapHeight);
   const hasMoreGyms = moreList.length > 0;
   const hasLocationError = Boolean(error || locError);
@@ -91,16 +63,31 @@ export default function MapSection({
           debugUser
         />
 
-        {loading && <LoadingIndicator />}
+        {loading && (
+          <ActivityIndicator 
+            className="absolute top-1.5 right-1.5" 
+            color={isDark ? '#fff' : '#000'}
+          />
+        )}
 
-        {hasLocationError && <ErrorBanner>{errorMessage}</ErrorBanner>}
+        {hasLocationError && (
+          <View className={`absolute top-1.5 left-1.5 px-1.5 py-1.5 rounded-lg ${
+            isDark ? 'bg-surfaceOverlay-dark' : 'bg-surfaceOverlay'
+          }`}>
+            <Text className={isDark ? 'text-textPrimary-dark text-sm' : 'text-textPrimary text-sm'}>
+              {errorMessage}
+            </Text>
+          </View>
+        )}
       </MapBox>
 
       {hasMoreGyms && (
-        <SectionCard>
-          <SectionHeader>
-            <BaseCardTitle>Más cercanos</BaseCardTitle>
-          </SectionHeader>
+        <BaseCard padding="none" className="mx-2 overflow-hidden">
+          <View className="px-2 pt-1.5">
+            <Text className={isDark ? 'text-textPrimary-dark font-semibold' : 'text-textPrimary font-semibold'}>
+              Más cercanos
+            </Text>
+          </View>
 
           {moreList.map(({ id, name, distancia, hours, address }, index) => (
             <GymListItem
@@ -114,7 +101,7 @@ export default function MapSection({
               onPress={onGymPress || noop}
             />
           ))}
-        </SectionCard>
+        </BaseCard>
       )}
     </>
   );

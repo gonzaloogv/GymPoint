@@ -1,20 +1,5 @@
-import styled from 'styled-components/native';
-
-const Wrapper = styled.View`
-  padding: 16px;
-  align-items: center;
-`;
-
-const Btn = styled.TouchableOpacity<{ disabled?: boolean }>`
-  background: ${({ theme, disabled }) => (disabled ? '#ccc' : theme.colors.primary)};
-  padding: 12px 20px;
-  border-radius: 10px;
-`;
-
-const Text = styled.Text`
-  color: white;
-  font-weight: bold;
-`;
+import { View, Text, TouchableOpacity } from 'react-native';
+import { useTheme } from '@shared/hooks';
 
 interface Props {
   gym: { name: string };
@@ -22,10 +7,21 @@ interface Props {
   onCheckIn: () => void;
 }
 
-export const CheckInSection = ({ isInRange, onCheckIn }: Props) => (
-  <Wrapper>
-    <Btn disabled={!isInRange} onPress={onCheckIn}>
-      <Text>{isInRange ? 'Hacer Check-In' : 'Fuera de rango'}</Text>
-    </Btn>
-  </Wrapper>
-);
+export const CheckInSection = ({ isInRange, onCheckIn }: Props) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  
+  return (
+    <View className="px-4 py-4 items-center">
+      <TouchableOpacity 
+        disabled={!isInRange} 
+        onPress={onCheckIn}
+        className={`px-5 py-3 rounded-lg ${!isInRange ? 'bg-gray-400' : 'bg-primary'}`}
+      >
+        <Text className="text-white font-bold">
+          {isInRange ? 'Hacer Check-In' : 'Fuera de rango'}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+};

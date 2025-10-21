@@ -1,40 +1,63 @@
 import React from 'react';
-import { ScrollView, View, Text, StyleSheet } from 'react-native';
+import { ScrollView, View, Text } from 'react-native';
 import { GymDetailScreenProps } from './GymDetailScreen.types';
+import { useTheme } from '@shared/hooks';
 
 type Props = GymDetailScreenProps & {
   dataSource?: 'api' | 'mocks' | null;
 };
 
 export function GymDetailScreenTest({ gym, onBack, onCheckIn, dataSource }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.section}>
-        <Text style={styles.title}>🏋️ Gimnasio Cargado</Text>
-        <Text style={styles.text}>Nombre: {gym.name}</Text>
-        <Text style={styles.text}>Dirección: {gym.address}</Text>
-        <Text style={styles.text}>Distancia: {gym.distance.toFixed(1)} km</Text>
-        <Text style={styles.text}>Horarios: {gym.hours}</Text>
-        <Text style={styles.text}>Precio: ${gym.price || 'No disponible'}</Text>
-        <Text style={styles.text}>
+    <ScrollView className={`flex-1 ${isDark ? 'bg-bg-dark' : 'bg-gray-50'}`}>
+      <View className={`p-4 mb-2 ${isDark ? 'bg-card-dark' : 'bg-white'} mx-4 mt-2 rounded-lg shadow-sm`}>
+        <Text className={`text-xl font-bold mb-3 ${isDark ? 'text-textPrimary-dark' : 'text-gray-800'}`}>
+          🏋️ Gimnasio Cargado
+        </Text>
+        <Text className={`text-sm mb-1 ${isDark ? 'text-textSecondary-dark' : 'text-gray-600'}`}>
+          Nombre: {gym.name}
+        </Text>
+        <Text className={`text-sm mb-1 ${isDark ? 'text-textSecondary-dark' : 'text-gray-600'}`}>
+          Dirección: {gym.address}
+        </Text>
+        <Text className={`text-sm mb-1 ${isDark ? 'text-textSecondary-dark' : 'text-gray-600'}`}>
+          Distancia: {gym.distance.toFixed(1)} km
+        </Text>
+        <Text className={`text-sm mb-1 ${isDark ? 'text-textSecondary-dark' : 'text-gray-600'}`}>
+          Horarios: {gym.hours}
+        </Text>
+        <Text className={`text-sm mb-1 ${isDark ? 'text-textSecondary-dark' : 'text-gray-600'}`}>
+          Precio: ${gym.price || 'No disponible'}
+        </Text>
+        <Text className={`text-sm mb-1 ${isDark ? 'text-textSecondary-dark' : 'text-gray-600'}`}>
           Servicios: {gym.services.join(', ') || 'No disponibles'}
         </Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.subtitle}>🎯 Información de Debug</Text>
-        <Text style={styles.debugText}>ID: {gym.id}</Text>
-        <Text style={styles.debugText}>Coordenadas: {gym.coordinates.join(', ')}</Text>
-        <Text style={styles.debugText}>
+      <View className={`p-4 mb-2 ${isDark ? 'bg-card-dark' : 'bg-white'} mx-4 mt-2 rounded-lg shadow-sm`}>
+        <Text className={`text-base font-semibold mb-2 ${isDark ? 'text-textPrimary-dark' : 'text-gray-700'}`}>
+          🎯 Información de Debug
+        </Text>
+        <Text className={`text-xs mb-1 font-mono ${isDark ? 'text-textMuted-dark' : 'text-gray-500'}`}>
+          ID: {gym.id}
+        </Text>
+        <Text className={`text-xs mb-1 font-mono ${isDark ? 'text-textMuted-dark' : 'text-gray-500'}`}>
+          Coordenadas: {gym.coordinates.join(', ')}
+        </Text>
+        <Text className={`text-xs mb-1 font-mono ${isDark ? 'text-textMuted-dark' : 'text-gray-500'}`}>
           En rango: {gym.distance <= 0.15 ? 'Sí' : 'No'}
         </Text>
-        <Text style={styles.debugText}>Rating: {gym.rating || 'No disponible'}</Text>
-        <Text
-          style={[
-            styles.debugText,
-            { fontWeight: 'bold', color: dataSource === 'api' ? '#4CAF50' : '#FF9800' },
-          ]}
-        >
+        <Text className={`text-xs mb-1 font-mono ${isDark ? 'text-textMuted-dark' : 'text-gray-500'}`}>
+          Rating: {gym.rating || 'No disponible'}
+        </Text>
+        <Text className={`text-xs mb-1 font-mono font-bold ${
+          dataSource === 'api' 
+            ? isDark ? 'text-green-400' : 'text-green-600'
+            : isDark ? 'text-orange-400' : 'text-orange-600'
+        }`}>
           Origen:{' '}
           {dataSource === 'api'
             ? '🌐 API'
@@ -44,83 +67,30 @@ export function GymDetailScreenTest({ gym, onBack, onCheckIn, dataSource }: Prop
         </Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.subtitle}>⚙️ Equipamiento</Text>
+      <View className={`p-4 mb-2 ${isDark ? 'bg-card-dark' : 'bg-white'} mx-4 mt-2 rounded-lg shadow-sm`}>
+        <Text className={`text-base font-semibold mb-2 ${isDark ? 'text-textPrimary-dark' : 'text-gray-700'}`}>
+          ⚙️ Equipamiento
+        </Text>
         {gym.equipment ? (
           gym.equipment.map((eq, index) => (
-            <View key={index} style={styles.equipmentSection}>
-              <Text style={styles.equipmentCategory}>
+            <View key={index} className="mb-2">
+              <Text className={`text-sm font-semibold mb-1 ${isDark ? 'text-textPrimary-dark' : 'text-gray-600'}`}>
                 {eq.icon} {eq.category}
               </Text>
               {eq.items.map((item, itemIndex) => (
-                <Text key={itemIndex} style={styles.equipmentItem}>
+                <Text key={itemIndex} className={`text-xs ml-4 mb-1 ${isDark ? 'text-textSecondary-dark' : 'text-gray-500'}`}>
                   • {item.name} (x{item.quantity})
                 </Text>
               ))}
             </View>
           ))
         ) : (
-          <Text style={styles.debugText}>No hay equipamiento disponible</Text>
+          <Text className={`text-xs font-mono ${isDark ? 'text-textMuted-dark' : 'text-gray-500'}`}>
+            No hay equipamiento disponible
+          </Text>
         )}
       </View>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FAFAFA',
-  },
-  section: {
-    padding: 16,
-    marginBottom: 8,
-    backgroundColor: 'white',
-    marginHorizontal: 16,
-    marginTop: 8,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    color: '#333',
-  },
-  subtitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-    color: '#555',
-  },
-  text: {
-    fontSize: 14,
-    marginBottom: 4,
-    color: '#666',
-  },
-  debugText: {
-    fontSize: 12,
-    marginBottom: 2,
-    color: '#888',
-    fontFamily: 'monospace',
-  },
-  equipmentSection: {
-    marginBottom: 8,
-  },
-  equipmentCategory: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 4,
-    color: '#444',
-  },
-  equipmentItem: {
-    fontSize: 12,
-    marginLeft: 16,
-    marginBottom: 2,
-    color: '#666',
-  },
-});

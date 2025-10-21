@@ -1,27 +1,7 @@
-import styled from 'styled-components/native';
-import { Text } from 'react-native';
-import { ListItem } from '@shared/components/ui';
-import { IndexBadge } from '@shared/components/ui';
-import { palette } from '@shared/styles';
-
-const ItemTitle = styled(Text)`
-  font-weight: 600;
-  color: ${({ theme }) => theme?.colors?.text ?? palette.textStrong};
-`;
-
-const ItemSubtitle = styled(Text)`
-  color: ${({ theme }) => theme?.colors?.subtext ?? palette.textMuted};
-  font-size: 12px;
-`;
-
-const ItemAddress = styled(Text)`
-  color: ${({ theme }) => theme?.colors?.subtext ?? palette.textMuted};
-  font-size: 12px;
-`;
-
-const RightArrow = styled(Text)`
-  color: ${palette.slate400};
-`;
+import { Text, View } from 'react-native';
+import { useTheme } from '@shared/hooks';
+import ListItem from '@shared/components/ui/ListItem';
+import IndexBadge from '@shared/components/ui/IndexBadge';
 
 type Props = {
   id: string | number;
@@ -42,6 +22,8 @@ export function GymListItem({
   index,
   onPress,
 }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const formatDistance = (distance?: number) =>
     typeof distance === 'number' ? `${(distance / 1000).toFixed(1)} km` : '—';
 
@@ -49,13 +31,24 @@ export function GymListItem({
     <ListItem
       onPress={() => onPress?.(id)}
       Left={<IndexBadge n={index + 1} />}
-      Right={<RightArrow>{'>'}</RightArrow>}
+      Right={<Text className="text-slate-400">{`>`}</Text>}
     >
-      <ItemTitle>{name}</ItemTitle>
-      <ItemSubtitle>
+      <Text className="font-semibold text-base" numberOfLines={1}>
+        {name}
+      </Text>
+      <Text
+        className={isDark ? 'text-textSecondary-dark text-xs' : 'text-textSecondary text-xs'}
+      >
         {formatDistance(distancia)} • {hours ?? '—'}
-      </ItemSubtitle>
-      {address && <ItemAddress>{address}</ItemAddress>}
+      </Text>
+      {address && (
+        <Text
+          className={isDark ? 'text-textSecondary-dark text-xs' : 'text-textSecondary text-xs'}
+          numberOfLines={1}
+        >
+          {address}
+        </Text>
+      )}
     </ListItem>
   );
 }
