@@ -1,0 +1,817 @@
+openapi: 3.1.0
+info:
+  title: GymPoint API
+  version: 0.1.0
+  description: >
+    Plataforma GymPoint para gestión de cuentas, membresías y catálogos de gimnasios.
+    El contrato sigue un enfoque OpenAPI-first; todas las integraciones deben validar
+    requests y responses contra este documento.
+  contact:
+    name: GymPoint Platform Team
+    url: https://www.gympoint.example.com
+    email: devs@gympoint.example.com
+  license:
+    name: ISC
+    identifier: ISC
+servers:
+  - url: http://127.0.0.1:3000
+    description: Entorno local (Docker)
+  - url: https://api.gympoint.app
+    description: Producción
+tags:
+  - name: Auth
+    description: Flujos de autenticación, registro y manejo de tokens.
+  - name: Gyms
+    description: Catálogo de gimnasios, amenities y administración.
+security: []
+paths:
+  /api/auth/register:
+    post:
+      operationId: registerAccount
+      tags: [Auth]
+      summary: Registrar una nueva cuenta de usuario
+      description: >
+        Crea una `Account`, `UserProfile`, `Frequency` y `Streak` iniciales. Retorna los
+        tokens de autenticación y la información básica del usuario.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registro exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessResponse'
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Email ya registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/auth/login:
+    post:
+      operationId: loginWithPassword
+      tags: [Auth]
+      summary: Autenticación por email y contraseña
+      description: >
+        Valida las credenciales y emite un nuevo par de tokens JWT/refresh.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Autenticación exitosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessResponse'
+        '400':
+          description: Request inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Credenciales inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/auth/google:
+    post:
+      operationId: loginWithGoogle
+      tags: [Auth]
+      summary: Login con Google OAuth
+      description: >
+        Valida un ID token de Google. Crea o vincula la cuenta y responde con
+        tokens de acceso.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleLoginRequest'
+      responses:
+        '200':
+          description: Autenticación exitosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessResponse'
+        '400':
+          description: Request inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Token de Google inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/auth/refresh-token:
+    post:
+      operationId: refreshAccessToken
+      tags: [Auth]
+      summary: Renovar access token usando refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Nuevo access token emitido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+        '400':
+          description: Request inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Refresh token inválido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/auth/logout:
+    post:
+      operationId: revokeRefreshToken
+      tags: [Auth]
+      summary: Revocar un refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+      responses:
+        '204':
+          description: Refresh token revocado
+        '400':
+          description: Request inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/gyms:
+    get:
+      operationId: listGyms
+      tags: [Gyms]
+      summary: Listar gimnasios
+      description: >
+        Lista gimnasios disponibles con paginación y ordenamientos controlados.
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - $ref: '#/components/parameters/GymSortParam'
+        - name: city
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 80
+          description: Filtrar por ciudad exacta.
+      responses:
+        '200':
+          description: Resultado paginado de gimnasios
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymListResponse'
+        '400':
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: createGym
+      tags: [Gyms]
+      summary: Crear un gimnasio
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGymRequest'
+      responses:
+        '201':
+          description: Gimnasio creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymResponse'
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Permisos insuficientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/gyms/{gymId}:
+    parameters:
+      - $ref: '#/components/parameters/GymIdPathParam'
+    get:
+      operationId: getGym
+      tags: [Gyms]
+      summary: Obtener detalle de un gimnasio
+      responses:
+        '200':
+          description: Gimnasio encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymResponse'
+        '404':
+          description: Gimnasio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: updateGym
+      tags: [Gyms]
+      summary: Actualizar un gimnasio
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGymRequest'
+      responses:
+        '200':
+          description: Gimnasio actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymResponse'
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Gimnasio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: deleteGym
+      tags: [Gyms]
+      summary: Eliminar un gimnasio
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Gimnasio eliminado
+        '404':
+          description: Gimnasio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/gyms/tipos:
+    get:
+      operationId: listGymTypes
+      tags: [Gyms]
+      summary: Listar tipos de gimnasios
+      responses:
+        '200':
+          description: Lista de tipos disponibles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymTypeList'
+        '400':
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/gyms/amenidades:
+    get:
+      operationId: listGymAmenities
+      tags: [Gyms]
+      summary: Listar amenities disponibles
+      responses:
+        '200':
+          description: Amenities registradas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GymAmenity'
+        '400':
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Número de página (1-indexado).
+    LimitParam:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: Tamaño máximo de página.
+    OrderParam:
+      name: order
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+      description: Dirección de ordenamiento.
+    GymSortParam:
+      name: sortBy
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [created_at, name, city, month_price]
+        default: created_at
+      description: Campo permitido para ordenar gimnasios.
+    GymIdPathParam:
+      name: gymId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: Identificador del gimnasio (`id_gym`).
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          description: Código de error interno.
+          example: INVALID_DATA
+        message:
+          type: string
+          description: Descripción legible del error.
+          example: Datos inválidos.
+        details:
+          type: array
+          description: Lista opcional de detalles adicionales.
+          items:
+            type: object
+    AuthSuccessResponse:
+      type: object
+      required: [tokens, user]
+      properties:
+        tokens:
+          $ref: '#/components/schemas/AuthTokenPair'
+        user:
+          $ref: '#/components/schemas/AuthUser'
+    AuthTokenPair:
+      type: object
+      required: [accessToken, refreshToken]
+      additionalProperties: false
+      properties:
+        accessToken:
+          type: string
+          description: JWT con vigencia corta (15 minutos).
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refreshToken:
+          type: string
+          description: Token de renovación con vigencia de 30 días.
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    AuthUser:
+      type: object
+      required: [id_account, email, email_verified, roles, profile]
+      additionalProperties: false
+      properties:
+        id_account:
+          type: integer
+        email:
+          type: string
+          format: email
+        email_verified:
+          type: boolean
+        roles:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            example: USER
+        profile:
+          $ref: '#/components/schemas/UserProfileSummary'
+    UserProfileSummary:
+      type: object
+      required: [id_user_profile, name, lastname, subscription]
+      additionalProperties: false
+      properties:
+        id_user_profile:
+          type: integer
+        name:
+          type: string
+          example: Ana
+        lastname:
+          type: string
+          example: Torres
+        subscription:
+          type: string
+          enum: [FREE, PREMIUM]
+          description: Nivel actual de la app.
+        premium_since:
+          type:
+            - string
+            - 'null'
+          format: date-time
+        tokens_balance:
+          type: integer
+          minimum: 0
+        tokens_lifetime:
+          type: integer
+          minimum: 0
+        locality:
+          type:
+            - string
+            - 'null'
+        gender:
+          oneOf:
+            - type: string
+              enum: [M, F, O]
+            - type: 'null'
+        birth_date:
+          type:
+            - string
+            - 'null'
+          format: date
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - email
+        - password
+        - name
+        - lastname
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 64
+        name:
+          type: string
+          minLength: 2
+          maxLength: 80
+        lastname:
+          type: string
+          minLength: 2
+          maxLength: 80
+        gender:
+          type: string
+          enum: [M, F, O]
+          default: O
+        locality:
+          type: string
+          maxLength: 120
+        birth_date:
+          type:
+            - string
+            - 'null'
+          format: date
+        frequency_goal:
+          type: integer
+          minimum: 1
+          maximum: 14
+          default: 3
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 64
+    GoogleLoginRequest:
+      type: object
+      additionalProperties: false
+      required: [idToken]
+      properties:
+        idToken:
+          type: string
+          description: ID token emitido por Google Sign-In.
+    RefreshTokenRequest:
+      type: object
+      additionalProperties: false
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+          description: Token de renovación vigente.
+    RefreshTokenResponse:
+      type: object
+      additionalProperties: false
+      required: [accessToken]
+      properties:
+        accessToken:
+          type: string
+          description: Nuevo JWT de acceso.
+    LogoutRequest:
+      type: object
+      additionalProperties: false
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+          description: Token a revocar.
+    GymListResponse:
+      type: object
+      additionalProperties: false
+      required: [page, limit, total, items]
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 1
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/GymResponse'
+    GymResponse:
+      type: object
+      required:
+        - id_gym
+        - name
+        - city
+        - address
+        - latitude
+        - longitude
+        - month_price
+        - geofence_radius_meters
+        - min_stay_minutes
+        - created_at
+        - updated_at
+      properties:
+        id_gym:
+          type: integer
+        name:
+          type: string
+          maxLength: 120
+        description:
+          type:
+            - string
+            - 'null'
+        phone:
+          type:
+            - string
+            - 'null'
+        email:
+          type:
+            - string
+            - 'null'
+        website:
+          type:
+            - string
+            - 'null'
+        is_active:
+          type:
+            - boolean
+            - 'null'
+        verified:
+          type:
+            - boolean
+            - 'null'
+        featured:
+          type:
+            - boolean
+            - 'null'
+        auto_checkin_enabled:
+          type:
+            - boolean
+            - 'null'
+        city:
+          type: string
+        address:
+          type: string
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        month_price:
+          type: number
+          format: float
+          minimum: 0
+        week_price:
+          type:
+            - number
+            - 'null'
+          format: float
+          minimum: 0
+        geofence_radius_meters:
+          type: integer
+          minimum: 10
+          maximum: 2000
+        min_stay_minutes:
+          type: integer
+          minimum: 5
+          maximum: 240
+        is_favorite:
+          type:
+            - boolean
+            - 'null'
+        is_subscribed:
+          type:
+            - boolean
+            - 'null'
+        distance:
+          type:
+            - number
+            - 'null'
+          format: float
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateGymRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - city
+        - address
+        - latitude
+        - longitude
+        - month_price
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 120
+        description:
+          type: string
+          maxLength: 2000
+        city:
+          type: string
+          maxLength: 80
+        address:
+          type: string
+          maxLength: 200
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        phone:
+          type: string
+          maxLength: 40
+        email:
+          type: string
+          format: email
+        website:
+          type: string
+          format: uri
+        social_media:
+          type: array
+          items:
+            type: string
+        month_price:
+          type: number
+          minimum: 0
+        week_price:
+          type: number
+          minimum: 0
+        geofence_radius_meters:
+          type: integer
+          minimum: 10
+          maximum: 2000
+          default: 100
+        min_stay_minutes:
+          type: integer
+          minimum: 5
+          maximum: 240
+          default: 30
+        id_types:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+        type_names:
+          type: array
+          items:
+            type: string
+        amenities:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+        rules:
+          type: array
+          items:
+            type: string
+    UpdateGymRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateGymRequest'
+    GymAmenity:
+      type: object
+      required: [id_amenity, name]
+      properties:
+        id_amenity:
+          type: integer
+        name:
+          type: string
+        category:
+          type:
+            - string
+            - 'null'
+    GymTypeList:
+      type: array
+      items:
+        type: string

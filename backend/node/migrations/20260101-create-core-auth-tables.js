@@ -82,20 +82,12 @@ module.exports = {
         }
       }, { transaction });
 
-      // Índices para búsquedas frecuentes
-      await queryInterface.addIndex('accounts', ['email'], {
-        name: 'idx_accounts_email',
-        transaction
-      });
-      await queryInterface.addIndex('accounts', ['google_id'], {
-        name: 'idx_accounts_google_id',
-        transaction
-      });
+      // Índice para búsquedas frecuentes (email y google_id ya tienen índices únicos automáticos)
       await queryInterface.addIndex('accounts', ['is_active'], {
         name: 'idx_accounts_is_active',
         transaction
       });
-      console.log('Tabla "accounts" creada con 3 índices\n');
+      console.log('Tabla "accounts" creada con índice is_active\n');
 
       // ========================================
       // TABLA: roles
@@ -221,20 +213,16 @@ module.exports = {
         }
       }, { transaction });
 
-      // Índices para búsquedas por cuenta y expiración
+      // Índices para búsquedas por cuenta y expiración (token ya tiene índice único automático)
       await queryInterface.addIndex('refresh_token', ['id_account'], {
         name: 'idx_refresh_token_account',
-        transaction
-      });
-      await queryInterface.addIndex('refresh_token', ['token'], {
-        name: 'idx_refresh_token_token',
         transaction
       });
       await queryInterface.addIndex('refresh_token', ['expires_at', 'is_revoked'], {
         name: 'idx_refresh_token_expiration',
         transaction
       });
-      console.log('Tabla "refresh_token" creada con 3 índices\n');
+      console.log('Tabla "refresh_token" creada con 2 índices adicionales\n');
 
       // ========================================
       // DATOS INICIALES: Roles del sistema
@@ -268,7 +256,7 @@ module.exports = {
       console.log('   - roles');
       console.log('   - account_roles');
       console.log('   - refresh_token');
-      console.log('Índices creados: 7');
+      console.log('Índices creados: 7 (3 únicos automáticos + 4 adicionales)');
       console.log('Roles iniciales: 3 (USER, ADMIN, GYM_OWNER)');
       console.log('========================================\n');
 

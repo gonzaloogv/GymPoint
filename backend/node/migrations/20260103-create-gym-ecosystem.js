@@ -65,16 +65,6 @@ module.exports = {
           type: Sequelize.TEXT,
           allowNull: false
         },
-        id_type: {
-          type: Sequelize.INTEGER,
-          allowNull: true,
-          references: {
-            model: 'gym_type',
-            key: 'id_type'
-          },
-          onDelete: 'SET NULL',
-          onUpdate: 'CASCADE'
-        },
         city: {
           type: Sequelize.STRING(50),
           allowNull: false

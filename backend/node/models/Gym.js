@@ -7,17 +7,6 @@ const Gym = sequelize.define('Gym', {
     autoIncrement: true,
     primaryKey: true
   },
-  id_type: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: 'gym_type',
-      key: 'id_type'
-    },
-    onDelete: 'SET NULL',
-    onUpdate: 'CASCADE',
-    comment: 'Tipo de gimnasio'
-  },
   name: {
     type: DataTypes.STRING(100),
     allowNull: false,

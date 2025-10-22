@@ -59,22 +59,27 @@ const UserProfile = sequelize.define('UserProfile', {
     type: DataTypes.STRING(100),
     allowNull: true
   },
-  subscription: {
+  app_tier: {
     type: DataTypes.ENUM('FREE', 'PREMIUM'),
     allowNull: false,
     defaultValue: 'FREE',
-    comment: 'Nivel de suscripción del usuario'
+    comment: 'Tier de la aplicación (FREE o PREMIUM)'
+  },
+  premium_since: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Fecha desde que el usuario es premium'
+  },
+  premium_expires: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Fecha de expiración del premium'
   },
   tokens: {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0,
     comment: 'Tokens acumulados'
-  },
-  id_streak: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    comment: 'Racha actual del usuario'
   },
   profile_picture_url: {
     type: DataTypes.STRING(500),
@@ -95,8 +100,12 @@ const UserProfile = sequelize.define('UserProfile', {
       name: 'idx_user_profiles_account'
     },
     {
-      fields: ['subscription'],
-      name: 'idx_user_profiles_subscription'
+      fields: ['app_tier'],
+      name: 'idx_user_profiles_app_tier'
+    },
+    {
+      fields: ['premium_expires'],
+      name: 'idx_user_profiles_premium_expires'
     },
     {
       fields: ['tokens'],
@@ -109,8 +118,8 @@ const UserProfile = sequelize.define('UserProfile', {
   ]
 });
 
-// Constantes de subscripción
-UserProfile.SUBSCRIPTIONS = {
+// Constantes de app tier
+UserProfile.APP_TIERS = {
   FREE: 'FREE',
   PREMIUM: 'PREMIUM'
 };

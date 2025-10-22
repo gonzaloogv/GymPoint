@@ -29,17 +29,6 @@ const Assistance = sequelize.define('Assistance', {
     onUpdate: 'CASCADE',
     comment: 'Gimnasio donde se realizó la asistencia'
   },
-  id_streak: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'streak',
-      key: 'id_streak'
-    },
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-    comment: 'Racha asociada a esta asistencia'
-  },
   date: {
     type: DataTypes.DATEONLY,
     allowNull: false,

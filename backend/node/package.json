@@ -8,12 +8,13 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
-    "test:unit": "jest --testPathPattern=tests --testPathIgnorePatterns=tests/integration",
-    "test:integration": "jest --testPathPattern=tests/integration",
+    "test:unit": "jest --testPathPatterns tests --testPathIgnorePatterns=tests/integration",
+    "test:integration": "jest --testPathPatterns tests/integration",
     "staging:migrate": "node migrate.js",
     "staging:seed": "node seed/seed-staging.js",
     "staging:setup": "npm run staging:migrate && npm run staging:seed",
-    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint ."
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint .",
+    "openapi:lint": "redocly lint docs/openapi.yaml"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +26,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "express-openapi-validator": "^5.6.0",
     "express-rate-limit": "^8.1.0",
     "google-auth-library": "^9.15.1",
     "joi": "^18.0.1",
@@ -36,9 +38,11 @@
     "silent": "^0.2.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "umzug": "^3.8.2"
+    "umzug": "^3.8.2",
+    "yaml": "^2.8.1"
   },
   "devDependencies": {
+    "@redocly/cli": "^2.7.0",
     "eslint": "^9.29.0",
     "jest": "^30.0.2",
     "nodemon": "^3.1.10",

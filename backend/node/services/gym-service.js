@@ -1,80 +1,143 @@
-﻿const { Op, literal } = require('sequelize');
-const { Gym, GymType, UserFavoriteGym, GymAmenity } = require('../models');
 const Joi = require('joi');
 const { NotFoundError, ValidationError } = require('../utils/errors');
+const {
+  gymRepository,
+  gymTypeRepository,
+  gymAmenityRepository,
+} = require('../infra/db/repositories');
+const {
+  CreateGymCommand,
+  UpdateGymCommand,
+  DeleteGymCommand,
+} = require('./commands/gym.commands');
+const {
+  ListGymsQuery,
+  GetGymDetailQuery,
+  GetGymTypesQuery,
+  GetGymAmenitiesQuery,
+} = require('./queries/gym.queries');
+const {
+  buildPaginatedResponse,
+  normalizePagination,
+} = require('../utils/pagination');
+const { normalizeSortParams, GYM_SORTABLE_FIELDS } = require('../utils/sort-whitelist');
 
-const tiposValidos = [
-  'completo',
-  'crossfit',
-  'powerlifting',
-  'femenino',
-  'boxeo',
-  'express',
-  'exclusivo'
-];
+// -----------------------------------------------------------------------------
+// Helpers
+// -----------------------------------------------------------------------------
 
-const amenityInclude = {
-  model: GymAmenity,
-  as: 'amenities',
-  through: { attributes: [] }
+const ensureListGymsQuery = (input = {}) =>
+  input instanceof ListGymsQuery
+    ? input
+    : new ListGymsQuery({
+        page: input.page,
+        limit: input.limit,
+        sortBy: input.sortBy,
+        order: input.order,
+        city: input.city ?? null,
+        name: input.name ?? null,
+        latitude: input.latitude ?? null,
+        longitude: input.longitude ?? null,
+        radius: input.radius ?? null,
+        types: input.types ?? null,
+        amenities: input.amenities ?? null,
+        verified: input.verified ?? null,
+        featured: input.featured ?? null,
+        min_price: input.min_price ?? null,
+        max_price: input.max_price ?? null,
+        userId: input.userId ?? null,
+      });
+
+const ensureGetGymDetailQuery = (input) =>
+  input instanceof GetGymDetailQuery
+    ? input
+    : new GetGymDetailQuery({
+        gymId: input?.gymId ?? input?.id ?? input?.id_gym ?? input,
+        userId: input?.userId ?? null,
+      });
+
+const ensureCreateGymCommand = (input = {}) =>
+  input instanceof CreateGymCommand
+    ? input
+    : new CreateGymCommand({
+        name: input.name,
+        city: input.city,
+        address: input.address,
+        latitude: input.latitude,
+        longitude: input.longitude,
+        month_price: input.month_price,
+        geofence_radius_meters: input.geofence_radius_meters,
+        min_stay_minutes: input.min_stay_minutes,
+        description: input.description,
+        phone: input.phone,
+        email: input.email,
+        website: input.website,
+        is_active: input.is_active,
+        verified: input.verified,
+        featured: input.featured,
+        auto_checkin_enabled: input.auto_checkin_enabled,
+        createdBy: input.createdBy ?? null,
+        id_types: input.id_types || [],
+        type_names: input.type_names || [],
+        amenities: input.amenities || [],
+        rules: input.rules || [],
+      });
+
+const ensureUpdateGymCommand = (gymId, input = {}) =>
+  input instanceof UpdateGymCommand
+    ? input
+    : new UpdateGymCommand({
+        gymId: input.gymId ?? gymId,
+        name: input.name,
+        city: input.city,
+        address: input.address,
+        latitude: input.latitude,
+        longitude: input.longitude,
+        month_price: input.month_price,
+        geofence_radius_meters: input.geofence_radius_meters,
+        min_stay_minutes: input.min_stay_minutes,
+        description: input.description,
+        phone: input.phone,
+        email: input.email,
+        website: input.website,
+        is_active: input.is_active,
+        verified: input.verified,
+        featured: input.featured,
+        auto_checkin_enabled: input.auto_checkin_enabled,
+        updatedBy: input.updatedBy ?? null,
+        id_types: input.id_types,
+        type_names: input.type_names,
+        amenities: input.amenities,
+        rules: input.rules,
+      });
+
+const ensureDeleteGymCommand = (input) =>
+  input instanceof DeleteGymCommand
+    ? input
+    : new DeleteGymCommand({
+        gymId: input?.gymId ?? input?.id ?? input?.id_gym ?? input,
+        deletedBy: input?.deletedBy ?? null,
+      });
+
+const parseActiveFlag = (value, defaultValue = true) => {
+  if (value === undefined || value === null) return defaultValue;
+  if (typeof value === 'string') return value.toLowerCase() !== 'false';
+  return Boolean(value);
 };
 
-const getAllGyms = async () => {
-  return await Gym.findAll({
-    include: [amenityInclude]
-  });
-};
+const ensureGetGymTypesQuery = (input = {}) =>
+  input instanceof GetGymTypesQuery
+    ? input
+    : new GetGymTypesQuery({
+        activeOnly: parseActiveFlag(input.activeOnly ?? input.active_only, true),
+      });
 
-const getGymById = async (id) => {
-  return await Gym.findByPk(id, {
-    include: [amenityInclude]
-  });
-};
-
-const normalizeAmenityIds = (list) => {
-  if (!Array.isArray(list)) return [];
-  const unique = new Set();
-  list.forEach((value) => {
-    const parsed = Number(value);
-    if (Number.isInteger(parsed) && parsed > 0) {
-      unique.add(parsed);
-    }
-  });
-  return Array.from(unique);
-};
-
-const normalizeTypeNames = (list) => {
-  if (!Array.isArray(list)) return [];
-  const unique = new Set();
-  list.forEach((value) => {
-    if (typeof value !== 'string') return;
-    const name = value.trim();
-    if (name.length > 0) unique.add(name.toLowerCase());
-  });
-  return Array.from(unique);
-};
-
-const ensureGymTypesByNames = async (typeNames) => {
-  const names = normalizeTypeNames(typeNames);
-  if (names.length === 0) return [];
-
-  // Buscar existentes
-  const existing = await GymType.findAll({ where: { name: names } });
-  const existingMap = new Map(existing.map((t) => [t.name.toLowerCase(), t]));
-
-  const toCreate = names.filter((n) => !existingMap.has(n));
-  if (toCreate.length > 0) {
-    // Crear de a uno para respetar Ã­ndice Ãºnico y evitar race simple
-    for (const n of toCreate) {
-      const [row] = await GymType.findOrCreate({ where: { name: n }, defaults: { name: n } });
-      existingMap.set(n, row);
-    }
-  }
-
-  return Array.from(existingMap.values()).map((t) => t.id_type);
-};
-
-const unionUnique = (a = [], b = []) => Array.from(new Set([...(a || []), ...(b || [])])).filter(Number.isInteger);
+const ensureGetGymAmenitiesQuery = (input = {}) =>
+  input instanceof GetGymAmenitiesQuery
+    ? input
+    : new GetGymAmenitiesQuery({
+        activeOnly: parseActiveFlag(input.activeOnly ?? input.active_only, true),
+      });
 
 const normalizeRules = (value) => {
   if (Array.isArray(value)) {
@@ -85,293 +148,273 @@ const normalizeRules = (value) => {
 
   if (typeof value === 'string') {
     return value
-      .split(/\r?\n|,/) // admitir saltos de línea o comas
+      .split(/\r?\n|,/)
       .map((item) => item.trim())
       .filter((item) => item.length > 0);
   }
 
-  if (value == null) {
-    return [];
-  }
+  if (value == null) return [];
 
   throw new ValidationError('El campo rules debe ser una lista de strings');
 };
 
-const createGym = async (data) => {
-  const { id_types, type_names, amenities, ...gymData } = data;
-
-  gymData.rules = normalizeRules(gymData.rules);
-
-  const gym = await Gym.create(gymData);
-
-  // Resolver tipos por nombres (creando si faltan) y por IDs provistos
-  const createdTypeIds = await ensureGymTypesByNames(type_names);
-  const inputIds = Array.isArray(id_types) ? id_types.filter(Number.isInteger) : [];
-  const finalTypeIds = unionUnique(inputIds, createdTypeIds);
-
-  if (finalTypeIds.length > 0) {
-    await gym.addGymTypes(finalTypeIds);
-  }
-
-  const amenityIds = normalizeAmenityIds(amenities);
-  if (amenityIds.length > 0) {
-    await gym.setAmenities(amenityIds);
-  }
-
-  await gym.reload({ include: [amenityInclude] });
-  return gym;
+const normalizeAmenityIds = (list) => {
+  if (!Array.isArray(list)) return [];
+  const unique = new Set();
+  list.forEach((value) => {
+    const parsed = Number(value);
+    if (Number.isInteger(parsed) && parsed > 0) unique.add(parsed);
+  });
+  return Array.from(unique);
 };
 
-const updateGym = async (id, data) => {
-  const { id_types, type_names, amenities, ...gymData } = data;
+// -----------------------------------------------------------------------------
+// Use cases
+// -----------------------------------------------------------------------------
 
-  const gym = await Gym.findByPk(id);
-  if (!gym) throw new NotFoundError('Gimnasio');
-
-  if (gymData.rules !== undefined) {
-    gymData.rules = normalizeRules(gymData.rules);
-  }
-
-  // actualiza los datos del gimnasio
-  await gym.update(gymData);
-
-  // si se pasan nuevos tipos (por IDs o nombres), reemplazar asociaciones
-  if (Array.isArray(id_types) || Array.isArray(type_names)) {
-    const inputIds = Array.isArray(id_types) ? id_types.filter(Number.isInteger) : [];
-    const createdTypeIds = await ensureGymTypesByNames(type_names);
-    const finalTypeIds = unionUnique(inputIds, createdTypeIds);
-    await gym.setGymTypes(finalTypeIds);
-  }
-
-  if (amenities !== undefined) {
-    const amenityIds = normalizeAmenityIds(Array.isArray(amenities) ? amenities : []);
-    await gym.setAmenities(amenityIds);
-  }
-
-  await gym.reload({ include: [amenityInclude] });
-
-  return gym;
-};
-
-const deleteGym = async (id) => {
-  const gym = await Gym.findByPk(id);
-  if (!gym) throw new NotFoundError('Gimnasio');
-  return await gym.destroy();
-};
-
-// funcion que calcula la distancia ubicada
-function calcularDistancia(lat1, lon1, lat2, lon2) {
-  const R = 6371000;
-  const rad = Math.PI / 180;
-  const dLat = (lat2 - lat1) * rad;
-  const dLon = (lon2 - lon1) * rad;
-  const a = Math.sin(dLat / 2) ** 2 +
-            Math.cos(lat1 * rad) * Math.cos(lat2 * rad) *
-            Math.sin(dLon / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
-
-/**
- * Calcular bounding box para pre-filtrado
- * @param {number} lat - Latitud central
- * @param {number} lng - Longitud central
- * @param {number} km - Radio en kilÃ³metros
- * @returns {Object} Bounding box {minLat, maxLat, minLng, maxLng}
- */
-const calculateBoundingBox = (lat, lng, km) => {
-  const d = km / 111; // 1 grado â‰ˆ 111 km
-  return {
-    minLat: lat - d,
-    maxLat: lat + d,
-    minLng: lng - d,
-    maxLng: lng + d
-  };
-};
-
-/**
- * Buscar gimnasios cercanos usando bounding box + Haversine
- * @param {number} lat - Latitud
- * @param {number} lng - Longitud
- * @param {number} radiusKm - Radio de bÃºsqueda en km (default: 5)
- * @param {number} limit - LÃ­mite de resultados (default: 50)
- * @param {number} offset - Offset para paginaciÃ³n (default: 0)
- * @returns {Promise<Array>} Gimnasios dentro del radio ordenados por distancia
- */
-const buscarGimnasiosCercanos = async (lat, lng, radiusKm = 5, limit = 50, offset = 0) => {
-  // Validar parÃ¡metros con Joi
-  const schema = Joi.object({
-    lat: Joi.number().min(-90).max(90).required(),
-    lng: Joi.number().min(-180).max(180).required(),
-    radiusKm: Joi.number().min(0.1).max(100).default(5),
-    limit: Joi.number().integer().min(1).max(100).default(50),
-    offset: Joi.number().integer().min(0).default(0)
+const listGyms = async (input = {}) => {
+  const query = ensureListGymsQuery(input);
+  const { page, limit, offset } = normalizePagination({
+    page: query.page,
+    limit: query.limit,
   });
 
-  const { error, value } = schema.validate({ lat, lng, radiusKm, limit, offset });
-  if (error) {
-    throw new ValidationError('ParÃ¡metros invÃ¡lidos', error.details.map(d => ({
-      field: d.path.join('.'),
-      message: d.message
-    })));
+  const { sortBy, order } = normalizeSortParams(
+    query.sortBy,
+    query.order,
+    GYM_SORTABLE_FIELDS,
+    'created_at',
+    'DESC'
+  );
+
+  const { rows, count } = await gymRepository.searchGyms({
+    filters: {
+      city: query.city,
+      name: query.name,
+      verified: query.verified,
+      featured: query.featured,
+      minPrice: query.min_price,
+      maxPrice: query.max_price,
+      type: Array.isArray(query.types) ? query.types[0] : query.types,
+      amenityIds: normalizeAmenityIds(query.amenities),
+    },
+    pagination: { limit, offset },
+    sort: { field: sortBy, direction: order },
+  });
+
+  return buildPaginatedResponse({ items: rows, total: count, page, limit });
+};
+
+const getAllGyms = async (input = {}) => {
+  const result = await listGyms(input);
+  return result.items;
+};
+
+const getGymById = async (input) => {
+  const query = ensureGetGymDetailQuery(input);
+  return gymRepository.findById(query.gymId);
+};
+
+const createGym = async (input) => {
+  const command = ensureCreateGymCommand(input);
+
+  const payload = {
+    name: command.name,
+    city: command.city,
+    address: command.address,
+    latitude: command.latitude,
+    longitude: command.longitude,
+    month_price: command.month_price,
+    geofence_radius_meters: command.geofence_radius_meters ?? 100,
+    min_stay_minutes: command.min_stay_minutes ?? 30,
+    description: command.description,
+    phone: command.phone,
+    email: command.email,
+    website: command.website,
+    is_active: command.is_active !== undefined ? command.is_active : true,
+    verified: command.verified || false,
+    featured: command.featured || false,
+    auto_checkin_enabled: command.auto_checkin_enabled || false,
+    rules: normalizeRules(command.rules),
+  };
+
+  const gym = await gymRepository.createGym(payload);
+
+  const ensuredTypeIds = await gymTypeRepository.ensureTypeIdsByNames(command.type_names || []);
+  const finalTypeIds = new Set([...(command.id_types || []), ...ensuredTypeIds]);
+  if (finalTypeIds.size > 0) {
+    await gymRepository.setGymTypes(gym.id_gym, Array.from(finalTypeIds));
   }
 
-  const { lat: validLat, lng: validLng, radiusKm: validRadius } = value;
+  const amenityIds = normalizeAmenityIds(command.amenities);
+  if (amenityIds.length > 0) {
+    await gymRepository.setAmenities(gym.id_gym, amenityIds);
+  }
 
-  // Paso 1: Pre-filtro con bounding box
-  const bbox = calculateBoundingBox(validLat, validLng, validRadius);
+  return gymRepository.findById(gym.id_gym);
+};
 
-  // Paso 2: ExpresiÃ³n Haversine para calcular distancia exacta
-  const distanceExpr = literal(`
-    6371 * 2 * ASIN(SQRT(
-      POWER(SIN(RADIANS((${validLat}) - latitude) / 2), 2) +
-      COS(RADIANS(${validLat})) * COS(RADIANS(latitude)) *
-      POWER(SIN(RADIANS((${validLng}) - longitude) / 2), 2)
-    ))
-  `);
+const updateGym = async (id, data = {}) => {
+  const command = ensureUpdateGymCommand(id, data);
 
-  // Paso 3: Query optimizada con bounding box + Haversine
-  const gimnasios = await Gym.findAll({
-    where: {
-      latitude: { [Op.between]: [bbox.minLat, bbox.maxLat] },
-      longitude: { [Op.between]: [bbox.minLng, bbox.maxLng] }
-    },
-    attributes: {
-      include: [[distanceExpr, 'distance_km']]
-    },
-    having: literal(`distance_km <= ${validRadius}`),
-    order: literal('distance_km ASC'),
+  const existing = await gymRepository.findById(command.gymId);
+  if (!existing) {
+    throw new NotFoundError('Gimnasio');
+  }
+
+  const payload = {
+    name: command.name,
+    city: command.city,
+    address: command.address,
+    latitude: command.latitude,
+    longitude: command.longitude,
+    month_price: command.month_price,
+    geofence_radius_meters: command.geofence_radius_meters,
+    min_stay_minutes: command.min_stay_minutes,
+    description: command.description,
+    phone: command.phone,
+    email: command.email,
+    website: command.website,
+    is_active: command.is_active,
+    verified: command.verified,
+    featured: command.featured,
+    auto_checkin_enabled: command.auto_checkin_enabled,
+  };
+
+  if (command.rules !== undefined) {
+    payload.rules = normalizeRules(command.rules);
+  }
+
+  await gymRepository.updateGym(command.gymId, payload, { returning: false });
+
+  if (command.type_names || command.id_types) {
+    const ensuredTypeIds = await gymTypeRepository.ensureTypeIdsByNames(command.type_names || []);
+    const finalIds = new Set([...(command.id_types || []), ...ensuredTypeIds]);
+    await gymRepository.setGymTypes(command.gymId, Array.from(finalIds));
+  }
+
+  if (command.amenities !== undefined) {
+    const amenityIds = normalizeAmenityIds(command.amenities);
+    await gymRepository.setAmenities(command.gymId, amenityIds);
+  }
+
+  return gymRepository.findById(command.gymId);
+};
+
+const deleteGym = async (input) => {
+  const command = ensureDeleteGymCommand(input);
+  const existing = await gymRepository.findById(command.gymId);
+  if (!existing) throw new NotFoundError('Gimnasio');
+  await gymRepository.deleteGym(command.gymId);
+};
+
+// -----------------------------------------------------------------------------
+// Advanced queries
+// -----------------------------------------------------------------------------
+
+const nearbySchema = Joi.object({
+  lat: Joi.number().min(-90).max(90).required(),
+  lng: Joi.number().min(-180).max(180).required(),
+  radiusKm: Joi.number().positive().max(50).default(5),
+  limit: Joi.number().integer().min(1).max(100).default(50),
+  offset: Joi.number().integer().min(0).default(0),
+});
+
+const buscarGimnasiosCercanos = async (queryParams = {}) => {
+  const { error, value } = nearbySchema.validate(queryParams, { abortEarly: false });
+  if (error) {
+    throw new ValidationError('Parámetros inválidos: ' + error.message);
+  }
+
+  return gymRepository.findNearby({
+    lat: value.lat,
+    lng: value.lng,
+    radiusKm: value.radiusKm,
     limit: value.limit,
     offset: value.offset,
-    raw: true
-  });
-
-  return gimnasios.map(gym => ({
-    ...gym,
-    distance_km: parseFloat(gym.distance_km).toFixed(2)
-  }));
-};
-
-const getGymsByCity = async (city) => {
-  return await Gym.findAll({
-    where: {
-      city
-    },
-    include: [amenityInclude]
   });
 };
+
+const getGymsByCity = async (city) => gymRepository.findByCity(city);
 
 const filtrarGimnasios = async ({ city, type, minPrice, maxPrice, amenities }) => {
-  const include = [];
-
-  if (type) {
-    include.push({
-      model: GymType,
-      where: {
-        name: { [Op.like]: `%${type}%` }
-      }
-    });
-  }
-
-  const amenityIds = Array.isArray(amenities) ? amenities : [];
-  const amenityFilter = normalizeAmenityIds(amenityIds);
-
-  include.push(amenityInclude);
-
-  const where = {};
-
-  if (city) where.city = city;
-  if (minPrice || maxPrice) {
-    where.month_price = {};
-    if (minPrice) where.month_price[Op.gte] = minPrice;
-    if (maxPrice) where.month_price[Op.lte] = maxPrice;
-  }
-
-  const resultados = await Gym.findAll({
-    where,
-    include,
-    order: [['month_price', 'ASC']]
+  const amenityIds = normalizeAmenityIds(amenities);
+  const { rows } = await gymRepository.searchGyms({
+    filters: {
+      city,
+      type,
+      minPrice,
+      maxPrice,
+      amenityIds,
+    },
+    pagination: { limit: 100, offset: 0 },
+    sort: { field: 'month_price', direction: 'ASC' },
   });
 
-  let filtrados = resultados;
+  let filtrados = rows;
   let advertencia = null;
 
-  if (amenityFilter.length > 0) {
-    filtrados = resultados.filter((gym) => {
-      const gymAmenityIds = new Set((gym.amenities || []).map((amenity) => amenity.id_amenity));
-      return amenityFilter.every((id) => gymAmenityIds.has(id));
+  if (amenityIds.length > 0) {
+    filtrados = rows.filter((gym) => {
+      const gymAmenityIds = new Set((gym.amenities || []).map((a) => a.id_amenity));
+      return amenityIds.every((id) => gymAmenityIds.has(id));
     });
-
     if (filtrados.length === 0) {
       advertencia = 'No se encontraron gimnasios con todas las amenidades solicitadas.';
-    } else if (filtrados.length < resultados.length) {
-      advertencia = 'Se filtraron gimnasios que no cumplÃ­an todas las amenidades solicitadas.';
+    } else if (filtrados.length < rows.length) {
+      advertencia = 'Se filtraron gimnasios que no cumplían todas las amenidades solicitadas.';
     }
   }
 
   return { resultados: filtrados, advertencia };
 };
 
-const getGymTypes = async () => {
-  const rows = await GymType.findAll({
-    attributes: ['name'],
-    order: [['name', 'ASC']]
+const getGymTypes = async (input = {}) => {
+  const query = ensureGetGymTypesQuery(input);
+  const where = query.activeOnly ? { is_active: true } : undefined;
+  const types = await gymTypeRepository.findAll({
+    where,
+    order: [['name', 'ASC']],
   });
-  // Mantener compatibilidad: devolver array de strings
-  return rows.map(r => r.name);
+  return types.map((type) => type.name);
 };
 
 const obtenerFavoritos = async (id_user_profile) => {
-  const favoritos = await UserFavoriteGym.findAll({
-    where: { id_user_profile },
-    include: [
-      {
-        model: Gym,
-        as: 'gym',
-        required: true,
-        include: [amenityInclude]
-      }
-    ],
-    order: [['created_at', 'DESC']]
-  });
+  const favoritos = await gymRepository.findFavorites(id_user_profile);
   return favoritos.map((fav) => ({
     id_gym: fav.id_gym,
     created_at: fav.created_at,
-    gym: fav.gym
+    gym: fav.gym,
   }));
 };
+
 const toggleFavorito = async (id_user_profile, id_gym) => {
-  const gym = await Gym.findByPk(id_gym, { attributes: ['id_gym', 'name', 'city'] });
+  const gym = await gymRepository.findById(id_gym);
   if (!gym) {
     throw new NotFoundError('Gimnasio');
   }
-  const existing = await UserFavoriteGym.findOne({
-    where: { id_user_profile, id_gym }
-  });
-  if (existing) {
-    await existing.destroy();
-    return {
-      id_gym,
-      favorite: false
-    };
+
+  const existente = await gymRepository.findFavorite(id_user_profile, id_gym);
+  if (existente) {
+    await gymRepository.deleteFavorite(id_user_profile, id_gym);
+    return { id_gym, favorite: false };
   }
-  await UserFavoriteGym.create({ id_user_profile, id_gym });
-  return {
+
+  await gymRepository.createFavorite({
+    id_user_profile,
     id_gym,
-    favorite: true
-  };
+  });
+  return { id_gym, favorite: true };
 };
 
-const listarAmenidades = async () => {
-  return GymAmenity.findAll({
-    order: [
-      ['category', 'ASC'],
-      ['name', 'ASC']
-    ]
-  });
+const listarAmenidades = async (input = {}) => {
+  const query = ensureGetGymAmenitiesQuery(input);
+  const where = query.activeOnly ? { is_active: true } : undefined;
+  return gymAmenityRepository.findAll({ where });
 };
 
 module.exports = {
+  listGyms,
   getAllGyms,
   getGymById,
   createGym,
@@ -383,8 +426,5 @@ module.exports = {
   getGymTypes,
   obtenerFavoritos,
   toggleFavorito,
-  listarAmenidades
+  listarAmenidades,
 };
-
-
-

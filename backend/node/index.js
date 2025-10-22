@@ -10,6 +10,7 @@ const { startCleanupJob } = require('./jobs/cleanup-job');
 const { startAccountDeletionJob } = require('./jobs/account-deletion-job');
 const { startDailyChallengeJob } = require('./jobs/daily-challenge-job');
 const { errorHandler, notFoundHandler } = require('./middlewares/error-handler');
+const openapiValidatorMiddleware = require('./middlewares/openapi-validator');
 const { initSentry, sentryRequestHandler, sentryErrorHandler } = require('./config/sentry');
 const { 
   apiLimiter, 
@@ -85,6 +86,16 @@ app.set('trust proxy', true);
 // Health checks (sin autenticación, para load balancers/kubernetes)
 app.use('/', healthRoutes);
 
+// Exponer el spec de OpenAPI
+const path = require('path');
+const specPath = path.join(__dirname, 'docs', 'openapi.yaml');
+app.get('/openapi.yaml', (_req, res) => {
+  res.sendFile(specPath);
+});
+
+// Validación runtime contra OpenAPI spec (debe ir ANTES de las rutas de API)
+app.use(openapiValidatorMiddleware);
+
 // Rate limiting general para todas las rutas de API
 app.use('/api/', apiLimiter);
 
@@ -159,7 +170,7 @@ async function startServer() {
       console.log('');
       console.log('='.repeat(50));
       console.log(` Servidor GymPoint corriendo en puerto ${PORT}`);
-      console.log(` Documentación API: http://localhost:${PORT}/api-docs`);
+      console.log(` Documentación API: http://localhost:${PORT}/docs`);
       console.log(` Health check: http://localhost:${PORT}/health`);
       console.log(` Ready check: http://localhost:${PORT}/ready`);
       console.log(` Entorno: ${process.env.NODE_ENV || 'development'}`);

@@ -255,9 +255,9 @@ router.post('/google', authController.googleLogin);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [token]
+ *             required: [refreshToken]
  *             properties:
- *               token:
+ *               refreshToken:
  *                 type: string
  *                 example: eyJhbGciOiJIUzI1NiIsIn...
  *     responses:
@@ -289,18 +289,21 @@ router.post('/refresh-token', authController.refreshAccessToken);
  *         application/json:
  *           schema:
  *             type: object
- *             required: [token]
+ *             required: [refreshToken]
  *             properties:
- *               token:
+ *               refreshToken:
  *                 type: string
  *                 description: Refresh token a revocar
  *                 example: eyJhbGciOiJIUzI1NiIsIn...
  *     responses:
- *       200:
- *         description: Logout exitoso, token revocado
+ *       204:
+ *         description: Refresh token revocado
  *       500:
  *         description: Error en el cierre de sesión
  */
 router.post('/logout', authController.logout);
 
 module.exports = router;
+
+
+

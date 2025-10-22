@@ -220,7 +220,8 @@ module.exports = {
       }, { transaction });
 
       await queryInterface.addIndex('streak', ['id_user_profile'], {
-        name: 'idx_streak_user',
+        unique: true,
+        name: 'idx_streak_user_unique',
         transaction
       });
       await queryInterface.addIndex('streak', ['id_frequency'], {
@@ -231,7 +232,7 @@ module.exports = {
         name: 'idx_streak_value',
         transaction
       });
-      console.log(' Tabla "streak" creada con 3 índices\n');
+      console.log(' Tabla "streak" creada con 3 índices (1 único)\n');
 
       // ========================================
       // TABLA: user_gym
@@ -337,16 +338,6 @@ module.exports = {
           onDelete: 'CASCADE',
           onUpdate: 'CASCADE'
         },
-        id_streak: {
-          type: Sequelize.INTEGER,
-          allowNull: false,
-          references: {
-            model: 'streak',
-            key: 'id_streak'
-          },
-          onDelete: 'CASCADE',
-          onUpdate: 'CASCADE'
-        },
         date: {
           type: Sequelize.DATEONLY,
           allowNull: false,
@@ -408,20 +399,6 @@ module.exports = {
         transaction
       });
       console.log(' Tabla "assistance" creada con 4 índices\n');
-
-      // ========================================
-      // AGREGAR FK: user_profiles.id_streak
-      // ========================================
-      console.log(' Agregando FK user_profiles.id_streak -> streak...');
-      await queryInterface.sequelize.query(`
-        ALTER TABLE \`user_profiles\`
-        ADD CONSTRAINT \`fk_user_profile_streak\`
-        FOREIGN KEY (\`id_streak\`)
-        REFERENCES \`streak\` (\`id_streak\`)
-        ON DELETE SET NULL
-        ON UPDATE CASCADE
-      `, { transaction });
-      console.log(' FK agregada\n');
 
       // ========================================
       // TABLA: presence (Auto Check-in System)
@@ -541,12 +518,12 @@ module.exports = {
       console.log('========================================');
       console.log(' Tablas creadas: 6');
       console.log('   - frequency, frequency_history');
-      console.log('   - streak');
+      console.log('   - streak (con relación 1:1 a user_profile)');
       console.log('   - user_gym');
-      console.log('   - assistance');
+      console.log('   - assistance (sin id_streak)');
       console.log('   - presence (auto check-in system)');
       console.log(' Índices creados: 14');
-      console.log(' FK user_profiles.id_streak agregada');
+      console.log(' Índice UNIQUE: streak.id_user_profile');
       console.log('========================================\n');
 
     } catch (error) {

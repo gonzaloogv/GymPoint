@@ -69,22 +69,27 @@ module.exports = {
           allowNull: true,
           comment: 'Localidad/Ciudad del usuario'
         },
-        subscription: {
+        app_tier: {
           type: Sequelize.ENUM('FREE', 'PREMIUM'),
           allowNull: false,
           defaultValue: 'FREE',
-          comment: 'Nivel de suscripción del usuario'
+          comment: 'Tier de la aplicación (FREE o PREMIUM)'
+        },
+        premium_since: {
+          type: Sequelize.DATE,
+          allowNull: true,
+          comment: 'Fecha desde que el usuario es premium'
+        },
+        premium_expires: {
+          type: Sequelize.DATE,
+          allowNull: true,
+          comment: 'Fecha de expiración del premium'
         },
         tokens: {
           type: Sequelize.INTEGER,
           allowNull: false,
           defaultValue: 0,
           comment: 'Tokens acumulados (balance actual)'
-        },
-        id_streak: {
-          type: Sequelize.INTEGER,
-          allowNull: true,
-          comment: 'Racha actual del usuario (FK a streak, se agrega en migración 4)'
         },
         profile_picture_url: {
           type: Sequelize.STRING(500),
@@ -114,8 +119,12 @@ module.exports = {
         name: 'idx_user_profiles_account',
         transaction
       });
-      await queryInterface.addIndex('user_profiles', ['subscription'], {
-        name: 'idx_user_profiles_subscription',
+      await queryInterface.addIndex('user_profiles', ['app_tier'], {
+        name: 'idx_user_profiles_app_tier',
+        transaction
+      });
+      await queryInterface.addIndex('user_profiles', ['premium_expires'], {
+        name: 'idx_user_profiles_premium_expires',
         transaction
       });
       await queryInterface.addIndex('user_profiles', ['tokens'], {
@@ -126,7 +135,7 @@ module.exports = {
         name: 'idx_user_profiles_deleted',
         transaction
       });
-      console.log(' Tabla "user_profiles" creada con 4 índices\n');
+      console.log(' Tabla "user_profiles" creada con 5 índices\n');
 
       // ========================================
       // TABLA: admin_profiles

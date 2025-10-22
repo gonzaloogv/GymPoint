@@ -1,51 +1,78 @@
-const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const fs = require('fs');
+const path = require('path');
+const YAML = require('yaml');
 
-const swaggerDefinition = {
-  openapi: '3.0.0',
-  info: {
-    title: 'GymPoint API',
-    version: '1.0.0',
-    description: 'Documentación de la API del sistema GymPoint'
-  },
-  servers: [
-    {
-      url: 'http://localhost:3000',
-      description: 'Servidor local'
-    }
-  ],
-  components: {
-    securitySchemes: {
-      bearerAuth: {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT'
-      }
-    }
-  },
-  security: [
-    {
-      bearerAuth: []
-    }
-  ]
-};
+const SPEC_CANDIDATES = [
+  path.resolve(__dirname, '../../../docs/openapi.yaml'),
+  path.resolve(__dirname, '../../docs/openapi.yaml'),
+  path.resolve(__dirname, '../docs/openapi.yaml')
+];
 
-const options = {
-  swaggerDefinition,
-  apis: ['./routes/*.js'] // analiza comentarios en tus rutas
-};
+function resolveSpecPath() {
+  for (const candidate of SPEC_CANDIDATES) {
+    if (fs.existsSync(candidate)) {
+      console.log(`[swagger] usando spec en ${candidate}`);
+      return candidate;
+    }
+    console.log(`[swagger] spec no encontrada en ${candidate}`);
+  }
+  console.error('[swagger] No se encontró docs/openapi.yaml en rutas conocidas');
+  return null;
+}
 
-const swaggerSpec = swaggerJSDoc(options);
+const SPEC_PATH = resolveSpecPath();
+
+function readSpecAsJson() {
+  if (!SPEC_PATH) {
+    return null;
+  }
+  try {
+    const yamlRaw = fs.readFileSync(SPEC_PATH, 'utf8');
+    return YAML.parse(yamlRaw);
+  } catch (error) {
+    console.error('[swagger] Error al parsear openapi.yaml:', error.message);
+    return null;
+  }
+}
 
 const setupSwagger = (app) => {
-  // Swagger UI
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-  
-  // Endpoint para obtener el JSON de OpenAPI
-  app.get('/api-docs.json', (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.send(swaggerSpec);
-  });
+  if (SPEC_PATH) {
+    app.get('/openapi.yaml', (_req, res) => {
+      res.sendFile(SPEC_PATH);
+    });
+
+    app.get('/api-docs.json', (_req, res) => {
+      const jsonSpec = readSpecAsJson();
+      if (!jsonSpec) {
+        return res.status(500).send('OpenAPI spec not available');
+      }
+      res.json(jsonSpec);
+    });
+
+    app.use(
+      '/docs',
+      swaggerUi.serve,
+      swaggerUi.setup(null, {
+        explorer: true,
+        customSiteTitle: 'GymPoint API Docs',
+        swaggerOptions: {
+          url: '/api-docs.json',
+          displayRequestDuration: true,
+          docExpansion: 'none'
+        }
+      })
+    );
+  } else {
+    app.get('/docs', (_req, res) => {
+      res.status(500).send('OpenAPI spec not available');
+    });
+    app.get('/api-docs.json', (_req, res) => {
+      res.status(500).send('OpenAPI spec not available');
+    });
+  }
+
+  app.get('/api-docs', (_req, res) => res.redirect(301, '/docs'));
 };
 
 module.exports = setupSwagger;

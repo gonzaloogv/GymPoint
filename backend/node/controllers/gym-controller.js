@@ -1,211 +1,218 @@
 const gymService = require('../services/gym-service');
+const { gym: gymMapper } = require('../services/mappers');
+const { ValidationError, NotFoundError } = require('../utils/errors');
 
 const getAllGyms = async (req, res) => {
   try {
-    const gyms = await gymService.getAllGyms();
-    res.json(gyms);
+    const query = gymMapper.toListGymsQuery(req.query || {});
+    const page = await gymService.listGyms(query);
+    res.json(gymMapper.toPaginatedGymsResponse(page));
   } catch (err) {
-    res.status(500).json({
+    const status = err instanceof ValidationError ? 400 : 500;
+    res.status(status).json({
       error: {
-        code: 'GET_ALL_GYMS_FAILED',
-        message: err.message
-      }
+        code: status === 400 ? 'INVALID_QUERY' : 'GET_ALL_GYMS_FAILED',
+        message: err.message,
+      },
     });
   }
 };
 
 const getGymById = async (req, res) => {
   try {
-    const gym = await gymService.getGymById(req.params.id);
+    const query = gymMapper.toGetGymDetailQuery({ gymId: req.params.id });
+    const gym = await gymService.getGymById(query);
     if (!gym) {
       return res.status(404).json({
         error: {
           code: 'GYM_NOT_FOUND',
-          message: 'Gimnasio no encontrado'
-        }
+          message: 'Gimnasio no encontrado',
+        },
       });
     }
-    res.json(gym);
+    res.json(gymMapper.toGymResponse(gym));
   } catch (err) {
-    res.status(500).json({
+    const status = err instanceof ValidationError ? 400 : 500;
+    res.status(status).json({
       error: {
-        code: 'GET_GYM_FAILED',
-        message: err.message
-      }
+        code: status === 400 ? 'INVALID_GYM_ID' : 'GET_GYM_FAILED',
+        message: err.message,
+      },
     });
   }
 };
 
 const createGym = async (req, res) => {
   try {
-    const gym = await gymService.createGym(req.body);
-    res.status(201).json(gym);
+    const command = gymMapper.toCreateGymCommand(req.body, req.account?.id_account || null);
+    const gym = await gymService.createGym(command);
+    res.status(201).json(gymMapper.toGymResponse(gym));
   } catch (err) {
-    res.status(400).json({
+    const status = err instanceof ValidationError ? 400 : 500;
+    res.status(status).json({
       error: {
-        code: 'CREATE_GYM_FAILED',
-        message: err.message
-      }
+        code: status === 400 ? 'INVALID_DATA' : 'CREATE_GYM_FAILED',
+        message: err.message,
+      },
     });
   }
 };
 
 const updateGym = async (req, res) => {
   try {
-    const gym = await gymService.updateGym(req.params.id, req.body);
-    res.json(gym);
+    const command = gymMapper.toUpdateGymCommand(
+      req.body,
+      req.params.id,
+      req.account?.id_account || null
+    );
+    const gym = await gymService.updateGym(command.gymId, command);
+    res.json(gymMapper.toGymResponse(gym));
   } catch (err) {
-    res.status(404).json({
+    const status =
+      err instanceof ValidationError ? 400 : err instanceof NotFoundError ? 404 : 500;
+    res.status(status).json({
       error: {
-        code: 'UPDATE_GYM_FAILED',
-        message: err.message
-      }
+        code:
+          status === 400
+            ? 'INVALID_DATA'
+            : status === 404
+            ? 'GYM_NOT_FOUND'
+            : 'UPDATE_GYM_FAILED',
+        message: err.message,
+      },
     });
   }
 };
 
 const deleteGym = async (req, res) => {
   try {
-    await gymService.deleteGym(req.params.id);
+    const command = gymMapper.toDeleteGymCommand(
+      req.params.id,
+      req.account?.id_account || null
+    );
+    await gymService.deleteGym(command);
     res.status(204).send();
   } catch (err) {
-    res.status(404).json({
+    const status = err instanceof NotFoundError ? 404 : 500;
+    res.status(status).json({
       error: {
-        code: 'DELETE_GYM_FAILED',
-        message: err.message
-      }
+        code: status === 404 ? 'GYM_NOT_FOUND' : 'DELETE_GYM_FAILED',
+        message: err.message,
+      },
     });
   }
 };
 
-/**
- * Buscar gimnasios cercanos
- * @route GET /api/gyms/cercanos
- * @access Public
- */
 const buscarGimnasiosCercanos = async (req, res) => {
   try {
-    const { lat, lng, lon, radiusKm, radius, limit, offset } = req.query;
-    
-    // Soportar tanto 'lng' como 'lon' para retrocompatibilidad
-    const longitude = lng || lon;
-    
-    if (!lat || !longitude) {
-      return res.status(400).json({ 
-        error: { 
-          code: 'MISSING_PARAMS', 
-          message: 'Parámetros requeridos: lat y lng (o lon)' 
-        } 
-      });
-    }
+    const gyms = await gymService.buscarGimnasiosCercanos(req.query);
+    const lat = parseFloat(req.query.lat);
+    const lng = parseFloat(req.query.lng ?? req.query.lon);
+    const radiusKm = parseFloat(req.query.radiusKm ?? req.query.radius ?? 5);
 
-    // Soportar tanto 'radiusKm' como 'radius'
-    const radius_km = radiusKm || radius || 5;
-
-    const resultado = await gymService.buscarGimnasiosCercanos(
-      parseFloat(lat),
-      parseFloat(longitude),
-      parseFloat(radius_km),
-      limit ? parseInt(limit) : 50,
-      offset ? parseInt(offset) : 0
-    );
-    
     res.json({
       message: 'Gimnasios cercanos obtenidos con éxito',
-      data: resultado,
+      data: gyms.map((gym) => gymMapper.toGymResponse(gym)),
       meta: {
-        total: resultado.length,
-        center: { lat: parseFloat(lat), lng: parseFloat(longitude) },
-        radius_km: parseFloat(radius_km)
-      }
+        total: gyms.length,
+        center: {
+          lat: Number.isFinite(lat) ? lat : null,
+          lng: Number.isFinite(lng) ? lng : null,
+        },
+        radius_km: Number.isFinite(radiusKm) ? radiusKm : null,
+      },
     });
   } catch (err) {
-    console.error('Error en buscarGimnasiosCercanos:', err.message);
-    res.status(400).json({ 
-      error: { 
-        code: 'SEARCH_NEARBY_FAILED', 
-        message: err.message 
-      } 
+    const status = err instanceof ValidationError ? 400 : 500;
+    res.status(status).json({
+      error: {
+        code: status === 400 ? 'INVALID_QUERY' : 'SEARCH_NEARBY_FAILED',
+        message: err.message,
+      },
     });
   }
 };
 
 const getGymsByCity = async (req, res) => {
   try {
-    const { city } = req.query;
-    if (!city) {
-      return res.status(400).json({
-        error: {
-          code: 'MISSING_CITY',
-          message: 'Parámetro city requerido'
-        }
-      });
-    }
-
-    const gyms = await gymService.getGymsByCity(city);
-    res.json(gyms);
+    const gyms = await gymService.getGymsByCity(req.params.city || req.query.city);
+    res.json(gyms.map((gym) => gymMapper.toGymResponse(gym)));
   } catch (err) {
     res.status(500).json({
       error: {
         code: 'GET_GYMS_BY_CITY_FAILED',
-        message: err.message
-      }
+        message: err.message,
+      },
     });
   }
 };
 
 const filtrarGimnasios = async (req, res) => {
   try {
-    const id_user = req.user.id_user_profile;
-    const subscription = req.account?.userProfile?.subscription || 'FREE';
-
-    const { city, type, minPrice, maxPrice, amenities } = req.query;
-
-    if ((type || amenities) && subscription !== 'PREMIUM') {
+    const userProfile = req.account?.userProfile;
+    if (!userProfile) {
       return res.status(403).json({
         error: {
-          code: 'PREMIUM_REQUIRED',
-          message: 'Solo usuarios PREMIUM pueden filtrar por tipo o amenidades.'
-        }
+          code: 'USER_PROFILE_REQUIRED',
+          message: 'Perfil de usuario requerido',
+        },
       });
     }
 
-    const amenityIds = Array.isArray(amenities)
-      ? amenities.flat().map(Number).filter(Number.isFinite)
-      : (typeof amenities === 'string' && amenities.length
-        ? amenities.split(',').map(Number).filter(Number.isFinite)
-        : null);
+    const { subscription } = userProfile;
+    const amenityIds = Array.isArray(req.query.amenities)
+      ? req.query.amenities.flat().map(Number).filter(Number.isFinite)
+      : typeof req.query.amenities === 'string' && req.query.amenities.length
+      ? req.query.amenities.split(',').map(Number).filter(Number.isFinite)
+      : [];
 
     const { resultados, advertencia } = await gymService.filtrarGimnasios({
-      id_user,
-      city,
-      type: subscription === 'PREMIUM' ? type : null,
-      minPrice: minPrice ? parseFloat(minPrice) : null,
-      maxPrice: maxPrice ? parseFloat(maxPrice) : null,
-      amenities: subscription === 'PREMIUM' ? amenityIds : null
+      city: req.query.city || null,
+      type: subscription === 'PREMIUM' ? req.query.type : null,
+      minPrice: req.query.minPrice ? parseFloat(req.query.minPrice) : null,
+      maxPrice: req.query.maxPrice ? parseFloat(req.query.maxPrice) : null,
+      amenities: subscription === 'PREMIUM' ? amenityIds : null,
     });
 
-    res.json({ gimnasios: resultados, advertencia });
+    res.json({
+      gimnasios: resultados.map((gym) => gymMapper.toGymResponse(gym)),
+      advertencia,
+    });
   } catch (err) {
-    res.status(400).json({
+    const status = err instanceof ValidationError ? 400 : 500;
+    res.status(status).json({
       error: {
-        code: 'FILTER_GYMS_FAILED',
-        message: err.message
-      }
+        code: status === 400 ? 'INVALID_FILTER' : 'FILTER_GYMS_FAILED',
+        message: err.message,
+      },
     });
   }
 };
 
 const getGymTypes = async (req, res) => {
   try {
-    const tipos = await gymService.getGymTypes();
+    const tipos = await gymService.getGymTypes(req.query);
     res.json(tipos);
   } catch (err) {
     res.status(500).json({
       error: {
         code: 'GET_GYM_TYPES_FAILED',
-        message: err.message
-      }
+        message: err.message,
+      },
+    });
+  }
+};
+
+const getAmenities = async (req, res) => {
+  try {
+    const amenities = await gymService.listarAmenidades(req.query);
+    res.json(amenities.map((item) => gymMapper.toGymAmenityResponse(item)));
+  } catch (err) {
+    res.status(500).json({
+      error: {
+        code: 'GET_GYM_AMENITIES_FAILED',
+        message: err.message,
+      },
     });
   }
 };
@@ -217,19 +224,25 @@ const obtenerFavoritos = async (req, res) => {
       return res.status(403).json({
         error: {
           code: 'USER_PROFILE_REQUIRED',
-          message: 'Perfil de usuario requerido'
-        }
+          message: 'Perfil de usuario requerido',
+        },
       });
     }
 
     const favoritos = await gymService.obtenerFavoritos(userProfile.id_user_profile);
-    res.json(favoritos);
-  } catch (error) {
-    res.status(error.statusCode || 500).json({
+    res.json(
+      favoritos.map((fav) => ({
+        id_gym: fav.id_gym,
+        created_at: fav.created_at,
+        gym: gymMapper.toGymResponse(fav.gym),
+      }))
+    );
+  } catch (err) {
+    res.status(500).json({
       error: {
         code: 'GET_FAVORITES_FAILED',
-        message: error.message
-      }
+        message: err.message,
+      },
     });
   }
 };
@@ -241,43 +254,30 @@ const toggleFavorito = async (req, res) => {
       return res.status(403).json({
         error: {
           code: 'USER_PROFILE_REQUIRED',
-          message: 'Perfil de usuario requerido'
-        }
+          message: 'Perfil de usuario requerido',
+        },
       });
     }
 
-    const idGym = parseInt(req.params.id, 10);
-    if (Number.isNaN(idGym)) {
+    const idGym = Number(req.params.id);
+    if (!Number.isFinite(idGym)) {
       return res.status(400).json({
         error: {
           code: 'INVALID_GYM_ID',
-          message: 'ID de gimnasio inválido'
-        }
+          message: 'ID de gimnasio inválido',
+        },
       });
     }
 
     const resultado = await gymService.toggleFavorito(userProfile.id_user_profile, idGym);
     res.json(resultado);
-  } catch (error) {
-    res.status(error.statusCode || 500).json({
+  } catch (err) {
+    const status = err instanceof NotFoundError ? 404 : 500;
+    res.status(status).json({
       error: {
-        code: 'TOGGLE_FAVORITE_FAILED',
-        message: error.message
-      }
-    });
-  }
-};
-
-const getAmenities = async (req, res) => {
-  try {
-    const amenities = await gymService.listarAmenidades();
-    res.json(amenities);
-  } catch (error) {
-    res.status(500).json({
-      error: {
-        code: 'GET_GYM_AMENITIES_FAILED',
-        message: error.message
-      }
+        code: status === 404 ? 'GYM_NOT_FOUND' : 'TOGGLE_FAVORITE_FAILED',
+        message: err.message,
+      },
     });
   }
 };
@@ -294,5 +294,5 @@ module.exports = {
   getGymTypes,
   getAmenities,
   obtenerFavoritos,
-  toggleFavorito
+  toggleFavorito,
 };

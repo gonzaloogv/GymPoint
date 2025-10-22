@@ -1,220 +1,194 @@
-jest.mock('bcryptjs');
-jest.mock('../config/database', () => ({ transaction: jest.fn() }));
-
-const createUserProfileMock = () => {
-  const save = jest.fn();
-  const instance = { save };
-  return { instance, save };
-};
-
-jest.mock('../models', () => {
-  const userProfileMockFn = jest.fn();
-  class UserProfile {
-    constructor(data) {
-      Object.assign(this, data);
-      this.save = jest.fn();
-    }
-  }
-  UserProfile.create = jest.fn();
-  UserProfile.findOne = jest.fn();
-
-  class AdminProfile {}
-
-  return {
-    __esModule: true,
-    Account: { findOne: jest.fn(), create: jest.fn() },
-    Role: { findOne: jest.fn() },
-    AccountRole: { create: jest.fn() },
-    UserProfile,
-    AdminProfile,
-    __mocks: { userProfileMockFn }
-  };
-});
-
-jest.mock('../models/Streak', () => ({
-  create: jest.fn()
+jest.mock('../infra/db/repositories', () => ({
+  accountRepository: {
+    findByEmail: jest.fn(),
+    createAccount: jest.fn(),
+    findRoleByName: jest.fn(),
+    linkRole: jest.fn(),
+    findById: jest.fn(),
+    updateLastLogin: jest.fn(),
+  },
+  userProfileRepository: {
+    createUserProfile: jest.fn(),
+    updateUserProfile: jest.fn(),
+    findById: jest.fn(),
+  },
+  refreshTokenRepository: {
+    createRefreshToken: jest.fn(),
+    findActiveByToken: jest.fn(),
+    revokeByToken: jest.fn(),
+  },
+  streakRepository: {
+    createStreak: jest.fn(),
+  },
 }));
-jest.mock('../models/RefreshToken', () => ({
-  create: jest.fn(),
-  update: jest.fn(),
-  findOne: jest.fn()
-}));
+
 jest.mock('../services/frequency-service', () => ({
-  crearMetaSemanal: jest.fn()
+  crearMetaSemanal: jest.fn(),
 }));
+
+jest.mock('../utils/transaction-helper', () => ({
+  runWithRetryableTransaction: jest.fn(),
+}));
+
+jest.mock('bcryptjs', () => ({
+  hash: jest.fn(),
+  compare: jest.fn(),
+}));
+
 jest.mock('jsonwebtoken', () => ({
   sign: jest.fn(),
-  verify: jest.fn()
+  verify: jest.fn(),
 }));
-jest.mock('../utils/auth-providers/google-provider', () => {
-  return jest.fn().mockImplementation(() => ({
-    verifyToken: jest.fn(),
-    validateGoogleUser: jest.fn()
-  }));
-});
 
-process.env.GOOGLE_CLIENT_ID = 'test-client-id';
-process.env.JWT_SECRET = 'secret';
+jest.mock('../utils/auth-providers/google-provider', () =>
+  jest.fn().mockImplementation(() => ({
+    verifyIdToken: jest.fn(),
+  }))
+);
+
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const frequencyService = require('../services/frequency-service');
+const { runWithRetryableTransaction } = require('../utils/transaction-helper');
+const repositories = require('../infra/db/repositories');
+const authService = require('../services/auth-service');
+
+process.env.JWT_SECRET = 'jwt-secret';
 process.env.JWT_REFRESH_SECRET = 'refresh-secret';
 
-const sequelize = require('../config/database');
-const authService = require('../services/auth-service');
-const bcrypt = require('bcryptjs');
-const { Account, Role, AccountRole, UserProfile } = require('../models');
-const Streak = require('../models/Streak');
-const RefreshToken = require('../models/RefreshToken');
-const frequencyService = require('../services/frequency-service');
-const jwt = require('jsonwebtoken');
+const accountRepository = repositories.accountRepository;
+const userProfileRepository = repositories.userProfileRepository;
+const refreshTokenRepository = repositories.refreshTokenRepository;
+const streakRepository = repositories.streakRepository;
+
+const mockTransaction = { id: 'tx' };
 
 beforeEach(() => {
   jest.clearAllMocks();
+  runWithRetryableTransaction.mockImplementation((callback) =>
+    callback(mockTransaction)
+  );
 });
 
-describe('auth-service.register', () => {
-  it('crea nueva cuenta de usuario local', async () => {
-    const transaction = { commit: jest.fn(), rollback: jest.fn() };
-    sequelize.transaction.mockResolvedValue(transaction);
-
+describe('auth-service register', () => {
+  it('crea una cuenta local y retorna tokens + usuario', async () => {
     const account = { id_account: 1, email: 'test@example.com' };
-    Account.findOne.mockResolvedValue(null);
-    bcrypt.hash.mockResolvedValue('hashed');
-    Account.create.mockResolvedValue(account);
-
-    Role.findOne.mockResolvedValue({ id_role: 2 });
-    AccountRole.create.mockResolvedValue({});
-
-    const userProfileInstance = new UserProfile({
-      id_account: 1,
+    const profile = {
       id_user_profile: 10,
+      name: 'Test',
+      lastname: 'User',
       subscription: 'FREE',
-      name: 'User',
-      lastname: 'Test'
-    });
-    UserProfile.create.mockResolvedValue(userProfileInstance);
+    };
+    const accountWithRelations = {
+      ...account,
+      email_verified: false,
+      roles: [{ role_name: 'USER' }],
+      userProfile: profile,
+    };
 
-    frequencyService.crearMetaSemanal.mockResolvedValue({ id_frequency: 20 });
-    Streak.create.mockResolvedValue({ id_streak: 30 });
+    accountRepository.findByEmail.mockResolvedValue(null);
+    bcrypt.hash.mockResolvedValue('hashed');
+    accountRepository.createAccount.mockResolvedValue(account);
+    accountRepository.findRoleByName.mockResolvedValue({ id_role: 2 });
+    userProfileRepository.createUserProfile.mockResolvedValue(profile);
+    frequencyService.crearMetaSemanal.mockResolvedValue({ id_frequency: 3 });
+    streakRepository.createStreak.mockResolvedValue({ id_streak: 4 });
+    userProfileRepository.updateUserProfile.mockResolvedValue(profile);
+    accountRepository.findById.mockResolvedValue(accountWithRelations);
+    jwt.sign.mockImplementation((_payload, secret) =>
+      secret === process.env.JWT_SECRET ? 'access-token' : 'refresh-token'
+    );
+    refreshTokenRepository.createRefreshToken.mockResolvedValue({});
 
     const data = {
       email: 'test@example.com',
-      password: 'pass',
-      name: 'User',
-      lastname: 'Test',
-      frequency_goal: 3
+      password: 'secret',
+      name: 'Test',
+      lastname: 'User',
+      frequency_goal: 3,
     };
 
-    const result = await authService.register(data);
+    const result = await authService.register(data, { headers: {}, ip: '127.0.0.1' });
 
-    expect(Account.findOne).toHaveBeenCalledWith({ where: { email: data.email }, transaction });
-    expect(Account.create).toHaveBeenCalledWith(expect.objectContaining({ email: data.email, password_hash: 'hashed' }), { transaction });
-    expect(AccountRole.create).toHaveBeenCalledWith({ id_account: 1, id_role: 2 }, { transaction });
-    expect(UserProfile.create).toHaveBeenCalledWith(expect.objectContaining({ id_account: 1 }), { transaction });
-    expect(frequencyService.crearMetaSemanal).toHaveBeenCalledWith({ id_user: 10, goal: 3 }, { transaction });
-    expect(Streak.create).toHaveBeenCalledWith(expect.objectContaining({ id_user: 10 }), { transaction });
-    expect(userProfileInstance.save).toHaveBeenCalledWith({ transaction });
-    expect(transaction.commit).toHaveBeenCalled();
-    expect(result).toEqual(expect.objectContaining({
-      account,
-      userProfile: userProfileInstance,
-      id_user: 10,
-      email: 'test@example.com'
-    }));
+    expect(accountRepository.createAccount).toHaveBeenCalledWith(
+      expect.objectContaining({ email: data.email, password_hash: 'hashed' }),
+      { transaction: mockTransaction }
+    );
+    expect(userProfileRepository.createUserProfile).toHaveBeenCalledWith(
+      expect.objectContaining({ id_account: account.id_account }),
+      { transaction: mockTransaction }
+    );
+    expect(refreshTokenRepository.createRefreshToken).toHaveBeenCalledWith(
+      expect.objectContaining({ id_user: profile.id_user_profile }),
+      {}
+    );
+    expect(result).toEqual({
+      token: 'access-token',
+      refreshToken: 'refresh-token',
+      account: accountWithRelations,
+      profile,
+    });
   });
 
   it('lanza error si el email ya existe', async () => {
-    const transaction = { commit: jest.fn(), rollback: jest.fn() };
-    sequelize.transaction.mockResolvedValue(transaction);
-    Account.findOne.mockResolvedValue({ id_account: 1 });
+    accountRepository.findByEmail.mockResolvedValue({ id_account: 99 });
 
-    await expect(authService.register({ email: 'exists', password: 'a' }))
-      .rejects.toThrow('El email ya esta registrado');
-    expect(transaction.rollback).toHaveBeenCalled();
-  });
-
-  it('reintenta el registro si ocurre un lock wait timeout', async () => {
-    const transaction1 = { commit: jest.fn(), rollback: jest.fn() };
-    const transaction2 = { commit: jest.fn(), rollback: jest.fn() };
-    sequelize.transaction
-      .mockResolvedValueOnce(transaction1)
-      .mockResolvedValueOnce(transaction2);
-
-    const account = { id_account: 5, email: 'retry@example.com' };
-    const userProfileInstance = new UserProfile({
-      id_account: 5,
-      id_user_profile: 50,
-      subscription: 'FREE',
-      name: 'Retry',
-      lastname: 'User'
-    });
-
-    const lockError = new Error('lock wait');
-    lockError.parent = { code: 'ER_LOCK_WAIT_TIMEOUT' };
-
-    Account.findOne.mockResolvedValue(null);
-    bcrypt.hash.mockResolvedValue('hashed');
-    Account.create
-      .mockRejectedValueOnce(lockError)
-      .mockResolvedValueOnce(account);
-    Role.findOne.mockResolvedValue({ id_role: 7 });
-    AccountRole.create.mockResolvedValue({});
-    UserProfile.create.mockResolvedValue(userProfileInstance);
-    frequencyService.crearMetaSemanal.mockResolvedValue({ id_frequency: 13 });
-    Streak.create.mockResolvedValue({ id_streak: 21 });
-
-    const result = await authService.register({
-      email: 'retry@example.com',
-      password: 'pass',
-      name: 'Retry',
-      lastname: 'User',
-      frequency_goal: 4
-    });
-
-    expect(sequelize.transaction).toHaveBeenCalledTimes(2);
-    expect(transaction1.rollback).toHaveBeenCalled();
-    expect(transaction2.commit).toHaveBeenCalled();
-    expect(Account.create).toHaveBeenCalledTimes(2);
-    expect(frequencyService.crearMetaSemanal).toHaveBeenCalledWith({ id_user: 50, goal: 4 }, { transaction: transaction2 });
-    expect(result.email).toBe('retry@example.com');
+    await expect(authService.register({ email: 'exists@example.com' })).rejects.toThrow(
+      'El email ya esta registrado'
+    );
+    expect(accountRepository.createAccount).not.toHaveBeenCalled();
   });
 });
 
-describe('auth-service.login', () => {
-  const req = { headers: {}, ip: '127.0.0.1', connection: {} };
+describe('auth-service login', () => {
+  const context = { headers: {}, ip: '127.0.0.1' };
 
-  it('retorna tokens y refresco para usuarios locales', async () => {
+  it('retorna tokens y usuario para credenciales válidas', async () => {
     const account = {
       id_account: 2,
-      email: 'a@a.com',
-      password_hash: 'hash',
-      auth_provider: 'local',
+      email: 'user@example.com',
+      password_hash: 'hashed',
+      email_verified: true,
       roles: [{ role_name: 'USER' }],
-      userProfile: { id_user_profile: 3, subscription: 'FREE' },
-      save: jest.fn()
+      userProfile: { id_user_profile: 5, subscription: 'FREE' },
     };
-    Account.findOne.mockResolvedValue(account);
+
+    accountRepository.findByEmail.mockResolvedValue(account);
     bcrypt.compare.mockResolvedValue(true);
-    jwt.sign
-      .mockReturnValueOnce('access-token')
-      .mockReturnValueOnce('refresh-token');
-    RefreshToken.create.mockResolvedValue({});
+    jwt.sign.mockImplementation((_payload, secret) =>
+      secret === process.env.JWT_SECRET ? 'access-token' : 'refresh-token'
+    );
+    refreshTokenRepository.createRefreshToken.mockResolvedValue({});
 
-    const result = await authService.login('a@a.com', 'pass', req);
+    const result = await authService.login({ email: account.email, password: 'secret' }, context);
 
-    expect(account.save).toHaveBeenCalled();
-    expect(result).toEqual({ token: 'access-token', refreshToken: 'refresh-token', account, profile: account.userProfile });
+    expect(accountRepository.updateLastLogin).toHaveBeenCalled();
+    expect(refreshTokenRepository.createRefreshToken).toHaveBeenCalledWith(
+      expect.objectContaining({ id_user: account.userProfile.id_user_profile }),
+      expect.any(Object)
+    );
+    expect(result).toEqual({
+      token: 'access-token',
+      refreshToken: 'refresh-token',
+      account,
+      profile: account.userProfile,
+    });
   });
 
-  it('lanza error si las credenciales son inválidas', async () => {
-    Account.findOne.mockResolvedValue({
-      id_account: 3,
-      password_hash: 'hash',
-      auth_provider: 'local',
+  it('lanza error si la contraseña es inválida', async () => {
+    const account = {
+      id_account: 2,
+      email: 'user@example.com',
+      password_hash: 'hashed',
       roles: [],
-      save: jest.fn()
-    });
+      userProfile: null,
+    };
+    accountRepository.findByEmail.mockResolvedValue(account);
     bcrypt.compare.mockResolvedValue(false);
 
-    await expect(authService.login('a@a.com', 'wrong', req))
-      .rejects.toThrow('Credenciales inválidas');
+    await expect(
+      authService.login({ email: account.email, password: 'wrong' }, context)
+    ).rejects.toThrow('Credenciales inválidas');
   });
 });
+

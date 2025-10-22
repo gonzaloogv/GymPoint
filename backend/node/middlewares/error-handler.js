@@ -17,6 +17,15 @@ const errorHandler = (err, req, res, next) => {
     user: req.user?.id_user_profile || req.user?.id
   });
 
+  // Errores de validación de OpenAPI (express-openapi-validator)
+  if (err.status && err.errors) {
+    return res.status(err.status).json({
+      code: 'VALIDATION_ERROR',
+      message: err.message || 'Error de validación contra el contrato OpenAPI',
+      details: err.errors
+    });
+  }
+
   // Si es un error operacional conocido (AppError y sus subclases)
   if (err.isOperational) {
     return res.status(err.statusCode).json({

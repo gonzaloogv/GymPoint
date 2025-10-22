@@ -65,8 +65,9 @@ const Streak = sequelize.define('Streak', {
   updatedAt: 'updated_at',
   indexes: [
     {
+      unique: true,
       fields: ['id_user_profile'],
-      name: 'idx_streak_user'
+      name: 'idx_streak_user_unique'
     },
     {
       fields: ['id_frequency'],
