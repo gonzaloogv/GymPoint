@@ -20,6 +20,12 @@ const Routine = sequelize.define('Routine', {
   created_by: {
     type: DataTypes.INTEGER,
     allowNull: true,
+    references: {
+      model: 'user_profiles',
+      key: 'id_user_profile'
+    },
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
     comment: 'Usuario creador (NULL = rutina del sistema)'
   },
   is_template: {

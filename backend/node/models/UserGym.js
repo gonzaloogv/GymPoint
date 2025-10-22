@@ -10,11 +10,23 @@ const UserGym = sequelize.define('UserGym', {
   id_user_profile: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'user_profiles',
+      key: 'id_user_profile'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     comment: 'Usuario suscrito al gimnasio'
   },
   id_gym: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'gym',
+      key: 'id_gym'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     comment: 'Gimnasio al que está suscrito'
   },
   subscription_plan: {

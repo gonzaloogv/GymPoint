@@ -10,6 +10,12 @@ const Frequency = sequelize.define('Frequency', {
     id_user_profile: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+            model: 'user_profiles',
+            key: 'id_user_profile'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         comment: 'Usuario al que pertenece la frecuencia'
     },
     goal: {

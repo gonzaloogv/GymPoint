@@ -14,6 +14,12 @@ const TokenLedger = sequelize.define('TokenLedger', {
   id_user_profile: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'user_profiles',
+      key: 'id_user_profile'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     comment: 'Usuario asociado al movimiento'
   },
   delta: {

@@ -9,7 +9,13 @@ const UserAchievementEvent = sequelize.define('UserAchievementEvent', {
   },
   id_user_achievement: {
     type: DataTypes.BIGINT,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'user_achievement',
+      key: 'id_user_achievement'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
   event_type: {
     type: DataTypes.ENUM('PROGRESS', 'UNLOCKED', 'RESET'),

@@ -45,6 +45,12 @@ const Exercise = sequelize.define('Exercise', {
   created_by: {
     type: DataTypes.INTEGER,
     allowNull: true,
+    references: {
+      model: 'user_profiles',
+      key: 'id_user_profile'
+    },
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
     comment: 'Usuario creador (NULL = ejercicio del sistema)'
   }
 }, {

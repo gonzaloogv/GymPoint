@@ -10,6 +10,12 @@ const RewardCode = sequelize.define('RewardCode', {
   id_reward: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'reward',
+      key: 'id_reward'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     comment: 'Recompensa asociada al código'
   },
   code: {

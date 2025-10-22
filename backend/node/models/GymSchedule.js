@@ -10,6 +10,12 @@ const GymSchedule = sequelize.define('GymSchedule', {
   id_gym: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'gym',
+      key: 'id_gym'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     comment: 'Referencia al gimnasio'
   },
   day_of_week: {

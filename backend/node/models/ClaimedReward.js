@@ -10,16 +10,34 @@ const ClaimedReward = sequelize.define('ClaimedReward', {
   id_user_profile: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'user_profiles',
+      key: 'id_user_profile'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     comment: 'Referencia al perfil de usuario'
   },
   id_reward: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'reward',
+      key: 'id_reward'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     comment: 'Referencia a la recompensa'
   },
   id_code: {
     type: DataTypes.INTEGER,
     allowNull: true,
+    references: {
+      model: 'reward_code',
+      key: 'id_code'
+    },
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
     comment: 'Código de recompensa usado (si aplica)'
   },
   claimed_date: {

@@ -10,11 +10,23 @@ const RoutineExercise = sequelize.define('RoutineExercise', {
   id_routine_day: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'routine_day',
+      key: 'id_routine_day'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     comment: 'Día de la rutina'
   },
   id_exercise: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'exercise',
+      key: 'id_exercise'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     comment: 'Ejercicio asignado'
   },
   exercise_order: {

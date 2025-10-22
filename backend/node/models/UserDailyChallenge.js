@@ -5,12 +5,24 @@ const UserDailyChallenge = sequelize.define('UserDailyChallenge', {
   id_user_profile: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    primaryKey: true
+    primaryKey: true,
+    references: {
+      model: 'user_profiles',
+      key: 'id_user_profile'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
   id_challenge: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    primaryKey: true
+    primaryKey: true,
+    references: {
+      model: 'daily_challenge',
+      key: 'id_challenge'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
   progress: {
     type: DataTypes.INTEGER,

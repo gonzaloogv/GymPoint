@@ -10,16 +10,34 @@ const Assistance = sequelize.define('Assistance', {
   id_user_profile: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'user_profiles',
+      key: 'id_user_profile'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     comment: 'Referencia al perfil de usuario'
   },
   id_gym: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'gym',
+      key: 'id_gym'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     comment: 'Gimnasio donde se realizó la asistencia'
   },
   id_streak: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'streak',
+      key: 'id_streak'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     comment: 'Racha asociada a esta asistencia'
   },
   date: {

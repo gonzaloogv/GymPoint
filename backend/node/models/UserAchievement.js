@@ -9,11 +9,23 @@ const UserAchievement = sequelize.define('UserAchievement', {
   },
   id_user_profile: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'user_profiles',
+      key: 'id_user_profile'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
   id_achievement_definition: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'achievement_definition',
+      key: 'id_achievement_definition'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
   progress_value: {
     type: DataTypes.INTEGER,

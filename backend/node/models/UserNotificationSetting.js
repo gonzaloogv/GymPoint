@@ -53,25 +53,23 @@ const UserNotificationSetting = sequelize.define('UserNotificationSetting', {
     allowNull: false,
     defaultValue: true
   },
-  challenges_enabled: {
+  challenge_enabled: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: true
+    defaultValue: true,
+    comment: 'Si las notificaciones de desafíos están habilitadas'
   },
   push_enabled: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: true
+    defaultValue: true,
+    comment: 'Push notifications globales'
   },
   email_enabled: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: true
-  },
-  sms_enabled: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: true
+    defaultValue: false,
+    comment: 'Notificaciones por email'
   },
   quiet_hours_start: {
     type: DataTypes.TIME,

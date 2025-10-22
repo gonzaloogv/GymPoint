@@ -24,7 +24,7 @@ const DailyChallenge = sequelize.define('DailyChallenge', {
     comment: 'Descripción detallada'
   },
   challenge_type: {
-    type: DataTypes.ENUM('MINUTES', 'EXERCISES', 'FREQUENCY', 'SETS', 'REPS'),
+    type: DataTypes.ENUM('MINUTES', 'EXERCISES', 'FREQUENCY'),
     allowNull: false,
     comment: 'Tipo de desafío'
   },
@@ -53,6 +53,12 @@ const DailyChallenge = sequelize.define('DailyChallenge', {
   id_template: {
     type: DataTypes.INTEGER,
     allowNull: true,
+    references: {
+      model: 'daily_challenge_template',
+      key: 'id_template'
+    },
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
     comment: 'Template usado (si es auto-generado)'
   },
   auto_generated: {
@@ -64,6 +70,12 @@ const DailyChallenge = sequelize.define('DailyChallenge', {
   created_by: {
     type: DataTypes.INTEGER,
     allowNull: true,
+    references: {
+      model: 'admin_profiles',
+      key: 'id_admin_profile'
+    },
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
     comment: 'Admin que lo creó (NULL si auto-generado)'
   },
   is_active: {

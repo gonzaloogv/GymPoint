@@ -33,23 +33,33 @@ const DailyChallengeTemplate = sequelize.define('DailyChallengeTemplate', {
     defaultValue: 10
   },
   difficulty: {
-    type: DataTypes.STRING(20),
+    type: DataTypes.ENUM('EASY', 'MEDIUM', 'HARD'),
     allowNull: false,
-    defaultValue: 'MEDIUM'
+    defaultValue: 'MEDIUM',
+    comment: 'Nivel de dificultad del desafío'
   },
   rotation_weight: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 1
+    defaultValue: 1,
+    comment: 'Peso para rotación automática de desafíos'
   },
   is_active: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: true
+    defaultValue: true,
+    comment: 'Si la plantilla está activa'
   },
   created_by: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
+    references: {
+      model: 'admin_profiles',
+      key: 'id_admin_profile'
+    },
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+    comment: 'Admin que creó la plantilla'
   }
 }, {
   tableName: 'daily_challenge_template',

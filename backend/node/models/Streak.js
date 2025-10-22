@@ -10,11 +10,23 @@ const Streak = sequelize.define('Streak', {
   id_user_profile: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'user_profiles',
+      key: 'id_user_profile'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     comment: 'Usuario al que pertenece la racha'
   },
   id_frequency: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'frequency',
+      key: 'id_frequency'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     comment: 'Frecuencia asociada'
   },
   value: {
