@@ -1,4 +1,6 @@
 const notificationService = require('../services/notification-service');
+const userService = require('../services/user-service');
+const { user: userMapper } = require('../services/mappers');
 const { asyncHandler } = require('../middlewares/error-handler');
 
 const requireUserProfile = (req, res) => {
@@ -88,16 +90,18 @@ const obtenerConfiguraciones = asyncHandler(async (req, res) => {
   const profile = requireUserProfile(req, res);
   if (!profile) return;
 
-  const settings = await notificationService.getSettings(profile.id_user_profile);
-  res.json(settings);
+  const query = userMapper.toGetNotificationSettingsQuery({ userProfileId: profile.id_user_profile });
+  const settings = await userService.getNotificationSettings(query);
+  res.json(userMapper.toNotificationSettingsResponse(settings));
 });
 
 const actualizarConfiguraciones = asyncHandler(async (req, res) => {
   const profile = requireUserProfile(req, res);
   if (!profile) return;
 
-  const settings = await notificationService.updateSettings(profile.id_user_profile, req.body || {});
-  res.json(settings);
+  const command = userMapper.toUpdateNotificationSettingsCommand(req.body || {}, profile.id_user_profile);
+  const settings = await userService.updateNotificationSettings(command);
+  res.json(userMapper.toNotificationSettingsResponse(settings));
 });
 
 module.exports = {

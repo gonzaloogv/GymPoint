@@ -6,6 +6,7 @@
 
 const authQueries = require('./auth.queries');
 const gymQueries = require('./gym.queries');
+const userQueries = require('./user.queries');
 
 module.exports = {
   // Auth Queries
@@ -13,4 +14,7 @@ module.exports = {
 
   // Gym Queries
   ...gymQueries,
+
+  // User Queries
+  ...userQueries,
 };

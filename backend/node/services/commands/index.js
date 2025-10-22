@@ -6,6 +6,7 @@
 
 const authCommands = require('./auth.commands');
 const gymCommands = require('./gym.commands');
+const userCommands = require('./user.commands');
 
 module.exports = {
   // Auth Commands
@@ -13,4 +14,7 @@ module.exports = {
 
   // Gym Commands
   ...gymCommands,
+
+  // User Commands
+  ...userCommands,
 };

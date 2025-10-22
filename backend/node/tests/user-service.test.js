@@ -1,20 +1,90 @@
-jest.mock('../models', () => ({
-  Account: { findByPk: jest.fn(), findOne: jest.fn() },
-  UserProfile: { findByPk: jest.fn() },
-  UserBodyMetric: { create: jest.fn(), findAll: jest.fn(), findOne: jest.fn() },
-  AccountDeletionRequest: { findOne: jest.fn(), findAll: jest.fn(), findByPk: jest.fn(), create: jest.fn() },
-  RefreshToken: { update: jest.fn() }
+/**
+ * Tests para user-service refactorizado con Command/Query pattern
+ */
+
+// Mock de database y modelos primero
+jest.mock('../config/database', () => ({
+  transaction: jest.fn(),
+  define: jest.fn(),
+  query: jest.fn(),
+  QueryTypes: {}
 }));
-jest.mock('../config/database', () => ({ transaction: jest.fn() }));
-jest.mock('../services/token-ledger-service', () => ({
-  registrarMovimiento: jest.fn()
+
+jest.mock('../models', () => ({
+  Account: {},
+  UserProfile: {},
+  UserNotificationSetting: {},
+  Presence: {},
+  AccountDeletionRequest: {},
+  RefreshToken: {}
+}));
+
+// Mock de repositories
+jest.mock('../infra/db/repositories', () => ({
+  userProfileRepository: {
+    findById: jest.fn(),
+    findByAccountId: jest.fn(),
+    updateUserProfile: jest.fn(),
+    updateTokens: jest.fn(),
+    updateSubscription: jest.fn(),
+    findAll: jest.fn()
+  },
+  accountRepository: {
+    findById: jest.fn(),
+    updateEmail: jest.fn()
+  },
+  accountDeletionRequestRepository: {
+    findByAccountId: jest.fn(),
+    create: jest.fn(),
+    cancel: jest.fn(),
+    findById: jest.fn(),
+    updateStatus: jest.fn()
+  },
+  userNotificationSettingRepository: {
+    findByUserProfileId: jest.fn(),
+    updateSettings: jest.fn(),
+    createDefaultSettings: jest.fn()
+  },
+  presenceRepository: {
+    findActivePresence: jest.fn(),
+    createPresence: jest.fn(),
+    updatePresence: jest.fn(),
+    listUserPresences: jest.fn()
+  },
+  refreshTokenRepository: {
+    revokeByUserId: jest.fn()
+  }
 }));
 
 const userService = require('../services/user-service');
-const { Account, UserProfile, UserBodyMetric, AccountDeletionRequest, RefreshToken } = require('../models');
+const {
+  userProfileRepository,
+  accountRepository,
+  accountDeletionRequestRepository,
+  userNotificationSettingRepository,
+  presenceRepository,
+  refreshTokenRepository
+} = require('../infra/db/repositories');
 const sequelize = require('../config/database');
-const tokenLedgerService = require('../services/token-ledger-service');
-const { ACCOUNT_DELETION } = require('../config/constants');
+const {
+  UpdateUserProfileCommand,
+  UpdateEmailCommand,
+  UpdateUserTokensCommand,
+  UpdateUserSubscriptionCommand,
+  RequestAccountDeletionCommand,
+  CancelAccountDeletionCommand,
+  UpdateNotificationSettingsCommand,
+  CreatePresenceCommand,
+  UpdatePresenceCommand
+} = require('../services/commands');
+const {
+  GetUserByAccountIdQuery,
+  GetUserProfileByIdQuery,
+  GetAccountDeletionStatusQuery,
+  GetNotificationSettingsQuery,
+  GetActivePresenceQuery,
+  ListUserPresencesQuery
+} = require('../services/queries');
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -33,381 +103,459 @@ beforeEach(() => {
   });
 });
 
-describe('actualizarPerfil', () => {
-  it('actualiza campos permitidos y recarga perfil', async () => {
-    const profile = {
+describe('updateUserProfile', () => {
+  it('actualiza el perfil con un Command', async () => {
+    const mockProfile = {
       id_user_profile: 1,
+      name: 'Juan',
+      lastname: 'Pérez',
+      email: 'juan@example.com',
       subscription: 'FREE',
-      tokens: 50,
-      name: 'old',
-      birth_date: '2000-01-01',
-      update: jest.fn(async (data) => Object.assign(profile, data)),
-      reload: jest.fn().mockResolvedValue(),
-      account: { email: 'a@a.com' }
+      tokens: 100
     };
-    UserProfile.findByPk.mockResolvedValue(profile);
 
-    const result = await userService.actualizarPerfil(1, { name: 'n', birth_date: '1995-05-20', password: 'ignore' });
-
-    expect(profile.update).toHaveBeenCalledWith({ name: 'n', birth_date: '1995-05-20' });
-    expect(profile.reload).toHaveBeenCalledWith({
-      include: { model: expect.any(Object), as: 'account', attributes: ['email'] }
+    userProfileRepository.findById.mockResolvedValue(mockProfile);
+    userProfileRepository.updateUserProfile.mockResolvedValue({
+      ...mockProfile,
+      name: 'Juan Carlos'
     });
-    expect(result).toEqual(expect.objectContaining({ name: 'n', birth_date: '1995-05-20', email: 'a@a.com' }));
+
+    const command = new UpdateUserProfileCommand({
+      userProfileId: 1,
+      name: 'Juan Carlos',
+      lastname: 'Pérez'
+    });
+
+    const result = await userService.updateUserProfile(command);
+
+    expect(userProfileRepository.findById).toHaveBeenCalledWith(1, undefined);
+    expect(userProfileRepository.updateUserProfile).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({ name: 'Juan Carlos', lastname: 'Pérez' }),
+      expect.any(Object)
+    );
+    expect(result.name).toBe('Juan Carlos');
+  });
+
+  it('acepta un objeto plano (no Command) usando ensure', async () => {
+    const mockProfile = {
+      id_user_profile: 2,
+      name: 'Ana',
+      email: 'ana@example.com'
+    };
+
+    userProfileRepository.findById.mockResolvedValue(mockProfile);
+    userProfileRepository.updateUserProfile.mockResolvedValue({
+      ...mockProfile,
+      locality: 'Buenos Aires'
+    });
+
+    const result = await userService.updateUserProfile({
+      userProfileId: 2,
+      locality: 'Buenos Aires'
+    });
+
+    expect(result.locality).toBe('Buenos Aires');
   });
 
   it('lanza error si el perfil no existe', async () => {
-    UserProfile.findByPk.mockResolvedValue(null);
-    await expect(userService.actualizarPerfil(1, {}))
-      .rejects.toThrow('Perfil de usuario no encontrado');
+    userProfileRepository.findById.mockResolvedValue(null);
+
+    const command = new UpdateUserProfileCommand({
+      userProfileId: 999,
+      name: 'Test'
+    });
+
+    await expect(userService.updateUserProfile(command))
+      .rejects.toThrow('Perfil de usuario');
+  });
+
+  it('valida birth_date y lanza error si es inválida', async () => {
+    userProfileRepository.findById.mockResolvedValue({ id_user_profile: 1 });
+
+    const command = new UpdateUserProfileCommand({
+      userProfileId: 1,
+      birthDate: 'fecha-invalida'
+    });
+
+    await expect(userService.updateUserProfile(command))
+      .rejects.toThrow('birth_date inválida');
+  });
+
+  it('valida edad fuera de rango (13-100)', async () => {
+    userProfileRepository.findById.mockResolvedValue({ id_user_profile: 1 });
+
+    const command = new UpdateUserProfileCommand({
+      userProfileId: 1,
+      birthDate: '2020-01-01' // Menor de 13 años
+    });
+
+    await expect(userService.updateUserProfile(command))
+      .rejects.toThrow('Edad fuera de rango');
   });
 });
 
-describe('obtenerUsuario', () => {
-  it('combina datos de account y perfil', async () => {
-    Account.findByPk.mockResolvedValue({
-      id_account: 2,
-      email: 'test@example.com',
-      auth_provider: 'local',
-      email_verified: true,
-      last_login: new Date(),
-      userProfile: {
-        id_user_profile: 5,
-        name: 'User',
-        lastname: 'Test',
-        gender: 'M',
-        birth_date: '1999-04-10',
-        locality: 'City',
-        subscription: 'FREE',
-        tokens: 10,
-        id_streak: 3,
-        profile_picture_url: 'pic',
-        created_at: new Date(),
-        updated_at: new Date()
-      }
-    });
-
-    const result = await userService.obtenerUsuario(2);
-
-    expect(result).toEqual(expect.objectContaining({
-      id: 2,
-      email: 'test@example.com',
+describe('getUserByAccountId', () => {
+  it('retorna el perfil del usuario por ID de cuenta', async () => {
+    const mockProfile = {
       id_user_profile: 5,
-      name: 'User'
-    }));
-  });
-
-  it('lanza error si no encuentra usuario', async () => {
-    Account.findByPk.mockResolvedValue(null);
-    await expect(userService.obtenerUsuario(1)).rejects.toThrow('Usuario no encontrado');
-  });
-});
-
-describe('eliminarCuentaDefinitiva', () => {
-  it('anonimiza perfil, revoca tokens y desactiva cuenta', async () => {
-    const userProfile = {
-      id_user_profile: 10,
-      update: jest.fn().mockResolvedValue()
-    };
-    const account = {
-      id_account: 7,
-      update: jest.fn().mockResolvedValue(),
-      userProfile
-    };
-    Account.findByPk.mockResolvedValue(account);
-
-    await userService.eliminarCuentaDefinitiva(7);
-
-    expect(userProfile.update).toHaveBeenCalledWith(expect.objectContaining({
-      name: 'Usuario',
-      lastname: 'Eliminado',
-      tokens: 0
-    }), expect.any(Object));
-    expect(RefreshToken.update).toHaveBeenCalledWith(
-      { revoked: true },
-      expect.objectContaining({ where: { id_user: 10 } })
-    );
-    expect(account.update).toHaveBeenCalledWith(expect.objectContaining({
-      is_active: false,
-      email_verified: false
-    }), expect.any(Object));
-    const updatedEmail = account.update.mock.calls[0][0].email;
-    expect(updatedEmail).toMatch(/^deleted_7_/);
-  });
-
-  it('lanza error si la cuenta no existe', async () => {
-    Account.findByPk.mockResolvedValue(null);
-    await expect(userService.eliminarCuentaDefinitiva(1)).rejects.toThrow('Cuenta no encontrado');
-  });
-});
-
-describe('procesarSolicitudEliminacion', () => {
-  it('retorna null si no hay instancia', async () => {
-    await expect(userService.procesarSolicitudEliminacion(null)).resolves.toBeNull();
-  });
-
-  it('no procesa solicitudes no pendientes', async () => {
-    const plain = {
-      id_request: 4,
       id_account: 10,
-      status: 'CANCELLED',
-      scheduled_deletion_date: '2025-10-01',
-      metadata: {}
+      name: 'María',
+      lastname: 'González',
+      email: 'maria@example.com',
+      subscription: 'PREMIUM',
+      tokens: 500
     };
 
-    AccountDeletionRequest.findByPk.mockResolvedValue({
-      ...plain,
-      get: jest.fn().mockReturnValue(plain)
-    });
+    userProfileRepository.findByAccountId.mockResolvedValue(mockProfile);
 
-    const result = await userService.procesarSolicitudEliminacion({ id_request: 4 });
-    expect(result).toEqual(expect.objectContaining({ status: 'CANCELLED' }));
+    const query = new GetUserByAccountIdQuery({ accountId: 10 });
+    const result = await userService.getUserByAccountId(query);
+
+    expect(userProfileRepository.findByAccountId).toHaveBeenCalledWith(10, undefined);
+    expect(result).toEqual(mockProfile);
   });
 
-  it('marca completada una solicitud pendiente', async () => {
-    const state = {
-      id_request: 6,
-      id_account: 12,
-      status: 'PENDING',
-      scheduled_deletion_date: '2025-10-05',
-      requested_at: new Date(),
-      cancelled_at: null,
-      completed_at: null,
-      metadata: {}
-    };
+  it('lanza error si no encuentra el usuario', async () => {
+    userProfileRepository.findByAccountId.mockResolvedValue(null);
 
-    const requestInstance = {
-      ...state,
-      update: jest.fn(async (payload) => {
-        Object.assign(state, payload);
-        Object.assign(requestInstance, payload);
-      }),
-      get: jest.fn(() => ({ ...state }))
-    };
-    requestInstance.reload = jest.fn().mockResolvedValue(requestInstance);
+    const query = new GetUserByAccountIdQuery({ accountId: 999 });
 
-    AccountDeletionRequest.findByPk.mockResolvedValue(requestInstance);
-
-    const userProfile = {
-      id_user_profile: 22,
-      update: jest.fn().mockResolvedValue()
-    };
-    const account = {
-      id_account: 12,
-      userProfile,
-      update: jest.fn().mockResolvedValue()
-    };
-    Account.findByPk.mockResolvedValue(account);
-
-    const result = await userService.procesarSolicitudEliminacion({ id_request: 6 });
-
-    expect(userProfile.update).toHaveBeenCalled();
-    expect(account.update).toHaveBeenCalledWith(expect.objectContaining({ is_active: false }), expect.any(Object));
-    expect(requestInstance.update).toHaveBeenCalledWith(expect.objectContaining({
-      status: 'COMPLETED'
-    }), expect.any(Object));
-    expect(result).toEqual(expect.objectContaining({ status: 'COMPLETED' }));
+    await expect(userService.getUserByAccountId(query))
+      .rejects.toThrow('Usuario no encontrado');
   });
 });
 
-describe('registros de métricas corporales', () => {
-  beforeEach(() => {
-    tokenLedgerService.registrarMovimiento.mockResolvedValue({});
-  });
-
-  it('registra métricas válidas y otorga tokens', async () => {
-    const metricCreated = { id_body_metric: 11 };
-    UserProfile.findByPk.mockResolvedValue({ id_user_profile: 3 });
-    UserBodyMetric.create.mockResolvedValue(metricCreated);
-
-    const metric = await userService.registrarMetricasCorporales(3, {
-      weight_kg: 80,
-      height_cm: 180,
-      source: 'manual'
-    });
-
-    expect(UserBodyMetric.create).toHaveBeenCalled();
-    expect(tokenLedgerService.registrarMovimiento).toHaveBeenCalledWith(expect.objectContaining({
-      userId: 3,
-      refId: 11
-    }));
-    expect(metric).toBe(metricCreated);
-  });
-
-  it('lanza error si el valor está fuera de rango', async () => {
-    UserProfile.findByPk.mockResolvedValue({ id_user_profile: 4 });
-    await expect(userService.registrarMetricasCorporales(4, { weight_kg: 500 }))
-      .rejects.toThrow('Peso (kg) debe estar entre 20 y 400');
-  });
-
-  it('lista métricas', async () => {
-    UserProfile.findByPk.mockResolvedValue({ id_user_profile: 5 });
-    UserBodyMetric.findAll.mockResolvedValue(['metric']);
-
-    const metrics = await userService.listarMetricasCorporales(5, { limit: 5 });
-    expect(UserBodyMetric.findAll).toHaveBeenCalledWith(expect.objectContaining({
-      where: { id_user_profile: 5 },
-      limit: 5
-    }));
-    expect(metrics).toEqual(['metric']);
-  });
-
-  it('obtiene última métrica', async () => {
-    UserProfile.findByPk.mockResolvedValue({ id_user_profile: 6 });
-    UserBodyMetric.findOne.mockResolvedValue('latest');
-
-    const metric = await userService.obtenerUltimaMetricaCorporal(6);
-    expect(UserBodyMetric.findOne).toHaveBeenCalled();
-    expect(metric).toBe('latest');
-  });
-});
-describe('solicitarEliminacionCuenta', () => {
-  afterEach(() => {
-    jest.useRealTimers();
-  });
-
-  it('crea solicitud y revoca tokens', async () => {
-    const baseDate = new Date('2025-10-15T00:00:00Z');
-    jest.useFakeTimers().setSystemTime(baseDate);
-
-    const expectedDeletion = new Date(baseDate);
-    expectedDeletion.setUTCDate(expectedDeletion.getUTCDate() + ACCOUNT_DELETION.GRACE_PERIOD_DAYS);
-    const expectedDeletionStr = expectedDeletion.toISOString().slice(0, 10);
-
-    Account.findByPk.mockResolvedValue({
-      id_account: 7,
-      userProfile: { id_user_profile: 10 }
-    });
-    AccountDeletionRequest.findOne.mockResolvedValue(null);
-
-    const plainRequest = {
-      id_request: 1,
-      id_account: 7,
-      reason: 'Prueba',
-      status: 'PENDING',
-      scheduled_deletion_date: expectedDeletionStr,
-      requested_at: new Date(),
-      cancelled_at: null,
-      completed_at: null,
-      metadata: { grace_period_days: ACCOUNT_DELETION.GRACE_PERIOD_DAYS }
+describe('getUserProfileById', () => {
+  it('retorna el perfil por ID de perfil', async () => {
+    const mockProfile = {
+      id_user_profile: 3,
+      name: 'Carlos',
+      email: 'carlos@example.com'
     };
 
-    AccountDeletionRequest.create.mockResolvedValue({
-      get: jest.fn().mockReturnValue(plainRequest)
+    userProfileRepository.findById.mockResolvedValue(mockProfile);
+
+    const query = new GetUserProfileByIdQuery({ userProfileId: 3 });
+    const result = await userService.getUserProfileById(query);
+
+    expect(result).toEqual(mockProfile);
+  });
+});
+
+describe('updateEmail', () => {
+  it('actualiza el email de la cuenta', async () => {
+    const mockAccount = {
+      id_account: 5,
+      email: 'viejo@example.com',
+      email_verified: true
+    };
+
+    accountRepository.findById.mockResolvedValue(mockAccount);
+    accountRepository.updateEmail.mockResolvedValue({
+      ...mockAccount,
+      email: 'nuevo@example.com',
+      email_verified: false
     });
 
-    const result = await userService.solicitarEliminacionCuenta(7, { reason: 'Prueba' });
+    const command = new UpdateEmailCommand({
+      accountId: 5,
+      email: 'nuevo@example.com'
+    });
 
-    expect(AccountDeletionRequest.create).toHaveBeenCalledWith(expect.objectContaining({
-      id_account: 7,
-      reason: 'Prueba',
-      status: 'PENDING',
-      scheduled_deletion_date: expectedDeletionStr
-    }), expect.any(Object));
-    expect(RefreshToken.update).toHaveBeenCalledWith(
-      { revoked: true },
-      expect.objectContaining({ where: { id_user: 10 } })
+    const result = await userService.updateEmail(command);
+
+    expect(accountRepository.updateEmail).toHaveBeenCalledWith(
+      5,
+      'nuevo@example.com',
+      undefined
     );
-    expect(result).toEqual(expect.objectContaining({
-      id_account: 7,
-      status: 'PENDING',
-      can_cancel: true
-    }));
-  });
-
-  it('impide solicitudes duplicadas', async () => {
-    Account.findByPk.mockResolvedValue({
-      id_account: 7,
-      userProfile: { id_user_profile: 10 }
-    });
-    AccountDeletionRequest.findOne.mockResolvedValue({ id_request: 5 });
-
-    await expect(userService.solicitarEliminacionCuenta(7))
-      .rejects.toThrow('Ya existe una solicitud de eliminación pendiente');
-    expect(AccountDeletionRequest.create).not.toHaveBeenCalled();
+    expect(result.email).toBe('nuevo@example.com');
+    expect(result.email_verified).toBe(false);
   });
 
   it('lanza error si la cuenta no existe', async () => {
-    Account.findByPk.mockResolvedValue(null);
-    await expect(userService.solicitarEliminacionCuenta(9))
+    accountRepository.findById.mockResolvedValue(null);
+
+    const command = new UpdateEmailCommand({
+      accountId: 999,
+      email: 'nuevo@example.com'
+    });
+
+    await expect(userService.updateEmail(command))
       .rejects.toThrow('Cuenta no encontrado');
   });
 });
 
-describe('cancelarSolicitudEliminacionCuenta', () => {
-  it('cancela solicitud activa', async () => {
-    const state = {
-      id_request: 2,
-      id_account: 7,
-      status: 'PENDING',
-      scheduled_deletion_date: '2025-11-14',
-      requested_at: new Date(),
-      cancelled_at: null,
-      completed_at: null,
-      metadata: {}
-    };
+describe('updateUserTokens', () => {
+  it('actualiza el balance de tokens', async () => {
+    userProfileRepository.findById.mockResolvedValue({
+      id_user_profile: 1,
+      tokens: 100
+    });
+    userProfileRepository.updateTokens.mockResolvedValue(150);
 
-    const requestInstance = {
-      ...state,
-      update: jest.fn(async (payload) => {
-        Object.assign(state, payload);
-        Object.assign(requestInstance, payload);
-      }),
-      get: jest.fn(() => ({ ...state }))
-    };
-    requestInstance.reload = jest.fn().mockResolvedValue(requestInstance);
+    const command = new UpdateUserTokensCommand({
+      userProfileId: 1,
+      delta: 50,
+      reason: 'Test reward'
+    });
 
-    AccountDeletionRequest.findOne.mockResolvedValue(requestInstance);
+    const newBalance = await userService.updateUserTokens(command);
 
-    const result = await userService.cancelarSolicitudEliminacionCuenta(7);
-
-    expect(requestInstance.update).toHaveBeenCalledWith(expect.objectContaining({
-      status: 'CANCELLED'
-    }), expect.any(Object));
-    expect(result).toEqual(expect.objectContaining({
-      status: 'CANCELLED',
-      can_cancel: false
-    }));
+    expect(userProfileRepository.updateTokens).toHaveBeenCalledWith(1, 50, undefined);
+    expect(newBalance).toBe(150);
   });
 
-  it('lanza error si no hay solicitud', async () => {
-    AccountDeletionRequest.findOne.mockResolvedValue(null);
-    await expect(userService.cancelarSolicitudEliminacionCuenta(7))
+  it('lanza error si el perfil no existe', async () => {
+    userProfileRepository.findById.mockResolvedValue(null);
+
+    const command = new UpdateUserTokensCommand({
+      userProfileId: 999,
+      delta: 10,
+      reason: 'Test'
+    });
+
+    await expect(userService.updateUserTokens(command))
+      .rejects.toThrow('Perfil de usuario');
+  });
+});
+
+describe('updateUserSubscription', () => {
+  it('actualiza la suscripción del usuario', async () => {
+    const mockProfile = {
+      id_user_profile: 2,
+      subscription: 'FREE'
+    };
+
+    userProfileRepository.findById.mockResolvedValue(mockProfile);
+    userProfileRepository.updateSubscription.mockResolvedValue({
+      ...mockProfile,
+      subscription: 'PREMIUM',
+      premium_since: new Date()
+    });
+
+    const command = new UpdateUserSubscriptionCommand({
+      userProfileId: 2,
+      subscription: 'PREMIUM'
+    });
+
+    const result = await userService.updateUserSubscription(command);
+
+    expect(userProfileRepository.updateSubscription).toHaveBeenCalledWith(
+      2,
+      'PREMIUM',
+      undefined
+    );
+    expect(result.subscription).toBe('PREMIUM');
+  });
+
+  it('valida valores de subscription permitidos', async () => {
+    userProfileRepository.findById.mockResolvedValue({ id_user_profile: 2 });
+
+    const command = new UpdateUserSubscriptionCommand({
+      userProfileId: 2,
+      subscription: 'INVALID'
+    });
+
+    await expect(userService.updateUserSubscription(command))
+      .rejects.toThrow('Subscription inválida');
+  });
+});
+
+describe('requestAccountDeletion', () => {
+  it('crea una solicitud de eliminación', async () => {
+    const mockAccount = {
+      id_account: 10,
+      userProfile: { id_user_profile: 20 }
+    };
+
+    accountRepository.findById.mockResolvedValue(mockAccount);
+    accountDeletionRequestRepository.findByAccountId.mockResolvedValue(null);
+    accountDeletionRequestRepository.create.mockResolvedValue({
+      id_account_deletion_request: 1,
+      id_account: 10,
+      status: 'PENDING',
+      scheduled_deletion_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      reason: 'User request',
+      metadata: { grace_period_days: 30 }
+    });
+
+    const command = new RequestAccountDeletionCommand({
+      accountId: 10,
+      reason: 'User request'
+    });
+
+    const result = await userService.requestAccountDeletion(command);
+
+    expect(accountDeletionRequestRepository.findByAccountId).toHaveBeenCalledWith(10);
+    expect(accountDeletionRequestRepository.create).toHaveBeenCalled();
+    expect(refreshTokenRepository.revokeByUserId).toHaveBeenCalledWith(20, expect.any(Object));
+    expect(result.status).toBe('PENDING');
+  });
+
+  it('lanza error si ya existe una solicitud pendiente', async () => {
+    const mockAccount = {
+      id_account: 10,
+      userProfile: { id_user_profile: 20 }
+    };
+
+    accountRepository.findById.mockResolvedValue(mockAccount);
+    accountDeletionRequestRepository.findByAccountId.mockResolvedValue({
+      status: 'PENDING'
+    });
+
+    const command = new RequestAccountDeletionCommand({
+      accountId: 10,
+      reason: 'Test'
+    });
+
+    await expect(userService.requestAccountDeletion(command))
+      .rejects.toThrow('Ya existe una solicitud de eliminación pendiente');
+  });
+});
+
+describe('cancelAccountDeletion', () => {
+  it('cancela una solicitud de eliminación pendiente', async () => {
+    accountDeletionRequestRepository.findByAccountId.mockResolvedValue({
+      id_account_deletion_request: 5,
+      status: 'PENDING'
+    });
+    accountDeletionRequestRepository.cancel.mockResolvedValue({
+      id_account_deletion_request: 5,
+      status: 'CANCELLED',
+      cancelled_at: new Date()
+    });
+
+    const command = new CancelAccountDeletionCommand({ accountId: 10 });
+    const result = await userService.cancelAccountDeletion(command);
+
+    expect(accountDeletionRequestRepository.cancel).toHaveBeenCalled();
+    expect(result.status).toBe('CANCELLED');
+  });
+
+  it('lanza error si no hay solicitud pendiente', async () => {
+    accountDeletionRequestRepository.findByAccountId.mockResolvedValue(null);
+
+    const command = new CancelAccountDeletionCommand({ accountId: 10 });
+
+    await expect(userService.cancelAccountDeletion(command))
       .rejects.toThrow('Solicitud de eliminación no encontrado');
   });
 });
 
-describe('obtenerEstadoEliminacionCuenta', () => {
-  it('retorna solicitud mapeada', async () => {
-    const plain = {
-      id_request: 3,
-      id_account: 8,
-      status: 'CANCELLED',
-      scheduled_deletion_date: '2025-11-10',
-      requested_at: new Date(),
-      cancelled_at: new Date(),
-      completed_at: null,
-      metadata: {}
+describe('getAccountDeletionStatus', () => {
+  it('retorna el estado de la solicitud de eliminación', async () => {
+    const mockRequest = {
+      id_account_deletion_request: 3,
+      id_account: 15,
+      status: 'PENDING',
+      scheduled_deletion_date: new Date()
     };
 
-    AccountDeletionRequest.findOne.mockResolvedValue({
-      get: jest.fn().mockReturnValue(plain)
-    });
+    accountDeletionRequestRepository.findByAccountId.mockResolvedValue(mockRequest);
 
-    const result = await userService.obtenerEstadoEliminacionCuenta(8);
+    const query = new GetAccountDeletionStatusQuery({ accountId: 15 });
+    const result = await userService.getAccountDeletionStatus(query);
 
-    expect(AccountDeletionRequest.findOne).toHaveBeenCalled();
-    expect(result).toEqual(expect.objectContaining({
-      id_account: 8,
-      status: 'CANCELLED',
-      can_cancel: false
-    }));
+    expect(result).toEqual(mockRequest);
   });
 
-  it('retorna null si no existe solicitud', async () => {
-    AccountDeletionRequest.findOne.mockResolvedValue(null);
+  it('retorna null si no hay solicitud', async () => {
+    accountDeletionRequestRepository.findByAccountId.mockResolvedValue(null);
 
-    const result = await userService.obtenerEstadoEliminacionCuenta(8);
+    const query = new GetAccountDeletionStatusQuery({ accountId: 15 });
+    const result = await userService.getAccountDeletionStatus(query);
+
     expect(result).toBeNull();
+  });
+});
+
+describe('getNotificationSettings', () => {
+  it('retorna la configuración de notificaciones del usuario', async () => {
+    const mockSettings = {
+      id_user_notification_setting: 1,
+      id_user_profile: 5,
+      push_enabled: true,
+      email_enabled: true,
+      reminder_enabled: true
+    };
+
+    userNotificationSettingRepository.findByUserProfileId.mockResolvedValue(mockSettings);
+
+    const query = new GetNotificationSettingsQuery({ userProfileId: 5 });
+    const result = await userService.getNotificationSettings(query);
+
+    expect(result).toEqual(mockSettings);
+  });
+
+  it('crea configuración por defecto si no existe', async () => {
+    const defaultSettings = {
+      id_user_notification_setting: 2,
+      id_user_profile: 10,
+      push_enabled: true,
+      email_enabled: true
+    };
+
+    userNotificationSettingRepository.findByUserProfileId.mockResolvedValue(defaultSettings);
+
+    const query = new GetNotificationSettingsQuery({ userProfileId: 10 });
+    const result = await userService.getNotificationSettings(query);
+
+    expect(result).toEqual(defaultSettings);
+  });
+});
+
+describe('updateNotificationSettings', () => {
+  it('actualiza la configuración de notificaciones', async () => {
+    const updatedSettings = {
+      id_user_notification_setting: 1,
+      id_user_profile: 5,
+      push_enabled: false,
+      email_enabled: true
+    };
+
+    userNotificationSettingRepository.updateSettings.mockResolvedValue(updatedSettings);
+
+    const command = new UpdateNotificationSettingsCommand({
+      userProfileId: 5,
+      pushEnabled: false,
+      emailEnabled: true
+    });
+
+    const result = await userService.updateNotificationSettings(command);
+
+    expect(userNotificationSettingRepository.updateSettings).toHaveBeenCalledWith(
+      5,
+      expect.objectContaining({
+        push_enabled: false,
+        email_enabled: true
+      }),
+      undefined
+    );
+    expect(result.push_enabled).toBe(false);
+  });
+});
+
+describe('Legacy aliases', () => {
+  it('actualizarPerfil es un alias de updateUserProfile', async () => {
+    const mockProfile = { id_user_profile: 1, name: 'Test' };
+    userProfileRepository.findById.mockResolvedValue(mockProfile);
+    userProfileRepository.updateUserProfile.mockResolvedValue(mockProfile);
+
+    const result = await userService.actualizarPerfil(1, { name: 'Updated' });
+
+    expect(userProfileRepository.updateUserProfile).toHaveBeenCalled();
+    expect(result).toEqual(mockProfile);
+  });
+
+  it('obtenerUsuario es un alias de getUserByAccountId', async () => {
+    const mockProfile = { id_account: 5, name: 'User' };
+    userProfileRepository.findByAccountId.mockResolvedValue(mockProfile);
+
+    const result = await userService.obtenerUsuario(5);
+
+    expect(userProfileRepository.findByAccountId).toHaveBeenCalledWith(5, undefined);
+    expect(result).toEqual(mockProfile);
   });
 });

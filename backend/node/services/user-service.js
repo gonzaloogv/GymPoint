@@ -1,8 +1,51 @@
-const { Account, UserProfile, UserBodyMetric, AccountDeletionRequest, RefreshToken } = require('../models');
+/**
+ * User Service (Refactorizado con Commands/Queries)
+ *
+ * Usa Commands/Queries para entrada y retorna entidades/POJOs
+ * No depende de Express ni expone modelos Sequelize
+ */
+
+const { Account, AccountDeletionRequest, RefreshToken, UserBodyMetric } = require('../models');
 const { NotFoundError, ConflictError, ValidationError } = require('../utils/errors');
 const { TOKENS, TOKEN_REASONS, SUBSCRIPTION_TYPES, ACCOUNT_DELETION, ACCOUNT_DELETION_STATUS } = require('../config/constants');
 const sequelize = require('../config/database');
 const tokenLedgerService = require('./token-ledger-service');
+
+// Repositories
+const {
+  userProfileRepository,
+  accountRepository,
+  userNotificationSettingRepository,
+  presenceRepository,
+} = require('../infra/db/repositories');
+
+// Commands
+const {
+  UpdateUserProfileCommand,
+  UpdateEmailCommand,
+  UpdateUserTokensCommand,
+  UpdateUserSubscriptionCommand,
+  RequestAccountDeletionCommand,
+  CancelAccountDeletionCommand,
+  UpdateNotificationSettingsCommand,
+  CreatePresenceCommand,
+  UpdatePresenceCommand,
+} = require('./commands/user.commands');
+
+// Queries
+const {
+  GetUserByAccountIdQuery,
+  GetUserProfileByIdQuery,
+  GetAccountDeletionStatusQuery,
+  GetNotificationSettingsQuery,
+  GetActivePresenceQuery,
+  ListUserPresencesQuery,
+  ListUsersQuery,
+} = require('./queries/user.queries');
+
+// ============================================================================
+// Helpers
+// ============================================================================
 
 const addDaysUtc = (date, days) => {
   const result = new Date(date);
@@ -35,118 +78,101 @@ const mapDeletionRequest = (requestInstance) => {
   };
 };
 
+// Ensure functions para Commands/Queries
+const ensureUpdateUserProfileCommand = (input) =>
+  input instanceof UpdateUserProfileCommand ? input : new UpdateUserProfileCommand(input);
+
+const ensureUpdateEmailCommand = (input) =>
+  input instanceof UpdateEmailCommand ? input : new UpdateEmailCommand(input);
+
+const ensureUpdateUserTokensCommand = (input) =>
+  input instanceof UpdateUserTokensCommand ? input : new UpdateUserTokensCommand(input);
+
+const ensureUpdateUserSubscriptionCommand = (input) =>
+  input instanceof UpdateUserSubscriptionCommand ? input : new UpdateUserSubscriptionCommand(input);
+
+const ensureRequestAccountDeletionCommand = (input) =>
+  input instanceof RequestAccountDeletionCommand ? input : new RequestAccountDeletionCommand(input);
+
+const ensureCancelAccountDeletionCommand = (input) =>
+  input instanceof CancelAccountDeletionCommand ? input : new CancelAccountDeletionCommand(input);
+
+const ensureGetUserByAccountIdQuery = (input) =>
+  input instanceof GetUserByAccountIdQuery ? input : new GetUserByAccountIdQuery(input);
+
+const ensureGetUserProfileByIdQuery = (input) =>
+  input instanceof GetUserProfileByIdQuery ? input : new GetUserProfileByIdQuery(input);
+
+// ============================================================================
+// User Profile Operations
+// ============================================================================
+
 /**
- * Obtener usuario completo (Account + UserProfile)
- * @param {number} idAccount - ID del account
+ * Obtener usuario completo (Account + UserProfile) por ID de cuenta
+ * @param {GetUserByAccountIdQuery} query
  * @returns {Promise<Object>} Datos combinados de account y profile
  */
-const obtenerUsuario = async (idAccount) => {
-  const account = await Account.findByPk(idAccount, {
-    include: [
-      {
-        model: UserProfile,
-        as: 'userProfile',
-        required: true
-      }
-    ]
+const getUserByAccountId = async (query) => {
+  const q = ensureGetUserByAccountIdQuery(query);
+
+  const account = await accountRepository.findById(q.accountId, {
+    includeUserProfile: true,
+    includeRoles: true,
   });
 
   if (!account || !account.userProfile) {
     throw new NotFoundError('Usuario');
   }
 
-  // Retornar datos combinados
+  // Combinar datos de account y profile
   return {
-    id: account.id_account,
+    id_account: account.id_account,
     email: account.email,
     auth_provider: account.auth_provider,
     email_verified: account.email_verified,
     last_login: account.last_login,
+    roles: account.roles || [],
     // Datos del perfil
-    id_user_profile: account.userProfile.id_user_profile,
-    name: account.userProfile.name,
-    lastname: account.userProfile.lastname,
-    gender: account.userProfile.gender,
-    birth_date: account.userProfile.birth_date,
-    locality: account.userProfile.locality,
-    subscription: account.userProfile.subscription,
-    tokens: account.userProfile.tokens,
-    id_streak: account.userProfile.id_streak,
-    profile_picture_url: account.userProfile.profile_picture_url,
-    premium_since: account.userProfile.premium_since,
-    premium_expires: account.userProfile.premium_expires,
-    onboarding_completed: account.userProfile.onboarding_completed,
-    preferred_language: account.userProfile.preferred_language,
-    timezone: account.userProfile.timezone,
-    created_at: account.userProfile.created_at,
-    updated_at: account.userProfile.updated_at
+    ...account.userProfile,
   };
 };
 
 /**
  * Obtener perfil de usuario por ID de perfil
- * Útil para búsquedas desde tablas de dominio
- * @param {number} idUserProfile - ID del user_profile
+ * @param {GetUserProfileByIdQuery} query
  * @returns {Promise<Object>} Datos del perfil
  */
-const obtenerPerfilPorId = async (idUserProfile) => {
-  const userProfile = await UserProfile.findByPk(idUserProfile, {
-    include: {
-      model: Account,
-      as: 'account',
-      attributes: ['id_account', 'email', 'auth_provider']
-    }
+const getUserProfileById = async (query) => {
+  const q = ensureGetUserProfileByIdQuery(query);
+
+  const userProfile = await userProfileRepository.findById(q.userProfileId, {
+    includeAccount: true,
   });
 
   if (!userProfile) {
     throw new NotFoundError('Perfil de usuario');
   }
 
-  return {
-    id_user_profile: userProfile.id_user_profile,
-    id_account: userProfile.id_account,
-    email: userProfile.account.email,
-    name: userProfile.name,
-    lastname: userProfile.lastname,
-    gender: userProfile.gender,
-    birth_date: userProfile.birth_date,
-    locality: userProfile.locality,
-    subscription: userProfile.subscription,
-    tokens: userProfile.tokens,
-    id_streak: userProfile.id_streak,
-    profile_picture_url: userProfile.profile_picture_url,
-    preferred_language: userProfile.preferred_language,
-    timezone: userProfile.timezone,
-    onboarding_completed: userProfile.onboarding_completed
-  };
+  return userProfile;
 };
 
 /**
  * Actualizar perfil de usuario
- * @param {number} idUserProfile - ID del user_profile
- * @param {Object} datos - Datos a actualizar (name, lastname, gender, birth_date, locality)
+ * @param {UpdateUserProfileCommand} command
  * @returns {Promise<Object>} Perfil actualizado
  */
-const actualizarPerfil = async (idUserProfile, datos) => {
-  const userProfile = await UserProfile.findByPk(idUserProfile);
-  
+const updateUserProfile = async (command) => {
+  const cmd = ensureUpdateUserProfileCommand(command);
+
+  const userProfile = await userProfileRepository.findById(cmd.userProfileId);
+
   if (!userProfile) {
     throw new NotFoundError('Perfil de usuario');
   }
 
-  // Solo permitir actualizar campos específicos
-  const camposPermitidos = ['name', 'lastname', 'gender', 'birth_date', 'locality', 'profile_picture_url', 'preferred_language', 'timezone', 'onboarding_completed'];
-  const datosLimpios = {};
-  
-  camposPermitidos.forEach(campo => {
-    if (datos[campo] !== undefined) {
-      datosLimpios[campo] = datos[campo];
-    }
-  });
-
   // Validación birth_date: formato y rango razonable (13-100 años)
-  if (datosLimpios.birth_date != null) {
-    const bd = new Date(datosLimpios.birth_date);
+  if (cmd.birthDate != null) {
+    const bd = new Date(cmd.birthDate);
     if (Number.isNaN(bd.getTime())) {
       throw new ValidationError('birth_date inválida (use YYYY-MM-DD)');
     }
@@ -157,73 +183,145 @@ const actualizarPerfil = async (idUserProfile, datos) => {
     }
   }
 
-  await userProfile.update(datosLimpios);
-  
-  // Recargar con account
-  await userProfile.reload({
-    include: {
-      model: Account,
-      as: 'account',
-      attributes: ['email']
-    }
-  });
+  // Mapear command a payload del repository
+  const payload = {};
+  if (cmd.name !== undefined) payload.name = cmd.name;
+  if (cmd.lastname !== undefined) payload.lastname = cmd.lastname;
+  if (cmd.gender !== undefined) payload.gender = cmd.gender;
+  if (cmd.birthDate !== undefined) payload.birth_date = cmd.birthDate;
+  if (cmd.locality !== undefined) payload.locality = cmd.locality;
+  if (cmd.profilePictureUrl !== undefined) payload.profile_picture_url = cmd.profilePictureUrl;
+  if (cmd.preferredLanguage !== undefined) payload.preferred_language = cmd.preferredLanguage;
+  if (cmd.timezone !== undefined) payload.timezone = cmd.timezone;
+  if (cmd.onboardingCompleted !== undefined) payload.onboarding_completed = cmd.onboardingCompleted;
 
-  return {
-    id_user_profile: userProfile.id_user_profile,
-    name: userProfile.name,
-    lastname: userProfile.lastname,
-    gender: userProfile.gender,
-    birth_date: userProfile.birth_date,
-    locality: userProfile.locality,
-    subscription: userProfile.subscription,
-    tokens: userProfile.tokens,
-    profile_picture_url: userProfile.profile_picture_url,
-    preferred_language: userProfile.preferred_language,
-    timezone: userProfile.timezone,
-    onboarding_completed: userProfile.onboarding_completed,
-    email: userProfile.account.email
-  };
+  return userProfileRepository.updateUserProfile(cmd.userProfileId, payload, {
+    includeAccount: true,
+  });
 };
 
 /**
  * Actualizar email del account
- * @param {number} idAccount - ID del account
- * @param {string} newEmail - Nuevo email
+ * @param {UpdateEmailCommand} command
  * @returns {Promise<Object>} Account actualizado
  */
-const actualizarEmail = async (idAccount, newEmail) => {
-  const account = await Account.findByPk(idAccount);
-  
+const updateEmail = async (command) => {
+  const cmd = ensureUpdateEmailCommand(command);
+
+  const account = await accountRepository.findById(cmd.accountId);
+
   if (!account) {
     throw new NotFoundError('Cuenta');
   }
 
   // Verificar que el email no esté en uso
-  const existing = await Account.findOne({ where: { email: newEmail } });
-  if (existing && existing.id_account !== idAccount) {
+  const existing = await accountRepository.findByEmail(cmd.newEmail);
+  if (existing && existing.id_account !== cmd.accountId) {
     throw new ConflictError('El email ya está en uso');
   }
 
-  await account.update({ 
-    email: newEmail,
+  return accountRepository.updateAccount(cmd.accountId, {
+    email: cmd.newEmail,
     email_verified: false // Requiere re-verificación
   });
-
-  return {
-    id_account: account.id_account,
-    email: account.email,
-    email_verified: account.email_verified
-  };
 };
 
 /**
+ * Actualizar tokens del usuario
+ * @param {UpdateUserTokensCommand} command
+ * @returns {Promise<number>} Nuevo balance de tokens
+ */
+const updateUserTokens = async (command) => {
+  const cmd = ensureUpdateUserTokensCommand(command);
+
+  const { newBalance } = await tokenLedgerService.registrarMovimiento({
+    userId: cmd.userProfileId,
+    delta: cmd.delta,
+    reason: cmd.reason || 'MANUAL_ADJUSTMENT',
+    refType: cmd.refType,
+    refId: cmd.refId,
+  });
+
+  return newBalance;
+};
+
+/**
+ * Actualizar suscripción del usuario
+ * @param {UpdateUserSubscriptionCommand} command
+ * @returns {Promise<Object>} Perfil actualizado
+ */
+const updateUserSubscription = async (command) => {
+  const cmd = ensureUpdateUserSubscriptionCommand(command);
+
+  const validSubscriptions = Object.values(SUBSCRIPTION_TYPES);
+  if (!validSubscriptions.includes(cmd.subscription)) {
+    throw new ValidationError(`Suscripción inválida. Debe ser ${validSubscriptions.join(' o ')}`);
+  }
+
+  const userProfile = await userProfileRepository.findById(cmd.userProfileId);
+
+  if (!userProfile) {
+    throw new NotFoundError('Perfil de usuario');
+  }
+
+  return userProfileRepository.updateSubscription(
+    cmd.userProfileId,
+    cmd.subscription,
+    {
+      premiumSince: cmd.premiumSince,
+      premiumExpires: cmd.premiumExpires,
+    }
+  );
+};
+
+/**
+ * Listar usuarios con filtros y paginación (solo admin)
+ * @param {ListUsersQuery} query
+ * @returns {Promise<Object>} Lista paginada de usuarios
+ */
+const listUsers = async (query) => {
+  const filters = {
+    subscription: query.subscription,
+    search: query.search,
+  };
+
+  const pagination = {
+    limit: query.limit,
+    offset: (query.page - 1) * query.limit,
+  };
+
+  const sort = {
+    field: query.sortBy,
+    direction: query.order,
+  };
+
+  const result = await userProfileRepository.findAll({
+    filters,
+    pagination,
+    sort,
+    options: { includeAccount: true },
+  });
+
+  return {
+    items: result.rows,
+    total: result.count,
+    page: query.page,
+    limit: query.limit,
+  };
+};
+
+// ============================================================================
+// Account Deletion Operations
+// ============================================================================
+
+/**
  * Obtener estado de la solicitud de eliminación más reciente
- * @param {number} idAccount
+ * @param {GetAccountDeletionStatusQuery} query
  * @returns {Promise<object|null>}
  */
-const obtenerEstadoEliminacionCuenta = async (idAccount) => {
+const getAccountDeletionStatus = async (query) => {
   const request = await AccountDeletionRequest.findOne({
-    where: { id_account: idAccount },
+    where: { id_account: query.accountId },
     order: [['requested_at', 'DESC']]
   });
 
@@ -232,20 +330,18 @@ const obtenerEstadoEliminacionCuenta = async (idAccount) => {
 
 /**
  * Crear una nueva solicitud de eliminación de cuenta
- * @param {number} idAccount
- * @param {object} options
- * @param {string|null} options.reason
+ * @param {RequestAccountDeletionCommand} command
  * @returns {Promise<object>}
  */
-const solicitarEliminacionCuenta = async (idAccount, options = {}) => {
-  const { reason = null } = options;
+const requestAccountDeletion = async (command) => {
+  const cmd = ensureRequestAccountDeletionCommand(command);
 
   const transaction = await sequelize.transaction();
 
   try {
-    const account = await Account.findByPk(idAccount, {
+    const account = await Account.findByPk(cmd.accountId, {
       include: {
-        model: UserProfile,
+        model: require('../models').UserProfile,
         as: 'userProfile',
         attributes: ['id_user_profile'],
         required: false
@@ -260,7 +356,7 @@ const solicitarEliminacionCuenta = async (idAccount, options = {}) => {
 
     const existingPending = await AccountDeletionRequest.findOne({
       where: {
-        id_account: idAccount,
+        id_account: cmd.accountId,
         status: ACCOUNT_DELETION_STATUS.PENDING
       },
       lock: transaction.LOCK.UPDATE,
@@ -276,19 +372,19 @@ const solicitarEliminacionCuenta = async (idAccount, options = {}) => {
     );
 
     const metadata = {
-      ...(options.metadata || {}),
       grace_period_days: ACCOUNT_DELETION.GRACE_PERIOD_DAYS,
-      requested_via: options.requested_via || 'SELF_SERVICE'
+      requested_via: 'SELF_SERVICE'
     };
 
     const request = await AccountDeletionRequest.create({
-      id_account: idAccount,
-      reason,
+      id_account: cmd.accountId,
+      reason: cmd.reason,
       scheduled_deletion_date: scheduledDeletion,
       status: ACCOUNT_DELETION_STATUS.PENDING,
       metadata
     }, { transaction });
 
+    // Revocar refresh tokens
     if (account.userProfile) {
       await RefreshToken.update(
         { revoked: true },
@@ -309,16 +405,18 @@ const solicitarEliminacionCuenta = async (idAccount, options = {}) => {
 
 /**
  * Cancelar una solicitud de eliminación activa
- * @param {number} idAccount
+ * @param {CancelAccountDeletionCommand} command
  * @returns {Promise<object>}
  */
-const cancelarSolicitudEliminacionCuenta = async (idAccount) => {
+const cancelAccountDeletion = async (command) => {
+  const cmd = ensureCancelAccountDeletionCommand(command);
+
   const transaction = await sequelize.transaction();
 
   try {
     const request = await AccountDeletionRequest.findOne({
       where: {
-        id_account: idAccount,
+        id_account: cmd.accountId,
         status: ACCOUNT_DELETION_STATUS.PENDING
       },
       lock: transaction.LOCK.UPDATE,
@@ -348,189 +446,125 @@ const cancelarSolicitudEliminacionCuenta = async (idAccount) => {
   }
 };
 
+// ============================================================================
+// Notification Settings Operations
+// ============================================================================
+
 /**
- * Anonimizar y desactivar definitivamente una cuenta
- * @param {number} idAccount
- * @param {object} options
- * @param {object|null} options.transaction
- * @returns {Promise<void>}
+ * Obtener configuración de notificaciones
+ * @param {GetNotificationSettingsQuery} query
+ * @returns {Promise<Object>}
  */
-const eliminarCuentaDefinitiva = async (idAccount, options = {}) => {
-  const externalTransaction = options.transaction || null;
-  const ownsTransaction = !externalTransaction;
-  const transaction = externalTransaction || await sequelize.transaction();
-
-  try {
-    const account = await Account.findByPk(idAccount, {
-      include: {
-        model: UserProfile,
-        as: 'userProfile'
-      },
-      lock: transaction.LOCK.UPDATE,
-      transaction
-    });
-
-    if (!account) {
-      throw new NotFoundError('Cuenta');
-    }
-
-    if (account.userProfile) {
-      await account.userProfile.update({
-        name: 'Usuario',
-        lastname: 'Eliminado',
-        gender: 'O',
-        birth_date: null,
-        locality: null,
-        subscription: SUBSCRIPTION_TYPES.FREE,
-        tokens: 0,
-        premium_since: null,
-        premium_expires: null,
-        onboarding_completed: false,
-        preferred_language: 'es',
-        timezone: 'UTC',
-        id_streak: null,
-        profile_picture_url: null
-      }, { transaction });
-
-      await RefreshToken.update(
-        { revoked: true },
-        {
-          where: { id_user: account.userProfile.id_user_profile },
-          transaction
-        }
-      );
-    }
-
-    const sanitizedEmail = `deleted_${account.id_account}_${Date.now()}@deleted.local`;
-
-    await account.update({
-      email: sanitizedEmail,
-      email_verified: false,
-      password_hash: null,
-      google_id: null,
-      is_active: false,
-      last_login: null
-    }, { transaction });
-
-    if (ownsTransaction) {
-      await transaction.commit();
-    }
-  } catch (error) {
-    if (ownsTransaction) {
-      await transaction.rollback();
-    }
-    throw error;
-  }
+const getNotificationSettings = async (query) => {
+  return userNotificationSettingRepository.findByUserProfileId(query.userProfileId);
 };
 
 /**
- * Procesar una solicitud de eliminación pendiente
- * @param {AccountDeletionRequest} requestInstance
- * @returns {Promise<object|null>}
+ * Actualizar configuración de notificaciones
+ * @param {UpdateNotificationSettingsCommand} command
+ * @returns {Promise<Object>}
  */
-const procesarSolicitudEliminacion = async (requestInstance) => {
-  if (!requestInstance) {
-    return null;
-  }
+const updateNotificationSettings = async (command) => {
+  const payload = {};
 
-  const transaction = await sequelize.transaction();
+  if (command.remindersEnabled !== undefined) payload.reminders_enabled = command.remindersEnabled;
+  if (command.achievementsEnabled !== undefined) payload.achievements_enabled = command.achievementsEnabled;
+  if (command.rewardsEnabled !== undefined) payload.rewards_enabled = command.rewardsEnabled;
+  if (command.gymUpdatesEnabled !== undefined) payload.gym_updates_enabled = command.gymUpdatesEnabled;
+  if (command.paymentEnabled !== undefined) payload.payment_enabled = command.paymentEnabled;
+  if (command.socialEnabled !== undefined) payload.social_enabled = command.socialEnabled;
+  if (command.systemEnabled !== undefined) payload.system_enabled = command.systemEnabled;
+  if (command.challengeEnabled !== undefined) payload.challenge_enabled = command.challengeEnabled;
+  if (command.pushEnabled !== undefined) payload.push_enabled = command.pushEnabled;
+  if (command.emailEnabled !== undefined) payload.email_enabled = command.emailEnabled;
+  if (command.quietHoursStart !== undefined) payload.quiet_hours_start = command.quietHoursStart;
+  if (command.quietHoursEnd !== undefined) payload.quiet_hours_end = command.quietHoursEnd;
 
-  try {
-    const request = await AccountDeletionRequest.findByPk(requestInstance.id_request, {
-      lock: transaction.LOCK.UPDATE,
-      transaction
-    });
+  return userNotificationSettingRepository.updateSettings(command.userProfileId, payload);
+};
 
-    if (!request || request.status !== ACCOUNT_DELETION_STATUS.PENDING) {
-      await transaction.commit();
-      return mapDeletionRequest(request);
-    }
+// ============================================================================
+// Presence Operations
+// ============================================================================
 
-    const metadata = {
-      ...(request.metadata || {}),
-      processed_at: new Date().toISOString()
-    };
-
-    try {
-      await eliminarCuentaDefinitiva(request.id_account, { transaction });
-      await request.update({
-        status: ACCOUNT_DELETION_STATUS.COMPLETED,
-        completed_at: new Date(),
-        metadata
-      }, { transaction });
-      await request.reload({ transaction });
-      await transaction.commit();
-      return mapDeletionRequest(request);
-    } catch (processingError) {
-      if (processingError instanceof NotFoundError) {
-        await request.update({
-          status: ACCOUNT_DELETION_STATUS.COMPLETED,
-          completed_at: new Date(),
-          metadata: {
-            ...metadata,
-            note: 'Account already removed'
-          }
-        }, { transaction });
-        await request.reload({ transaction });
-        await transaction.commit();
-        return mapDeletionRequest(request);
-      }
-
-      throw processingError;
-    }
-  } catch (error) {
-    await transaction.rollback();
-    throw error;
-  }
+/**
+ * Crear una nueva presencia
+ * @param {CreatePresenceCommand} command
+ * @returns {Promise<Object>}
+ */
+const createPresence = async (command) => {
+  return presenceRepository.createPresence({
+    userProfileId: command.userProfileId,
+    gymId: command.gymId,
+    distanceMeters: command.distanceMeters,
+    accuracyMeters: command.accuracyMeters,
+  });
 };
 
 /**
- * Actualizar tokens del usuario
- * @param {number} idUserProfile - ID del user_profile
- * @param {number} delta - Cantidad de tokens a sumar/restar
- * @param {string} reason - Razón del cambio
- * @returns {Promise<number>} Nuevo balance de tokens
+ * Actualizar una presencia
+ * @param {UpdatePresenceCommand} command
+ * @returns {Promise<Object>}
  */
-const BODY_METRICS_TOKENS = Number.isFinite(TOKENS.BODY_METRICS) ? TOKENS.BODY_METRICS : 0;
+const updatePresence = async (command) => {
+  const payload = {};
 
-const actualizarTokens = async (idUserProfile, delta, reason = 'manual') => {
-  const { newBalance } = await tokenLedgerService.registrarMovimiento({
-    userId: idUserProfile,
-    delta,
-    reason: reason || 'MANUAL_ADJUSTMENT',
-    refType: null,
-    refId: null
+  if (command.status !== undefined) payload.status = command.status;
+  if (command.lastSeenAt !== undefined) payload.last_seen_at = command.lastSeenAt;
+  if (command.exitedAt !== undefined) payload.exited_at = command.exitedAt;
+  if (command.distanceMeters !== undefined) payload.distance_meters = command.distanceMeters;
+  if (command.accuracyMeters !== undefined) payload.accuracy_meters = command.accuracyMeters;
+  if (command.convertedToAssistance !== undefined) payload.converted_to_assistance = command.convertedToAssistance;
+  if (command.assistanceId !== undefined) payload.id_assistance = command.assistanceId;
+
+  return presenceRepository.updatePresence(command.presenceId, payload);
+};
+
+/**
+ * Obtener presencia activa de un usuario en un gym
+ * @param {GetActivePresenceQuery} query
+ * @returns {Promise<Object|null>}
+ */
+const getActivePresence = async (query) => {
+  return presenceRepository.findActivePresence(query.userProfileId, query.gymId);
+};
+
+/**
+ * Listar presencias de un usuario
+ * @param {ListUserPresencesQuery} query
+ * @returns {Promise<Object>}
+ */
+const listUserPresences = async (query) => {
+  const filters = {
+    userProfileId: query.userProfileId,
+    gymId: query.gymId,
+    status: query.status,
+    startDate: query.startDate,
+    endDate: query.endDate,
+  };
+
+  const pagination = {
+    limit: query.limit,
+    offset: (query.page - 1) * query.limit,
+  };
+
+  const result = await presenceRepository.findAll({
+    filters,
+    pagination,
+    options: { includeRelations: true },
   });
 
-  return newBalance;
-};
-
-/**
- * Actualizar suscripción del usuario
- * Solo accesible por admins
- * @param {number} idUserProfile - ID del user_profile
- * @param {string} newSubscription - Nueva suscripción (FREE, PREMIUM)
- * @returns {Promise<Object>} Perfil actualizado
- */
-const actualizarSuscripcion = async (idUserProfile, newSubscription) => {
-  const validSubscriptions = Object.values(SUBSCRIPTION_TYPES);
-  if (!validSubscriptions.includes(newSubscription)) {
-    throw new ValidationError(`Suscripción inválida. Debe ser ${validSubscriptions.join(' o ')}`);
-  }
-
-  const userProfile = await UserProfile.findByPk(idUserProfile);
-  
-  if (!userProfile) {
-    throw new NotFoundError('Perfil de usuario');
-  }
-
-  await userProfile.update({ subscription: newSubscription });
-
   return {
-    id_user_profile: userProfile.id_user_profile,
-    subscription: userProfile.subscription
+    items: result.rows,
+    total: result.count,
+    page: query.page,
+    limit: query.limit,
   };
 };
+
+// ============================================================================
+// Body Metrics Operations (Legacy - mantener para compatibilidad)
+// ============================================================================
 
 const normalizarNumero = (valor) => {
   if (valor === undefined || valor === null || valor === '') return null;
@@ -546,9 +580,10 @@ const validarRango = (valor, minimo, maximo, campo) => {
 };
 
 const BODY_METRICS_SOURCES = new Set(['MANUAL', 'SMART_SCALE', 'TRAINER']);
+const BODY_METRICS_TOKENS = Number.isFinite(TOKENS.BODY_METRICS) ? TOKENS.BODY_METRICS : 0;
 
 const registrarMetricasCorporales = async (id_user_profile, payload = {}) => {
-  const profile = await UserProfile.findByPk(id_user_profile, { attributes: ['id_user_profile'] });
+  const profile = await userProfileRepository.findById(id_user_profile);
   if (!profile) throw new NotFoundError('Perfil de usuario');
 
   const weight = normalizarNumero(payload.weight_kg);
@@ -576,7 +611,7 @@ const registrarMetricasCorporales = async (id_user_profile, payload = {}) => {
 
   const source = (payload.source || 'MANUAL').toUpperCase();
   if (!BODY_METRICS_SOURCES.has(source)) {
-    throw new ValidationError(`Fuente inv�lida. Debe ser ${Array.from(BODY_METRICS_SOURCES).join(', ')}`);
+    throw new ValidationError(`Fuente inválida. Debe ser ${Array.from(BODY_METRICS_SOURCES).join(', ')}`);
   }
 
   const measured_at = payload.measured_at ? new Date(payload.measured_at) : new Date();
@@ -612,7 +647,7 @@ const registrarMetricasCorporales = async (id_user_profile, payload = {}) => {
 };
 
 const listarMetricasCorporales = async (id_user_profile, { limit = 30, offset = 0 } = {}) => {
-  const profile = await UserProfile.findByPk(id_user_profile, { attributes: ['id_user_profile'] });
+  const profile = await userProfileRepository.findById(id_user_profile);
   if (!profile) throw new NotFoundError('Perfil de usuario');
 
   return UserBodyMetric.findAll({
@@ -624,7 +659,7 @@ const listarMetricasCorporales = async (id_user_profile, { limit = 30, offset = 
 };
 
 const obtenerUltimaMetricaCorporal = async (id_user_profile) => {
-  const profile = await UserProfile.findByPk(id_user_profile, { attributes: ['id_user_profile'] });
+  const profile = await userProfileRepository.findById(id_user_profile);
   if (!profile) throw new NotFoundError('Perfil de usuario');
 
   return UserBodyMetric.findOne({
@@ -633,24 +668,48 @@ const obtenerUltimaMetricaCorporal = async (id_user_profile) => {
   });
 };
 
+// ============================================================================
+// Exports
+// ============================================================================
+
 module.exports = {
-  obtenerUsuario,
-  obtenerPerfilPorId,
-  actualizarPerfil,
-  actualizarEmail,
-  obtenerEstadoEliminacionCuenta,
-  solicitarEliminacionCuenta,
-  cancelarSolicitudEliminacionCuenta,
-  eliminarCuentaDefinitiva,
-  procesarSolicitudEliminacion,
-  eliminarCuenta: eliminarCuentaDefinitiva,
-  actualizarTokens,
-  actualizarSuscripcion,
+  // User Profile Operations
+  getUserByAccountId,
+  getUserProfileById,
+  updateUserProfile,
+  updateEmail,
+  updateUserTokens,
+  updateUserSubscription,
+  listUsers,
+
+  // Account Deletion Operations
+  getAccountDeletionStatus,
+  requestAccountDeletion,
+  cancelAccountDeletion,
+
+  // Notification Settings Operations
+  getNotificationSettings,
+  updateNotificationSettings,
+
+  // Presence Operations
+  createPresence,
+  updatePresence,
+  getActivePresence,
+  listUserPresences,
+
+  // Body Metrics Operations (Legacy)
   registrarMetricasCorporales,
   listarMetricasCorporales,
-  obtenerUltimaMetricaCorporal
+  obtenerUltimaMetricaCorporal,
+
+  // Legacy aliases (mantener para compatibilidad con código existente)
+  obtenerUsuario: getUserByAccountId,
+  obtenerPerfilPorId: getUserProfileById,
+  actualizarPerfil: updateUserProfile,
+  actualizarEmail: updateEmail,
+  actualizarTokens: updateUserTokens,
+  actualizarSuscripcion: updateUserSubscription,
+  obtenerEstadoEliminacionCuenta: getAccountDeletionStatus,
+  solicitarEliminacionCuenta: requestAccountDeletion,
+  cancelarSolicitudEliminacionCuenta: cancelAccountDeletion,
 };
-
-
-
-

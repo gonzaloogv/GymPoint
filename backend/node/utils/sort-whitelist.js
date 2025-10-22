@@ -18,12 +18,15 @@ const GYM_SORTABLE_FIELDS = new Set([
 ]);
 
 /**
- * Campos permitidos para ordenar Accounts/Users
+ * Campos permitidos para ordenar Accounts/Users (UserProfile)
  */
 const USER_SORTABLE_FIELDS = new Set([
+  'name',
   'email',
   'created_at',
   'last_login',
+  'tokens',
+  'subscription',
 ]);
 
 /**

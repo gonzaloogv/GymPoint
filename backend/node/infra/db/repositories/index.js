@@ -6,4 +6,6 @@ module.exports = {
   gymRepository: require('./gym.repository'),
   gymTypeRepository: require('./gym-type.repository'),
   gymAmenityRepository: require('./gym-amenity.repository'),
+  userNotificationSettingRepository: require('./user-notification-setting.repository'),
+  presenceRepository: require('./presence.repository'),
 };
