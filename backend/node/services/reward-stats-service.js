@@ -1,11 +1,15 @@
-﻿const { Op, fn, col, literal } = require('sequelize');
+const { Op, fn, col, literal } = require('sequelize');
 const sequelize = require('../config/database');
 const ClaimedReward = require('../models/ClaimedReward');
 const { TokenLedger } = require('../models');
 const Gym = require('../models/Gym');
 
 /**
- * NOTA: Este servicio ha sido actualizado para usar token_ledger en lugar de transaction
+ * Servicio de estadísticas de recompensas por gimnasio
+ * Ajustado para usar la estructura actual de BD:
+ * - reward_gym_stats_daily: id_gym, total_rewards_claimed, total_tokens_spent, unique_users
+ * - claimed_reward: sin campos snapshot
+ * - Status: PENDING, ACTIVE, USED, EXPIRED (uppercase)
  */
 
 /**
@@ -17,67 +21,39 @@ const Gym = require('../models/Gym');
 const runDailyUpsert = async (from, to) => {
   const fromDate = new Date(from);
   const toDate = new Date(to);
-  
+
   if (isNaN(fromDate) || isNaN(toDate)) {
-    throw new Error('Fechas invÃ¡lidas para upsert');
+    throw new Error('Fechas inválidas para upsert');
   }
-  
+
   try {
-    // Upsert de claims desde claimed_reward
+    // Upsert de claims y tokens desde claimed_reward + reward
+    // Estructura actual de BD: id_gym, total_rewards_claimed, total_tokens_spent, unique_users
     await sequelize.query(`
-      INSERT INTO reward_gym_stats_daily (day, gym_id, claims, redeemed, revoked, tokens_spent, tokens_refunded)
-      SELECT 
-        DATE(cr.claimed_date) as day,
-        cr.gym_id_snapshot as gym_id,
-        COUNT(*) as claims,
-        SUM(CASE WHEN cr.status = 'redeemed' THEN 1 ELSE 0 END) as redeemed,
-        SUM(CASE WHEN cr.status = 'revoked' THEN 1 ELSE 0 END) as revoked,
-        0 as tokens_spent,
-        0 as tokens_refunded
-      FROM claimed_reward cr
-      WHERE 
-        cr.provider_snapshot = 'gym'
-        AND cr.gym_id_snapshot IS NOT NULL
-        AND cr.claimed_date BETWEEN :from AND :to
-      GROUP BY DATE(cr.claimed_date), cr.gym_id_snapshot
-      ON DUPLICATE KEY UPDATE
-        claims = claims + VALUES(claims),
-        redeemed = redeemed + VALUES(redeemed),
-        revoked = revoked + VALUES(revoked)
-    `, {
-      replacements: { from: fromDate, to: toDate },
-      type: sequelize.QueryTypes.INSERT
-    });
-    
-    // Upsert de tokens desde token_ledger (actualizado)
-    await sequelize.query(`
-      INSERT INTO reward_gym_stats_daily (day, gym_id, claims, redeemed, revoked, tokens_spent, tokens_refunded)
+      INSERT INTO reward_gym_stats_daily (day, id_gym, total_rewards_claimed, total_tokens_spent, unique_users)
       SELECT
-        DATE(tl.created_at) as day,
-        r.id_gym as gym_id,
-        0 as claims,
-        0 as redeemed,
-        0 as revoked,
-        SUM(CASE WHEN tl.delta < 0 AND tl.reason = 'REWARD_CLAIM' THEN ABS(tl.delta) ELSE 0 END) as tokens_spent,
-        SUM(CASE WHEN tl.delta > 0 AND tl.reason = 'REWARD_REFUND' THEN tl.delta ELSE 0 END) as tokens_refunded
-      FROM token_ledger tl
-      JOIN claimed_reward cr ON tl.ref_type = 'claimed_reward' AND tl.ref_id = cr.id_claimed_reward
+        DATE(cr.claimed_date) as day,
+        r.id_gym as id_gym,
+        COUNT(*) as total_rewards_claimed,
+        SUM(cr.tokens_spent) as total_tokens_spent,
+        COUNT(DISTINCT cr.id_user_profile) as unique_users
+      FROM claimed_reward cr
       JOIN reward r ON cr.id_reward = r.id_reward
       WHERE
-        r.provider = 'gym'
-        AND r.id_gym IS NOT NULL
-        AND tl.created_at BETWEEN :from AND :to
-      GROUP BY DATE(tl.created_at), r.id_gym
+        r.id_gym IS NOT NULL
+        AND cr.claimed_date BETWEEN :from AND :to
+      GROUP BY DATE(cr.claimed_date), r.id_gym
       ON DUPLICATE KEY UPDATE
-        tokens_spent = tokens_spent + VALUES(tokens_spent),
-        tokens_refunded = tokens_refunded + VALUES(tokens_refunded)
+        total_rewards_claimed = total_rewards_claimed + VALUES(total_rewards_claimed),
+        total_tokens_spent = total_tokens_spent + VALUES(total_tokens_spent),
+        unique_users = unique_users + VALUES(unique_users)
     `, {
       replacements: { from: fromDate, to: toDate },
       type: sequelize.QueryTypes.INSERT
     });
-    
+
     console.log(` Upsert completado para ventana ${fromDate.toISOString()} - ${toDate.toISOString()}`);
-    
+
   } catch (error) {
     console.error(' Error en runDailyUpsert:', error.message);
     throw error;
@@ -85,175 +61,124 @@ const runDailyUpsert = async (from, to) => {
 };
 
 /**
- * Obtener estadÃ­sticas de recompensas por gimnasio (rango de fechas)
- * Usa tabla B (reward_gym_stats_daily) para dÃ­as pasados + consulta A para hoy
+ * Obtener estadísticas de recompensas por gimnasio (rango de fechas)
+ * Usa tabla reward_gym_stats_daily para días pasados + consulta a claimed_reward para hoy
  * @param {Date} from - Fecha de inicio
  * @param {Date} to - Fecha de fin
- * @returns {Promise<Array>} Array de stats por gym_id
+ * @returns {Promise<Array>} Array de stats por id_gym
  */
 const getGymStatsRange = async (from, to) => {
   const fromDate = new Date(from);
   const toDate = new Date(to);
-  
+
   if (isNaN(fromDate) || isNaN(toDate)) {
-    throw new Error('Fechas invÃ¡lidas');
+    throw new Error('Fechas inválidas');
   }
-  
+
   if (fromDate > toDate) {
     throw new Error('La fecha de inicio debe ser menor que la fecha de fin');
   }
-  
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const todayEnd = new Date(today);
   todayEnd.setHours(23, 59, 59, 999);
-  
+
   let aggregatedStats = {};
-  
-  // Parte B: Si el rango incluye dÃ­as pasados, leer de reward_gym_stats_daily
+
+  // Parte B: Si el rango incluye días pasados, leer de reward_gym_stats_daily
   if (fromDate < today) {
     const historicalEnd = toDate < today ? toDate : new Date(today.getTime() - 1);
-    
+
     const dailyStats = await sequelize.query(`
-      SELECT 
-        gym_id,
-        SUM(claims) as total_claims,
-        SUM(redeemed) as redeemed,
-        SUM(revoked) as revoked,
-        SUM(tokens_spent) as tokens_spent,
-        SUM(tokens_refunded) as tokens_refunded
+      SELECT
+        id_gym,
+        SUM(total_rewards_claimed) as total_claims,
+        SUM(total_tokens_spent) as total_tokens,
+        SUM(unique_users) as unique_users
       FROM reward_gym_stats_daily
       WHERE day BETWEEN :from AND :to
-      GROUP BY gym_id
+      GROUP BY id_gym
     `, {
-      replacements: { 
-        from: fromDate.toISOString().split('T')[0], 
+      replacements: {
+        from: fromDate.toISOString().split('T')[0],
         to: historicalEnd.toISOString().split('T')[0]
       },
       type: sequelize.QueryTypes.SELECT
     });
-    
+
     dailyStats.forEach(stat => {
-      aggregatedStats[stat.gym_id] = {
-        gym_id: parseInt(stat.gym_id),
+      aggregatedStats[stat.id_gym] = {
+        id_gym: parseInt(stat.id_gym),
         claims: parseInt(stat.total_claims) || 0,
-        redeemed: parseInt(stat.redeemed) || 0,
-        revoked: parseInt(stat.revoked) || 0,
-        pending: 0, // Se calcularÃ¡ despuÃ©s
-        tokens_spent: parseInt(stat.tokens_spent) || 0,
-        tokens_refunded: parseInt(stat.tokens_refunded) || 0
+        tokens_spent: parseInt(stat.total_tokens) || 0,
+        unique_users: parseInt(stat.unique_users) || 0
       };
     });
   }
-  
+
   // Parte A: Si el rango incluye hoy, consultar claimed_reward directamente
   if (toDate >= today) {
     const todayStart = fromDate > today ? fromDate : today;
-    
+
     const claimStats = await sequelize.query(`
-      SELECT 
-        cr.gym_id_snapshot as gym_id,
-        COUNT(*) as total_claims,
-        SUM(CASE WHEN cr.status = 'redeemed' THEN 1 ELSE 0 END) as redeemed,
-        SUM(CASE WHEN cr.status = 'revoked' THEN 1 ELSE 0 END) as revoked,
-        SUM(CASE WHEN cr.status = 'pending' THEN 1 ELSE 0 END) as pending
-      FROM claimed_reward cr
-      WHERE 
-        cr.provider_snapshot = 'gym'
-        AND cr.gym_id_snapshot IS NOT NULL
-        AND cr.claimed_date BETWEEN :from AND :to
-      GROUP BY cr.gym_id_snapshot
-    `, {
-      replacements: { from: todayStart, to: toDate },
-      type: sequelize.QueryTypes.SELECT
-    });
-    
-    // Actualizado para usar token_ledger
-    const ledgerStats = await sequelize.query(`
       SELECT
-        r.id_gym as gym_id,
-        SUM(CASE WHEN tl.delta < 0 AND tl.reason = 'REWARD_CLAIM' THEN ABS(tl.delta) ELSE 0 END) as tokens_spent,
-        SUM(CASE WHEN tl.delta > 0 AND tl.reason = 'REWARD_REFUND' THEN tl.delta ELSE 0 END) as tokens_refunded
-      FROM token_ledger tl
-      JOIN claimed_reward cr ON tl.ref_type = 'claimed_reward' AND tl.ref_id = cr.id_claimed_reward
+        r.id_gym as id_gym,
+        COUNT(*) as total_claims,
+        SUM(cr.tokens_spent) as total_tokens,
+        COUNT(DISTINCT cr.id_user_profile) as unique_users
+      FROM claimed_reward cr
       JOIN reward r ON cr.id_reward = r.id_reward
       WHERE
-        r.provider = 'gym'
-        AND r.id_gym IS NOT NULL
-        AND tl.created_at BETWEEN :from AND :to
+        r.id_gym IS NOT NULL
+        AND cr.claimed_date BETWEEN :from AND :to
       GROUP BY r.id_gym
     `, {
       replacements: { from: todayStart, to: toDate },
       type: sequelize.QueryTypes.SELECT
     });
-    
-    // Agregar stats de hoy a los agregados
+
     claimStats.forEach(stat => {
-      const gymId = stat.gym_id;
+      const gymId = stat.id_gym;
       if (!aggregatedStats[gymId]) {
         aggregatedStats[gymId] = {
-          gym_id: parseInt(gymId),
+          id_gym: parseInt(gymId),
           claims: 0,
-          redeemed: 0,
-          revoked: 0,
-          pending: 0,
           tokens_spent: 0,
-          tokens_refunded: 0
+          unique_users: 0
         };
       }
       aggregatedStats[gymId].claims += parseInt(stat.total_claims);
-      aggregatedStats[gymId].redeemed += parseInt(stat.redeemed);
-      aggregatedStats[gymId].revoked += parseInt(stat.revoked);
-      aggregatedStats[gymId].pending += parseInt(stat.pending);
-    });
-    
-    ledgerStats.forEach(stat => {
-      const gymId = stat.gym_id;
-      if (!aggregatedStats[gymId]) {
-        aggregatedStats[gymId] = {
-          gym_id: parseInt(gymId),
-          claims: 0,
-          redeemed: 0,
-          revoked: 0,
-          pending: 0,
-          tokens_spent: 0,
-          tokens_refunded: 0
-        };
-      }
-      aggregatedStats[gymId].tokens_spent += parseInt(stat.tokens_spent) || 0;
-      aggregatedStats[gymId].tokens_refunded += parseInt(stat.tokens_refunded) || 0;
+      aggregatedStats[gymId].tokens_spent += parseInt(stat.total_tokens) || 0;
+      aggregatedStats[gymId].unique_users += parseInt(stat.unique_users) || 0;
     });
   }
-  
+
   // Convertir a array y agregar info del gym
   const results = [];
   for (const gymId in aggregatedStats) {
     const stat = aggregatedStats[gymId];
-    
+
     const gym = await Gym.findByPk(gymId, {
       attributes: ['id_gym', 'name', 'city']
     });
-    
+
     results.push({
-      gym_id: stat.gym_id,
+      id_gym: stat.id_gym,
       gym_name: gym ? gym.name : null,
       gym_city: gym ? gym.city : null,
-      claims: stat.claims,
-      redeemed: stat.redeemed,
-      revoked: stat.revoked,
-      pending: stat.pending,
+      total_claims: stat.claims,
       tokens_spent: stat.tokens_spent,
-      tokens_refunded: stat.tokens_refunded,
-      net_tokens: stat.tokens_spent - stat.tokens_refunded
+      unique_users: stat.unique_users
     });
   }
-  
-  return results.sort((a, b) => b.claims - a.claims);
+
+  return results.sort((a, b) => b.total_claims - a.total_claims);
 };
 
 /**
- * Obtener estadÃ­sticas de un gimnasio especÃ­fico
- * Usa tabla B para dÃ­as pasados + consulta A para hoy
+ * Obtener estadísticas de un gimnasio específico
+ * Usa tabla reward_gym_stats_daily para días pasados + consulta a claimed_reward para hoy
  * @param {number} gymId - ID del gimnasio
  * @param {Date} from - Fecha de inicio
  * @param {Date} to - Fecha de fin
@@ -262,124 +187,89 @@ const getGymStatsRange = async (from, to) => {
 const getGymStatsById = async (gymId, from, to) => {
   const fromDate = new Date(from);
   const toDate = new Date(to);
-  
+
   if (isNaN(fromDate) || isNaN(toDate)) {
-    throw new Error('Fechas invÃ¡lidas');
+    throw new Error('Fechas inválidas');
   }
-  
+
   if (fromDate > toDate) {
     throw new Error('La fecha de inicio debe ser menor que la fecha de fin');
   }
-  
+
   const gym = await Gym.findByPk(gymId);
   if (!gym) {
     throw new Error('Gimnasio no encontrado');
   }
-  
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   let aggregated = {
     claims: 0,
-    redeemed: 0,
-    revoked: 0,
-    pending: 0,
     tokens_spent: 0,
-    tokens_refunded: 0
+    unique_users: 0
   };
-  
-  // Parte B: DÃ­as pasados
+
+  // Parte B: Días pasados
   if (fromDate < today) {
     const historicalEnd = toDate < today ? toDate : new Date(today.getTime() - 1);
-    
+
     const dailyStats = await sequelize.query(`
-      SELECT 
-        SUM(claims) as total_claims,
-        SUM(redeemed) as redeemed,
-        SUM(revoked) as revoked,
-        SUM(tokens_spent) as tokens_spent,
-        SUM(tokens_refunded) as tokens_refunded
+      SELECT
+        SUM(total_rewards_claimed) as total_claims,
+        SUM(total_tokens_spent) as total_tokens,
+        SUM(unique_users) as unique_users
       FROM reward_gym_stats_daily
-      WHERE gym_id = :gymId AND day BETWEEN :from AND :to
+      WHERE id_gym = :gymId AND day BETWEEN :from AND :to
     `, {
-      replacements: { 
+      replacements: {
         gymId,
-        from: fromDate.toISOString().split('T')[0], 
+        from: fromDate.toISOString().split('T')[0],
         to: historicalEnd.toISOString().split('T')[0]
       },
       type: sequelize.QueryTypes.SELECT
     });
-    
+
     if (dailyStats[0]) {
       aggregated.claims += parseInt(dailyStats[0].total_claims) || 0;
-      aggregated.redeemed += parseInt(dailyStats[0].redeemed) || 0;
-      aggregated.revoked += parseInt(dailyStats[0].revoked) || 0;
-      aggregated.tokens_spent += parseInt(dailyStats[0].tokens_spent) || 0;
-      aggregated.tokens_refunded += parseInt(dailyStats[0].tokens_refunded) || 0;
+      aggregated.tokens_spent += parseInt(dailyStats[0].total_tokens) || 0;
+      aggregated.unique_users += parseInt(dailyStats[0].unique_users) || 0;
     }
   }
-  
+
   // Parte A: Hoy
   if (toDate >= today) {
     const todayStart = fromDate > today ? fromDate : today;
-    
+
     const claimStats = await sequelize.query(`
-      SELECT 
-        COUNT(*) as total_claims,
-        SUM(CASE WHEN status = 'redeemed' THEN 1 ELSE 0 END) as redeemed,
-        SUM(CASE WHEN status = 'revoked' THEN 1 ELSE 0 END) as revoked,
-        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending
-      FROM claimed_reward
-      WHERE 
-        provider_snapshot = 'gym'
-        AND gym_id_snapshot = :gymId
-        AND claimed_date BETWEEN :from AND :to
-    `, {
-      replacements: { gymId, from: todayStart, to: toDate },
-      type: sequelize.QueryTypes.SELECT
-    });
-    
-    // Actualizado para usar token_ledger
-    const ledgerStats = await sequelize.query(`
       SELECT
-        SUM(CASE WHEN tl.delta < 0 AND tl.reason = 'REWARD_CLAIM' THEN ABS(tl.delta) ELSE 0 END) as tokens_spent,
-        SUM(CASE WHEN tl.delta > 0 AND tl.reason = 'REWARD_REFUND' THEN tl.delta ELSE 0 END) as tokens_refunded
-      FROM token_ledger tl
-      JOIN claimed_reward cr ON tl.ref_type = 'claimed_reward' AND tl.ref_id = cr.id_claimed_reward
+        COUNT(*) as total_claims,
+        SUM(cr.tokens_spent) as total_tokens,
+        COUNT(DISTINCT cr.id_user_profile) as unique_users
+      FROM claimed_reward cr
       JOIN reward r ON cr.id_reward = r.id_reward
       WHERE
-        r.provider = 'gym'
-        AND r.id_gym = :gymId
-        AND tl.created_at BETWEEN :from AND :to
+        r.id_gym = :gymId
+        AND cr.claimed_date BETWEEN :from AND :to
     `, {
       replacements: { gymId, from: todayStart, to: toDate },
       type: sequelize.QueryTypes.SELECT
     });
-    
+
     if (claimStats[0]) {
       aggregated.claims += parseInt(claimStats[0].total_claims) || 0;
-      aggregated.redeemed += parseInt(claimStats[0].redeemed) || 0;
-      aggregated.revoked += parseInt(claimStats[0].revoked) || 0;
-      aggregated.pending += parseInt(claimStats[0].pending) || 0;
-    }
-    
-    if (ledgerStats[0]) {
-      aggregated.tokens_spent += parseInt(ledgerStats[0].tokens_spent) || 0;
-      aggregated.tokens_refunded += parseInt(ledgerStats[0].tokens_refunded) || 0;
+      aggregated.tokens_spent += parseInt(claimStats[0].total_tokens) || 0;
+      aggregated.unique_users += parseInt(claimStats[0].unique_users) || 0;
     }
   }
-  
+
   return {
-    gym_id: gym.id_gym,
+    id_gym: gym.id_gym,
     gym_name: gym.name,
     gym_city: gym.city,
-    claims: aggregated.claims,
-    redeemed: aggregated.redeemed,
-    revoked: aggregated.revoked,
-    pending: aggregated.pending,
+    total_claims: aggregated.claims,
     tokens_spent: aggregated.tokens_spent,
-    tokens_refunded: aggregated.tokens_refunded,
-    net_tokens: aggregated.tokens_spent - aggregated.tokens_refunded,
+    unique_users: aggregated.unique_users,
     period: {
       from: fromDate.toISOString(),
       to: toDate.toISOString()

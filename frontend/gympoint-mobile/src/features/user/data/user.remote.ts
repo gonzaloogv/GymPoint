@@ -1,20 +1,90 @@
-import { api } from '@shared/http/apiClient';
+import { api } from '@shared/services/api';
+import {
+  UserProfileResponseDTO,
+  UpdateUserProfileRequestDTO,
+  UpdateEmailRequestDTO,
+  EmailUpdateResponseDTO,
+  RequestAccountDeletionRequestDTO,
+  AccountDeletionResponseDTO,
+  AccountDeletionStatusResponseDTO,
+  NotificationSettingsResponseDTO,
+  UpdateNotificationSettingsRequestDTO,
+} from '../../auth/data/auth.dto';
 
-// Reutilizar los DTOs de home para evitar duplicación
-import type { UserProfileResponseDTO, StreakResponseDTO } from '@features/home/data/home.remote';
+// Re-export para compatibilidad
+export type { UserProfileResponseDTO };
 
-export { UserProfileResponseDTO, StreakResponseDTO };
-
+/**
+ * Users API Client - Alineado con OpenAPI backend (lote 2)
+ * Base path: /api/users
+ */
 export const UserRemote = {
-  // Obtener perfil completo del usuario
+  /**
+   * GET /api/users/me
+   * Obtener perfil del usuario actual
+   */
+  getProfile: () =>
+    api.get<UserProfileResponseDTO>('/api/users/me').then((r) => r.data),
+
+  /**
+   * Alias para compatibilidad con código existente
+   */
   getUserProfile: () =>
     api.get<UserProfileResponseDTO>('/api/users/me').then((r) => r.data),
 
-  // Obtener racha del usuario
-  getStreak: () =>
-    api.get<StreakResponseDTO>('/api/streak/me').then((r) => r.data),
+  /**
+   * PUT /api/users/me
+   * Actualizar perfil del usuario actual
+   */
+  updateProfile: (payload: UpdateUserProfileRequestDTO) =>
+    api.put<UserProfileResponseDTO>('/api/users/me', payload).then((r) => r.data),
 
-  // Actualizar perfil del usuario
-  updateProfile: (data: Partial<UserProfileResponseDTO>) =>
-    api.put<UserProfileResponseDTO>('/api/users/me', data).then((r) => r.data),
+  /**
+   * DELETE /api/users/me
+   * Solicitar eliminación de cuenta
+   */
+  requestAccountDeletion: (payload?: RequestAccountDeletionRequestDTO) =>
+    api.delete<AccountDeletionResponseDTO>('/api/users/me', { data: payload }).then((r) => r.data),
+
+  /**
+   * PUT /api/users/me/email
+   * Actualizar email del usuario
+   */
+  updateEmail: (payload: UpdateEmailRequestDTO) =>
+    api.put<EmailUpdateResponseDTO>('/api/users/me/email', payload).then((r) => r.data),
+
+  /**
+   * GET /api/users/me/deletion-request
+   * Obtener estado de solicitud de eliminación
+   */
+  getAccountDeletionStatus: () =>
+    api.get<AccountDeletionStatusResponseDTO>('/api/users/me/deletion-request').then((r) => r.data),
+
+  /**
+   * DELETE /api/users/me/deletion-request
+   * Cancelar solicitud de eliminación
+   */
+  cancelAccountDeletion: () =>
+    api.delete<AccountDeletionResponseDTO>('/api/users/me/deletion-request').then((r) => r.data),
+
+  /**
+   * GET /api/users/me/notification-settings
+   * Obtener configuración de notificaciones
+   */
+  getNotificationSettings: () =>
+    api.get<NotificationSettingsResponseDTO>('/api/users/me/notification-settings').then((r) => r.data),
+
+  /**
+   * PUT /api/users/me/notification-settings
+   * Actualizar configuración de notificaciones
+   */
+  updateNotificationSettings: (payload: UpdateNotificationSettingsRequestDTO) =>
+    api.put<NotificationSettingsResponseDTO>('/api/users/me/notification-settings', payload).then((r) => r.data),
+
+  /**
+   * GET /api/users/{userId}
+   * Obtener perfil de usuario por ID (admin)
+   */
+  getUserById: (userId: number) =>
+    api.get<UserProfileResponseDTO>(`/api/users/${userId}`).then((r) => r.data),
 };

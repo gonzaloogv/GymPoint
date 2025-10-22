@@ -8,4 +8,8 @@ module.exports = {
   gymAmenityRepository: require('./gym-amenity.repository'),
   userNotificationSettingRepository: require('./user-notification-setting.repository'),
   presenceRepository: require('./presence.repository'),
+  // Lote 4: Gym Schedules, Reviews, Payments
+  gymScheduleRepository: require('./gym-schedule.repository'),
+  gymReviewRepository: require('./gym-review.repository'),
+  gymPaymentRepository: require('./gym-payment.repository'),
 };

@@ -1,38 +1,80 @@
 import * as SecureStore from 'expo-secure-store';
 import { AuthRepository, RegisterParams } from '../domain/repositories/AuthRepository';
 import { AuthRemote } from './auth.remote';
-import { mapUser } from './auth.mapper';
+import { mapAuthUserToEntity, mapUserProfileToEntity } from './auth.mapper';
 
+/**
+ * Implementación del repositorio de autenticación
+ * Alineado con OpenAPI backend (lotes 1-2)
+ */
 export class AuthRepositoryImpl implements AuthRepository {
+  /**
+   * Login con email y contraseña
+   */
   async login(email: string, password: string) {
-    const data = await AuthRemote.login({ email, password });
-    await SecureStore.setItemAsync('accessToken', data.accessToken);
-    await SecureStore.setItemAsync('refreshToken', data.refreshToken);
+    const response = await AuthRemote.login({ email, password });
+
+    // Guardar tokens en SecureStore
+    await SecureStore.setItemAsync('accessToken', response.tokens.accessToken);
+    await SecureStore.setItemAsync('refreshToken', response.tokens.refreshToken);
+
     return {
-      user: mapUser(data.user),
-      accessToken: data.accessToken,
-      refreshToken: data.refreshToken,
+      user: mapAuthUserToEntity(response.user),
+      accessToken: response.tokens.accessToken,
+      refreshToken: response.tokens.refreshToken,
     };
   }
+
+  /**
+   * Obtener perfil del usuario actual
+   */
   async me() {
-    const data = await AuthRemote.me();
-    return mapUser({
-      id: data.id,
-      id_user_profile: data.id_user_profile,
-      email: data.email,
-      name: data.name,
-      lastname: data.lastname,
-      subscription: data.subscription,
-      tokens: data.tokens,
-      roles: data.subscription === 'PREMIUM' ? ['PREMIUM'] : ['USER'],
-    });
+    const profile = await AuthRemote.me();
+    return mapUserProfileToEntity(profile);
   }
+
+  /**
+   * Logout - revocar tokens
+   */
   async logout() {
-    await SecureStore.deleteItemAsync('accessToken');
-    await SecureStore.deleteItemAsync('refreshToken');
+    try {
+      const refreshToken = await SecureStore.getItemAsync('refreshToken');
+      if (refreshToken) {
+        // Intentar revocar el token en el backend
+        await AuthRemote.logout({ refreshToken });
+      }
+    } catch (error) {
+      console.warn('Error al revocar refresh token:', error);
+    } finally {
+      // Siempre eliminar tokens locales
+      await SecureStore.deleteItemAsync('accessToken');
+      await SecureStore.deleteItemAsync('refreshToken');
+    }
   }
+
+  /**
+   * Registro de nueva cuenta
+   */
   async register(params: RegisterParams) {
-    const data = await AuthRemote.register(params);
-    return data;
+    const response = await AuthRemote.register({
+      email: params.email,
+      password: params.password,
+      name: params.name,
+      lastname: params.lastname,
+      gender: params.gender as 'M' | 'F' | 'O' | undefined,
+      locality: params.locality,
+      birth_date: params.birth_date,
+      frequency_goal: params.frequency_goal,
+    });
+
+    // Guardar tokens en SecureStore
+    await SecureStore.setItemAsync('accessToken', response.tokens.accessToken);
+    await SecureStore.setItemAsync('refreshToken', response.tokens.refreshToken);
+
+    return {
+      user: mapAuthUserToEntity(response.user),
+      accessToken: response.tokens.accessToken,
+      refreshToken: response.tokens.refreshToken,
+    };
   }
 }

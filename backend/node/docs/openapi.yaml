@@ -25,6 +25,12 @@ tags:
     description: Gestión de perfiles de usuario, preferencias y configuraciones.
   - name: Gyms
     description: Catálogo de gimnasios, amenities y administración.
+  - name: Gym Schedules
+    description: Horarios regulares y especiales de gimnasios.
+  - name: Gym Reviews
+    description: Reseñas y valoraciones de gimnasios.
+  - name: Gym Payments
+    description: Pagos de suscripciones a gimnasios.
 security: []
 paths:
   /api/auth/register:
@@ -749,6 +755,221 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  # ==================================================================================
+  # LOTE 4: GYM SCHEDULES, REVIEWS, PAYMENTS
+  # ==================================================================================
+
+  /api/gyms/{gymId}/schedules:
+    parameters:
+      - $ref: '#/components/parameters/GymIdPathParam'
+    get:
+      operationId: listGymSchedules
+      tags: [Gym Schedules]
+      summary: Listar horarios regulares de un gimnasio
+      description: Retorna los horarios de la semana (lunes a domingo)
+      responses:
+        '200':
+          description: Horarios encontrados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymSchedulesWeekResponse'
+        '404':
+          description: Gimnasio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: createGymSchedule
+      tags: [Gym Schedules]
+      summary: Crear horario regular para un día
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGymScheduleRequest'
+      responses:
+        '201':
+          description: Horario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymScheduleResponse'
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/gyms/{gymId}/reviews:
+    parameters:
+      - $ref: '#/components/parameters/GymIdPathParam'
+    get:
+      operationId: listGymReviews
+      tags: [Gym Reviews]
+      summary: Listar reseñas de un gimnasio
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [created_at, rating, helpful_count]
+            default: created_at
+        - $ref: '#/components/parameters/Order'
+        - name: min_rating
+          in: query
+          schema:
+            type: number
+            minimum: 1
+            maximum: 5
+        - name: with_comment_only
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Lista de reseñas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGymReviewsResponse'
+        '404':
+          description: Gimnasio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: createGymReview
+      tags: [Gym Reviews]
+      summary: Crear una reseña para un gimnasio
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGymReviewRequest'
+      responses:
+        '201':
+          description: Reseña creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymReviewResponse'
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Usuario ya tiene una reseña para este gimnasio
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/gyms/{gymId}/payments:
+    parameters:
+      - $ref: '#/components/parameters/GymIdPathParam'
+    get:
+      operationId: listGymPayments
+      tags: [Gym Payments]
+      summary: Listar pagos de un gimnasio
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [PENDING, COMPLETED, FAILED, REFUNDED]
+        - name: from_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Lista de pagos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGymPaymentsResponse'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Permisos insuficientes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: createGymPayment
+      tags: [Gym Payments]
+      summary: Registrar un pago de suscripción a gimnasio
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGymPaymentRequest'
+      responses:
+        '201':
+          description: Pago registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymPaymentResponse'
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -1567,3 +1788,372 @@ components:
           enum: [FREE, PREMIUM]
           description: Nuevo nivel de suscripción
           example: PREMIUM
+
+    # ========================================================================
+    # LOTE 4: GYM SCHEDULES, REVIEWS, PAYMENTS SCHEMAS
+    # ========================================================================
+
+    # --- GYM SCHEDULES ---
+    CreateGymScheduleRequest:
+      type: object
+      required: [day_of_week, open_time, close_time]
+      additionalProperties: false
+      properties:
+        day_of_week:
+          type: integer
+          minimum: 0
+          maximum: 6
+          description: Día de la semana (0=Domingo, 1=Lunes, ..., 6=Sábado)
+          example: 1
+        open_time:
+          type: string
+          pattern: '^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$'
+          description: Hora de apertura (HH:MM o HH:MM:SS)
+          example: '06:00'
+        close_time:
+          type: string
+          pattern: '^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$'
+          description: Hora de cierre (HH:MM o HH:MM:SS)
+          example: '22:00'
+        is_closed:
+          type: boolean
+          default: false
+          description: Si el gimnasio está cerrado ese día
+
+    GymScheduleResponse:
+      type: object
+      required: [id_schedule, id_gym, day_of_week, open_time, close_time, is_closed]
+      additionalProperties: false
+      properties:
+        id_schedule:
+          type: integer
+          description: ID del horario
+        id_gym:
+          type: integer
+          description: ID del gimnasio
+        day_of_week:
+          type: integer
+          minimum: 0
+          maximum: 6
+          description: Día de la semana
+        open_time:
+          type: string
+          description: Hora de apertura
+          example: '06:00:00'
+        close_time:
+          type: string
+          description: Hora de cierre
+          example: '22:00:00'
+        is_closed:
+          type: boolean
+          description: Si está cerrado
+
+    GymSchedulesWeekResponse:
+      type: object
+      description: Horarios de la semana (0=Domingo a 6=Sábado)
+      additionalProperties: false
+      properties:
+        '0':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '1':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '2':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '3':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '4':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '5':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '6':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+
+    # --- GYM REVIEWS ---
+    CreateGymReviewRequest:
+      type: object
+      required: [rating]
+      additionalProperties: false
+      properties:
+        rating:
+          type: number
+          format: float
+          minimum: 1.0
+          maximum: 5.0
+          description: Rating general del gimnasio
+          example: 4.5
+        title:
+          type: string
+          maxLength: 100
+          description: Título de la reseña
+          example: Excelente gimnasio
+        comment:
+          type: string
+          maxLength: 1000
+          description: Comentario detallado
+          example: Muy buenas instalaciones y personal amable
+        cleanliness_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating de limpieza
+        equipment_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating de equipamiento
+        staff_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating del personal
+        facilities_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating de instalaciones
+        value_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating de relación calidad-precio
+
+    GymReviewResponse:
+      type: object
+      required: [id_review, id_gym, id_user_profile, rating, created_at, updated_at]
+      additionalProperties: false
+      properties:
+        id_review:
+          type: integer
+          description: ID de la reseña
+        id_gym:
+          type: integer
+          description: ID del gimnasio
+        id_user_profile:
+          type: integer
+          description: ID del usuario autor
+        rating:
+          type: number
+          format: float
+          description: Rating general
+        title:
+          type: string
+          nullable: true
+          description: Título
+        comment:
+          type: string
+          nullable: true
+          description: Comentario
+        cleanliness_rating:
+          type: integer
+          nullable: true
+        equipment_rating:
+          type: integer
+          nullable: true
+        staff_rating:
+          type: integer
+          nullable: true
+        facilities_rating:
+          type: integer
+          nullable: true
+        value_rating:
+          type: integer
+          nullable: true
+        helpful_count:
+          type: integer
+          description: Votos útiles
+          default: 0
+        not_helpful_count:
+          type: integer
+          description: Votos no útiles
+          default: 0
+        user:
+          type: object
+          description: Info del usuario autor
+          properties:
+            id_user_profile:
+              type: integer
+            name:
+              type: string
+            profile_picture_url:
+              type: string
+              nullable: true
+        user_voted:
+          type: boolean
+          nullable: true
+          description: Si el usuario actual votó útil
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    PaginatedGymReviewsResponse:
+      type: object
+      required: [items, page, limit, total, totalPages]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/GymReviewResponse'
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+
+    # --- GYM PAYMENTS ---
+    CreateGymPaymentRequest:
+      type: object
+      required: [amount]
+      additionalProperties: false
+      properties:
+        amount:
+          type: number
+          format: float
+          minimum: 0.01
+          description: Monto del pago
+          example: 1500.00
+        payment_method:
+          type: string
+          maxLength: 50
+          description: Método de pago
+          example: efectivo
+        payment_date:
+          type: string
+          format: date-time
+          description: Fecha del pago
+        period_start:
+          type: string
+          format: date
+          description: Inicio del período pagado
+        period_end:
+          type: string
+          format: date
+          description: Fin del período pagado
+        reference_number:
+          type: string
+          maxLength: 100
+          description: Número de referencia
+        notes:
+          type: string
+          maxLength: 500
+          description: Notas adicionales
+
+    GymPaymentResponse:
+      type: object
+      required: [id_payment, id_user_profile, id_gym, amount, payment_date, status, created_at]
+      additionalProperties: false
+      properties:
+        id_payment:
+          type: integer
+          description: ID del pago
+        id_user_profile:
+          type: integer
+          description: ID del usuario
+        id_gym:
+          type: integer
+          description: ID del gimnasio
+        amount:
+          type: number
+          format: float
+          description: Monto pagado
+        payment_method:
+          type: string
+          nullable: true
+          description: Método de pago
+        payment_date:
+          type: string
+          format: date-time
+          description: Fecha del pago
+        period_start:
+          type: string
+          format: date
+          nullable: true
+          description: Inicio del período
+        period_end:
+          type: string
+          format: date
+          nullable: true
+          description: Fin del período
+        status:
+          type: string
+          enum: [PENDING, COMPLETED, FAILED, REFUNDED]
+          description: Estado del pago
+        reference_number:
+          type: string
+          nullable: true
+          description: Número de referencia
+        notes:
+          type: string
+          nullable: true
+          description: Notas
+        gym:
+          type: object
+          description: Info del gimnasio
+          properties:
+            id_gym:
+              type: integer
+            name:
+              type: string
+            city:
+              type: string
+        user:
+          type: object
+          description: Info del usuario
+          properties:
+            id_user_profile:
+              type: integer
+            name:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    PaginatedGymPaymentsResponse:
+      type: object
+      required: [items, page, limit, total, totalPages]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/GymPaymentResponse'
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
