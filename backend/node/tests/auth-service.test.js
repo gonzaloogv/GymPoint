@@ -119,8 +119,7 @@ describe('auth-service register', () => {
       { transaction: mockTransaction }
     );
     expect(refreshTokenRepository.createRefreshToken).toHaveBeenCalledWith(
-      expect.objectContaining({ id_user: profile.id_user_profile }),
-      {}
+      expect.objectContaining({ id_user: profile.id_user_profile })
     );
     expect(result).toEqual({
       token: 'access-token',
@@ -164,8 +163,7 @@ describe('auth-service login', () => {
 
     expect(accountRepository.updateLastLogin).toHaveBeenCalled();
     expect(refreshTokenRepository.createRefreshToken).toHaveBeenCalledWith(
-      expect.objectContaining({ id_user: account.userProfile.id_user_profile }),
-      expect.any(Object)
+      expect.objectContaining({ id_user: account.userProfile.id_user_profile })
     );
     expect(result).toEqual({
       token: 'access-token',
@@ -191,4 +189,3 @@ describe('auth-service login', () => {
     ).rejects.toThrow('Credenciales inválidas');
   });
 });
-
