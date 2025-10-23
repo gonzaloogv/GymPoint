@@ -1,72 +1,169 @@
+/**
+ * Exercise Controller - Refactorizado con Mappers (Lote 7)
+ * Gestiona endpoints de ejercicios
+ */
+
 const exerciseService = require('../services/exercise-service');
+const exerciseMappers = require('../services/mappers/exercise.mappers');
+const { NotFoundError } = require('../utils/errors');
 
+/**
+ * GET /api/exercises
+ * Lista todos los ejercicios con filtros opcionales
+ */
 const getAllExercises = async (req, res) => {
-  const exercises = await exerciseService.getAllExercises();
-  res.json(exercises);
-};
+  try {
+    const query = exerciseMappers.toGetAllExercisesQuery(req.query);
+    const exercises = await exerciseService.getAllExercises(query);
 
-const getExerciseById = async (req, res) => {
-  const exercise = await exerciseService.getExerciseById(req.params.id);
-  if (!exercise) return res.status(404).json({ error: 'Ejercicio no encontrado' });
-  res.json(exercise);
+    res.json({
+      data: exerciseMappers.toExercisesResponse(exercises)
+    });
+  } catch (err) {
+    res.status(400).json({
+      error: {
+        code: 'GET_EXERCISES_FAILED',
+        message: err.message
+      }
+    });
+  }
 };
 
 /**
- * Crear ejercicio
- * @route POST /api/exercises
- * @access Private
+ * GET /api/exercises/paginated
+ * Lista ejercicios con paginación
+ */
+const listExercises = async (req, res) => {
+  try {
+    const query = exerciseMappers.toListExercisesQuery(req.query);
+    const result = await exerciseService.listExercises(query);
+
+    res.json(exerciseMappers.toPaginatedExercisesResponse({
+      rows: result.rows,
+      count: result.count,
+      page: query.page,
+      limit: query.limit
+    }));
+  } catch (err) {
+    res.status(400).json({
+      error: {
+        code: 'LIST_EXERCISES_FAILED',
+        message: err.message
+      }
+    });
+  }
+};
+
+/**
+ * GET /api/exercises/:id
+ * Obtener un ejercicio por ID
+ */
+const getExerciseById = async (req, res) => {
+  try {
+    const query = exerciseMappers.toGetExerciseByIdQuery(parseInt(req.params.id, 10));
+    const exercise = await exerciseService.getExerciseById(query);
+
+    res.json({
+      data: exerciseMappers.toExerciseResponse(exercise)
+    });
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      return res.status(404).json({
+        error: {
+          code: 'EXERCISE_NOT_FOUND',
+          message: err.message
+        }
+      });
+    }
+    res.status(400).json({
+      error: {
+        code: 'GET_EXERCISE_FAILED',
+        message: err.message
+      }
+    });
+  }
+};
+
+/**
+ * POST /api/exercises
+ * Crear un nuevo ejercicio
  */
 const createExercise = async (req, res) => {
   try {
     const userProfileId = req.user?.id_user_profile;
-    
+
     // Agregar created_by automáticamente
     const exerciseData = {
       ...req.body,
-      created_by: userProfileId || null
+      created_by: userProfileId || null,
+      createdBy: userProfileId || null
     };
-    
-    const exercise = await exerciseService.createExercise(exerciseData);
+
+    const command = exerciseMappers.toCreateExerciseCommand(exerciseData);
+    const exercise = await exerciseService.createExercise(command);
+
     res.status(201).json({
       message: 'Ejercicio creado con éxito',
-      data: exercise
+      data: exerciseMappers.toExerciseResponse(exercise)
     });
   } catch (err) {
     console.error('Error en createExercise:', err.message);
-    res.status(400).json({ 
-      error: { 
-        code: 'CREATE_EXERCISE_FAILED', 
-        message: err.message 
-      } 
+    res.status(400).json({
+      error: {
+        code: 'CREATE_EXERCISE_FAILED',
+        message: err.message
+      }
     });
-  }
-};
-
-const updateExercise = async (req, res) => {
-  try {
-    const exercise = await exerciseService.updateExercise(req.params.id, req.body);
-    res.json(exercise);
-  } catch (err) {
-    res.status(404).json({ error: err.message });
   }
 };
 
 /**
- * Eliminar ejercicio
- * @route DELETE /api/exercises/:id
- * @access Private (Solo el creador o admin)
+ * PUT /api/exercises/:id
+ * Actualizar un ejercicio existente
+ */
+const updateExercise = async (req, res) => {
+  try {
+    const command = exerciseMappers.toUpdateExerciseCommand(req.body, parseInt(req.params.id, 10));
+    const exercise = await exerciseService.updateExercise(command);
+
+    res.json({
+      message: 'Ejercicio actualizado con éxito',
+      data: exerciseMappers.toExerciseResponse(exercise)
+    });
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      return res.status(404).json({
+        error: {
+          code: 'EXERCISE_NOT_FOUND',
+          message: err.message
+        }
+      });
+    }
+    res.status(400).json({
+      error: {
+        code: 'UPDATE_EXERCISE_FAILED',
+        message: err.message
+      }
+    });
+  }
+};
+
+/**
+ * DELETE /api/exercises/:id
+ * Eliminar un ejercicio (solo el creador o admin)
  */
 const deleteExercise = async (req, res) => {
   try {
     const Exercise = require('../models/Exercise');
-    const exercise = await Exercise.findByPk(req.params.id);
-    
+    const exerciseId = parseInt(req.params.id, 10);
+    const exercise = await Exercise.findByPk(exerciseId);
+
     if (!exercise) {
-      return res.status(404).json({ 
-        error: { 
-          code: 'EXERCISE_NOT_FOUND', 
-          message: 'Ejercicio no encontrado' 
-        } 
+      return res.status(404).json({
+        error: {
+          code: 'EXERCISE_NOT_FOUND',
+          message: 'Ejercicio no encontrado'
+        }
       });
     }
 
@@ -74,42 +171,45 @@ const deleteExercise = async (req, res) => {
     // NULL = ejercicio del sistema (solo admin puede borrar)
     const userProfileId = req.user?.id_user_profile;
     const isAdmin = req.roles?.includes('ADMIN');
-    
+
     if (exercise.created_by === null) {
       // Ejercicio del sistema: solo admin
       if (!isAdmin) {
-        return res.status(403).json({ 
-          error: { 
-            code: 'FORBIDDEN', 
-            message: 'Solo administradores pueden borrar ejercicios del sistema' 
-          } 
+        return res.status(403).json({
+          error: {
+            code: 'FORBIDDEN',
+            message: 'Solo administradores pueden borrar ejercicios del sistema'
+          }
         });
       }
     } else if (exercise.created_by !== userProfileId && !isAdmin) {
       // Ejercicio de usuario: solo el creador o admin
-      return res.status(403).json({ 
-        error: { 
-          code: 'FORBIDDEN', 
-          message: 'No eres el propietario de este ejercicio' 
-        } 
+      return res.status(403).json({
+        error: {
+          code: 'FORBIDDEN',
+          message: 'No eres el propietario de este ejercicio'
+        }
       });
     }
 
-    await exerciseService.deleteExercise(req.params.id);
+    const command = exerciseMappers.toDeleteExerciseCommand(exerciseId);
+    await exerciseService.deleteExercise(command);
+
     res.status(204).send();
   } catch (err) {
     console.error('Error en deleteExercise:', err.message);
-    res.status(500).json({ 
-      error: { 
-        code: 'DELETE_EXERCISE_FAILED', 
-        message: err.message 
-      } 
+    res.status(500).json({
+      error: {
+        code: 'DELETE_EXERCISE_FAILED',
+        message: err.message
+      }
     });
   }
 };
 
 module.exports = {
   getAllExercises,
+  listExercises,
   getExerciseById,
   createExercise,
   updateExercise,

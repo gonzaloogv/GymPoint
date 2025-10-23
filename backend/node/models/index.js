@@ -266,6 +266,32 @@ Progress.belongsTo(UserProfile, {
   as: 'userProfile'
 });
 
+// Progress ←→ Exercise (many-to-many through ProgressExercise)
+Progress.belongsToMany(Exercise, {
+  through: ProgressExercise,
+  foreignKey: 'id_progress',
+  otherKey: 'id_exercise',
+  as: 'exercises'
+});
+
+Exercise.belongsToMany(Progress, {
+  through: ProgressExercise,
+  foreignKey: 'id_exercise',
+  otherKey: 'id_progress',
+  as: 'progress'
+});
+
+// ProgressExercise direct associations
+ProgressExercise.belongsTo(Progress, {
+  foreignKey: 'id_progress',
+  as: 'progress'
+});
+
+ProgressExercise.belongsTo(Exercise, {
+  foreignKey: 'id_exercise',
+  as: 'exercise'
+});
+
 // Account ←→ RefreshToken
 Account.hasMany(RefreshToken, {
   foreignKey: 'id_account',

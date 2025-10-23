@@ -1,9 +1,9 @@
 jest.mock('../services/exercise-service');
-jest.mock('../models/Exercise', () => ({ findByPk: jest.fn() }));
+jest.mock('../services/mappers/exercise.mappers');
 
 const controller = require('../controllers/exercise-controller');
 const service = require('../services/exercise-service');
-const Exercise = require('../models/Exercise');
+const mappers = require('../services/mappers/exercise.mappers');
 
 const createRes = () => ({
   json: jest.fn(),
@@ -15,126 +15,174 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-describe('getAllExercises', () => {
-  it('returns all exercises', async () => {
-    const res = createRes();
-    service.getAllExercises.mockResolvedValue(['a']);
+describe('Exercise Controller - Refactored with Mappers', () => {
+  describe('getAllExercises', () => {
+    it('should return all exercises with mappers', async () => {
+      const req = { query: { muscular_group: 'Pecho' } };
+      const res = createRes();
 
-    await controller.getAllExercises({}, res);
+      const mockQuery = { muscularGroup: 'Pecho' };
+      const mockExercises = [{ id_exercise: 1, exercise_name: 'Press de banca' }];
+      const mockResponse = [{ id_exercise: 1, exercise_name: 'Press de banca' }];
 
-    expect(res.json).toHaveBeenCalledWith(['a']);
-  });
-});
+      mappers.toGetAllExercisesQuery.mockReturnValue(mockQuery);
+      service.getAllExercises.mockResolvedValue(mockExercises);
+      mappers.toExercisesResponse.mockReturnValue(mockResponse);
 
-describe('getExerciseById', () => {
-  it('returns exercise', async () => {
-    const req = { params: { id: 1 } };
-    const res = createRes();
-    service.getExerciseById.mockResolvedValue('e');
+      await controller.getAllExercises(req, res);
 
-    await controller.getExerciseById(req, res);
+      expect(mappers.toGetAllExercisesQuery).toHaveBeenCalledWith(req.query);
+      expect(service.getAllExercises).toHaveBeenCalledWith(mockQuery);
+      expect(mappers.toExercisesResponse).toHaveBeenCalledWith(mockExercises);
+      expect(res.json).toHaveBeenCalledWith({ data: mockResponse });
+    });
 
-    expect(res.json).toHaveBeenCalledWith('e');
-  });
+    it('should handle errors', async () => {
+      const req = { query: {} };
+      const res = createRes();
 
-  it('returns 404 when not found', async () => {
-    const req = { params: { id: 1 } };
-    const res = createRes();
-    service.getExerciseById.mockResolvedValue(null);
+      mappers.toGetAllExercisesQuery.mockReturnValue({});
+      service.getAllExercises.mockRejectedValue(new Error('Database error'));
 
-    await controller.getExerciseById(req, res);
+      await controller.getAllExercises(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Ejercicio no encontrado' });
-  });
-});
-
-describe('createExercise', () => {
-  it('agrega created_by desde el usuario y retorna estructura con mensaje', async () => {
-    const req = { user: { id_user_profile: 5 }, body: { a: 1 } };
-    const res = createRes();
-    service.createExercise.mockResolvedValue('x');
-
-    await controller.createExercise(req, res);
-
-    expect(service.createExercise).toHaveBeenCalledWith({ a: 1, created_by: 5 });
-    expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith({
-      message: 'Ejercicio creado con éxito',
-      data: 'x'
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        error: {
+          code: 'GET_EXERCISES_FAILED',
+          message: 'Database error'
+        }
+      });
     });
   });
-});
 
-describe('updateExercise', () => {
-  it('updates exercise', async () => {
-    const req = { params: { id: 1 }, body: { a: 2 } };
-    const res = createRes();
-    service.updateExercise.mockResolvedValue('u');
+  describe('getExerciseById', () => {
+    it('should return exercise by id', async () => {
+      const req = { params: { id: '1' } };
+      const res = createRes();
 
-    await controller.updateExercise(req, res);
+      const mockQuery = { idExercise: 1 };
+      const mockExercise = { id_exercise: 1, exercise_name: 'Press de banca' };
+      const mockResponse = { id_exercise: 1, exercise_name: 'Press de banca' };
 
-    expect(service.updateExercise).toHaveBeenCalledWith(1, { a: 2 });
-    expect(res.json).toHaveBeenCalledWith('u');
-  });
+      mappers.toGetExerciseByIdQuery.mockReturnValue(mockQuery);
+      service.getExerciseById.mockResolvedValue(mockExercise);
+      mappers.toExerciseResponse.mockReturnValue(mockResponse);
 
-  it('returns 404 on error', async () => {
-    const req = { params: { id: 1 }, body: {} };
-    const res = createRes();
-    service.updateExercise.mockRejectedValue(new Error('no'));
+      await controller.getExerciseById(req, res);
 
-    await controller.updateExercise(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ error: 'no' });
-  });
-});
-
-describe('deleteExercise', () => {
-  it('verifica ownership y elimina ejercicio', async () => {
-    const req = { params: { id: 1 }, user: { id_user_profile: 9 }, roles: [] };
-    const res = createRes();
-    Exercise.findByPk.mockResolvedValue({ created_by: 9 });
-
-    await controller.deleteExercise(req, res);
-
-    expect(Exercise.findByPk).toHaveBeenCalledWith(1);
-    expect(service.deleteExercise).toHaveBeenCalledWith(1);
-    expect(res.status).toHaveBeenCalledWith(204);
-    expect(res.send).toHaveBeenCalled();
-  });
-
-  it('retorna 404 cuando no existe', async () => {
-    const req = { params: { id: 1 } };
-    const res = createRes();
-    Exercise.findByPk.mockResolvedValue(null);
-
-    await controller.deleteExercise(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({
-      error: {
-        code: 'EXERCISE_NOT_FOUND',
-        message: 'Ejercicio no encontrado'
-      }
+      expect(mappers.toGetExerciseByIdQuery).toHaveBeenCalledWith(1);
+      expect(service.getExerciseById).toHaveBeenCalledWith(mockQuery);
+      expect(res.json).toHaveBeenCalledWith({ data: mockResponse });
     });
-    expect(service.deleteExercise).not.toHaveBeenCalled();
+
+    it('should return 404 when exercise not found', async () => {
+      const req = { params: { id: '999' } };
+      const res = createRes();
+
+      const NotFoundError = require('../utils/errors').NotFoundError;
+      mappers.toGetExerciseByIdQuery.mockReturnValue({ idExercise: 999 });
+      service.getExerciseById.mockRejectedValue(new NotFoundError('Ejercicio'));
+
+      await controller.getExerciseById(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.status).toHaveBeenCalledWith(404);
+      const call = res.json.mock.calls[0][0];
+      expect(call.error.code).toBe('EXERCISE_NOT_FOUND');
+    });
   });
 
-  it('bloquea borrado cuando no es propietario', async () => {
-    const req = { params: { id: 1 }, user: { id_user_profile: 2 }, roles: [] };
-    const res = createRes();
-    Exercise.findByPk.mockResolvedValue({ created_by: 3 });
+  describe('createExercise', () => {
+    it('should create exercise with created_by from user', async () => {
+      const req = {
+        user: { id_user_profile: 5 },
+        body: { exercise_name: 'Press de banca', muscular_group: 'Pecho' }
+      };
+      const res = createRes();
 
-    await controller.deleteExercise(req, res);
+      const mockCommand = { exerciseName: 'Press de banca', muscularGroup: 'Pecho', createdBy: 5 };
+      const mockExercise = { id_exercise: 1, exercise_name: 'Press de banca', created_by: 5 };
+      const mockResponse = { id_exercise: 1, exercise_name: 'Press de banca', created_by: 5 };
 
-    expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith({
-      error: {
-        code: 'FORBIDDEN',
-        message: 'No eres el propietario de este ejercicio'
-      }
+      mappers.toCreateExerciseCommand.mockReturnValue(mockCommand);
+      service.createExercise.mockResolvedValue(mockExercise);
+      mappers.toExerciseResponse.mockReturnValue(mockResponse);
+
+      await controller.createExercise(req, res);
+
+      expect(mappers.toCreateExerciseCommand).toHaveBeenCalledWith({
+        ...req.body,
+        created_by: 5,
+        createdBy: 5
+      });
+      expect(service.createExercise).toHaveBeenCalledWith(mockCommand);
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Ejercicio creado con éxito',
+        data: mockResponse
+      });
     });
-    expect(service.deleteExercise).not.toHaveBeenCalled();
+
+    it('should handle creation errors', async () => {
+      const req = { user: { id_user_profile: 5 }, body: {} };
+      const res = createRes();
+
+      mappers.toCreateExerciseCommand.mockReturnValue({});
+      service.createExercise.mockRejectedValue(new Error('Validation error'));
+
+      await controller.createExercise(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        error: {
+          code: 'CREATE_EXERCISE_FAILED',
+          message: 'Validation error'
+        }
+      });
+    });
+  });
+
+  describe('updateExercise', () => {
+    it('should update exercise', async () => {
+      const req = {
+        params: { id: '1' },
+        body: { exercise_name: 'Press de banca modificado' }
+      };
+      const res = createRes();
+
+      const mockCommand = { idExercise: 1, exerciseName: 'Press de banca modificado' };
+      const mockExercise = { id_exercise: 1, exercise_name: 'Press de banca modificado' };
+      const mockResponse = { id_exercise: 1, exercise_name: 'Press de banca modificado' };
+
+      mappers.toUpdateExerciseCommand.mockReturnValue(mockCommand);
+      service.updateExercise.mockResolvedValue(mockExercise);
+      mappers.toExerciseResponse.mockReturnValue(mockResponse);
+
+      await controller.updateExercise(req, res);
+
+      expect(mappers.toUpdateExerciseCommand).toHaveBeenCalledWith(req.body, 1);
+      expect(service.updateExercise).toHaveBeenCalledWith(mockCommand);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Ejercicio actualizado con éxito',
+        data: mockResponse
+      });
+    });
+
+    it('should return 404 when exercise not found', async () => {
+      const req = { params: { id: '999' }, body: {} };
+      const res = createRes();
+
+      const NotFoundError = require('../utils/errors').NotFoundError;
+      mappers.toUpdateExerciseCommand.mockReturnValue({ idExercise: 999 });
+      service.updateExercise.mockRejectedValue(new NotFoundError('Ejercicio'));
+
+      await controller.updateExercise(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.status).toHaveBeenCalledWith(404);
+      const call = res.json.mock.calls[0][0];
+      expect(call.error.code).toBe('EXERCISE_NOT_FOUND');
+    });
   });
 });

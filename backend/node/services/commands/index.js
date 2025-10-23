@@ -10,6 +10,13 @@ const userCommands = require('./user.commands');
 const gymScheduleCommands = require('./gym-schedule.commands');
 const gymReviewCommands = require('./gym-review.commands');
 const gymPaymentCommands = require('./gym-payment.commands');
+const challengeCommands = require('./challenge.commands');
+const streakCommands = require('./streak.commands');
+const frequencyCommands = require('./frequency.commands');
+const exerciseCommands = require('./exercise.commands');
+const routineCommands = require('./routine.commands');
+const userRoutineCommands = require('./user-routine.commands');
+const workoutCommands = require('./workout.commands');
 
 module.exports = {
   // Auth Commands
@@ -29,4 +36,25 @@ module.exports = {
 
   // Gym Payment Commands (Lote 4)
   ...gymPaymentCommands,
+
+  // Challenge Commands (Lote 6)
+  ...challengeCommands,
+
+  // Streak Commands (Lote 6)
+  ...streakCommands,
+
+  // Frequency Commands (Lote 6)
+  ...frequencyCommands,
+
+  // Exercise Commands (Lote 7)
+  ...exerciseCommands,
+
+  // Routine Commands (Lote 7)
+  ...routineCommands,
+
+  // UserRoutine Commands (Lote 7)
+  ...userRoutineCommands,
+
+  // Workout Commands (Lote 7)
+  ...workoutCommands,
 };

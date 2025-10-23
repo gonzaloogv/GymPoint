@@ -1,218 +1,453 @@
+/**
+ * Routine Controller - Refactorizado con Mappers (Lote 7)
+ * Gestiona endpoints de rutinas, días de rutina y ejercicios en rutinas
+ */
+
 const routineService = require('../services/routine-service');
-const userRoutineService = require('../services/user-routine-service');
+const routineMappers = require('../services/mappers/routine.mappers');
+const { NotFoundError, ValidationError, BusinessError } = require('../utils/errors');
 
 /**
- * Obtener rutina con ejercicios
- * @route GET /api/routines/:id
- * @access Public
+ * GET /api/routines/:id
+ * Obtener rutina con ejercicios y días
  */
 const getRoutineWithExercises = async (req, res) => {
   try {
-    const rutina = await routineService.getRoutineWithExercises(req.params.id);
-    
+    const query = routineMappers.toGetRoutineWithExercisesQuery(parseInt(req.params.id, 10));
+    const routine = await routineService.getRoutineWithExercises(query);
+
     res.json({
       message: 'Rutina obtenida con éxito',
-      data: rutina
+      data: routineMappers.toRoutineResponse(routine)
     });
   } catch (err) {
-    res.status(404).json({ 
-      error: { 
-        code: 'ROUTINE_NOT_FOUND', 
-        message: err.message 
-      } 
+    if (err instanceof NotFoundError) {
+      return res.status(404).json({
+        error: {
+          code: 'ROUTINE_NOT_FOUND',
+          message: err.message
+        }
+      });
+    }
+    res.status(400).json({
+      error: {
+        code: 'GET_ROUTINE_FAILED',
+        message: err.message
+      }
     });
   }
 };
 
 /**
- * Crear rutina con ejercicios
- * @route POST /api/routines
- * @access Private (Usuario app)
+ * GET /api/routines/me
+ * Obtener rutinas del usuario autenticado
+ */
+const getRoutinesByUser = async (req, res) => {
+  try {
+    const idUserProfile = req.user.id_user_profile;
+    const query = routineMappers.toListRoutinesByUserQuery(req.query, idUserProfile);
+    const routines = await routineService.listRoutinesByUser(query);
+
+    res.json({
+      message: 'Rutinas del usuario obtenidas con éxito',
+      data: routineMappers.toRoutinesResponse(routines)
+    });
+  } catch (err) {
+    res.status(400).json({
+      error: {
+        code: 'GET_USER_ROUTINES_FAILED',
+        message: err.message
+      }
+    });
+  }
+};
+
+/**
+ * GET /api/routines/templates
+ * Listar plantillas de rutinas
+ */
+const listRoutineTemplates = async (req, res) => {
+  try {
+    const query = routineMappers.toListRoutineTemplatesQuery(req.query);
+    const result = await routineService.listRoutineTemplates(query);
+
+    res.json(routineMappers.toPaginatedRoutinesResponse({
+      rows: result.rows,
+      count: result.count,
+      page: query.page,
+      limit: query.limit
+    }));
+  } catch (err) {
+    res.status(400).json({
+      error: {
+        code: 'LIST_TEMPLATES_FAILED',
+        message: err.message
+      }
+    });
+  }
+};
+
+/**
+ * POST /api/routines
+ * Crear rutina con ejercicios y días
  */
 const createRoutineWithExercises = async (req, res) => {
   try {
-    const id_user_profile = req.user.id_user_profile;
-    const { routine_name, description, exercises } = req.body;
+    const idUserProfile = req.user.id_user_profile;
 
-    if (!routine_name || !exercises) {
-      return res.status(400).json({ 
-        error: { 
-          code: 'MISSING_FIELDS', 
-          message: 'Faltan datos requeridos: routine_name, exercises' 
-        } 
+    // Validar campos requeridos
+    if (!req.body.routine_name || !req.body.exercises) {
+      return res.status(400).json({
+        error: {
+          code: 'MISSING_FIELDS',
+          message: 'Faltan datos requeridos: routine_name, exercises'
+        }
       });
     }
 
-    if (!Array.isArray(exercises) || exercises.length < 3) {
-      return res.status(400).json({ 
-        error: { 
-          code: 'INVALID_EXERCISES', 
-          message: 'La rutina debe tener al menos 3 ejercicios' 
-        } 
+    if (!Array.isArray(req.body.exercises) || req.body.exercises.length < 3) {
+      return res.status(400).json({
+        error: {
+          code: 'INVALID_EXERCISES',
+          message: 'La rutina debe tener al menos 3 ejercicios'
+        }
       });
     }
 
-    const rutina = await routineService.createRoutineWithExercises({
-      routine_name,
-      description,
-      exercises,
-      id_user: id_user_profile // El service espera id_user
-    });
+    const command = routineMappers.toCreateRoutineWithExercisesCommand(req.body, idUserProfile);
+    const routine = await routineService.createRoutineWithExercises(command);
 
     res.status(201).json({
       message: 'Rutina creada con éxito',
-      data: rutina
+      data: routineMappers.toRoutineResponse(routine)
     });
   } catch (err) {
-    res.status(400).json({ 
-      error: { 
-        code: 'CREATE_ROUTINE_FAILED', 
-        message: err.message 
-      } 
+    if (err instanceof ValidationError || err instanceof BusinessError) {
+      return res.status(400).json({
+        error: {
+          code: err.code || 'CREATE_ROUTINE_FAILED',
+          message: err.message
+        }
+      });
+    }
+    res.status(400).json({
+      error: {
+        code: 'CREATE_ROUTINE_FAILED',
+        message: err.message
+      }
     });
   }
 };
 
 /**
- * Actualizar rutina
- * @route PUT /api/routines/:id
- * @access Private (Usuario app - propietario)
+ * PUT /api/routines/:id
+ * Actualizar rutina básica
  */
 const updateRoutine = async (req, res) => {
   try {
-    const rutina = await routineService.updateRoutine(req.params.id, req.body);
-    
+    const command = routineMappers.toUpdateRoutineCommand(req.body, parseInt(req.params.id, 10));
+    const routine = await routineService.updateRoutine(command);
+
     res.json({
       message: 'Rutina actualizada con éxito',
-      data: rutina
+      data: routineMappers.toRoutineResponse(routine)
     });
   } catch (err) {
-    res.status(404).json({ 
-      error: { 
-        code: 'UPDATE_ROUTINE_FAILED', 
-        message: err.message 
-      } 
+    if (err instanceof NotFoundError) {
+      return res.status(404).json({
+        error: {
+          code: 'ROUTINE_NOT_FOUND',
+          message: err.message
+        }
+      });
+    }
+    res.status(400).json({
+      error: {
+        code: 'UPDATE_ROUTINE_FAILED',
+        message: err.message
+      }
     });
   }
 };
 
 /**
- * Actualizar ejercicio de una rutina
- * @route PUT /api/routines/:id/exercises/:id_exercise
- * @access Private (Usuario app - propietario)
+ * DELETE /api/routines/:id
+ * Eliminar rutina
+ */
+const deleteRoutine = async (req, res) => {
+  try {
+    const command = routineMappers.toDeleteRoutineCommand(parseInt(req.params.id, 10));
+    await routineService.deleteRoutine(command);
+    res.status(204).send();
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      return res.status(404).json({
+        error: {
+          code: 'ROUTINE_NOT_FOUND',
+          message: err.message
+        }
+      });
+    }
+    res.status(400).json({
+      error: {
+        code: 'DELETE_ROUTINE_FAILED',
+        message: err.message
+      }
+    });
+  }
+};
+
+/**
+ * POST /api/routines/:id/exercises
+ * Agregar ejercicio a rutina
+ */
+const addExerciseToRoutine = async (req, res) => {
+  try {
+    const command = routineMappers.toAddExerciseToRoutineCommand(req.body, parseInt(req.params.id, 10));
+    const routineExercise = await routineService.addExerciseToRoutine(command);
+
+    res.status(201).json({
+      message: 'Ejercicio agregado a rutina con éxito',
+      data: routineMappers.toRoutineExerciseResponse(routineExercise)
+    });
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      return res.status(404).json({
+        error: {
+          code: 'RESOURCE_NOT_FOUND',
+          message: err.message
+        }
+      });
+    }
+    res.status(400).json({
+      error: {
+        code: 'ADD_EXERCISE_FAILED',
+        message: err.message
+      }
+    });
+  }
+};
+
+/**
+ * PUT /api/routines/:id/exercises/:id_exercise
+ * Actualizar ejercicio en rutina
  */
 const updateRoutineExercise = async (req, res) => {
   try {
     const { id, id_exercise } = req.params;
-    const updated = await routineService.updateRoutineExercise(id, id_exercise, req.body);
-    
+    const command = routineMappers.toUpdateRoutineExerciseCommand(
+      req.body,
+      parseInt(id, 10),
+      parseInt(id_exercise, 10)
+    );
+    const routineExercise = await routineService.updateRoutineExercise(command);
+
     res.json({
       message: 'Ejercicio de rutina actualizado con éxito',
-      data: updated
+      data: routineMappers.toRoutineExerciseResponse(routineExercise)
     });
   } catch (err) {
-    res.status(404).json({ 
-      error: { 
-        code: 'UPDATE_ROUTINE_EXERCISE_FAILED', 
-        message: err.message 
-      } 
+    if (err instanceof NotFoundError) {
+      return res.status(404).json({
+        error: {
+          code: 'ROUTINE_EXERCISE_NOT_FOUND',
+          message: err.message
+        }
+      });
+    }
+    res.status(400).json({
+      error: {
+        code: 'UPDATE_ROUTINE_EXERCISE_FAILED',
+        message: err.message
+      }
     });
   }
 };
 
 /**
- * Eliminar rutina
- * @route DELETE /api/routines/:id
- * @access Private (Usuario app - propietario)
- */
-const deleteRoutine = async (req, res) => {
-  try {
-    await routineService.deleteRoutine(req.params.id);
-    res.status(204).send();
-  } catch (err) {
-    res.status(404).json({ 
-      error: { 
-        code: 'DELETE_ROUTINE_FAILED', 
-        message: err.message 
-      } 
-    });
-  }
-};
-
-/**
- * Eliminar ejercicio de una rutina
- * @route DELETE /api/routines/:id/exercises/:id_exercise
- * @access Private (Usuario app - propietario)
+ * DELETE /api/routines/:id/exercises/:id_exercise
+ * Eliminar ejercicio de rutina
  */
 const deleteRoutineExercise = async (req, res) => {
   try {
     const { id, id_exercise } = req.params;
-    await routineService.deleteRoutineExercise(id, id_exercise);
+    const command = routineMappers.toDeleteRoutineExerciseCommand(parseInt(id, 10), parseInt(id_exercise, 10));
+    await routineService.deleteRoutineExercise(command);
     res.status(204).send();
   } catch (err) {
-    res.status(404).json({ 
-      error: { 
-        code: 'DELETE_ROUTINE_EXERCISE_FAILED', 
-        message: err.message 
-      } 
+    if (err instanceof NotFoundError) {
+      return res.status(404).json({
+        error: {
+          code: 'ROUTINE_EXERCISE_NOT_FOUND',
+          message: err.message
+        }
+      });
+    }
+    res.status(400).json({
+      error: {
+        code: 'DELETE_ROUTINE_EXERCISE_FAILED',
+        message: err.message
+      }
     });
   }
 };
 
 /**
- * Obtener rutinas del usuario autenticado
- * @route GET /api/routines/me
- * @access Private (Usuario app)
+ * GET /api/routines/:id/days
+ * Listar días de una rutina
  */
-const getRoutinesByUser = async (req, res) => {
+const listRoutineDays = async (req, res) => {
   try {
-    const id_user_profile = req.user.id_user_profile;
-    const rutinas = await routineService.getRoutinesByUser(id_user_profile);
-    
+    const query = routineMappers.toListRoutineDaysQuery(parseInt(req.params.id, 10));
+    const days = await routineService.listRoutineDays(query);
+
     res.json({
-      message: 'Rutinas del usuario obtenidas con éxito',
-      data: rutinas
+      message: 'Días de rutina obtenidos con éxito',
+      data: routineMappers.toRoutineDaysResponse(days)
     });
   } catch (err) {
-    res.status(400).json({ 
-      error: { 
-        code: 'GET_USER_ROUTINES_FAILED', 
-        message: err.message 
-      } 
+    if (err instanceof NotFoundError) {
+      return res.status(404).json({
+        error: {
+          code: 'ROUTINE_NOT_FOUND',
+          message: err.message
+        }
+      });
+    }
+    res.status(400).json({
+      error: {
+        code: 'LIST_ROUTINE_DAYS_FAILED',
+        message: err.message
+      }
     });
   }
 };
 
 /**
- * Obtener rutina activa de un usuario
- * @route GET /api/routines/user/:id_user/active
- * @access Private
+ * POST /api/routines/:id/days
+ * Crear día de rutina
  */
-const getActiveRoutineWithExercises = async (req, res) => {
+const createRoutineDay = async (req, res) => {
   try {
-    const routine = await userRoutineService.getActiveRoutineWithExercises(req.params.id_user);
-    
-    res.json({
-      message: 'Rutina activa obtenida con éxito',
-      data: routine
+    const command = routineMappers.toCreateRoutineDayCommand(req.body, parseInt(req.params.id, 10));
+    const day = await routineService.createRoutineDay(command);
+
+    res.status(201).json({
+      message: 'Día de rutina creado con éxito',
+      data: routineMappers.toRoutineDayResponse(day)
     });
   } catch (err) {
-    res.status(404).json({ 
-      error: { 
-        code: 'GET_ACTIVE_ROUTINE_FAILED', 
-        message: err.message 
-      } 
+    if (err instanceof NotFoundError) {
+      return res.status(404).json({
+        error: {
+          code: 'ROUTINE_NOT_FOUND',
+          message: err.message
+        }
+      });
+    }
+    if (err instanceof ValidationError) {
+      return res.status(400).json({
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: err.message
+        }
+      });
+    }
+    res.status(400).json({
+      error: {
+        code: 'CREATE_DAY_FAILED',
+        message: err.message
+      }
     });
   }
 };
-   
+
+/**
+ * PUT /api/routines/days/:id_routine_day
+ * Actualizar día de rutina
+ */
+const updateRoutineDay = async (req, res) => {
+  try {
+    const command = routineMappers.toUpdateRoutineDayCommand(req.body, parseInt(req.params.id_routine_day, 10));
+    const day = await routineService.updateRoutineDay(command);
+
+    res.json({
+      message: 'Día de rutina actualizado con éxito',
+      data: routineMappers.toRoutineDayResponse(day)
+    });
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      return res.status(404).json({
+        error: {
+          code: 'ROUTINE_DAY_NOT_FOUND',
+          message: err.message
+        }
+      });
+    }
+    if (err instanceof ValidationError) {
+      return res.status(400).json({
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: err.message
+        }
+      });
+    }
+    res.status(400).json({
+      error: {
+        code: 'UPDATE_DAY_FAILED',
+        message: err.message
+      }
+    });
+  }
+};
+
+/**
+ * DELETE /api/routines/days/:id_routine_day
+ * Eliminar día de rutina
+ */
+const deleteRoutineDay = async (req, res) => {
+  try {
+    const command = routineMappers.toDeleteRoutineDayCommand(parseInt(req.params.id_routine_day, 10));
+    await routineService.deleteRoutineDay(command);
+    res.status(204).send();
+  } catch (err) {
+    if (err instanceof NotFoundError) {
+      return res.status(404).json({
+        error: {
+          code: 'ROUTINE_DAY_NOT_FOUND',
+          message: err.message
+        }
+      });
+    }
+    if (err instanceof ValidationError) {
+      return res.status(400).json({
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: err.message
+        }
+      });
+    }
+    res.status(400).json({
+      error: {
+        code: 'DELETE_DAY_FAILED',
+        message: err.message
+      }
+    });
+  }
+};
+
 module.exports = {
   getRoutineWithExercises,
+  getRoutinesByUser,
+  listRoutineTemplates,
   createRoutineWithExercises,
   updateRoutine,
-  updateRoutineExercise,
   deleteRoutine,
+  addExerciseToRoutine,
+  updateRoutineExercise,
   deleteRoutineExercise,
-  getRoutinesByUser,
-  getActiveRoutineWithExercises
+  listRoutineDays,
+  createRoutineDay,
+  updateRoutineDay,
+  deleteRoutineDay
 };

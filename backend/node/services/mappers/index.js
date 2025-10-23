@@ -11,6 +11,15 @@ const gymScheduleMappers = require('./gym-schedule.mappers');
 const gymReviewMappers = require('./gym-review.mappers');
 const gymPaymentMappers = require('./gym-payment.mappers');
 const rewardMappers = require('./reward.mappers');
+// Lote 6: Challenges, Streaks, Frequency
+const challengeMappers = require('./challenge.mappers');
+const streakMappers = require('./streak.mappers');
+const frequencyMappers = require('./frequency.mappers');
+// Lote 7: Exercise, Routine, UserRoutine, Workout
+const exerciseMappers = require('./exercise.mappers');
+const routineMappers = require('./routine.mappers');
+const userRoutineMappers = require('./user-routine.mappers');
+const workoutMappers = require('./workout.mappers');
 // Lote 9
 const paymentMappers = require('./payment.mappers');
 const notificationMappers = require('./notification.mappers');
@@ -25,6 +34,13 @@ module.exports = {
   gymReview: gymReviewMappers,
   gymPayment: gymPaymentMappers,
   reward: rewardMappers,
+  challenge: challengeMappers,
+  streak: streakMappers,
+  frequency: frequencyMappers,
+  exercise: exerciseMappers,
+  routine: routineMappers,
+  userRoutine: userRoutineMappers,
+  workout: workoutMappers,
   // Lote 9
   payment: paymentMappers,
   notification: notificationMappers,
@@ -38,6 +54,13 @@ module.exports = {
   gymReviewMappers,
   gymPaymentMappers,
   rewardMappers,
+  challengeMappers,
+  streakMappers,
+  frequencyMappers,
+  exerciseMappers,
+  routineMappers,
+  userRoutineMappers,
+  workoutMappers,
   paymentMappers,
   notificationMappers,
   userFavoriteGymMappers,

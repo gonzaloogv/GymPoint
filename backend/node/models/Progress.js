@@ -51,12 +51,6 @@ const Progress = sequelize.define('Progress', {
   ]
 });
 
-const Exercise = require('./Exercise');
-const ProgressExercise = require('./ProgressExercise');
-
 module.exports = Progress;
-Progress.belongsToMany(Exercise, {
-  through: ProgressExercise,
-  foreignKey: 'id_progress',
-  otherKey: 'id_exercise'
-});
+
+// Las asociaciones se definen en index.js para evitar referencias circulares

@@ -1,76 +1,44 @@
-const { Op } = require('sequelize');
+/**
+ * Routine Service - Refactored with CQRS Pattern (Lote 7)
+ * Handles Routine, RoutineDay, and RoutineExercise operations
+ */
+
 const sequelize = require('../config/database');
-const Routine = require('../models/Routine');
-const Exercise = require('../models/Exercise');
-const RoutineExercise = require('../models/RoutineExercise');
-const RoutineDay = require('../models/RoutineDay');
 const WorkoutSession = require('../models/WorkoutSession');
-// const { UserProfile } = require('../models'); // already imported above
 const { NotFoundError, ValidationError, BusinessError } = require('../utils/errors');
 const { SUBSCRIPTION_TYPES } = require('../config/constants');
-const UserImportedRoutine = require('../models/UserImportedRoutine');
 const { UserProfile } = require('../models');
 
-const getUserRoutineCounts = async (idUserProfile) => {
-  const totalOwned = await Routine.count({ where: { created_by: idUserProfile, is_template: false } });
-  const importedCount = await UserImportedRoutine.count({ where: { id_user_profile: idUserProfile } });
-  const createdCount = Math.max(0, totalOwned - importedCount);
-  return { totalOwned, importedCount, createdCount };
-};
+const routineRepository = require('../infra/db/repositories/routine.repository');
+const userRoutineRepository = require('../infra/db/repositories/user-routine.repository');
+
+// Ensure functions for flexible parameter acceptance
+const ensureQuery = (input) => input;
+const ensureCommand = (input) => input;
+
+// ==================== Query Operations (Read) ====================
 
 /**
- * Obtener una rutina con días y ejercicios
+ * Get routine with full details including exercises and days
  */
-const getRoutineWithExercises = async (id_routine) => {
-  const rutina = await Routine.findByPk(id_routine, {
-    attributes: ['id_routine', 'routine_name', 'description', 'created_by'],
-    include: [
-      {
-        model: UserProfile,
-        as: 'creator',
-        attributes: ['name', 'lastname'],
-        required: false
-      },
-      {
-        model: RoutineDay,
-        as: 'days',
-        include: [
-          {
-            model: RoutineExercise,
-            as: 'routineExercises',
-            include: [
-              {
-                model: Exercise,
-                as: 'exercise',
-                attributes: ['id_exercise', 'exercise_name', 'category']
-              }
-            ]
-          }
-        ],
-        order: [['day_number', 'ASC']]
-      },
-      {
-        model: Exercise,
-        as: 'exercises',
-        through: {
-          attributes: ['series', 'reps', 'order', 'id_routine_day']
-        }
-      }
-    ]
-  });
+const getRoutineWithExercises = async (query) => {
+  const q = typeof query === 'object' && query.idRoutine ? query : { idRoutine: query };
 
-  if (!rutina) {
+  const routine = await routineRepository.findRoutineWithExercises(q.idRoutine);
+
+  if (!routine) {
     throw new NotFoundError('Rutina');
   }
 
-  const json = rutina.toJSON();
+  // Sort exercises and days as in original implementation
+  const result = { ...routine };
 
-  if (json.exercises) {
-    json.exercises.sort((a, b) => a.RoutineExercise.order - b.RoutineExercise.order);
+  if (result.exercises) {
+    result.exercises.sort((a, b) => (a.RoutineExercise?.order || 0) - (b.RoutineExercise?.order || 0));
   }
 
-  if (json.days) {
-    json.days = json.days
+  if (result.days) {
+    result.days = result.days
       .sort((a, b) => a.day_number - b.day_number)
       .map((day) => ({
         ...day,
@@ -88,28 +56,128 @@ const getRoutineWithExercises = async (id_routine) => {
       }));
   }
 
-  return json;
+  return result;
 };
 
 /**
- * Crear rutina con ejercicios y días opcionales
+ * Get routine by ID with optional includes
  */
-const createRoutineWithExercises = async ({
-  routine_name,
-  description,
-  exercises,
-  id_user,
-  days = []
-}) => {
-  if (!Array.isArray(exercises) || exercises.length === 0) {
+const getRoutineById = async (query) => {
+  const q = typeof query === 'object' && query.idRoutine ? query : { idRoutine: query };
+
+  const routine = await routineRepository.findRoutineById(q.idRoutine, {
+    includeCreator: q.includeCreator,
+    includeDays: q.includeDays,
+    includeExercises: q.includeExercises
+  });
+
+  if (!routine) {
+    throw new NotFoundError('Rutina');
+  }
+
+  return routine;
+};
+
+/**
+ * List routines by user with pagination
+ */
+const listRoutinesByUser = async (query) => {
+  const q = ensureQuery(query);
+
+  const offset = q.page && q.limit ? (q.page - 1) * q.limit : 0;
+
+  return routineRepository.findRoutinesByUser(q.idUser, {
+    isTemplate: q.isTemplate,
+    pagination: q.limit ? { limit: q.limit, offset } : undefined
+  });
+};
+
+/**
+ * List routine days for a specific routine
+ */
+const listRoutineDays = async (query) => {
+  const q = typeof query === 'object' && query.idRoutine ? query : { idRoutine: query };
+
+  // Verify routine exists
+  const routine = await routineRepository.findRoutineById(q.idRoutine);
+  if (!routine) {
+    throw new NotFoundError('Rutina');
+  }
+
+  return routineRepository.findRoutineDaysByRoutine(q.idRoutine);
+};
+
+/**
+ * Get routine day by ID
+ */
+const getRoutineDayById = async (query) => {
+  const q = typeof query === 'object' && query.idRoutineDay ? query : { idRoutineDay: query };
+
+  const day = await routineRepository.findRoutineDayById(q.idRoutineDay);
+
+  if (!day) {
+    throw new NotFoundError('Día de rutina');
+  }
+
+  return day;
+};
+
+/**
+ * List routine templates with pagination
+ */
+const listRoutineTemplates = async (query = {}) => {
+  const q = ensureQuery(query);
+
+  const offset = q.page && q.limit ? (q.page - 1) * q.limit : 0;
+
+  return routineRepository.findRoutineTemplates({
+    pagination: { limit: q.limit || 20, offset },
+    sort: { field: q.sortBy || 'routine_name', order: q.order || 'ASC' }
+  });
+};
+
+/**
+ * Get exercises for a routine, optionally filtered by day
+ */
+const getRoutineExercises = async (query) => {
+  const q = ensureQuery(query);
+
+  return routineRepository.findRoutineExercisesByRoutine(q.idRoutine, {
+    idRoutineDay: q.idRoutineDay
+  });
+};
+
+// ==================== Command Operations (Write) ====================
+
+/**
+ * Create a simple routine
+ */
+const createRoutine = async (command) => {
+  const cmd = ensureCommand(command);
+
+  return routineRepository.createRoutine({
+    routine_name: cmd.routineName,
+    description: cmd.description,
+    created_by: cmd.createdBy,
+    is_template: cmd.isTemplate || false
+  });
+};
+
+/**
+ * Create routine with exercises and optional days (with subscription limits)
+ */
+const createRoutineWithExercises = async (command) => {
+  const cmd = ensureCommand(command);
+
+  if (!Array.isArray(cmd.exercises) || cmd.exercises.length === 0) {
     throw new ValidationError('Debe incluir al menos un ejercicio en la rutina');
   }
 
-  // Limites por suscripción
-  const profile = await UserProfile.findByPk(id_user, { attributes: ['subscription'] });
+  // Check subscription limits
+  const profile = await UserProfile.findByPk(cmd.idUser, { attributes: ['subscription'] });
   const subscription = profile?.subscription || SUBSCRIPTION_TYPES.FREE;
-  const { totalOwned } = await getUserRoutineCounts(id_user);
-  
+  const { totalOwned } = await userRoutineRepository.getUserRoutineCounts(cmd.idUser);
+
   if (subscription === SUBSCRIPTION_TYPES.FREE) {
     if (totalOwned >= 5) {
       throw new BusinessError(
@@ -124,22 +192,24 @@ const createRoutineWithExercises = async ({
   }
 
   return sequelize.transaction(async (transaction) => {
-    const rutina = await Routine.create({
-      routine_name,
-      description,
-      created_by: id_user
+    // Create routine
+    const routine = await routineRepository.createRoutine({
+      routine_name: cmd.routineName,
+      description: cmd.description,
+      created_by: cmd.idUser
     }, { transaction });
 
     const dayMap = new Map();
 
-    if (Array.isArray(days)) {
-      for (const day of days) {
+    // Create days if provided
+    if (Array.isArray(cmd.days) && cmd.days.length > 0) {
+      for (const day of cmd.days) {
         if (typeof day.day_number !== 'number') {
           throw new ValidationError('Cada día debe especificar day_number');
         }
 
-        const routineDay = await RoutineDay.create({
-          id_routine: rutina.id_routine,
+        const routineDay = await routineRepository.createRoutineDay({
+          id_routine: routine.id_routine,
           day_number: day.day_number,
           title: day.title || null,
           description: day.description || null
@@ -149,9 +219,10 @@ const createRoutineWithExercises = async ({
       }
     }
 
-    for (const ex of exercises) {
-      await RoutineExercise.create({
-        id_routine: rutina.id_routine,
+    // Create routine exercises
+    for (const ex of cmd.exercises) {
+      await routineRepository.createRoutineExercise({
+        id_routine: routine.id_routine,
         id_exercise: ex.id_exercise,
         series: ex.series,
         reps: ex.reps,
@@ -162,36 +233,89 @@ const createRoutineWithExercises = async ({
       }, { transaction });
     }
 
-    return rutina;
+    return routine;
   });
 };
 
-const updateRoutine = async (id, data) => {
-  const rutina = await Routine.findByPk(id);
-  if (!rutina) throw new NotFoundError('Rutina');
-  return rutina.update(data);
-};
+/**
+ * Update routine basic information
+ */
+const updateRoutine = async (command) => {
+  const cmd = ensureCommand(command);
 
-const updateRoutineExercise = async (id_routine, id_exercise, data) => {
-  const entry = await RoutineExercise.findOne({
-    where: { id_routine, id_exercise }
+  const routine = await routineRepository.findRoutineById(cmd.idRoutine);
+  if (!routine) {
+    throw new NotFoundError('Rutina');
+  }
+
+  return routineRepository.updateRoutine(cmd.idRoutine, {
+    routine_name: cmd.routineName,
+    description: cmd.description
   });
-
-  if (!entry) throw new NotFoundError('Ejercicio en la rutina');
-
-  return entry.update(data);
 };
 
-const deleteRoutine = async (id) => {
-  const rutina = await Routine.findByPk(id);
-  if (!rutina) throw new NotFoundError('Rutina');
-  return rutina.destroy();
+/**
+ * Delete a routine
+ */
+const deleteRoutine = async (command) => {
+  const cmd = typeof command === 'object' && command.idRoutine ? command : { idRoutine: command };
+
+  const routine = await routineRepository.findRoutineById(cmd.idRoutine);
+  if (!routine) {
+    throw new NotFoundError('Rutina');
+  }
+
+  return routineRepository.deleteRoutine(cmd.idRoutine);
 };
 
-const deleteRoutineExercise = async (id_routine, id_exercise) => {
-  const deleted = await RoutineExercise.destroy({
-    where: { id_routine, id_exercise }
+/**
+ * Add exercise to routine
+ */
+const addExerciseToRoutine = async (command) => {
+  const cmd = ensureCommand(command);
+
+  // Verify routine exists
+  const routine = await routineRepository.findRoutineById(cmd.idRoutine);
+  if (!routine) {
+    throw new NotFoundError('Rutina');
+  }
+
+  return routineRepository.createRoutineExercise({
+    id_routine: cmd.idRoutine,
+    id_exercise: cmd.idExercise,
+    series: cmd.series,
+    reps: cmd.reps,
+    order: cmd.order,
+    id_routine_day: cmd.idRoutineDay || null
   });
+};
+
+/**
+ * Update exercise in routine
+ */
+const updateRoutineExercise = async (command) => {
+  const cmd = ensureCommand(command);
+
+  const existing = await routineRepository.findRoutineExercise(cmd.idRoutine, cmd.idExercise);
+  if (!existing) {
+    throw new NotFoundError('Ejercicio en la rutina');
+  }
+
+  return routineRepository.updateRoutineExercise(cmd.idRoutine, cmd.idExercise, {
+    series: cmd.series,
+    reps: cmd.reps,
+    order: cmd.order,
+    id_routine_day: cmd.idRoutineDay
+  });
+};
+
+/**
+ * Delete exercise from routine
+ */
+const deleteRoutineExercise = async (command) => {
+  const cmd = ensureCommand(command);
+
+  const deleted = await routineRepository.deleteRoutineExercise(cmd.idRoutine, cmd.idExercise);
 
   if (!deleted) {
     throw new NotFoundError('Ejercicio en la rutina');
@@ -200,76 +324,77 @@ const deleteRoutineExercise = async (id_routine, id_exercise) => {
   return deleted;
 };
 
-const getRoutinesByUser = async (id_user) => {
-  return Routine.findAll({
-    where: { created_by: id_user }
-  });
-};
+/**
+ * Create a new routine day
+ */
+const createRoutineDay = async (command) => {
+  const cmd = ensureCommand(command);
 
-const createRoutineDay = async (id_routine, { day_number, title, description }) => {
-  const routine = await Routine.findByPk(id_routine);
-  if (!routine) throw new NotFoundError('Rutina');
+  // Verify routine exists
+  const routine = await routineRepository.findRoutineById(cmd.idRoutine);
+  if (!routine) {
+    throw new NotFoundError('Rutina');
+  }
 
-  if (typeof day_number !== 'number') {
+  if (typeof cmd.dayNumber !== 'number') {
     throw new ValidationError('day_number es requerido');
   }
 
-  const existing = await RoutineDay.findOne({
-    where: { id_routine, day_number }
-  });
+  // Check if day number already exists
+  const existing = await routineRepository.findRoutineDayByRoutineAndNumber(cmd.idRoutine, cmd.dayNumber);
   if (existing) {
     throw new ValidationError('Ese número de día ya existe en la rutina');
   }
 
-  return RoutineDay.create({
-    id_routine,
-    day_number,
-    title: title || null,
-    description: description || null
+  return routineRepository.createRoutineDay({
+    id_routine: cmd.idRoutine,
+    day_number: cmd.dayNumber,
+    title: cmd.title || null,
+    description: cmd.description || null
   });
 };
 
-const listarRoutineDays = async (id_routine) => {
-  const routine = await Routine.findByPk(id_routine, { attributes: ['id_routine'] });
-  if (!routine) throw new NotFoundError('Rutina');
+/**
+ * Update routine day
+ */
+const updateRoutineDay = async (command) => {
+  const cmd = ensureCommand(command);
 
-  return RoutineDay.findAll({
-    where: { id_routine },
-    order: [['day_number', 'ASC']]
-  });
-};
+  const day = await routineRepository.findRoutineDayById(cmd.idRoutineDay);
+  if (!day) {
+    throw new NotFoundError('Día de rutina');
+  }
 
-const actualizarRoutineDay = async (id_routine_day, data) => {
-  const day = await RoutineDay.findByPk(id_routine_day);
-  if (!day) throw new NotFoundError('Día de rutina');
-
-  if (data.day_number && data.day_number !== day.day_number) {
-    const existing = await RoutineDay.findOne({
-      where: {
-        id_routine: day.id_routine,
-        day_number: data.day_number,
-        id_routine_day: { [Op.ne]: id_routine_day }
-      }
-    });
-    if (existing) {
+  // If changing day number, verify it doesn't conflict
+  if (cmd.dayNumber && cmd.dayNumber !== day.day_number) {
+    const existing = await routineRepository.findRoutineDayByRoutineAndNumber(day.id_routine, cmd.dayNumber);
+    if (existing && existing.id_routine_day !== cmd.idRoutineDay) {
       throw new ValidationError('Ese número de día ya existe');
     }
   }
 
-  return day.update({
-    day_number: data.day_number ?? day.day_number,
-    title: data.title ?? day.title,
-    description: data.description ?? day.description
+  return routineRepository.updateRoutineDay(cmd.idRoutineDay, {
+    day_number: cmd.dayNumber ?? day.day_number,
+    title: cmd.title ?? day.title,
+    description: cmd.description ?? day.description
   });
 };
 
-const eliminarRoutineDay = async (id_routine_day) => {
-  const day = await RoutineDay.findByPk(id_routine_day);
-  if (!day) throw new NotFoundError('Día de rutina');
+/**
+ * Delete routine day (with active session check)
+ */
+const deleteRoutineDay = async (command) => {
+  const cmd = typeof command === 'object' && command.idRoutineDay ? command : { idRoutineDay: command };
 
+  const day = await routineRepository.findRoutineDayById(cmd.idRoutineDay);
+  if (!day) {
+    throw new NotFoundError('Día de rutina');
+  }
+
+  // Check for active workout sessions
   const activeSessions = await WorkoutSession.count({
     where: {
-      id_routine_day,
+      id_routine_day: cmd.idRoutineDay,
       status: 'IN_PROGRESS'
     }
   });
@@ -278,19 +403,69 @@ const eliminarRoutineDay = async (id_routine_day) => {
     throw new ValidationError('No se puede eliminar un día con sesiones activas');
   }
 
-  await day.destroy();
+  await routineRepository.deleteRoutineDay(cmd.idRoutineDay);
   return true;
 };
 
+// ==================== Legacy Aliases ====================
+
+/**
+ * Legacy alias for getRoutinesByUser
+ */
+const getRoutinesByUser = async (id_user) => {
+  return listRoutinesByUser({ idUser: id_user });
+};
+
+/**
+ * Legacy alias for listRoutineDays
+ */
+const listarRoutineDays = async (id_routine) => {
+  return listRoutineDays({ idRoutine: id_routine });
+};
+
+/**
+ * Legacy alias for updateRoutineDay
+ */
+const actualizarRoutineDay = async (id_routine_day, data) => {
+  return updateRoutineDay({
+    idRoutineDay: id_routine_day,
+    dayNumber: data.day_number,
+    title: data.title,
+    description: data.description
+  });
+};
+
+/**
+ * Legacy alias for deleteRoutineDay
+ */
+const eliminarRoutineDay = async (id_routine_day) => {
+  return deleteRoutineDay({ idRoutineDay: id_routine_day });
+};
+
 module.exports = {
+  // Query operations
   getRoutineWithExercises,
+  getRoutineById,
+  listRoutinesByUser,
+  listRoutineDays,
+  getRoutineDayById,
+  listRoutineTemplates,
+  getRoutineExercises,
+
+  // Command operations
+  createRoutine,
   createRoutineWithExercises,
   updateRoutine,
-  updateRoutineExercise,
   deleteRoutine,
+  addExerciseToRoutine,
+  updateRoutineExercise,
   deleteRoutineExercise,
-  getRoutinesByUser,
   createRoutineDay,
+  updateRoutineDay,
+  deleteRoutineDay,
+
+  // Legacy aliases
+  getRoutinesByUser,
   listarRoutineDays,
   actualizarRoutineDay,
   eliminarRoutineDay
