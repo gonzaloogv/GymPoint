@@ -1,332 +1,71 @@
+/**
+ * Reward Routes - Lote 5
+ * Rutas para gestión de recompensas y canjes
+ */
+
 const express = require('express');
 const router = express.Router();
-const controller = require('../controllers/reward-controller');
+const rewardController = require('../controllers/reward-controller');
 const { verificarToken, verificarUsuarioApp, verificarAdmin } = require('../middlewares/auth');
 
-/**
- * @swagger
- * /api/rewards:
- *   get:
- *     summary: Listar recompensas disponibles para canjear
- *     tags: [Recompensas]
- *     responses:
- *       200:
- *         description: Lista de recompensas activas y en stock
- */
-router.get('/', controller.listarRecompensas);
+// ============================================================================
+// REWARDS - Public and Admin
+// ============================================================================
 
 /**
- * @swagger
- * /api/rewards/redeem:
- *   post:
- *     summary: Canjear una recompensa por tokens
- *     description: Canjea tokens del usuario por una recompensa. Se genera un código único.
- *     tags: [Recompensas]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [id_reward, id_gym]
- *             properties:
- *               id_reward:
- *                 type: integer
- *                 description: ID de la recompensa a canjear
- *                 example: 2
- *               id_gym:
- *                 type: integer
- *                 description: ID del gimnasio donde se canjeará
- *                 example: 3
- *     responses:
- *       201:
- *         description: Recompensa canjeada con éxito
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Recompensa canjeada con éxito
- *                 data:
- *                   type: object
- *                   properties:
- *                     claimed:
- *                       type: object
- *                     codigo:
- *                       type: string
- *                       example: ABC123XYZ
- *                     nuevo_saldo:
- *                       type: integer
- *                       example: 100
- *       400:
- *         description: Tokens insuficientes o recompensa no disponible
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: object
- *                   properties:
- *                     code:
- *                       type: string
- *                       example: REDEEM_REWARD_FAILED
- *                     message:
- *                       type: string
- *       401:
- *         description: No autorizado
- *       403:
- *         description: Requiere rol de usuario de la app
+ * GET /api/rewards
+ * Lista recompensas disponibles (públicas o filtradas)
  */
-router.post('/redeem', verificarToken, verificarUsuarioApp, controller.canjearRecompensa);
+router.get('/', rewardController.listRewards);
 
 /**
- * @swagger
- * /api/rewards/me:
- *   get:
- *     summary: Obtener el historial de recompensas canjeadas
- *     description: Retorna todas las recompensas que el usuario ha canjeado
- *     tags: [Recompensas]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Historial obtenido con éxito
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *       401:
- *         description: No autorizado
- *       403:
- *         description: Requiere rol de usuario de la app
+ * GET /api/rewards/:rewardId
+ * Obtiene una recompensa específica
  */
-router.get('/me', verificarToken, verificarUsuarioApp, controller.obtenerHistorialRecompensas);
+router.get('/:rewardId', rewardController.getReward);
 
 /**
- * @swagger
- * /api/rewards/stats:
- *   get:
- *     summary: Obtener estadísticas de recompensas más canjeadas (Admin)
- *     tags: [Recompensas]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Estadísticas obtenidas con éxito
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 data:
- *                   type: array
- *       401:
- *         description: No autorizado
- *       403:
- *         description: Requiere permisos de administrador
+ * POST /api/rewards
+ * Crea una nueva recompensa (admin)
  */
-router.get('/stats', verificarToken, verificarAdmin, controller.obtenerEstadisticasDeRecompensas);
+router.post('/', verificarToken, verificarAdmin, rewardController.createReward);
 
 /**
- * @swagger
- * /api/rewards/admin/all:
- *   get:
- *     summary: Listar todas las recompensas (Admin)
- *     description: Obtiene todas las recompensas sin filtros de disponibilidad
- *     tags: [Recompensas]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Lista de todas las recompensas
- *       401:
- *         description: No autorizado
- *       403:
- *         description: Requiere permisos de administrador
+ * PATCH /api/rewards/:rewardId
+ * Actualiza una recompensa (admin)
  */
-router.get('/admin/all', verificarToken, verificarAdmin, controller.listarTodasLasRecompensas);
+router.patch('/:rewardId', verificarToken, verificarAdmin, rewardController.updateReward);
 
 /**
- * @swagger
- * /api/rewards/{id}:
- *   get:
- *     summary: Obtener una recompensa por ID (Admin)
- *     tags: [Recompensas]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Recompensa encontrada
- *       404:
- *         description: Recompensa no encontrada
+ * DELETE /api/rewards/:rewardId
+ * Elimina una recompensa (admin)
  */
-router.get('/:id', verificarToken, verificarAdmin, controller.obtenerRecompensaPorId);
+router.delete('/:rewardId', verificarToken, verificarAdmin, rewardController.deleteReward);
+
+// ============================================================================
+// REWARD CODES - Admin
+// ============================================================================
 
 /**
- * @swagger
- * /api/rewards:
- *   post:
- *     summary: Crear una nueva recompensa (Admin)
- *     description: Permite a un administrador crear una nueva recompensa para el sistema
- *     tags: [Recompensas]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [name, description, cost_tokens, type, stock, start_date, finish_date]
- *             properties:
- *               name:
- *                 type: string
- *                 example: Pase 1 día gratis
- *               description:
- *                 type: string
- *                 example: Acceso completo al gimnasio por 1 día
- *               cost_tokens:
- *                 type: integer
- *                 example: 50
- *               type:
- *                 type: string
- *                 example: descuento
- *               stock:
- *                 type: integer
- *                 example: 100
- *               start_date:
- *                 type: string
- *                 format: date
- *                 example: 2025-10-01
- *               finish_date:
- *                 type: string
- *                 format: date
- *                 example: 2025-12-31
- *               available:
- *                 type: boolean
- *                 example: true
- *     responses:
- *       201:
- *         description: Recompensa creada con éxito
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *       400:
- *         description: Datos inválidos
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: object
- *                   properties:
- *                     code:
- *                       type: string
- *                       example: CREATE_REWARD_FAILED
- *                     message:
- *                       type: string
- *       401:
- *         description: No autorizado
- *       403:
- *         description: Requiere permisos de administrador
+ * GET /api/rewards/:rewardId/codes
+ * Lista códigos de una recompensa (admin)
  */
-router.post('/', verificarToken, verificarAdmin, controller.crearRecompensa);
+router.get('/:rewardId/codes', verificarToken, verificarAdmin, rewardController.listRewardCodes);
 
 /**
- * @swagger
- * /api/rewards/{id}:
- *   put:
- *     summary: Actualizar una recompensa (Admin)
- *     tags: [Recompensas]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               description:
- *                 type: string
- *               cost_tokens:
- *                 type: integer
- *               type:
- *                 type: string
- *               stock:
- *                 type: integer
- *               start_date:
- *                 type: string
- *                 format: date
- *               finish_date:
- *                 type: string
- *                 format: date
- *               available:
- *                 type: boolean
- *     responses:
- *       200:
- *         description: Recompensa actualizada
- *       404:
- *         description: Recompensa no encontrada
+ * POST /api/rewards/:rewardId/codes
+ * Crea un código de recompensa (admin)
  */
-router.put('/:id', verificarToken, verificarAdmin, controller.actualizarRecompensa);
+router.post('/:rewardId/codes', verificarToken, verificarAdmin, rewardController.createRewardCode);
+
+// ============================================================================
+// CLAIM REWARDS - User
+// ============================================================================
 
 /**
- * @swagger
- * /api/rewards/{id}:
- *   delete:
- *     summary: Eliminar una recompensa (Admin)
- *     description: Realiza soft delete de la recompensa
- *     tags: [Recompensas]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Recompensa eliminada con éxito
- *       404:
- *         description: Recompensa no encontrada
+ * POST /api/rewards/:rewardId/claim
+ * Canjea una recompensa por tokens
  */
-router.delete('/:id', verificarToken, verificarAdmin, controller.eliminarRecompensa);
+router.post('/:rewardId/claim', verificarToken, verificarUsuarioApp, rewardController.claimReward);
 
 module.exports = router;

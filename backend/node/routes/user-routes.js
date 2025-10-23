@@ -183,6 +183,49 @@ router
 router.use('/me/body-metrics', bodyMetricsRoutes);
 router.use('/me/notifications', notificationRoutes);
 
+// ============================================================================
+// LOTE 5 - REWARDS & TOKENS
+// ============================================================================
+
+const rewardController = require('../controllers/reward-controller');
+const tokenController = require('../controllers/token-controller');
+
+/**
+ * GET /api/users/:userId/claimed-rewards
+ * Lista recompensas canjeadas por un usuario
+ */
+router.get('/:userId/claimed-rewards', verificarToken, rewardController.listClaimedRewards);
+
+/**
+ * POST /api/users/:userId/tokens/add
+ * Añade tokens a un usuario (admin)
+ */
+router.post('/:userId/tokens/add', verificarToken, verificarAdmin, tokenController.addTokens);
+
+/**
+ * POST /api/users/:userId/tokens/spend
+ * Gasta tokens de un usuario (admin/system)
+ */
+router.post('/:userId/tokens/spend', verificarToken, verificarAdmin, tokenController.spendTokens);
+
+/**
+ * GET /api/users/:userId/tokens/balance
+ * Obtiene el balance de tokens de un usuario
+ */
+router.get('/:userId/tokens/balance', verificarToken, tokenController.getTokenBalance);
+
+/**
+ * GET /api/users/:userId/tokens/ledger
+ * Lista el historial de movimientos de tokens
+ */
+router.get('/:userId/tokens/ledger', verificarToken, tokenController.listTokenLedger);
+
+/**
+ * GET /api/users/:userId/tokens/stats
+ * Obtiene estadísticas de tokens de un usuario
+ */
+router.get('/:userId/tokens/stats', verificarToken, tokenController.getTokenStats);
+
 /**
  * @swagger
  * /api/users/{id}:

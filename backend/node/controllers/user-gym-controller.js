@@ -1,145 +1,155 @@
-const userGymService = require('../services/user-gym-service');
-
 /**
- * Alta en gimnasio
- * @route POST /api/user-gym/alta
- * @access Private
+ * UserGym Controller - Lote 9 CQRS
+ * HTTP layer for gym subscriptions using Commands/Queries/Mappers
  */
+
+const userGymService = require('../services/user-gym-service');
+const { userGymMappers } = require('../services/mappers');
+
+// ============================================================================
+// SUBSCRIBE (Alta)
+// ============================================================================
+
 const darAltaEnGimnasio = async (req, res) => {
   try {
     const id_user = req.user?.id_user_profile;
     const { id_gym, plan } = req.body;
 
-    // Validar campos requeridos
     if (!id_gym || !plan) {
-      return res.status(400).json({ 
-        error: { 
-          code: 'MISSING_FIELDS', 
-          message: 'Faltan datos requeridos (id_gym, plan)' 
-        } 
+      return res.status(400).json({
+        error: {
+          code: 'MISSING_FIELDS',
+          message: 'Faltan datos requeridos (id_gym, plan)',
+        },
       });
     }
 
-    // Catálogo de planes permitidos
     const PLANES_VALIDOS = ['MENSUAL', 'SEMANAL', 'ANUAL'];
     const planNormalizado = plan.toUpperCase().trim();
 
-    // Validar plan
     if (!PLANES_VALIDOS.includes(planNormalizado)) {
-      return res.status(422).json({ 
-        error: { 
-          code: 'INVALID_PLAN', 
+      return res.status(422).json({
+        error: {
+          code: 'INVALID_PLAN',
           message: `Plan inválido. Valores aceptados: ${PLANES_VALIDOS.join(', ')}`,
-          accepted_values: PLANES_VALIDOS
-        } 
+          accepted_values: PLANES_VALIDOS,
+        },
       });
     }
 
-    const alta = await userGymService.darAltaEnGimnasio({ 
-      id_user, 
-      id_gym, 
-      plan: planNormalizado 
+    const alta = await userGymService.darAltaEnGimnasio({
+      id_user,
+      id_gym,
+      plan: planNormalizado,
     });
-    
+
+    const dto = userGymMappers.toUserGymDTO(alta);
+
     res.status(201).json({
       message: 'Alta en gimnasio realizada con éxito',
-      data: alta
+      data: dto,
     });
   } catch (err) {
     console.error('Error en darAltaEnGimnasio:', err.message);
-    res.status(400).json({ 
-      error: { 
-        code: 'ALTA_FAILED', 
-        message: err.message 
-      } 
+    res.status(400).json({
+      error: {
+        code: 'ALTA_FAILED',
+        message: err.message,
+      },
     });
   }
 };
 
-/**
- * Baja en gimnasio
- * @route POST /api/user-gym/baja
- * @access Private
- */
+// ============================================================================
+// UNSUBSCRIBE (Baja)
+// ============================================================================
+
 const darBajaEnGimnasio = async (req, res) => {
   try {
     const id_user = req.user?.id_user_profile;
     const { id_gym } = req.body;
 
     if (!id_gym) {
-      return res.status(400).json({ 
-        error: { 
-          code: 'MISSING_FIELDS', 
-          message: 'Falta el ID del gimnasio' 
-        } 
+      return res.status(400).json({
+        error: {
+          code: 'MISSING_FIELDS',
+          message: 'Falta el ID del gimnasio',
+        },
       });
     }
 
-    const baja = await userGymService.darBajaEnGimnasio({ id_user, id_gym });
+    await userGymService.darBajaEnGimnasio({ id_user, id_gym });
+
     res.json({
       message: 'Baja en gimnasio realizada con éxito',
-      data: baja
     });
   } catch (err) {
     console.error('Error en darBajaEnGimnasio:', err.message);
-    res.status(400).json({ 
-      error: { 
-        code: 'BAJA_FAILED', 
-        message: err.message 
-      } 
+    res.status(400).json({
+      error: {
+        code: 'BAJA_FAILED',
+        message: err.message,
+      },
     });
   }
 };
 
-/**
- * Obtener gimnasios activos del usuario
- * @route GET /api/user-gym/activos
- * @access Private
- */
+// ============================================================================
+// LIST ACTIVE GYMS
+// ============================================================================
+
 const obtenerGimnasiosActivos = async (req, res) => {
   try {
     const id_user = req.user?.id_user_profile;
-    const resultado = await userGymService.obtenerGimnasiosActivos(id_user);
+
+    const result = await userGymService.obtenerGimnasiosActivos(id_user);
+    const dto = userGymMappers.toUserGymsDTO(result);
+
     res.json({
       message: 'Gimnasios activos obtenidos con éxito',
-      data: resultado
+      data: dto,
     });
   } catch (err) {
     console.error('Error en obtenerGimnasiosActivos:', err.message);
-    res.status(400).json({ 
-      error: { 
-        code: 'GET_ACTIVOS_FAILED', 
-        message: err.message 
-      } 
+    res.status(400).json({
+      error: {
+        code: 'GET_ACTIVOS_FAILED',
+        message: err.message,
+      },
     });
   }
 };
-  
-/**
- * Obtener historial de gimnasios del usuario
- * @route GET /api/user-gym/historial
- * @access Private
- */
+
+// ============================================================================
+// HISTORY BY USER
+// ============================================================================
+
 const obtenerHistorialGimnasiosPorUsuario = async (req, res) => {
   try {
     const id_user = req.user?.id_user_profile;
     const { active } = req.query;
 
     const historial = await userGymService.obtenerHistorialGimnasiosPorUsuario(id_user, active);
+    const dto = userGymMappers.toUserGymsDTO(historial);
+
     res.json({
       message: 'Historial de gimnasios obtenido con éxito',
-      data: historial
+      data: dto,
     });
   } catch (err) {
     console.error('Error en obtenerHistorialGimnasiosPorUsuario:', err.message);
-    res.status(400).json({ 
-      error: { 
-        code: 'GET_HISTORIAL_FAILED', 
-        message: err.message 
-      } 
+    res.status(400).json({
+      error: {
+        code: 'GET_HISTORIAL_FAILED',
+        message: err.message,
+      },
     });
   }
 };
+
+// ============================================================================
+// HISTORY BY GYM
+// ============================================================================
 
 const obtenerHistorialUsuariosPorGimnasio = async (req, res) => {
   try {
@@ -147,20 +157,32 @@ const obtenerHistorialUsuariosPorGimnasio = async (req, res) => {
     const { active } = req.query;
 
     const historial = await userGymService.obtenerHistorialUsuariosPorGimnasio(id_gym, active);
-    res.json(historial);
+    const dto = userGymMappers.toUserGymsDTO(historial);
+
+    res.json(dto);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
 
+// ============================================================================
+// COUNT ACTIVE MEMBERS
+// ============================================================================
+
 const contarUsuariosActivosEnGimnasio = async (req, res) => {
   try {
     const total = await userGymService.contarUsuariosActivosEnGimnasio(req.params.id_gym);
-    res.json({ id_gym: req.params.id_gym, usuarios_activos: total });
+    const dto = userGymMappers.toMemberCountDTO(total);
+
+    res.json({ id_gym: req.params.id_gym, ...dto });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
-}; 
+};
+
+// ============================================================================
+// EXPORTS
+// ============================================================================
 
 module.exports = {
   darAltaEnGimnasio,
@@ -168,5 +190,5 @@ module.exports = {
   obtenerGimnasiosActivos,
   obtenerHistorialGimnasiosPorUsuario,
   obtenerHistorialUsuariosPorGimnasio,
-  contarUsuariosActivosEnGimnasio
+  contarUsuariosActivosEnGimnasio,
 };

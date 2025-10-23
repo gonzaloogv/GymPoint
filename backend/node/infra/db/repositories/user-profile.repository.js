@@ -140,6 +140,21 @@ async function updateTokens(idUserProfile, delta, options = {}) {
 }
 
 /**
+ * Establece el balance de tokens de un usuario (valor absoluto)
+ */
+async function updateTokensBalance(idUserProfile, newBalance, options = {}) {
+  await UserProfile.update(
+    { tokens: Math.max(0, newBalance) },
+    {
+      where: { id_user_profile: idUserProfile },
+      transaction: options.transaction,
+    }
+  );
+
+  return newBalance;
+}
+
+/**
  * Actualiza la suscripción de un usuario
  */
 async function updateSubscription(idUserProfile, subscription, premiumDates = {}, options = {}) {
@@ -159,5 +174,6 @@ module.exports = {
   findByAccountId,
   findAll,
   updateTokens,
+  updateTokensBalance,
   updateSubscription,
 };

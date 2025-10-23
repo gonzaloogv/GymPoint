@@ -42,6 +42,7 @@ const gymScheduleRoutes = require('./routes/gym-schedule-routes');
 const specialScheduleRoutes = require('./routes/gym-special-schedule-routes');
 const gymPaymentRoutes = require('./routes/gym-payment-routes');
 const rewardCodeRoutes = require('./routes/reward-code-routes');
+const claimedRewardRoutes = require('./routes/claimed-reward-routes');
 const userRoutes = require('./routes/user-routes');
 const adminRoutes = require('./routes/admin-routes');
 const adminRewardsRoutes = require('./routes/admin-rewards-routes');
@@ -59,6 +60,8 @@ const achievementRoutes = require('./routes/achievement-routes');
 const paymentRoutes = require('./routes/payment-routes');
 const webhookRoutes = require('./routes/webhook-routes');
 const testRoutes = require('./routes/test-routes');
+// Lote 9
+const userFavoriteGymRoutes = require('./routes/user-favorite-gym-routes');
 
 // Inicializar app
 const app = express();
@@ -111,9 +114,11 @@ app.use('/api/exercises', exerciseRoutes);
 app.use('/api/user-routines', userRoutineRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/rewards', rewardRoutes);
+app.use('/api/claimed-rewards', claimedRewardRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/tokens', tokenRoutes);
 app.use('/api/user-gym', userGymRoutes);
+app.use('/api/favorites', userFavoriteGymRoutes);
 app.use('/api/frequency', frequencyRoutes);
 app.use('/api/streak', streakRoutes);
 app.use('/api/schedules', gymScheduleRoutes);

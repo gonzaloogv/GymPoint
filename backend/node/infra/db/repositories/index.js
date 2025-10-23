@@ -12,4 +12,11 @@ module.exports = {
   gymScheduleRepository: require('./gym-schedule.repository'),
   gymReviewRepository: require('./gym-review.repository'),
   gymPaymentRepository: require('./gym-payment.repository'),
+  // Lote 5: Rewards & Tokens
+  rewardRepository: require('./reward.repository'),
+  // Lote 9: Pagos externos, Notifs, Fav/Afiliación
+  paymentRepository: require('./payment.repository'),
+  notificationRepository: require('./notification.repository'),
+  userFavoriteGymRepository: require('./user-favorite-gym.repository'),
+  userGymRepository: require('./user-gym.repository'),
 };

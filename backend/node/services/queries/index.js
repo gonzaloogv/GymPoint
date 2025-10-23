@@ -21,12 +21,12 @@ module.exports = {
   // User Queries
   ...userQueries,
 
-  // Gym Schedule Queries (Lote 4)
+  // Gym Schedule Queries
   ...gymScheduleQueries,
 
-  // Gym Review Queries (Lote 4)
+  // Gym Review Queries
   ...gymReviewQueries,
 
-  // Gym Payment Queries (Lote 4)
+  // Gym Payment Queries
   ...gymPaymentQueries,
 };

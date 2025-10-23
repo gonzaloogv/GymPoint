@@ -1,31 +1,130 @@
+/**
+ * Token Controller - Lote 5
+ * Maneja endpoints de tokens (balance, historial, operaciones)
+ */
+
 const tokenService = require('../services/token-service');
+const { rewardMappers } = require('../services/mappers');
 
-const otorgarTokens = async (req, res) => {
+// ============================================================================
+// TOKEN OPERATIONS
+// ============================================================================
+
+/**
+ * POST /api/users/:userId/tokens/add
+ * Añade tokens a un usuario (admin)
+ */
+const addTokens = async (req, res) => {
   try {
-    const { id_user, amount, motive } = req.body;
+    const userId = parseInt(req.params.userId, 10);
+    const command = rewardMappers.toAddTokensCommand(req.body, userId);
+    const result = await tokenService.addTokens(command);
 
-    if (!id_user || !amount || !motive) {
-      return res.status(400).json({ error: 'Faltan campos requeridos.' });
-    }
-
-    const resultado = await tokenService.otorgarTokens({ id_user, amount, motive});
-    res.status(201).json(resultado);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.json(result);
+  } catch (error) {
+    res.status(error.statusCode || 400).json({
+      error: {
+        code: error.code || 'ADD_TOKENS_FAILED',
+        message: error.message,
+      },
+    });
   }
 };
 
-const obtenerResumenTokens = async (req, res) => {
+/**
+ * POST /api/users/:userId/tokens/spend
+ * Gasta tokens de un usuario (admin/system)
+ */
+const spendTokens = async (req, res) => {
   try {
-    const id_user = req.user.id;
-    const data = await tokenService.obtenerResumenTokens(id_user);
-    res.json(data);
-  } catch (err) {
-    res.status(404).json({ error: err.message });
+    const userId = parseInt(req.params.userId, 10);
+    const command = rewardMappers.toSpendTokensCommand(req.body, userId);
+    const result = await tokenService.spendTokens(command);
+
+    res.json(result);
+  } catch (error) {
+    res.status(error.statusCode || 400).json({
+      error: {
+        code: error.code || 'SPEND_TOKENS_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
+// ============================================================================
+// TOKEN QUERIES
+// ============================================================================
+
+/**
+ * GET /api/users/:userId/tokens/balance
+ * Obtiene el balance de tokens de un usuario
+ */
+const getTokenBalance = async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId, 10);
+    const query = rewardMappers.toGetTokenBalanceQuery(userId);
+    const balance = await tokenService.getTokenBalance(query);
+    const dto = rewardMappers.toTokenBalanceDTO(balance.userId, balance.balance);
+
+    res.json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      error: {
+        code: error.code || 'GET_BALANCE_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
+/**
+ * GET /api/users/:userId/tokens/ledger
+ * Lista el historial de movimientos de tokens
+ */
+const listTokenLedger = async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId, 10);
+    const query = rewardMappers.toListTokenLedgerQuery(userId, req.query);
+    const result = await tokenService.listTokenLedger(query);
+    const dto = rewardMappers.toPaginatedTokenLedgerDTO(result);
+
+    res.json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      error: {
+        code: error.code || 'GET_LEDGER_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
+/**
+ * GET /api/users/:userId/tokens/stats
+ * Obtiene estadísticas de tokens de un usuario
+ */
+const getTokenStats = async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId, 10);
+    const query = rewardMappers.toGetTokenBalanceQuery(userId);
+    const stats = await tokenService.getTokenStats(query);
+
+    res.json(stats);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      error: {
+        code: error.code || 'GET_STATS_FAILED',
+        message: error.message,
+      },
+    });
   }
 };
 
 module.exports = {
-  otorgarTokens,
-  obtenerResumenTokens
+  addTokens,
+  spendTokens,
+  getTokenBalance,
+  listTokenLedger,
+  getTokenStats,
 };

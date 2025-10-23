@@ -31,6 +31,18 @@ tags:
     description: Reseñas y valoraciones de gimnasios.
   - name: Gym Payments
     description: Pagos de suscripciones a gimnasios.
+  - name: Rewards
+    description: Recompensas que los usuarios pueden canjear con tokens.
+  - name: Tokens
+    description: Balance y movimientos de tokens de usuarios.
+  - name: Favorites
+    description: Gimnasios marcados como favoritos por usuarios.
+  - name: Notifications
+    description: Sistema de notificaciones para usuarios.
+  - name: User Subscriptions
+    description: Suscripciones de usuarios a gimnasios.
+  - name: Payments
+    description: Pagos de MercadoPago y transacciones.
 security: []
 paths:
   /api/auth/register:
@@ -970,6 +982,306 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  # ==================================================================================
+  # LOTE 5: REWARDS & TOKENS
+  # ==================================================================================
+
+  /api/rewards:
+    get:
+      operationId: listRewards
+      tags: [Rewards]
+      summary: Listar recompensas disponibles
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Order'
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [created_at, name, token_cost]
+            default: created_at
+        - name: gymId
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+          description: Filtrar por gimnasio (omitir para recompensas globales)
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: min_cost
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: max_cost
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: available_only
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Lista de recompensas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRewardsResponse'
+    post:
+      operationId: createReward
+      tags: [Rewards]
+      summary: Crear una recompensa (admin)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRewardRequest'
+      responses:
+        '201':
+          description: Recompensa creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RewardResponse'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/rewards/{rewardId}:
+    parameters:
+      - name: rewardId
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+    get:
+      operationId: getReward
+      tags: [Rewards]
+      summary: Obtener detalle de una recompensa
+      responses:
+        '200':
+          description: Recompensa encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RewardResponse'
+        '404':
+          description: Recompensa no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      operationId: updateReward
+      tags: [Rewards]
+      summary: Actualizar una recompensa (admin)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRewardRequest'
+      responses:
+        '200':
+          description: Recompensa actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RewardResponse'
+        '404':
+          description: Recompensa no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: deleteReward
+      tags: [Rewards]
+      summary: Eliminar una recompensa (admin)
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Recompensa eliminada
+        '404':
+          description: Recompensa no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/rewards/{rewardId}/claim:
+    parameters:
+      - name: rewardId
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+    post:
+      operationId: claimReward
+      tags: [Rewards]
+      summary: Canjear una recompensa por tokens
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimRewardRequest'
+      responses:
+        '201':
+          description: Recompensa canjeada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimedRewardResponse'
+        '400':
+          description: Datos inválidos o saldo insuficiente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/users/{userId}/claimed-rewards:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+    get:
+      operationId: listClaimedRewards
+      tags: [Rewards]
+      summary: Listar recompensas canjeadas por un usuario
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Order'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [PENDING, ACTIVE, USED, EXPIRED]
+        - name: gymId
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Lista de recompensas canjeadas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedClaimedRewardsResponse'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/users/{userId}/tokens/balance:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+    get:
+      operationId: getTokenBalance
+      tags: [Tokens]
+      summary: Obtener balance de tokens de un usuario
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Balance de tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenBalanceResponse'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/users/{userId}/tokens/ledger:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+    get:
+      operationId: listTokenLedger
+      tags: [Tokens]
+      summary: Listar historial de movimientos de tokens
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Order'
+        - name: from_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: ref_type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Historial de tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTokenLedgerResponse'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -1022,6 +1334,13 @@ components:
         type: integer
         minimum: 1
       description: Identificador del gimnasio (`id_gym`).
+    # Aliases comunes para paginación y ordenamiento
+    Page:
+      $ref: '#/components/parameters/PageParam'
+    Limit:
+      $ref: '#/components/parameters/LimitParam'
+    Order:
+      $ref: '#/components/parameters/OrderParam'
   schemas:
     Error:
       type: object
@@ -2157,3 +2476,543 @@ components:
         totalPages:
           type: integer
           minimum: 0
+
+    # ========================================================================
+    # LOTE 5: REWARDS & TOKENS SCHEMAS
+    # ========================================================================
+
+    # --- REWARDS ---
+    CreateRewardRequest:
+      type: object
+      required: [name, description, token_cost]
+      additionalProperties: false
+      properties:
+        id_gym:
+          oneOf:
+            - type: integer
+              minimum: 1
+            - type: 'null'
+          description: ID del gimnasio (null para recompensas globales)
+        name:
+          type: string
+          minLength: 2
+          maxLength: 200
+          description: Nombre de la recompensa
+        description:
+          type: string
+          maxLength: 2000
+          description: Descripción detallada
+        token_cost:
+          type: integer
+          minimum: 0
+          description: Costo en tokens
+        discount_percentage:
+          oneOf:
+            - type: number
+              format: float
+              minimum: 0
+              maximum: 100
+            - type: 'null'
+          description: Porcentaje de descuento
+        discount_amount:
+          oneOf:
+            - type: number
+              format: float
+              minimum: 0
+            - type: 'null'
+          description: Monto fijo de descuento
+        stock:
+          oneOf:
+            - type: integer
+              minimum: 0
+            - type: 'null'
+          description: Stock disponible (null = ilimitado)
+        valid_from:
+          oneOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          description: Fecha inicio validez
+        valid_until:
+          oneOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          description: Fecha fin validez
+        is_active:
+          type: boolean
+          default: true
+          description: Si está activa
+        image_url:
+          oneOf:
+            - type: string
+              format: uri
+            - type: 'null'
+          description: URL de imagen
+        terms:
+          oneOf:
+            - type: string
+              maxLength: 5000
+            - type: 'null'
+          description: Términos y condiciones
+
+    UpdateRewardRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+        token_cost:
+          type: integer
+          minimum: 0
+        discount_percentage:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          nullable: true
+        discount_amount:
+          type: number
+          format: float
+          minimum: 0
+          nullable: true
+        stock:
+          type: integer
+          minimum: 0
+          nullable: true
+        valid_from:
+          type: string
+          format: date-time
+          nullable: true
+        valid_until:
+          type: string
+          format: date-time
+          nullable: true
+        is_active:
+          type: boolean
+        image_url:
+          type: string
+          format: uri
+          nullable: true
+        terms:
+          type: string
+          maxLength: 5000
+          nullable: true
+
+    RewardResponse:
+      type: object
+      required: [id_reward, name, description, token_cost, is_active, created_at]
+      additionalProperties: false
+      properties:
+        id_reward:
+          type: integer
+          description: ID de la recompensa
+        id_gym:
+          type: integer
+          nullable: true
+          description: ID del gimnasio (null = global)
+        name:
+          type: string
+          description: Nombre
+        description:
+          type: string
+          nullable: true
+          description: Descripción
+        token_cost:
+          type: integer
+          description: Costo en tokens
+        discount_percentage:
+          type: number
+          format: float
+          nullable: true
+          description: Porcentaje de descuento
+        discount_amount:
+          type: number
+          format: float
+          nullable: true
+          description: Monto de descuento
+        stock:
+          type: integer
+          nullable: true
+          description: Stock disponible (null = ilimitado)
+        valid_from:
+          type: string
+          format: date-time
+          nullable: true
+          description: Fecha inicio
+        valid_until:
+          type: string
+          format: date-time
+          nullable: true
+          description: Fecha fin
+        is_active:
+          type: boolean
+          description: Si está activa
+        image_url:
+          type: string
+          format: uri
+          nullable: true
+          description: URL imagen
+        terms:
+          type: string
+          nullable: true
+          description: Términos
+        created_at:
+          type: string
+          format: date-time
+          description: Fecha de creación
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Fecha de actualización
+        gym:
+          type: object
+          nullable: true
+          description: Info del gimnasio
+          properties:
+            id_gym:
+              type: integer
+            name:
+              type: string
+            city:
+              type: string
+              nullable: true
+
+    PaginatedRewardsResponse:
+      type: object
+      required: [items, page, limit, total, totalPages]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RewardResponse'
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+
+    # --- CLAIMED REWARDS ---
+    ClaimRewardRequest:
+      type: object
+      required: [tokens_spent]
+      additionalProperties: false
+      properties:
+        code_id:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: ID del código usado (si aplica)
+        tokens_spent:
+          type: integer
+          minimum: 0
+          description: Tokens a gastar
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Fecha de expiración
+
+    ClaimedRewardResponse:
+      type: object
+      required: [id_claimed_reward, id_user_profile, id_reward, claimed_date, status, tokens_spent]
+      additionalProperties: false
+      properties:
+        id_claimed_reward:
+          type: integer
+          description: ID de la recompensa canjeada
+        id_user_profile:
+          type: integer
+          description: ID del usuario
+        id_reward:
+          type: integer
+          description: ID de la recompensa
+        id_code:
+          type: integer
+          nullable: true
+          description: ID del código usado
+        claimed_date:
+          type: string
+          format: date-time
+          description: Fecha de canje
+        status:
+          type: string
+          enum: [PENDING, ACTIVE, USED, EXPIRED]
+          description: Estado
+        tokens_spent:
+          type: integer
+          description: Tokens gastados
+        used_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Fecha de uso
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Fecha de expiración
+        reward:
+          allOf:
+            - $ref: '#/components/schemas/RewardResponse'
+            - nullable: true
+          description: Datos de la recompensa
+        code:
+          type: object
+          nullable: true
+          description: Datos del código
+          properties:
+            id_code:
+              type: integer
+            code:
+              type: string
+            is_used:
+              type: boolean
+
+    PaginatedClaimedRewardsResponse:
+      type: object
+      required: [items, page, limit, total, totalPages]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClaimedRewardResponse'
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+
+    # --- TOKENS ---
+    TokenBalanceResponse:
+      type: object
+      required: [id_user_profile, balance]
+      additionalProperties: false
+      properties:
+        id_user_profile:
+          type: integer
+          description: ID del usuario
+        balance:
+          type: integer
+          minimum: 0
+          description: Balance actual de tokens
+
+    TokenLedgerEntryResponse:
+      type: object
+      required: [id_ledger, id_user_profile, delta, balance_after, reason, created_at]
+      additionalProperties: false
+      properties:
+        id_ledger:
+          type: integer
+          description: ID de la entrada
+        id_user_profile:
+          type: integer
+          description: ID del usuario
+        delta:
+          type: integer
+          description: Cambio en el balance (positivo=ganancia, negativo=gasto)
+        balance_after:
+          type: integer
+          description: Balance después del movimiento
+        reason:
+          type: string
+          description: Razón del movimiento
+        ref_type:
+          type: string
+          nullable: true
+          description: Tipo de referencia
+        ref_id:
+          type: integer
+          nullable: true
+          description: ID de referencia
+        metadata:
+          type: object
+          nullable: true
+          description: Metadatos adicionales
+        created_at:
+          type: string
+          format: date-time
+          description: Fecha del movimiento
+
+    PaginatedTokenLedgerResponse:
+      type: object
+      required: [items, page, limit, total, totalPages]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenLedgerEntryResponse'
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+
+    # ========================================================================
+    # LOTE 9 - SCHEMAS
+    # ========================================================================
+
+    # Favorite Gyms
+    FavoriteGymResponse:
+      type: object
+      properties:
+        userProfileId:
+          type: integer
+        gymId:
+          type: integer
+        gym:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            city:
+              type: string
+            address:
+              type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    AddFavoriteRequest:
+      type: object
+      required: [gymId]
+      properties:
+        gymId:
+          type: integer
+          minimum: 1
+
+    # Notifications
+    NotificationResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        userProfileId:
+          type: integer
+        type:
+          type: string
+          enum: [REMINDER, ACHIEVEMENT, REWARD, GYM_UPDATE, PAYMENT, SOCIAL, SYSTEM, CHALLENGE]
+        title:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          nullable: true
+        priority:
+          type: string
+          enum: [LOW, NORMAL, HIGH]
+        isRead:
+          type: boolean
+        readAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    PaginatedNotificationsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationResponse'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+
+    # User Gym Subscriptions
+    UserGymSubscriptionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        userProfileId:
+          type: integer
+        gymId:
+          type: integer
+        subscriptionPlan:
+          type: string
+          enum: [MONTHLY, WEEKLY, DAILY, ANNUAL]
+        subscriptionStart:
+          type: string
+          format: date
+        subscriptionEnd:
+          type: string
+          format: date
+        isActive:
+          type: boolean
+        gym:
+          type: object
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    # Payments
+    PaymentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        userProfileId:
+          type: integer
+        gymId:
+          type: integer
+          nullable: true
+        paymentId:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [PENDING, APPROVED, AUTHORIZED, IN_PROCESS, IN_MEDIATION, REJECTED, CANCELLED, REFUNDED, CHARGED_BACK]
+        amount:
+          type: number
+          format: float
+        currency:
+          type: string
+        description:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time

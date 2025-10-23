@@ -1,253 +1,399 @@
-const { Op } = require('sequelize');
-const Reward = require('../models/Reward');
-const ClaimedReward = require('../models/ClaimedReward');
-const { UserProfile } = require('../models');
-const tokenLedgerService = require('./token-ledger-service');
-const rewardCodeService = require('./reward-code-service');
-const { Sequelize } = require('sequelize');
+/**
+ * Reward Service - Lote 5
+ * Maneja recompensas, códigos y canjes usando Commands/Queries
+ */
+
 const sequelize = require('../config/database');
-const { NotFoundError, ConflictError } = require('../utils/errors');
+const { rewardRepository } = require('../infra/db/repositories');
+const { userProfileRepository } = require('../infra/db/repositories');
+const { NotFoundError, ConflictError, ValidationError } = require('../utils/errors');
+
+// ============================================================================
+// REWARDS
+// ============================================================================
 
 /**
- * Listar recompensas disponibles
- * @returns {Promise<Array>} Lista de recompensas disponibles
+ * Lista recompensas con filtros y paginación
+ * @param {ListRewardsQuery} query
+ * @returns {Promise<Object>} Resultado paginado con recompensas (POJOs)
  */
-const listarRecompensas = async () => {
-  return await Reward.findAll({
-    where: {
-      available: true,
-      stock: { [Op.gt]: 0 },
-      start_date: { [Op.lte]: new Date() },
-      finish_date: { [Op.gte]: new Date() }
-    },
-    order: [['cost_tokens', 'ASC']]
-  });
-};
+async function listRewards(query) {
+  return rewardRepository.findRewards(query);
+}
 
 /**
- * Canjear recompensa por tokens
- * @param {Object} data - Datos del canje
- * @param {number} data.id_user - ID del user_profile
- * @param {number} data.id_reward - ID de la recompensa
- * @param {number} data.id_gym - ID del gimnasio (opcional)
- * @returns {Promise<Object>} Resultado del canje
+ * Obtiene una recompensa por ID
+ * @param {GetRewardByIdQuery} query
+ * @returns {Promise<Object|null>} Recompensa (POJO)
  */
-const canjearRecompensa = async ({ id_user, id_reward, id_gym }) => {
-  const idUserProfile = id_user;
-  const t = await sequelize.transaction();
+async function getReward(query) {
+  const reward = await rewardRepository.findRewardById(query.rewardId);
+  if (!reward) {
+    throw new NotFoundError('Recompensa no encontrada');
+  }
+  return reward;
+}
 
+/**
+ * Crea una nueva recompensa
+ * @param {CreateRewardCommand} command
+ * @returns {Promise<Object>} Recompensa creada (POJO)
+ */
+async function createReward(command) {
+  const transaction = await sequelize.transaction();
   try {
-    const reward = await Reward.findOne({
-      where: {
-        id_reward,
-        available: true,
-        stock: { [Op.gt]: 0 },
-        start_date: { [Op.lte]: new Date() },
-        finish_date: { [Op.gte]: new Date() }
-      },
-      transaction: t
-    });
-
-    if (!reward) throw new NotFoundError('Recompensa disponible');
-
-    // Verificar idempotencia: si ya existe el canje, retornar el existente
-    const existingClaim = await tokenLedgerService.existeMovimiento('claimed_reward', id_reward);
-    if (existingClaim) {
-      await t.rollback();
-      throw new ConflictError('Esta recompensa ya fue canjeada anteriormente');
+    // Validaciones
+    if (!command.is_closed && command.token_cost < 0) {
+      throw new ValidationError('El costo en tokens debe ser positivo');
     }
 
-    // Generar código primero
-    const codigoGenerado = await rewardCodeService.crearCodigoParaCanje({
-      id_reward,
-      id_gym
-    });
+    if (command.discount_percentage && (command.discount_percentage < 0 || command.discount_percentage > 100)) {
+      throw new ValidationError('El porcentaje de descuento debe estar entre 0 y 100');
+    }
 
-    // Crear registro en claimed_reward
-    const claimed = await ClaimedReward.create({
-      id_user: idUserProfile,
-      id_reward,
-      id_code: codigoGenerado.id_code,
-      claimed_date: new Date(),
-      status: true
-    }, { transaction: t });
-
-    // Registrar movimiento de tokens (validará saldo y actualizará user_profile)
-    const { newBalance } = await tokenLedgerService.registrarMovimiento({
-      userId: idUserProfile,
-      delta: -reward.cost_tokens,
-      reason: 'REWARD_CLAIM',
-      refType: 'claimed_reward',
-      refId: claimed.id_claim,
-      transaction: t
-    });
-
-    // Actualizar stock de recompensa
-    reward.stock -= 1;
-    await reward.save({ transaction: t });
-
-    await t.commit();
-
-    return {
-      mensaje: 'Recompensa canjeada con éxito',
-      claimed,
-      codigo: codigoGenerado.code,
-      nuevo_saldo: newBalance
+    const payload = {
+      id_gym: command.gymId,
+      name: command.name,
+      description: command.description,
+      token_cost: command.token_cost,
+      discount_percentage: command.discount_percentage,
+      discount_amount: command.discount_amount,
+      stock: command.stock,
+      valid_from: command.valid_from,
+      valid_until: command.valid_until,
+      is_active: command.is_active,
+      image_url: command.image_url,
+      terms: command.terms,
     };
+
+    const reward = await rewardRepository.createReward(payload, { transaction });
+    await transaction.commit();
+    return reward;
   } catch (error) {
-    await t.rollback();
+    await transaction.rollback();
     throw error;
   }
-};
+}
 
 /**
- * Obtener historial de recompensas canjeadas por un usuario
- * @param {number} idUserProfile - ID del user_profile
- * @returns {Promise<Array>} Lista de recompensas canjeadas
+ * Actualiza una recompensa
+ * @param {UpdateRewardCommand} command
+ * @returns {Promise<Object>} Recompensa actualizada (POJO)
  */
-const obtenerHistorialRecompensas = async (idUserProfile) => {
-  return await ClaimedReward.findAll({
-    where: { id_user: idUserProfile },
-    include: [
-      {
-        model: Reward,
-        as: 'reward',
-        attributes: ['name', 'description', 'cost_tokens']
-      },
-      {
-        model: UserProfile,
-        as: 'user',
-        attributes: ['name', 'lastname']
+async function updateReward(command) {
+  const transaction = await sequelize.transaction();
+  try {
+    // Verificar que existe
+    const reward = await rewardRepository.findRewardById(command.rewardId, { transaction });
+    if (!reward) {
+      throw new NotFoundError('Recompensa no encontrada');
+    }
+
+    const payload = {};
+    if (command.name !== undefined) payload.name = command.name;
+    if (command.description !== undefined) payload.description = command.description;
+    if (command.token_cost !== undefined) payload.token_cost = command.token_cost;
+    if (command.discount_percentage !== undefined) payload.discount_percentage = command.discount_percentage;
+    if (command.discount_amount !== undefined) payload.discount_amount = command.discount_amount;
+    if (command.stock !== undefined) payload.stock = command.stock;
+    if (command.valid_from !== undefined) payload.valid_from = command.valid_from;
+    if (command.valid_until !== undefined) payload.valid_until = command.valid_until;
+    if (command.is_active !== undefined) payload.is_active = command.is_active;
+    if (command.image_url !== undefined) payload.image_url = command.image_url;
+    if (command.terms !== undefined) payload.terms = command.terms;
+
+    const updated = await rewardRepository.updateReward(command.rewardId, payload, { transaction });
+    await transaction.commit();
+    return updated;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+}
+
+/**
+ * Elimina una recompensa (soft delete)
+ * @param {DeleteRewardCommand} command
+ * @returns {Promise<number>} Número de registros eliminados
+ */
+async function deleteReward(command) {
+  const transaction = await sequelize.transaction();
+  try {
+    const reward = await rewardRepository.findRewardById(command.rewardId, { transaction });
+    if (!reward) {
+      throw new NotFoundError('Recompensa no encontrada');
+    }
+
+    const deleted = await rewardRepository.deleteReward(command.rewardId, { transaction });
+    await transaction.commit();
+    return deleted;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+}
+
+// ============================================================================
+// REWARD CODES
+// ============================================================================
+
+/**
+ * Lista códigos de una recompensa
+ * @param {ListRewardCodesQuery} query
+ * @returns {Promise<Array>} Array de códigos (POJOs)
+ */
+async function listRewardCodes(query) {
+  return rewardRepository.findRewardCodes(query.rewardId, { unused_only: query.unused_only });
+}
+
+/**
+ * Obtiene un código por su string
+ * @param {GetRewardCodeByStringQuery} query
+ * @returns {Promise<Object|null>} Código (POJO)
+ */
+async function getRewardCodeByString(query) {
+  return rewardRepository.findRewardCodeByString(query.code);
+}
+
+/**
+ * Crea un código de recompensa
+ * @param {CreateRewardCodeCommand} command
+ * @returns {Promise<Object>} Código creado (POJO)
+ */
+async function createRewardCode(command) {
+  const transaction = await sequelize.transaction();
+  try {
+    // Verificar que la recompensa existe
+    const reward = await rewardRepository.findRewardById(command.rewardId, { transaction });
+    if (!reward) {
+      throw new NotFoundError('Recompensa no encontrada');
+    }
+
+    // Verificar que el código no existe
+    const existingCode = await rewardRepository.findRewardCodeByString(command.code, { transaction });
+    if (existingCode) {
+      throw new ConflictError('El código ya existe');
+    }
+
+    const payload = {
+      id_reward: command.rewardId,
+      code: command.code,
+    };
+
+    const code = await rewardRepository.createRewardCode(payload, { transaction });
+    await transaction.commit();
+    return code;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+}
+
+// ============================================================================
+// CLAIMED REWARDS
+// ============================================================================
+
+/**
+ * Lista recompensas canjeadas
+ * @param {ListClaimedRewardsQuery} query
+ * @returns {Promise<Object>} Resultado paginado con recompensas canjeadas (POJOs)
+ */
+async function listClaimedRewards(query) {
+  return rewardRepository.findClaimedRewards(query);
+}
+
+/**
+ * Obtiene una recompensa canjeada por ID
+ * @param {GetClaimedRewardByIdQuery} query
+ * @returns {Promise<Object|null>} Recompensa canjeada (POJO)
+ */
+async function getClaimedReward(query) {
+  const claimed = await rewardRepository.findClaimedRewardById(query.claimedRewardId);
+  if (!claimed) {
+    throw new NotFoundError('Recompensa canjeada no encontrada');
+  }
+
+  // Validar ownership si se proporciona userId
+  if (query.userId && claimed.id_user_profile !== query.userId) {
+    throw new NotFoundError('Recompensa canjeada no encontrada');
+  }
+
+  return claimed;
+}
+
+/**
+ * Canjea una recompensa por tokens
+ * @param {ClaimRewardCommand} command
+ * @returns {Promise<Object>} Recompensa canjeada (POJO)
+ */
+async function claimReward(command) {
+  const transaction = await sequelize.transaction();
+  try {
+    // 1. Verificar recompensa existe y está disponible
+    const reward = await rewardRepository.findRewardById(command.rewardId, { transaction });
+    if (!reward) {
+      throw new NotFoundError('Recompensa no encontrada');
+    }
+
+    if (!reward.is_active) {
+      throw new ValidationError('La recompensa no está activa');
+    }
+
+    // Validar fechas de validez
+    const now = new Date();
+    if (reward.valid_from && new Date(reward.valid_from) > now) {
+      throw new ValidationError('La recompensa aún no está disponible');
+    }
+    if (reward.valid_until && new Date(reward.valid_until) < now) {
+      throw new ValidationError('La recompensa ha expirado');
+    }
+
+    // Validar stock
+    if (reward.stock !== null && reward.stock <= 0) {
+      throw new ValidationError('La recompensa no tiene stock disponible');
+    }
+
+    // 2. Verificar que el usuario tiene suficientes tokens
+    const balance = await rewardRepository.getTokenBalance(command.userId, { transaction });
+    if (balance < command.tokens_spent) {
+      throw new ValidationError('Saldo insuficiente de tokens');
+    }
+
+    // 3. Validar código si se proporciona
+    let codeToUse = null;
+    if (command.codeId) {
+      codeToUse = await rewardRepository.findRewardCodeById(command.codeId, { transaction });
+      if (!codeToUse || codeToUse.is_used) {
+        throw new ValidationError('Código no válido o ya utilizado');
       }
-    ],
-    order: [['claimed_date', 'DESC']]
-  });
-};
+      if (codeToUse.id_reward !== command.rewardId) {
+        throw new ValidationError('El código no corresponde a esta recompensa');
+      }
+    }
 
-/**
- * Obtener estadísticas de recompensas más canjeadas
- * @returns {Promise<Array>} Lista de recompensas con total de canjeos
- */
-const obtenerEstadisticasDeRecompensas = async () => {
-  const results = await ClaimedReward.findAll({
-    attributes: [
-      'id_reward',
-      [Sequelize.fn('COUNT', Sequelize.col('ClaimedReward.id_reward')), 'total_canjes'],
-      [Sequelize.fn('SUM', Sequelize.col('reward.cost_tokens')), 'total_tokens_gastados']
-    ],
-    include: {
-      model: Reward,
-      as: 'reward',
-      attributes: ['name', 'description', 'cost_tokens']
-    },
-    group: ['ClaimedReward.id_reward', 'reward.name', 'reward.description', 'reward.cost_tokens'],
-    order: [[Sequelize.literal('total_canjes'), 'DESC']],
-    raw: true
-  });
-  
-  // Transformar el resultado para que tenga la estructura esperada por el frontend
-  return results.map(row => ({
-    id_reward: row.id_reward,
-    name: row['reward.name'],
-    total_canjes: parseInt(row.total_canjes || 0),
-    total_tokens_gastados: parseInt(row.total_tokens_gastados || 0)
-  }));
-};
+    // 4. Crear claimed reward
+    const claimedPayload = {
+      id_user_profile: command.userId,
+      id_reward: command.rewardId,
+      id_code: command.codeId,
+      claimed_date: new Date(),
+      status: 'ACTIVE',
+      tokens_spent: command.tokens_spent,
+      expires_at: command.expires_at,
+    };
 
-/**
- * Listar todas las recompensas (admin)
- * Incluye todas las recompensas, sin filtros de disponibilidad
- * @returns {Promise<Array>} Lista de todas las recompensas
- */
-const listarTodasLasRecompensas = async () => {
-  return await Reward.findAll({
-    order: [['creation_date', 'DESC']]
-  });
-};
+    const claimed = await rewardRepository.createClaimedReward(claimedPayload, { transaction });
 
-/**
- * Obtener una recompensa por ID (admin)
- * @param {number} id_reward - ID de la recompensa
- * @returns {Promise<Reward>} Recompensa encontrada
- */
-const obtenerRecompensaPorId = async (id_reward) => {
-  const reward = await Reward.findByPk(id_reward);
-  if (!reward) {
-    throw new NotFoundError('Recompensa');
+    // 5. Crear entrada en token ledger (gasto)
+    const previousBalance = await rewardRepository.getTokenBalance(command.userId, { transaction });
+    const newBalance = previousBalance - command.tokens_spent;
+
+    await rewardRepository.createTokenLedgerEntry(
+      {
+        id_user_profile: command.userId,
+        delta: -command.tokens_spent,
+        balance_after: newBalance,
+        reason: 'REWARD_CLAIM',
+        ref_type: 'ClaimedReward',
+        ref_id: claimed.id_claimed_reward,
+        metadata: {
+          reward_name: reward.name,
+          reward_id: reward.id_reward,
+        },
+      },
+      { transaction }
+    );
+
+    // 6. Actualizar balance en UserProfile
+    await userProfileRepository.updateTokensBalance(command.userId, newBalance, { transaction });
+
+    // 7. Decrementar stock si no es ilimitado
+    if (reward.stock !== null) {
+      await rewardRepository.decrementRewardStock(command.rewardId, 1, { transaction });
+    }
+
+    // 8. Marcar código como usado si se usó
+    if (codeToUse) {
+      await rewardRepository.markRewardCodeAsUsed(command.codeId, { transaction });
+    }
+
+    await transaction.commit();
+
+    // Retornar claimed reward con todas las relaciones
+    return rewardRepository.findClaimedRewardById(claimed.id_claimed_reward);
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
   }
-  return reward;
-};
+}
 
 /**
- * Crear nueva recompensa (admin)
- * @param {Object} data - Datos de la recompensa
- * @returns {Promise<Reward>} Recompensa creada
+ * Marca una recompensa canjeada como usada
+ * @param {MarkClaimedRewardUsedCommand} command
+ * @returns {Promise<Object>} Recompensa canjeada actualizada (POJO)
  */
-const crearRecompensa = async ({ name, description, cost_tokens, type, stock, start_date, finish_date, available = true }) => {
-  return await Reward.create({
-    name,
-    description,
-    cost_tokens,
-    type,
-    stock,
-    start_date,
-    finish_date,
-    available,
-    creation_date: new Date()
-  });
-};
+async function markClaimedRewardAsUsed(command) {
+  const transaction = await sequelize.transaction();
+  try {
+    // Verificar que existe y pertenece al usuario
+    const claimed = await rewardRepository.findClaimedRewardById(command.claimedRewardId, { transaction });
+    if (!claimed) {
+      throw new NotFoundError('Recompensa canjeada no encontrada');
+    }
 
-/**
- * Actualizar recompensa (admin)
- * @param {number} id_reward - ID de la recompensa
- * @param {Object} data - Datos a actualizar
- * @returns {Promise<Reward>} Recompensa actualizada
- */
-const actualizarRecompensa = async (id_reward, data) => {
-  const reward = await Reward.findByPk(id_reward);
-  if (!reward) {
-    throw new NotFoundError('Recompensa');
+    if (claimed.id_user_profile !== command.userId) {
+      throw new NotFoundError('Recompensa canjeada no encontrada');
+    }
+
+    if (claimed.status === 'USED') {
+      throw new ConflictError('La recompensa ya fue utilizada');
+    }
+
+    if (claimed.status === 'EXPIRED') {
+      throw new ValidationError('La recompensa ha expirado');
+    }
+
+    const updated = await rewardRepository.markClaimedRewardAsUsed(command.claimedRewardId, { transaction });
+    await transaction.commit();
+    return updated;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
   }
+}
 
-  const { name, description, cost_tokens, type, stock, start_date, finish_date, available } = data;
+// ============================================================================
+// LEGACY COMPATIBILITY
+// ============================================================================
 
-  if (name !== undefined) reward.name = name;
-  if (description !== undefined) reward.description = description;
-  if (cost_tokens !== undefined) reward.cost_tokens = cost_tokens;
-  if (type !== undefined) reward.type = type;
-  if (stock !== undefined) reward.stock = stock;
-  if (start_date !== undefined) reward.start_date = start_date;
-  if (finish_date !== undefined) reward.finish_date = finish_date;
-  if (available !== undefined) reward.available = available;
-
-  await reward.save();
-  return reward;
-};
-
-/**
- * Eliminar recompensa (admin) - Soft delete
- * @param {number} id_reward - ID de la recompensa
- * @returns {Promise<void>}
- */
-const eliminarRecompensa = async (id_reward) => {
-  const reward = await Reward.findByPk(id_reward);
-  if (!reward) {
-    throw new NotFoundError('Recompensa');
-  }
-
-  // Soft delete manual porque timestamps está deshabilitado
-  reward.deleted_at = new Date();
-  await reward.save();
-};
+// Mantener nombres antiguos para compatibilidad con código existente
+const listarRecompensas = listRewards;
+const obtenerRecompensaPorId = getReward;
+const crearRecompensa = createReward;
+const actualizarRecompensa = updateReward;
+const eliminarRecompensa = deleteReward;
+const canjearRecompensa = claimReward;
 
 module.exports = {
+  // New API
+  listRewards,
+  getReward,
+  createReward,
+  updateReward,
+  deleteReward,
+  listRewardCodes,
+  getRewardCodeByString,
+  createRewardCode,
+  listClaimedRewards,
+  getClaimedReward,
+  claimReward,
+  markClaimedRewardAsUsed,
+
+  // Legacy API
   listarRecompensas,
-  listarTodasLasRecompensas,
   obtenerRecompensaPorId,
-  canjearRecompensa,
-  obtenerHistorialRecompensas,
-  obtenerEstadisticasDeRecompensas,
   crearRecompensa,
   actualizarRecompensa,
-  eliminarRecompensa
+  eliminarRecompensa,
+  canjearRecompensa,
 };

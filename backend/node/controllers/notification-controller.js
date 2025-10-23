@@ -1,108 +1,143 @@
+/**
+ * Notification Controller - Lote 9 CQRS
+ * HTTP layer for notifications using Commands/Queries/Mappers
+ */
+
 const notificationService = require('../services/notification-service');
-const userService = require('../services/user-service');
-const { user: userMapper } = require('../services/mappers');
+const { notificationMappers } = require('../services/mappers');
 const { asyncHandler } = require('../middlewares/error-handler');
+
+// ============================================================================
+// HELPERS
+// ============================================================================
 
 const requireUserProfile = (req, res) => {
   const profile = req.account?.userProfile;
-
   if (!profile) {
     res.status(403).json({
       error: {
         code: 'USER_PROFILE_REQUIRED',
-        message: 'Perfil de usuario requerido'
-      }
+        message: 'Perfil de usuario requerido',
+      },
     });
     return null;
   }
-
   return profile;
 };
 
-const parsePositiveInteger = (value) => {
-  if (value === undefined || value === null || value === '') return undefined;
-  const parsed = Number.parseInt(value, 10);
-  return Number.isNaN(parsed) || parsed < 0 ? undefined : parsed;
-};
+// ============================================================================
+// LIST NOTIFICATIONS
+// ============================================================================
 
 const listarNotificaciones = asyncHandler(async (req, res) => {
   const profile = requireUserProfile(req, res);
   if (!profile) return;
 
-  const {
-    limit,
-    offset,
-    includeRead,
-    since
-  } = req.query;
+  const { limit, offset, includeRead, since } = req.query;
 
-  const notifications = await notificationService.listNotifications(profile.id_user_profile, {
-    limit: parsePositiveInteger(limit),
-    offset: parsePositiveInteger(offset),
+  const query = notificationMappers.toListNotificationsQuery({
+    userProfileId: profile.id_user_profile,
+    limit: limit ? parseInt(limit, 10) : 20,
+    page: offset ? Math.floor(parseInt(offset, 10) / 20) + 1 : 1,
     includeRead: includeRead !== 'false',
-    since: since || undefined
+    since,
   });
 
-  res.json(notifications);
+  const result = await notificationService.listNotifications(query);
+  const dto = notificationMappers.toPaginatedNotificationsDTO(result);
+
+  res.json(dto);
 });
+
+// ============================================================================
+// COUNT UNREAD
+// ============================================================================
 
 const contarNoLeidas = asyncHandler(async (req, res) => {
   const profile = requireUserProfile(req, res);
   if (!profile) return;
 
-  const unread = await notificationService.countUnread(profile.id_user_profile);
-  res.json({ unread });
+  const query = notificationMappers.toCountUnreadNotificationsQuery({
+    userProfileId: profile.id_user_profile,
+  });
+
+  const count = await notificationService.countUnreadNotifications(query);
+  const dto = notificationMappers.toUnreadCountDTO(count);
+
+  res.json(dto);
 });
+
+// ============================================================================
+// MARK AS READ
+// ============================================================================
 
 const marcarComoLeida = asyncHandler(async (req, res) => {
   const profile = requireUserProfile(req, res);
   if (!profile) return;
 
   const { id } = req.params;
-  const notificationId = parsePositiveInteger(id);
-  if (notificationId === undefined) {
-    res.status(400).json({
-      error: {
-        code: 'INVALID_NOTIFICATION_ID',
-        message: 'ID de notificacion invalido'
-      }
-    });
-    return;
-  }
 
-  const notification = await notificationService.markAsRead(notificationId, profile.id_user_profile);
+  const command = notificationMappers.toMarkNotificationAsReadCommand({
+    notificationId: parseInt(id, 10),
+    userProfileId: profile.id_user_profile,
+  });
 
-  res.json(notification);
+  const notification = await notificationService.markNotificationAsRead(command);
+  const dto = notificationMappers.toNotificationDTO(notification);
+
+  res.json(dto);
 });
+
+// ============================================================================
+// MARK ALL AS READ
+// ============================================================================
 
 const marcarTodasComoLeidas = asyncHandler(async (req, res) => {
   const profile = requireUserProfile(req, res);
   if (!profile) return;
 
-  const updated = await notificationService.markAllAsRead(profile.id_user_profile);
-
-  res.json({
-    updated
+  const command = notificationMappers.toMarkAllNotificationsAsReadCommand({
+    userProfileId: profile.id_user_profile,
   });
+
+  const updated = await notificationService.markAllNotificationsAsRead(command);
+
+  res.json({ updated });
 });
+
+// ============================================================================
+// NOTIFICATION SETTINGS
+// ============================================================================
 
 const obtenerConfiguraciones = asyncHandler(async (req, res) => {
   const profile = requireUserProfile(req, res);
   if (!profile) return;
 
-  const query = userMapper.toGetNotificationSettingsQuery({ userProfileId: profile.id_user_profile });
-  const settings = await userService.getNotificationSettings(query);
-  res.json(userMapper.toNotificationSettingsResponse(settings));
+  const settings = await notificationService.getNotificationSettings({
+    userProfileId: profile.id_user_profile,
+  });
+
+  res.json(settings);
 });
 
 const actualizarConfiguraciones = asyncHandler(async (req, res) => {
   const profile = requireUserProfile(req, res);
   if (!profile) return;
 
-  const command = userMapper.toUpdateNotificationSettingsCommand(req.body || {}, profile.id_user_profile);
-  const settings = await userService.updateNotificationSettings(command);
-  res.json(userMapper.toNotificationSettingsResponse(settings));
+  const settings = await notificationService.updateNotificationSettings({
+    userProfileId: profile.id_user_profile,
+    ...req.body,
+  });
+
+  res.json({
+    message: 'Configuraciones actualizadas',
+    data: settings,
+  });
 });
+
+// ============================================================================
+// EXPORTS
+// ============================================================================
 
 module.exports = {
   listarNotificaciones,
@@ -110,5 +145,5 @@ module.exports = {
   marcarComoLeida,
   marcarTodasComoLeidas,
   obtenerConfiguraciones,
-  actualizarConfiguraciones
+  actualizarConfiguraciones,
 };

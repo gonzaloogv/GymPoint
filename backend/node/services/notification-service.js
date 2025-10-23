@@ -1,23 +1,18 @@
-﻿const { Op } = require('sequelize');
-const {
-  Notification,
-  UserNotificationSetting,
-  UserProfile
-} = require('../models');
-const {
-  NotFoundError,
-  ValidationError
-} = require('../utils/errors');
+/**
+ * Notification Service - Lote 9 CQRS Refactor
+ * Business logic for notifications using Commands/Queries
+ */
 
-const TYPE_SETTING_MAP = {
-    REMINDER: 'reminder_enabled',
-    ACHIEVEMENT: 'achievement_enabled',
-    REWARD: 'reward_enabled',
-    GYM_UPDATE: 'gym_news_enabled'
-};
+const { notificationRepository, userProfileRepository } = require('../infra/db/repositories');
+const { NotFoundError, ValidationError } = require('../utils/errors');
+const sequelize = require('../config/database');
 
-const NOTIFICATION_TYPES = new Set(Notification.rawAttributes?.type?.values || []);
-const PRIORITY_TYPES = new Set(Notification.rawAttributes?.priority?.values || []);
+// ============================================================================
+// HELPERS
+// ============================================================================
+
+const NOTIFICATION_TYPES = new Set(['REMINDER', 'ACHIEVEMENT', 'REWARD', 'GYM_UPDATE', 'PAYMENT', 'SOCIAL', 'SYSTEM', 'CHALLENGE']);
+const PRIORITY_TYPES = new Set(['LOW', 'NORMAL', 'HIGH']);
 
 const DEFAULT_SETTINGS = {
   push_enabled: true,
@@ -27,255 +22,268 @@ const DEFAULT_SETTINGS = {
   reward_enabled: true,
   gym_news_enabled: true,
   quiet_hours_start: null,
-  quiet_hours_end: null
-};
-
-const ensureUserProfile = async (id_user_profile, transaction) => {
-  const userProfile = await UserProfile.findByPk(id_user_profile, {
-    attributes: ['id_user_profile'],
-    transaction
-  });
-
-  if (!userProfile) {
-    throw new NotFoundError('Perfil de usuario');
-  }
-
-  return userProfile;
-};
-
-const ensureSettings = async (id_user_profile, transaction) => {
-  await ensureUserProfile(id_user_profile, transaction);
-  let settings = await UserNotificationSetting.findByPk(id_user_profile, { transaction });
-
-  if (!settings) {
-    settings = await UserNotificationSetting.create(
-      { id_user_profile, ...DEFAULT_SETTINGS },
-      { transaction }
-    );
-  }
-
-  return settings;
+  quiet_hours_end: null,
 };
 
 const normalizeEnum = (value, allowedValues, fallback) => {
-  if (!value) {
-    return fallback;
-  }
-
+  if (!value) return fallback;
   const normalized = String(value).toUpperCase();
   return allowedValues.has(normalized) ? normalized : fallback;
 };
 
-const isTypeEnabled = (type, settings) => {
-  if (!settings) return true;
-  const key = TYPE_SETTING_MAP[type];
-  return key ? settings[key] !== false : true;
-};
-
 const sendPushNotification = async (notification) => {
-  // Integracion con Firebase pendiente (fuera de alcance actual)
   console.warn('[notification-service] Push notifications no configuradas');
   return {
     success: false,
     reason: 'push_not_configured',
-    notificationId: notification.id_notification
+    notificationId: notification.id_notification,
   };
 };
 
-const createNotification = async (payload, options = {}) => {
-  const {
-    id_user_profile,
-    type,
-    title,
-    message,
-    action_url,
-    icon,
-    priority,
-    scheduled_for = null,
-    expires_at = null
-  } = payload;
+// ============================================================================
+// CREATE NOTIFICATION
+// ============================================================================
 
-  if (!id_user_profile) {
-    throw new ValidationError('id_user_profile es requerido');
-  }
-
-  if (!title) {
-    throw new ValidationError('title es requerido');
-  }
-
-  if (!message) {
-    throw new ValidationError('message es requerido');
-  }
-
+async function createNotification(command, options = {}) {
   const transaction = options.transaction || null;
 
-  const normalizedType = normalizeEnum(type, NOTIFICATION_TYPES, null);
+  // Normalize and validate
+  const normalizedType = normalizeEnum(command.type, NOTIFICATION_TYPES, null);
   if (!normalizedType) {
-    throw new ValidationError(`Tipo de notificacion invalido: ${type}`);
+    throw new ValidationError(`Tipo de notificación inválido: ${command.type}`);
   }
 
-  const normalizedPriority = normalizeEnum(priority, PRIORITY_TYPES, 'NORMAL');
+  const normalizedPriority = normalizeEnum(command.priority, PRIORITY_TYPES, 'NORMAL');
 
-  const settings = await ensureSettings(id_user_profile, transaction);
-
-  if (!isTypeEnabled(normalizedType, settings)) {
-    return null;
+  // Verify user exists and get settings
+  const userProfile = await userProfileRepository.findById(command.userProfileId, { transaction });
+  if (!userProfile) {
+    throw new NotFoundError('Perfil de usuario');
   }
 
-  const notification = await Notification.create({
-    id_user_profile,
+  const settings = await notificationRepository.findNotificationSettings(command.userProfileId, { transaction });
+
+  // Check if notification type is enabled
+  const TYPE_SETTING_MAP = {
+    REMINDER: 'reminder_enabled',
+    ACHIEVEMENT: 'achievement_enabled',
+    REWARD: 'reward_enabled',
+    GYM_UPDATE: 'gym_news_enabled',
+  };
+
+  const settingKey = TYPE_SETTING_MAP[normalizedType];
+  if (settings && settingKey && settings[settingKey] === false) {
+    return null; // User has disabled this notification type
+  }
+
+  // Create notification
+  const notification = await notificationRepository.createNotification({
+    id_user_profile: command.userProfileId,
     type: normalizedType,
-    title,
-    message,
-    action_url: action_url || null,
-    icon: icon || null,
+    title: command.title,
+    message: command.message,
+    data: command.data,
     priority: normalizedPriority,
-    scheduled_for: scheduled_for ? new Date(scheduled_for) : null,
-    expires_at: expires_at ? new Date(expires_at) : null
+    scheduled_for: command.scheduledFor ? new Date(command.scheduledFor) : null,
   }, { transaction });
 
+  // Send push if not scheduled and push enabled
   const shouldSendNow = !notification.scheduled_for && !notification.sent_at;
-  const canSendPush = settings.push_enabled !== false;
+  const canSendPush = !settings || settings.push_enabled !== false;
 
   if (shouldSendNow && canSendPush) {
-    // No bloquear el flujo si push falla
     sendPushNotification(notification).catch((error) => {
       console.error('[notification-service] Error enviando push:', error.message);
     });
   }
 
   return notification;
-};
+}
 
-const listNotifications = async (id_user_profile, options = {}) => {
-  await ensureUserProfile(id_user_profile);
+// ============================================================================
+// MARK AS READ
+// ============================================================================
 
-  const {
-    limit = 50,
-    offset = 0,
-    includeRead = true,
-    since
-  } = options;
-
-  const where = {
-    id_user_profile
-  };
-
-  if (!includeRead) {
-    where.is_read = false;
-  }
-
-  if (since) {
-    where.created_at = {
-      [Op.gte]: new Date(since)
-    };
-  }
-
-  return Notification.findAll({
-    where,
-    order: [['created_at', 'DESC']],
-    limit,
-    offset
-  });
-};
-
-const markAsRead = async (id_notification, id_user_profile) => {
-  const notification = await Notification.findOne({
-    where: {
-      id_notification,
-      id_user_profile
-    }
-  });
+async function markNotificationAsRead(command) {
+  const notification = await notificationRepository.markNotificationAsRead(
+    command.notificationId,
+    command.userProfileId
+  );
 
   if (!notification) {
-    throw new NotFoundError('Notificacion');
-  }
-
-  if (!notification.is_read) {
-    await notification.update({
-      is_read: true,
-      read_at: new Date()
-    });
+    throw new NotFoundError('Notificación');
   }
 
   return notification;
-};
+}
 
-const markAllAsRead = async (id_user_profile) => {
-  await ensureUserProfile(id_user_profile);
+async function markAllNotificationsAsRead(command) {
+  return notificationRepository.markAllNotificationsAsRead(command.userProfileId);
+}
 
-  const [updated] = await Notification.update({
-    is_read: true,
-    read_at: new Date()
-  }, {
-    where: {
-      id_user_profile,
-      is_read: false
-    }
+// ============================================================================
+// LIST & COUNT
+// ============================================================================
+
+async function listNotifications(query) {
+  return notificationRepository.findNotifications(query.userProfileId, {
+    page: query.page,
+    limit: query.limit,
+    includeRead: query.includeRead,
+    type: query.type,
+    priority: query.priority,
+    since: query.since,
   });
+}
 
-  return updated;
-};
+async function countUnreadNotifications(query) {
+  return notificationRepository.countUnreadNotifications(query.userProfileId);
+}
 
-const countUnread = async (id_user_profile) => {
-  await ensureUserProfile(id_user_profile);
+// ============================================================================
+// DELETE
+// ============================================================================
 
-  return Notification.count({
-    where: {
-      id_user_profile,
-      is_read: false
-    }
-  });
-};
+async function deleteNotification(command) {
+  const deleted = await notificationRepository.deleteNotification(
+    command.notificationId,
+    command.userProfileId
+  );
 
-const getSettings = async (id_user_profile) => {
-  await ensureUserProfile(id_user_profile);
-  return ensureSettings(id_user_profile);
-};
+  if (!deleted) {
+    throw new NotFoundError('Notificación');
+  }
 
-const updateSettings = async (id_user_profile, payload) => {
-  const allowed = [
-    'push_enabled',
-    'email_enabled',
-    'reminder_enabled',
-    'achievement_enabled',
-    'reward_enabled',
-    'gym_news_enabled',
-    'quiet_hours_start',
-    'quiet_hours_end'
-  ];
+  return { success: true };
+}
 
-  const data = {};
+// ============================================================================
+// SCHEDULED NOTIFICATIONS
+// ============================================================================
 
-  allowed.forEach((key) => {
-    if (payload[key] !== undefined) {
-      data[key] = payload[key];
-    }
-  });
+async function sendScheduledNotifications(command) {
+  const notifications = await notificationRepository.findScheduledNotifications(
+    command.beforeDate,
+    100
+  );
 
-  const settings = await ensureSettings(id_user_profile);
-  await settings.update(data);
-  return settings;
-};
+  let sentCount = 0;
 
-const purgeExpiredNotifications = async (now = new Date()) => {
-  return Notification.destroy({
-    where: {
-      expires_at: {
-        [Op.lt]: now
+  for (const notification of notifications) {
+    try {
+      const settings = await notificationRepository.findNotificationSettings(notification.id_user_profile);
+      const canSendPush = !settings || settings.push_enabled !== false;
+
+      if (canSendPush) {
+        await sendPushNotification(notification);
       }
+
+      await notificationRepository.markNotificationAsSent(notification.id_notification);
+      sentCount++;
+    } catch (error) {
+      console.error(`[notification-service] Error enviando notificación ${notification.id_notification}:`, error.message);
     }
-  });
+  }
+
+  return { sent: sentCount, total: notifications.length };
+}
+
+// ============================================================================
+// NOTIFICATION SETTINGS
+// ============================================================================
+
+async function getNotificationSettings(query) {
+  let settings = await notificationRepository.findNotificationSettings(query.userProfileId);
+
+  if (!settings) {
+    settings = await notificationRepository.createNotificationSettings(
+      query.userProfileId,
+      DEFAULT_SETTINGS
+    );
+  }
+
+  return settings;
+}
+
+async function updateNotificationSettings(command) {
+  const transaction = await sequelize.transaction();
+
+  try {
+    // Verify user exists
+    const userProfile = await userProfileRepository.findById(command.userProfileId, { transaction });
+    if (!userProfile) {
+      throw new NotFoundError('Perfil de usuario');
+    }
+
+    // Ensure settings exist
+    let settings = await notificationRepository.findNotificationSettings(command.userProfileId, { transaction });
+    if (!settings) {
+      settings = await notificationRepository.createNotificationSettings(
+        command.userProfileId,
+        DEFAULT_SETTINGS,
+        { transaction }
+      );
+    }
+
+    // Update settings
+    const updates = {};
+    if (command.pushEnabled !== undefined) updates.push_enabled = command.pushEnabled;
+    if (command.emailEnabled !== undefined) updates.email_enabled = command.emailEnabled;
+    if (command.reminderEnabled !== undefined) updates.reminder_enabled = command.reminderEnabled;
+    if (command.achievementEnabled !== undefined) updates.achievement_enabled = command.achievementEnabled;
+    if (command.rewardEnabled !== undefined) updates.reward_enabled = command.rewardEnabled;
+    if (command.gymNewsEnabled !== undefined) updates.gym_news_enabled = command.gymNewsEnabled;
+    if (command.quietHoursStart !== undefined) updates.quiet_hours_start = command.quietHoursStart;
+    if (command.quietHoursEnd !== undefined) updates.quiet_hours_end = command.quietHoursEnd;
+
+    const updated = await notificationRepository.updateNotificationSettings(
+      command.userProfileId,
+      updates,
+      { transaction }
+    );
+
+    await transaction.commit();
+    return updated;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+}
+
+// ============================================================================
+// LEGACY COMPATIBILITY
+// ============================================================================
+
+const countUnread = async (userProfileId) => {
+  return notificationRepository.countUnreadNotifications(userProfileId);
 };
+
+const markAsRead = async (notificationId, userProfileId) => {
+  return markNotificationAsRead({ notificationId, userProfileId });
+};
+
+const markAllAsRead = async (userProfileId) => {
+  return markAllNotificationsAsRead({ userProfileId });
+};
+
+// ============================================================================
+// EXPORTS
+// ============================================================================
 
 module.exports = {
+  // CQRS API
   createNotification,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
   listNotifications,
+  countUnreadNotifications,
+  deleteNotification,
+  sendScheduledNotifications,
+  getNotificationSettings,
+  updateNotificationSettings,
+
+  // Legacy compatibility
+  countUnread,
   markAsRead,
   markAllAsRead,
-  countUnread,
-  getSettings,
-  updateSettings,
-  purgeExpiredNotifications,
-  sendPushNotification
 };

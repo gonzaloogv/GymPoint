@@ -1,151 +1,336 @@
-const UserGym = require('../models/UserGym');
-const Gym = require('../models/Gym');
-const { UserProfile } = require('../models');
+/**
+ * UserGym Service - Lote 9 CQRS Refactor
+ * Business logic for gym subscriptions using Commands/Queries
+ */
 
-const normalizePlan = (value) => {
-  if (!value) return 'MENSUAL';
-  const normalized = String(value).trim().toUpperCase();
-  return ['MENSUAL', 'SEMANAL', 'ANUAL', 'DIARIO'].includes(normalized) ? normalized : 'MENSUAL';
-};
+const { userGymRepository, gymRepository, userProfileRepository } = require('../infra/db/repositories');
+const { NotFoundError, ConflictError, ValidationError } = require('../utils/errors');
+const sequelize = require('../config/database');
 
-const mapPlanToSubscription = (plan) => {
-  switch (plan) {
-    case 'SEMANAL':
-      return 'WEEKLY';
-    case 'ANUAL':
-      return 'ANNUAL';
-    case 'DIARIO':
-      return 'DAILY';
-    case 'MENSUAL':
+// ============================================================================
+// HELPERS
+// ============================================================================
+
+const VALID_PLANS = new Set(['MONTHLY', 'WEEKLY', 'DAILY', 'ANNUAL']);
+
+const calculateEndDate = (subscriptionPlan, startDate = new Date()) => {
+  const endDate = new Date(startDate);
+
+  switch (subscriptionPlan) {
+    case 'WEEKLY':
+      endDate.setDate(endDate.getDate() + 7);
+      break;
+    case 'DAILY':
+      endDate.setDate(endDate.getDate() + 1);
+      break;
+    case 'ANNUAL':
+      endDate.setFullYear(endDate.getFullYear() + 1);
+      break;
+    case 'MONTHLY':
     default:
-      return 'MONTHLY';
+      endDate.setMonth(endDate.getMonth() + 1);
+      break;
   }
+
+  return endDate;
 };
 
-const darAltaEnGimnasio = async ({ id_user, id_gym, plan }) => {
-  const hoy = new Date();
-  const planNormalizado = normalizePlan(plan);
-  const subscriptionType = mapPlanToSubscription(planNormalizado);
+// ============================================================================
+// SUBSCRIBE TO GYM
+// ============================================================================
 
-  const existente = await UserGym.findOne({
-    where: { id_user, id_gym }
-  });
+async function subscribeToGym(command) {
+  const transaction = await sequelize.transaction();
 
-  if (existente) {
-    if (existente.active) {
-      throw new Error('El usuario ya está activo en este gimnasio.');
+  try {
+    // Verify user exists
+    const user = await userProfileRepository.findById(command.userProfileId, { transaction });
+    if (!user) {
+      throw new NotFoundError('Usuario');
     }
 
-    existente.start_date = hoy;
-    existente.finish_date = null;
-    existente.active = true;
-    existente.plan = planNormalizado;
-    existente.subscription_type = subscriptionType;
-    await existente.save();
-    return existente;
+    // Verify gym exists
+    const gym = await gymRepository.findById(command.gymId, { transaction });
+    if (!gym) {
+      throw new NotFoundError('Gimnasio');
+    }
+
+    // Validate subscription plan
+    if (!VALID_PLANS.has(command.subscriptionPlan)) {
+      throw new ValidationError('Plan de suscripción inválido');
+    }
+
+    // Check if already has active subscription
+    const existing = await userGymRepository.findActiveSubscription(
+      command.userProfileId,
+      command.gymId,
+      { transaction }
+    );
+
+    if (existing) {
+      throw new ConflictError('El usuario ya tiene una suscripción activa en este gimnasio');
+    }
+
+    // Calculate dates
+    const subscriptionStart = command.subscriptionStart ? new Date(command.subscriptionStart) : new Date();
+    const subscriptionEnd = command.subscriptionEnd
+      ? new Date(command.subscriptionEnd)
+      : calculateEndDate(command.subscriptionPlan, subscriptionStart);
+
+    // Create subscription
+    const subscription = await userGymRepository.createSubscription({
+      id_user_profile: command.userProfileId,
+      id_gym: command.gymId,
+      subscription_plan: command.subscriptionPlan,
+      subscription_start: subscriptionStart,
+      subscription_end: subscriptionEnd,
+      is_active: true,
+    }, { transaction });
+
+    await transaction.commit();
+    return subscription;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
   }
+}
 
-  const alta = await UserGym.create({
-    id_user,
-    id_gym,
-    start_date: hoy,
-    finish_date: null,
-    active: true,
-    plan: planNormalizado,
-    subscription_type: subscriptionType,
-    auto_renew: false
+// ============================================================================
+// UNSUBSCRIBE FROM GYM
+// ============================================================================
+
+async function unsubscribeFromGym(command) {
+  const transaction = await sequelize.transaction();
+
+  try {
+    const subscription = await userGymRepository.findActiveSubscription(
+      command.userProfileId,
+      command.gymId,
+      { transaction }
+    );
+
+    if (!subscription) {
+      throw new NotFoundError('Suscripción activa');
+    }
+
+    await userGymRepository.deactivateSubscription(
+      command.userProfileId,
+      command.gymId,
+      { transaction }
+    );
+
+    await transaction.commit();
+    return { success: true };
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+}
+
+// ============================================================================
+// UPDATE SUBSCRIPTION
+// ============================================================================
+
+async function updateSubscription(command) {
+  const transaction = await sequelize.transaction();
+
+  try {
+    const subscription = await userGymRepository.findSubscriptionById(command.userGymId, { transaction });
+    if (!subscription) {
+      throw new NotFoundError('Suscripción');
+    }
+
+    const updates = {};
+    if (command.subscriptionPlan) {
+      if (!VALID_PLANS.has(command.subscriptionPlan)) {
+        throw new ValidationError('Plan de suscripción inválido');
+      }
+      updates.subscription_plan = command.subscriptionPlan;
+    }
+    if (command.subscriptionEnd) {
+      updates.subscription_end = new Date(command.subscriptionEnd);
+    }
+    if (command.isActive !== null && command.isActive !== undefined) {
+      updates.is_active = command.isActive;
+    }
+
+    const updated = await userGymRepository.updateSubscription(
+      command.userGymId,
+      updates,
+      { transaction }
+    );
+
+    await transaction.commit();
+    return updated;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+}
+
+// ============================================================================
+// RENEW SUBSCRIPTION
+// ============================================================================
+
+async function renewSubscription(command) {
+  const transaction = await sequelize.transaction();
+
+  try {
+    const subscription = await userGymRepository.findSubscriptionById(command.userGymId, { transaction });
+    if (!subscription) {
+      throw new NotFoundError('Suscripción');
+    }
+
+    const subscriptionPlan = command.subscriptionPlan || subscription.subscription_plan;
+    const startDate = new Date();
+    const newEndDate = calculateEndDate(subscriptionPlan, startDate);
+
+    const renewed = await userGymRepository.renewSubscription(
+      command.userGymId,
+      newEndDate,
+      { transaction }
+    );
+
+    await transaction.commit();
+    return renewed;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+}
+
+// ============================================================================
+// LIST USER SUBSCRIPTIONS
+// ============================================================================
+
+async function listUserSubscriptions(query) {
+  return userGymRepository.findUserSubscriptions(query.userProfileId, {
+    page: query.page,
+    limit: query.limit,
+    isActive: query.isActive,
   });
+}
 
-  return alta;
+async function getActiveSubscription(query) {
+  return userGymRepository.findActiveSubscription(
+    query.userProfileId,
+    query.gymId
+  );
+}
+
+// ============================================================================
+// GYM MEMBERS
+// ============================================================================
+
+async function listGymMembers(query) {
+  return userGymRepository.findGymMembers(query.gymId, {
+    page: query.page,
+    limit: query.limit,
+    isActive: query.isActive,
+  });
+}
+
+async function countGymMembers(query) {
+  return userGymRepository.countGymMembers(query.gymId);
+}
+
+// ============================================================================
+// EXPIRING SUBSCRIPTIONS
+// ============================================================================
+
+async function listExpiringSubscriptions(query) {
+  return userGymRepository.findExpiringSubscriptions(
+    query.daysBeforeExpiry,
+    query.limit
+  );
+}
+
+// ============================================================================
+// LEGACY COMPATIBILITY
+// ============================================================================
+
+const darAltaEnGimnasio = async ({ id_user, id_gym, plan }) => {
+  // Map old plan names to new ones
+  const PLAN_MAP = {
+    MENSUAL: 'MONTHLY',
+    SEMANAL: 'WEEKLY',
+    ANUAL: 'ANNUAL',
+    DIARIO: 'DAILY',
+  };
+
+  const normalizedPlan = PLAN_MAP[plan?.toUpperCase()] || 'MONTHLY';
+
+  return subscribeToGym({
+    userProfileId: id_user,
+    gymId: id_gym,
+    subscriptionPlan: normalizedPlan,
+  });
 };
 
 const darBajaEnGimnasio = async ({ id_user, id_gym }) => {
-  const relacion = await UserGym.findOne({
-    where: { id_user, id_gym, active: true }
+  return unsubscribeFromGym({
+    userProfileId: id_user,
+    gymId: id_gym,
   });
-
-  if (!relacion) {
-    throw new Error('El usuario no tiene una membresía activa en ese gimnasio.');
-  }
-
-  relacion.active = false;
-  relacion.finish_date = new Date();
-  await relacion.save();
-
-  return relacion;
 };
 
 const obtenerGimnasiosActivos = async (id_user) => {
-  const activos = await UserGym.findAll({
-    where: { id_user, active: true },
-    include: {
-      model: Gym,
-      attributes: ['name', 'city', 'address']
-    }
+  const result = await listUserSubscriptions({
+    userProfileId: id_user,
+    isActive: true,
+    page: 1,
+    limit: 100,
   });
-
-  return activos;
+  return result.items;
 };
 
 const obtenerHistorialGimnasiosPorUsuario = async (id_user, active) => {
-  const filtros = { id_user };
-
-  if (active !== undefined) {
-    filtros.active = active === 'true';
-  }
-
-  return UserGym.findAll({
-    where: filtros,
-    include: {
-      model: Gym,
-      attributes: ['name', 'city', 'address']
-    },
-    order: [['start_date', 'DESC']]
+  const isActive = active === 'true' ? true : active === 'false' ? false : null;
+  const result = await listUserSubscriptions({
+    userProfileId: id_user,
+    isActive,
+    page: 1,
+    limit: 100,
   });
+  return result.items;
 };
 
 const obtenerHistorialUsuariosPorGimnasio = async (id_gym, active) => {
-  const filtros = { id_gym };
-
-  if (active !== undefined) {
-    filtros.active = active === 'true';
-  }
-
-  return UserGym.findAll({
-    where: filtros,
-    include: {
-      model: UserProfile,
-      as: 'userProfile',
-      attributes: ['name', 'lastname', 'email']
-    },
-    order: [['start_date', 'DESC']]
+  const isActive = active === 'true' ? true : active === 'false' ? false : null;
+  const result = await listGymMembers({
+    gymId: parseInt(id_gym, 10),
+    isActive,
+    page: 1,
+    limit: 100,
   });
+  return result.items;
 };
 
 const contarUsuariosActivosEnGimnasio = async (id_gym) => {
-  const total = await UserGym.count({
-    where: {
-      id_gym,
-      active: true
-    }
-  });
-
-  return total;
+  return countGymMembers({ gymId: parseInt(id_gym, 10) });
 };
 
+// ============================================================================
+// EXPORTS
+// ============================================================================
+
 module.exports = {
+  // CQRS API
+  subscribeToGym,
+  unsubscribeFromGym,
+  updateSubscription,
+  renewSubscription,
+  listUserSubscriptions,
+  getActiveSubscription,
+  listGymMembers,
+  countGymMembers,
+  listExpiringSubscriptions,
+
+  // Legacy compatibility
   darAltaEnGimnasio,
   darBajaEnGimnasio,
   obtenerGimnasiosActivos,
   obtenerHistorialGimnasiosPorUsuario,
   obtenerHistorialUsuariosPorGimnasio,
   contarUsuariosActivosEnGimnasio,
-  __private: {
-    normalizePlan,
-    mapPlanToSubscription
-  }
 };
-
-
-
-

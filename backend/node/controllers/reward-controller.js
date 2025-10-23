@@ -1,272 +1,320 @@
+/**
+ * Reward Controller - Lote 5
+ * Maneja endpoints de recompensas y canjes
+ */
+
 const rewardService = require('../services/reward-service');
+const { rewardMappers } = require('../services/mappers');
+
+// ============================================================================
+// REWARDS
+// ============================================================================
 
 /**
- * Listar recompensas disponibles
- * @route GET /api/rewards
- * @access Public
+ * GET /api/rewards
+ * Lista recompensas disponibles
  */
-const listarRecompensas = async (req, res) => {
+const listRewards = async (req, res) => {
   try {
-    const recompensas = await rewardService.listarRecompensas();
-    
-    res.json({
-      message: 'Recompensas obtenidas con éxito',
-      data: recompensas
-    });
-  } catch (err) {
-    res.status(500).json({ 
-      error: { 
-        code: 'GET_REWARDS_FAILED', 
-        message: err.message 
-      } 
+    const query = rewardMappers.toListRewardsQuery(req.query);
+    const result = await rewardService.listRewards(query);
+    const dto = rewardMappers.toPaginatedRewardsDTO(result);
+
+    res.json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      error: {
+        code: error.code || 'LIST_REWARDS_FAILED',
+        message: error.message,
+      },
     });
   }
 };
 
 /**
- * Canjear recompensa por tokens
- * @route POST /api/rewards/redeem
- * @access Private (Usuario app)
+ * GET /api/rewards/:rewardId
+ * Obtiene una recompensa específica
  */
-const canjearRecompensa = async (req, res) => {
+const getReward = async (req, res) => {
   try {
-    const id_user_profile = req.user.id_user_profile;
-    const { id_reward, id_gym } = req.body;
+    const rewardId = parseInt(req.params.rewardId, 10);
+    const query = rewardMappers.toGetRewardByIdQuery(rewardId);
+    const reward = await rewardService.getReward(query);
+    const dto = rewardMappers.toRewardDTO(reward);
 
-    if (!id_reward || !id_gym) {
-      return res.status(400).json({ 
-        error: { 
-          code: 'MISSING_FIELDS', 
-          message: 'Faltan datos requeridos: id_reward, id_gym' 
-        } 
+    res.json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      error: {
+        code: error.code || 'GET_REWARD_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
+/**
+ * POST /api/rewards
+ * Crea una nueva recompensa (admin)
+ */
+const createReward = async (req, res) => {
+  try {
+    const createdBy = req.account?.userProfile?.id_user_profile;
+    const gymId = req.body.id_gym || null;
+
+    const command = rewardMappers.toCreateRewardCommand(req.body, gymId, createdBy);
+    const reward = await rewardService.createReward(command);
+    const dto = rewardMappers.toRewardDTO(reward);
+
+    res.status(201).json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 400).json({
+      error: {
+        code: error.code || 'CREATE_REWARD_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
+/**
+ * PATCH /api/rewards/:rewardId
+ * Actualiza una recompensa (admin)
+ */
+const updateReward = async (req, res) => {
+  try {
+    const rewardId = parseInt(req.params.rewardId, 10);
+    const updatedBy = req.account?.userProfile?.id_user_profile;
+
+    const command = rewardMappers.toUpdateRewardCommand(req.body, rewardId, updatedBy);
+    const reward = await rewardService.updateReward(command);
+    const dto = rewardMappers.toRewardDTO(reward);
+
+    res.json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 400).json({
+      error: {
+        code: error.code || 'UPDATE_REWARD_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
+/**
+ * DELETE /api/rewards/:rewardId
+ * Elimina una recompensa (admin)
+ */
+const deleteReward = async (req, res) => {
+  try {
+    const rewardId = parseInt(req.params.rewardId, 10);
+    const deletedBy = req.account?.userProfile?.id_user_profile;
+
+    const command = rewardMappers.toDeleteRewardCommand(rewardId, deletedBy);
+    await rewardService.deleteReward(command);
+
+    res.status(204).send();
+  } catch (error) {
+    res.status(error.statusCode || 400).json({
+      error: {
+        code: error.code || 'DELETE_REWARD_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
+// ============================================================================
+// REWARD CODES
+// ============================================================================
+
+/**
+ * GET /api/rewards/:rewardId/codes
+ * Lista códigos de una recompensa (admin)
+ */
+const listRewardCodes = async (req, res) => {
+  try {
+    const rewardId = parseInt(req.params.rewardId, 10);
+    const query = rewardMappers.toListRewardCodesQuery(rewardId, req.query);
+    const codes = await rewardService.listRewardCodes(query);
+
+    res.json({ items: codes.map(rewardMappers.toRewardCodeDTO) });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      error: {
+        code: error.code || 'LIST_CODES_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
+/**
+ * POST /api/rewards/:rewardId/codes
+ * Crea un código de recompensa (admin)
+ */
+const createRewardCode = async (req, res) => {
+  try {
+    const rewardId = parseInt(req.params.rewardId, 10);
+    const createdBy = req.account?.userProfile?.id_user_profile;
+
+    const command = rewardMappers.toCreateRewardCodeCommand(req.body, rewardId, createdBy);
+    const code = await rewardService.createRewardCode(command);
+    const dto = rewardMappers.toRewardCodeDTO(code);
+
+    res.status(201).json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 400).json({
+      error: {
+        code: error.code || 'CREATE_CODE_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
+// ============================================================================
+// CLAIMED REWARDS
+// ============================================================================
+
+/**
+ * GET /api/users/:userId/claimed-rewards
+ * Lista recompensas canjeadas por un usuario
+ */
+const listClaimedRewards = async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId, 10);
+    const query = rewardMappers.toListClaimedRewardsQuery(userId, req.query);
+    const result = await rewardService.listClaimedRewards(query);
+    const dto = rewardMappers.toPaginatedClaimedRewardsDTO(result);
+
+    res.json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      error: {
+        code: error.code || 'LIST_CLAIMED_REWARDS_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
+/**
+ * GET /api/claimed-rewards/:claimedRewardId
+ * Obtiene una recompensa canjeada específica
+ */
+const getClaimedReward = async (req, res) => {
+  try {
+    const claimedRewardId = parseInt(req.params.claimedRewardId, 10);
+    const userId = req.account?.userProfile?.id_user_profile;
+
+    const query = rewardMappers.toGetClaimedRewardByIdQuery(claimedRewardId, userId);
+    const claimed = await rewardService.getClaimedReward(query);
+    const dto = rewardMappers.toClaimedRewardDTO(claimed);
+
+    res.json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      error: {
+        code: error.code || 'GET_CLAIMED_REWARD_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
+/**
+ * POST /api/rewards/:rewardId/claim
+ * Canjea una recompensa por tokens
+ */
+const claimReward = async (req, res) => {
+  try {
+    const rewardId = parseInt(req.params.rewardId, 10);
+    const userId = req.account?.userProfile?.id_user_profile;
+
+    if (!userId) {
+      return res.status(403).json({
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Usuario autenticado requerido',
+        },
       });
     }
 
-    const result = await rewardService.canjearRecompensa({ 
-      id_user: id_user_profile, // El service espera id_user
-      id_reward, 
-      id_gym 
-    });
-    
-    res.status(201).json({
-      message: result.mensaje,
-      data: {
-        claimed: result.claimed,
-        codigo: result.codigo,
-        nuevo_saldo: result.nuevo_saldo
-      }
-    });
-  } catch (err) {
-    res.status(400).json({ 
-      error: { 
-        code: 'REDEEM_REWARD_FAILED', 
-        message: err.message 
-      } 
+    const command = rewardMappers.toClaimRewardCommand(req.body, userId, rewardId);
+    const claimed = await rewardService.claimReward(command);
+    const dto = rewardMappers.toClaimedRewardDTO(claimed);
+
+    res.status(201).json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 400).json({
+      error: {
+        code: error.code || 'CLAIM_REWARD_FAILED',
+        message: error.message,
+      },
     });
   }
 };
 
 /**
- * Obtener historial de recompensas canjeadas del usuario
- * @route GET /api/rewards/me
- * @access Private (Usuario app)
+ * POST /api/claimed-rewards/:claimedRewardId/use
+ * Marca una recompensa canjeada como usada
  */
-const obtenerHistorialRecompensas = async (req, res) => {
+const markClaimedRewardAsUsed = async (req, res) => {
   try {
-    const id_user_profile = req.user.id_user_profile;
-    const historial = await rewardService.obtenerHistorialRecompensas(id_user_profile);
-    
-    res.json({
-      message: 'Historial de recompensas obtenido con éxito',
-      data: historial
-    });
-  } catch (err) {
-    res.status(400).json({ 
-      error: { 
-        code: 'GET_REWARD_HISTORY_FAILED', 
-        message: err.message 
-      } 
-    });
-  }
-};
+    const claimedRewardId = parseInt(req.params.claimedRewardId, 10);
+    const userId = req.account?.userProfile?.id_user_profile;
 
-/**
- * Obtener estadísticas de recompensas más canjeadas (Admin)
- * @route GET /api/rewards/stats
- * @access Private (Admin)
- */
-const obtenerEstadisticasDeRecompensas = async (req, res) => {
-  try {
-    const estadisticas = await rewardService.obtenerEstadisticasDeRecompensas();
-    
-    res.json({
-      message: 'Estadísticas de recompensas obtenidas con éxito',
-      data: estadisticas
-    });
-  } catch (err) {
-    res.status(400).json({ 
-      error: { 
-        code: 'GET_REWARD_STATS_FAILED', 
-        message: err.message 
-      } 
-    });
-  }
-};
-
-/**
- * Listar todas las recompensas (Admin)
- * @route GET /api/rewards/admin/all
- * @access Private (Admin)
- */
-const listarTodasLasRecompensas = async (req, res) => {
-  try {
-    console.log('📝 [CONTROLLER] Ejecutando listarTodasLasRecompensas...');
-    const recompensas = await rewardService.listarTodasLasRecompensas();
-    console.log(`✅ [CONTROLLER] ${recompensas.length} recompensas encontradas`);
-    
-    res.json({
-      message: 'Recompensas obtenidas con éxito',
-      data: recompensas
-    });
-  } catch (err) {
-    console.error('❌ [CONTROLLER] Error en listarTodasLasRecompensas:', err.message);
-    console.error(err.stack);
-    res.status(500).json({ 
-      error: { 
-        code: 'GET_ALL_REWARDS_FAILED', 
-        message: err.message 
-      } 
-    });
-  }
-};
-
-/**
- * Obtener una recompensa por ID (Admin)
- * @route GET /api/rewards/:id
- * @access Private (Admin)
- */
-const obtenerRecompensaPorId = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const recompensa = await rewardService.obtenerRecompensaPorId(Number(id));
-    
-    res.json({
-      message: 'Recompensa obtenida con éxito',
-      data: recompensa
-    });
-  } catch (err) {
-    const statusCode = err.name === 'NotFoundError' ? 404 : 500;
-    res.status(statusCode).json({ 
-      error: { 
-        code: 'GET_REWARD_FAILED', 
-        message: err.message 
-      } 
-    });
-  }
-};
-
-/**
- * Crear nueva recompensa (Admin)
- * @route POST /api/rewards
- * @access Private (Admin)
- */
-const crearRecompensa = async (req, res) => {
-  try {
-    const { name, description, cost_tokens, type, stock, start_date, finish_date, available } = req.body;
-
-    if (!name || !description || !cost_tokens || !type || stock === undefined || !start_date || !finish_date) {
-      return res.status(400).json({ 
-        error: { 
-          code: 'MISSING_FIELDS', 
-          message: 'Faltan datos requeridos: name, description, cost_tokens, type, stock, start_date, finish_date' 
-        } 
+    if (!userId) {
+      return res.status(403).json({
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Usuario autenticado requerido',
+        },
       });
     }
 
-    const recompensa = await rewardService.crearRecompensa({
-      name,
-      description,
-      cost_tokens,
-      type,
-      stock,
-      start_date,
-      finish_date,
-      available
-    });
+    const command = rewardMappers.toMarkClaimedRewardUsedCommand(claimedRewardId, userId);
+    const claimed = await rewardService.markClaimedRewardAsUsed(command);
+    const dto = rewardMappers.toClaimedRewardDTO(claimed);
 
-    res.status(201).json({
-      message: 'Recompensa creada con éxito',
-      data: recompensa
-    });
-  } catch (err) {
-    res.status(400).json({ 
-      error: { 
-        code: 'CREATE_REWARD_FAILED', 
-        message: err.message 
-      } 
-    });
-  }
-};
-
-/**
- * Actualizar recompensa (Admin)
- * @route PUT /api/rewards/:id
- * @access Private (Admin)
- */
-const actualizarRecompensa = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const data = req.body;
-
-    const recompensa = await rewardService.actualizarRecompensa(Number(id), data);
-
-    res.json({
-      message: 'Recompensa actualizada con éxito',
-      data: recompensa
-    });
-  } catch (err) {
-    const statusCode = err.name === 'NotFoundError' ? 404 : 400;
-    res.status(statusCode).json({ 
-      error: { 
-        code: 'UPDATE_REWARD_FAILED', 
-        message: err.message 
-      } 
-    });
-  }
-};
-
-/**
- * Eliminar recompensa (Admin)
- * @route DELETE /api/rewards/:id
- * @access Private (Admin)
- */
-const eliminarRecompensa = async (req, res) => {
-  try {
-    const { id } = req.params;
-    await rewardService.eliminarRecompensa(Number(id));
-
-    res.json({
-      message: 'Recompensa eliminada con éxito'
-    });
-  } catch (err) {
-    const statusCode = err.name === 'NotFoundError' ? 404 : 400;
-    res.status(statusCode).json({ 
-      error: { 
-        code: 'DELETE_REWARD_FAILED', 
-        message: err.message 
-      } 
+    res.json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 400).json({
+      error: {
+        code: error.code || 'MARK_USED_FAILED',
+        message: error.message,
+      },
     });
   }
 };
 
 module.exports = {
-  listarRecompensas,
-  listarTodasLasRecompensas,
-  obtenerRecompensaPorId,
-  canjearRecompensa,
-  obtenerHistorialRecompensas,
-  obtenerEstadisticasDeRecompensas,
-  crearRecompensa,
-  actualizarRecompensa,
-  eliminarRecompensa
+  // Rewards
+  listRewards,
+  getReward,
+  createReward,
+  updateReward,
+  deleteReward,
+
+  // Reward codes
+  listRewardCodes,
+  createRewardCode,
+
+  // Claimed rewards
+  listClaimedRewards,
+  getClaimedReward,
+  claimReward,
+  markClaimedRewardAsUsed,
+
+  // Legacy aliases (Spanish) for backward compatibility
+  listarTodasLasRecompensas: listRewards,
+  obtenerRecompensaPorId: getReward,
+  crearRecompensa: createReward,
+  actualizarRecompensa: updateReward,
+  eliminarRecompensa: deleteReward,
+  obtenerEstadisticasDeRecompensas: async (req, res) => {
+    // Placeholder - returns empty array for now
+    res.json({ message: 'Estadísticas no disponibles', data: [] });
+  },
 };
