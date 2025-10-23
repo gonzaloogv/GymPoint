@@ -1,32 +1,50 @@
-import styled from 'styled-components/native';
-import { View, ScrollView, Text } from 'react-native';
-import { sp } from '@shared/styles';
+import { View, ScrollView, Text, ViewProps, ScrollViewProps, TextProps } from 'react-native';
+import { useTheme } from '@shared/hooks';
 
 /** Container para steps con scroll */
-export const StepScrollContainer = styled(ScrollView).attrs({
-  contentContainerStyle: { paddingHorizontal: 20, paddingVertical: 24, paddingBottom: 40 },
-  showsVerticalScrollIndicator: false,
-})`
-  flex: 1;
-  background-color: ${({ theme }) => theme.colors.bg};
-`;
+export const StepScrollContainer: React.FC<ScrollViewProps> = ({ children, className = '', ...props }) => {
+  const { isDark } = useTheme();
+  const bgColor = isDark ? '#111827' : '#FAFAFA';
+
+  return (
+    <ScrollView
+      className={`flex-1 ${className}`}
+      contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 24, paddingBottom: 40 }}
+      showsVerticalScrollIndicator={false}
+      style={{ backgroundColor: bgColor }}
+      {...props}
+    >
+      {children}
+    </ScrollView>
+  );
+};
 
 /** Container para steps sin scroll (centrado) */
-export const StepCenteredContainer = styled(View)`
-  flex: 1;
-  padding: ${({ theme }) => sp(theme, 2)}px;
-  align-items: center;
-  justify-content: center;
-`;
+export const StepCenteredContainer: React.FC<ViewProps> = ({ children, className = '', ...props }) => (
+  <View className={`flex-1 p-4 items-center justify-center ${className}`} {...props}>
+    {children}
+  </View>
+);
 
 /** Texto placeholder para pasos en desarrollo */
-export const StepPlaceholderText = styled(Text)`
-  font-size: 16px;
-  color: ${({ theme }) => theme.colors.subtext};
-  text-align: center;
-`;
+export const StepPlaceholderText: React.FC<TextProps> = ({ children, className = '', ...props }) => {
+  const { isDark } = useTheme();
+  const textColor = isDark ? '#9CA3AF' : '#6B7280';
+
+  return (
+    <Text
+      className={`text-base text-center ${className}`}
+      style={{ color: textColor }}
+      {...props}
+    >
+      {children}
+    </Text>
+  );
+};
 
 /** Section separada dentro de un step */
-export const StepSection = styled(View)`
-  margin-bottom: ${({ theme }) => sp(theme, 3)}px;
-`;
+export const StepSection: React.FC<ViewProps> = ({ children, className = '', ...props }) => (
+  <View className={`mb-6 ${className}`} {...props}>
+    {children}
+  </View>
+);

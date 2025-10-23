@@ -1,10 +1,10 @@
-import React from 'react';
 import {
   DefaultTheme as NavDefaultTheme,
   Theme as NavigationTheme,
 } from '@react-navigation/native';
+import React = require('react');
 
-// Recibe tu theme de styled-components (solo usamos las claves de colores)
+// Define custom theme colors for React Navigation
 type AppColors = {
   bg?: string;
   card?: string;

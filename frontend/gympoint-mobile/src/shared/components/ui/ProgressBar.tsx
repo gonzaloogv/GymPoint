@@ -20,15 +20,12 @@ export const ProgressTrack = ({ className = '', style, ...props }: ProgressTrack
 type ProgressFillProps = ViewProps & { value?: number };
 
 export const ProgressFill = ({ value = 0, className = '', style, ...props }: ProgressFillProps) => {
-  const computedStyle = StyleSheet.flatten([
-    { width: `${Math.max(0, Math.min(100, value))}%` },
-    style,
-  ]);
+  const computedStyle = StyleSheet.flatten([style]);
 
   return (
     <View
       className={`h-full bg-primary ${className}`}
-      style={computedStyle}
+      style={[{ width: `${Math.max(0, Math.min(100, value))}%` }, computedStyle]}
       {...props}
     />
   );

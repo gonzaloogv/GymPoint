@@ -1,7 +1,8 @@
 // src/features/rewards/ui/RewardsScreen.tsx
 
 import React from 'react';
-import { SafeAreaView, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useTheme } from '@shared/hooks';
 

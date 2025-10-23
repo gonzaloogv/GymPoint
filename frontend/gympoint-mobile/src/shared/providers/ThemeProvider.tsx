@@ -1,5 +1,6 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { createContext, useState, useEffect } from 'react';
+import { useColorScheme, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 
 export type ThemeMode = 'light' | 'dark' | 'auto';
@@ -18,7 +19,6 @@ const THEME_STORAGE_KEY = 'app_theme_mode';
 export const ThemeProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const deviceTheme = useColorScheme();
   const [themeMode, setThemeModeState] = useState<ThemeMode>('auto');
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadThemePreference();
@@ -26,21 +26,32 @@ export const ThemeProvider: React.FC<React.PropsWithChildren> = ({ children }) =
 
   const loadThemePreference = async () => {
     try {
-      const saved = await SecureStore.getItemAsync(THEME_STORAGE_KEY);
+      let saved: string | null = null;
+
+      // Use AsyncStorage for web, SecureStore for mobile
+      if (Platform.OS === 'web') {
+        saved = await AsyncStorage.getItem(THEME_STORAGE_KEY);
+      } else {
+        saved = await SecureStore.getItemAsync(THEME_STORAGE_KEY);
+      }
+
       if (saved && ['light', 'dark', 'auto'].includes(saved)) {
         setThemeModeState(saved as ThemeMode);
       }
     } catch (error) {
       console.error('Error loading theme preference:', error);
-    } finally {
-      setIsLoading(false);
+      // Fallback to 'auto' on error - this is safe
     }
   };
 
   const setThemeMode = async (mode: ThemeMode) => {
     setThemeModeState(mode);
     try {
-      await SecureStore.setItemAsync(THEME_STORAGE_KEY, mode);
+      if (Platform.OS === 'web') {
+        await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
+      } else {
+        await SecureStore.setItemAsync(THEME_STORAGE_KEY, mode);
+      }
     } catch (error) {
       console.error('Error saving theme preference:', error);
     }
@@ -51,10 +62,6 @@ export const ThemeProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     : themeMode === 'dark';
 
   const theme = isDark ? 'dark' : 'light';
-
-  if (isLoading) {
-    return null;
-  }
 
   const contextValue: ThemeContextType = {
     theme,

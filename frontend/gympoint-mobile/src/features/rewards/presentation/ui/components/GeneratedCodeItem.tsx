@@ -1,4 +1,3 @@
-import React from 'react';
 import { GeneratedCodeCard } from '@shared/components/ui';
 import { GeneratedCode } from '@features/rewards/domain/entities';
 import { formatDate } from '../../utils/categories';

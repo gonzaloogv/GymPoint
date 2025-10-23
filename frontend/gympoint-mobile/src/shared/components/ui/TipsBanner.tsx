@@ -5,11 +5,10 @@ import { useTheme } from '@shared/hooks';
 
 type TipsBannerProps = {
   title?: string;
-  tips: Array<{
-    icon: keyof typeof Ionicons.glyphMap | keyof typeof Feather.glyphMap;
-    iconType: 'ionicons' | 'feather';
-    text: string;
-  }>;
+  tips: Array<
+    | { icon: keyof typeof Ionicons.glyphMap; iconType: 'ionicons'; text: string }
+    | { icon: keyof typeof Feather.glyphMap; iconType: 'feather'; text: string }
+  >;
   iconColor?: string;
 };
 

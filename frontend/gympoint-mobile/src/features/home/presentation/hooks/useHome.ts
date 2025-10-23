@@ -1,12 +1,10 @@
 import { useEffect, useMemo } from 'react';
-import { useTheme } from 'styled-components/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import { useHomeStore } from '../state/home.store';
 
 const useHomeHook = () => {
-  const theme = useTheme();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
 
@@ -36,7 +34,6 @@ const useHomeHook = () => {
   );
 
   return {
-    theme,
     user: user || { name: '', plan: 'Free' as const, tokens: 0, streak: 0 },
     setUser,
     weeklyGoal: weeklyProgress?.goal || 0,

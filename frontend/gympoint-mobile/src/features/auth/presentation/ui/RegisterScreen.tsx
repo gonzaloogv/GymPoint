@@ -57,7 +57,7 @@ export default function RegisterScreen() {
       email,
       password,
       location,
-      age: parseInt(age) || 0,
+      birth_date: age, // age field is used for birth date in registration form
       gender,
       weeklyFrequency,
     });

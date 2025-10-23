@@ -124,7 +124,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
 
         {/* 6. Beneficios Premium */}
         {resolvedUser.plan === 'Free' && (
-          <PremiumBenefitsCard onUpgrade={handleUpgradeToPremium} theme={theme} />
+          <PremiumBenefitsCard onUpgrade={handleUpgradeToPremium} />
         )}
 
         {/* 7. Footer */}
