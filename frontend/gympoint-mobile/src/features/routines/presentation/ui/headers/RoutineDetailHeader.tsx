@@ -1,36 +1,7 @@
-import styled from 'styled-components/native';
-import { StatusPill, MetaChip } from '@shared/components/ui';
+import { View, Text } from 'react-native';
+import { useTheme } from '@shared/hooks';
+import { StatusPill } from '@shared/components/ui';
 import type { Routine } from '@features/routines/domain/entities';
-
-const HeaderWrap = styled.View`
-  padding: ${({ theme }) => theme.spacing(2)}px;
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const Title = styled.Text`
-  color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.h1}px;
-  font-weight: 800;
-`;
-
-const MetaRow = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing(1)}px;
-  align-items: center;
-`;
-
-const Meta = styled.Text`
-  color: ${({ theme }) => theme.colors.subtext};
-  font-size: ${({ theme }) => theme.typography.small}px;
-`;
-
-const SectionTitle = styled.Text`
-  color: ${({ theme }) => theme.colors.text};
-  font-weight: 700;
-  font-size: ${({ theme }) => theme.typography.body + 4}px;
-  margin: ${({ theme }) => theme.spacing(1)}px ${({ theme }) => theme.spacing(2)}px;
-`;
 
 type Props = {
   routine: Routine;
@@ -38,19 +9,37 @@ type Props = {
 };
 
 export function RoutineDetailHeader({ routine, showExercisesTitle = true }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const textColor = isDark ? '#ffffff' : '#000000';
+  const subtextColor = isDark ? '#9ca3af' : '#6b7280';
+
   return (
     <>
-      <HeaderWrap>
-        <Title>{routine.name}</Title>
-        <MetaRow>
+      <View className="p-4 gap-1">
+        <Text className="text-2xl font-black" style={{ color: textColor }}>
+          {routine.name}
+        </Text>
+        <View className="flex-row flex-wrap gap-1 items-center">
           <StatusPill status={routine.status} />
-          <Meta>• {routine.difficulty}</Meta>
-          <Meta>• {routine.estimatedDuration} min</Meta>
-          {routine.lastPerformed ? <Meta>• Última: {routine.lastPerformed}</Meta> : null}
-          {routine.nextScheduled ? <Meta>• Próxima: {routine.nextScheduled}</Meta> : null}
-        </MetaRow>
-      </HeaderWrap>
-      {showExercisesTitle && <SectionTitle>Ejercicios</SectionTitle>}
+          <Text style={{ color: subtextColor, fontSize: 12 }}>• {routine.difficulty}</Text>
+          <Text style={{ color: subtextColor, fontSize: 12 }}>• {routine.estimatedDuration} min</Text>
+          {routine.lastPerformed ? (
+            <Text style={{ color: subtextColor, fontSize: 12 }}>• Última: {routine.lastPerformed}</Text>
+          ) : null}
+          {routine.nextScheduled ? (
+            <Text style={{ color: subtextColor, fontSize: 12 }}>• Próxima: {routine.nextScheduled}</Text>
+          ) : null}
+        </View>
+      </View>
+      {showExercisesTitle && (
+        <Text
+          className="font-bold py-1 px-4"
+          style={{ color: textColor, fontSize: 18, marginVertical: 4 }}
+        >
+          Ejercicios
+        </Text>
+      )}
     </>
   );
 }

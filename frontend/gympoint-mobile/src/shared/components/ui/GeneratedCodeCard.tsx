@@ -1,63 +1,12 @@
 import React from 'react';
 import { Feather } from '@expo/vector-icons';
-import styled from 'styled-components/native';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { useTheme } from 'styled-components/native';
+import { useTheme } from '@shared/hooks';
 
 import { Card } from './Card';
 import { Button } from './Button';
-import { ButtonText } from './Button';
 import { palette } from '@shared/styles';
 import { GeneratedCode } from '@features/rewards/domain/entities';
-
-// Styled components específicos para GeneratedCodeCard
-const GeneratedCodeWrapper = styled(View)`
-  background-color: ${({ theme }) => theme.colors.muted || '#f3f4f6'};
-  padding: ${({ theme }) => theme.spacing(1.5)}px;
-  border-radius: ${({ theme }) => theme.radius.md}px;
-  margin: ${({ theme }) => theme.spacing(1)}px 0;
-`;
-
-const CodeHeader = styled(View)`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const CodeState = styled(Text)<{ $statusColor: string }>`
-  font-size: 12px;
-  font-weight: bold;
-  color: ${({ $statusColor }) => $statusColor};
-  text-transform: uppercase;
-`;
-
-const CodeText = styled(Text)`
-  font-family: monospace;
-  font-size: 18px;
-  font-weight: bold;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-const CodeFooterRow = styled(View)`
-  flex-direction: row;
-  justify-content: space-between;
-  margin-bottom: ${({ theme }) => theme.spacing(0.5)}px;
-`;
-
-const CodeFooterLabel = styled(Text)`
-  font-size: ${({ theme }) => theme.typography.small}px;
-  color: ${({ theme }) => theme.colors.subtext};
-`;
-
-const CodeFooterValue = styled(Text)<{ $color?: string }>`
-  font-size: ${({ theme }) => theme.typography.small}px;
-  color: ${({ theme, $color }) => $color ?? theme.colors.subtext};
-`;
-
-const IconButton = styled(TouchableOpacity)`
-  padding: ${({ theme }) => theme.spacing(0.5)}px;
-`;
 
 const STATUS_LABELS = {
   used: 'USADO',
@@ -86,7 +35,9 @@ export function GeneratedCodeCard({
   formatDate,
   markAsUsedLabel = 'Marcar como usado',
 }: GeneratedCodeCardProps) {
-  const theme = useTheme();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   const isExpired = item.expiresAt ? new Date() > item.expiresAt : false;
   const statusColor = item.used
     ? palette.neutralText
@@ -99,54 +50,75 @@ export function GeneratedCodeCard({
       ? STATUS_LABELS.expired
       : STATUS_LABELS.available;
 
+  const opacityClass = item.used ? 'opacity-60' : '';
+
   return (
-    <Card style={{ opacity: item.used ? 0.6 : 1 }}>
-      <CodeHeader>
-        <CodeFooterLabel>{item.title}</CodeFooterLabel>
+    <Card className={opacityClass}>
+      <View className="flex-row justify-between items-center mb-2">
+        <Text className={`text-sm ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
+          {item.title}
+        </Text>
         {item.used && (
           <Feather name="check-circle" size={20} color={palette.lifestylePrimary} />
         )}
-      </CodeHeader>
+      </View>
 
-      <GeneratedCodeWrapper>
-        <CodeHeader>
-          <CodeText>{item.code}</CodeText>
-          <IconButton onPress={() => onCopy(item.code)}>
+      <View className={`p-3 rounded-lg mb-3 ${isDark ? 'bg-surface-dark' : 'bg-surfaceVariant'}`}>
+        <View className="flex-row justify-between items-center mb-2">
+          <Text className="text-lg font-bold font-mono" style={{ color: isDark ? '#fff' : '#000' }}>
+            {item.code}
+          </Text>
+          <TouchableOpacity className="p-1" onPress={() => onCopy(item.code)}>
             <Feather name="copy" size={18} color={palette.neutralText} />
-          </IconButton>
-        </CodeHeader>
-        <CodeState $statusColor={statusColor}>{statusText}</CodeState>
-      </GeneratedCodeWrapper>
+          </TouchableOpacity>
+        </View>
+        <Text
+          className="text-xs font-bold uppercase"
+          style={{ color: statusColor }}
+        >
+          {statusText}
+        </Text>
+      </View>
 
-      <CodeFooterRow>
-        <CodeFooterLabel>{DATE_LABELS.generated}</CodeFooterLabel>
-        <CodeFooterValue>{formatDate(item.generatedAt)}</CodeFooterValue>
-      </CodeFooterRow>
+      <View className="flex-row justify-between mb-1">
+        <Text className={`text-xs ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
+          {DATE_LABELS.generated}
+        </Text>
+        <Text className={`text-xs ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
+          {formatDate(item.generatedAt)}
+        </Text>
+      </View>
 
-      <CodeFooterRow>
-        <CodeFooterLabel>{DATE_LABELS.expires}</CodeFooterLabel>
-        <CodeFooterValue $color={isExpired ? palette.danger : undefined}>
+      <View className="flex-row justify-between mb-1">
+        <Text className={`text-xs ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
+          {DATE_LABELS.expires}
+        </Text>
+        <Text
+          className="text-xs"
+          style={{ color: isExpired ? palette.danger : isDark ? '#B0B8C8' : '#666666' }}
+        >
           {formatDate(item.expiresAt)}
-        </CodeFooterValue>
-      </CodeFooterRow>
+        </Text>
+      </View>
 
       {item.used && item.usedAt && (
-        <CodeFooterRow>
-          <CodeFooterLabel>{DATE_LABELS.used}</CodeFooterLabel>
-          <CodeFooterValue>{formatDate(item.usedAt)}</CodeFooterValue>
-        </CodeFooterRow>
+        <View className="flex-row justify-between mb-1">
+          <Text className={`text-xs ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
+            {DATE_LABELS.used}
+          </Text>
+          <Text className={`text-xs ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
+            {formatDate(item.usedAt)}
+          </Text>
+        </View>
       )}
 
       {!item.used && !isExpired && (
         <Button
           variant="primary"
           onPress={() => onToggle(item)}
-          style={{
-            marginTop: theme.spacing(1),
-            minHeight: 44,
-          }}
+          className="mt-3 min-h-11"
         >
-          <ButtonText>{markAsUsedLabel}</ButtonText>
+          {markAsUsedLabel}
         </Button>
       )}
     </Card>

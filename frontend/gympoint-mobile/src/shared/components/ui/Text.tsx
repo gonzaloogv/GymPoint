@@ -1,34 +1,125 @@
-import styled from 'styled-components/native';
-import { Text } from 'react-native';
+import React from 'react';
+import { Text as RNText, TextProps } from 'react-native';
+import { useTheme } from '@shared/hooks';
 
-export const H1 = styled.Text`
-  color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.h1}px;
-  font-weight: 700;
-  margin-bottom: ${({ theme }) => theme.spacing(2)}px;
-`;
+interface CustomTextProps extends TextProps {
+  children: React.ReactNode;
+}
 
-export const Body = styled.Text`
-  color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.body}px;
-`;
+export function H1({ children, style, ...props }: CustomTextProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
-export const Subtle = styled(Body)`
-  color: ${({ theme }) => theme.colors.subtext};
-`;
+  return (
+    <RNText
+      {...props}
+      style={[
+        {
+          color: isDark ? '#ffffff' : '#000000',
+          fontSize: 32,
+          fontWeight: '700',
+          marginBottom: 16,
+        },
+        style,
+      ]}
+    >
+      {children}
+    </RNText>
+  );
+}
 
-export const RegisterText = styled(Text)`
-  font-size: ${({ theme }) => theme.typography.small}px;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing(3)}px; /* Espacio debajo del texto */
-`;
+export function Body({ children, style, ...props }: CustomTextProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
-export const RegisterLink = styled(Text)`
-  color: ${({ theme }) => theme.colors.primary};
-  text-decoration-line: underline;
-`;
+  return (
+    <RNText
+      {...props}
+      style={[
+        {
+          color: isDark ? '#ffffff' : '#000000',
+          fontSize: 16,
+        },
+        style,
+      ]}
+    >
+      {children}
+    </RNText>
+  );
+}
 
-export const ErrorText = styled(Subtle)`
-  margin-top: 6px;
-  color: ${(p) => p.theme?.colors?.danger ?? '#ef4444'};
-`;
+export function Subtle({ children, style, ...props }: CustomTextProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  return (
+    <RNText
+      {...props}
+      style={[
+        {
+          color: isDark ? '#9ca3af' : '#6b7280',
+          fontSize: 16,
+        },
+        style,
+      ]}
+    >
+      {children}
+    </RNText>
+  );
+}
+
+export function RegisterText({ children, style, ...props }: CustomTextProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  return (
+    <RNText
+      {...props}
+      style={[
+        {
+          color: isDark ? '#ffffff' : '#000000',
+          fontSize: 14,
+          marginBottom: 24,
+        },
+        style,
+      ]}
+    >
+      {children}
+    </RNText>
+  );
+}
+
+export function RegisterLink({ children, style, ...props }: CustomTextProps) {
+  return (
+    <RNText
+      {...props}
+      style={[
+        {
+          color: '#3B82F6',
+          textDecorationLine: 'underline',
+        },
+        style,
+      ]}
+    >
+      {children}
+    </RNText>
+  );
+}
+
+export function ErrorText({ children, style, ...props }: CustomTextProps) {
+  return (
+    <RNText
+      {...props}
+      style={[
+        {
+          marginTop: 6,
+          color: '#ef4444',
+          fontSize: 16,
+        },
+        style,
+      ]}
+    >
+      {children}
+    </RNText>
+  );
+}

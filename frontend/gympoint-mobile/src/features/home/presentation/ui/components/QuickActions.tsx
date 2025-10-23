@@ -1,12 +1,8 @@
-import styled from 'styled-components/native';
+import { View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FeatherIcon from '@expo/vector-icons/Feather';
-import { ActionCard, Row } from '@shared/components/ui';
+import { ActionCard } from '@shared/components/ui';
 import { palette } from '@shared/styles';
-
-const QuickGrid = styled(Row)`
-  width: 100%;
-`;
 
 type Props = { onFindGyms?: () => void; onMyRoutines?: () => void };
 
@@ -45,7 +41,7 @@ export default function QuickActions({ onFindGyms, onMyRoutines }: Props) {
   ];
 
   return (
-    <QuickGrid>
+    <View className="w-full flex-row gap-2">
       {actions.map(
         ({ key, label, description, icon, color, background, onPress }, index) => (
           <ActionCard
@@ -60,6 +56,6 @@ export default function QuickActions({ onFindGyms, onMyRoutines }: Props) {
           />
         ),
       )}
-    </QuickGrid>
+    </View>
   );
 }

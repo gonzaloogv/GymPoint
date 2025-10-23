@@ -1,18 +1,7 @@
 import { FlatList, View } from 'react-native';
-import styled from 'styled-components/native';
 import { ImportRoutineCard } from './ImportRoutineCard';
 import { PredesignedRoutine } from '@features/routines/domain/entities/PredesignedRoutine';
 import { EmptyState } from '@shared/components/ui';
-
-const ListContainer = styled(FlatList<PredesignedRoutine>).attrs({
-  contentContainerStyle: { padding: 16, paddingBottom: 32 },
-})`
-  flex: 1;
-`;
-
-const Separator = styled(View)`
-  height: 12px;
-`;
 
 type Props = {
   routines: PredesignedRoutine[];
@@ -37,13 +26,15 @@ export function ImportRoutineList({
   }
 
   return (
-    <ListContainer
+    <FlatList
+      className="flex-1"
+      contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
       data={routines}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
         <ImportRoutineCard routine={item} onImport={onImport} />
       )}
-      ItemSeparatorComponent={Separator}
+      ItemSeparatorComponent={() => <View className="h-3" />}
       showsVerticalScrollIndicator={false}
     />
   );

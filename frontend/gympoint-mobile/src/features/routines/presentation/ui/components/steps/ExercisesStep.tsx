@@ -1,5 +1,5 @@
-import styled from 'styled-components/native';
 import { View, TouchableOpacity, Text } from 'react-native';
+import { useTheme } from '@shared/hooks';
 import { Feather } from '@expo/vector-icons';
 import {
   StepScrollContainer,
@@ -7,87 +7,7 @@ import {
   Button,
   Input,
 } from '@shared/components/ui';
-import { sp, rad } from '@shared/styles';
 import { Exercise } from '@features/routines/domain/entities/Exercise';
-
-const SectionLabel = styled.Text`
-  font-size: 15px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => sp(theme, 2)}px;
-`;
-
-const ExerciseItemCard = styled(View)`
-  background-color: ${({ theme }) => theme.colors.card};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => rad(theme, 'lg', 12)}px;
-  padding: ${({ theme }) => sp(theme, 2.5)}px;
-  margin-bottom: ${({ theme }) => sp(theme, 2)}px;
-`;
-
-const ExerciseHeader = styled(View)`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: ${({ theme }) => sp(theme, 2)}px;
-`;
-
-const ExerciseTitle = styled.Text`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text};
-  flex: 1;
-`;
-
-const DeleteButton = styled(TouchableOpacity)`
-  padding: ${({ theme }) => sp(theme, 0.5)}px;
-`;
-
-const FieldLabel = styled.Text`
-  font-size: 13px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.colors.subtext};
-  margin-bottom: 6px;
-`;
-
-const StyledInput = styled(Input)`
-  font-size: 15px;
-  padding: ${({ theme }) => theme.spacing(1.75)}px;
-  margin-bottom: ${({ theme }) => sp(theme, 1.5)}px;
-`;
-
-const InputRow = styled(View)`
-  flex-direction: row;
-  gap: 12px;
-`;
-
-const InputWrapper = styled(View)`
-  flex: 1;
-`;
-
-const InputSmall = styled(StyledInput)`
-  margin-bottom: 0;
-`;
-
-const AddButton = styled(Button)`
-  margin-top: ${({ theme }) => sp(theme, 1)}px;
-  flex-direction: row;
-  gap: 8px;
-`;
-
-const AddButtonText = styled(Text)`
-  color: #fff;
-  font-weight: 600;
-  font-size: 15px;
-`;
-
-const EmptyText = styled.Text`
-  text-align: center;
-  color: ${({ theme }) => theme.colors.subtext};
-  margin: ${({ theme }) => sp(theme, 4)}px 0;
-  font-size: 14px;
-  line-height: 20px;
-`;
 
 type Props = {
   exercises: Exercise[];
@@ -95,6 +15,13 @@ type Props = {
 };
 
 export function ExercisesStep({ exercises, onChange }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const textColor = isDark ? '#ffffff' : '#000000';
+  const subtextColor = isDark ? '#9ca3af' : '#6b7280';
+  const cardBg = isDark ? '#1f2937' : '#ffffff';
+  const borderColor = isDark ? '#374151' : '#e5e7eb';
+
   const addExercise = () => {
     const newExercise: Exercise = {
       id: `temp-${Date.now()}`,
@@ -120,54 +47,72 @@ export function ExercisesStep({ exercises, onChange }: Props) {
   return (
     <StepScrollContainer>
       <StepSection>
-        <SectionLabel>Ejercicios de la rutina</SectionLabel>
+        <Text className="text-sm font-semibold mb-4" style={{ color: textColor }}>
+          Ejercicios de la rutina
+        </Text>
         {exercises.length === 0 && (
-          <EmptyText>
+          <Text className="text-center text-sm" style={{ color: subtextColor, marginVertical: 32, lineHeight: 20 }}>
             No hay ejercicios.{'\n'}Presiona el botón + para agregar.
-          </EmptyText>
+          </Text>
         )}
         {exercises.map((exercise, index) => (
-          <ExerciseItemCard key={exercise.id}>
-            <ExerciseHeader>
-              <ExerciseTitle>Ejercicio {index + 1}</ExerciseTitle>
-              <DeleteButton onPress={() => removeExercise(exercise.id)}>
+          <View
+            key={exercise.id}
+            className="rounded-lg p-5 mb-4 border"
+            style={{
+              backgroundColor: cardBg,
+              borderColor: borderColor,
+              borderWidth: 1,
+            }}
+          >
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-base font-semibold flex-1" style={{ color: textColor }}>
+                Ejercicio {index + 1}
+              </Text>
+              <TouchableOpacity onPress={() => removeExercise(exercise.id)} className="p-1">
                 <Feather name="trash-2" size={18} color="#EF4444" />
-              </DeleteButton>
-            </ExerciseHeader>
-            <View>
-              <FieldLabel>Nombre</FieldLabel>
-              <StyledInput
+              </TouchableOpacity>
+            </View>
+            <View className="mb-3">
+              <Text className="text-xs font-medium mb-1.5" style={{ color: subtextColor }}>
+                Nombre
+              </Text>
+              <Input
                 value={exercise.name}
                 onChangeText={(v) => updateExercise(exercise.id, 'name', v)}
                 placeholder="Ej: Press de banca"
               />
             </View>
-            <InputRow>
-              <InputWrapper>
-                <FieldLabel>Series</FieldLabel>
-                <InputSmall
+            <View className="flex-row gap-3">
+              <View className="flex-1">
+                <Text className="text-xs font-medium mb-1.5" style={{ color: subtextColor }}>
+                  Series
+                </Text>
+                <Input
                   value={String(exercise.sets)}
                   onChangeText={(v) => updateExercise(exercise.id, 'sets', v)}
                   placeholder="3"
                   keyboardType="numeric"
                 />
-              </InputWrapper>
-              <InputWrapper>
-                <FieldLabel>Reps</FieldLabel>
-                <InputSmall
+              </View>
+              <View className="flex-1">
+                <Text className="text-xs font-medium mb-1.5" style={{ color: subtextColor }}>
+                  Reps
+                </Text>
+                <Input
                   value={exercise.reps}
                   onChangeText={(v) => updateExercise(exercise.id, 'reps', v)}
                   placeholder="10-12"
                 />
-              </InputWrapper>
-            </InputRow>
-          </ExerciseItemCard>
+              </View>
+            </View>
+          </View>
         ))}
       </StepSection>
-      <AddButton onPress={addExercise}>
+      <Button onPress={addExercise} variant="primary" className="flex-row items-center gap-2 mt-1">
         <Feather name="plus" size={20} color="#fff" />
-        <AddButtonText>Agregar ejercicio</AddButtonText>
-      </AddButton>
+        <Text className="text-white font-semibold text-sm">Agregar ejercicio</Text>
+      </Button>
     </StepScrollContainer>
   );
 }

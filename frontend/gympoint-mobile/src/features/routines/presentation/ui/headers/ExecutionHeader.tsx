@@ -1,33 +1,5 @@
-import styled from 'styled-components/native';
-
-const Header = styled.View`
-  padding: ${({ theme }) => theme.spacing(2)}px;
-  gap: ${({ theme }) => theme.spacing(0.5)}px;
-`;
-
-const Title = styled.Text`
-  color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.h1}px;
-  font-weight: 800;
-`;
-
-const Subtitle = styled.Text`
-  color: ${({ theme }) => theme.colors.subtext};
-`;
-
-const ProgressTrack = styled.View`
-  height: 8px;
-  border-radius: 999px;
-  overflow: hidden;
-  background: ${({ theme }) => theme.colors.muted};
-  margin: ${({ theme }) => theme.spacing(1)}px 0;
-`;
-
-const ProgressBar = styled.View<{ $pct: number }>`
-  width: ${({ $pct }) => `${$pct}%`};
-  height: 8px;
-  background: ${({ theme }) => theme.colors.primary};
-`;
+import { View, Text } from 'react-native';
+import { useTheme } from '@shared/hooks';
 
 type Props = {
   routineName: string;
@@ -42,13 +14,27 @@ export function ExecutionHeader({
   totalExercises,
   progressPct,
 }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const textColor = isDark ? '#ffffff' : '#000000';
+  const subtextColor = isDark ? '#9ca3af' : '#6b7280';
+  const trackBg = isDark ? '#374151' : '#e5e7eb';
+
   return (
-    <Header>
-      <Title>{routineName}</Title>
-      <Subtitle>{`Ejercicio ${exerciseIndex + 1} de ${totalExercises}`}</Subtitle>
-      <ProgressTrack>
-        <ProgressBar $pct={progressPct} />
-      </ProgressTrack>
-    </Header>
+    <View className="p-4 gap-0.5">
+      <Text className="text-2xl font-black" style={{ color: textColor }}>
+        {routineName}
+      </Text>
+      <Text style={{ color: subtextColor }}>Ejercicio {exerciseIndex + 1} de {totalExercises}</Text>
+      <View className="h-2 rounded-full overflow-hidden my-1" style={{ backgroundColor: trackBg }}>
+        <View
+          style={{
+            width: `${Math.max(0, Math.min(100, progressPct))}%`,
+            height: 8,
+            backgroundColor: '#3B82F6',
+          }}
+        />
+      </View>
+    </View>
   );
 }

@@ -1,24 +1,47 @@
-import styled, { css } from 'styled-components/native';
+import React from 'react';
+import { View, ViewProps } from 'react-native';
+import { useTheme } from '@shared/hooks';
 
-type CircleProps = {
-  $size?: number;
-  $background?: string;
-  $borderColor?: string;
+type CircleProps = ViewProps & {
+  size?: number;
+  backgroundColor?: string;
+  borderColor?: string;
+  children?: React.ReactNode;
 };
 
-export const Circle = styled.View<CircleProps>`
-  width: ${({ $size = 40 }) => $size}px;
-  height: ${({ $size = 40 }) => $size}px;
-  border-radius: ${({ $size = 40 }) => $size / 2}px;
-  align-items: center;
-  justify-content: center;
-  background-color: ${({ $background, theme }) =>
-    $background ?? theme?.colors?.card ?? '#fff'};
-  ${({ $borderColor }) =>
-    $borderColor
-      ? css`
-          border-width: 1px;
-          border-color: ${$borderColor};
-        `
-      : ''};
-`;
+export function Circle({
+  size = 40,
+  backgroundColor,
+  borderColor,
+  children,
+  style,
+  ...props
+}: CircleProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const defaultBg = isDark ? '#1f2937' : '#ffffff';
+  const bgColor = backgroundColor ?? defaultBg;
+
+  return (
+    <View
+      {...props}
+      style={[
+        {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: bgColor,
+          ...(borderColor && {
+            borderWidth: 1,
+            borderColor: borderColor,
+          }),
+        },
+        style,
+      ]}
+    >
+      {children}
+    </View>
+  );
+}

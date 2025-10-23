@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Alert } from 'react-native';
-import styled from 'styled-components/native';
+import { Alert, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTheme } from '@shared/hooks';
 
 import { Screen } from '@shared/components/ui';
 import { ScreenHeader } from '../components/ScreenHeader';
@@ -11,11 +11,6 @@ import { ImportRoutineList } from '../components/ImportRoutineList';
 import { PredesignedRoutine } from '@features/routines/domain/entities/PredesignedRoutine';
 import { TEMPLATE_ROUTINES, GYM_ROUTINES } from '@features/routines/data/predesignedRoutines.mock';
 import { RoutinesStackParamList } from '@presentation/navigation/types';
-
-const Container = styled.View`
-  flex: 1;
-  background-color: ${({ theme }) => theme.colors.bg};
-`;
 
 type NavigationProp = NativeStackNavigationProp<RoutinesStackParamList, 'ImportRoutine'>;
 
@@ -40,6 +35,10 @@ const TAB_CONTENT = {
 };
 
 export default function ImportRoutineScreen() {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const bgColor = isDark ? '#111827' : '#f9fafb';
+
   const navigation = useNavigation<NavigationProp>();
   const [activeTab, setActiveTab] = useState<'templates' | 'gyms'>('templates');
 
@@ -55,8 +54,6 @@ export default function ImportRoutineScreen() {
         {
           text: 'Importar',
           onPress: () => {
-            // TODO: Integrar con el hook useRoutines para agregar la rutina
-            console.log('Rutina importada:', routine);
             navigation.goBack();
           },
         },
@@ -74,14 +71,14 @@ export default function ImportRoutineScreen() {
         activeTab={activeTab}
         onTabChange={(tab) => setActiveTab(tab as 'templates' | 'gyms')}
       />
-      <Container>
+      <View className="flex-1" style={{ backgroundColor: bgColor }}>
         <ImportRoutineList
           routines={routines}
           onImport={handleImport}
           emptyTitle={content.emptyTitle}
           emptyDescription={content.emptyDescription}
         />
-      </Container>
+      </View>
     </Screen>
   );
 }

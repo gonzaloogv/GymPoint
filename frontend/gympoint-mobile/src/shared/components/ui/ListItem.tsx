@@ -1,7 +1,5 @@
 import React from 'react';
-import styled from 'styled-components/native';
-import { TouchableOpacity, View, Text, ViewStyle, StyleProp } from 'react-native';
-import { sp } from '@shared/styles';
+import { TouchableOpacity, View, ViewStyle, StyleProp } from 'react-native';
 
 type Props = {
   children: React.ReactNode;
@@ -11,34 +9,23 @@ type Props = {
   style?: StyleProp<ViewStyle>;
 };
 
-const Row = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: ${({ theme }) => sp(theme, 1.5)}px ${({ theme }) => sp(theme, 2)}px;
-`;
-
-const LeftWrap = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-`;
-export const ItemPad = styled.View`
-  padding: 0 ${({ theme }) => theme.spacing(2)}px;
-`;
+export const ItemPad = ({ children, ...props }: any) => (
+  <View className="px-4" {...props}>
+    {children}
+  </View>
+);
 
 export function ListItem({ children, Left, Right, onPress, style }: Props) {
   const Container: any = onPress ? TouchableOpacity : View;
   return (
-    <Container onPress={onPress}>
-      <Row style={style}>
-        <LeftWrap>
+    <Container onPress={onPress} style={style}>
+      <View className="flex-row items-center justify-between py-3 px-4">
+        <View className="flex-row items-center gap-2.5 flex-1">
           {Left}
           <View style={{ flex: 1 }}>{children}</View>
-        </LeftWrap>
+        </View>
         {Right}
-      </Row>
+      </View>
     </Container>
   );
 }

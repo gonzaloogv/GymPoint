@@ -1,38 +1,11 @@
-import styled from 'styled-components/native';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
+import { useTheme } from '@shared/hooks';
 import {
   Input,
   StepScrollContainer,
   StepSection,
 } from '@shared/components/ui';
 import { ChipSelector } from '@shared/components/ui/ChipSelector';
-import { sp } from '@shared/styles';
-
-const SectionLabel = styled.Text`
-  font-size: 15px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => sp(theme, 1)}px;
-`;
-
-const ExampleText = styled.Text`
-  font-size: 13px;
-  color: ${({ theme }) => theme.colors.subtext};
-  margin-bottom: ${({ theme }) => sp(theme, 1.5)}px;
-`;
-
-const InputWrapper = styled(View)`
-  margin-bottom: ${({ theme }) => sp(theme, 0)}px;
-`;
-
-const StyledInput = styled(Input)`
-  font-size: 15px;
-  padding: ${({ theme }) => theme.spacing(1.75)}px;
-`;
-
-const ChipsWrapper = styled(View)`
-  margin-top: ${({ theme }) => sp(theme, 1)}px;
-`;
 
 const OBJECTIVES = ['Fuerza', 'Hipertrofia', 'Resistencia'] as const;
 const MUSCLE_GROUPS = [
@@ -57,38 +30,47 @@ type Props = {
 };
 
 export function BasicInfoStep({ data, onChange }: Props) {
-  console.log('BasicInfoStep rendered with data:', data);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const textColor = isDark ? '#ffffff' : '#000000';
+  const subtextColor = isDark ? '#9ca3af' : '#6b7280';
+
   return (
     <StepScrollContainer>
       <StepSection>
-        <SectionLabel>Nombre de la rutina</SectionLabel>
-        <ExampleText>Ej: Rutina de fuerza</ExampleText>
-        <InputWrapper>
-          <StyledInput
+        <Text className="text-sm font-semibold mb-1" style={{ color: textColor }}>
+          Nombre de la rutina
+        </Text>
+        <Text className="text-xs mb-1.5" style={{ color: subtextColor }}>
+          Ej: Rutina de fuerza
+        </Text>
+        <View>
+          <Input
             value={data.name}
-            onChangeText={(name) => {
-              console.log('Input changed:', name);
-              onChange({ ...data, name });
-            }}
+            onChangeText={(name) => onChange({ ...data, name })}
             placeholder=""
           />
-        </InputWrapper>
+        </View>
       </StepSection>
 
       <StepSection>
-        <SectionLabel>Objetivo</SectionLabel>
-        <ChipsWrapper>
+        <Text className="text-sm font-semibold mb-1" style={{ color: textColor }}>
+          Objetivo
+        </Text>
+        <View className="mt-1">
           <ChipSelector
             options={OBJECTIVES}
             isActive={(opt) => data.objective === opt}
             onToggle={(objective) => onChange({ ...data, objective })}
           />
-        </ChipsWrapper>
+        </View>
       </StepSection>
 
       <StepSection>
-        <SectionLabel>Grupos musculares</SectionLabel>
-        <ChipsWrapper>
+        <Text className="text-sm font-semibold mb-1" style={{ color: textColor }}>
+          Grupos musculares
+        </Text>
+        <View className="mt-1">
           <ChipSelector
             options={MUSCLE_GROUPS}
             isActive={(opt) => data.muscleGroups.includes(opt)}
@@ -101,7 +83,7 @@ export function BasicInfoStep({ data, onChange }: Props) {
               })
             }
           />
-        </ChipsWrapper>
+        </View>
       </StepSection>
     </StepScrollContainer>
   );

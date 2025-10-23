@@ -1,99 +1,7 @@
 import React from 'react';
-import styled from 'styled-components/native';
-import { useTheme } from 'styled-components/native';
+import { View, Text } from 'react-native';
+import { useTheme } from '@shared/hooks';
 import { Feather } from '@expo/vector-icons';
-
-const BadgeContainer = styled.View<{
-  $variant: 'primary' | 'secondary' | 'outline' | 'success' | 'warning' | 'danger';
-  $size: 'small' | 'medium' | 'large';
-}>`
-  padding: ${({ theme, $size }) => {
-    switch ($size) {
-      case 'small':
-        return `${theme.spacing(0.25)}px ${theme.spacing(0.75)}px`;
-      case 'large':
-        return `${theme.spacing(0.75)}px ${theme.spacing(1.5)}px`;
-      default:
-        return `${theme.spacing(0.5)}px ${theme.spacing(1)}px`;
-    }
-  }};
-  border-radius: ${({ theme }) => theme.radius.lg}px;
-  background-color: ${({ theme, $variant }) => {
-    switch ($variant) {
-      case 'primary':
-        return theme.colors.primary;
-      case 'secondary':
-        return theme.colors.muted;
-      case 'outline':
-        return 'transparent';
-      case 'success':
-        return theme.colors.success;
-      case 'warning':
-        return theme.colors.warning;
-      case 'danger':
-        return theme.colors.danger;
-      default:
-        return theme.colors.muted;
-    }
-  }};
-  border: 1px solid
-    ${({ theme, $variant }) => {
-      switch ($variant) {
-        case 'primary':
-          return theme.colors.primary;
-        case 'secondary':
-          return theme.colors.border;
-        case 'outline':
-          return theme.colors.border;
-        case 'success':
-          return theme.colors.success;
-        case 'warning':
-          return theme.colors.warning;
-        case 'danger':
-          return theme.colors.danger;
-        default:
-          return theme.colors.border;
-      }
-    }};
-  flex-direction: row;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing(0.5)}px;
-`;
-
-const BadgeText = styled.Text<{
-  $variant: 'primary' | 'secondary' | 'outline' | 'success' | 'warning' | 'danger';
-  $size: 'small' | 'medium' | 'large';
-}>`
-  color: ${({ theme, $variant }) => {
-    switch ($variant) {
-      case 'primary':
-        return theme.colors.onPrimary;
-      case 'secondary':
-        return theme.colors.text;
-      case 'outline':
-        return theme.colors.text;
-      case 'success':
-        return theme.colors.onPrimary;
-      case 'warning':
-        return theme.colors.onPrimary;
-      case 'danger':
-        return theme.colors.onPrimary;
-      default:
-        return theme.colors.text;
-    }
-  }};
-  font-size: ${({ theme, $size }) => {
-    switch ($size) {
-      case 'small':
-        return theme.typography.small - 1;
-      case 'large':
-        return theme.typography.body;
-      default:
-        return theme.typography.small;
-    }
-  }}px;
-  font-weight: 600;
-`;
 
 type Props = {
   children: React.ReactNode;
@@ -104,6 +12,45 @@ type Props = {
   iconSize?: number;
 };
 
+const getVariantStyles = (variant: 'primary' | 'secondary' | 'outline' | 'success' | 'warning' | 'danger') => {
+  switch (variant) {
+    case 'primary':
+      return { bg: '#4A9CF5', border: '#4A9CF5', text: '#FFFFFF', icon: '#FFFFFF' };
+    case 'outline':
+      return { bg: 'transparent', border: '#DDDDDD', text: '#1A1A1A', icon: '#1A1A1A' };
+    case 'success':
+      return { bg: '#4CAF50', border: '#4CAF50', text: '#FFFFFF', icon: '#FFFFFF' };
+    case 'warning':
+      return { bg: '#FF9800', border: '#FF9800', text: '#FFFFFF', icon: '#FFFFFF' };
+    case 'danger':
+      return { bg: '#F44336', border: '#F44336', text: '#FFFFFF', icon: '#FFFFFF' };
+    default: // secondary
+      return { bg: '#f3f4f6', border: '#DDDDDD', text: '#1A1A1A', icon: '#666666' };
+  }
+};
+
+const getPadding = (size: 'small' | 'medium' | 'large') => {
+  switch (size) {
+    case 'small':
+      return 'px-1.5 py-0.5';
+    case 'large':
+      return 'px-4 py-2';
+    default:
+      return 'px-2 py-1';
+  }
+};
+
+const getFontSize = (size: 'small' | 'medium' | 'large') => {
+  switch (size) {
+    case 'small':
+      return 'text-xs';
+    case 'large':
+      return 'text-base';
+    default:
+      return 'text-sm';
+  }
+};
+
 export function UnifiedBadge({
   children,
   variant = 'secondary',
@@ -112,28 +59,22 @@ export function UnifiedBadge({
   iconColor,
   iconSize = 12,
 }: Props) {
-  const theme = useTheme();
-
-  const getIconColor = () => {
-    if (iconColor) return iconColor;
-
-    switch (variant) {
-      case 'primary':
-      case 'success':
-      case 'warning':
-      case 'danger':
-        return theme.colors.onPrimary;
-      default:
-        return theme.colors.subtext;
-    }
-  };
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const styles = getVariantStyles(variant);
+  const paddingClass = getPadding(size);
+  const fontClass = getFontSize(size);
+  const finalIconColor = iconColor || styles.icon;
 
   return (
-    <BadgeContainer $variant={variant} $size={size}>
-      {icon && <Feather name={icon as any} size={iconSize} color={getIconColor()} />}
-      <BadgeText $variant={variant} $size={size}>
+    <View
+      className={`flex-row items-center rounded-lg border gap-1 ${paddingClass}`}
+      style={{ backgroundColor: styles.bg, borderColor: styles.border }}
+    >
+      {icon && <Feather name={icon as any} size={iconSize} color={finalIconColor} />}
+      <Text className={`font-semibold ${fontClass}`} style={{ color: styles.text }}>
         {children}
-      </BadgeText>
-    </BadgeContainer>
+      </Text>
+    </View>
   );
 }

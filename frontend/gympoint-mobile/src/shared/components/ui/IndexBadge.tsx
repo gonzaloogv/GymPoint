@@ -1,28 +1,21 @@
-import styled from 'styled-components/native';
 import { View, Text } from 'react-native';
-
-const Circle = styled(View)`
-  width: 26px;
-  height: 26px;
-  border-radius: 13px;
-  background-color: ${({ theme }) => theme?.colors?.text ?? '#111'};
-  align-items: center;
-  justify-content: center;
-`;
-
-const Num = styled(Text)`
-  color: #fff;
-  font-weight: 700;
-  font-size: 12px;
-`;
+import { useTheme } from '@shared/hooks';
 
 type Props = { n: number | string };
 
 export function IndexBadge({ n }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   return (
-    <Circle>
-      <Num>{n}</Num>
-    </Circle>
+    <View
+      className="w-6.5 h-6.5 rounded-full items-center justify-center"
+      style={{ backgroundColor: isDark ? '#FFFFFF' : '#1A1A1A' }}
+    >
+      <Text className="text-white font-bold text-xs" style={{ color: isDark ? '#000' : '#fff' }}>
+        {n}
+      </Text>
+    </View>
   );
 }
 

@@ -3,7 +3,6 @@ import { FlatList, View } from 'react-native';
 import { User } from '@features/auth/domain/entities/User';
 import { Reward, GeneratedCode } from '@features/rewards/domain/entities';
 import { RewardItem, GeneratedCodeItem, EmptyCodes } from './';
-import { TabsContent } from '../styles/tabs';
 
 type TabType = 'available' | 'codes';
 
@@ -39,7 +38,7 @@ export const RewardsContent: React.FC<RewardsContentProps> = ({
   );
 
   return (
-    <TabsContent>
+    <View className="pt-5 min-h-52">
       {activeTab === 'available' && (
         <FlatList
           data={rewards}
@@ -63,6 +62,6 @@ export const RewardsContent: React.FC<RewardsContentProps> = ({
           ListEmptyComponent={() => <EmptyCodes onViewRewards={onViewRewards} />}
         />
       )}
-    </TabsContent>
+    </View>
   );
 };

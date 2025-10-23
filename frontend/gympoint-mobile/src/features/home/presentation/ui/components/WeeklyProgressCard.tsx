@@ -1,6 +1,6 @@
-import styled from 'styled-components/native';
-import { Button, ButtonText } from '@shared/components/ui/Button';
-import { Card, Row } from '@shared/components/ui';
+import { View } from 'react-native';
+import { Button } from '@shared/components/ui/Button';
+import { Card } from '@shared/components/ui';
 import { CardHeader } from '@shared/components/ui/CardHeader';
 import { ProgressSection } from '@shared/components/ui/ProgressSection';
 import { StreakDisplay } from '@shared/components/ui/StreakDisplay';
@@ -12,16 +12,6 @@ type Props = {
   streak: number;
   onStats?: () => void;
 };
-
-const Spread = styled(Row).attrs({ $justify: 'space-between' })``;
-
-const StatsButton = styled(Button)`
-  min-height: 40px;
-`;
-
-const StatsLabel = styled(ButtonText)`
-  color: #ffffff;
-`;
 
 export default function WeeklyProgressCard({
   current,
@@ -47,12 +37,12 @@ export default function WeeklyProgressCard({
         description={`${current} de ${goal} entrenamientos`}
       />
 
-      <Spread>
+      <View className="flex-row justify-between items-center">
         <StreakDisplay streak={streak} />
-        <StatsButton onPress={onStats}>
-          <StatsLabel>Ver estadísticas</StatsLabel>
-        </StatsButton>
-      </Spread>
+        <Button variant="primary" className="min-h-10" onPress={onStats}>
+          Ver estadísticas
+        </Button>
+      </View>
     </Card>
   );
 }

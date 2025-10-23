@@ -1,23 +1,4 @@
-import styled from 'styled-components/native';
-
-const StatusPillContainer = styled.View<{
-  $status: 'Active' | 'Scheduled' | 'Completed';
-}>`
-  padding: ${({ theme }) => theme.spacing(0.5)}px ${({ theme }) => theme.spacing(1)}px;
-  border-radius: ${({ theme }) => theme.radius.lg}px;
-  background-color: ${({ theme, $status }) =>
-    $status === 'Active' ? theme.colors.primary : theme.colors.card};
-  border: 1px solid
-    ${({ theme, $status }) =>
-      $status === 'Active' ? theme.colors.primary : theme.colors.border};
-`;
-
-const StatusText = styled.Text<{ $status: 'Active' | 'Scheduled' | 'Completed' }>`
-  color: ${({ theme, $status }) =>
-    $status === 'Active' ? theme.colors.onPrimary : theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.small}px;
-  font-weight: 600;
-`;
+import { View, Text } from 'react-native';
 
 type Props = {
   status: 'Active' | 'Scheduled' | 'Completed';
@@ -37,9 +18,19 @@ const defaultLabels = {
 export function StatusPill({ status, labels = {} }: Props) {
   const finalLabels = { ...defaultLabels, ...labels };
 
+  const isActive = status === 'Active';
+  const bgColor = isActive ? '#4A9CF5' : '#FFFFFF';
+  const borderColor = isActive ? '#4A9CF5' : '#DDDDDD';
+  const textColor = isActive ? '#FFFFFF' : '#1A1A1A';
+
   return (
-    <StatusPillContainer $status={status}>
-      <StatusText $status={status}>{finalLabels[status]}</StatusText>
-    </StatusPillContainer>
+    <View
+      className="px-2 py-1 rounded-lg border"
+      style={{ backgroundColor: bgColor, borderColor }}
+    >
+      <Text className="text-xs font-semibold" style={{ color: textColor }}>
+        {finalLabels[status]}
+      </Text>
+    </View>
   );
 }

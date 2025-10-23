@@ -1,19 +1,35 @@
-import styled from 'styled-components/native';
+import { View, ViewProps } from 'react-native';
 
-export const ProgressTrack = styled.View`
-  height: ${({ theme }) => theme.spacing(1)}px;
-  background-color: ${({ theme }) => theme.colors.border};
-  border-radius: 999px;
-  overflow: hidden;
-`;
+type ProgressTrackProps = ViewProps & {};
 
-export const ProgressFill = styled.View<{ value: number }>`
-  width: ${(p) => Math.max(0, Math.min(100, p.value))}%;
-  height: 100%;
-  background-color: ${({ theme }) => theme.colors.primary};
-`;
+export const ProgressTrack = ({ className = '', style, ...props }: ProgressTrackProps) => (
+  <View
+    className={`h-2 rounded-full overflow-hidden ${className}`}
+    style={{
+      backgroundColor: '#DDDDDD',
+      ...style,
+    }}
+    {...props}
+  />
+);
 
-export const ProgressWrap = styled.View`
-  padding: 0 ${({ theme }) => theme.spacing(2)}px;
-  margin-bottom: ${({ theme }) => theme.spacing(2)}px;
-`;
+type ProgressFillProps = ViewProps & { value?: number };
+
+export const ProgressFill = ({ value = 0, className = '', style, ...props }: ProgressFillProps) => (
+  <View
+    className={`h-full bg-primary ${className}`}
+    style={{
+      width: `${Math.max(0, Math.min(100, value))}%`,
+      ...style,
+    }}
+    {...props}
+  />
+);
+
+export const ProgressWrap = ({ className = '', style, ...props }: ViewProps) => (
+  <View
+    className={`px-4 mb-4 ${className}`}
+    style={style}
+    {...props}
+  />
+);

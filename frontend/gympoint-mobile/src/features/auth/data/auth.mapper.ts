@@ -5,4 +5,6 @@ export const mapUser = (u: LoginResponseDTO['user']): User => ({
   name: u.name,
   email: u.email,
   role: u.role,
+  tokens: 0,
+  plan: 'Free',
 });

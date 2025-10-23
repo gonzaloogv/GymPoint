@@ -1,49 +1,6 @@
-import styled from 'styled-components/native';
+import { TouchableOpacity, View, Text } from 'react-native';
 import { Card, StatusPill, MetaChip } from '@shared/components/ui';
-
-const TouchableCard = styled.TouchableOpacity``;
-
-const CardContent = styled.View`
-  padding: ${({ theme }) => theme.spacing(2)}px;
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const HeaderRow = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const Title = styled.Text`
-  color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.h2}px;
-  font-weight: 700;
-  flex: 1;
-  margin-right: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const MetaRow = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const Meta = styled.Text`
-  color: ${({ theme }) => theme.colors.subtext};
-  font-size: ${({ theme }) => theme.typography.small}px;
-`;
-
-const Divider = styled.View`
-  height: 1px;
-  background-color: ${({ theme }) => theme.colors.border};
-  margin: ${({ theme }) => theme.spacing(1)}px 0;
-`;
-
-const ChipsContainer = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
+import { useTheme } from '@shared/hooks';
 
 type Routine = {
   id: string;
@@ -76,6 +33,11 @@ function minutesToLabel(mins: number) {
 }
 
 export function RoutineCard({ routine, onPress }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const metaColor = isDark ? '#9ca3af' : '#6b7280';
+  const borderColor = isDark ? '#374151' : '#e5e7eb';
+
   const when =
     routine.status === 'Scheduled'
       ? `Próxima: ${routine.nextScheduled}`
@@ -84,38 +46,42 @@ export function RoutineCard({ routine, onPress }: Props) {
         : undefined;
 
   return (
-    <TouchableCard onPress={() => onPress?.(routine)}>
+    <TouchableOpacity onPress={() => onPress?.(routine)} activeOpacity={0.7}>
       <Card>
-        <CardContent>
-          <HeaderRow>
-            <Title numberOfLines={2}>{routine.name}</Title>
+        <View className="p-4 gap-1">
+          <View className="flex-row items-center justify-between">
+            <Text numberOfLines={2} className="flex-1 mr-1 text-lg font-bold" style={{ color: isDark ? '#ffffff' : '#000000' }}>
+              {routine.name}
+            </Text>
             <StatusPill status={routine.status} />
-          </HeaderRow>
+          </View>
 
-          <MetaRow>
-            <Meta>{minutesToLabel(routine.estimatedDuration)}</Meta>
-            <Meta>• {routine.difficulty}</Meta>
-            {when ? <Meta>• {when}</Meta> : null}
-          </MetaRow>
+          <View className="flex-row flex-wrap gap-1">
+            <Text style={{ color: metaColor, fontSize: 12 }}>
+              {minutesToLabel(routine.estimatedDuration)}
+            </Text>
+            <Text style={{ color: metaColor, fontSize: 12 }}>• {routine.difficulty}</Text>
+            {when ? <Text style={{ color: metaColor, fontSize: 12 }}>• {when}</Text> : null}
+          </View>
 
-          <Divider />
+          <View style={{ height: 1, backgroundColor: borderColor, marginVertical: 8 }} />
 
-          <Meta numberOfLines={2}>
+          <Text numberOfLines={2} style={{ color: metaColor, fontSize: 12 }}>
             {routine.exercises.length} ejercicios •{' '}
             {routine.exercises
               .slice(0, 3)
               .map((e) => e.name)
               .join(', ')}
             {routine.exercises.length > 3 ? '…' : ''}
-          </Meta>
+          </Text>
 
-          <ChipsContainer>
+          <View className="flex-row flex-wrap gap-1">
             {routine.muscleGroups.slice(0, 4).map((mg) => (
               <MetaChip key={mg}>{mg}</MetaChip>
             ))}
-          </ChipsContainer>
-        </CardContent>
+          </View>
+        </View>
       </Card>
-    </TouchableCard>
+    </TouchableOpacity>
   );
 }

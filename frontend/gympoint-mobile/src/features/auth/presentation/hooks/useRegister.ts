@@ -34,7 +34,7 @@ export const useRegister = () => {
         password: data.password,
         gender: data.gender,
         locality: data.location,
-        age: data.age,
+        birth_date: data.birth_date,
         frequency_goal: data.weeklyFrequency,
       });
 

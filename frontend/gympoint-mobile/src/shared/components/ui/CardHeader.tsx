@@ -1,21 +1,8 @@
-import styled from 'styled-components/native';
-import { useTheme } from 'styled-components/native';
+import { View, Text } from 'react-native';
 import FeatherIcon from '@expo/vector-icons/Feather';
+import { useTheme } from '@shared/hooks';
 import { UnifiedBadge } from './UnifiedBadge';
-import { CardRow, CardTitle } from './Card';
 import { Row } from './Row';
-
-const HeaderRow = styled(CardRow)`
-  margin-bottom: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const TitleRow = styled(Row)`
-  flex: 1;
-`;
-
-const TitleText = styled(CardTitle)`
-  margin-left: ${({ theme }) => theme.spacing(1)}px;
-`;
 
 type Props = {
   icon: keyof typeof FeatherIcon.glyphMap;
@@ -32,16 +19,19 @@ export function CardHeader({
   badgeVariant = 'secondary',
   iconColor,
 }: Props) {
-  const theme = useTheme();
-  const color = iconColor || theme.colors.text;
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const color = iconColor || (isDark ? '#FFFFFF' : '#1A1A1A');
 
   return (
-    <HeaderRow>
-      <TitleRow>
+    <View className="flex-row items-center justify-between mb-2">
+      <View className="flex-1 flex-row items-center">
         <FeatherIcon name={icon} size={20} color={color} />
-        <TitleText>{title}</TitleText>
-      </TitleRow>
+        <Text className={`ml-2 font-semibold ${isDark ? 'text-text-dark' : 'text-text'}`}>
+          {title}
+        </Text>
+      </View>
       {badgeText && <UnifiedBadge variant={badgeVariant}>{badgeText}</UnifiedBadge>}
-    </HeaderRow>
+    </View>
   );
 }

@@ -1,8 +1,9 @@
 // src/features/rewards/ui/RewardsScreen.tsx
 
 import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, ScrollView, View } from 'react-native';
 import Toast from 'react-native-toast-message';
+import { useTheme } from '@shared/hooks';
 
 // 1. IMPORTACIONES DE DOMINIO Y HOOKS
 import { User } from '@features/auth/domain/entities/User';
@@ -18,12 +19,6 @@ import {
   TokensTips,
 } from '@features/rewards/presentation/ui/components';
 
-// 3. IMPORTACIONES DE ESTILOS MODULARES
-import {
-  ScrollContainer,
-  Container,
-} from '@features/rewards/presentation/ui/styles/layout';
-
 // --- INTERFAZ DE PROPS ---
 interface RewardsScreenProps {
   user: User | null;
@@ -32,6 +27,10 @@ interface RewardsScreenProps {
 // ------------------------------------------------------------------------------------------------
 
 const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const bgColor = isDark ? '#111827' : '#f9fafb';
+
   // Estado de carga
   if (!user) {
     return <LoadingState />;
@@ -56,19 +55,20 @@ const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser }) => 
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: '#ffffff' }}
+      style={{ flex: 1, backgroundColor: bgColor }}
       edges={['top', 'left', 'right']}
     >
-      <ScrollContainer
+      <ScrollView
         contentContainerStyle={{
-          paddingBottom: 50,
+          paddingBottom: 48,
           paddingHorizontal: 16,
           flexGrow: 1,
         }}
         showsVerticalScrollIndicator={false}
         bounces={true}
+        style={{ flex: 1, backgroundColor: bgColor }}
       >
-        <Container>
+        <View className="flex-1">
           {/* Header con título y tokens */}
           <RewardsHeader user={user} />
 
@@ -92,8 +92,8 @@ const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser }) => 
 
           {/* Banner de consejos */}
           <TokensTips />
-        </Container>
-      </ScrollContainer>
+        </View>
+      </ScrollView>
       <Toast />
     </SafeAreaView>
   );

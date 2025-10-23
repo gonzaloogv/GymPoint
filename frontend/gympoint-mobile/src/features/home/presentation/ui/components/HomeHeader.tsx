@@ -1,39 +1,8 @@
-import styled from 'styled-components/native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import FeatherIcon from '@expo/vector-icons/Feather';
-import { Avatar, Row, TokenPill } from '@shared/components/ui';
+import { useTheme } from '@shared/hooks';
+import { Avatar, TokenPill } from '@shared/components/ui';
 import { palette } from '@shared/styles';
-
-const Container = styled(Row).attrs({ $justify: 'space-between' })``;
-
-const Identity = styled(Row)`
-  flex: 1;
-`;
-
-const IdentityText = styled.View`
-  margin-left: 12px;
-`;
-
-const Heading = styled.Text`
-  font-weight: 700;
-  color: ${({ theme }) => theme?.colors?.text ?? palette.textStrong};
-`;
-
-const Subtext = styled.Text`
-  margin-top: 2px;
-  color: ${({ theme }) => theme?.colors?.subtext ?? palette.textMuted};
-`;
-
-const Actions = styled(Row)`
-  margin-left: 12px;
-`;
-
-const IconButton = styled.TouchableOpacity`
-  margin-left: 8px;
-  min-width: 44px;
-  min-height: 44px;
-  align-items: center;
-  justify-content: center;
-`;
 
 type Props = {
   userName: string;
@@ -43,24 +12,35 @@ type Props = {
 };
 
 export default function HomeHeader({ userName, plan, tokens, onBellPress }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   const parts = userName.trim().split(/\s+/);
   const firstName = parts[0] ?? userName;
-  return (
-    <Container>
-      <Identity>
-        <Avatar userName={userName} />
-        <IdentityText>
-          <Heading>¡Hola, {firstName}!</Heading>
-          <Subtext>Usuario {plan}</Subtext>
-        </IdentityText>
-      </Identity>
 
-      <Actions>
+  return (
+    <View className="flex-row justify-between items-center">
+      <View className="flex-1 flex-row items-center">
+        <Avatar userName={userName} />
+        <View className="ml-3">
+          <Text className={`font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>
+            ¡Hola, {firstName}!
+          </Text>
+          <Text className={`mt-0.5 ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
+            Usuario {plan}
+          </Text>
+        </View>
+      </View>
+
+      <View className="flex-row items-center ml-3">
         <TokenPill value={tokens} />
-        <IconButton onPress={onBellPress}>
+        <TouchableOpacity
+          onPress={onBellPress}
+          className="ml-2 w-11 h-11 items-center justify-center"
+        >
           <FeatherIcon name="bell" size={20} color={palette.textStrong} />
-        </IconButton>
-      </Actions>
-    </Container>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }

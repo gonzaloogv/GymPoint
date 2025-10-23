@@ -8,7 +8,7 @@ import { View, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Card, StatsCard } from '@shared/components/ui';
 import { palette } from '@shared/styles';
-import { UserStats } from '../types/UserTypes';
+import { UserStats } from '@features/user/types/userTypes';
 
 interface StatsSectionProps {
   stats: UserStats;

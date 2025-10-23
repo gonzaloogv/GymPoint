@@ -1,83 +1,86 @@
 import React from 'react';
-import { Switch as RNSwitch } from 'react-native';
+import { Switch as RNSwitch, View, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import {
-  Section,
-  SectionTitle,
-  BodyText,
-  SmallText,
-  SwitchRow,
-  SwitchRowLeft,
-} from '../styles/ProfileStyles';
-import { NotificationSettings as NotificationSettingsType } from '../types/UserTypes';
-import { AppTheme } from '@presentation/theme';
+import { useTheme } from '@shared/hooks';
+import { NotificationSettings as NotificationSettingsType } from '@features/user/types/userTypes';
 
 interface NotificationSettingsProps {
   notifications: NotificationSettingsType;
   onToggle: (key: keyof NotificationSettingsType, value: boolean) => void;
-  theme: AppTheme;
 }
 
 export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
   notifications,
   onToggle,
-  theme,
 }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const textColor = isDark ? '#ffffff' : '#1a1a1a';
+  const subtextColor = isDark ? '#9ca3af' : '#6b7280';
+
   return (
-    <Section theme={theme}>
+    <View className="mb-6">
       {/* Título de la sección */}
-      <SectionTitle theme={theme}>
-        <Feather name="bell" size={16} color={theme.colors.text} />
-        <BodyText style={{ fontWeight: '600' }}>Notificaciones</BodyText>
-      </SectionTitle>
+      <View className="flex-row items-center gap-1.5 mb-3">
+        <Feather name="bell" size={16} color={textColor} />
+        <Text className="font-semibold text-base" style={{ color: textColor }}>
+          Notificaciones
+        </Text>
+      </View>
 
       {/* Recordatorios de check-in */}
-      <SwitchRow theme={theme}>
-        <SwitchRowLeft>
-          <BodyText style={{ fontWeight: '500' }}>Recordatorios de check-in</BodyText>
-          <SmallText muted style={{ opacity: 0.6 }}>
+      <View className="flex-row items-center justify-between py-3">
+        <View className="flex-1">
+          <Text className="font-medium text-base" style={{ color: textColor }}>
+            Recordatorios de check-in
+          </Text>
+          <Text className="text-xs" style={{ color: subtextColor, opacity: 0.6 }}>
             Te avisamos para mantener tu racha
-          </SmallText>
-        </SwitchRowLeft>
+          </Text>
+        </View>
         <RNSwitch
           value={notifications.checkinReminders}
           onValueChange={(value) => onToggle('checkinReminders', value)}
           trackColor={{ false: '#D1D5DB', true: '#4F9CF9' }}
           thumbColor="#FFFFFF"
         />
-      </SwitchRow>
+      </View>
 
       {/* Alertas de racha */}
-      <SwitchRow theme={theme}>
-        <SwitchRowLeft>
-          <BodyText style={{ fontWeight: '500' }}>Alertas de racha</BodyText>
-          <SmallText muted style={{ opacity: 0.6 }}>
+      <View className="flex-row items-center justify-between py-3">
+        <View className="flex-1">
+          <Text className="font-medium text-base" style={{ color: textColor }}>
+            Alertas de racha
+          </Text>
+          <Text className="text-xs" style={{ color: subtextColor, opacity: 0.6 }}>
             Notificaciones sobre milestones
-          </SmallText>
-        </SwitchRowLeft>
+          </Text>
+        </View>
         <RNSwitch
           value={notifications.streakAlerts}
           onValueChange={(value) => onToggle('streakAlerts', value)}
           trackColor={{ false: '#D1D5DB', true: '#4F9CF9' }}
           thumbColor="#FFFFFF"
         />
-      </SwitchRow>
+      </View>
 
       {/* Nuevas recompensas */}
-      <SwitchRow theme={theme}>
-        <SwitchRowLeft>
-          <BodyText style={{ fontWeight: '500' }}>Nuevas recompensas</BodyText>
-          <SmallText muted style={{ opacity: 0.6 }}>
+      <View className="flex-row items-center justify-between py-3">
+        <View className="flex-1">
+          <Text className="font-medium text-base" style={{ color: textColor }}>
+            Nuevas recompensas
+          </Text>
+          <Text className="text-xs" style={{ color: subtextColor, opacity: 0.6 }}>
             Cuando hay nuevos canjes disponibles
-          </SmallText>
-        </SwitchRowLeft>
+          </Text>
+        </View>
         <RNSwitch
           value={notifications.rewardUpdates}
           onValueChange={(value) => onToggle('rewardUpdates', value)}
           trackColor={{ false: '#D1D5DB', true: '#4F9CF9' }}
           thumbColor="#FFFFFF"
         />
-      </SwitchRow>
-    </Section>
+      </View>
+    </View>
   );
 };

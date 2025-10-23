@@ -1,79 +1,7 @@
-import styled from 'styled-components/native';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
+import { useTheme } from '@shared/hooks';
 import { StepScrollContainer, StepSection } from '@shared/components/ui';
-import { sp, rad } from '@shared/styles';
 import { Exercise } from '@features/routines/domain/entities/Exercise';
-
-const SectionLabel = styled.Text`
-  font-size: 15px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => sp(theme, 1.5)}px;
-`;
-
-const SummaryCard = styled(View)`
-  background-color: ${({ theme }) => theme.colors.card};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => rad(theme, 'lg', 12)}px;
-  padding: ${({ theme }) => sp(theme, 2.5)}px;
-  margin-bottom: ${({ theme }) => sp(theme, 2)}px;
-`;
-
-const SummaryRow = styled(View)`
-  flex-direction: row;
-  justify-content: space-between;
-  margin-bottom: ${({ theme }) => sp(theme, 1.5)}px;
-`;
-
-const SummaryLabel = styled.Text`
-  color: ${({ theme }) => theme.colors.subtext};
-  font-size: 14px;
-  font-weight: 500;
-`;
-
-const SummaryValue = styled.Text`
-  color: ${({ theme }) => theme.colors.text};
-  font-size: 14px;
-  font-weight: 600;
-`;
-
-const ChipsContainer = styled(View)`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: ${({ theme }) => sp(theme, 1)}px;
-`;
-
-const Chip = styled(View)`
-  background-color: ${({ theme }) => theme.colors.primary}1A;
-  padding: 8px 14px;
-  border-radius: ${({ theme }) => rad(theme, 'md', 12)}px;
-`;
-
-const ChipText = styled.Text`
-  color: ${({ theme }) => theme.colors.primary};
-  font-size: 13px;
-  font-weight: 600;
-`;
-
-const ExerciseItem = styled(View)`
-  padding: ${({ theme }) => sp(theme, 2)}px;
-  background-color: ${({ theme }) => theme.colors.bg};
-  border-radius: ${({ theme }) => rad(theme, 'md', 8)}px;
-  margin-bottom: ${({ theme }) => sp(theme, 1.5)}px;
-`;
-
-const ExerciseName = styled.Text`
-  font-size: 15px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: 6px;
-`;
-
-const ExerciseDetails = styled.Text`
-  font-size: 13px;
-  color: ${({ theme }) => theme.colors.subtext};
-`;
 
 type BasicInfo = {
   name: string;
@@ -87,52 +15,104 @@ type Props = {
 };
 
 export function ReviewStep({ basicInfo, exercises }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const textColor = isDark ? '#ffffff' : '#000000';
+  const subtextColor = isDark ? '#9ca3af' : '#6b7280';
+  const cardBg = isDark ? '#1f2937' : '#ffffff';
+  const borderColor = isDark ? '#374151' : '#e5e7eb';
+  const bgColor = isDark ? '#111827' : '#f9fafb';
+
   return (
     <StepScrollContainer>
       <StepSection>
-        <SectionLabel>Información general</SectionLabel>
-        <SummaryCard>
-          <SummaryRow>
-            <SummaryLabel>Nombre</SummaryLabel>
-            <SummaryValue>{basicInfo.name || 'Sin nombre'}</SummaryValue>
-          </SummaryRow>
-          <SummaryRow>
-            <SummaryLabel>Objetivo</SummaryLabel>
-            <SummaryValue>{basicInfo.objective || 'No definido'}</SummaryValue>
-          </SummaryRow>
-          <SummaryLabel>Grupos musculares</SummaryLabel>
-          <ChipsContainer>
+        <Text className="text-sm font-semibold mb-1.5" style={{ color: textColor }}>
+          Información general
+        </Text>
+        <View
+          className="rounded-lg p-5 mb-4 border"
+          style={{
+            backgroundColor: cardBg,
+            borderColor: borderColor,
+            borderWidth: 1,
+          }}
+        >
+          <View className="flex-row justify-between mb-1.5">
+            <Text style={{ color: subtextColor, fontSize: 14, fontWeight: '500' }}>
+              Nombre
+            </Text>
+            <Text className="font-semibold" style={{ color: textColor, fontSize: 14 }}>
+              {basicInfo.name || 'Sin nombre'}
+            </Text>
+          </View>
+          <View className="flex-row justify-between mb-1.5">
+            <Text style={{ color: subtextColor, fontSize: 14, fontWeight: '500' }}>
+              Objetivo
+            </Text>
+            <Text className="font-semibold" style={{ color: textColor, fontSize: 14 }}>
+              {basicInfo.objective || 'No definido'}
+            </Text>
+          </View>
+          <Text style={{ color: subtextColor, fontSize: 14, fontWeight: '500' }}>
+            Grupos musculares
+          </Text>
+          <View className="flex-row flex-wrap gap-2 mt-1">
             {basicInfo.muscleGroups.length > 0 ? (
               basicInfo.muscleGroups.map((group) => (
-                <Chip key={group}>
-                  <ChipText>{group}</ChipText>
-                </Chip>
+                <View
+                  key={group}
+                  className="rounded-lg px-3.5 py-2"
+                  style={{ backgroundColor: '#3B82F61A' }}
+                >
+                  <Text className="text-xs font-semibold" style={{ color: '#3B82F6' }}>
+                    {group}
+                  </Text>
+                </View>
               ))
             ) : (
-              <SummaryValue>No seleccionados</SummaryValue>
+              <Text className="font-semibold" style={{ color: textColor, fontSize: 14 }}>
+                No seleccionados
+              </Text>
             )}
-          </ChipsContainer>
-        </SummaryCard>
+          </View>
+        </View>
       </StepSection>
 
       <StepSection>
-        <SectionLabel>Ejercicios ({exercises.length})</SectionLabel>
-        <SummaryCard>
+        <Text className="text-sm font-semibold mb-1.5" style={{ color: textColor }}>
+          Ejercicios ({exercises.length})
+        </Text>
+        <View
+          className="rounded-lg border"
+          style={{
+            backgroundColor: cardBg,
+            borderColor: borderColor,
+            borderWidth: 1,
+          }}
+        >
           {exercises.length === 0 ? (
-            <SummaryValue>No hay ejercicios agregados</SummaryValue>
+            <View className="p-5">
+              <Text className="font-semibold text-center" style={{ color: textColor, fontSize: 14 }}>
+                No hay ejercicios agregados
+              </Text>
+            </View>
           ) : (
             exercises.map((exercise, index) => (
-              <ExerciseItem key={exercise.id}>
-                <ExerciseName>
+              <View
+                key={exercise.id}
+                className="p-4 rounded-lg mb-1.5"
+                style={{ backgroundColor: bgColor }}
+              >
+                <Text className="font-semibold mb-1.5" style={{ color: textColor, fontSize: 15 }}>
                   {index + 1}. {exercise.name || 'Sin nombre'}
-                </ExerciseName>
-                <ExerciseDetails>
+                </Text>
+                <Text style={{ color: subtextColor, fontSize: 13 }}>
                   {exercise.sets} series × {exercise.reps} reps
-                </ExerciseDetails>
-              </ExerciseItem>
+                </Text>
+              </View>
             ))
           )}
-        </SummaryCard>
+        </View>
       </StepSection>
     </StepScrollContainer>
   );

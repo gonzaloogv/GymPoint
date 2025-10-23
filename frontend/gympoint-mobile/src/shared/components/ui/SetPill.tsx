@@ -1,19 +1,4 @@
-import styled from 'styled-components/native';
-
-const SetPillContainer = styled.View<{ $done?: boolean; $current?: boolean }>`
-  padding: ${({ theme }) => theme.spacing(0.5)}px ${({ theme }) => theme.spacing(1)}px;
-  border-radius: ${({ theme }) => theme.radius.lg}px;
-  background: ${({ theme, $done, $current }) =>
-    $done ? theme.colors.primary : $current ? theme.colors.card : theme.colors.muted};
-  border: 1px solid
-    ${({ theme, $done, $current }) =>
-      $done ? theme.colors.primary : $current ? theme.colors.border : theme.colors.muted};
-`;
-
-const SetLabel = styled.Text<{ $done?: boolean }>`
-  color: ${({ theme, $done }) => ($done ? theme.colors.onPrimary : theme.colors.text)};
-  font-weight: 600;
-`;
+import { View, Text } from 'react-native';
 
 type Props = {
   setNumber: number;
@@ -25,9 +10,28 @@ type Props = {
 export function SetPill({ setNumber, done = false, current = false, label }: Props) {
   const displayLabel = label || `Serie ${setNumber}`;
 
+  let bgColor = '#f3f4f6';
+  let borderColor = '#f3f4f6';
+  let textColor = '#1A1A1A';
+
+  if (done) {
+    bgColor = '#4A9CF5';
+    borderColor = '#4A9CF5';
+    textColor = '#FFFFFF';
+  } else if (current) {
+    bgColor = '#FFFFFF';
+    borderColor = '#DDDDDD';
+    textColor = '#1A1A1A';
+  }
+
   return (
-    <SetPillContainer $done={done} $current={current}>
-      <SetLabel $done={done}>{displayLabel}</SetLabel>
-    </SetPillContainer>
+    <View
+      className="px-2 py-1 rounded-lg border"
+      style={{ backgroundColor: bgColor, borderColor }}
+    >
+      <Text className="font-semibold text-sm" style={{ color: textColor }}>
+        {displayLabel}
+      </Text>
+    </View>
   );
 }

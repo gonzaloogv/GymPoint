@@ -1,96 +1,77 @@
-import styled from 'styled-components/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+// Style constants for Execution components (NativeWind)
+export const ScreenStyles = {
+  className: 'flex-1',
+};
 
-export const Screen = styled(SafeAreaView)`
-  flex: 1;
-  background: ${({ theme }) => theme.colors.bg};
-`;
+export const HeaderStyles = {
+  className: 'px-4 py-4 gap-0.5',
+};
 
-export const Header = styled.View`
-  padding: ${({ theme }) => theme.spacing(2)}px;
-  gap: ${({ theme }) => theme.spacing(0.5)}px;
-`;
+export const TitleStyles = {
+  className: 'text-3xl font-black',
+};
 
-export const Title = styled.Text`
-  color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.h1}px;
-  font-weight: 800;
-`;
+export const SubtitleStyles = {
+  className: 'text-sm',
+};
 
-export const Subtitle = styled.Text`
-  color: ${({ theme }) => theme.colors.subtext};
-`;
+export const ProgressTrackStyles = {
+  className: 'h-2 rounded-full overflow-hidden my-1',
+};
 
-export const ProgressTrack = styled.View`
-  height: 8px;
-  border-radius: 999px;
-  overflow: hidden;
-  background: ${({ theme }) => theme.colors.muted};
-  margin: ${({ theme }) => theme.spacing(1)}px 0;
-`;
+export const ProgressBarStyles = {
+  className: 'h-2',
+};
 
-export const ProgressBar = styled.View<{ $pct: number }>`
-  width: ${({ $pct }) => `${$pct}%`};
-  height: 8px;
-  background: ${({ theme }) => theme.colors.primary};
-`;
+export const ExerciseCardStyles = {
+  className: 'mx-4',
+};
 
-export const ExerciseCard = styled.View`
-  margin: 0 16px;
-`;
+export const CardContentStyles = {
+  className: 'p-4 gap-1.5',
+};
 
-export const CardContent = styled.View`
-  padding: ${({ theme }) => theme.spacing(2)}px;
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
+export const ExerciseNameStyles = {
+  className: 'font-black',
+};
 
-export const ExerciseName = styled.Text`
-  color: ${({ theme }) => theme.colors.text};
-  font-weight: 800;
-`;
+export const ExerciseMetaStyles = {
+  className: 'text-xs',
+};
 
-export const ExerciseMeta = styled.Text`
-  color: ${({ theme }) => theme.colors.subtext};
-  font-size: ${({ theme }) => theme.typography.small}px;
-`;
+export const SetsRowStyles = {
+  className: 'flex-row flex-wrap gap-1.5',
+};
 
-export const SetsRow = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
+export const SetPillStyles = {
+  done: {
+    className: 'px-2 py-1 rounded-lg',
+  },
+  current: {
+    className: 'px-2 py-1 rounded-lg border',
+  },
+  pending: {
+    className: 'px-2 py-1 rounded-lg',
+  },
+};
 
-export const SetPill = styled.View<{ $done?: boolean; $current?: boolean }>`
-  padding: ${({ theme }) => theme.spacing(0.5)}px ${({ theme }) => theme.spacing(1)}px;
-  border-radius: ${({ theme }) => theme.radius.lg}px;
-  background: ${({ theme, $done, $current }) =>
-    $done ? theme.colors.primary : $current ? theme.colors.card : theme.colors.muted};
-  border: 1px solid
-    ${({ theme, $done, $current }) =>
-      $done ? theme.colors.primary : $current ? theme.colors.border : theme.colors.muted};
-`;
+export const SetLabelStyles = {
+  done: {
+    className: 'font-semibold',
+  },
+  default: {
+    className: 'font-semibold',
+  },
+};
 
-export const SetLabel = styled.Text<{ $done?: boolean }>`
-  color: ${({ theme, $done }) => ($done ? theme.colors.onPrimary : theme.colors.text)};
-  font-weight: 600;
-`;
+export const FooterStyles = {
+  className: 'p-4 gap-1.5',
+};
 
-export const Footer = styled.View`
-  padding: ${({ theme }) => theme.spacing(2)}px;
-  background: ${({ theme }) => theme.colors.bg};
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
+export const OutlineButtonStyles = {
+  className: 'min-h-12 items-center justify-center rounded-lg border',
+};
 
-export const OutlineButton = styled.TouchableOpacity`
-  min-height: 48px;
-  align-items: center;
-  justify-content: center;
-  border-radius: ${({ theme }) => theme.radius.lg}px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ theme }) => theme.colors.card};
-`;
-
-export const OutlineLabel = styled.Text`
-  color: ${({ theme }) => theme.colors.text};
-  font-weight: 600;
-`;
+export const OutlineLabelStyles = {
+  className: 'font-semibold',
+};

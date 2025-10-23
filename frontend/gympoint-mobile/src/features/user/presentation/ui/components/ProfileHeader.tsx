@@ -6,7 +6,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { Card, Avatar, UnifiedBadge } from '@shared/components/ui';
-import { UserProfile } from '../types/UserTypes';
+import { UserProfile } from '@features/user/types/userTypes';
 
 interface ProfileHeaderProps {
   user: UserProfile;

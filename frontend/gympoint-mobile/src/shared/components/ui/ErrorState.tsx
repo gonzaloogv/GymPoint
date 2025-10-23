@@ -1,34 +1,7 @@
-import styled from 'styled-components/native';
+import { View, Text } from 'react-native';
+import { useTheme } from '@shared/hooks';
 import { Card } from './Card';
 import { Button } from './Button';
-
-const Container = styled.View`
-  padding: ${({ theme }) => theme.spacing(2)}px;
-`;
-
-const Content = styled.View`
-  padding: ${({ theme }) => theme.spacing(3)}px;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const Title = styled.Text`
-  font-size: ${({ theme }) => theme.typography.h2}px;
-  color: ${({ theme }) => theme.colors.text};
-  font-weight: 700;
-  text-align: center;
-`;
-
-const Description = styled.Text`
-  color: ${({ theme }) => theme.colors.subtext};
-  text-align: center;
-`;
-
-const ButtonText = styled.Text`
-  color: ${({ theme }) => theme.colors.onPrimary};
-  text-align: center;
-  font-weight: 600;
-`;
 
 type Props = {
   title?: string;
@@ -43,19 +16,26 @@ export function ErrorState({
   buttonText = 'Reintentar',
   onRetry,
 }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   return (
-    <Container>
+    <View className="p-4">
       <Card>
-        <Content>
-          <Title>{title}</Title>
-          <Description>{description}</Description>
+        <View className="p-6 items-center gap-2">
+          <Text className={`text-2xl font-bold text-center ${isDark ? 'text-text-dark' : 'text-text'}`}>
+            {title}
+          </Text>
+          <Text className={`text-center ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
+            {description}
+          </Text>
           {onRetry && (
-            <Button style={{ minHeight: 44, alignSelf: 'stretch' }} onPress={onRetry}>
-              <ButtonText>{buttonText}</ButtonText>
+            <Button className="w-full min-h-11 mt-2" onPress={onRetry}>
+              {buttonText}
             </Button>
           )}
-        </Content>
+        </View>
       </Card>
-    </Container>
+    </View>
   );
 }

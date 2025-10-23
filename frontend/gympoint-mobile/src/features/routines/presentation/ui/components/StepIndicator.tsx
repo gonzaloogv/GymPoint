@@ -1,71 +1,6 @@
 import React from 'react';
-import styled from 'styled-components/native';
 import { View, Text } from 'react-native';
-
-const Container = styled(View)`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: ${({ theme }) => theme.spacing(2)}px 0;
-`;
-
-const StepWrapper = styled(View)`
-  flex: 1;
-  align-items: center;
-  position: relative;
-`;
-
-const StepCircle = styled(View)<{ $active: boolean; $completed: boolean }>`
-  width: 48px;
-  height: 48px;
-  border-radius: 24px;
-  background-color: ${({ theme, $active, $completed }) =>
-    $completed || $active ? theme.colors.primary : '#E5E7EB'};
-  align-items: center;
-  justify-content: center;
-  margin-bottom: ${({ theme }) => theme.spacing(1)}px;
-  z-index: 2;
-`;
-
-const StepNumber = styled(Text)<{ $active: boolean; $completed: boolean }>`
-  color: ${({ $active, $completed }) => ($completed || $active ? '#fff' : '#9CA3AF')};
-  font-weight: 700;
-  font-size: 18px;
-`;
-
-const LabelsContainer = styled(View)`
-  align-items: center;
-  gap: 2px;
-`;
-
-const StepTitle = styled(Text)<{ $active: boolean }>`
-  font-size: 14px;
-  color: ${({ theme, $active }) => ($active ? theme.colors.primary : '#6B7280')};
-  font-weight: ${({ $active }) => ($active ? '700' : '600')};
-  text-align: center;
-`;
-
-const StepSubtitle = styled(Text)<{ $active: boolean }>`
-  font-size: 11px;
-  color: ${({ $active }) => ($active ? '#6B7280' : '#9CA3AF')};
-  font-weight: 400;
-  text-align: center;
-`;
-
-const LineContainer = styled(View)`
-  position: absolute;
-  top: 24px;
-  left: 50%;
-  right: -50%;
-  height: 2px;
-  z-index: 1;
-`;
-
-const Line = styled(View)<{ $completed: boolean }>`
-  height: 2px;
-  background-color: ${({ theme, $completed }) =>
-    $completed ? theme.colors.primary : '#E5E7EB'};
-`;
+import { useTheme } from '@shared/hooks';
 
 type Step = {
   number: number;
@@ -79,34 +14,62 @@ type Props = {
 };
 
 export function StepIndicator({ steps, currentStep }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const primaryColor = '#3B82F6';
+  const inactiveColor = '#e5e7eb';
+  const inactiveText = isDark ? '#9ca3af' : '#6b7280';
+  const titleActive = isDark ? '#ffffff' : '#000000';
+
   return (
-    <Container>
+    <View className="flex-row justify-between items-start py-4">
       {steps.map((step, index) => {
         const isActive = currentStep === step.number;
         const isCompleted = currentStep > step.number;
         const isLast = index === steps.length - 1;
+        const circleColor = isCompleted || isActive ? primaryColor : inactiveColor;
+        const numberColor = isCompleted || isActive ? '#ffffff' : inactiveText;
+        const titleColor = isActive ? primaryColor : inactiveText;
 
         return (
-          <StepWrapper key={step.number}>
-            <StepCircle $active={isActive} $completed={isCompleted}>
-              <StepNumber $active={isActive} $completed={isCompleted}>
+          <View key={step.number} className="flex-1 items-center relative">
+            <View
+              className="w-12 h-12 rounded-full items-center justify-center mb-1 z-10"
+              style={{ backgroundColor: circleColor }}
+            >
+              <Text className="font-bold text-lg" style={{ color: numberColor }}>
                 {step.number}
-              </StepNumber>
-            </StepCircle>
-            <LabelsContainer>
-              <StepTitle $active={isActive}>{step.label}</StepTitle>
+              </Text>
+            </View>
+            <View className="items-center gap-0.5">
+              <Text
+                className={`text-sm ${isActive ? 'font-bold' : 'font-semibold'} text-center`}
+                style={{ color: titleColor }}
+              >
+                {step.label}
+              </Text>
               {step.subtitle && (
-                <StepSubtitle $active={isActive}>{step.subtitle}</StepSubtitle>
+                <Text className="text-xs text-center" style={{ color: inactiveText }}>
+                  {step.subtitle}
+                </Text>
               )}
-            </LabelsContainer>
+            </View>
             {!isLast && (
-              <LineContainer>
-                <Line $completed={isCompleted} />
-              </LineContainer>
+              <View
+                className="absolute"
+                style={{
+                  top: 24,
+                  left: '50%',
+                  right: '-50%',
+                  height: 2,
+                  backgroundColor: isCompleted ? primaryColor : inactiveColor,
+                  zIndex: 1,
+                }}
+              />
             )}
-          </StepWrapper>
+          </View>
         );
       })}
-    </Container>
+    </View>
   );
 }

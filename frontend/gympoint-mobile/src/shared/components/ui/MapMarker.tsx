@@ -1,6 +1,6 @@
 import React from 'react';
 import { Platform } from 'react-native';
-import type { MapLocation } from '@features/gyms/types';
+import type { MapLocation } from '@features/gyms/presentation/types';
 
 type Props = {
   location: MapLocation;

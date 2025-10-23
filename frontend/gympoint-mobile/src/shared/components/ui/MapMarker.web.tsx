@@ -1,5 +1,5 @@
 import React from 'react';
-import type { MapLocation } from '@features/gyms/types';
+import type { MapLocation } from '@features/gyms/presentation/types';
 
 type Props = {
   location: MapLocation;

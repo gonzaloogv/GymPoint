@@ -1,13 +1,9 @@
-import styled from 'styled-components/native';
+import { TouchableOpacity } from 'react-native';
 import { BannerCard } from '@shared/components/ui';
-
-const Container = styled.TouchableOpacity.attrs({ activeOpacity: 0.6 })`
-  flex: 1;
-`;
 
 export default function DailyChallengeCard() {
   return (
-    <Container>
+    <TouchableOpacity activeOpacity={0.6} className="flex-1">
       <BannerCard
         visible={true}
         variant="info"
@@ -17,6 +13,6 @@ export default function DailyChallengeCard() {
         buttonText="Ver desafío"
         onButtonPress={() => {}}
       />
-    </Container>
+    </TouchableOpacity>
   );
 }

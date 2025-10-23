@@ -1,24 +1,17 @@
-import styled from 'styled-components/native';
-
-const ChipContainer = styled.View`
-  padding: ${({ theme }) => theme.spacing(0.5)}px ${({ theme }) => theme.spacing(1)}px;
-  border-radius: ${({ theme }) => theme.radius.md}px;
-  background: ${({ theme }) => theme.colors.muted};
-`;
-
-const ChipText = styled.Text`
-  font-size: ${({ theme }) => theme.typography.small}px;
-  color: ${({ theme }) => theme.colors.text};
-`;
+import { View, Text } from 'react-native';
+import { useTheme } from '@shared/hooks';
 
 type Props = {
   children: React.ReactNode;
 };
 
 export function MetaChip({ children }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   return (
-    <ChipContainer>
-      <ChipText>{children}</ChipText>
-    </ChipContainer>
+    <View className={`px-2 py-1 rounded-md ${isDark ? 'bg-surface-dark' : 'bg-surfaceVariant'}`}>
+      <Text className={`text-xs ${isDark ? 'text-text-dark' : 'text-text'}`}>{children}</Text>
+    </View>
   );
 }
