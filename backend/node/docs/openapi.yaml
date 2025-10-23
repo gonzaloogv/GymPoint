@@ -2624,53 +2624,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  # ==================== Exercises ====================
-  /api/exercises:
-    get:
-      operationId: getAllExercises
-      tags: [Exercises]
-      summary: Listar todos los ejercicios
-      description: Obtiene todos los ejercicios con filtros opcionales
-      parameters:
-        - name: muscular_group
-          in: query
-          schema:
-            type: string
-          description: Filtrar por grupo muscular
-        - name: difficulty
-          in: query
-          schema:
-            type: string
-            enum: [beginner, intermediate, advanced]
-          description: Filtrar por dificultad
-        - name: equipment_needed
-          in: query
-          schema:
-            type: string
-          description: Filtrar por equipamiento necesario
-      responses:
-        '200':
-          description: Lista de ejercicios
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Exercise'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+  # ==================== Progress ====================
+  /api/progress:
     post:
-      operationId: createExercise
-      tags: [Exercises]
-      summary: Crear un nuevo ejercicio
-      description: Crea un ejercicio (usuario autenticado se asigna como creador)
+      operationId: registerProgress
+      tags: [Progress]
+      summary: Registrar progreso físico del usuario
+      description: >
+        Registra el progreso físico del usuario incluyendo peso total levantado,
+        repeticiones totales, sets totales y ejercicios realizados.
       security:
         - BearerAuth: []
       requestBody:
@@ -2678,10 +2640,66 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateExerciseRequest'
+              type: object
+              required:
+                - date
+                - total_weight_lifted
+                - total_reps
+                - total_sets
+              properties:
+                date:
+                  type: string
+                  format: date
+                  description: Fecha del registro
+                  example: '2025-01-15'
+                total_weight_lifted:
+                  type: number
+                  format: float
+                  description: Peso total levantado en kg
+                  example: 5000
+                total_reps:
+                  type: integer
+                  description: Repeticiones totales
+                  example: 100
+                total_sets:
+                  type: integer
+                  description: Sets totales
+                  example: 20
+                notes:
+                  type: string
+                  description: Notas adicionales
+                  example: 'Great workout session'
+                exercises:
+                  type: array
+                  description: Lista de ejercicios realizados
+                  items:
+                    type: object
+                    required:
+                      - id_exercise
+                      - used_weight
+                      - reps
+                    properties:
+                      id_exercise:
+                        type: integer
+                        description: ID del ejercicio
+                        example: 5
+                      used_weight:
+                        type: number
+                        format: float
+                        description: Peso utilizado en kg
+                        example: 80
+                      reps:
+                        type: integer
+                        description: Número de repeticiones
+                        example: 10
+                      sets:
+                        type: integer
+                        description: Número de sets
+                        example: 3
+                        default: 1
       responses:
         '201':
-          description: Ejercicio creado
+          description: Progreso registrado exitosamente
           content:
             application/json:
               schema:
@@ -2689,2165 +2707,83 @@ paths:
                 properties:
                   message:
                     type: string
+                    example: 'Progreso registrado con éxito'
                   data:
-                    $ref: '#/components/schemas/Exercise'
+                    $ref: '#/components/schemas/ProgressResponse'
         '400':
           description: Datos inválidos
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /api/exercises/paginated:
-    get:
-      operationId: listExercisesPaginated
-      tags: [Exercises]
-      summary: Listar ejercicios con paginación
-      parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
-        - name: muscular_group
-          in: query
-          schema:
-            type: string
-        - name: difficulty
-          in: query
-          schema:
-            type: string
-            enum: [beginner, intermediate, advanced]
-      responses:
-        '200':
-          description: Lista paginada de ejercicios
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedExercisesResponse'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/exercises/{id}:
-    get:
-      operationId: getExerciseById
-      tags: [Exercises]
-      summary: Obtener ejercicio por ID
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Ejercicio encontrado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Exercise'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    put:
-      operationId: updateExercise
-      tags: [Exercises]
-      summary: Actualizar ejercicio
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateExerciseRequest'
-      responses:
-        '200':
-          description: Ejercicio actualizado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Exercise'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    delete:
-      operationId: deleteExercise
-      tags: [Exercises]
-      summary: Eliminar ejercicio
-      description: Solo el creador o admin puede eliminar
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Ejercicio eliminado
-        '403':
-          description: Acceso denegado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  # ==================== Routines ====================
-  /api/routines:
-    post:
-      operationId: createRoutineWithExercises
-      tags: [Routines]
-      summary: Crear rutina con ejercicios
-      description: Crea una rutina completa con ejercicios y días opcionales
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateRoutineRequest'
-      responses:
-        '201':
-          description: Rutina creada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Routine'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/routines/me:
-    get:
-      operationId: getMyRoutines
-      tags: [Routines]
-      summary: Obtener mis rutinas
-      description: Lista las rutinas del usuario autenticado
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
-      responses:
-        '200':
-          description: Lista de rutinas del usuario
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Routine'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/routines/templates:
-    get:
-      operationId: listRoutineTemplates
-      tags: [Routines]
-      summary: Listar plantillas de rutinas
-      parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
-      responses:
-        '200':
-          description: Lista paginada de templates
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedRoutinesResponse'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/routines/{id}:
-    get:
-      operationId: getRoutineById
-      tags: [Routines]
-      summary: Obtener rutina por ID
-      description: Obtiene rutina con ejercicios y días
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Rutina encontrada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/RoutineWithDetails'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    put:
-      operationId: updateRoutine
-      tags: [Routines]
-      summary: Actualizar rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateRoutineRequest'
-      responses:
-        '200':
-          description: Rutina actualizada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Routine'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    delete:
-      operationId: deleteRoutine
-      tags: [Routines]
-      summary: Eliminar rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Rutina eliminada
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/routines/{id}/exercises:
-    post:
-      operationId: addExerciseToRoutine
-      tags: [Routines]
-      summary: Agregar ejercicio a rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AddExerciseToRoutineRequest'
-      responses:
-        '201':
-          description: Ejercicio agregado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/RoutineExercise'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/routines/{id}/exercises/{id_exercise}:
-    put:
-      operationId: updateRoutineExercise
-      tags: [Routines]
-      summary: Actualizar ejercicio en rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: id_exercise
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateRoutineExerciseRequest'
-      responses:
-        '200':
-          description: Ejercicio actualizado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/RoutineExercise'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    delete:
-      operationId: deleteRoutineExercise
-      tags: [Routines]
-      summary: Eliminar ejercicio de rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: id_exercise
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Ejercicio eliminado de rutina
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/routines/{id}/days:
-    get:
-      operationId: listRoutineDays
-      tags: [Routines]
-      summary: Listar días de rutina
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Lista de días
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/RoutineDay'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    post:
-      operationId: createRoutineDay
-      tags: [Routines]
-      summary: Crear día de rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateRoutineDayRequest'
-      responses:
-        '201':
-          description: Día creado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/RoutineDay'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/routines/days/{id_routine_day}:
-    put:
-      operationId: updateRoutineDay
-      tags: [Routines]
-      summary: Actualizar día de rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id_routine_day
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateRoutineDayRequest'
-      responses:
-        '200':
-          description: Día actualizado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/RoutineDay'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    delete:
-      operationId: deleteRoutineDay
-      tags: [Routines]
-      summary: Eliminar día de rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id_routine_day
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Día eliminado
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  # ==================== User Routines ====================
-  /api/user-routines/assign:
-    post:
-      operationId: assignRoutineToUser
-      tags: [User Routines]
-      summary: Asignar rutina a usuario
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AssignRoutineRequest'
-      responses:
-        '201':
-          description: Rutina asignada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/UserRoutine'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/user-routines/active:
-    get:
-      operationId: getActiveRoutine
-      tags: [User Routines]
-      summary: Obtener rutina activa
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Rutina activa
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/UserRoutine'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/user-routines/active/details:
-    get:
-      operationId: getActiveRoutineWithExercises
-      tags: [User Routines]
-      summary: Obtener rutina activa con ejercicios
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Rutina activa con ejercicios
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/RoutineWithDetails'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/user-routines/me:
-    get:
-      operationId: listMyUserRoutines
-      tags: [User Routines]
-      summary: Listar mis rutinas asignadas
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
-        - name: active
-          in: query
-          schema:
-            type: boolean
-      responses:
-        '200':
-          description: Lista de rutinas del usuario
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/UserRoutine'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/user-routines/counts:
-    get:
-      operationId: getUserRoutineCounts
-      tags: [User Routines]
-      summary: Obtener contadores de rutinas
-      description: Retorna total, importadas y creadas
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Contadores de rutinas
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/UserRoutineCounts'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/user-routines/end:
-    post:
-      operationId: endUserRoutine
-      tags: [User Routines]
-      summary: Finalizar rutina activa
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Rutina finalizada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/UserRoutine'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/user-routines/import:
-    post:
-      operationId: importRoutineTemplate
-      tags: [User Routines]
-      summary: Importar plantilla de rutina
-      description: Crea una copia de una rutina template para el usuario
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ImportRoutineRequest'
-      responses:
-        '201':
-          description: Rutina importada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Routine'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/user-routines/{id}:
-    get:
-      operationId: getUserRoutineById
-      tags: [User Routines]
-      summary: Obtener rutina de usuario por ID
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Rutina de usuario
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/UserRoutine'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/user-routines/{id}/deactivate:
-    put:
-      operationId: deactivateUserRoutine
-      tags: [User Routines]
-      summary: Desactivar rutina de usuario
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Rutina desactivada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/UserRoutine'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  # ==================== Workouts ====================
-  /api/workouts/sessions:
-    post:
-      operationId: startWorkoutSession
-      tags: [Workouts]
-      summary: Iniciar sesión de entrenamiento
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/StartWorkoutSessionRequest'
-      responses:
-        '201':
-          description: Sesión iniciada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/WorkoutSession'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '409':
-          description: Ya existe una sesión activa
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/workouts/sessions/active:
-    get:
-      operationId: getActiveWorkoutSession
-      tags: [Workouts]
-      summary: Obtener sesión activa
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Sesión activa
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/WorkoutSession'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/workouts/sessions/me:
-    get:
-      operationId: listMyWorkoutSessions
-      tags: [Workouts]
-      summary: Listar mis sesiones de entrenamiento
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
-        - name: status
-          in: query
-          schema:
-            type: string
-            enum: [IN_PROGRESS, COMPLETED, CANCELLED]
-      responses:
-        '200':
-          description: Lista de sesiones
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/WorkoutSession'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/workouts/stats:
-    get:
-      operationId: getWorkoutStats
-      tags: [Workouts]
-      summary: Obtener estadísticas de workout
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: start_date
-          in: query
-          schema:
-            type: string
-            format: date
-        - name: end_date
-          in: query
-          schema:
-            type: string
-            format: date
-      responses:
-        '200':
-          description: Estadísticas de workout
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/WorkoutStats'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/workouts/sessions/{id}:
-    get:
-      operationId: getWorkoutSession
-      tags: [Workouts]
-      summary: Obtener sesión por ID
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Sesión encontrada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/WorkoutSession'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    put:
-      operationId: updateWorkoutSession
-      tags: [Workouts]
-      summary: Actualizar sesión (notas)
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateWorkoutSessionRequest'
-      responses:
-        '200':
-          description: Sesión actualizada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/WorkoutSession'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/workouts/sessions/{id}/complete:
-    put:
-      operationId: completeWorkoutSession
-      tags: [Workouts]
-      summary: Completar sesión
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CompleteWorkoutSessionRequest'
-      responses:
-        '200':
-          description: Sesión completada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/WorkoutSession'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/workouts/sessions/{id}/cancel:
-    put:
-      operationId: cancelWorkoutSession
-      tags: [Workouts]
-      summary: Cancelar sesión
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Sesión cancelada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/WorkoutSession'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/workouts/sessions/{id}/sets:
-    get:
-      operationId: listWorkoutSets
-      tags: [Workouts]
-      summary: Listar sets de una sesión
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: id_exercise
-          in: query
-          schema:
-            type: integer
-          description: Filtrar por ejercicio
-      responses:
-        '200':
-          description: Lista de sets
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/WorkoutSet'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    post:
-      operationId: registerWorkoutSet
-      tags: [Workouts]
-      summary: Registrar un set
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RegisterWorkoutSetRequest'
-      responses:
-        '201':
-          description: Set registrado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/WorkoutSet'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/workouts/sets/{id}:
-    put:
-      operationId: updateWorkoutSet
-      tags: [Workouts]
-      summary: Actualizar un set
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateWorkoutSetRequest'
-      responses:
-        '200':
-          description: Set actualizado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/WorkoutSet'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    delete:
-      operationId: deleteWorkoutSet
-      tags: [Workouts]
-      summary: Eliminar un set
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Set eliminado
-        '404':
-          description: Recurso no encontrado
+        '401':
+          description: No autorizado
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  # ==================== Exercises ====================
-  /api/exercises:
+  /api/progress/me:
     get:
-      operationId: getAllExercises
-      tags: [Exercises]
-      summary: Listar todos los ejercicios
-      description: Obtiene todos los ejercicios con filtros opcionales
+      operationId: getUserProgress
+      tags: [Progress]
+      summary: Obtener historial de progreso del usuario
+      description: >
+        Obtiene todo el historial de progreso físico del usuario autenticado
+        con opciones de paginación y filtrado.
+      security:
+        - BearerAuth: []
       parameters:
-        - name: muscular_group
+        - name: limit
           in: query
           schema:
-            type: string
-          description: Filtrar por grupo muscular
-        - name: difficulty
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          description: Número máximo de registros a retornar
+        - name: offset
           in: query
           schema:
-            type: string
-            enum: [beginner, intermediate, advanced]
-          description: Filtrar por dificultad
-        - name: equipment_needed
-          in: query
-          schema:
-            type: string
-          description: Filtrar por equipamiento necesario
-      responses:
-        '200':
-          description: Lista de ejercicios
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Exercise'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    post:
-      operationId: createExercise
-      tags: [Exercises]
-      summary: Crear un nuevo ejercicio
-      description: Crea un ejercicio (usuario autenticado se asigna como creador)
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateExerciseRequest'
-      responses:
-        '201':
-          description: Ejercicio creado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Exercise'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/exercises/paginated:
-    get:
-      operationId: listExercisesPaginated
-      tags: [Exercises]
-      summary: Listar ejercicios con paginación
-      parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
-        - name: muscular_group
-          in: query
-          schema:
-            type: string
-        - name: difficulty
-          in: query
-          schema:
-            type: string
-            enum: [beginner, intermediate, advanced]
-      responses:
-        '200':
-          description: Lista paginada de ejercicios
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedExercisesResponse'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/exercises/{id}:
-    get:
-      operationId: getExerciseById
-      tags: [Exercises]
-      summary: Obtener ejercicio por ID
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
             type: integer
-      responses:
-        '200':
-          description: Ejercicio encontrado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/Exercise'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    put:
-      operationId: updateExercise
-      tags: [Exercises]
-      summary: Actualizar ejercicio
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateExerciseRequest'
-      responses:
-        '200':
-          description: Ejercicio actualizado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Exercise'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    delete:
-      operationId: deleteExercise
-      tags: [Exercises]
-      summary: Eliminar ejercicio
-      description: Solo el creador o admin puede eliminar
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Ejercicio eliminado
-        '403':
-          description: Acceso denegado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  # ==================== Routines ====================
-  /api/routines:
-    post:
-      operationId: createRoutineWithExercises
-      tags: [Routines]
-      summary: Crear rutina con ejercicios
-      description: Crea una rutina completa con ejercicios y días opcionales
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateRoutineRequest'
-      responses:
-        '201':
-          description: Rutina creada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Routine'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/routines/me:
-    get:
-      operationId: getMyRoutines
-      tags: [Routines]
-      summary: Obtener mis rutinas
-      description: Lista las rutinas del usuario autenticado
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
-      responses:
-        '200':
-          description: Lista de rutinas del usuario
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Routine'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/routines/templates:
-    get:
-      operationId: listRoutineTemplates
-      tags: [Routines]
-      summary: Listar plantillas de rutinas
-      parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
-      responses:
-        '200':
-          description: Lista paginada de templates
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedRoutinesResponse'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/routines/{id}:
-    get:
-      operationId: getRoutineById
-      tags: [Routines]
-      summary: Obtener rutina por ID
-      description: Obtiene rutina con ejercicios y días
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Rutina encontrada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/RoutineWithDetails'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    put:
-      operationId: updateRoutine
-      tags: [Routines]
-      summary: Actualizar rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateRoutineRequest'
-      responses:
-        '200':
-          description: Rutina actualizada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Routine'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    delete:
-      operationId: deleteRoutine
-      tags: [Routines]
-      summary: Eliminar rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Rutina eliminada
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/routines/{id}/exercises:
-    post:
-      operationId: addExerciseToRoutine
-      tags: [Routines]
-      summary: Agregar ejercicio a rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AddExerciseToRoutineRequest'
-      responses:
-        '201':
-          description: Ejercicio agregado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/RoutineExercise'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/routines/{id}/exercises/{id_exercise}:
-    put:
-      operationId: updateRoutineExercise
-      tags: [Routines]
-      summary: Actualizar ejercicio en rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: id_exercise
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateRoutineExerciseRequest'
-      responses:
-        '200':
-          description: Ejercicio actualizado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/RoutineExercise'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    delete:
-      operationId: deleteRoutineExercise
-      tags: [Routines]
-      summary: Eliminar ejercicio de rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: id_exercise
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Ejercicio eliminado de rutina
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/routines/{id}/days:
-    get:
-      operationId: listRoutineDays
-      tags: [Routines]
-      summary: Listar días de rutina
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Lista de días
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/RoutineDay'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    post:
-      operationId: createRoutineDay
-      tags: [Routines]
-      summary: Crear día de rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateRoutineDayRequest'
-      responses:
-        '201':
-          description: Día creado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/RoutineDay'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/routines/days/{id_routine_day}:
-    put:
-      operationId: updateRoutineDay
-      tags: [Routines]
-      summary: Actualizar día de rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id_routine_day
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateRoutineDayRequest'
-      responses:
-        '200':
-          description: Día actualizado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/RoutineDay'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    delete:
-      operationId: deleteRoutineDay
-      tags: [Routines]
-      summary: Eliminar día de rutina
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id_routine_day
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: Día eliminado
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  # ==================== User Routines ====================
-  /api/user-routines/assign:
-    post:
-      operationId: assignRoutineToUser
-      tags: [User Routines]
-      summary: Asignar rutina a usuario
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AssignRoutineRequest'
-      responses:
-        '201':
-          description: Rutina asignada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/UserRoutine'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/user-routines/active:
-    get:
-      operationId: getActiveRoutine
-      tags: [User Routines]
-      summary: Obtener rutina activa
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Rutina activa
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/UserRoutine'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/user-routines/active/details:
-    get:
-      operationId: getActiveRoutineWithExercises
-      tags: [User Routines]
-      summary: Obtener rutina activa con ejercicios
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Rutina activa con ejercicios
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/RoutineWithDetails'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/user-routines/me:
-    get:
-      operationId: listMyUserRoutines
-      tags: [User Routines]
-      summary: Listar mis rutinas asignadas
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
-        - name: active
+            minimum: 0
+            default: 0
+          description: Número de registros a saltar
+        - name: include_exercises
           in: query
           schema:
             type: boolean
+            default: false
+          description: Incluir detalles de ejercicios
       responses:
         '200':
-          description: Lista de rutinas del usuario
+          description: Historial de progreso obtenido
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  message:
+                    type: string
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/UserRoutine'
-        '400':
-          description: Datos inválidos
+                      $ref: '#/components/schemas/ProgressResponse'
+        '401':
+          description: No autorizado
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /api/user-routines/counts:
+
+  /api/progress/me/estadistica:
     get:
-      operationId: getUserRoutineCounts
-      tags: [User Routines]
-      summary: Obtener contadores de rutinas
-      description: Retorna total, importadas y creadas
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Contadores de rutinas
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/UserRoutineCounts'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/user-routines/end:
-    post:
-      operationId: endUserRoutine
-      tags: [User Routines]
-      summary: Finalizar rutina activa
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Rutina finalizada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/UserRoutine'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/user-routines/import:
-    post:
-      operationId: importRoutineTemplate
-      tags: [User Routines]
-      summary: Importar plantilla de rutina
-      description: Crea una copia de una rutina template para el usuario
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ImportRoutineRequest'
-      responses:
-        '201':
-          description: Rutina importada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Routine'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/user-routines/{id}:
-    get:
-      operationId: getUserRoutineById
-      tags: [User Routines]
-      summary: Obtener rutina de usuario por ID
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Rutina de usuario
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/UserRoutine'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/user-routines/{id}/deactivate:
-    put:
-      operationId: deactivateUserRoutine
-      tags: [User Routines]
-      summary: Desactivar rutina de usuario
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Rutina desactivada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/UserRoutine'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  # ==================== Workouts ====================
-  /api/workouts/sessions:
-    post:
-      operationId: startWorkoutSession
-      tags: [Workouts]
-      summary: Iniciar sesión de entrenamiento
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/StartWorkoutSessionRequest'
-      responses:
-        '201':
-          description: Sesión iniciada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/WorkoutSession'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '409':
-          description: Ya existe una sesión activa
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/workouts/sessions/active:
-    get:
-      operationId: getActiveWorkoutSession
-      tags: [Workouts]
-      summary: Obtener sesión activa
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Sesión activa
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/WorkoutSession'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/workouts/sessions/me:
-    get:
-      operationId: listMyWorkoutSessions
-      tags: [Workouts]
-      summary: Listar mis sesiones de entrenamiento
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
-        - name: status
-          in: query
-          schema:
-            type: string
-            enum: [IN_PROGRESS, COMPLETED, CANCELLED]
-      responses:
-        '200':
-          description: Lista de sesiones
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/WorkoutSession'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/workouts/stats:
-    get:
-      operationId: getWorkoutStats
-      tags: [Workouts]
-      summary: Obtener estadísticas de workout
+      operationId: getWeightStats
+      tags: [Progress]
+      summary: Obtener estadísticas de peso levantado
+      description: >
+        Obtiene estadísticas de peso total levantado del usuario
+        en un rango de fechas opcional.
       security:
         - BearerAuth: []
       parameters:
@@ -4856,77 +2792,18 @@ paths:
           schema:
             type: string
             format: date
+          description: Fecha de inicio del rango
+          example: '2025-01-01'
         - name: end_date
           in: query
           schema:
             type: string
             format: date
+          description: Fecha de fin del rango
+          example: '2025-01-31'
       responses:
         '200':
-          description: Estadísticas de workout
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/WorkoutStats'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/workouts/sessions/{id}:
-    get:
-      operationId: getWorkoutSession
-      tags: [Workouts]
-      summary: Obtener sesión por ID
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Sesión encontrada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/WorkoutSession'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    put:
-      operationId: updateWorkoutSession
-      tags: [Workouts]
-      summary: Actualizar sesión (notas)
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateWorkoutSessionRequest'
-      responses:
-        '200':
-          description: Sesión actualizada
+          description: Estadísticas obtenidas
           content:
             application/json:
               schema:
@@ -4934,150 +2811,324 @@ paths:
                 properties:
                   message:
                     type: string
-                  data:
-                    $ref: '#/components/schemas/WorkoutSession'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/workouts/sessions/{id}/complete:
-    put:
-      operationId: completeWorkoutSession
-      tags: [Workouts]
-      summary: Completar sesión
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CompleteWorkoutSessionRequest'
-      responses:
-        '200':
-          description: Sesión completada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/WorkoutSession'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/workouts/sessions/{id}/cancel:
-    put:
-      operationId: cancelWorkoutSession
-      tags: [Workouts]
-      summary: Cancelar sesión
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Sesión cancelada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/WorkoutSession'
-        '400':
-          description: Datos inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Recurso no encontrado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/workouts/sessions/{id}/sets:
-    get:
-      operationId: listWorkoutSets
-      tags: [Workouts]
-      summary: Listar sets de una sesión
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: id_exercise
-          in: query
-          schema:
-            type: integer
-          description: Filtrar por ejercicio
-      responses:
-        '200':
-          description: Lista de sets
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/WorkoutSet'
-        '400':
-          description: Datos inválidos
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        total_weight_lifted:
+                          type: number
+                        total_reps:
+                          type: integer
+                        total_sets:
+                          type: integer
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/progress/me/ejercicios:
+    get:
+      operationId: getExerciseHistory
+      tags: [Progress]
+      summary: Obtener historial completo de ejercicios
+      description: >
+        Obtiene el historial completo de todos los ejercicios realizados
+        por el usuario autenticado.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 100
+          description: Número máximo de registros
+      responses:
+        '200':
+          description: Historial de ejercicios obtenido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        exercise_name:
+                          type: string
+                        muscular_group:
+                          type: string
+                        used_weight:
+                          type: number
+                        reps:
+                          type: integer
+                        sets:
+                          type: integer
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/progress/me/ejercicios/{id_exercise}:
+    get:
+      operationId: getExerciseHistoryByExercise
+      tags: [Progress]
+      summary: Obtener historial de un ejercicio específico
+      description: >
+        Obtiene el historial de un ejercicio específico del usuario autenticado.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id_exercise
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del ejercicio
+          example: 5
+      responses:
+        '200':
+          description: Historial del ejercicio obtenido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        used_weight:
+                          type: number
+                        reps:
+                          type: integer
+                        sets:
+                          type: integer
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/progress/me/ejercicios/{id_exercise}/mejor:
+    get:
+      operationId: getPersonalRecord
+      tags: [Progress]
+      summary: Obtener récord personal de un ejercicio
+      description: >
+        Obtiene el mejor levantamiento (peso máximo) del usuario
+        para un ejercicio específico.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id_exercise
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del ejercicio
+          example: 5
+      responses:
+        '200':
+          description: Récord personal obtenido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    
+                    properties:
+                      date:
+                        type: string
+                        format: date
+                      used_weight:
+                        type: number
+                      reps:
+                        type: integer
+                      sets:
+                        type: integer
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/progress/me/ejercicios/{id_exercise}/promedio:
+    get:
+      operationId: getExerciseAverages
+      tags: [Progress]
+      summary: Obtener promedios de un ejercicio
+      description: >
+        Obtiene los promedios de peso, repeticiones y sets
+        para un ejercicio específico del usuario.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id_exercise
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del ejercicio
+          example: 5
+      responses:
+        '200':
+          description: Promedios obtenidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    
+                    properties:
+                      average_weight:
+                        type: number
+                        description: Peso promedio
+                      average_reps:
+                        type: number
+                        description: Repeticiones promedio
+                      average_sets:
+                        type: number
+                        description: Sets promedio
+                      total_records:
+                        type: integer
+                        description: Total de registros
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ==================== Media ====================
+  /api/media:
+    get:
+      operationId: listUserMedia
+      tags: [Media]
+      summary: Listar archivos multimedia del usuario
+      description: >
+        Obtiene todos los archivos multimedia asociados al usuario autenticado.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lista de archivos multimedia
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MediaResponse'
+        '401':
+          description: No autorizado
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
     post:
-      operationId: registerWorkoutSet
-      tags: [Workouts]
-      summary: Registrar un set
+      operationId: createMedia
+      tags: [Media]
+      summary: Crear un nuevo archivo multimedia
+      description: >
+        Crea un nuevo registro de archivo multimedia asociado a una entidad
+        (usuario, gimnasio, ejercicio, progreso).
       security:
         - BearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegisterWorkoutSetRequest'
+              type: object
+              required:
+                - entity_type
+                - entity_id
+                - url
+              properties:
+                entity_type:
+                  type: string
+                  enum: [USER_PROFILE, GYM, EXERCISE, PROGRESS]
+                  description: Tipo de entidad
+                  example: GYM
+                entity_id:
+                  type: integer
+                  description: ID de la entidad
+                  example: 5
+                media_type:
+                  type: string
+                  enum: [IMAGE, VIDEO]
+                  default: IMAGE
+                  description: Tipo de archivo
+                url:
+                  type: string
+                  format: uri
+                  description: URL del archivo
+                  example: 'https://example.com/gym.jpg'
+                thumbnail_url:
+                  type: string
+                  format: uri
+                  description: URL de la miniatura
+                  example: 'https://example.com/gym-thumb.jpg'
+                file_size:
+                  type: integer
+                  description: Tamaño del archivo en bytes
+                  example: 1024000
+                mime_type:
+                  type: string
+                  description: Tipo MIME del archivo
+                  example: 'image/jpeg'
+                width:
+                  type: integer
+                  description: Ancho de la imagen en píxeles
+                  example: 1920
+                height:
+                  type: integer
+                  description: Alto de la imagen en píxeles
+                  example: 1080
+                is_primary:
+                  type: boolean
+                  default: false
+                  description: Si es el archivo principal de la entidad
+                display_order:
+                  type: integer
+                  default: 0
+                  description: Orden de visualización
       responses:
         '201':
-          description: Set registrado
+          description: Archivo multimedia creado
           content:
             application/json:
               schema:
@@ -5086,35 +3137,87 @@ paths:
                   message:
                     type: string
                   data:
-                    $ref: '#/components/schemas/WorkoutSet'
+                    $ref: '#/components/schemas/MediaResponse'
         '400':
           description: Datos inválidos
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /api/workouts/sets/{id}:
-    put:
-      operationId: updateWorkoutSet
-      tags: [Workouts]
-      summary: Actualizar un set
-      security:
-        - BearerAuth: []
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/media/{entity_type}/{entity_id}:
+    get:
+      operationId: listMediaByEntity
+      tags: [Media]
+      summary: Listar archivos multimedia de una entidad
+      description: >
+        Obtiene todos los archivos multimedia asociados a una entidad específica
+        (usuario, gimnasio, ejercicio, progreso).
       parameters:
-        - name: id
+        - name: entity_type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [USER_PROFILE, GYM, EXERCISE, PROGRESS]
+          description: Tipo de entidad
+          example: GYM
+        - name: entity_id
           in: path
           required: true
           schema:
             type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateWorkoutSetRequest'
+          description: ID de la entidad
+          example: 5
+        - name: media_type
+          in: query
+          schema:
+            type: string
+            enum: [IMAGE, VIDEO]
+          description: Filtrar por tipo de archivo
       responses:
         '200':
-          description: Set actualizado
+          description: Lista de archivos multimedia
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MediaResponse'
+        '400':
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/media/{id_media}/primary:
+    post:
+      operationId: setPrimaryMedia
+      tags: [Media]
+      summary: Establecer archivo como principal
+      description: >
+        Marca un archivo multimedia como principal para su entidad.
+        Automáticamente desmarca otros archivos de la misma entidad.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id_media
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del archivo multimedia
+          example: 1
+      responses:
+        '200':
+          description: Archivo marcado como principal
           content:
             application/json:
               schema:
@@ -5123,30 +3226,48 @@ paths:
                   message:
                     type: string
                   data:
-                    $ref: '#/components/schemas/WorkoutSet'
-        '404':
-          description: Recurso no encontrado
+                    $ref: '#/components/schemas/MediaResponse'
+        '401':
+          description: No autorizado
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '404':
+          description: Archivo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/media/{id_media}:
     delete:
-      operationId: deleteWorkoutSet
-      tags: [Workouts]
-      summary: Eliminar un set
+      operationId: deleteMedia
+      tags: [Media]
+      summary: Eliminar archivo multimedia
+      description: >
+        Elimina un archivo multimedia del sistema.
       security:
         - BearerAuth: []
       parameters:
-        - name: id
+        - name: id_media
           in: path
           required: true
           schema:
             type: integer
+          description: ID del archivo multimedia
+          example: 1
       responses:
         '204':
-          description: Set eliminado
+          description: Archivo eliminado exitosamente
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
-          description: Recurso no encontrado
+          description: Archivo no encontrado
           content:
             application/json:
               schema:
@@ -7042,1106 +5163,125 @@ components:
         notes:
           type: string
 
-    # ==================== Exercise Schemas ====================
-    Exercise:
+    # ==================== Progress Schemas ====================
+    ProgressResponse:
       type: object
       properties:
-        id_exercise:
+        id_progress:
           type: integer
-        exercise_name:
-          type: string
-        muscular_group:
-          type: string
-        description:
-          type: string
-        equipment_needed:
-          type: string
-        difficulty:
-          type: string
-          enum: [beginner, intermediate, advanced]
-        instructions:
-          type: string
-        video_url:
-          type: string
-        created_by:
-          type: integer
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - id_exercise
-        - exercise_name
-    CreateExerciseRequest:
-      type: object
-      properties:
-        exercise_name:
-          type: string
-        muscular_group:
-          type: string
-        description:
-          type: string
-        equipment_needed:
-          type: string
-        difficulty:
-          type: string
-          enum: [beginner, intermediate, advanced]
-        instructions:
-          type: string
-        video_url:
-          type: string
-      required:
-        - exercise_name
-    UpdateExerciseRequest:
-      type: object
-      properties:
-        exercise_name:
-          type: string
-        muscular_group:
-          type: string
-        description:
-          type: string
-        equipment_needed:
-          type: string
-        difficulty:
-          type: string
-          enum: [beginner, intermediate, advanced]
-        instructions:
-          type: string
-        video_url:
-          type: string
-    PaginatedExercisesResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Exercise'
-        page:
-          type: integer
-        limit:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-    # ==================== Routine Schemas ====================
-    Routine:
-      type: object
-      properties:
-        id_routine:
-          type: integer
-        routine_name:
-          type: string
-        description:
-          type: string
-        created_by:
-          type: integer
-        is_template:
-          type: boolean
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - id_routine
-        - routine_name
-    RoutineWithDetails:
-      allOf:
-        - $ref: '#/components/schemas/Routine'
-        - type: object
-          properties:
-            creator:
-              type: object
-              properties:
-                id_user_profile:
-                  type: integer
-                name:
-                  type: string
-                lastname:
-                  type: string
-            days:
-              type: array
-              items:
-                $ref: '#/components/schemas/RoutineDay'
-            exercises:
-              type: array
-              items:
-                $ref: '#/components/schemas/ExerciseInRoutine'
-    RoutineDay:
-      type: object
-      properties:
-        id_routine_day:
-          type: integer
-        id_routine:
-          type: integer
-        day_number:
-          type: integer
-        title:
-          type: string
-        description:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - id_routine_day
-        - id_routine
-        - day_number
-    RoutineExercise:
-      type: object
-      properties:
-        id_routine:
-          type: integer
-        id_exercise:
-          type: integer
-        id_routine_day:
-          type: integer
-        series:
-          type: integer
-        reps:
-          type: string
-        order:
-          type: integer
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - id_routine
-        - id_exercise
-        - series
-        - reps
-        - order
-    ExerciseInRoutine:
-      type: object
-      properties:
-        id_exercise:
-          type: integer
-        exercise_name:
-          type: string
-        muscular_group:
-          type: string
-        series:
-          type: integer
-        reps:
-          type: string
-        order:
-          type: integer
-        id_routine_day:
-          type: integer
-    CreateRoutineRequest:
-      type: object
-      properties:
-        routine_name:
-          type: string
-        description:
-          type: string
-        exercises:
-          type: array
-          items:
-            type: object
-            properties:
-              id_exercise:
-                type: integer
-              series:
-                type: integer
-              reps:
-                type: string
-              order:
-                type: integer
-              day_number:
-                type: integer
-            required:
-              - id_exercise
-              - series
-              - reps
-              - order
-          minItems: 3
-        days:
-          type: array
-          items:
-            type: object
-            properties:
-              day_number:
-                type: integer
-              title:
-                type: string
-              description:
-                type: string
-            required:
-              - day_number
-      required:
-        - routine_name
-        - exercises
-    UpdateRoutineRequest:
-      type: object
-      properties:
-        routine_name:
-          type: string
-        description:
-          type: string
-    AddExerciseToRoutineRequest:
-      type: object
-      properties:
-        id_exercise:
-          type: integer
-        series:
-          type: integer
-        reps:
-          type: string
-        order:
-          type: integer
-        id_routine_day:
-          type: integer
-      required:
-        - id_exercise
-        - series
-        - reps
-        - order
-    UpdateRoutineExerciseRequest:
-      type: object
-      properties:
-        series:
-          type: integer
-        reps:
-          type: string
-        order:
-          type: integer
-        id_routine_day:
-          type: integer
-    CreateRoutineDayRequest:
-      type: object
-      properties:
-        day_number:
-          type: integer
-        title:
-          type: string
-        description:
-          type: string
-      required:
-        - day_number
-    UpdateRoutineDayRequest:
-      type: object
-      properties:
-        day_number:
-          type: integer
-        title:
-          type: string
-        description:
-          type: string
-    PaginatedRoutinesResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Routine'
-        page:
-          type: integer
-        limit:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-    # ==================== UserRoutine Schemas ====================
-    UserRoutine:
-      type: object
-      properties:
-        id_user_routine:
-          type: integer
-        id_user:
-          type: integer
-        id_routine:
-          type: integer
-        start_date:
-          type: string
-          format: date-time
-        finish_date:
-          type: string
-          format: date-time
-        active:
-          type: boolean
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-        routine:
-          $ref: '#/components/schemas/RoutineWithDetails'
-      required:
-        - id_user_routine
-        - id_user
-        - id_routine
-        - start_date
-        - active
-    UserRoutineCounts:
-      type: object
-      properties:
-        total_owned:
-          type: integer
-        imported_count:
-          type: integer
-        created_count:
-          type: integer
-    AssignRoutineRequest:
-      type: object
-      properties:
-        id_routine:
-          type: integer
-        start_date:
-          type: string
-          format: date-time
-      required:
-        - id_routine
-    ImportRoutineRequest:
-      type: object
-      properties:
-        id_template_routine:
-          type: integer
-      required:
-        - id_template_routine
-    # ==================== Workout Schemas ====================
-    WorkoutSession:
-      type: object
-      properties:
-        id_workout_session:
-          type: integer
+          description: ID del registro de progreso
+          example: 1
         id_user_profile:
           type: integer
-        id_routine:
-          type: integer
-        id_routine_day:
-          type: integer
-        status:
+          description: ID del perfil de usuario
+          example: 10
+        date:
           type: string
-          enum: [IN_PROGRESS, COMPLETED, CANCELLED]
-        started_at:
-          type: string
-          format: date-time
-        finished_at:
-          type: string
-          format: date-time
-        duration_seconds:
-          type: integer
-        total_sets:
-          type: integer
+          format: date
+          description: Fecha del registro
+          example: '2025-01-15'
+        total_weight_lifted:
+          type: number
+          format: float
+          description: Peso total levantado en kg
+          example: 5000
+          
         total_reps:
           type: integer
-        total_weight:
-          type: number
+          description: Repeticiones totales
+          example: 100
+          
+        total_sets:
+          type: integer
+          description: Sets totales
+          example: 20
+          
         notes:
           type: string
+          description: Notas adicionales
+          example: 'Great workout session'
+          
         created_at:
           type: string
           format: date-time
+          description: Fecha de creación
         updated_at:
           type: string
           format: date-time
-        routine:
-          type: object
-          properties:
-            id_routine:
-              type: integer
-            routine_name:
-              type: string
-        routine_day:
-          type: object
-          properties:
-            id_routine_day:
-              type: integer
-            day_number:
-              type: integer
-            title:
-              type: string
-        sets:
-          type: array
-          items:
-            $ref: '#/components/schemas/WorkoutSet'
-      required:
-        - id_workout_session
-        - id_user_profile
-        - status
-        - started_at
-    WorkoutSet:
-      type: object
-      properties:
-        id_workout_set:
-          type: integer
-        id_workout_session:
-          type: integer
-        id_exercise:
-          type: integer
-        set_number:
-          type: integer
-        weight:
-          type: number
-        reps:
-          type: integer
-        rpe:
-          type: integer
-        rest_seconds:
-          type: integer
-        is_warmup:
-          type: boolean
-        notes:
-          type: string
-        performed_at:
-          type: string
-          format: date-time
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-        exercise:
-          type: object
-          properties:
-            id_exercise:
-              type: integer
-            exercise_name:
-              type: string
-            muscular_group:
-              type: string
-      required:
-        - id_workout_set
-        - id_workout_session
-        - id_exercise
-        - set_number
-    WorkoutStats:
-      type: object
-      properties:
-        total_workouts:
-          type: integer
-        total_sets:
-          type: integer
-        total_reps:
-          type: integer
-        total_weight:
-          type: number
-    StartWorkoutSessionRequest:
-      type: object
-      properties:
-        id_routine:
-          type: integer
-        id_routine_day:
-          type: integer
-        started_at:
-          type: string
-          format: date-time
-        notes:
-          type: string
-    CompleteWorkoutSessionRequest:
-      type: object
-      properties:
-        ended_at:
-          type: string
-          format: date-time
-        notes:
-          type: string
-    UpdateWorkoutSessionRequest:
-      type: object
-      properties:
-        notes:
-          type: string
-    RegisterWorkoutSetRequest:
-      type: object
-      properties:
-        id_exercise:
-          type: integer
-        weight:
-          type: number
-        reps:
-          type: integer
-        rpe:
-          type: integer
-        rest_seconds:
-          type: integer
-        is_warmup:
-          type: boolean
-        notes:
-          type: string
-        performed_at:
-          type: string
-          format: date-time
-      required:
-        - id_exercise
-    UpdateWorkoutSetRequest:
-      type: object
-      properties:
-        weight:
-          type: number
-        reps:
-          type: integer
-        rpe:
-          type: integer
-        rest_seconds:
-          type: integer
-        is_warmup:
-          type: boolean
-        notes:
-          type: string
+          description: Fecha de última actualización
 
-    # ==================== Exercise Schemas ====================
-    Exercise:
+    # ==================== Media Schemas ====================
+    MediaResponse:
       type: object
       properties:
-        id_exercise:
+        id_media:
           type: integer
-        exercise_name:
+          description: ID del archivo multimedia
+          example: 1
+        entity_type:
           type: string
-        muscular_group:
-          type: string
-        description:
-          type: string
-        equipment_needed:
-          type: string
-        difficulty:
-          type: string
-          enum: [beginner, intermediate, advanced]
-        instructions:
-          type: string
-        video_url:
-          type: string
-        created_by:
+          enum: [USER_PROFILE, GYM, EXERCISE, PROGRESS]
+          description: Tipo de entidad asociada
+          example: GYM
+        entity_id:
           type: integer
-        created_at:
+          description: ID de la entidad asociada
+          example: 5
+        media_type:
           type: string
-          format: date-time
-        updated_at:
+          enum: [IMAGE, VIDEO]
+          description: Tipo de archivo
+          example: IMAGE
+        url:
           type: string
-          format: date-time
-      required:
-        - id_exercise
-        - exercise_name
-    CreateExerciseRequest:
-      type: object
-      properties:
-        exercise_name:
+          format: uri
+          description: URL del archivo
+          example: 'https://example.com/gym.jpg'
+        thumbnail_url:
           type: string
-        muscular_group:
-          type: string
-        description:
-          type: string
-        equipment_needed:
-          type: string
-        difficulty:
-          type: string
-          enum: [beginner, intermediate, advanced]
-        instructions:
-          type: string
-        video_url:
-          type: string
-      required:
-        - exercise_name
-    UpdateExerciseRequest:
-      type: object
-      properties:
-        exercise_name:
-          type: string
-        muscular_group:
-          type: string
-        description:
-          type: string
-        equipment_needed:
-          type: string
-        difficulty:
-          type: string
-          enum: [beginner, intermediate, advanced]
-        instructions:
-          type: string
-        video_url:
-          type: string
-    PaginatedExercisesResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Exercise'
-        page:
+          format: uri
+          description: URL de la miniatura
+          example: 'https://example.com/gym-thumb.jpg'
+          
+        file_size:
           type: integer
-        limit:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-    # ==================== Routine Schemas ====================
-    Routine:
-      type: object
-      properties:
-        id_routine:
-          type: integer
-        routine_name:
+          description: Tamaño del archivo en bytes
+          example: 1024000
+          
+        mime_type:
           type: string
-        description:
-          type: string
-        created_by:
+          description: Tipo MIME del archivo
+          example: 'image/jpeg'
+          
+        width:
           type: integer
-        is_template:
+          description: Ancho de la imagen en píxeles
+          example: 1920
+          
+        height:
+          type: integer
+          description: Alto de la imagen en píxeles
+          example: 1080
+          
+        is_primary:
           type: boolean
+          description: Si es el archivo principal de la entidad
+          example: true
+          default: false
+        display_order:
+          type: integer
+          description: Orden de visualización
+          example: 0
+          default: 0
+        uploaded_at:
+          type: string
+          format: date-time
+          description: Fecha de carga
         created_at:
           type: string
           format: date-time
+          description: Fecha de creación
         updated_at:
           type: string
           format: date-time
-      required:
-        - id_routine
-        - routine_name
-    RoutineWithDetails:
-      allOf:
-        - $ref: '#/components/schemas/Routine'
-        - type: object
-          properties:
-            creator:
-              type: object
-              properties:
-                id_user_profile:
-                  type: integer
-                name:
-                  type: string
-                lastname:
-                  type: string
-            days:
-              type: array
-              items:
-                $ref: '#/components/schemas/RoutineDay'
-            exercises:
-              type: array
-              items:
-                $ref: '#/components/schemas/ExerciseInRoutine'
-    RoutineDay:
-      type: object
-      properties:
-        id_routine_day:
-          type: integer
-        id_routine:
-          type: integer
-        day_number:
-          type: integer
-        title:
-          type: string
-        description:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - id_routine_day
-        - id_routine
-        - day_number
-    RoutineExercise:
-      type: object
-      properties:
-        id_routine:
-          type: integer
-        id_exercise:
-          type: integer
-        id_routine_day:
-          type: integer
-        series:
-          type: integer
-        reps:
-          type: string
-        order:
-          type: integer
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - id_routine
-        - id_exercise
-        - series
-        - reps
-        - order
-    ExerciseInRoutine:
-      type: object
-      properties:
-        id_exercise:
-          type: integer
-        exercise_name:
-          type: string
-        muscular_group:
-          type: string
-        series:
-          type: integer
-        reps:
-          type: string
-        order:
-          type: integer
-        id_routine_day:
-          type: integer
-    CreateRoutineRequest:
-      type: object
-      properties:
-        routine_name:
-          type: string
-        description:
-          type: string
-        exercises:
-          type: array
-          items:
-            type: object
-            properties:
-              id_exercise:
-                type: integer
-              series:
-                type: integer
-              reps:
-                type: string
-              order:
-                type: integer
-              day_number:
-                type: integer
-            required:
-              - id_exercise
-              - series
-              - reps
-              - order
-          minItems: 3
-        days:
-          type: array
-          items:
-            type: object
-            properties:
-              day_number:
-                type: integer
-              title:
-                type: string
-              description:
-                type: string
-            required:
-              - day_number
-      required:
-        - routine_name
-        - exercises
-    UpdateRoutineRequest:
-      type: object
-      properties:
-        routine_name:
-          type: string
-        description:
-          type: string
-    AddExerciseToRoutineRequest:
-      type: object
-      properties:
-        id_exercise:
-          type: integer
-        series:
-          type: integer
-        reps:
-          type: string
-        order:
-          type: integer
-        id_routine_day:
-          type: integer
-      required:
-        - id_exercise
-        - series
-        - reps
-        - order
-    UpdateRoutineExerciseRequest:
-      type: object
-      properties:
-        series:
-          type: integer
-        reps:
-          type: string
-        order:
-          type: integer
-        id_routine_day:
-          type: integer
-    CreateRoutineDayRequest:
-      type: object
-      properties:
-        day_number:
-          type: integer
-        title:
-          type: string
-        description:
-          type: string
-      required:
-        - day_number
-    UpdateRoutineDayRequest:
-      type: object
-      properties:
-        day_number:
-          type: integer
-        title:
-          type: string
-        description:
-          type: string
-    PaginatedRoutinesResponse:
-      type: object
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Routine'
-        page:
-          type: integer
-        limit:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-    # ==================== UserRoutine Schemas ====================
-    UserRoutine:
-      type: object
-      properties:
-        id_user_routine:
-          type: integer
-        id_user:
-          type: integer
-        id_routine:
-          type: integer
-        start_date:
-          type: string
-          format: date-time
-        finish_date:
-          type: string
-          format: date-time
-        active:
-          type: boolean
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-        routine:
-          $ref: '#/components/schemas/RoutineWithDetails'
-      required:
-        - id_user_routine
-        - id_user
-        - id_routine
-        - start_date
-        - active
-    UserRoutineCounts:
-      type: object
-      properties:
-        total_owned:
-          type: integer
-        imported_count:
-          type: integer
-        created_count:
-          type: integer
-    AssignRoutineRequest:
-      type: object
-      properties:
-        id_routine:
-          type: integer
-        start_date:
-          type: string
-          format: date-time
-      required:
-        - id_routine
-    ImportRoutineRequest:
-      type: object
-      properties:
-        id_template_routine:
-          type: integer
-      required:
-        - id_template_routine
-    # ==================== Workout Schemas ====================
-    WorkoutSession:
-      type: object
-      properties:
-        id_workout_session:
-          type: integer
-        id_user_profile:
-          type: integer
-        id_routine:
-          type: integer
-        id_routine_day:
-          type: integer
-        status:
-          type: string
-          enum: [IN_PROGRESS, COMPLETED, CANCELLED]
-        started_at:
-          type: string
-          format: date-time
-        finished_at:
-          type: string
-          format: date-time
-        duration_seconds:
-          type: integer
-        total_sets:
-          type: integer
-        total_reps:
-          type: integer
-        total_weight:
-          type: number
-        notes:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-        routine:
-          type: object
-          properties:
-            id_routine:
-              type: integer
-            routine_name:
-              type: string
-        routine_day:
-          type: object
-          properties:
-            id_routine_day:
-              type: integer
-            day_number:
-              type: integer
-            title:
-              type: string
-        sets:
-          type: array
-          items:
-            $ref: '#/components/schemas/WorkoutSet'
-      required:
-        - id_workout_session
-        - id_user_profile
-        - status
-        - started_at
-    WorkoutSet:
-      type: object
-      properties:
-        id_workout_set:
-          type: integer
-        id_workout_session:
-          type: integer
-        id_exercise:
-          type: integer
-        set_number:
-          type: integer
-        weight:
-          type: number
-        reps:
-          type: integer
-        rpe:
-          type: integer
-        rest_seconds:
-          type: integer
-        is_warmup:
-          type: boolean
-        notes:
-          type: string
-        performed_at:
-          type: string
-          format: date-time
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-        exercise:
-          type: object
-          properties:
-            id_exercise:
-              type: integer
-            exercise_name:
-              type: string
-            muscular_group:
-              type: string
-      required:
-        - id_workout_set
-        - id_workout_session
-        - id_exercise
-        - set_number
-    WorkoutStats:
-      type: object
-      properties:
-        total_workouts:
-          type: integer
-        total_sets:
-          type: integer
-        total_reps:
-          type: integer
-        total_weight:
-          type: number
-    StartWorkoutSessionRequest:
-      type: object
-      properties:
-        id_routine:
-          type: integer
-        id_routine_day:
-          type: integer
-        started_at:
-          type: string
-          format: date-time
-        notes:
-          type: string
-    CompleteWorkoutSessionRequest:
-      type: object
-      properties:
-        ended_at:
-          type: string
-          format: date-time
-        notes:
-          type: string
-    UpdateWorkoutSessionRequest:
-      type: object
-      properties:
-        notes:
-          type: string
-    RegisterWorkoutSetRequest:
-      type: object
-      properties:
-        id_exercise:
-          type: integer
-        weight:
-          type: number
-        reps:
-          type: integer
-        rpe:
-          type: integer
-        rest_seconds:
-          type: integer
-        is_warmup:
-          type: boolean
-        notes:
-          type: string
-        performed_at:
-          type: string
-          format: date-time
-      required:
-        - id_exercise
-    UpdateWorkoutSetRequest:
-      type: object
-      properties:
-        weight:
-          type: number
-        reps:
-          type: integer
-        rpe:
-          type: integer
-        rest_seconds:
-          type: integer
-        is_warmup:
-          type: boolean
-        notes:
-          type: string
+          description: Fecha de última actualización

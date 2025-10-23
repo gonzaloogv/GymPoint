@@ -20,6 +20,9 @@ const exerciseMappers = require('./exercise.mappers');
 const routineMappers = require('./routine.mappers');
 const userRoutineMappers = require('./user-routine.mappers');
 const workoutMappers = require('./workout.mappers');
+// Lote 8: Progress, Media
+const progressMappers = require('./progress.mappers');
+const mediaMappers = require('./media.mappers');
 // Lote 9
 const paymentMappers = require('./payment.mappers');
 const notificationMappers = require('./notification.mappers');
@@ -41,6 +44,8 @@ module.exports = {
   routine: routineMappers,
   userRoutine: userRoutineMappers,
   workout: workoutMappers,
+  progress: progressMappers,
+  media: mediaMappers,
   // Lote 9
   payment: paymentMappers,
   notification: notificationMappers,
@@ -61,6 +66,8 @@ module.exports = {
   routineMappers,
   userRoutineMappers,
   workoutMappers,
+  progressMappers,
+  mediaMappers,
   paymentMappers,
   notificationMappers,
   userFavoriteGymMappers,

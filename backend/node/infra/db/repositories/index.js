@@ -24,6 +24,7 @@ module.exports = {
   workoutRepository: require('./workout.repository'),
   // Lote 8: Progress, Media
   progressRepository: require('./progress.repository'),
+  mediaRepository: require('./media.repository'),
   // Lote 9: Pagos externos, Notifs, Fav/Afiliación
   paymentRepository: require('./payment.repository'),
   notificationRepository: require('./notification.repository'),
