@@ -1,4 +1,4 @@
-import { View, ViewProps } from 'react-native';
+import { View, ViewProps, StyleSheet } from 'react-native';
 import { palette } from '@shared/styles';
 
 /**
@@ -9,14 +9,20 @@ export const GradientCard = ({
   className = '',
   style,
   ...props
-}: ViewProps) => (
-  <View
-    className={`p-4 mb-4 rounded-md border ${className}`}
-    style={{
+}: ViewProps) => {
+  const computedStyle = StyleSheet.flatten([
+    {
       backgroundColor: palette.premiumBg,
       borderColor: palette.premiumBorderAlt,
-      ...style,
-    }}
-    {...props}
-  />
-);
+    },
+    style,
+  ]);
+
+  return (
+    <View
+      className={`p-4 mb-4 rounded-md border ${className}`}
+      style={computedStyle}
+      {...props}
+    />
+  );
+};

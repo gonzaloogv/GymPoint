@@ -1,15 +1,14 @@
 import { useTheme } from '@shared/hooks';
 import React from 'react';
-import { View } from 'react-native';
+import { View, ViewProps, StyleSheet } from 'react-native';
 
 type CardVariant = 'default' | 'elevated' | 'outlined';
 type CardPadding = 'none' | 'sm' | 'md' | 'lg';
 
-interface CardProps {
+interface CardProps extends Omit<ViewProps, 'children'> {
   children: React.ReactNode;
   variant?: CardVariant;
   padding?: CardPadding;
-  className?: string;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -17,6 +16,8 @@ export const Card: React.FC<CardProps> = ({
   variant = 'default',
   padding = 'md',
   className = '',
+  style,
+  ...props
 }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -43,8 +44,10 @@ export const Card: React.FC<CardProps> = ({
     ${className}
   `.trim();
 
+  const computedStyle = StyleSheet.flatten([style]);
+
   return (
-    <View className={cardClasses}>
+    <View className={cardClasses} style={computedStyle} {...props}>
       {children}
     </View>
   );

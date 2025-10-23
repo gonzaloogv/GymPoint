@@ -1,6 +1,6 @@
 import { useTheme } from '@shared/hooks';
 import React from 'react';
-import { TouchableOpacity, Text, ActivityIndicator, View } from 'react-native';
+import { TouchableOpacity, Text, ActivityIndicator, View, StyleProp, ViewStyle, StyleSheet } from 'react-native';
 
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
@@ -16,6 +16,7 @@ interface ButtonProps {
   fullWidth?: boolean;
   icon?: React.ReactNode;
   className?: string;
+  style?: StyleProp<ViewStyle>;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -28,16 +29,17 @@ export const Button: React.FC<ButtonProps> = ({
   fullWidth = false,
   icon,
   className = '',
+  style,
 }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
   const baseClasses = 'rounded-xl flex-row items-center justify-center';
-  
+
   const variantClasses = {
     primary: 'bg-primary',
-    secondary: isDark 
-      ? 'bg-surface-dark border-2 border-border-dark' 
+    secondary: isDark
+      ? 'bg-surface-dark border-2 border-border-dark'
       : 'bg-surface border-2 border-border',
     outline: 'bg-transparent border-2 border-primary',
     ghost: 'bg-transparent',
@@ -82,9 +84,11 @@ export const Button: React.FC<ButtonProps> = ({
     font-semibold
   `.trim();
 
-  const spinnerColor = variant === 'primary' || variant === 'danger' 
-    ? '#FFFFFF' 
+  const spinnerColor = variant === 'primary' || variant === 'danger'
+    ? '#FFFFFF'
     : '#4A9CF5';
+
+  const computedStyle = StyleSheet.flatten([style]);
 
   return (
     <TouchableOpacity
@@ -92,6 +96,7 @@ export const Button: React.FC<ButtonProps> = ({
       disabled={disabled || loading}
       activeOpacity={0.7}
       className={buttonClasses}
+      style={computedStyle}
     >
       {loading ? (
         <ActivityIndicator color={spinnerColor} />

@@ -1,4 +1,4 @@
-import { View, ViewProps } from 'react-native';
+import { View, ViewProps, StyleSheet } from 'react-native';
 import { palette } from '@shared/styles';
 
 type AlertCardProps = ViewProps & {
@@ -14,14 +14,20 @@ export const AlertCard = ({
   className = '',
   style,
   ...props
-}: AlertCardProps) => (
-  <View
-    className={`p-4 mb-4 rounded-xl border ${className}`}
-    style={{
+}: AlertCardProps) => {
+  const computedStyle = StyleSheet.flatten([
+    {
       backgroundColor: premium ? palette.premiumBg : palette.surfaceMuted,
       borderColor: premium ? palette.premiumBorderAlt : palette.neutralBorder,
-      ...style,
-    }}
-    {...props}
-  />
-);
+    },
+    style,
+  ]);
+
+  return (
+    <View
+      className={`p-4 mb-4 rounded-xl border ${className}`}
+      style={computedStyle}
+      {...props}
+    />
+  );
+};

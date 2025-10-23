@@ -1,4 +1,4 @@
-import { View, Text, Pressable, ViewStyle, StyleProp } from 'react-native';
+import { View, Text, Pressable, ViewStyle, StyleProp, StyleSheet } from 'react-native';
 import { useTheme } from '@shared/hooks';
 
 type Option = { value: string; label: string };
@@ -25,14 +25,18 @@ export function SegmentedControl({
   const itemHeight = size === 'sm' ? 'min-h-8' : 'min-h-9';
   const fontSize = size === 'sm' ? 'text-xs' : 'text-sm';
 
+  const computedStyle = StyleSheet.flatten([
+    {
+      borderColor: isDark ? '#2C3444' : '#DDDDDD',
+      backgroundColor: isDark ? '#252B3D' : '#FFFFFF',
+    },
+    style,
+  ]);
+
   return (
     <View
       className="flex-row self-center border rounded-md overflow-hidden"
-      style={{
-        borderColor: isDark ? '#2C3444' : '#DDDDDD',
-        backgroundColor: isDark ? '#252B3D' : '#FFFFFF',
-        ...style,
-      }}
+      style={computedStyle}
     >
       {options.map((opt) => {
         const active = opt.value === value;
