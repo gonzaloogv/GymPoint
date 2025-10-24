@@ -79,7 +79,7 @@ const verificarToken = async (req, res, next) => {
       id_admin_profile: account.adminProfile?.id_admin_profile,
       email: account.email,
       roles: req.roles,
-      subscription: account.userProfile?.subscription || null
+      subscription: account.userProfile?.app_tier || null
     };
 
     next();
@@ -96,7 +96,7 @@ const verificarToken = async (req, res, next) => {
     return res.status(403).json({ 
       error: { 
         code: 'TOKEN_INVALID', 
-        message: 'Token invÃ¡lido' 
+        message: 'Token invalido' 
       } 
     });
   }
@@ -226,7 +226,7 @@ const verificarSuscripcion = (nivelRequerido) => {
       });
     }
 
-    const subscription = req.account.userProfile.subscription;
+    const subscription = req.account.userProfile.app_tier;
 
     // Si requiere PREMIUM, FREE no es suficiente
     if (nivelRequerido === 'PREMIUM' && subscription !== 'PREMIUM') {

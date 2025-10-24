@@ -9,8 +9,8 @@ export interface Reward {
   cost_tokens: number;
   available: boolean;
   stock: number;
-  start_date: string; // ISO date string
-  finish_date: string; // ISO date string
+  start_date: string | null; // ISO date string
+  finish_date: string | null; // ISO date string
   creation_date: string;
   deleted_at: string | null;
 }

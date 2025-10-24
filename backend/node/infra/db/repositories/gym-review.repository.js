@@ -11,7 +11,7 @@ const { toGymReview, toGymReviews, toGymRatingStats } = require('../mappers/gym-
 
 const USER_PROFILE_ASSOC = {
   model: UserProfile,
-  as: 'userProfile',
+  as: 'author',
   attributes: ['id_user_profile', 'name', 'profile_picture_url'],
 };
 
@@ -26,7 +26,12 @@ const GYM_ASSOC = {
 // ============================================================================
 
 async function findReviewsByGymId({ gymId, filters = {}, pagination = {}, sort = {}, options = {} }) {
-  const where = { id_gym: gymId };
+  const where = {};
+
+  // Solo filtrar por gymId si se especificó (para admin puede ser undefined)
+  if (gymId) {
+    where.id_gym = gymId;
+  }
 
   if (filters.min_rating) {
     where.rating = where.rating || {};
@@ -52,7 +57,7 @@ async function findReviewsByGymId({ gymId, filters = {}, pagination = {}, sort =
 
   const { rows, count } = await GymReview.findAndCountAll({
     where,
-    include: [USER_PROFILE_ASSOC],
+    include: [USER_PROFILE_ASSOC, GYM_ASSOC], // Incluir gym para mostrar a qué gym pertenece la review
     limit,
     offset,
     order: [[orderField, orderDir]],

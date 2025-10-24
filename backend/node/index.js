@@ -74,7 +74,7 @@ if (sentryEnabled) {
 
 // Middlewares
 app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(',') || '*',
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true,
   credentials: true
 }));
 app.use(express.json());
@@ -132,6 +132,7 @@ app.use('/api/admin/rewards', adminRewardsRoutes);
 app.use('/api/admin/daily-challenges', adminDailyChallengeRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/gym-reviews', reviewRoutes); // Alias OpenAPI para reviews
 app.use('/api/media', mediaRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/location', locationRoutes);

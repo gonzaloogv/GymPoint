@@ -24,6 +24,9 @@ export type UpdateUserProfileRequest = components['schemas']['UpdateUserProfileR
 export type GymResponse = components['schemas']['GymResponse'];
 export type CreateGymRequest = components['schemas']['CreateGymRequest'];
 export type UpdateGymRequest = components['schemas']['UpdateGymRequest'];
+export type GymListResponse = components['schemas']['GymListResponse'];
+// Alias for backwards compatibility
+export type PaginatedGymsResponse = GymListResponse;
 
 // Gym Amenities
 export type GymAmenity = components['schemas']['GymAmenity'];
@@ -31,6 +34,7 @@ export type GymAmenity = components['schemas']['GymAmenity'];
 // Gym Schedules
 export type GymScheduleResponse = components['schemas']['GymScheduleResponse'];
 export type CreateGymScheduleRequest = components['schemas']['CreateGymScheduleRequest'];
+export type UpdateGymScheduleRequest = components['schemas']['UpdateGymScheduleRequest'];
 
 // Gym Special Schedules
 export type GymSpecialScheduleResponse = components['schemas']['GymSpecialScheduleResponse'];
@@ -51,6 +55,7 @@ export type PaginatedGymPaymentsResponse = components['schemas']['PaginatedGymPa
 export type RewardResponse = components['schemas']['RewardResponse'];
 export type CreateRewardRequest = components['schemas']['CreateRewardRequest'];
 export type UpdateRewardRequest = components['schemas']['UpdateRewardRequest'];
+export type PaginatedRewardsResponse = components['schemas']['PaginatedRewardsResponse'];
 
 // Exercises
 export type Exercise = components['schemas']['Exercise'];

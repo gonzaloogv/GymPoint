@@ -6,12 +6,7 @@ components:
         - id_reward
         - name
         - description
-        - type
-        - cost_tokens
-        - available
-        - stock
-        - start_date
-        - finish_date
+        - token_cost
         - created_at
         - updated_at
       properties:
@@ -19,6 +14,11 @@ components:
           type: integer
           description: ID único de la recompensa
           example: 1
+        id_gym:
+          type:
+            - integer
+            - 'null'
+          description: ID del gimnasio (null para recompensas globales)
         name:
           type: string
           description: Nombre de la recompensa
@@ -30,38 +30,56 @@ components:
         type:
           type: string
           description: Tipo de recompensa
-          enum:
-            - descuento
-            - pase_gratis
-            - producto
-            - servicio
-            - merchandising
-            - otro
           example: pase_gratis
-        cost_tokens:
+        token_cost:
           type: integer
           description: Costo en tokens
           minimum: 0
           example: 500
-        available:
-          type: boolean
-          description: Si está disponible para canje
-          default: true
+        discount_percentage:
+          type:
+            - number
+            - 'null'
+          minimum: 0
+          maximum: 100
+        discount_amount:
+          type:
+            - number
+            - 'null'
+          minimum: 0
         stock:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: Stock disponible
           minimum: 0
           example: 10
-        start_date:
-          type: string
+        valid_from:
+          type:
+            - string
+            - 'null'
           format: date
-          description: Fecha de inicio de disponibilidad
+          description: Fecha de inicio de validez
           example: '2025-01-01'
-        finish_date:
-          type: string
+        valid_until:
+          type:
+            - string
+            - 'null'
           format: date
-          description: Fecha de fin de disponibilidad
+          description: Fecha de fin de validez
           example: '2025-12-31'
+        is_active:
+          type: boolean
+          description: Si está activa para canje
+          default: true
+        image_url:
+          type:
+            - string
+            - 'null'
+        terms:
+          type:
+            - string
+            - 'null'
         created_at:
           type: string
           format: date-time
@@ -79,11 +97,7 @@ components:
       required:
         - name
         - description
-        - type
-        - cost_tokens
-        - stock
-        - start_date
-        - finish_date
+        - token_cost
       properties:
         name:
           type: string
@@ -101,21 +115,32 @@ components:
             - servicio
             - merchandising
             - otro
-        cost_tokens:
+        token_cost:
           type: integer
+          minimum: 0
+        discount_percentage:
+          type: number
+          minimum: 0
+          maximum: 100
+        discount_amount:
+          type: number
           minimum: 0
         stock:
           type: integer
           minimum: 0
-        start_date:
+        valid_from:
           type: string
           format: date
-        finish_date:
+        valid_until:
           type: string
           format: date
-        available:
+        is_active:
           type: boolean
           default: true
+        image_url:
+          type: string
+        terms:
+          type: string
     UpdateRewardRequest:
       type: object
       additionalProperties: false
@@ -136,17 +161,53 @@ components:
             - servicio
             - merchandising
             - otro
-        cost_tokens:
+        token_cost:
           type: integer
+          minimum: 0
+        discount_percentage:
+          type: number
+          minimum: 0
+          maximum: 100
+        discount_amount:
+          type: number
           minimum: 0
         stock:
           type: integer
           minimum: 0
-        start_date:
+        valid_from:
           type: string
           format: date
-        finish_date:
+        valid_until:
           type: string
           format: date
-        available:
+        is_active:
           type: boolean
+        image_url:
+          type: string
+        terms:
+          type: string
+    PaginatedRewardsResponse:
+      type: object
+      required:
+        - items
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RewardResponse'
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0

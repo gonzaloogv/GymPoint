@@ -4,6 +4,310 @@
  */
 
 export interface paths {
+    "/api/achievements/definitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar todas las definiciones de logros
+         * @description Obtiene la lista de todas las definiciones de achievements (alias de /api/achievements)
+         */
+        get: operations["listAchievementDefinitions"];
+        put?: never;
+        /**
+         * Crear una nueva definición de logro
+         * @description Crea una nueva definición de achievement (admin)
+         */
+        post: operations["createAchievementDefinition"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/achievements/definitions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener un logro por ID
+         * @description Obtiene los detalles de una definición de achievement
+         */
+        get: operations["getAchievementDefinitionById"];
+        /**
+         * Actualizar una definición de logro
+         * @description Actualiza los datos de un achievement (admin)
+         */
+        put: operations["updateAchievementDefinition"];
+        post?: never;
+        /**
+         * Eliminar un logro
+         * @description Elimina lógicamente un achievement (soft delete)
+         */
+        delete: operations["deleteAchievementDefinition"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/achievements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar todas las definiciones de logros
+         * @description Obtiene la lista de todas las definiciones de achievements
+         */
+        get: operations["listAchievements"];
+        put?: never;
+        /**
+         * Crear una nueva definición de logro
+         * @description Crea una nueva definición de achievement (admin)
+         */
+        post: operations["createAchievement"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/achievements/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener un logro por ID
+         * @description Obtiene los detalles de una definición de achievement
+         */
+        get: operations["getAchievementById"];
+        /**
+         * Actualizar una definición de logro
+         * @description Actualiza los datos de un achievement (admin)
+         */
+        put: operations["updateAchievement"];
+        post?: never;
+        /**
+         * Eliminar un logro
+         * @description Elimina lógicamente un achievement (soft delete)
+         */
+        delete: operations["deleteAchievement"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener estadísticas generales del sistema
+         * @description Devuelve estadísticas del sistema (usuarios, gimnasios, etc.)
+         */
+        get: operations["getAdminStats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener perfil del admin actual
+         * @description Devuelve la información del administrador autenticado
+         */
+        get: operations["getAdminProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener actividad reciente del sistema
+         * @description Devuelve actividad reciente (últimos N días)
+         */
+        get: operations["getAdminActivity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar todos los usuarios
+         * @description Lista paginada de usuarios con filtros
+         */
+        get: operations["listAdminUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Buscar usuario por email
+         * @description Busca un usuario específico por su email
+         */
+        get: operations["searchAdminUser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{id}/tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Otorgar tokens a un usuario
+         * @description Añade o resta tokens del balance de un usuario
+         */
+        post: operations["grantUserTokens"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{id}/subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Actualizar suscripción de usuario
+         * @description Cambia el tipo de suscripción de un usuario
+         */
+        put: operations["adminUpdateUserSubscription"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{id}/deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Desactivar cuenta de usuario
+         * @description Desactiva la cuenta de un usuario
+         */
+        post: operations["deactivateUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{id}/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Activar cuenta de usuario
+         * @description Activa la cuenta de un usuario previamente desactivado
+         */
+        post: operations["activateUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener log de transacciones de tokens
+         * @description Lista paginada de transacciones de tokens
+         */
+        get: operations["getAdminTransactions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/register": {
         parameters: {
             query?: never;
@@ -98,7 +402,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/users/me": {
+    "/api/challenges/today": {
         parameters: {
             query?: never;
             header?: never;
@@ -106,106 +410,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Obtener perfil del usuario actual
-         * @description Devuelve la información completa del perfil del usuario autenticado.
+         * Obtener desafío diario de hoy
+         * @description Retorna el desafío del día actual y el progreso del usuario autenticado.
          */
-        get: operations["getUserProfile"];
-        /**
-         * Actualizar perfil del usuario actual
-         * @description Actualiza los datos del perfil del usuario autenticado. Solo se actualizan los campos proporcionados en el request body.
-         */
-        put: operations["updateUserProfile"];
-        post?: never;
-        /**
-         * Solicitar eliminación de cuenta
-         * @description Inicia el proceso de eliminación de cuenta con período de gracia. La cuenta no se eliminará inmediatamente sino después del período configurado.
-         */
-        delete: operations["requestAccountDeletion"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/users/me/email": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Actualizar email del usuario
-         * @description Actualiza el email del usuario autenticado. Requiere verificación posterior.
-         */
-        put: operations["updateUserEmail"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/users/me/deletion-request": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Obtener estado de solicitud de eliminación
-         * @description Consulta el estado de una solicitud de eliminación de cuenta pendiente.
-         */
-        get: operations["getAccountDeletionStatus"];
-        put?: never;
-        post?: never;
-        /**
-         * Cancelar solicitud de eliminación
-         * @description Cancela una solicitud de eliminación de cuenta pendiente.
-         */
-        delete: operations["cancelAccountDeletion"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/users/me/notification-settings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Obtener configuración de notificaciones
-         * @description Devuelve las preferencias de notificaciones del usuario autenticado.
-         */
-        get: operations["getNotificationSettings"];
-        /**
-         * Actualizar configuración de notificaciones
-         * @description Actualiza las preferencias de notificaciones del usuario autenticado.
-         */
-        put: operations["updateNotificationSettings"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/users/{userId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Obtener perfil de usuario por ID (admin)
-         * @description Devuelve la información del perfil de un usuario específico. Solo para administradores.
-         */
-        get: operations["getUserById"];
+        get: operations["getTodayChallenge"];
         put?: never;
         post?: never;
         delete?: never;
@@ -214,7 +422,246 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/users/{userId}/tokens": {
+    "/api/challenges/{id}/progress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Actualizar progreso del desafío diario
+         * @description Actualiza el progreso del usuario en el desafío. Si alcanza el objetivo, otorga tokens automáticamente.
+         */
+        put: operations["updateChallengeProgress"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/daily-challenge-templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar plantillas de desafíos
+         * @description Obtiene la lista de plantillas de desafíos diarios (admin)
+         */
+        get: operations["listDailyChallengeTemplates"];
+        put?: never;
+        /**
+         * Crear una nueva plantilla de desafío
+         * @description Crea una nueva plantilla de desafío diario (admin)
+         */
+        post: operations["createDailyChallengeTemplate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/daily-challenge-templates/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener una plantilla por ID
+         * @description Obtiene los detalles de una plantilla específica
+         */
+        get: operations["getDailyChallengeTemplateById"];
+        /**
+         * Actualizar una plantilla
+         * @description Actualiza los datos de una plantilla (admin)
+         */
+        put: operations["updateDailyChallengeTemplate"];
+        post?: never;
+        /**
+         * Eliminar una plantilla
+         * @description Elimina una plantilla de desafío
+         */
+        delete: operations["deleteDailyChallengeTemplate"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/daily-challenges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar desafíos diarios
+         * @description Obtiene la lista de desafíos diarios (admin) (alias de /api/daily-challenges)
+         */
+        get: operations["listAdminDailyChallenges"];
+        put?: never;
+        /**
+         * Crear un nuevo desafío diario
+         * @description Crea un nuevo desafío diario (admin)
+         */
+        post: operations["createAdminDailyChallenge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/daily-challenges/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener un desafío diario por ID
+         * @description Obtiene los detalles de un desafío diario específico (admin)
+         */
+        get: operations["getAdminDailyChallengeById"];
+        /**
+         * Actualizar un desafío diario
+         * @description Actualiza los datos de un desafío diario (admin)
+         */
+        put: operations["updateAdminDailyChallenge"];
+        post?: never;
+        /**
+         * Eliminar un desafío diario
+         * @description Elimina un desafío diario (admin)
+         */
+        delete: operations["deleteAdminDailyChallenge"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/daily-challenges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar desafíos diarios
+         * @description Obtiene la lista de desafíos diarios (admin)
+         */
+        get: operations["listDailyChallenges"];
+        put?: never;
+        /**
+         * Crear un nuevo desafío diario
+         * @description Crea un nuevo desafío diario (admin)
+         */
+        post: operations["createDailyChallenge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/daily-challenges/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener un desafío diario por ID
+         * @description Obtiene los detalles de un desafío diario específico
+         */
+        get: operations["getDailyChallengeById"];
+        /**
+         * Actualizar un desafío diario
+         * @description Actualiza los datos de un desafío diario (admin)
+         */
+        put: operations["updateDailyChallenge"];
+        post?: never;
+        /**
+         * Eliminar un desafío diario
+         * @description Elimina un desafío diario
+         */
+        delete: operations["deleteDailyChallenge"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/exercises": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar ejercicios con paginación
+         * @description Retorna la lista de ejercicios con paginación (alias de /api/exercises/paginated)
+         */
+        get: operations["listExercises"];
+        put?: never;
+        /**
+         * Crear un nuevo ejercicio
+         * @description Crea un nuevo ejercicio en el sistema (admin)
+         */
+        post: operations["createExercise"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/exercises/paginated": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listar ejercicios con paginación */
+        get: operations["listExercisesPaginated"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/exercises/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Obtener ejercicio por ID */
+        get: operations["getExerciseById"];
+        /** Actualizar ejercicio */
+        put: operations["updateExercise"];
+        post?: never;
+        /**
+         * Eliminar ejercicio
+         * @description Solo el creador o admin puede eliminar
+         */
+        delete: operations["deleteExercise"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/frequency": {
         parameters: {
             query?: never;
             header?: never;
@@ -224,17 +671,37 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Actualizar tokens de un usuario (admin)
-         * @description Incrementa o decrementa el balance de tokens de un usuario. Solo para administradores.
+         * Crear o actualizar meta semanal
+         * @description Define la meta semanal de asistencias del usuario.
          */
-        post: operations["updateUserTokens"];
+        post: operations["createWeeklyGoal"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/users/{userId}/subscription": {
+    "/api/frequency/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Consultar estado de frecuencia semanal
+         * @description Retorna la meta semanal y el progreso del usuario autenticado.
+         */
+        get: operations["getUserFrequency"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/frequency/reset": {
         parameters: {
             query?: never;
             header?: never;
@@ -243,12 +710,60 @@ export interface paths {
         };
         get?: never;
         /**
-         * Actualizar suscripción de un usuario (admin)
-         * @description Cambia el nivel de suscripción de un usuario. Solo para administradores.
+         * Reiniciar todas las frecuencias semanales (Admin)
+         * @description Reinicia los contadores de asistencias de todos los usuarios (cron semanal).
          */
-        put: operations["updateUserSubscription"];
+        put: operations["resetAllFrequencies"];
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/gym-special-schedules/{gymId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar horarios especiales de un gimnasio
+         * @description Obtiene todos los horarios especiales de un gimnasio específico
+         */
+        get: operations["listGymSpecialSchedules"];
+        put?: never;
+        /**
+         * Crear un horario especial
+         * @description Crea un nuevo horario especial para el gimnasio (admin)
+         */
+        post: operations["createGymSpecialSchedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/gym-special-schedules/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Actualizar un horario especial
+         * @description Actualiza los datos de un horario especial (admin)
+         */
+        put: operations["updateGymSpecialSchedule"];
+        post?: never;
+        /**
+         * Eliminar un horario especial
+         * @description Elimina un horario especial
+         */
+        delete: operations["deleteGymSpecialSchedule"];
         options?: never;
         head?: never;
         patch?: never;
@@ -263,11 +778,14 @@ export interface paths {
         };
         /**
          * Listar gimnasios
-         * @description Lista gimnasios disponibles con paginación y ordenamientos controlados.
+         * @description Obtiene la lista de gimnasios con paginación
          */
         get: operations["listGyms"];
         put?: never;
-        /** Crear un gimnasio */
+        /**
+         * Crear un nuevo gimnasio
+         * @description Crea un nuevo gimnasio en el sistema (admin)
+         */
         post: operations["createGym"];
         delete?: never;
         options?: never;
@@ -397,7 +915,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/challenges/today": {
+    "/api/gym-reviews": {
         parameters: {
             query?: never;
             header?: never;
@@ -405,10 +923,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Obtener desafío diario de hoy
-         * @description Retorna el desafío del día actual y el progreso del usuario autenticado.
+         * Listar todas las reseñas de gimnasios
+         * @description Obtiene la lista de reseñas de todos los gimnasios con paginación
          */
-        get: operations["getTodayChallenge"];
+        get: operations["listAllGymReviews"];
         put?: never;
         post?: never;
         delete?: never;
@@ -417,27 +935,34 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/challenges/{id}/progress": {
+    "/api/gym-reviews/{reviewId}": {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                /** @description ID de la reseña */
+                reviewId: number;
+            };
             cookie?: never;
         };
         get?: never;
         /**
-         * Actualizar progreso del desafío diario
-         * @description Actualiza el progreso del usuario en el desafío. Si alcanza el objetivo, otorga tokens automáticamente.
+         * Actualizar una reseña
+         * @description Actualiza una reseña existente (admin o autor)
          */
-        put: operations["updateChallengeProgress"];
+        put: operations["updateGymReview"];
         post?: never;
-        delete?: never;
+        /**
+         * Eliminar una reseña
+         * @description Elimina una reseña (admin o autor)
+         */
+        delete: operations["deleteGymReview"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/streak/me": {
+    "/api/media": {
         parameters: {
             query?: never;
             header?: never;
@@ -445,10 +970,34 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Obtener racha actual del usuario
-         * @description Retorna la racha de asistencias del usuario autenticado con estadísticas.
+         * Listar archivos multimedia del usuario
+         * @description Obtiene todos los archivos multimedia asociados al usuario autenticado.
          */
-        get: operations["getUserStreak"];
+        get: operations["listUserMedia"];
+        put?: never;
+        /**
+         * Crear un nuevo archivo multimedia
+         * @description Crea un nuevo registro de archivo multimedia asociado a una entidad (usuario, gimnasio, ejercicio, progreso).
+         */
+        post: operations["createMedia"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/media/{entity_type}/{entity_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar archivos multimedia de una entidad
+         * @description Obtiene todos los archivos multimedia asociados a una entidad específica (usuario, gimnasio, ejercicio, progreso).
+         */
+        get: operations["listMediaByEntity"];
         put?: never;
         post?: never;
         delete?: never;
@@ -457,67 +1006,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/streak/use-recovery": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Usar item de recuperación
-         * @description Consume un item de recuperación para mantener la racha activa.
-         */
-        post: operations["useRecoveryItem"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/streak/stats": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Estadísticas globales de rachas (Admin)
-         * @description Retorna estadísticas del sistema de rachas.
-         */
-        get: operations["getStreakStats"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/streak/{id_user_profile}/reset": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Resetear racha de usuario (Admin)
-         * @description Reinicia la racha de un usuario a cero.
-         */
-        put: operations["resetUserStreak"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/streak/{id_user_profile}/grant-recovery": {
+    "/api/media/{id_media}/primary": {
         parameters: {
             query?: never;
             header?: never;
@@ -527,17 +1016,37 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Otorgar items de recuperación (Admin)
-         * @description Añade items de recuperación a la racha de un usuario.
+         * Establecer archivo como principal
+         * @description Marca un archivo multimedia como principal para su entidad. Automáticamente desmarca otros archivos de la misma entidad.
          */
-        post: operations["grantRecoveryItems"];
+        post: operations["setPrimaryMedia"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/frequency": {
+    "/api/media/{id_media}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Eliminar archivo multimedia
+         * @description Elimina un archivo multimedia del sistema.
+         */
+        delete: operations["deleteMedia"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/progress": {
         parameters: {
             query?: never;
             header?: never;
@@ -547,17 +1056,17 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Crear o actualizar meta semanal
-         * @description Define la meta semanal de asistencias del usuario.
+         * Registrar progreso físico del usuario
+         * @description Registra el progreso físico del usuario incluyendo peso total levantado, repeticiones totales, sets totales y ejercicios realizados.
          */
-        post: operations["createWeeklyGoal"];
+        post: operations["registerProgress"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/frequency/me": {
+    "/api/progress/me": {
         parameters: {
             query?: never;
             header?: never;
@@ -565,10 +1074,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Consultar estado de frecuencia semanal
-         * @description Retorna la meta semanal y el progreso del usuario autenticado.
+         * Obtener historial de progreso del usuario
+         * @description Obtiene todo el historial de progreso físico del usuario autenticado con opciones de paginación y filtrado.
          */
-        get: operations["getUserFrequency"];
+        get: operations["getUserProgress"];
         put?: never;
         post?: never;
         delete?: never;
@@ -577,27 +1086,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/frequency/reset": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Reiniciar todas las frecuencias semanales (Admin)
-         * @description Reinicia los contadores de asistencias de todos los usuarios (cron semanal).
-         */
-        put: operations["resetAllFrequencies"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/exercises": {
+    "/api/progress/me/estadistica": {
         parameters: {
             query?: never;
             header?: never;
@@ -605,31 +1094,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Listar todos los ejercicios
-         * @description Obtiene todos los ejercicios con filtros opcionales
+         * Obtener estadísticas de peso levantado
+         * @description Obtiene estadísticas de peso total levantado del usuario en un rango de fechas opcional.
          */
-        get: operations["getAllExercises"];
-        put?: never;
-        /**
-         * Crear un nuevo ejercicio
-         * @description Crea un ejercicio (usuario autenticado se asigna como creador)
-         */
-        post: operations["createExercise"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/exercises/paginated": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Listar ejercicios con paginación */
-        get: operations["listExercisesPaginated"];
+        get: operations["getWeightStats"];
         put?: never;
         post?: never;
         delete?: never;
@@ -638,43 +1106,133 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/exercises/{id}": {
+    "/api/progress/me/ejercicios": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Obtener ejercicio por ID */
-        get: operations["getExerciseById"];
-        /** Actualizar ejercicio */
-        put: operations["updateExercise"];
-        post?: never;
         /**
-         * Eliminar ejercicio
-         * @description Solo el creador o admin puede eliminar
+         * Obtener historial completo de ejercicios
+         * @description Obtiene el historial completo de todos los ejercicios realizados por el usuario autenticado.
          */
-        delete: operations["deleteExercise"];
+        get: operations["getExerciseHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/routines": {
+    "/api/progress/me/ejercicios/{id_exercise}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Obtener historial de un ejercicio específico
+         * @description Obtiene el historial de un ejercicio específico del usuario autenticado.
+         */
+        get: operations["getExerciseHistoryByExercise"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/progress/me/ejercicios/{id_exercise}/mejor": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener récord personal de un ejercicio
+         * @description Obtiene el mejor levantamiento (peso máximo) del usuario para un ejercicio específico.
+         */
+        get: operations["getPersonalRecord"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/progress/me/ejercicios/{id_exercise}/promedio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener promedios de un ejercicio
+         * @description Obtiene los promedios de peso, repeticiones y sets para un ejercicio específico del usuario.
+         */
+        get: operations["getExerciseAverages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rewards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar todas las recompensas
+         * @description Obtiene la lista de todas las recompensas disponibles
+         */
+        get: operations["listRewards"];
         put?: never;
         /**
-         * Crear rutina con ejercicios
-         * @description Crea una rutina completa con ejercicios y días opcionales
+         * Crear una nueva recompensa
+         * @description Crea una nueva recompensa en el sistema (admin)
          */
-        post: operations["createRoutineWithExercises"];
+        post: operations["createReward"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rewards/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener una recompensa por ID
+         * @description Obtiene los detalles de una recompensa específica
+         */
+        get: operations["getRewardById"];
+        /**
+         * Actualizar una recompensa
+         * @description Actualiza los datos de una recompensa existente (admin)
+         */
+        put: operations["updateReward"];
+        post?: never;
+        /**
+         * Eliminar una recompensa
+         * @description Elimina lógicamente una recompensa (soft delete)
+         */
+        delete: operations["deleteReward"];
         options?: never;
         head?: never;
         patch?: never;
@@ -805,6 +1363,106 @@ export interface paths {
         post?: never;
         /** Eliminar día de rutina */
         delete: operations["deleteRoutineDay"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/streak/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener racha actual del usuario
+         * @description Retorna la racha de asistencias del usuario autenticado con estadísticas.
+         */
+        get: operations["getUserStreak"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/streak/use-recovery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Usar item de recuperación
+         * @description Consume un item de recuperación para mantener la racha activa.
+         */
+        post: operations["useRecoveryItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/streak/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Estadísticas globales de rachas (Admin)
+         * @description Retorna estadísticas del sistema de rachas.
+         */
+        get: operations["getStreakStats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/streak/{id_user_profile}/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Resetear racha de usuario (Admin)
+         * @description Reinicia la racha de un usuario a cero.
+         */
+        put: operations["resetUserStreak"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/streak/{id_user_profile}/grant-recovery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Otorgar items de recuperación (Admin)
+         * @description Añade items de recuperación a la racha de un usuario.
+         */
+        post: operations["grantRecoveryItems"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -969,6 +1627,162 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/users/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener perfil del usuario actual
+         * @description Devuelve la información completa del perfil del usuario autenticado.
+         */
+        get: operations["getUserProfile"];
+        /**
+         * Actualizar perfil del usuario actual
+         * @description Actualiza los datos del perfil del usuario autenticado. Solo se actualizan los campos proporcionados en el request body.
+         */
+        put: operations["updateUserProfile"];
+        post?: never;
+        /**
+         * Solicitar eliminación de cuenta
+         * @description Inicia el proceso de eliminación de cuenta con período de gracia. La cuenta no se eliminará inmediatamente sino después del período configurado.
+         */
+        delete: operations["requestAccountDeletion"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/me/email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Actualizar email del usuario
+         * @description Actualiza el email del usuario autenticado. Requiere verificación posterior.
+         */
+        put: operations["updateUserEmail"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/me/deletion-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener estado de solicitud de eliminación
+         * @description Consulta el estado de una solicitud de eliminación de cuenta pendiente.
+         */
+        get: operations["getAccountDeletionStatus"];
+        put?: never;
+        post?: never;
+        /**
+         * Cancelar solicitud de eliminación
+         * @description Cancela una solicitud de eliminación de cuenta pendiente.
+         */
+        delete: operations["cancelAccountDeletion"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/me/notification-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener configuración de notificaciones
+         * @description Devuelve las preferencias de notificaciones del usuario autenticado.
+         */
+        get: operations["getNotificationSettings"];
+        /**
+         * Actualizar configuración de notificaciones
+         * @description Actualiza las preferencias de notificaciones del usuario autenticado.
+         */
+        put: operations["updateNotificationSettings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener perfil de usuario por ID (admin)
+         * @description Devuelve la información del perfil de un usuario específico. Solo para administradores.
+         */
+        get: operations["getUserById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/{userId}/tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Actualizar tokens de un usuario (admin)
+         * @description Incrementa o decrementa el balance de tokens de un usuario. Solo para administradores.
+         */
+        post: operations["updateUserTokens"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/{userId}/subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Actualizar suscripción de un usuario (admin)
+         * @description Cambia el nivel de suscripción de un usuario. Solo para administradores.
+         */
+        put: operations["updateUserSubscription"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/workouts/sessions": {
         parameters: {
             query?: never;
@@ -1125,503 +1939,190 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/progress": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Registrar progreso físico del usuario
-         * @description Registra el progreso físico del usuario incluyendo peso total levantado, repeticiones totales, sets totales y ejercicios realizados.
-         */
-        post: operations["registerProgress"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/progress/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Obtener historial de progreso del usuario
-         * @description Obtiene todo el historial de progreso físico del usuario autenticado con opciones de paginación y filtrado.
-         */
-        get: operations["getUserProgress"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/progress/me/estadistica": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Obtener estadísticas de peso levantado
-         * @description Obtiene estadísticas de peso total levantado del usuario en un rango de fechas opcional.
-         */
-        get: operations["getWeightStats"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/progress/me/ejercicios": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Obtener historial completo de ejercicios
-         * @description Obtiene el historial completo de todos los ejercicios realizados por el usuario autenticado.
-         */
-        get: operations["getExerciseHistory"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/progress/me/ejercicios/{id_exercise}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Obtener historial de un ejercicio específico
-         * @description Obtiene el historial de un ejercicio específico del usuario autenticado.
-         */
-        get: operations["getExerciseHistoryByExercise"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/progress/me/ejercicios/{id_exercise}/mejor": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Obtener récord personal de un ejercicio
-         * @description Obtiene el mejor levantamiento (peso máximo) del usuario para un ejercicio específico.
-         */
-        get: operations["getPersonalRecord"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/progress/me/ejercicios/{id_exercise}/promedio": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Obtener promedios de un ejercicio
-         * @description Obtiene los promedios de peso, repeticiones y sets para un ejercicio específico del usuario.
-         */
-        get: operations["getExerciseAverages"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/media": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Listar archivos multimedia del usuario
-         * @description Obtiene todos los archivos multimedia asociados al usuario autenticado.
-         */
-        get: operations["listUserMedia"];
-        put?: never;
-        /**
-         * Crear un nuevo archivo multimedia
-         * @description Crea un nuevo registro de archivo multimedia asociado a una entidad (usuario, gimnasio, ejercicio, progreso).
-         */
-        post: operations["createMedia"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/media/{entity_type}/{entity_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Listar archivos multimedia de una entidad
-         * @description Obtiene todos los archivos multimedia asociados a una entidad específica (usuario, gimnasio, ejercicio, progreso).
-         */
-        get: operations["listMediaByEntity"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/media/{id_media}/primary": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Establecer archivo como principal
-         * @description Marca un archivo multimedia como principal para su entidad. Automáticamente desmarca otros archivos de la misma entidad.
-         */
-        post: operations["setPrimaryMedia"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/media/{id_media}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Eliminar archivo multimedia
-         * @description Elimina un archivo multimedia del sistema.
-         */
-        delete: operations["deleteMedia"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/rewards": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Listar todas las recompensas
-         * @description Obtiene la lista de todas las recompensas disponibles
-         */
-        get: operations["listRewards"];
-        put?: never;
-        /**
-         * Crear una nueva recompensa
-         * @description Crea una nueva recompensa en el sistema (admin)
-         */
-        post: operations["createReward"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/rewards/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Obtener una recompensa por ID
-         * @description Obtiene los detalles de una recompensa específica
-         */
-        get: operations["getRewardById"];
-        /**
-         * Actualizar una recompensa
-         * @description Actualiza los datos de una recompensa existente (admin)
-         */
-        put: operations["updateReward"];
-        post?: never;
-        /**
-         * Eliminar una recompensa
-         * @description Elimina lógicamente una recompensa (soft delete)
-         */
-        delete: operations["deleteReward"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/achievements": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Listar todas las definiciones de logros
-         * @description Obtiene la lista de todas las definiciones de achievements
-         */
-        get: operations["listAchievements"];
-        put?: never;
-        /**
-         * Crear una nueva definición de logro
-         * @description Crea una nueva definición de achievement (admin)
-         */
-        post: operations["createAchievement"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/achievements/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Obtener un logro por ID
-         * @description Obtiene los detalles de una definición de achievement
-         */
-        get: operations["getAchievementById"];
-        /**
-         * Actualizar una definición de logro
-         * @description Actualiza los datos de un achievement (admin)
-         */
-        put: operations["updateAchievement"];
-        post?: never;
-        /**
-         * Eliminar un logro
-         * @description Elimina lógicamente un achievement (soft delete)
-         */
-        delete: operations["deleteAchievement"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/daily-challenges": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Listar desafíos diarios
-         * @description Obtiene la lista de desafíos diarios (admin)
-         */
-        get: operations["listDailyChallenges"];
-        put?: never;
-        /**
-         * Crear un nuevo desafío diario
-         * @description Crea un nuevo desafío diario (admin)
-         */
-        post: operations["createDailyChallenge"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/daily-challenges/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Obtener un desafío diario por ID
-         * @description Obtiene los detalles de un desafío diario específico
-         */
-        get: operations["getDailyChallengeById"];
-        /**
-         * Actualizar un desafío diario
-         * @description Actualiza los datos de un desafío diario (admin)
-         */
-        put: operations["updateDailyChallenge"];
-        post?: never;
-        /**
-         * Eliminar un desafío diario
-         * @description Elimina un desafío diario
-         */
-        delete: operations["deleteDailyChallenge"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/daily-challenge-templates": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Listar plantillas de desafíos
-         * @description Obtiene la lista de plantillas de desafíos diarios (admin)
-         */
-        get: operations["listDailyChallengeTemplates"];
-        put?: never;
-        /**
-         * Crear una nueva plantilla de desafío
-         * @description Crea una nueva plantilla de desafío diario (admin)
-         */
-        post: operations["createDailyChallengeTemplate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/daily-challenge-templates/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Obtener una plantilla por ID
-         * @description Obtiene los detalles de una plantilla específica
-         */
-        get: operations["getDailyChallengeTemplateById"];
-        /**
-         * Actualizar una plantilla
-         * @description Actualiza los datos de una plantilla (admin)
-         */
-        put: operations["updateDailyChallengeTemplate"];
-        post?: never;
-        /**
-         * Eliminar una plantilla
-         * @description Elimina una plantilla de desafío
-         */
-        delete: operations["deleteDailyChallengeTemplate"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/gym-special-schedules/{gymId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Listar horarios especiales de un gimnasio
-         * @description Obtiene todos los horarios especiales de un gimnasio específico
-         */
-        get: operations["listGymSpecialSchedules"];
-        put?: never;
-        /**
-         * Crear un horario especial
-         * @description Crea un nuevo horario especial para el gimnasio (admin)
-         */
-        post: operations["createGymSpecialSchedule"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/gym-special-schedules/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Actualizar un horario especial
-         * @description Actualiza los datos de un horario especial (admin)
-         */
-        put: operations["updateGymSpecialSchedule"];
-        post?: never;
-        /**
-         * Eliminar un horario especial
-         * @description Elimina un horario especial
-         */
-        delete: operations["deleteGymSpecialSchedule"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        PaginationMeta: {
+            /**
+             * @description Página actual
+             * @example 1
+             */
+            page: number;
+            /**
+             * @description Elementos por página
+             * @example 10
+             */
+            limit: number;
+            /**
+             * @description Total de elementos
+             * @example 42
+             */
+            total: number;
+            /**
+             * @description Total de páginas
+             * @example 5
+             */
+            totalPages: number;
+        };
+        /**
+         * @description Tipo de suscripción del usuario
+         * @enum {string}
+         */
+        SubscriptionType: "FREE" | "PREMIUM";
+        /**
+         * @description Género del usuario (M=Masculino, F=Femenino, O=Otro)
+         * @enum {string}
+         */
+        Gender: "M" | "F" | "O";
+        /**
+         * @description Nivel de dificultad estándar
+         * @enum {string}
+         */
+        DifficultyLevel: "EASY" | "MEDIUM" | "HARD";
+        /**
+         * @description Nivel de dificultad extendido
+         * @enum {string}
+         */
+        ExtendedDifficultyLevel: "EASY" | "MEDIUM" | "HARD" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+        /**
+         * @description Estado de una sesión de entrenamiento
+         * @enum {string}
+         */
+        WorkoutSessionStatus: "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+        /**
+         * @description Estado de una rutina de usuario
+         * @enum {string}
+         */
+        UserRoutineStatus: "ACTIVE" | "COMPLETED" | "CANCELLED";
+        /**
+         * @description Categoría de logro
+         * @enum {string}
+         */
+        AchievementCategory: "ONBOARDING" | "STREAK" | "FREQUENCY" | "ATTENDANCE" | "ROUTINE" | "CHALLENGE" | "PROGRESS" | "TOKEN" | "SOCIAL";
+        /**
+         * @description Grupo muscular objetivo
+         * @enum {string}
+         */
+        MuscleGroup: "CHEST" | "BACK" | "LEGS" | "SHOULDERS" | "ARMS" | "ABS" | "FULL_BODY";
+        /**
+         * @description Tipo de desafío
+         * @enum {string}
+         */
+        ChallengeType: "STEPS" | "CALORIES" | "DURATION" | "REPS" | "DISTANCE";
+        /**
+         * @description Estado del progreso de desafío
+         * @enum {string}
+         */
+        ChallengeProgressStatus: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+        /**
+         * @description Tipo de archivo multimedia
+         * @enum {string}
+         */
+        MediaType: "IMAGE" | "VIDEO";
+        /**
+         * @description Tipo de entidad asociada
+         * @enum {string}
+         */
+        EntityType: "USER_PROFILE" | "GYM" | "EXERCISE" | "PROGRESS";
+        /**
+         * @description Categoría de recompensa
+         * @enum {string}
+         */
+        RewardCategory: "descuento" | "pase_gratis" | "producto" | "servicio" | "merchandising";
+        /**
+         * @description Estado del pago
+         * @enum {string}
+         */
+        PaymentStatus: "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
+        /**
+         * @description Estado de solicitud de eliminación
+         * @enum {string}
+         */
+        AccountDeletionStatus: "PENDING" | "CANCELLED" | "COMPLETED";
+        /**
+         * @description Métrica de logro
+         * @enum {string}
+         */
+        AchievementMetric: "STREAK_DAYS" | "STREAK_RECOVERY_USED" | "ASSISTANCE_TOTAL" | "FREQUENCY_WEEKS_MET" | "ROUTINE_COMPLETED_COUNT" | "CHALLENGE_COMPLETED_COUNT" | "TOKEN_EARNED_TOTAL" | "SOCIAL_SHARE_COUNT";
+        /**
+         * @description Métrica de desafío
+         * @enum {string}
+         */
+        ChallengeMetric: "MINUTES" | "EXERCISES" | "FREQUENCY";
         Error: {
             /**
-             * @description Código de error interno.
-             * @example INVALID_DATA
+             * @description Mensaje de error descriptivo
+             * @example Ha ocurrido un error
+             */
+            error: string;
+        };
+        AchievementDefinitionResponse: {
+            /** @example 1 */
+            id_achievement_definition: number;
+            /**
+             * @description Código único del achievement
+             * @example FIRST_CHECKIN
              */
             code: string;
             /**
-             * @description Descripción legible del error.
-             * @example Datos inválidos.
+             * @description Nombre del achievement
+             * @example Primera Visita
              */
-            message: string;
-            /** @description Lista opcional de detalles adicionales. */
-            details?: Record<string, never>[];
+            name: string;
+            /**
+             * @description Descripción del achievement
+             * @example Completaste tu primera visita al gimnasio
+             */
+            description?: string | null;
+            /** @example ONBOARDING */
+            category: components["schemas"]["AchievementCategory"];
+            /**
+             * @example ASSISTANCE_TOTAL
+             * @enum {string}
+             */
+            metric_type: "STREAK_DAYS" | "STREAK_RECOVERY_USED" | "ASSISTANCE_TOTAL" | "FREQUENCY_WEEKS_MET" | "ROUTINE_COMPLETED_COUNT" | "WORKOUT_SESSION_COMPLETED" | "DAILY_CHALLENGE_COMPLETED_COUNT" | "PR_RECORD_COUNT" | "BODY_WEIGHT_PROGRESS" | "TOKEN_BALANCE_REACHED" | "TOKEN_SPENT_TOTAL" | "ONBOARDING_STEP_COMPLETED";
+            /** @example 1 */
+            target_value: number;
+            /** @description Metadatos adicionales del achievement */
+            metadata?: {
+                token_reward?: number;
+                unlock_message?: string;
+                icon?: string;
+            } | null;
+            /** @example https://cdn.gympoint.app/icons/first-checkin.png */
+            icon_url?: string | null;
+            /** @default true */
+            is_active: boolean;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        CreateAchievementDefinitionRequest: {
+            code: string;
+            name: string;
+            description?: string;
+            category: components["schemas"]["AchievementCategory"];
+            /** @enum {string} */
+            metric_type: "STREAK_DAYS" | "STREAK_RECOVERY_USED" | "ASSISTANCE_TOTAL" | "FREQUENCY_WEEKS_MET" | "ROUTINE_COMPLETED_COUNT" | "WORKOUT_SESSION_COMPLETED" | "DAILY_CHALLENGE_COMPLETED_COUNT" | "PR_RECORD_COUNT" | "BODY_WEIGHT_PROGRESS" | "TOKEN_BALANCE_REACHED" | "TOKEN_SPENT_TOTAL" | "ONBOARDING_STEP_COMPLETED";
+            target_value: number;
+            metadata?: Record<string, never>;
+            icon_url?: string;
+            /** @default true */
+            is_active: boolean;
+        };
+        UpdateAchievementDefinitionRequest: {
+            code?: string;
+            name?: string;
+            description?: string;
+            category?: components["schemas"]["AchievementCategory"];
+            /** @enum {string} */
+            metric_type?: "STREAK_DAYS" | "STREAK_RECOVERY_USED" | "ASSISTANCE_TOTAL" | "FREQUENCY_WEEKS_MET" | "ROUTINE_COMPLETED_COUNT" | "WORKOUT_SESSION_COMPLETED" | "DAILY_CHALLENGE_COMPLETED_COUNT" | "PR_RECORD_COUNT" | "BODY_WEIGHT_PROGRESS" | "TOKEN_BALANCE_REACHED" | "TOKEN_SPENT_TOTAL" | "ONBOARDING_STEP_COMPLETED";
+            target_value?: number;
+            metadata?: Record<string, never>;
+            icon_url?: string;
+            is_active?: boolean;
         };
         AuthSuccessResponse: {
             tokens: components["schemas"]["AuthTokenPair"];
@@ -1647,37 +2148,14 @@ export interface components {
             roles: string[];
             profile: components["schemas"]["UserProfileSummary"];
         };
-        UserProfileSummary: {
-            id_user_profile: number;
-            /** @example Ana */
-            name: string;
-            /** @example Torres */
-            lastname: string;
-            /**
-             * @description Nivel actual de la app.
-             * @enum {string}
-             */
-            subscription: "FREE" | "PREMIUM";
-            /** Format: date-time */
-            premium_since?: string | null;
-            tokens_balance?: number;
-            tokens_lifetime?: number;
-            locality?: string | null;
-            gender?: ("M" | "F" | "O") | null;
-            /** Format: date */
-            birth_date?: string | null;
-        };
         RegisterRequest: {
             /** Format: email */
             email: string;
             password: string;
             name: string;
             lastname: string;
-            /**
-             * @default O
-             * @enum {string}
-             */
-            gender: "M" | "F" | "O";
+            /** @default O */
+            gender: components["schemas"]["Gender"];
             locality?: string;
             /** Format: date */
             birth_date?: string | null;
@@ -1702,14 +2180,377 @@ export interface components {
             accessToken: string;
         };
         LogoutRequest: {
-            /** @description Token a revocar. */
+            /** @description Refresh token a revocar. */
             refreshToken: string;
         };
-        GymListResponse: {
-            page: number;
-            limit: number;
-            total: number;
-            totalPages?: number;
+        UpdateTokensRequest: {
+            /**
+             * @description Cantidad a incrementar (positivo) o decrementar (negativo)
+             * @example 50
+             */
+            delta: number;
+            /**
+             * @description Razón del ajuste de tokens
+             * @example Recompensa por evento especial
+             */
+            reason?: string;
+        };
+        TokensUpdateResponse: {
+            /** @description ID del perfil de usuario */
+            id_user_profile: number;
+            /**
+             * @description Nuevo balance de tokens
+             * @example 200
+             */
+            new_balance: number;
+            /**
+             * @description Cantidad ajustada
+             * @example 50
+             */
+            delta: number;
+        };
+        RegisterWorkoutSetRequest: {
+            id_exercise: number;
+            weight?: number;
+            reps?: number;
+            rpe?: number;
+            rest_seconds?: number;
+            is_warmup?: boolean;
+            notes?: string;
+            /** Format: date-time */
+            performed_at?: string;
+        };
+        TodayChallengeResponse: {
+            challenge?: {
+                id_challenge?: number;
+                /** Format: date */
+                challenge_date?: string;
+                title?: string;
+                description?: string;
+                challenge_type?: components["schemas"]["ChallengeType"];
+                target_value?: number;
+                target_unit?: string;
+                tokens_reward?: number;
+                difficulty?: components["schemas"]["DifficultyLevel"];
+                is_active?: boolean;
+            };
+            progress?: {
+                id_user_challenge?: number;
+                id_user_profile?: number;
+                id_challenge?: number;
+                current_value?: number;
+                status?: components["schemas"]["ChallengeProgressStatus"];
+                /** Format: date-time */
+                completed_at?: string;
+                /** Format: date-time */
+                reward_claimed_at?: string;
+            };
+        };
+        ChallengeProgressResponse: {
+            /** @description Valor actual del progreso */
+            progress: number;
+            /** @description Si el desafío fue completado */
+            completed: boolean;
+            /** @description Tokens otorgados (si se completó) */
+            tokens_earned: number;
+        };
+        DailyChallengeTemplateResponse: {
+            /** @example 1 */
+            id_template: number;
+            /** @example Entrena 30 minutos */
+            title: string;
+            /** @example Completa al menos 30 minutos de ejercicio */
+            description?: string | null;
+            /**
+             * @example MINUTES
+             * @enum {string}
+             */
+            challenge_type: "MINUTES" | "EXERCISES" | "FREQUENCY";
+            /** @example 30 */
+            target_value: number;
+            /** @example minutos */
+            target_unit?: string | null;
+            /**
+             * @default 10
+             * @example 15
+             */
+            tokens_reward: number;
+            /** @example EASY */
+            difficulty: components["schemas"]["ExtendedDifficultyLevel"];
+            /**
+             * @description Peso para la rotación automática (mayor = más frecuente)
+             * @default 1
+             * @example 1.5
+             */
+            rotation_weight: number;
+            /** @default true */
+            is_active: boolean;
+            created_by?: number | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        CreateDailyChallengeTemplateRequest: {
+            title: string;
+            description?: string;
+            /** @enum {string} */
+            challenge_type: "MINUTES" | "EXERCISES" | "FREQUENCY";
+            target_value: number;
+            target_unit?: string;
+            /** @default 10 */
+            tokens_reward: number;
+            /** @default MEDIUM */
+            difficulty: components["schemas"]["ExtendedDifficultyLevel"];
+            /** @default 1 */
+            rotation_weight: number;
+            /** @default true */
+            is_active: boolean;
+        };
+        UpdateDailyChallengeTemplateRequest: {
+            title?: string;
+            description?: string;
+            /** @enum {string} */
+            challenge_type?: "MINUTES" | "EXERCISES" | "FREQUENCY";
+            target_value?: number;
+            target_unit?: string;
+            tokens_reward?: number;
+            difficulty?: components["schemas"]["ExtendedDifficultyLevel"];
+            rotation_weight?: number;
+            is_active?: boolean;
+        };
+        DailyChallengeResponse: {
+            /** @example 1 */
+            id_challenge: number;
+            /**
+             * Format: date
+             * @example 2025-10-23
+             */
+            challenge_date: string;
+            /** @example Entrena 30 minutos */
+            title: string;
+            /** @example Completa al menos 30 minutos de ejercicio hoy */
+            description?: string | null;
+            /**
+             * @example MINUTES
+             * @enum {string}
+             */
+            challenge_type: "MINUTES" | "EXERCISES" | "FREQUENCY";
+            /** @example 30 */
+            target_value: number;
+            /** @example minutos */
+            target_unit?: string | null;
+            /**
+             * @default 10
+             * @example 15
+             */
+            tokens_reward: number;
+            /** @example EASY */
+            difficulty: components["schemas"]["ExtendedDifficultyLevel"];
+            /** @default true */
+            is_active: boolean;
+            /** @description ID de la plantilla usada (si aplica) */
+            id_template?: number | null;
+            /** @default false */
+            auto_generated: boolean;
+            /** @description ID del admin que lo creó */
+            created_by?: number | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        CreateDailyChallengeRequest: {
+            /** Format: date */
+            challenge_date: string;
+            title: string;
+            description?: string;
+            /** @enum {string} */
+            challenge_type: "MINUTES" | "EXERCISES" | "FREQUENCY";
+            target_value: number;
+            target_unit?: string;
+            /** @default 10 */
+            tokens_reward: number;
+            /** @default MEDIUM */
+            difficulty: components["schemas"]["ExtendedDifficultyLevel"];
+            /** @default true */
+            is_active: boolean;
+            id_template?: number;
+            /** @default false */
+            auto_generated: boolean;
+        };
+        UpdateDailyChallengeRequest: {
+            /** Format: date */
+            challenge_date?: string;
+            title?: string;
+            description?: string;
+            /** @enum {string} */
+            challenge_type?: "MINUTES" | "EXERCISES" | "FREQUENCY";
+            target_value?: number;
+            target_unit?: string;
+            tokens_reward?: number;
+            difficulty?: components["schemas"]["ExtendedDifficultyLevel"];
+            is_active?: boolean;
+            id_template?: number;
+            auto_generated?: boolean;
+        };
+        Exercise: {
+            id_exercise: number;
+            exercise_name: string;
+            muscular_group?: string;
+            description?: string;
+            equipment_needed?: string;
+            /** @enum {string} */
+            difficulty?: "beginner" | "intermediate" | "advanced";
+            instructions?: string;
+            video_url?: string;
+            created_by?: number;
+            /** Format: date-time */
+            created_at?: string;
+            /** Format: date-time */
+            updated_at?: string;
+        };
+        CreateExerciseRequest: {
+            exercise_name: string;
+            muscular_group?: string;
+            description?: string;
+            equipment_needed?: string;
+            /** @enum {string} */
+            difficulty?: "beginner" | "intermediate" | "advanced";
+            instructions?: string;
+            video_url?: string;
+        };
+        UpdateExerciseRequest: {
+            exercise_name?: string;
+            muscular_group?: string;
+            description?: string;
+            equipment_needed?: string;
+            /** @enum {string} */
+            difficulty?: "beginner" | "intermediate" | "advanced";
+            instructions?: string;
+            video_url?: string;
+        };
+        PaginatedExercisesResponse: components["schemas"]["PaginationMeta"] & {
+            items: components["schemas"]["Exercise"][];
+        };
+        RoutineExercise: {
+            id_routine: number;
+            id_exercise: number;
+            id_routine_day?: number;
+            series: number;
+            reps: string;
+            order: number;
+            /** Format: date-time */
+            created_at?: string;
+            /** Format: date-time */
+            updated_at?: string;
+        };
+        ExerciseInRoutine: {
+            id_exercise?: number;
+            exercise_name?: string;
+            muscular_group?: string;
+            series?: number;
+            reps?: string;
+            order?: number;
+            id_routine_day?: number;
+        };
+        AddExerciseToRoutineRequest: {
+            id_exercise: number;
+            series: number;
+            reps: string;
+            order: number;
+            id_routine_day?: number;
+        };
+        UpdateRoutineExerciseRequest: {
+            series?: number;
+            reps?: string;
+            order?: number;
+            id_routine_day?: number;
+        };
+        FrequencyResponse: {
+            id_frequency?: number;
+            id_user_profile?: number;
+            /** @description Meta semanal de asistencias */
+            goal?: number;
+            /** @description Asistencias realizadas en la semana actual */
+            assist?: number;
+            /** @description Si alcanzó la meta esta semana */
+            achieved_goal?: boolean;
+            /**
+             * Format: date
+             * @description Fecha de inicio de semana ISO (Lunes)
+             */
+            week_start_date?: string;
+            /** @description Número de semana ISO */
+            week_number?: number;
+            /** @description Año de la semana */
+            year?: number;
+            /** Format: date-time */
+            created_at?: string;
+            /** Format: date-time */
+            updated_at?: string;
+        };
+        GymSpecialScheduleResponse: {
+            /** @example 1 */
+            id_special_schedule: number;
+            /** @example 5 */
+            id_gym: number;
+            /**
+             * Format: date
+             * @description Fecha del horario especial
+             * @example 2025-12-25
+             */
+            date: string;
+            /**
+             * Format: time
+             * @description Hora de apertura (HH:MM)
+             * @example 10:00
+             */
+            opening_time?: string | null;
+            /**
+             * Format: time
+             * @description Hora de cierre (HH:MM)
+             * @example 14:00
+             */
+            closing_time?: string | null;
+            /**
+             * @description Si el gimnasio está cerrado todo el día
+             * @default false
+             */
+            closed: boolean;
+            /**
+             * @description Motivo del horario especial
+             * @example Feriado Nacional - Navidad
+             */
+            motive: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        CreateGymSpecialScheduleRequest: {
+            id_gym: number;
+            /** Format: date */
+            date: string;
+            /** Format: time */
+            opening_time?: string;
+            /** Format: time */
+            closing_time?: string;
+            closed: boolean;
+            motive: string;
+        };
+        UpdateGymSpecialScheduleRequest: {
+            id_gym?: number;
+            /** Format: date */
+            date?: string;
+            /** Format: time */
+            opening_time?: string;
+            /** Format: time */
+            closing_time?: string;
+            closed?: boolean;
+            motive?: string;
+        };
+        GymListResponse: components["schemas"]["PaginationMeta"] & {
             items: components["schemas"]["GymResponse"][];
         };
         GymResponse: {
@@ -1743,6 +2584,45 @@ export interface components {
             created_at: string;
             /** Format: date-time */
             updated_at: string;
+            /** @description Número de WhatsApp */
+            whatsapp?: string | null;
+            /** @description Usuario de Instagram */
+            instagram?: string | null;
+            /** @description URL de Facebook */
+            facebook?: string | null;
+            /** @description URL de Google Maps */
+            google_maps_url?: string | null;
+            /** @description URL de la foto principal del gimnasio */
+            photo_url?: string | null;
+            /** @description URL del logo del gimnasio */
+            logo_url?: string | null;
+            /**
+             * Format: date-time
+             * @description Fecha de registro del gimnasio en la plataforma
+             */
+            registration_date?: string | null;
+            /** @description Redes sociales del gimnasio (objeto JSON) */
+            social_media?: {
+                [key: string]: unknown;
+            } | null;
+            /** @description Servicios ofrecidos por el gimnasio */
+            services?: string[] | null;
+            /** @description Lista de equipamiento disponible */
+            equipment?: string[] | null;
+            /** @description Capacidad máxima de personas */
+            max_capacity?: number | null;
+            /**
+             * Format: float
+             * @description Área en metros cuadrados
+             */
+            area_sqm?: number | null;
+            /** @description Reglas del gimnasio */
+            rules?: string[] | null;
+            /**
+             * Format: date-time
+             * @description Fecha de eliminación (soft delete)
+             */
+            deleted_at?: string | null;
         };
         CreateGymRequest: {
             name: string;
@@ -1756,13 +2636,45 @@ export interface components {
             email?: string;
             /** Format: uri */
             website?: string;
-            social_media?: string[];
+            /** @description Redes sociales del gimnasio (objeto JSON) */
+            social_media?: {
+                [key: string]: unknown;
+            };
             month_price: number;
             week_price?: number;
             /** @default 100 */
             geofence_radius_meters: number;
             /** @default 30 */
             min_stay_minutes: number;
+            /** @description Número de WhatsApp */
+            whatsapp?: string;
+            /** @description Usuario de Instagram */
+            instagram?: string;
+            /** @description URL de Facebook */
+            facebook?: string;
+            /** @description URL de Google Maps */
+            google_maps_url?: string;
+            /** @description URL del logo */
+            logo_url?: string;
+            /** @description URL de la foto principal */
+            photo_url?: string;
+            /** @description Lista de equipamiento */
+            equipment?: string[];
+            /** @description Lista de servicios */
+            services?: string[];
+            /** @description Capacidad máxima */
+            max_capacity?: number;
+            /** @description Área en metros cuadrados */
+            area_sqm?: number;
+            /** @description Gimnasio verificado */
+            verified?: boolean;
+            /** @description Gimnasio destacado */
+            featured?: boolean;
+            /**
+             * @description Auto check-in habilitado
+             * @default true
+             */
+            auto_checkin_enabled: boolean;
             id_types?: number[];
             type_names?: string[];
             amenities?: number[];
@@ -1775,296 +2687,6 @@ export interface components {
             category?: string | null;
         };
         GymTypeList: string[];
-        UserProfileResponse: {
-            /**
-             * @description ID único del perfil de usuario
-             * @example 42
-             */
-            id_user_profile: number;
-            /**
-             * Format: email
-             * @description Email del usuario
-             * @example usuario@example.com
-             */
-            email: string;
-            /**
-             * @description Nombre del usuario
-             * @example Juan
-             */
-            name: string;
-            /**
-             * @description Apellido del usuario
-             * @example Pérez
-             */
-            lastname: string;
-            /**
-             * @description Género del usuario
-             * @example M
-             */
-            gender?: ("M" | "F" | "O") | null;
-            /**
-             * @description Fecha de nacimiento (YYYY-MM-DD)
-             * @example 1990-05-15
-             */
-            birth_date?: string | null;
-            /**
-             * @description Localidad del usuario
-             * @example Buenos Aires
-             */
-            locality?: string | null;
-            /** @description URL de la foto de perfil */
-            profile_picture_url?: string | null;
-            /**
-             * @description Nivel de suscripción actual
-             * @example FREE
-             * @enum {string}
-             */
-            subscription: "FREE" | "PREMIUM";
-            /**
-             * @description Balance actual de tokens
-             * @example 150
-             */
-            tokens: number;
-            /**
-             * @description Idioma preferido (código ISO 639-1)
-             * @example es
-             */
-            preferred_language?: string;
-            /**
-             * @description Zona horaria del usuario
-             * @example America/Argentina/Buenos_Aires
-             */
-            timezone?: string | null;
-            /**
-             * @description Indica si completó el onboarding
-             * @example true
-             */
-            onboarding_completed?: boolean;
-            /**
-             * Format: date-time
-             * @description Fecha de creación del perfil
-             */
-            created_at: string;
-            /** @description Fecha de última actualización */
-            updated_at?: string | null;
-        };
-        UpdateUserProfileRequest: {
-            /** @description Nombre del usuario */
-            name?: string;
-            /** @description Apellido del usuario */
-            lastname?: string;
-            /**
-             * @description Género del usuario
-             * @enum {string}
-             */
-            gender?: "M" | "F" | "O";
-            /**
-             * Format: date
-             * @description Fecha de nacimiento (YYYY-MM-DD)
-             * @example 1990-05-15
-             */
-            birth_date?: string;
-            /** @description Localidad del usuario */
-            locality?: string;
-            /**
-             * Format: uri
-             * @description URL de la foto de perfil
-             */
-            profile_picture_url?: string;
-            /**
-             * @description Idioma preferido (código ISO 639-1)
-             * @example es
-             */
-            preferred_language?: string;
-            /**
-             * @description Zona horaria del usuario
-             * @example America/Argentina/Buenos_Aires
-             */
-            timezone?: string;
-            /** @description Marca el onboarding como completado */
-            onboarding_completed?: boolean;
-        };
-        UpdateEmailRequest: {
-            /**
-             * Format: email
-             * @description Nuevo email del usuario
-             * @example nuevo@example.com
-             */
-            email: string;
-        };
-        EmailUpdateResponse: {
-            /**
-             * Format: email
-             * @description Email actualizado
-             */
-            email: string;
-            /**
-             * @description Estado de verificación del email
-             * @example false
-             */
-            email_verified: boolean;
-            /**
-             * @description Mensaje informativo
-             * @example Email actualizado. Por favor verifica tu nuevo email.
-             */
-            message?: string;
-        };
-        RequestAccountDeletionRequest: {
-            /**
-             * @description Razón de la eliminación (opcional)
-             * @example Ya no uso la aplicación
-             */
-            reason?: string;
-        };
-        AccountDeletionResponse: {
-            /** @description ID de la solicitud de eliminación */
-            id_account_deletion_request?: number;
-            /** @description ID de la cuenta */
-            id_account?: number;
-            /**
-             * @description Estado de la solicitud
-             * @example PENDING
-             * @enum {string}
-             */
-            status: "PENDING" | "CANCELLED" | "COMPLETED";
-            /** @description Razón proporcionada por el usuario */
-            reason?: string | null;
-            /**
-             * Format: date-time
-             * @description Fecha programada para eliminación
-             */
-            scheduled_deletion_date: string;
-            /** @description Fecha de cancelación (si aplica) */
-            cancelled_at?: string | null;
-            /** @description Metadatos adicionales de la solicitud */
-            metadata?: {
-                /**
-                 * @description Días de período de gracia
-                 * @example 30
-                 */
-                grace_period_days?: number;
-            };
-        };
-        AccountDeletionStatusResponse: {
-            /**
-             * @description Indica si hay una solicitud activa
-             * @example true
-             */
-            has_active_request: boolean;
-            /** @description Detalles de la solicitud (si existe) */
-            request?: components["schemas"]["AccountDeletionResponse"] | null;
-        };
-        NotificationSettingsResponse: {
-            /** @description ID único de la configuración */
-            id_user_notification_setting: number;
-            /** @description ID del perfil de usuario */
-            id_user_profile: number;
-            /**
-             * @description Notificaciones push habilitadas
-             * @example true
-             */
-            push_enabled: boolean;
-            /**
-             * @description Notificaciones por email habilitadas
-             * @example true
-             */
-            email_enabled: boolean;
-            /**
-             * @description Recordatorios habilitados
-             * @example true
-             */
-            reminder_enabled?: boolean;
-            /**
-             * @description Notificaciones de logros habilitadas
-             * @example true
-             */
-            achievement_enabled?: boolean;
-            /**
-             * @description Notificaciones de recompensas habilitadas
-             * @example true
-             */
-            reward_enabled?: boolean;
-            /**
-             * @description Novedades de gimnasios habilitadas
-             * @example false
-             */
-            gym_news_enabled?: boolean;
-            /**
-             * @description Inicio de horario silencioso (HH:MM)
-             * @example 22:00
-             */
-            quiet_hours_start?: string | null;
-            /**
-             * @description Fin de horario silencioso (HH:MM)
-             * @example 08:00
-             */
-            quiet_hours_end?: string | null;
-            /**
-             * Format: date-time
-             * @description Fecha de creación
-             */
-            created_at?: string;
-            /** @description Fecha de última actualización */
-            updated_at?: string | null;
-        };
-        UpdateNotificationSettingsRequest: {
-            /** @description Habilitar/deshabilitar notificaciones push */
-            push_enabled?: boolean;
-            /** @description Habilitar/deshabilitar notificaciones por email */
-            email_enabled?: boolean;
-            /** @description Habilitar/deshabilitar recordatorios */
-            reminder_enabled?: boolean;
-            /** @description Habilitar/deshabilitar notificaciones de logros */
-            achievement_enabled?: boolean;
-            /** @description Habilitar/deshabilitar notificaciones de recompensas */
-            reward_enabled?: boolean;
-            /** @description Habilitar/deshabilitar novedades de gimnasios */
-            gym_news_enabled?: boolean;
-            /**
-             * @description Inicio de horario silencioso (HH:MM)
-             * @example 22:00
-             */
-            quiet_hours_start?: string;
-            /**
-             * @description Fin de horario silencioso (HH:MM)
-             * @example 08:00
-             */
-            quiet_hours_end?: string;
-        };
-        UpdateTokensRequest: {
-            /**
-             * @description Cantidad a incrementar (positivo) o decrementar (negativo)
-             * @example 50
-             */
-            delta: number;
-            /**
-             * @description Razón del ajuste de tokens
-             * @example Recompensa por evento especial
-             */
-            reason?: string;
-        };
-        TokensUpdateResponse: {
-            /** @description ID del perfil de usuario */
-            id_user_profile: number;
-            /**
-             * @description Nuevo balance de tokens
-             * @example 200
-             */
-            new_balance: number;
-            /**
-             * @description Cantidad ajustada
-             * @example 50
-             */
-            delta: number;
-        };
-        UpdateSubscriptionRequest: {
-            /**
-             * @description Nuevo nivel de suscripción
-             * @example PREMIUM
-             * @enum {string}
-             */
-            subscription: "FREE" | "PREMIUM";
-        };
         CreateGymScheduleRequest: {
             /**
              * @description Día de la semana (0=Domingo, 1=Lunes, ..., 6=Sábado)
@@ -2086,6 +2708,20 @@ export interface components {
              * @default false
              */
             is_closed: boolean;
+        };
+        UpdateGymScheduleRequest: {
+            /**
+             * @description Hora de apertura (HH:MM o HH:MM:SS)
+             * @example 06:00
+             */
+            open_time?: string;
+            /**
+             * @description Hora de cierre (HH:MM o HH:MM:SS)
+             * @example 22:00
+             */
+            close_time?: string;
+            /** @description Si el gimnasio está cerrado ese día */
+            is_closed?: boolean;
         };
         GymScheduleResponse: {
             /** @description ID del horario */
@@ -2189,12 +2825,8 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
         };
-        PaginatedGymReviewsResponse: {
+        PaginatedGymReviewsResponse: components["schemas"]["PaginationMeta"] & {
             items: components["schemas"]["GymReviewResponse"][];
-            page: number;
-            limit: number;
-            total: number;
-            totalPages: number;
         };
         CreateGymPaymentRequest: {
             /**
@@ -2257,11 +2889,8 @@ export interface components {
              * @description Fin del período
              */
             period_end?: string;
-            /**
-             * @description Estado del pago
-             * @enum {string}
-             */
-            status: "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
+            /** @description Estado del pago */
+            status: components["schemas"]["PaymentStatus"];
             /** @description Número de referencia */
             reference_number?: string;
             /** @description Notas */
@@ -2282,424 +2911,8 @@ export interface components {
             /** Format: date-time */
             updated_at?: string;
         };
-        PaginatedGymPaymentsResponse: {
+        PaginatedGymPaymentsResponse: components["schemas"]["PaginationMeta"] & {
             items: components["schemas"]["GymPaymentResponse"][];
-            page: number;
-            limit: number;
-            total: number;
-            totalPages: number;
-        };
-        TodayChallengeResponse: {
-            challenge?: {
-                id_challenge?: number;
-                /** Format: date */
-                challenge_date?: string;
-                title?: string;
-                description?: string;
-                /** @enum {string} */
-                challenge_type?: "STEPS" | "CALORIES" | "DURATION" | "REPS" | "DISTANCE";
-                target_value?: number;
-                target_unit?: string;
-                tokens_reward?: number;
-                /** @enum {string} */
-                difficulty?: "EASY" | "MEDIUM" | "HARD";
-                is_active?: boolean;
-            };
-            progress?: {
-                id_user_challenge?: number;
-                id_user_profile?: number;
-                id_challenge?: number;
-                current_value?: number;
-                /** @enum {string} */
-                status?: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
-                /** Format: date-time */
-                completed_at?: string;
-                /** Format: date-time */
-                reward_claimed_at?: string;
-            };
-        };
-        ChallengeProgressResponse: {
-            /** @description Valor actual del progreso */
-            progress: number;
-            /** @description Si el desafío fue completado */
-            completed: boolean;
-            /** @description Tokens otorgados (si se completó) */
-            tokens_earned: number;
-        };
-        StreakResponse: {
-            id_streak?: number;
-            id_user_profile?: number;
-            /** @description Días consecutivos de racha actual */
-            value?: number;
-            /** @description Última racha antes de perderla */
-            last_value?: number;
-            /** @description Racha máxima alcanzada */
-            max_value?: number;
-            /** @description Items de recuperación disponibles */
-            recovery_items?: number;
-            /** Format: date-time */
-            last_assistance_date?: string;
-            /** Format: date-time */
-            created_at?: string;
-            /** Format: date-time */
-            updated_at?: string;
-            userProfile?: {
-                id_user_profile?: number;
-                name?: string;
-                lastname?: string;
-            };
-            frequency?: {
-                goal?: number;
-                assist?: number;
-                achieved_goal?: boolean;
-            };
-        };
-        StreakStatsResponse: {
-            /** @description Total de rachas en el sistema */
-            totalStreaks?: number;
-            /** @description Promedio de días de racha */
-            averageStreak?: number;
-            /** @description Racha máxima registrada */
-            maxStreak?: number;
-        };
-        FrequencyResponse: {
-            id_frequency?: number;
-            id_user_profile?: number;
-            /** @description Meta semanal de asistencias */
-            goal?: number;
-            /** @description Asistencias realizadas en la semana actual */
-            assist?: number;
-            /** @description Si alcanzó la meta esta semana */
-            achieved_goal?: boolean;
-            /**
-             * Format: date
-             * @description Fecha de inicio de semana ISO (Lunes)
-             */
-            week_start_date?: string;
-            /** @description Número de semana ISO */
-            week_number?: number;
-            /** @description Año de la semana */
-            year?: number;
-            /** Format: date-time */
-            created_at?: string;
-            /** Format: date-time */
-            updated_at?: string;
-        };
-        Exercise: {
-            id_exercise: number;
-            exercise_name: string;
-            muscular_group?: string;
-            description?: string;
-            equipment_needed?: string;
-            /** @enum {string} */
-            difficulty?: "beginner" | "intermediate" | "advanced";
-            instructions?: string;
-            video_url?: string;
-            created_by?: number;
-            /** Format: date-time */
-            created_at?: string;
-            /** Format: date-time */
-            updated_at?: string;
-        };
-        CreateExerciseRequest: {
-            exercise_name: string;
-            muscular_group?: string;
-            description?: string;
-            equipment_needed?: string;
-            /** @enum {string} */
-            difficulty?: "beginner" | "intermediate" | "advanced";
-            instructions?: string;
-            video_url?: string;
-        };
-        UpdateExerciseRequest: {
-            exercise_name?: string;
-            muscular_group?: string;
-            description?: string;
-            equipment_needed?: string;
-            /** @enum {string} */
-            difficulty?: "beginner" | "intermediate" | "advanced";
-            instructions?: string;
-            video_url?: string;
-        };
-        PaginatedExercisesResponse: {
-            items?: components["schemas"]["Exercise"][];
-            page?: number;
-            limit?: number;
-            total?: number;
-            totalPages?: number;
-        };
-        Routine: {
-            id_routine: number;
-            routine_name: string;
-            description?: string;
-            created_by?: number;
-            is_template?: boolean;
-            /** Format: date-time */
-            created_at?: string;
-            /** Format: date-time */
-            updated_at?: string;
-        };
-        RoutineWithDetails: components["schemas"]["Routine"] & {
-            creator?: {
-                id_user_profile?: number;
-                name?: string;
-                lastname?: string;
-            };
-            days?: components["schemas"]["RoutineDay"][];
-            exercises?: components["schemas"]["ExerciseInRoutine"][];
-        };
-        RoutineDay: {
-            id_routine_day: number;
-            id_routine: number;
-            day_number: number;
-            title?: string;
-            description?: string;
-            /** Format: date-time */
-            created_at?: string;
-            /** Format: date-time */
-            updated_at?: string;
-        };
-        RoutineExercise: {
-            id_routine: number;
-            id_exercise: number;
-            id_routine_day?: number;
-            series: number;
-            reps: string;
-            order: number;
-            /** Format: date-time */
-            created_at?: string;
-            /** Format: date-time */
-            updated_at?: string;
-        };
-        ExerciseInRoutine: {
-            id_exercise?: number;
-            exercise_name?: string;
-            muscular_group?: string;
-            series?: number;
-            reps?: string;
-            order?: number;
-            id_routine_day?: number;
-        };
-        CreateRoutineRequest: {
-            routine_name: string;
-            description?: string;
-            exercises: {
-                id_exercise: number;
-                series: number;
-                reps: string;
-                order: number;
-                day_number?: number;
-            }[];
-            days?: {
-                day_number: number;
-                title?: string;
-                description?: string;
-            }[];
-        };
-        UpdateRoutineRequest: {
-            routine_name?: string;
-            description?: string;
-        };
-        AddExerciseToRoutineRequest: {
-            id_exercise: number;
-            series: number;
-            reps: string;
-            order: number;
-            id_routine_day?: number;
-        };
-        UpdateRoutineExerciseRequest: {
-            series?: number;
-            reps?: string;
-            order?: number;
-            id_routine_day?: number;
-        };
-        CreateRoutineDayRequest: {
-            day_number: number;
-            title?: string;
-            description?: string;
-        };
-        UpdateRoutineDayRequest: {
-            day_number?: number;
-            title?: string;
-            description?: string;
-        };
-        PaginatedRoutinesResponse: {
-            items?: components["schemas"]["Routine"][];
-            page?: number;
-            limit?: number;
-            total?: number;
-            totalPages?: number;
-        };
-        UserRoutine: {
-            id_user_routine: number;
-            id_user: number;
-            id_routine: number;
-            /** Format: date-time */
-            start_date: string;
-            /** Format: date-time */
-            finish_date?: string;
-            active: boolean;
-            /** Format: date-time */
-            created_at?: string;
-            /** Format: date-time */
-            updated_at?: string;
-            routine?: components["schemas"]["RoutineWithDetails"];
-        };
-        UserRoutineCounts: {
-            total_owned?: number;
-            imported_count?: number;
-            created_count?: number;
-        };
-        AssignRoutineRequest: {
-            id_routine: number;
-            /** Format: date-time */
-            start_date?: string;
-        };
-        ImportRoutineRequest: {
-            id_template_routine: number;
-        };
-        WorkoutSession: {
-            id_workout_session: number;
-            id_user_profile: number;
-            id_routine?: number;
-            id_routine_day?: number;
-            /** @enum {string} */
-            status: "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
-            /** Format: date-time */
-            started_at: string;
-            /** Format: date-time */
-            finished_at?: string;
-            duration_seconds?: number;
-            total_sets?: number;
-            total_reps?: number;
-            total_weight?: number;
-            notes?: string;
-            /** Format: date-time */
-            created_at?: string;
-            /** Format: date-time */
-            updated_at?: string;
-            routine?: {
-                id_routine?: number;
-                routine_name?: string;
-            };
-            routine_day?: {
-                id_routine_day?: number;
-                day_number?: number;
-                title?: string;
-            };
-            sets?: components["schemas"]["WorkoutSet"][];
-        };
-        WorkoutSet: {
-            id_workout_set: number;
-            id_workout_session: number;
-            id_exercise: number;
-            set_number: number;
-            weight?: number;
-            reps?: number;
-            rpe?: number;
-            rest_seconds?: number;
-            is_warmup?: boolean;
-            notes?: string;
-            /** Format: date-time */
-            performed_at?: string;
-            /** Format: date-time */
-            created_at?: string;
-            /** Format: date-time */
-            updated_at?: string;
-            exercise?: {
-                id_exercise?: number;
-                exercise_name?: string;
-                muscular_group?: string;
-            };
-        };
-        WorkoutStats: {
-            total_workouts?: number;
-            total_sets?: number;
-            total_reps?: number;
-            total_weight?: number;
-        };
-        StartWorkoutSessionRequest: {
-            id_routine?: number;
-            id_routine_day?: number;
-            /** Format: date-time */
-            started_at?: string;
-            notes?: string;
-        };
-        CompleteWorkoutSessionRequest: {
-            /** Format: date-time */
-            ended_at?: string;
-            notes?: string;
-        };
-        UpdateWorkoutSessionRequest: {
-            notes?: string;
-        };
-        RegisterWorkoutSetRequest: {
-            id_exercise: number;
-            weight?: number;
-            reps?: number;
-            rpe?: number;
-            rest_seconds?: number;
-            is_warmup?: boolean;
-            notes?: string;
-            /** Format: date-time */
-            performed_at?: string;
-        };
-        UpdateWorkoutSetRequest: {
-            weight?: number;
-            reps?: number;
-            rpe?: number;
-            rest_seconds?: number;
-            is_warmup?: boolean;
-            notes?: string;
-        };
-        ProgressResponse: {
-            /**
-             * @description ID del registro de progreso
-             * @example 1
-             */
-            id_progress?: number;
-            /**
-             * @description ID del perfil de usuario
-             * @example 10
-             */
-            id_user_profile?: number;
-            /**
-             * Format: date
-             * @description Fecha del registro
-             * @example 2025-01-15
-             */
-            date?: string;
-            /**
-             * Format: float
-             * @description Peso total levantado en kg
-             * @example 5000
-             */
-            total_weight_lifted?: number;
-            /**
-             * @description Repeticiones totales
-             * @example 100
-             */
-            total_reps?: number;
-            /**
-             * @description Sets totales
-             * @example 20
-             */
-            total_sets?: number;
-            /**
-             * @description Notas adicionales
-             * @example Great workout session
-             */
-            notes?: string;
-            /**
-             * Format: date-time
-             * @description Fecha de creación
-             */
-            created_at?: string;
-            /**
-             * Format: date-time
-             * @description Fecha de última actualización
-             */
-            updated_at?: string;
         };
         MediaResponse: {
             /**
@@ -2710,9 +2923,8 @@ export interface components {
             /**
              * @description Tipo de entidad asociada
              * @example GYM
-             * @enum {string}
              */
-            entity_type?: "USER_PROFILE" | "GYM" | "EXERCISE" | "PROGRESS";
+            entity_type?: components["schemas"]["EntityType"];
             /**
              * @description ID de la entidad asociada
              * @example 5
@@ -2721,9 +2933,8 @@ export interface components {
             /**
              * @description Tipo de archivo
              * @example IMAGE
-             * @enum {string}
              */
-            media_type?: "IMAGE" | "VIDEO";
+            media_type?: components["schemas"]["MediaType"];
             /**
              * Format: uri
              * @description URL del archivo
@@ -2773,6 +2984,55 @@ export interface components {
              * @description Fecha de carga
              */
             uploaded_at?: string;
+            /**
+             * Format: date-time
+             * @description Fecha de creación
+             */
+            created_at?: string;
+            /**
+             * Format: date-time
+             * @description Fecha de última actualización
+             */
+            updated_at?: string;
+        };
+        ProgressResponse: {
+            /**
+             * @description ID del registro de progreso
+             * @example 1
+             */
+            id_progress?: number;
+            /**
+             * @description ID del perfil de usuario
+             * @example 10
+             */
+            id_user_profile?: number;
+            /**
+             * Format: date
+             * @description Fecha del registro
+             * @example 2025-01-15
+             */
+            date?: string;
+            /**
+             * Format: float
+             * @description Peso total levantado en kg
+             * @example 5000
+             */
+            total_weight_lifted?: number;
+            /**
+             * @description Repeticiones totales
+             * @example 100
+             */
+            total_reps?: number;
+            /**
+             * @description Sets totales
+             * @example 20
+             */
+            total_sets?: number;
+            /**
+             * @description Notas adicionales
+             * @example Great workout session
+             */
+            notes?: string;
             /**
              * Format: date-time
              * @description Fecha de creación
@@ -2997,6 +3257,8 @@ export interface components {
              * @example 1
              */
             id_reward: number;
+            /** @description ID del gimnasio (null para recompensas globales) */
+            id_gym?: number | null;
             /**
              * @description Nombre de la recompensa
              * @example Pase VIP 1 mes
@@ -3010,36 +3272,39 @@ export interface components {
             /**
              * @description Tipo de recompensa
              * @example pase_gratis
-             * @enum {string}
              */
-            type: "descuento" | "pase_gratis" | "producto" | "servicio" | "merchandising" | "otro";
+            type?: string;
             /**
              * @description Costo en tokens
              * @example 500
              */
-            cost_tokens: number;
-            /**
-             * @description Si está disponible para canje
-             * @default true
-             */
-            available: boolean;
+            token_cost: number;
+            discount_percentage?: number | null;
+            discount_amount?: number | null;
             /**
              * @description Stock disponible
              * @example 10
              */
-            stock: number;
+            stock?: number | null;
             /**
              * Format: date
-             * @description Fecha de inicio de disponibilidad
+             * @description Fecha de inicio de validez
              * @example 2025-01-01
              */
-            start_date: string;
+            valid_from?: string | null;
             /**
              * Format: date
-             * @description Fecha de fin de disponibilidad
+             * @description Fecha de fin de validez
              * @example 2025-12-31
              */
-            finish_date: string;
+            valid_until?: string | null;
+            /**
+             * @description Si está activa para canje
+             * @default true
+             */
+            is_active: boolean;
+            image_url?: string | null;
+            terms?: string | null;
             /** Format: date-time */
             created_at: string;
             /** Format: date-time */
@@ -3051,317 +3316,617 @@ export interface components {
             name: string;
             description: string;
             /** @enum {string} */
-            type: "descuento" | "pase_gratis" | "producto" | "servicio" | "merchandising" | "otro";
-            cost_tokens: number;
-            stock: number;
+            type?: "descuento" | "pase_gratis" | "producto" | "servicio" | "merchandising" | "otro";
+            token_cost: number;
+            discount_percentage?: number;
+            discount_amount?: number;
+            stock?: number;
             /** Format: date */
-            start_date: string;
+            valid_from?: string;
             /** Format: date */
-            finish_date: string;
+            valid_until?: string;
             /** @default true */
-            available: boolean;
+            is_active: boolean;
+            image_url?: string;
+            terms?: string;
         };
         UpdateRewardRequest: {
             name?: string;
             description?: string;
             /** @enum {string} */
             type?: "descuento" | "pase_gratis" | "producto" | "servicio" | "merchandising" | "otro";
-            cost_tokens?: number;
+            token_cost?: number;
+            discount_percentage?: number;
+            discount_amount?: number;
             stock?: number;
             /** Format: date */
+            valid_from?: string;
+            /** Format: date */
+            valid_until?: string;
+            is_active?: boolean;
+            image_url?: string;
+            terms?: string;
+        };
+        PaginatedRewardsResponse: {
+            items: components["schemas"]["RewardResponse"][];
+            page: number;
+            limit: number;
+            total: number;
+            totalPages: number;
+        };
+        Routine: {
+            id_routine: number;
+            routine_name: string;
+            description?: string;
+            created_by?: number;
+            is_template?: boolean;
+            /** Format: date-time */
+            created_at?: string;
+            /** Format: date-time */
+            updated_at?: string;
+        };
+        RoutineWithDetails: components["schemas"]["Routine"] & {
+            creator?: {
+                id_user_profile?: number;
+                name?: string;
+                lastname?: string;
+            };
+            days?: components["schemas"]["RoutineDay"][];
+            exercises?: components["schemas"]["ExerciseInRoutine"][];
+        };
+        RoutineDay: {
+            id_routine_day: number;
+            id_routine: number;
+            day_number: number;
+            title?: string;
+            description?: string;
+            /** Format: date-time */
+            created_at?: string;
+            /** Format: date-time */
+            updated_at?: string;
+        };
+        CreateRoutineRequest: {
+            routine_name: string;
+            description?: string;
+            exercises: {
+                id_exercise: number;
+                series: number;
+                reps: string;
+                order: number;
+                day_number?: number;
+            }[];
+            days?: {
+                day_number: number;
+                title?: string;
+                description?: string;
+            }[];
+        };
+        UpdateRoutineRequest: {
+            routine_name?: string;
+            description?: string;
+        };
+        CreateRoutineDayRequest: {
+            day_number: number;
+            title?: string;
+            description?: string;
+        };
+        UpdateRoutineDayRequest: {
+            day_number?: number;
+            title?: string;
+            description?: string;
+        };
+        PaginatedRoutinesResponse: components["schemas"]["PaginationMeta"] & {
+            items: components["schemas"]["Routine"][];
+        };
+        AssignRoutineRequest: {
+            id_routine: number;
+            /** Format: date-time */
             start_date?: string;
-            /** Format: date */
+        };
+        ImportRoutineRequest: {
+            id_template_routine: number;
+        };
+        StreakResponse: {
+            id_streak?: number;
+            id_user_profile?: number;
+            /** @description Días consecutivos de racha actual */
+            value?: number;
+            /** @description Última racha antes de perderla */
+            last_value?: number;
+            /** @description Racha máxima alcanzada */
+            max_value?: number;
+            /** @description Items de recuperación disponibles */
+            recovery_items?: number;
+            /** Format: date-time */
+            last_assistance_date?: string;
+            /** Format: date-time */
+            created_at?: string;
+            /** Format: date-time */
+            updated_at?: string;
+            userProfile?: {
+                id_user_profile?: number;
+                name?: string;
+                lastname?: string;
+            };
+            frequency?: {
+                goal?: number;
+                assist?: number;
+                achieved_goal?: boolean;
+            };
+        };
+        StreakStatsResponse: {
+            /** @description Total de rachas en el sistema */
+            totalStreaks?: number;
+            /** @description Promedio de días de racha */
+            averageStreak?: number;
+            /** @description Racha máxima registrada */
+            maxStreak?: number;
+        };
+        UserRoutine: {
+            id_user_routine: number;
+            id_user: number;
+            id_routine: number;
+            /** Format: date-time */
+            start_date: string;
+            /** Format: date-time */
             finish_date?: string;
-            available?: boolean;
+            active: boolean;
+            /** Format: date-time */
+            created_at?: string;
+            /** Format: date-time */
+            updated_at?: string;
+            routine?: components["schemas"]["RoutineWithDetails"];
         };
-        AchievementDefinitionResponse: {
-            /** @example 1 */
-            id_achievement_definition: number;
+        UserRoutineCounts: {
+            total_owned?: number;
+            imported_count?: number;
+            created_count?: number;
+        };
+        UserProfileSummary: {
+            id_user_profile: number;
+            /** @example Ana */
+            name: string;
+            /** @example Torres */
+            lastname: string;
+            /** @description Nivel actual de la app. */
+            subscription: components["schemas"]["SubscriptionType"];
+            /** Format: date-time */
+            premium_since?: string | null;
+            tokens_balance?: number;
+            tokens_lifetime?: number;
+            locality?: string | null;
+            gender?: components["schemas"]["Gender"] | null;
+            /** Format: date */
+            birth_date?: string | null;
+        };
+        UserProfileResponse: {
             /**
-             * @description Código único del achievement
-             * @example FIRST_CHECKIN
+             * @description ID único del perfil de usuario
+             * @example 42
              */
-            code: string;
+            id_user_profile: number;
             /**
-             * @description Nombre del achievement
-             * @example Primera Visita
+             * Format: email
+             * @description Email del usuario
+             * @example usuario@example.com
+             */
+            email: string;
+            /**
+             * @description Nombre del usuario
+             * @example Juan
              */
             name: string;
             /**
-             * @description Descripción del achievement
-             * @example Completaste tu primera visita al gimnasio
+             * @description Apellido del usuario
+             * @example Pérez
              */
-            description?: string | null;
+            lastname: string;
             /**
-             * @example ONBOARDING
-             * @enum {string}
+             * @description Género del usuario
+             * @example M
              */
-            category: "ONBOARDING" | "STREAK" | "FREQUENCY" | "ATTENDANCE" | "ROUTINE" | "CHALLENGE" | "PROGRESS" | "TOKEN" | "SOCIAL";
+            gender?: components["schemas"]["Gender"] | null;
             /**
-             * @example ASSISTANCE_TOTAL
-             * @enum {string}
+             * @description Fecha de nacimiento (YYYY-MM-DD)
+             * @example 1990-05-15
              */
-            metric_type: "STREAK_DAYS" | "STREAK_RECOVERY_USED" | "ASSISTANCE_TOTAL" | "FREQUENCY_WEEKS_MET" | "ROUTINE_COMPLETED_COUNT" | "WORKOUT_SESSION_COMPLETED" | "DAILY_CHALLENGE_COMPLETED_COUNT" | "PR_RECORD_COUNT" | "BODY_WEIGHT_PROGRESS" | "TOKEN_BALANCE_REACHED" | "TOKEN_SPENT_TOTAL" | "ONBOARDING_STEP_COMPLETED";
-            /** @example 1 */
-            target_value: number;
-            /** @description Metadatos adicionales del achievement */
-            metadata?: {
-                token_reward?: number;
-                unlock_message?: string;
-                icon?: string;
-            } | null;
-            /** @example https://cdn.gympoint.app/icons/first-checkin.png */
-            icon_url?: string | null;
-            /** @default true */
-            is_active: boolean;
-            /** Format: date-time */
+            birth_date?: string | null;
+            /**
+             * @description Localidad del usuario
+             * @example Buenos Aires
+             */
+            locality?: string | null;
+            /** @description URL de la foto de perfil */
+            profile_picture_url?: string | null;
+            /**
+             * @description Nivel de suscripción actual
+             * @example FREE
+             */
+            subscription: components["schemas"]["SubscriptionType"];
+            /**
+             * @description Balance actual de tokens
+             * @example 150
+             */
+            tokens: number;
+            /**
+             * @description Idioma preferido (código ISO 639-1)
+             * @example es
+             */
+            preferred_language?: string;
+            /**
+             * @description Zona horaria del usuario
+             * @example America/Argentina/Buenos_Aires
+             */
+            timezone?: string | null;
+            /**
+             * @description Indica si completó el onboarding
+             * @example true
+             */
+            onboarding_completed?: boolean;
+            /**
+             * Format: date-time
+             * @description Fecha de creación del perfil
+             */
             created_at: string;
-            /** Format: date-time */
-            updated_at: string;
+            /** @description Fecha de última actualización */
+            updated_at?: string | null;
         };
-        CreateAchievementDefinitionRequest: {
-            code: string;
-            name: string;
-            description?: string;
-            /** @enum {string} */
-            category: "ONBOARDING" | "STREAK" | "FREQUENCY" | "ATTENDANCE" | "ROUTINE" | "CHALLENGE" | "PROGRESS" | "TOKEN" | "SOCIAL";
-            /** @enum {string} */
-            metric_type: "STREAK_DAYS" | "STREAK_RECOVERY_USED" | "ASSISTANCE_TOTAL" | "FREQUENCY_WEEKS_MET" | "ROUTINE_COMPLETED_COUNT" | "WORKOUT_SESSION_COMPLETED" | "DAILY_CHALLENGE_COMPLETED_COUNT" | "PR_RECORD_COUNT" | "BODY_WEIGHT_PROGRESS" | "TOKEN_BALANCE_REACHED" | "TOKEN_SPENT_TOTAL" | "ONBOARDING_STEP_COMPLETED";
-            target_value: number;
-            metadata?: Record<string, never>;
-            icon_url?: string;
-            /** @default true */
-            is_active: boolean;
-        };
-        UpdateAchievementDefinitionRequest: {
-            code?: string;
+        UpdateUserProfileRequest: {
+            /** @description Nombre del usuario */
             name?: string;
-            description?: string;
-            /** @enum {string} */
-            category?: "ONBOARDING" | "STREAK" | "FREQUENCY" | "ATTENDANCE" | "ROUTINE" | "CHALLENGE" | "PROGRESS" | "TOKEN" | "SOCIAL";
-            /** @enum {string} */
-            metric_type?: "STREAK_DAYS" | "STREAK_RECOVERY_USED" | "ASSISTANCE_TOTAL" | "FREQUENCY_WEEKS_MET" | "ROUTINE_COMPLETED_COUNT" | "WORKOUT_SESSION_COMPLETED" | "DAILY_CHALLENGE_COMPLETED_COUNT" | "PR_RECORD_COUNT" | "BODY_WEIGHT_PROGRESS" | "TOKEN_BALANCE_REACHED" | "TOKEN_SPENT_TOTAL" | "ONBOARDING_STEP_COMPLETED";
-            target_value?: number;
-            metadata?: Record<string, never>;
-            icon_url?: string;
-            is_active?: boolean;
-        };
-        DailyChallengeResponse: {
-            /** @example 1 */
-            id_challenge: number;
+            /** @description Apellido del usuario */
+            lastname?: string;
+            gender?: components["schemas"]["Gender"];
             /**
              * Format: date
-             * @example 2025-10-23
+             * @description Fecha de nacimiento (YYYY-MM-DD)
+             * @example 1990-05-15
              */
-            challenge_date: string;
-            /** @example Entrena 30 minutos */
-            title: string;
-            /** @example Completa al menos 30 minutos de ejercicio hoy */
-            description?: string | null;
+            birth_date?: string;
+            /** @description Localidad del usuario */
+            locality?: string;
             /**
-             * @example MINUTES
+             * Format: uri
+             * @description URL de la foto de perfil
+             */
+            profile_picture_url?: string;
+            /**
+             * @description Idioma preferido (código ISO 639-1)
+             * @example es
+             */
+            preferred_language?: string;
+            /**
+             * @description Zona horaria del usuario
+             * @example America/Argentina/Buenos_Aires
+             */
+            timezone?: string;
+            /** @description Marca el onboarding como completado */
+            onboarding_completed?: boolean;
+        };
+        UpdateEmailRequest: {
+            /**
+             * Format: email
+             * @description Nuevo email del usuario
+             * @example nuevo@example.com
+             */
+            email: string;
+        };
+        EmailUpdateResponse: {
+            /**
+             * Format: email
+             * @description Email actualizado
+             */
+            email: string;
+            /**
+             * @description Estado de verificación del email
+             * @example false
+             */
+            email_verified: boolean;
+            /**
+             * @description Mensaje informativo
+             * @example Email actualizado. Por favor verifica tu nuevo email.
+             */
+            message?: string;
+        };
+        RequestAccountDeletionRequest: {
+            /**
+             * @description Razón de la eliminación (opcional)
+             * @example Ya no uso la aplicación
+             */
+            reason?: string;
+        };
+        AccountDeletionResponse: {
+            /** @description ID de la solicitud de eliminación */
+            id_account_deletion_request?: number;
+            /** @description ID de la cuenta */
+            id_account?: number;
+            /**
+             * @description Estado de la solicitud
+             * @example PENDING
              * @enum {string}
              */
-            challenge_type: "MINUTES" | "EXERCISES" | "FREQUENCY";
-            /** @example 30 */
-            target_value: number;
-            /** @example minutos */
-            target_unit?: string | null;
+            status: "PENDING" | "CANCELLED" | "COMPLETED";
+            /** @description Razón proporcionada por el usuario */
+            reason?: string | null;
             /**
-             * @default 10
-             * @example 15
+             * Format: date-time
+             * @description Fecha programada para eliminación
              */
-            tokens_reward: number;
+            scheduled_deletion_date: string;
+            /** @description Fecha de cancelación (si aplica) */
+            cancelled_at?: string | null;
+            /** @description Metadatos adicionales de la solicitud */
+            metadata?: {
+                /**
+                 * @description Días de período de gracia
+                 * @example 30
+                 */
+                grace_period_days?: number;
+            };
+        };
+        AccountDeletionStatusResponse: {
             /**
-             * @example EASY
+             * @description Indica si hay una solicitud activa
+             * @example true
+             */
+            has_active_request: boolean;
+            /** @description Detalles de la solicitud (si existe) */
+            request?: components["schemas"]["AccountDeletionResponse"] | null;
+        };
+        NotificationSettingsResponse: {
+            /** @description ID único de la configuración */
+            id_user_notification_setting: number;
+            /** @description ID del perfil de usuario */
+            id_user_profile: number;
+            /**
+             * @description Notificaciones push habilitadas
+             * @example true
+             */
+            push_enabled: boolean;
+            /**
+             * @description Notificaciones por email habilitadas
+             * @example true
+             */
+            email_enabled: boolean;
+            /**
+             * @description Recordatorios habilitados
+             * @example true
+             */
+            reminder_enabled?: boolean;
+            /**
+             * @description Notificaciones de logros habilitadas
+             * @example true
+             */
+            achievement_enabled?: boolean;
+            /**
+             * @description Notificaciones de recompensas habilitadas
+             * @example true
+             */
+            reward_enabled?: boolean;
+            /**
+             * @description Novedades de gimnasios habilitadas
+             * @example false
+             */
+            gym_news_enabled?: boolean;
+            /**
+             * @description Inicio de horario silencioso (HH:MM)
+             * @example 22:00
+             */
+            quiet_hours_start?: string | null;
+            /**
+             * @description Fin de horario silencioso (HH:MM)
+             * @example 08:00
+             */
+            quiet_hours_end?: string | null;
+            /**
+             * Format: date-time
+             * @description Fecha de creación
+             */
+            created_at?: string;
+            /** @description Fecha de última actualización */
+            updated_at?: string | null;
+        };
+        UpdateNotificationSettingsRequest: {
+            /** @description Habilitar/deshabilitar notificaciones push */
+            push_enabled?: boolean;
+            /** @description Habilitar/deshabilitar notificaciones por email */
+            email_enabled?: boolean;
+            /** @description Habilitar/deshabilitar recordatorios */
+            reminder_enabled?: boolean;
+            /** @description Habilitar/deshabilitar notificaciones de logros */
+            achievement_enabled?: boolean;
+            /** @description Habilitar/deshabilitar notificaciones de recompensas */
+            reward_enabled?: boolean;
+            /** @description Habilitar/deshabilitar novedades de gimnasios */
+            gym_news_enabled?: boolean;
+            /**
+             * @description Inicio de horario silencioso (HH:MM)
+             * @example 22:00
+             */
+            quiet_hours_start?: string;
+            /**
+             * @description Fin de horario silencioso (HH:MM)
+             * @example 08:00
+             */
+            quiet_hours_end?: string;
+        };
+        UpdateSubscriptionRequest: {
+            /**
+             * @description Nuevo nivel de suscripción
+             * @example PREMIUM
              * @enum {string}
              */
-            difficulty: "EASY" | "MEDIUM" | "HARD" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-            /** @default true */
-            is_active: boolean;
-            /** @description ID de la plantilla usada (si aplica) */
-            id_template?: number | null;
-            /** @default false */
-            auto_generated: boolean;
-            /** @description ID del admin que lo creó */
-            created_by?: number | null;
+            subscription: "FREE" | "PREMIUM";
+        };
+        WorkoutSession: {
+            id_workout_session: number;
+            id_user_profile: number;
+            id_routine?: number;
+            id_routine_day?: number;
+            status: components["schemas"]["WorkoutSessionStatus"];
             /** Format: date-time */
-            created_at: string;
+            started_at: string;
             /** Format: date-time */
-            updated_at: string;
-        };
-        CreateDailyChallengeRequest: {
-            /** Format: date */
-            challenge_date: string;
-            title: string;
-            description?: string;
-            /** @enum {string} */
-            challenge_type: "MINUTES" | "EXERCISES" | "FREQUENCY";
-            target_value: number;
-            target_unit?: string;
-            /** @default 10 */
-            tokens_reward: number;
-            /**
-             * @default MEDIUM
-             * @enum {string}
-             */
-            difficulty: "EASY" | "MEDIUM" | "HARD" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-            /** @default true */
-            is_active: boolean;
-            id_template?: number;
-            /** @default false */
-            auto_generated: boolean;
-        };
-        UpdateDailyChallengeRequest: {
-            /** Format: date */
-            challenge_date?: string;
-            title?: string;
-            description?: string;
-            /** @enum {string} */
-            challenge_type?: "MINUTES" | "EXERCISES" | "FREQUENCY";
-            target_value?: number;
-            target_unit?: string;
-            tokens_reward?: number;
-            /** @enum {string} */
-            difficulty?: "EASY" | "MEDIUM" | "HARD" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-            is_active?: boolean;
-            id_template?: number;
-            auto_generated?: boolean;
-        };
-        DailyChallengeTemplateResponse: {
-            /** @example 1 */
-            id_template: number;
-            /** @example Entrena 30 minutos */
-            title: string;
-            /** @example Completa al menos 30 minutos de ejercicio */
-            description?: string | null;
-            /**
-             * @example MINUTES
-             * @enum {string}
-             */
-            challenge_type: "MINUTES" | "EXERCISES" | "FREQUENCY";
-            /** @example 30 */
-            target_value: number;
-            /** @example minutos */
-            target_unit?: string | null;
-            /**
-             * @default 10
-             * @example 15
-             */
-            tokens_reward: number;
-            /**
-             * @example EASY
-             * @enum {string}
-             */
-            difficulty: "EASY" | "MEDIUM" | "HARD" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-            /**
-             * @description Peso para la rotación automática (mayor = más frecuente)
-             * @default 1
-             * @example 1.5
-             */
-            rotation_weight: number;
-            /** @default true */
-            is_active: boolean;
-            created_by?: number | null;
+            finished_at?: string;
+            duration_seconds?: number;
+            total_sets?: number;
+            total_reps?: number;
+            total_weight?: number;
+            notes?: string;
             /** Format: date-time */
-            created_at: string;
+            created_at?: string;
             /** Format: date-time */
-            updated_at: string;
+            updated_at?: string;
+            routine?: {
+                id_routine?: number;
+                routine_name?: string;
+            };
+            routine_day?: {
+                id_routine_day?: number;
+                day_number?: number;
+                title?: string;
+            };
+            sets?: components["schemas"]["WorkoutSet"][];
         };
-        CreateDailyChallengeTemplateRequest: {
-            title: string;
-            description?: string;
-            /** @enum {string} */
-            challenge_type: "MINUTES" | "EXERCISES" | "FREQUENCY";
-            target_value: number;
-            target_unit?: string;
-            /** @default 10 */
-            tokens_reward: number;
-            /**
-             * @default MEDIUM
-             * @enum {string}
-             */
-            difficulty: "EASY" | "MEDIUM" | "HARD" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-            /** @default 1 */
-            rotation_weight: number;
-            /** @default true */
-            is_active: boolean;
-        };
-        UpdateDailyChallengeTemplateRequest: {
-            title?: string;
-            description?: string;
-            /** @enum {string} */
-            challenge_type?: "MINUTES" | "EXERCISES" | "FREQUENCY";
-            target_value?: number;
-            target_unit?: string;
-            tokens_reward?: number;
-            /** @enum {string} */
-            difficulty?: "EASY" | "MEDIUM" | "HARD" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-            rotation_weight?: number;
-            is_active?: boolean;
-        };
-        GymSpecialScheduleResponse: {
-            /** @example 1 */
-            id_special_schedule: number;
-            /** @example 5 */
-            id_gym: number;
-            /**
-             * Format: date
-             * @description Fecha del horario especial
-             * @example 2025-12-25
-             */
-            date: string;
-            /**
-             * Format: time
-             * @description Hora de apertura (HH:MM)
-             * @example 10:00
-             */
-            opening_time?: string | null;
-            /**
-             * Format: time
-             * @description Hora de cierre (HH:MM)
-             * @example 14:00
-             */
-            closing_time?: string | null;
-            /**
-             * @description Si el gimnasio está cerrado todo el día
-             * @default false
-             */
-            closed: boolean;
-            /**
-             * @description Motivo del horario especial
-             * @example Feriado Nacional - Navidad
-             */
-            motive: string;
+        StartWorkoutSessionRequest: {
+            id_routine?: number;
+            id_routine_day?: number;
             /** Format: date-time */
-            created_at: string;
+            started_at?: string;
+            notes?: string;
+        };
+        UpdateWorkoutSetRequest: {
+            weight?: number;
+            reps?: number;
+            rpe?: number;
+            rest_seconds?: number;
+            is_warmup?: boolean;
+            notes?: string;
+        };
+        WorkoutSet: {
+            id_workout_set: number;
+            id_workout_session: number;
+            id_exercise: number;
+            set_number: number;
+            weight?: number;
+            reps?: number;
+            rpe?: number;
+            rest_seconds?: number;
+            is_warmup?: boolean;
+            notes?: string;
             /** Format: date-time */
-            updated_at: string;
+            performed_at?: string;
+            /** Format: date-time */
+            created_at?: string;
+            /** Format: date-time */
+            updated_at?: string;
+            exercise?: {
+                id_exercise?: number;
+                exercise_name?: string;
+                muscular_group?: string;
+            };
         };
-        CreateGymSpecialScheduleRequest: {
-            id_gym: number;
-            /** Format: date */
-            date: string;
-            /** Format: time */
-            opening_time?: string;
-            /** Format: time */
-            closing_time?: string;
-            closed: boolean;
-            motive: string;
+        WorkoutStats: {
+            total_workouts?: number;
+            total_sets?: number;
+            total_reps?: number;
+            total_weight?: number;
         };
-        UpdateGymSpecialScheduleRequest: {
-            id_gym?: number;
-            /** Format: date */
-            date?: string;
-            /** Format: time */
-            opening_time?: string;
-            /** Format: time */
-            closing_time?: string;
-            closed?: boolean;
-            motive?: string;
+        CompleteWorkoutSessionRequest: {
+            /** Format: date-time */
+            ended_at?: string;
+            notes?: string;
+        };
+        UpdateWorkoutSessionRequest: {
+            notes?: string;
         };
     };
-    responses: never;
+    responses: {
+        /** @description Datos inválidos o request malformada */
+        BadRequest: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "error": "Datos inválidos"
+                 *     }
+                 */
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Autenticación requerida o token inválido/expirado */
+        Unauthorized: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "error": "No autenticado"
+                 *     }
+                 */
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Permisos insuficientes para realizar la operación */
+        Forbidden: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "error": "Acceso denegado"
+                 *     }
+                 */
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Recurso no encontrado */
+        NotFound: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "error": "Recurso no encontrado"
+                 *     }
+                 */
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Conflicto con el estado actual del recurso */
+        Conflict: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "error": "El recurso ya existe"
+                 *     }
+                 */
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Error interno del servidor */
+        InternalServerError: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "error": "Error interno del servidor"
+                 *     }
+                 */
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+    };
     parameters: {
         /** @description Número de página (1-indexado). */
         PageParam: number;
@@ -3373,6 +3938,36 @@ export interface components {
         GymSortParam: "created_at" | "name" | "city" | "month_price";
         /** @description Identificador del gimnasio (`id_gym`). */
         GymIdPathParam: number;
+        /** @description Identificador único del recurso */
+        IdPathParam: number;
+        /** @description ID del usuario */
+        UserIdPathParam: number;
+        /** @description ID del ejercicio */
+        ExerciseIdPathParam: number;
+        /** @description ID de la rutina */
+        RoutineIdPathParam: number;
+        /** @description ID del día de rutina */
+        RoutineDayIdPathParam: number;
+        /** @description ID del elemento multimedia */
+        MediaIdPathParam: number;
+        /** @description ID de la sesión de entrenamiento */
+        SessionIdPathParam: number;
+        /** @description ID del set de ejercicio */
+        SetIdPathParam: number;
+        /** @description Filtrar por estado */
+        StatusQueryParam: string;
+        /** @description Filtrar solo elementos disponibles */
+        AvailableQueryParam: boolean;
+        /** @description Filtrar solo elementos activos */
+        ActiveQueryParam: boolean;
+        /** @description Fecha de inicio del rango (YYYY-MM-DD) */
+        StartDateParam: string;
+        /** @description Fecha de fin del rango (YYYY-MM-DD) */
+        EndDateParam: string;
+        /** @description Término de búsqueda */
+        SearchQueryParam: string;
+        /** @description Campo por el cual ordenar */
+        SortByParam: string;
     };
     requestBodies: never;
     headers: never;
@@ -3380,6 +3975,602 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    listAchievementDefinitions: {
+        parameters: {
+            query?: {
+                /** @description Filtrar por categoría */
+                category?: "ONBOARDING" | "STREAK" | "FREQUENCY" | "ATTENDANCE" | "ROUTINE" | "CHALLENGE" | "PROGRESS" | "TOKEN" | "SOCIAL";
+                /** @description Incluir achievements inactivos */
+                includeInactive?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de definiciones de logros */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AchievementDefinitionResponse"][];
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    createAchievementDefinition: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAchievementDefinitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Achievement creado exitosamente */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AchievementDefinitionResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getAchievementDefinitionById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Detalles del achievement */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AchievementDefinitionResponse"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateAchievementDefinition: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAchievementDefinitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Achievement actualizado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AchievementDefinitionResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteAchievementDefinition: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Achievement eliminado exitosamente */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listAchievements: {
+        parameters: {
+            query?: {
+                /** @description Filtrar por categoría */
+                category?: "ONBOARDING" | "STREAK" | "FREQUENCY" | "ATTENDANCE" | "ROUTINE" | "CHALLENGE" | "PROGRESS" | "TOKEN" | "SOCIAL";
+                /** @description Filtrar solo achievements activos */
+                is_active?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de definiciones de logros */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AchievementDefinitionResponse"][];
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    createAchievement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAchievementDefinitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Achievement creado exitosamente */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AchievementDefinitionResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getAchievementById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Detalles del achievement */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AchievementDefinitionResponse"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateAchievement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAchievementDefinitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Achievement actualizado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AchievementDefinitionResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteAchievement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Achievement eliminado exitosamente */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getAdminStats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Estadísticas obtenidas correctamente */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        total_users?: number;
+                        total_gyms?: number;
+                        total_workouts?: number;
+                        active_subscriptions?: number;
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    getAdminProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Perfil del admin */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id_admin_profile?: number;
+                        id_account?: number;
+                        email?: string;
+                        name?: string;
+                        lastname?: string;
+                        department?: string | null;
+                        notes?: string | null;
+                        /** Format: date-time */
+                        created_at?: string;
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    getAdminActivity: {
+        parameters: {
+            query?: {
+                /** @description Número de días de actividad (default 7) */
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Actividad reciente */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        registrations?: Record<string, never>[];
+                        workouts?: Record<string, never>[];
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    listAdminUsers: {
+        parameters: {
+            query?: {
+                /** @description Número de página (1-indexado). */
+                page?: components["parameters"]["PageParam"];
+                /** @description Tamaño máximo de página. */
+                limit?: components["parameters"]["LimitParam"];
+                /** @description Filtrar por tipo de suscripción */
+                subscription?: "FREE" | "PREMIUM";
+                /** @description Buscar por email o nombre */
+                search?: string;
+                /** @description Campo para ordenar */
+                sortBy?: string;
+                /** @description Orden ascendente o descendente */
+                order?: "ASC" | "DESC";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de usuarios */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: Record<string, never>[];
+                        pagination?: components["schemas"]["PaginationMeta"];
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
+    searchAdminUser: {
+        parameters: {
+            query: {
+                /** @description Email del usuario a buscar */
+                email: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Usuario encontrado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    grantUserTokens: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del usuario */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Cantidad de tokens (positivo para añadir, negativo para restar) */
+                    delta: number;
+                    /** @description Razón del ajuste */
+                    reason?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Tokens otorgados correctamente */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id_user_profile?: number;
+                        new_balance?: number;
+                        delta?: number;
+                        reason?: string;
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    adminUpdateUserSubscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del usuario */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    subscription: "FREE" | "PREMIUM";
+                };
+            };
+        };
+        responses: {
+            /** @description Suscripción actualizada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    deactivateUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del usuario */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Usuario desactivado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        id_account?: number;
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    activateUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del usuario */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Usuario activado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        id_account?: number;
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    getAdminTransactions: {
+        parameters: {
+            query?: {
+                /** @description Filtrar por ID de usuario */
+                user_id?: number;
+                /** @description Número de página */
+                page?: number;
+                /** @description Elementos por página */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de transacciones */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: Record<string, never>[];
+                        pagination?: Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            500: components["responses"]["InternalServerError"];
+        };
+    };
     registerAccount: {
         parameters: {
             query?: never;
@@ -3402,15 +4593,7 @@ export interface operations {
                     "application/json": components["schemas"]["AuthSuccessResponse"];
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
             /** @description Email ya registrado */
             409: {
                 headers: {
@@ -3444,24 +4627,8 @@ export interface operations {
                     "application/json": components["schemas"]["AuthSuccessResponse"];
                 };
             };
-            /** @description Request inválida */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Credenciales inválidas */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     loginWithGoogle: {
@@ -3486,24 +4653,8 @@ export interface operations {
                     "application/json": components["schemas"]["AuthSuccessResponse"];
                 };
             };
-            /** @description Request inválida */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Token de Google inválido */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     refreshAccessToken: {
@@ -3528,24 +4679,8 @@ export interface operations {
                     "application/json": components["schemas"]["RefreshTokenResponse"];
                 };
             };
-            /** @description Request inválida */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Refresh token inválido o expirado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
         };
     };
     revokeRefreshToken: {
@@ -3568,18 +4703,10 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Request inválida */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
         };
     };
-    getUserProfile: {
+    getTodayChallenge: {
         parameters: {
             query?: never;
             header?: never;
@@ -3588,547 +4715,18 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Perfil del usuario */
+            /** @description Desafío del día */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserProfileResponse"];
+                    "application/json": {
+                        challenge?: components["schemas"]["TodayChallengeResponse"];
+                    };
                 };
             };
-            /** @description No autenticado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Usuario no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    updateUserProfile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateUserProfileRequest"];
-            };
-        };
-        responses: {
-            /** @description Perfil actualizado exitosamente */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserProfileResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autenticado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Usuario no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    requestAccountDeletion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["RequestAccountDeletionRequest"];
-            };
-        };
-        responses: {
-            /** @description Solicitud de eliminación registrada */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccountDeletionResponse"];
-                };
-            };
-            /** @description Request inválida */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autenticado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    updateUserEmail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateEmailRequest"];
-            };
-        };
-        responses: {
-            /** @description Email actualizado exitosamente */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EmailUpdateResponse"];
-                };
-            };
-            /** @description Email inválido o ya en uso */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autenticado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getAccountDeletionStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Estado de la solicitud */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccountDeletionStatusResponse"];
-                };
-            };
-            /** @description No autenticado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    cancelAccountDeletion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Solicitud cancelada exitosamente */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AccountDeletionResponse"];
-                };
-            };
-            /** @description No hay solicitud pendiente */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autenticado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getNotificationSettings: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Configuración de notificaciones */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotificationSettingsResponse"];
-                };
-            };
-            /** @description No autenticado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    updateNotificationSettings: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateNotificationSettingsRequest"];
-            };
-        };
-        responses: {
-            /** @description Configuración actualizada exitosamente */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotificationSettingsResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autenticado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getUserById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID del perfil de usuario */
-                userId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Perfil del usuario */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserProfileResponse"];
-                };
-            };
-            /** @description No autenticado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autorizado (requiere rol admin) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Usuario no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    updateUserTokens: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID del perfil de usuario */
-                userId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateTokensRequest"];
-            };
-        };
-        responses: {
-            /** @description Tokens actualizados exitosamente */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TokensUpdateResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autenticado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autorizado (requiere rol admin) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Usuario no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    updateUserSubscription: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID del perfil de usuario */
-                userId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateSubscriptionRequest"];
-            };
-        };
-        responses: {
-            /** @description Suscripción actualizada exitosamente */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserProfileResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autenticado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autorizado (requiere rol admin) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Usuario no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    listGyms: {
-        parameters: {
-            query?: {
-                /** @description Número de página (1-indexado). */
-                page?: components["parameters"]["PageParam"];
-                /** @description Tamaño máximo de página. */
-                limit?: components["parameters"]["LimitParam"];
-                /** @description Dirección de ordenamiento. */
-                order?: components["parameters"]["OrderParam"];
-                /** @description Campo permitido para ordenar gimnasios. */
-                sortBy?: components["parameters"]["GymSortParam"];
-                /** @description Filtrar por ciudad exacta. */
-                city?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Resultado paginado de gimnasios */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GymListResponse"];
-                };
-            };
-            /** @description Parámetros inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    createGym: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateGymRequest"];
-            };
-        };
-        responses: {
-            /** @description Gimnasio creado */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GymResponse"];
-                };
-            };
-            /** @description Datos inválidos */
+            /** @description Error al obtener desafío */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -4146,8 +4744,955 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Permisos insuficientes */
+        };
+    };
+    updateChallengeProgress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description Valor actual del progreso
+                     * @example 500
+                     */
+                    value: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Progreso actualizado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChallengeProgressResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description Autenticación requerida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listDailyChallengeTemplates: {
+        parameters: {
+            query?: {
+                /** @description Filtrar solo plantillas activas */
+                is_active?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de plantillas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyChallengeTemplateResponse"][];
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    createDailyChallengeTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateDailyChallengeTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description Plantilla creada exitosamente */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyChallengeTemplateResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getDailyChallengeTemplateById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Detalles de la plantilla */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyChallengeTemplateResponse"];
+                };
+            };
+            /** @description Plantilla no encontrada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    updateDailyChallengeTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateDailyChallengeTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description Plantilla actualizada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyChallengeTemplateResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description Plantilla no encontrada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    deleteDailyChallengeTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Plantilla eliminada exitosamente */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Plantilla no encontrada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listAdminDailyChallenges: {
+        parameters: {
+            query?: {
+                /** @description Fecha inicial (YYYY-MM-DD) */
+                from_date?: string;
+                /** @description Fecha final (YYYY-MM-DD) */
+                to_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de desafíos diarios */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyChallengeResponse"][];
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    createAdminDailyChallenge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateDailyChallengeRequest"];
+            };
+        };
+        responses: {
+            /** @description Desafío creado exitosamente */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyChallengeResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getAdminDailyChallengeById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Detalles del desafío */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyChallengeResponse"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateAdminDailyChallenge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateDailyChallengeRequest"];
+            };
+        };
+        responses: {
+            /** @description Desafío actualizado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyChallengeResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteAdminDailyChallenge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Desafío eliminado exitosamente */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listDailyChallenges: {
+        parameters: {
+            query?: {
+                /** @description Fecha inicial (YYYY-MM-DD) */
+                from_date?: string;
+                /** @description Fecha final (YYYY-MM-DD) */
+                to_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de desafíos diarios */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyChallengeResponse"][];
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    createDailyChallenge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateDailyChallengeRequest"];
+            };
+        };
+        responses: {
+            /** @description Desafío creado exitosamente */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyChallengeResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getDailyChallengeById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Detalles del desafío */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyChallengeResponse"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateDailyChallenge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateDailyChallengeRequest"];
+            };
+        };
+        responses: {
+            /** @description Desafío actualizado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyChallengeResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteDailyChallenge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Desafío eliminado exitosamente */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listExercises: {
+        parameters: {
+            query?: {
+                /** @description Número de página (1-indexado). */
+                page?: components["parameters"]["PageParam"];
+                /** @description Tamaño máximo de página. */
+                limit?: components["parameters"]["LimitParam"];
+                muscular_group?: string;
+                difficulty?: "beginner" | "intermediate" | "advanced";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista paginada de ejercicios */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedExercisesResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+        };
+    };
+    createExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateExerciseRequest"];
+            };
+        };
+        responses: {
+            /** @description Ejercicio creado exitosamente */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: components["schemas"]["Exercise"];
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listExercisesPaginated: {
+        parameters: {
+            query?: {
+                /** @description Número de página (1-indexado). */
+                page?: components["parameters"]["PageParam"];
+                /** @description Tamaño máximo de página. */
+                limit?: components["parameters"]["LimitParam"];
+                muscular_group?: string;
+                difficulty?: "beginner" | "intermediate" | "advanced";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista paginada de ejercicios */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedExercisesResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+        };
+    };
+    getExerciseById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ejercicio encontrado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["Exercise"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateExerciseRequest"];
+            };
+        };
+        responses: {
+            /** @description Ejercicio actualizado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: components["schemas"]["Exercise"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ejercicio eliminado */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    createWeeklyGoal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description Número de asistencias objetivo por semana
+                     * @example 3
+                     */
+                    goal: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Meta creada o actualizada */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FrequencyResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description Autenticación requerida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getUserFrequency: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Estado actual de frecuencia */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FrequencyResponse"];
+                };
+            };
+            /** @description Autenticación requerida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Frecuencia no encontrada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    resetAllFrequencies: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Frecuencias reiniciadas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Frecuencias reiniciadas con éxito */
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Autenticación requerida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Requiere permisos de administrador */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listGymSpecialSchedules: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del gimnasio */
+                gymId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de horarios especiales */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GymSpecialScheduleResponse"][];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    createGymSpecialSchedule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del gimnasio */
+                gymId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateGymSpecialScheduleRequest"];
+            };
+        };
+        responses: {
+            /** @description Horario especial creado */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GymSpecialScheduleResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateGymSpecialSchedule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateGymSpecialScheduleRequest"];
+            };
+        };
+        responses: {
+            /** @description Horario especial actualizado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GymSpecialScheduleResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteGymSpecialSchedule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Horario especial eliminado exitosamente */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listGyms: {
+        parameters: {
+            query?: {
+                /** @description Número de página (1-indexado). */
+                page?: components["parameters"]["PageParam"];
+                /** @description Tamaño máximo de página. */
+                limit?: components["parameters"]["LimitParam"];
+                /** @description Filtrar por ciudad */
+                city?: string;
+                /** @description Filtrar solo gimnasios activos */
+                is_active?: boolean;
+                /** @description Filtrar solo gimnasios destacados */
+                featured?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista paginada de gimnasios */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GymListResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+        };
+    };
+    createGym: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateGymRequest"];
+            };
+        };
+        responses: {
+            /** @description Gimnasio creado exitosamente */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GymResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description No autorizado */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4178,15 +5723,7 @@ export interface operations {
                     "application/json": components["schemas"]["GymResponse"];
                 };
             };
-            /** @description Gimnasio no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            404: components["responses"]["NotFound"];
         };
     };
     updateGym: {
@@ -4214,24 +5751,8 @@ export interface operations {
                     "application/json": components["schemas"]["GymResponse"];
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Gimnasio no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
         };
     };
     deleteGym: {
@@ -4253,15 +5774,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Gimnasio no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            404: components["responses"]["NotFound"];
         };
     };
     listGymTypes: {
@@ -4291,15 +5804,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Error interno */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            500: components["responses"]["InternalServerError"];
         };
     };
     listGymAmenities: {
@@ -4329,15 +5834,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Error interno */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            500: components["responses"]["InternalServerError"];
         };
     };
     listGymSchedules: {
@@ -4361,15 +5858,7 @@ export interface operations {
                     "application/json": components["schemas"]["GymSchedulesWeekResponse"];
                 };
             };
-            /** @description Gimnasio no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            404: components["responses"]["NotFound"];
         };
     };
     createGymSchedule: {
@@ -4397,15 +5886,7 @@ export interface operations {
                     "application/json": components["schemas"]["GymScheduleResponse"];
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
             /** @description Autenticación requerida */
             401: {
                 headers: {
@@ -4448,15 +5929,7 @@ export interface operations {
                     "application/json": components["schemas"]["PaginatedGymReviewsResponse"];
                 };
             };
-            /** @description Gimnasio no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            404: components["responses"]["NotFound"];
         };
     };
     createGymReview: {
@@ -4484,15 +5957,7 @@ export interface operations {
                     "application/json": components["schemas"]["GymReviewResponse"];
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
             /** @description Autenticación requerida */
             401: {
                 headers: {
@@ -4551,15 +6016,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Permisos insuficientes */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            403: components["responses"]["Forbidden"];
         };
     };
     createGymPayment: {
@@ -4587,15 +6044,7 @@ export interface operations {
                     "application/json": components["schemas"]["GymPaymentResponse"];
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
             /** @description Autenticación requerida */
             401: {
                 headers: {
@@ -4607,7 +6056,111 @@ export interface operations {
             };
         };
     };
-    getTodayChallenge: {
+    listAllGymReviews: {
+        parameters: {
+            query?: {
+                /** @description Número de página (1-indexado). */
+                page?: components["parameters"]["PageParam"];
+                /** @description Tamaño máximo de página. */
+                limit?: components["parameters"]["LimitParam"];
+                sortBy?: "created_at" | "rating" | "helpful_count";
+                /** @description Dirección de ordenamiento. */
+                order?: components["parameters"]["OrderParam"];
+                min_rating?: number;
+                with_comment_only?: boolean;
+                /** @description Filtrar por ID de gimnasio */
+                gym_id?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista paginada de reseñas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedGymReviewsResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+        };
+    };
+    updateGymReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID de la reseña */
+                reviewId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateGymReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Reseña actualizada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GymReviewResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description Autenticación requerida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteGymReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID de la reseña */
+                reviewId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Reseña eliminada exitosamente */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Autenticación requerida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listUserMedia: {
         parameters: {
             query?: never;
             header?: never;
@@ -4616,27 +6169,16 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Desafío del día */
+            /** @description Lista de archivos multimedia */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        challenge?: components["schemas"]["TodayChallengeResponse"];
-                    };
+                    "application/json": components["schemas"]["MediaResponse"][];
                 };
             };
-            /** @description Error al obtener desafío */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Autenticación requerida */
+            /** @description No autorizado */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -4647,47 +6189,91 @@ export interface operations {
             };
         };
     };
-    updateChallengeProgress: {
+    createMedia: {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                /** @description ID del desafío */
-                id: number;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
                 "application/json": {
                     /**
-                     * @description Valor actual del progreso
-                     * @example 500
+                     * @description Tipo de entidad
+                     * @example GYM
                      */
-                    value: number;
+                    entity_type: components["schemas"]["EntityType"];
+                    /**
+                     * @description ID de la entidad
+                     * @example 5
+                     */
+                    entity_id: number;
+                    /**
+                     * @description Tipo de archivo
+                     * @default IMAGE
+                     */
+                    media_type?: components["schemas"]["MediaType"];
+                    /**
+                     * Format: uri
+                     * @description URL del archivo
+                     * @example https://example.com/gym.jpg
+                     */
+                    url: string;
+                    /**
+                     * Format: uri
+                     * @description URL de la miniatura
+                     * @example https://example.com/gym-thumb.jpg
+                     */
+                    thumbnail_url?: string;
+                    /**
+                     * @description Tamaño del archivo en bytes
+                     * @example 1024000
+                     */
+                    file_size?: number;
+                    /**
+                     * @description Tipo MIME del archivo
+                     * @example image/jpeg
+                     */
+                    mime_type?: string;
+                    /**
+                     * @description Ancho de la imagen en píxeles
+                     * @example 1920
+                     */
+                    width?: number;
+                    /**
+                     * @description Alto de la imagen en píxeles
+                     * @example 1080
+                     */
+                    height?: number;
+                    /**
+                     * @description Si es el archivo principal de la entidad
+                     * @default false
+                     */
+                    is_primary?: boolean;
+                    /**
+                     * @description Orden de visualización
+                     * @default 0
+                     */
+                    display_order?: number;
                 };
             };
         };
         responses: {
-            /** @description Progreso actualizado */
-            200: {
+            /** @description Archivo multimedia creado */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ChallengeProgressResponse"];
+                    "application/json": {
+                        message?: string;
+                        data?: components["schemas"]["MediaResponse"];
+                    };
                 };
             };
-            /** @description Datos inválidos o error */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Autenticación requerida */
+            400: components["responses"]["BadRequest"];
+            /** @description No autorizado */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -4696,6 +6282,964 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
+        };
+    };
+    listMediaByEntity: {
+        parameters: {
+            query?: {
+                /** @description Filtrar por tipo de archivo */
+                media_type?: "IMAGE" | "VIDEO";
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description Tipo de entidad
+                 * @example GYM
+                 */
+                entity_type: "USER_PROFILE" | "GYM" | "EXERCISE" | "PROGRESS";
+                /**
+                 * @description ID de la entidad
+                 * @example 5
+                 */
+                entity_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de archivos multimedia */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaResponse"][];
+                };
+            };
+            /** @description Parámetros inválidos */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    setPrimaryMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del elemento multimedia */
+                id_media: components["parameters"]["MediaIdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Archivo marcado como principal */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: components["schemas"]["MediaResponse"];
+                    };
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del elemento multimedia */
+                id_media: components["parameters"]["MediaIdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Archivo eliminado exitosamente */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    registerProgress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * Format: date
+                     * @description Fecha del registro
+                     * @example 2025-01-15
+                     */
+                    date: string;
+                    /**
+                     * Format: float
+                     * @description Peso total levantado en kg
+                     * @example 5000
+                     */
+                    total_weight_lifted: number;
+                    /**
+                     * @description Repeticiones totales
+                     * @example 100
+                     */
+                    total_reps: number;
+                    /**
+                     * @description Sets totales
+                     * @example 20
+                     */
+                    total_sets: number;
+                    /**
+                     * @description Notas adicionales
+                     * @example Great workout session
+                     */
+                    notes?: string;
+                    /** @description Lista de ejercicios realizados */
+                    exercises?: {
+                        /**
+                         * @description ID del ejercicio
+                         * @example 5
+                         */
+                        id_exercise: number;
+                        /**
+                         * Format: float
+                         * @description Peso utilizado en kg
+                         * @example 80
+                         */
+                        used_weight: number;
+                        /**
+                         * @description Número de repeticiones
+                         * @example 10
+                         */
+                        reps: number;
+                        /**
+                         * @description Número de sets
+                         * @default 1
+                         * @example 3
+                         */
+                        sets?: number;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description Progreso registrado exitosamente */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Progreso registrado con éxito */
+                        message?: string;
+                        data?: components["schemas"]["ProgressResponse"];
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getUserProgress: {
+        parameters: {
+            query?: {
+                /** @description Número máximo de registros a retornar */
+                limit?: number;
+                /** @description Número de registros a saltar */
+                offset?: number;
+                /** @description Incluir detalles de ejercicios */
+                include_exercises?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Historial de progreso obtenido */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: components["schemas"]["ProgressResponse"][];
+                    };
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getWeightStats: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Fecha de inicio del rango
+                 * @example 2025-01-01
+                 */
+                start_date?: string;
+                /**
+                 * @description Fecha de fin del rango
+                 * @example 2025-01-31
+                 */
+                end_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Estadísticas obtenidas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: {
+                            /** Format: date */
+                            date?: string;
+                            total_weight_lifted?: number;
+                            total_reps?: number;
+                            total_sets?: number;
+                        }[];
+                    };
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getExerciseHistory: {
+        parameters: {
+            query?: {
+                /** @description Número máximo de registros */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Historial de ejercicios obtenido */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: {
+                            /** Format: date */
+                            date?: string;
+                            exercise_name?: string;
+                            muscular_group?: string;
+                            used_weight?: number;
+                            reps?: number;
+                            sets?: number;
+                        }[];
+                    };
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getExerciseHistoryByExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del ejercicio */
+                id_exercise: components["parameters"]["ExerciseIdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Historial del ejercicio obtenido */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: {
+                            /** Format: date */
+                            date?: string;
+                            used_weight?: number;
+                            reps?: number;
+                            sets?: number;
+                        }[];
+                    };
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getPersonalRecord: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del ejercicio */
+                id_exercise: components["parameters"]["ExerciseIdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Récord personal obtenido */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: {
+                            /** Format: date */
+                            date?: string;
+                            used_weight?: number;
+                            reps?: number;
+                            sets?: number;
+                        };
+                    };
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getExerciseAverages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del ejercicio */
+                id_exercise: components["parameters"]["ExerciseIdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Promedios obtenidos */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: {
+                            /** @description Peso promedio */
+                            average_weight?: number;
+                            /** @description Repeticiones promedio */
+                            average_reps?: number;
+                            /** @description Sets promedio */
+                            average_sets?: number;
+                            /** @description Total de registros */
+                            total_records?: number;
+                        };
+                    };
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listRewards: {
+        parameters: {
+            query?: {
+                /** @description Filtrar solo elementos disponibles */
+                available?: components["parameters"]["AvailableQueryParam"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de recompensas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RewardResponse"][];
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    createReward: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRewardRequest"];
+            };
+        };
+        responses: {
+            /** @description Recompensa creada exitosamente */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RewardResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getRewardById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Detalles de la recompensa */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RewardResponse"];
+                };
+            };
+            /** @description Recompensa no encontrada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    updateReward: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRewardRequest"];
+            };
+        };
+        responses: {
+            /** @description Recompensa actualizada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RewardResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description Recompensa no encontrada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    deleteReward: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Recompensa eliminada exitosamente */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Recompensa no encontrada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getMyRoutines: {
+        parameters: {
+            query?: {
+                /** @description Número de página (1-indexado). */
+                page?: components["parameters"]["PageParam"];
+                /** @description Tamaño máximo de página. */
+                limit?: components["parameters"]["LimitParam"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de rutinas del usuario */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: components["schemas"]["Routine"][];
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+        };
+    };
+    listRoutineTemplates: {
+        parameters: {
+            query?: {
+                /** @description Número de página (1-indexado). */
+                page?: components["parameters"]["PageParam"];
+                /** @description Tamaño máximo de página. */
+                limit?: components["parameters"]["LimitParam"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista paginada de templates */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedRoutinesResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+        };
+    };
+    getRoutineById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Rutina encontrada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: components["schemas"]["RoutineWithDetails"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateRoutine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRoutineRequest"];
+            };
+        };
+        responses: {
+            /** @description Rutina actualizada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: components["schemas"]["Routine"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteRoutine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Rutina eliminada */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    addExerciseToRoutine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddExerciseToRoutineRequest"];
+            };
+        };
+        responses: {
+            /** @description Ejercicio agregado */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: components["schemas"]["RoutineExercise"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateRoutineExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+                /** @description ID del ejercicio */
+                id_exercise: components["parameters"]["ExerciseIdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRoutineExerciseRequest"];
+            };
+        };
+        responses: {
+            /** @description Ejercicio actualizado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: components["schemas"]["RoutineExercise"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteRoutineExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+                /** @description ID del ejercicio */
+                id_exercise: components["parameters"]["ExerciseIdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ejercicio eliminado de rutina */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listRoutineDays: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de días */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: components["schemas"]["RoutineDay"][];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    createRoutineDay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRoutineDayRequest"];
+            };
+        };
+        responses: {
+            /** @description Día creado */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: components["schemas"]["RoutineDay"];
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+        };
+    };
+    updateRoutineDay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del día de rutina */
+                id_routine_day: components["parameters"]["RoutineDayIdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRoutineDayRequest"];
+            };
+        };
+        responses: {
+            /** @description Día actualizado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: components["schemas"]["RoutineDay"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    deleteRoutineDay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del día de rutina */
+                id_routine_day: components["parameters"]["RoutineDayIdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Día eliminado */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
         };
     };
     getUserStreak: {
@@ -4908,15 +7452,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
             /** @description Autenticación requerida */
             401: {
                 headers: {
@@ -4928,815 +7464,6 @@ export interface operations {
             };
             /** @description Requiere permisos de administrador */
             403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    createWeeklyGoal: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /**
-                     * @description Número de asistencias objetivo por semana
-                     * @example 3
-                     */
-                    goal: number;
-                };
-            };
-        };
-        responses: {
-            /** @description Meta creada o actualizada */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FrequencyResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Autenticación requerida */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getUserFrequency: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Estado actual de frecuencia */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FrequencyResponse"];
-                };
-            };
-            /** @description Autenticación requerida */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Frecuencia no encontrada */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    resetAllFrequencies: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Frecuencias reiniciadas */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @example Frecuencias reiniciadas con éxito */
-                        message?: string;
-                    };
-                };
-            };
-            /** @description Autenticación requerida */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Requiere permisos de administrador */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getAllExercises: {
-        parameters: {
-            query?: {
-                /** @description Filtrar por grupo muscular */
-                muscular_group?: string;
-                /** @description Filtrar por dificultad */
-                difficulty?: "beginner" | "intermediate" | "advanced";
-                /** @description Filtrar por equipamiento necesario */
-                equipment_needed?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Lista de ejercicios */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["Exercise"][];
-                    };
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    createExercise: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateExerciseRequest"];
-            };
-        };
-        responses: {
-            /** @description Ejercicio creado */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["Exercise"];
-                    };
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    listExercisesPaginated: {
-        parameters: {
-            query?: {
-                /** @description Número de página (1-indexado). */
-                page?: components["parameters"]["PageParam"];
-                /** @description Tamaño máximo de página. */
-                limit?: components["parameters"]["LimitParam"];
-                muscular_group?: string;
-                difficulty?: "beginner" | "intermediate" | "advanced";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Lista paginada de ejercicios */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedExercisesResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getExerciseById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Ejercicio encontrado */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["Exercise"];
-                    };
-                };
-            };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    updateExercise: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateExerciseRequest"];
-            };
-        };
-        responses: {
-            /** @description Ejercicio actualizado */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["Exercise"];
-                    };
-                };
-            };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    deleteExercise: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Ejercicio eliminado */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Acceso denegado */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    createRoutineWithExercises: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateRoutineRequest"];
-            };
-        };
-        responses: {
-            /** @description Rutina creada */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["Routine"];
-                    };
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getMyRoutines: {
-        parameters: {
-            query?: {
-                /** @description Número de página (1-indexado). */
-                page?: components["parameters"]["PageParam"];
-                /** @description Tamaño máximo de página. */
-                limit?: components["parameters"]["LimitParam"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Lista de rutinas del usuario */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["Routine"][];
-                    };
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    listRoutineTemplates: {
-        parameters: {
-            query?: {
-                /** @description Número de página (1-indexado). */
-                page?: components["parameters"]["PageParam"];
-                /** @description Tamaño máximo de página. */
-                limit?: components["parameters"]["LimitParam"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Lista paginada de templates */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedRoutinesResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getRoutineById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Rutina encontrada */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["RoutineWithDetails"];
-                    };
-                };
-            };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    updateRoutine: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateRoutineRequest"];
-            };
-        };
-        responses: {
-            /** @description Rutina actualizada */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["Routine"];
-                    };
-                };
-            };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    deleteRoutine: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Rutina eliminada */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    addExerciseToRoutine: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AddExerciseToRoutineRequest"];
-            };
-        };
-        responses: {
-            /** @description Ejercicio agregado */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["RoutineExercise"];
-                    };
-                };
-            };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    updateRoutineExercise: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-                id_exercise: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateRoutineExerciseRequest"];
-            };
-        };
-        responses: {
-            /** @description Ejercicio actualizado */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["RoutineExercise"];
-                    };
-                };
-            };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    deleteRoutineExercise: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-                id_exercise: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Ejercicio eliminado de rutina */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    listRoutineDays: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Lista de días */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["RoutineDay"][];
-                    };
-                };
-            };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    createRoutineDay: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateRoutineDayRequest"];
-            };
-        };
-        responses: {
-            /** @description Día creado */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["RoutineDay"];
-                    };
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    updateRoutineDay: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id_routine_day: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateRoutineDayRequest"];
-            };
-        };
-        responses: {
-            /** @description Día actualizado */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["RoutineDay"];
-                    };
-                };
-            };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    deleteRoutineDay: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id_routine_day: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Día eliminado */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Recurso no encontrado */
-            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5771,15 +7498,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
         };
     };
     getActiveRoutine: {
@@ -5802,15 +7521,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            404: components["responses"]["NotFound"];
         };
     };
     getActiveRoutineWithExercises: {
@@ -5834,15 +7545,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            404: components["responses"]["NotFound"];
         };
     };
     listMyUserRoutines: {
@@ -5871,15 +7574,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
         };
     };
     getUserRoutineCounts: {
@@ -5902,15 +7597,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
         };
     };
     endUserRoutine: {
@@ -5934,15 +7621,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            404: components["responses"]["NotFound"];
         };
     };
     importRoutineTemplate: {
@@ -5970,24 +7649,8 @@ export interface operations {
                     };
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
         };
     };
     getUserRoutineById: {
@@ -5995,7 +7658,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
             };
             cookie?: never;
         };
@@ -6012,15 +7676,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            404: components["responses"]["NotFound"];
         };
     };
     deactivateUserRoutine: {
@@ -6028,7 +7684,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
             };
             cookie?: never;
         };
@@ -6046,8 +7703,108 @@ export interface operations {
                     };
                 };
             };
-            /** @description Recurso no encontrado */
-            404: {
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getUserProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Perfil del usuario */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserProfileResponse"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateUserProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateUserProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description Perfil actualizado exitosamente */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserProfileResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    requestAccountDeletion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["RequestAccountDeletionRequest"];
+            };
+        };
+        responses: {
+            /** @description Solicitud de eliminación registrada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDeletionResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    updateUserEmail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateEmailRequest"];
+            };
+        };
+        responses: {
+            /** @description Email actualizado exitosamente */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailUpdateResponse"];
+                };
+            };
+            /** @description Email inválido o ya en uso */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6055,6 +7812,193 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    getAccountDeletionStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Estado de la solicitud */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDeletionStatusResponse"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    cancelAccountDeletion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Solicitud cancelada exitosamente */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDeletionResponse"];
+                };
+            };
+            /** @description No hay solicitud pendiente */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    getNotificationSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Configuración de notificaciones */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationSettingsResponse"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    updateNotificationSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateNotificationSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description Configuración actualizada exitosamente */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationSettingsResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    getUserById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del perfil de usuario */
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Perfil del usuario */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserProfileResponse"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateUserTokens: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del perfil de usuario */
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTokensRequest"];
+            };
+        };
+        responses: {
+            /** @description Tokens actualizados exitosamente */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokensUpdateResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    updateUserSubscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del perfil de usuario */
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description Suscripción actualizada exitosamente */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserProfileResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
         };
     };
     startWorkoutSession: {
@@ -6082,15 +8026,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
             /** @description Ya existe una sesión activa */
             409: {
                 headers: {
@@ -6122,15 +8058,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            404: components["responses"]["NotFound"];
         };
     };
     listMyWorkoutSessions: {
@@ -6159,15 +8087,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
         };
     };
     getWorkoutStats: {
@@ -6193,15 +8113,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
         };
     };
     getWorkoutSession: {
@@ -6209,7 +8121,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
             };
             cookie?: never;
         };
@@ -6226,15 +8139,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            404: components["responses"]["NotFound"];
         };
     };
     updateWorkoutSession: {
@@ -6242,7 +8147,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
             };
             cookie?: never;
         };
@@ -6264,15 +8170,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            404: components["responses"]["NotFound"];
         };
     };
     completeWorkoutSession: {
@@ -6280,7 +8178,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
             };
             cookie?: never;
         };
@@ -6302,24 +8201,8 @@ export interface operations {
                     };
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
         };
     };
     cancelWorkoutSession: {
@@ -6327,7 +8210,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
             };
             cookie?: never;
         };
@@ -6345,24 +8229,8 @@ export interface operations {
                     };
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
         };
     };
     listWorkoutSets: {
@@ -6373,7 +8241,8 @@ export interface operations {
             };
             header?: never;
             path: {
-                id: number;
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
             };
             cookie?: never;
         };
@@ -6390,15 +8259,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
         };
     };
     registerWorkoutSet: {
@@ -6406,7 +8267,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
             };
             cookie?: never;
         };
@@ -6428,15 +8290,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            400: components["responses"]["BadRequest"];
         };
     };
     updateWorkoutSet: {
@@ -6444,7 +8298,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
             };
             cookie?: never;
         };
@@ -6466,15 +8321,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            404: components["responses"]["NotFound"];
         };
     };
     deleteWorkoutSet: {
@@ -6482,7 +8329,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: number;
+                /** @description Identificador único del recurso */
+                id: components["parameters"]["IdPathParam"];
             };
             cookie?: never;
         };
@@ -6495,1526 +8343,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Recurso no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    registerProgress: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /**
-                     * Format: date
-                     * @description Fecha del registro
-                     * @example 2025-01-15
-                     */
-                    date: string;
-                    /**
-                     * Format: float
-                     * @description Peso total levantado en kg
-                     * @example 5000
-                     */
-                    total_weight_lifted: number;
-                    /**
-                     * @description Repeticiones totales
-                     * @example 100
-                     */
-                    total_reps: number;
-                    /**
-                     * @description Sets totales
-                     * @example 20
-                     */
-                    total_sets: number;
-                    /**
-                     * @description Notas adicionales
-                     * @example Great workout session
-                     */
-                    notes?: string;
-                    /** @description Lista de ejercicios realizados */
-                    exercises?: {
-                        /**
-                         * @description ID del ejercicio
-                         * @example 5
-                         */
-                        id_exercise: number;
-                        /**
-                         * Format: float
-                         * @description Peso utilizado en kg
-                         * @example 80
-                         */
-                        used_weight: number;
-                        /**
-                         * @description Número de repeticiones
-                         * @example 10
-                         */
-                        reps: number;
-                        /**
-                         * @description Número de sets
-                         * @default 1
-                         * @example 3
-                         */
-                        sets?: number;
-                    }[];
-                };
-            };
-        };
-        responses: {
-            /** @description Progreso registrado exitosamente */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @example Progreso registrado con éxito */
-                        message?: string;
-                        data?: components["schemas"]["ProgressResponse"];
-                    };
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getUserProgress: {
-        parameters: {
-            query?: {
-                /** @description Número máximo de registros a retornar */
-                limit?: number;
-                /** @description Número de registros a saltar */
-                offset?: number;
-                /** @description Incluir detalles de ejercicios */
-                include_exercises?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Historial de progreso obtenido */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["ProgressResponse"][];
-                    };
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getWeightStats: {
-        parameters: {
-            query?: {
-                /**
-                 * @description Fecha de inicio del rango
-                 * @example 2025-01-01
-                 */
-                start_date?: string;
-                /**
-                 * @description Fecha de fin del rango
-                 * @example 2025-01-31
-                 */
-                end_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Estadísticas obtenidas */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: {
-                            /** Format: date */
-                            date?: string;
-                            total_weight_lifted?: number;
-                            total_reps?: number;
-                            total_sets?: number;
-                        }[];
-                    };
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getExerciseHistory: {
-        parameters: {
-            query?: {
-                /** @description Número máximo de registros */
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Historial de ejercicios obtenido */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: {
-                            /** Format: date */
-                            date?: string;
-                            exercise_name?: string;
-                            muscular_group?: string;
-                            used_weight?: number;
-                            reps?: number;
-                            sets?: number;
-                        }[];
-                    };
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getExerciseHistoryByExercise: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description ID del ejercicio
-                 * @example 5
-                 */
-                id_exercise: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Historial del ejercicio obtenido */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: {
-                            /** Format: date */
-                            date?: string;
-                            used_weight?: number;
-                            reps?: number;
-                            sets?: number;
-                        }[];
-                    };
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getPersonalRecord: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description ID del ejercicio
-                 * @example 5
-                 */
-                id_exercise: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Récord personal obtenido */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: {
-                            /** Format: date */
-                            date?: string;
-                            used_weight?: number;
-                            reps?: number;
-                            sets?: number;
-                        };
-                    };
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getExerciseAverages: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description ID del ejercicio
-                 * @example 5
-                 */
-                id_exercise: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Promedios obtenidos */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: {
-                            /** @description Peso promedio */
-                            average_weight?: number;
-                            /** @description Repeticiones promedio */
-                            average_reps?: number;
-                            /** @description Sets promedio */
-                            average_sets?: number;
-                            /** @description Total de registros */
-                            total_records?: number;
-                        };
-                    };
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    listUserMedia: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Lista de archivos multimedia */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MediaResponse"][];
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    createMedia: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /**
-                     * @description Tipo de entidad
-                     * @example GYM
-                     * @enum {string}
-                     */
-                    entity_type: "USER_PROFILE" | "GYM" | "EXERCISE" | "PROGRESS";
-                    /**
-                     * @description ID de la entidad
-                     * @example 5
-                     */
-                    entity_id: number;
-                    /**
-                     * @description Tipo de archivo
-                     * @default IMAGE
-                     * @enum {string}
-                     */
-                    media_type?: "IMAGE" | "VIDEO";
-                    /**
-                     * Format: uri
-                     * @description URL del archivo
-                     * @example https://example.com/gym.jpg
-                     */
-                    url: string;
-                    /**
-                     * Format: uri
-                     * @description URL de la miniatura
-                     * @example https://example.com/gym-thumb.jpg
-                     */
-                    thumbnail_url?: string;
-                    /**
-                     * @description Tamaño del archivo en bytes
-                     * @example 1024000
-                     */
-                    file_size?: number;
-                    /**
-                     * @description Tipo MIME del archivo
-                     * @example image/jpeg
-                     */
-                    mime_type?: string;
-                    /**
-                     * @description Ancho de la imagen en píxeles
-                     * @example 1920
-                     */
-                    width?: number;
-                    /**
-                     * @description Alto de la imagen en píxeles
-                     * @example 1080
-                     */
-                    height?: number;
-                    /**
-                     * @description Si es el archivo principal de la entidad
-                     * @default false
-                     */
-                    is_primary?: boolean;
-                    /**
-                     * @description Orden de visualización
-                     * @default 0
-                     */
-                    display_order?: number;
-                };
-            };
-        };
-        responses: {
-            /** @description Archivo multimedia creado */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["MediaResponse"];
-                    };
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    listMediaByEntity: {
-        parameters: {
-            query?: {
-                /** @description Filtrar por tipo de archivo */
-                media_type?: "IMAGE" | "VIDEO";
-            };
-            header?: never;
-            path: {
-                /**
-                 * @description Tipo de entidad
-                 * @example GYM
-                 */
-                entity_type: "USER_PROFILE" | "GYM" | "EXERCISE" | "PROGRESS";
-                /**
-                 * @description ID de la entidad
-                 * @example 5
-                 */
-                entity_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Lista de archivos multimedia */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MediaResponse"][];
-                };
-            };
-            /** @description Parámetros inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    setPrimaryMedia: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description ID del archivo multimedia
-                 * @example 1
-                 */
-                id_media: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Archivo marcado como principal */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["MediaResponse"];
-                    };
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Archivo no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    deleteMedia: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /**
-                 * @description ID del archivo multimedia
-                 * @example 1
-                 */
-                id_media: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Archivo eliminado exitosamente */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Archivo no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    listRewards: {
-        parameters: {
-            query?: {
-                /** @description Filtrar solo recompensas disponibles */
-                available?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Lista de recompensas */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RewardResponse"][];
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    createReward: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateRewardRequest"];
-            };
-        };
-        responses: {
-            /** @description Recompensa creada exitosamente */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RewardResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getRewardById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID de la recompensa */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Detalles de la recompensa */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RewardResponse"];
-                };
-            };
-            /** @description Recompensa no encontrada */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    updateReward: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID de la recompensa */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateRewardRequest"];
-            };
-        };
-        responses: {
-            /** @description Recompensa actualizada */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RewardResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Recompensa no encontrada */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    deleteReward: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID de la recompensa */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Recompensa eliminada exitosamente */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Recompensa no encontrada */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    listAchievements: {
-        parameters: {
-            query?: {
-                /** @description Filtrar por categoría */
-                category?: "ONBOARDING" | "STREAK" | "FREQUENCY" | "ATTENDANCE" | "ROUTINE" | "CHALLENGE" | "PROGRESS" | "TOKEN" | "SOCIAL";
-                /** @description Filtrar solo achievements activos */
-                is_active?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Lista de definiciones de logros */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AchievementDefinitionResponse"][];
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    createAchievement: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateAchievementDefinitionRequest"];
-            };
-        };
-        responses: {
-            /** @description Achievement creado exitosamente */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AchievementDefinitionResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getAchievementById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID del achievement */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Detalles del achievement */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AchievementDefinitionResponse"];
-                };
-            };
-            /** @description Achievement no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    updateAchievement: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID del achievement */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateAchievementDefinitionRequest"];
-            };
-        };
-        responses: {
-            /** @description Achievement actualizado */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AchievementDefinitionResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Achievement no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    deleteAchievement: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID del achievement */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Achievement eliminado exitosamente */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Achievement no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    listDailyChallenges: {
-        parameters: {
-            query?: {
-                /** @description Fecha inicial (YYYY-MM-DD) */
-                from_date?: string;
-                /** @description Fecha final (YYYY-MM-DD) */
-                to_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Lista de desafíos diarios */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DailyChallengeResponse"][];
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    createDailyChallenge: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateDailyChallengeRequest"];
-            };
-        };
-        responses: {
-            /** @description Desafío creado exitosamente */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DailyChallengeResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getDailyChallengeById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID del desafío */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Detalles del desafío */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DailyChallengeResponse"];
-                };
-            };
-            /** @description Desafío no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    updateDailyChallenge: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID del desafío */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDailyChallengeRequest"];
-            };
-        };
-        responses: {
-            /** @description Desafío actualizado */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DailyChallengeResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Desafío no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    deleteDailyChallenge: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID del desafío */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Desafío eliminado exitosamente */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Desafío no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    listDailyChallengeTemplates: {
-        parameters: {
-            query?: {
-                /** @description Filtrar solo plantillas activas */
-                is_active?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Lista de plantillas */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DailyChallengeTemplateResponse"][];
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    createDailyChallengeTemplate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateDailyChallengeTemplateRequest"];
-            };
-        };
-        responses: {
-            /** @description Plantilla creada exitosamente */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DailyChallengeTemplateResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description No autorizado */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    getDailyChallengeTemplateById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID de la plantilla */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Detalles de la plantilla */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DailyChallengeTemplateResponse"];
-                };
-            };
-            /** @description Plantilla no encontrada */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    updateDailyChallengeTemplate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID de la plantilla */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDailyChallengeTemplateRequest"];
-            };
-        };
-        responses: {
-            /** @description Plantilla actualizada */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DailyChallengeTemplateResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Plantilla no encontrada */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    deleteDailyChallengeTemplate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID de la plantilla */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Plantilla eliminada exitosamente */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Plantilla no encontrada */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    listGymSpecialSchedules: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID del gimnasio */
-                gymId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Lista de horarios especiales */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GymSpecialScheduleResponse"][];
-                };
-            };
-            /** @description Gimnasio no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    createGymSpecialSchedule: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID del gimnasio */
-                gymId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateGymSpecialScheduleRequest"];
-            };
-        };
-        responses: {
-            /** @description Horario especial creado */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GymSpecialScheduleResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Gimnasio no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    updateGymSpecialSchedule: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID del horario especial */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateGymSpecialScheduleRequest"];
-            };
-        };
-        responses: {
-            /** @description Horario especial actualizado */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GymSpecialScheduleResponse"];
-                };
-            };
-            /** @description Datos inválidos */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Horario especial no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    deleteGymSpecialSchedule: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description ID del horario especial */
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Horario especial eliminado exitosamente */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Horario especial no encontrado */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            404: components["responses"]["NotFound"];
         };
     };
 }

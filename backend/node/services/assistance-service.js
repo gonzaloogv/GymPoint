@@ -347,7 +347,7 @@ const registrarPresencia = async (command) => {
   const userProfile = await userProfileRepository.findById(command.userProfileId);
   if (!userProfile) throw new NotFoundError('Usuario');
 
-  if (userProfile.subscription !== 'PREMIUM') {
+  if (userProfile.app_tier !== 'PREMIUM') {
     throw new BusinessError(
       'Auto check-in es una función exclusiva para usuarios PREMIUM. ¡Actualiza tu suscripción para disfrutar de esta y otras ventajas!',
       'PREMIUM_FEATURE_REQUIRED'
@@ -422,7 +422,7 @@ const verificarAutoCheckIn = async (command) => {
   const userProfile = await userProfileRepository.findById(command.userProfileId);
   if (!userProfile) throw new NotFoundError('Usuario');
 
-  if (userProfile.subscription !== 'PREMIUM') {
+  if (userProfile.app_tier !== 'PREMIUM') {
     throw new BusinessError(
       'Auto check-in es una función exclusiva para usuarios PREMIUM. ¡Actualiza tu suscripción!',
       'PREMIUM_FEATURE_REQUIRED'

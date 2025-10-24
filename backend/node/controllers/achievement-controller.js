@@ -149,6 +149,7 @@ module.exports = {
   getMyAchievements,
   syncMyAchievements,
   listDefinitions,
+  getDefinitionById,
   createDefinition,
   updateDefinition,
   deleteDefinition

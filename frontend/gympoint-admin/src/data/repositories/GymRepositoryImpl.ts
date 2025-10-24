@@ -15,8 +15,8 @@ export class GymRepositoryImpl implements GymRepository {
    * Obtener todos los gimnasios (con paginación opcional)
    */
   async getAllGyms(): Promise<Gym[]> {
-    // El endpoint real del backend usa paginación: /api/gyms?page=1&limit=100
-    const response = await apiClient.get<PaginatedGymsResponse>('/api/gyms', {
+    // El endpoint real del backend usa paginación: /gyms?page=1&limit=100
+    const response = await apiClient.get<PaginatedGymsResponse>('/gyms', {
       params: { page: 1, limit: 100 },
     });
     return response.data.items.map(mapGymResponseToGym);
@@ -35,7 +35,7 @@ export class GymRepositoryImpl implements GymRepository {
    */
   async createGym(gym: CreateGymDTO): Promise<Gym> {
     const request = mapCreateGymDTOToRequest(gym);
-    const response = await apiClient.post<GymResponse>('/api/gyms', request);
+    const response = await apiClient.post<GymResponse>('/gyms', request);
     return mapGymResponseToGym(response.data);
   }
 
@@ -61,7 +61,7 @@ export class GymRepositoryImpl implements GymRepository {
    * Nota: Este endpoint puede no estar definido en el OpenAPI, verificar implementación del backend
    */
   async getGymTypes(): Promise<string[]> {
-    const response = await apiClient.get<string[]>('/api/gyms/tipos');
+    const response = await apiClient.get<string[]>('/gyms/tipos');
     return response.data;
   }
 }

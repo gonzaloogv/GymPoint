@@ -33,7 +33,7 @@ export class GymScheduleRepositoryImpl implements GymScheduleRepository {
    */
   async createSchedule(schedule: CreateGymScheduleDTO): Promise<GymSchedule> {
     const request = mapCreateGymScheduleDTOToRequest(schedule);
-    const response = await apiClient.post<GymScheduleResponse>('/api/gym-schedules', request);
+    const response = await apiClient.post<GymScheduleResponse>('/gym-schedules', request);
     return mapGymScheduleResponseToGymSchedule(response.data);
   }
 
@@ -66,7 +66,7 @@ export class GymScheduleRepositoryImpl implements GymScheduleRepository {
   async createSpecialSchedule(schedule: CreateGymSpecialScheduleDTO): Promise<GymSpecialSchedule> {
     const request = mapCreateGymSpecialScheduleDTOToRequest(schedule);
     const response = await apiClient.post<GymSpecialScheduleResponse>(
-      '/api/gym-special-schedules',
+      '/gym-special-schedules',
       request
     );
     return mapGymSpecialScheduleResponseToGymSpecialSchedule(response.data);

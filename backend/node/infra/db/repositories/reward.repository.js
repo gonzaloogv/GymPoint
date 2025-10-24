@@ -72,7 +72,7 @@ async function findRewards(filters = {}, options = {}) {
   const include = [
     {
       model: Gym,
-      as: 'Gym',
+      as: 'gym',
       attributes: ['id_gym', 'name', 'city'],
       required: false,
     },
@@ -107,7 +107,7 @@ async function findRewardById(rewardId, options = {}) {
     include: [
       {
         model: Gym,
-        as: 'Gym',
+        as: 'gym',
         attributes: ['id_gym', 'name', 'city'],
         required: false,
       },
@@ -304,7 +304,7 @@ async function findClaimedRewards(filters = {}, options = {}) {
       include: [
         {
           model: Gym,
-          as: 'Gym',
+          as: 'gym',
           attributes: ['id_gym', 'name', 'city'],
           required: false,
         },
@@ -348,7 +348,7 @@ async function findClaimedRewardById(claimedRewardId, options = {}) {
         include: [
           {
             model: Gym,
-            as: 'Gym',
+            as: 'gym',
             attributes: ['id_gym', 'name', 'city'],
             required: false,
           },

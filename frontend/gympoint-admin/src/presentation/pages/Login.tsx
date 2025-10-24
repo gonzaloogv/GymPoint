@@ -38,14 +38,14 @@ export const Login = () => {
       { email, password },
       {
         onSuccess: (data) => {
-          const { accessToken, user } = data;
+          const { tokens, user } = data;
 
           if (!user.roles || !user.roles.includes('ADMIN')) {
             setErrorMessage('Acceso denegado. Se requieren privilegios de administrador.');
             return;
           }
 
-          localStorage.setItem('admin_token', accessToken);
+          localStorage.setItem('admin_token', tokens.accessToken);
           navigate('/');
         },
       },

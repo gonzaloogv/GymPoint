@@ -24,11 +24,11 @@ function toGymReview(model) {
   };
 
   // Incluir asociaciones si están presentes
-  if (model.userProfile) {
+  if (model.author) {
     review.userProfile = {
-      id_user_profile: model.userProfile.id_user_profile,
-      name: model.userProfile.name,
-      profile_picture_url: model.userProfile.profile_picture_url,
+      id_user_profile: model.author.id_user_profile,
+      name: model.author.name,
+      profile_picture_url: model.author.profile_picture_url,
     };
   }
 

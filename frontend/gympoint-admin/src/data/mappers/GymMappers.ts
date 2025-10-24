@@ -21,7 +21,7 @@ export function mapGymResponseToGym(dto: GymResponse): Gym {
     whatsapp: dto.whatsapp || null,
     email: dto.email || null,
     website: dto.website || null,
-    social_media: dto.social_media || null,
+    social_media: (dto.social_media as Record<string, string>) || null,
     instagram: dto.instagram || null,
     facebook: dto.facebook || null,
     google_maps_url: dto.google_maps_url || null,
@@ -29,12 +29,12 @@ export function mapGymResponseToGym(dto: GymResponse): Gym {
     equipment: dto.equipment || [],
     max_capacity: dto.max_capacity || null,
     area_sqm: dto.area_sqm || null,
-    verified: dto.verified,
-    featured: dto.featured,
+    verified: dto.verified ?? false,
+    featured: dto.featured ?? false,
     month_price: dto.month_price,
     week_price: dto.week_price || 0,
     photo_url: dto.photo_url || null,
-    auto_checkin_enabled: dto.auto_checkin_enabled,
+    auto_checkin_enabled: dto.auto_checkin_enabled ?? true,
     geofence_radius_meters: dto.geofence_radius_meters,
     min_stay_minutes: dto.min_stay_minutes,
     rules: dto.rules || null,
@@ -60,7 +60,7 @@ export function mapCreateGymDTOToRequest(domainDTO: DomainCreateGymDTO): CreateG
     whatsapp: domainDTO.whatsapp,
     email: domainDTO.email,
     website: domainDTO.website,
-    social_media: domainDTO.social_media,
+    social_media: domainDTO.social_media as Record<string, any> | undefined,
     instagram: domainDTO.instagram,
     facebook: domainDTO.facebook,
     google_maps_url: domainDTO.google_maps_url,
@@ -72,9 +72,9 @@ export function mapCreateGymDTOToRequest(domainDTO: DomainCreateGymDTO): CreateG
     month_price: domainDTO.month_price,
     week_price: domainDTO.week_price,
     photo_url: domainDTO.photo_url,
-    auto_checkin_enabled: domainDTO.auto_checkin_enabled,
-    geofence_radius_meters: domainDTO.geofence_radius_meters,
-    min_stay_minutes: domainDTO.min_stay_minutes,
+    auto_checkin_enabled: domainDTO.auto_checkin_enabled ?? true,
+    geofence_radius_meters: domainDTO.geofence_radius_meters ?? 150,
+    min_stay_minutes: domainDTO.min_stay_minutes ?? 10,
     rules: domainDTO.rules,
   };
 }
@@ -98,7 +98,7 @@ export function mapUpdateGymDTOToRequest(domainDTO: DomainUpdateGymDTO): UpdateG
   if (rest.whatsapp !== undefined) request.whatsapp = rest.whatsapp;
   if (rest.email !== undefined) request.email = rest.email;
   if (rest.website !== undefined) request.website = rest.website;
-  if (rest.social_media !== undefined) request.social_media = rest.social_media;
+  if (rest.social_media !== undefined) request.social_media = rest.social_media as Record<string, any> | undefined;
   if (rest.instagram !== undefined) request.instagram = rest.instagram;
   if (rest.facebook !== undefined) request.facebook = rest.facebook;
   if (rest.google_maps_url !== undefined) request.google_maps_url = rest.google_maps_url;

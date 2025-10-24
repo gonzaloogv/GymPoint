@@ -1,4 +1,67 @@
 paths:
+  /api/gyms:
+    get:
+      operationId: listGyms
+      tags:
+        - Gyms
+      summary: Listar gimnasios
+      description: Obtiene la lista de gimnasios con paginación
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/PageParam'
+        - $ref: '../components/parameters.yaml#/components/parameters/LimitParam'
+        - name: city
+          in: query
+          schema:
+            type: string
+          description: Filtrar por ciudad
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+          description: Filtrar solo gimnasios activos
+        - name: featured
+          in: query
+          schema:
+            type: boolean
+          description: Filtrar solo gimnasios destacados
+      responses:
+        '200':
+          description: Lista paginada de gimnasios
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/gyms.yaml#/components/schemas/GymListResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+    post:
+      operationId: createGym
+      tags:
+        - Gyms
+      summary: Crear un nuevo gimnasio
+      description: Crea un nuevo gimnasio en el sistema (admin)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/gyms.yaml#/components/schemas/CreateGymRequest'
+      responses:
+        '201':
+          description: Gimnasio creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/gyms.yaml#/components/schemas/GymResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
   /api/gyms/{gymId}:
     parameters:
       - $ref: '../components/parameters.yaml#/components/parameters/GymIdPathParam'
@@ -292,3 +355,110 @@ paths:
             application/json:
               schema:
                 $ref: '../components/common.yaml#/components/schemas/Error'
+  /api/gym-reviews:
+    get:
+      operationId: listAllGymReviews
+      tags:
+        - Gym Reviews
+      summary: Listar todas las reseñas de gimnasios
+      description: Obtiene la lista de reseñas de todos los gimnasios con paginación
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/PageParam'
+        - $ref: '../components/parameters.yaml#/components/parameters/LimitParam'
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum:
+              - created_at
+              - rating
+              - helpful_count
+            default: created_at
+        - $ref: '../components/parameters.yaml#/components/parameters/OrderParam'
+        - name: min_rating
+          in: query
+          schema:
+            type: number
+            minimum: 1
+            maximum: 5
+        - name: with_comment_only
+          in: query
+          schema:
+            type: boolean
+            default: false
+        - name: gym_id
+          in: query
+          schema:
+            type: integer
+          description: Filtrar por ID de gimnasio
+      responses:
+        '200':
+          description: Lista paginada de reseñas
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/gyms.yaml#/components/schemas/PaginatedGymReviewsResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+  /api/gym-reviews/{reviewId}:
+    parameters:
+      - name: reviewId
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: ID de la reseña
+    put:
+      operationId: updateGymReview
+      tags:
+        - Gym Reviews
+      summary: Actualizar una reseña
+      description: Actualiza una reseña existente (admin o autor)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/gyms.yaml#/components/schemas/CreateGymReviewRequest'
+      responses:
+        '200':
+          description: Reseña actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/gyms.yaml#/components/schemas/GymReviewResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'
+    delete:
+      operationId: deleteGymReview
+      tags:
+        - Gym Reviews
+      summary: Eliminar una reseña
+      description: Elimina una reseña (admin o autor)
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Reseña eliminada exitosamente
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'

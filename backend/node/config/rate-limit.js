@@ -8,7 +8,7 @@ const rateLimit = require('express-rate-limit');
 // Limiter general para todas las rutas de API (100 req/15min por IP)
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // máximo 100 requests por ventana
+  max: 1000, // máximo 1000 requests por ventana (aumentado para desarrollo)
   message: {
     error: {
       code: 'TOO_MANY_REQUESTS',
@@ -17,6 +17,7 @@ const apiLimiter = rateLimit({
   },
   standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
   legacyHeaders: false, // Disable `X-RateLimit-*` headers
+  validate: { trustProxy: false }, // Desactivar validación de trust proxy para desarrollo
   skip: (req) => {
     // No aplicar rate limit a health checks
     return req.path === '/health' || req.path === '/ready';
@@ -26,7 +27,7 @@ const apiLimiter = rateLimit({
 // Limiter estricto para autenticación (5 intentos/15min por IP)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // máximo 5 intentos
+  max: 10, // máximo 5 intentos
   skipSuccessfulRequests: true, // No contar requests exitosos
   message: {
     error: {
@@ -35,13 +36,14 @@ const authLimiter = rateLimit({
     }
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  validate: { trustProxy: false }
 });
 
 // Limiter para registro (3 registros/hora por IP)
 const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hora
-  max: 3, // máximo 3 registros por hora
+  max: 5, // máximo 3 registros por hora
   message: {
     error: {
       code: 'TOO_MANY_REGISTRATIONS',
@@ -49,7 +51,8 @@ const registerLimiter = rateLimit({
     }
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  validate: { trustProxy: false }
 });
 
 // Limiter para webhooks de Mercado Pago (más permisivo)
@@ -63,7 +66,8 @@ const webhookLimiter = rateLimit({
     }
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  validate: { trustProxy: false }
 });
 
 // Limiter para endpoints de pago (10 requests/minuto)
@@ -77,7 +81,8 @@ const paymentLimiter = rateLimit({
     }
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  validate: { trustProxy: false }
 });
 
 module.exports = {

@@ -111,6 +111,92 @@ components:
         updated_at:
           type: string
           format: date-time
+        whatsapp:
+          type:
+            - string
+            - 'null'
+          maxLength: 40
+          description: Número de WhatsApp
+        instagram:
+          type:
+            - string
+            - 'null'
+          maxLength: 100
+          description: Usuario de Instagram
+        facebook:
+          type:
+            - string
+            - 'null'
+          maxLength: 200
+          description: URL de Facebook
+        google_maps_url:
+          type:
+            - string
+            - 'null'
+          description: URL de Google Maps
+        photo_url:
+          type:
+            - string
+            - 'null'
+          description: URL de la foto principal del gimnasio
+        logo_url:
+          type:
+            - string
+            - 'null'
+          maxLength: 500
+          description: URL del logo del gimnasio
+        registration_date:
+          type:
+            - string
+            - 'null'
+          format: date-time
+          description: Fecha de registro del gimnasio en la plataforma
+        social_media:
+          type:
+            - object
+            - 'null'
+          description: Redes sociales del gimnasio (objeto JSON)
+          additionalProperties: true
+        services:
+          type:
+            - array
+            - 'null'
+          items:
+            type: string
+          description: Servicios ofrecidos por el gimnasio
+        equipment:
+          type:
+            - array
+            - 'null'
+          items:
+            type: string
+          description: Lista de equipamiento disponible
+        max_capacity:
+          type:
+            - integer
+            - 'null'
+          minimum: 1
+          description: Capacidad máxima de personas
+        area_sqm:
+          type:
+            - number
+            - 'null'
+          format: float
+          minimum: 0
+          description: Área en metros cuadrados
+        rules:
+          type:
+            - array
+            - 'null'
+          items:
+            type: string
+          description: Reglas del gimnasio
+        deleted_at:
+          type:
+            - string
+            - 'null'
+          format: date-time
+          description: Fecha de eliminación (soft delete)
     CreateGymRequest:
       type: object
       additionalProperties: false
@@ -153,9 +239,9 @@ components:
           type: string
           format: uri
         social_media:
-          type: array
-          items:
-            type: string
+          type: object
+          description: Redes sociales del gimnasio (objeto JSON)
+          additionalProperties: true
         month_price:
           type: number
           minimum: 0
@@ -172,6 +258,58 @@ components:
           minimum: 5
           maximum: 240
           default: 30
+        whatsapp:
+          type: string
+          maxLength: 40
+          description: Número de WhatsApp
+        instagram:
+          type: string
+          maxLength: 100
+          description: Usuario de Instagram
+        facebook:
+          type: string
+          maxLength: 200
+          description: URL de Facebook
+        google_maps_url:
+          type: string
+          maxLength: 500
+          description: URL de Google Maps
+        logo_url:
+          type: string
+          maxLength: 500
+          description: URL del logo
+        photo_url:
+          type: string
+          maxLength: 500
+          description: URL de la foto principal
+        equipment:
+          type: array
+          items:
+            type: string
+          description: Lista de equipamiento
+        services:
+          type: array
+          items:
+            type: string
+          description: Lista de servicios
+        max_capacity:
+          type: integer
+          minimum: 1
+          description: Capacidad máxima
+        area_sqm:
+          type: number
+          minimum: 0
+          description: Área en metros cuadrados
+        verified:
+          type: boolean
+          description: Gimnasio verificado
+        featured:
+          type: boolean
+          description: Gimnasio destacado
+        auto_checkin_enabled:
+          type: boolean
+          default: true
+          description: Auto check-in habilitado
         id_types:
           type: array
           items:
@@ -238,6 +376,23 @@ components:
         is_closed:
           type: boolean
           default: false
+          description: Si el gimnasio está cerrado ese día
+    UpdateGymScheduleRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        open_time:
+          type: string
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+          description: Hora de apertura (HH:MM o HH:MM:SS)
+          example: '06:00'
+        close_time:
+          type: string
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+          description: Hora de cierre (HH:MM o HH:MM:SS)
+          example: '22:00'
+        is_closed:
+          type: boolean
           description: Si el gimnasio está cerrado ese día
     GymScheduleResponse:
       type: object

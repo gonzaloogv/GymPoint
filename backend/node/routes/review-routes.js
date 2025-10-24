@@ -1,7 +1,33 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/review-controller');
-const { verificarToken, verificarUsuarioApp } = require('../middlewares/auth');
+const { verificarToken, verificarUsuarioApp, verificarRol } = require('../middlewares/auth');
+
+// ============================================================================
+// RUTAS OPENAPI (se montan en /api/gym-reviews desde index.js)
+// ============================================================================
+
+/**
+ * GET /
+ * Lista todas las reseñas (admin) - se sirve como /api/gym-reviews
+ */
+router.get('/', verificarToken, verificarRol('ADMIN'), controller.listAllGymReviews);
+
+/**
+ * PUT /:reviewId
+ * Actualiza una reseña - se sirve como /api/gym-reviews/:reviewId
+ */
+router.put('/:reviewId', verificarToken, controller.updateGymReview);
+
+/**
+ * DELETE /:reviewId
+ * Elimina una reseña - se sirve como /api/gym-reviews/:reviewId
+ */
+router.delete('/:reviewId', verificarToken, controller.deleteGymReview);
+
+// ============================================================================
+// RUTAS LEGACY (mantener compatibilidad bajo /api/reviews)
+// ============================================================================
 
 /**
  * @swagger

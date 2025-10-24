@@ -9,7 +9,7 @@ interface RewardCardProps {
 }
 
 export const RewardCard = ({ reward, onEdit, onDelete, isDeleting }: RewardCardProps) => {
-  const isExpired = new Date(reward.finish_date) < new Date();
+  const isExpired = reward.finish_date ? new Date(reward.finish_date) < new Date() : false;
 
   const getStatusBadge = () => {
     if (isExpired) {
@@ -56,17 +56,17 @@ export const RewardCard = ({ reward, onEdit, onDelete, isDeleting }: RewardCardP
 
           <div className="flex flex-col">
             <span className="text-xs text-text-muted uppercase">🏷️ Tipo:</span>
-            <span className="font-semibold">{reward.type.replace(/_/g, ' ')}</span>
+            <span className="font-semibold">{reward.type ? reward.type.replace(/_/g, ' ') : 'N/A'}</span>
           </div>
 
           <div className="flex flex-col">
             <span className="text-xs text-text-muted uppercase">📅 Inicio:</span>
-            <span className="font-semibold">{formatDate(reward.start_date)}</span>
+            <span className="font-semibold">{reward.start_date ? formatDate(reward.start_date) : 'N/A'}</span>
           </div>
 
           <div className="flex flex-col">
             <span className="text-xs text-text-muted uppercase">📅 Fin:</span>
-            <span className="font-semibold">{formatDate(reward.finish_date)}</span>
+            <span className="font-semibold">{reward.finish_date ? formatDate(reward.finish_date) : 'N/A'}</span>
           </div>
         </div>
       </div>

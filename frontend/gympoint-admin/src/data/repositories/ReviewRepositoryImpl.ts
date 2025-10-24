@@ -30,7 +30,7 @@ export class ReviewRepositoryImpl implements ReviewRepository {
     filters: ReviewFilters = {}
   ): Promise<{ total: number; reviews: Review[] }> {
     const response = await apiClient.get<PaginatedGymReviewsResponse>(
-      '/api/gym-reviews',
+      '/gym-reviews',
       { params: buildQueryParams(filters) }
     );
     return {

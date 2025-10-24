@@ -148,10 +148,12 @@ async function recalculateStats(gymId, transaction) {
  * @returns {Promise<Object>} Paginación de reseñas
  */
 async function listGymReviews(query) {
-  // Verificar que el gimnasio existe
-  const gym = await gymRepository.findGymById(query.gymId);
-  if (!gym) {
-    throw new NotFoundError('Gimnasio no encontrado');
+  // Verificar que el gimnasio existe (solo si se especificó gymId)
+  if (query.gymId) {
+    const gym = await gymRepository.findGymById(query.gymId);
+    if (!gym) {
+      throw new NotFoundError('Gimnasio no encontrado');
+    }
   }
 
   const filters = {};

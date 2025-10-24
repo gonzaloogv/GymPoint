@@ -32,7 +32,7 @@ export class GymSpecialScheduleRepositoryImpl implements GymSpecialScheduleRepos
   async createSpecialSchedule(schedule: CreateGymSpecialScheduleDTO): Promise<GymSpecialSchedule> {
     const request = mapCreateGymSpecialScheduleDTOToRequest(schedule);
     const response = await apiClient.post<GymSpecialScheduleResponse>(
-      '/api/gym-special-schedules',
+      '/gym-special-schedules',
       request
     );
     return mapGymSpecialScheduleResponseToGymSpecialSchedule(response.data);

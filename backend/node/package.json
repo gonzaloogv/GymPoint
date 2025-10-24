@@ -14,7 +14,9 @@
     "staging:seed": "node seed/seed-staging.js",
     "staging:setup": "npm run staging:migrate && npm run staging:seed",
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint .",
-    "openapi:lint": "redocly lint docs/openapi.yaml"
+    "openapi:lint": "redocly lint docs/openapi.yaml",
+    "validate:routes": "node scripts/validate-routes.js",
+    "prestart": "node scripts/validate-routes.js"
   },
   "keywords": [],
   "author": "",

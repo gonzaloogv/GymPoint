@@ -9,11 +9,11 @@ const sequelize = require('../config/database');
 const obtenerEstadisticas = async () => {
   // Contar usuarios por suscripción
   const [subscriptionStats] = await sequelize.query(`
-    SELECT 
-      subscription,
+    SELECT
+      app_tier as subscription,
       COUNT(*) as count
     FROM user_profiles
-    GROUP BY subscription
+    GROUP BY app_tier
   `);
 
   // Contar usuarios por rol
@@ -102,7 +102,7 @@ const listarUsuarios = async (options = {}) => {
   // Construir filtros
   const where = {};
   if (subscription) {
-    where.subscription = subscription;
+    where.app_tier = subscription;
   }
 
   // Búsqueda
@@ -142,7 +142,7 @@ const listarUsuarios = async (options = {}) => {
     email: profile.account.email,
     name: profile.name,
     lastname: profile.lastname,
-    subscription: profile.subscription,
+    subscription: profile.app_tier,
     tokens: profile.tokens,
     is_active: profile.account.is_active,
     auth_provider: profile.account.auth_provider,
@@ -208,7 +208,7 @@ const buscarUsuarioPorEmail = async (email) => {
       name: profile.name,
       lastname: profile.lastname,
       type: isAdmin ? 'admin' : 'user',
-      ...(profile.subscription && { subscription: profile.subscription }),
+      ...(profile.app_tier && { subscription: profile.app_tier }),
       ...(profile.tokens !== undefined && { tokens: profile.tokens }),
       ...(profile.department && { department: profile.department })
     } : null

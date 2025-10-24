@@ -13,6 +13,42 @@ const {
 // ============================================================================
 
 /**
+ * GET /api/gym-reviews
+ * Lista todas las reseñas de todos los gimnasios (admin)
+ */
+const listAllGymReviews = async (req, res) => {
+  try {
+    const { page, limit, min_rating, max_rating, with_comment_only, sortBy, order, gym_id } = req.query;
+
+    const query = gymReviewMappers.toListGymReviewsQuery(
+      gym_id ? parseInt(gym_id, 10) : undefined,
+      {
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
+        min_rating: min_rating ? parseFloat(min_rating) : undefined,
+        max_rating: max_rating ? parseFloat(max_rating) : undefined,
+        with_comment_only: with_comment_only === 'true',
+        sortBy,
+        order,
+      },
+      req.account?.userProfile?.id_user_profile
+    );
+
+    const result = await reviewService.listGymReviews(query);
+    const dto = gymReviewMappers.toPaginatedGymReviewsResponse(result);
+
+    res.json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      error: {
+        code: error.code || 'LIST_ALL_REVIEWS_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
+/**
  * GET /api/gyms/:gymId/reviews
  * Lista las reseñas de un gimnasio
  */
@@ -21,19 +57,22 @@ const listGymReviews = async (req, res) => {
     const gymId = parseInt(req.params.gymId, 10);
     const { page, limit, min_rating, max_rating, with_comment_only, sortBy, order } = req.query;
 
-    const query = gymReviewMappers.toListGymReviewsQuery({
+    const query = gymReviewMappers.toListGymReviewsQuery(
       gymId,
-      page: page ? parseInt(page, 10) : undefined,
-      limit: limit ? parseInt(limit, 10) : undefined,
-      min_rating: min_rating ? parseFloat(min_rating) : undefined,
-      max_rating: max_rating ? parseFloat(max_rating) : undefined,
-      with_comment_only: with_comment_only === 'true',
-      sortBy,
-      order,
-    });
+      {
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
+        min_rating: min_rating ? parseFloat(min_rating) : undefined,
+        max_rating: max_rating ? parseFloat(max_rating) : undefined,
+        with_comment_only: with_comment_only === 'true',
+        sortBy,
+        order,
+      },
+      req.account?.userProfile?.id_user_profile
+    );
 
     const result = await reviewService.listGymReviews(query);
-    const dto = gymReviewMappers.toPaginatedGymReviewsDTO(result);
+    const dto = gymReviewMappers.toPaginatedGymReviewsResponse(result);
 
     res.json(dto);
   } catch (error) {
@@ -54,7 +93,10 @@ const getGymReview = async (req, res) => {
   try {
     const reviewId = parseInt(req.params.reviewId, 10);
 
-    const query = gymReviewMappers.toGetGymReviewQuery(reviewId);
+    const query = gymReviewMappers.toGetGymReviewByIdQuery(
+      reviewId,
+      req.account?.userProfile?.id_user_profile
+    );
     const review = await reviewService.getGymReview(query);
 
     if (!review) {
@@ -66,7 +108,7 @@ const getGymReview = async (req, res) => {
       });
     }
 
-    const dto = gymReviewMappers.toGymReviewDTO(review);
+    const dto = gymReviewMappers.toGymReviewResponse(review);
     res.json(dto);
   } catch (error) {
     res.status(error.statusCode || 500).json({
@@ -87,16 +129,18 @@ const getUserReviews = async (req, res) => {
     const userId = parseInt(req.params.userId, 10);
     const { page, limit, sortBy, order } = req.query;
 
-    const query = gymReviewMappers.toGetUserReviewsQuery({
+    const query = gymReviewMappers.toListUserReviewsQuery(
       userId,
-      page: page ? parseInt(page, 10) : undefined,
-      limit: limit ? parseInt(limit, 10) : undefined,
-      sortBy,
-      order,
-    });
+      {
+        page: page ? parseInt(page, 10) : undefined,
+        limit: limit ? parseInt(limit, 10) : undefined,
+        sortBy,
+        order,
+      }
+    );
 
     const result = await reviewService.getUserReviews(query);
-    const dto = gymReviewMappers.toPaginatedGymReviewsDTO(result);
+    const dto = gymReviewMappers.toPaginatedGymReviewsResponse(result);
 
     res.json(dto);
   } catch (error) {
@@ -134,7 +178,7 @@ const createGymReview = async (req, res) => {
     );
 
     const review = await reviewService.createGymReview(command);
-    const dto = gymReviewMappers.toGymReviewDTO(review);
+    const dto = gymReviewMappers.toGymReviewResponse(review);
 
     res.status(201).json(dto);
   } catch (error) {
@@ -165,7 +209,7 @@ const updateGymReview = async (req, res) => {
     );
 
     const review = await reviewService.updateGymReview(command);
-    const dto = gymReviewMappers.toGymReviewDTO(review);
+    const dto = gymReviewMappers.toGymReviewResponse(review);
 
     res.json(dto);
   } catch (error) {
@@ -236,7 +280,7 @@ const markReviewHelpful = async (req, res) => {
     );
 
     const review = await reviewService.markReviewHelpful(command);
-    const dto = gymReviewMappers.toGymReviewDTO(review);
+    const dto = gymReviewMappers.toGymReviewResponse(review);
 
     res.json(dto);
   } catch (error) {
@@ -299,7 +343,7 @@ const getGymRatingStats = async (req, res) => {
 
     const query = gymReviewMappers.toGetGymRatingStatsQuery(gymId);
     const stats = await reviewService.getGymRatingStats(query);
-    const dto = gymReviewMappers.toGymRatingStatsDTO(stats);
+    const dto = gymReviewMappers.toGymRatingStatsResponse(stats);
 
     res.json(dto);
   } catch (error) {
@@ -314,6 +358,7 @@ const getGymRatingStats = async (req, res) => {
 
 module.exports = {
   // Reviews
+  listAllGymReviews,
   listGymReviews,
   getGymReview,
   getUserReviews,

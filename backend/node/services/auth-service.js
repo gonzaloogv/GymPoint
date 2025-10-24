@@ -111,8 +111,8 @@ const buildAccessTokenPayload = (account, roles = [], profile = null) => {
     roles: roles.map((role) => role.role_name || role),
   };
 
-  if (profile && profile.subscription) {
-    payload.subscription = profile.subscription;
+  if (profile && profile.app_tier) {
+    payload.subscription = profile.app_tier;
   }
 
   if (profile && profile.id_user_profile) {

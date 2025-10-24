@@ -6,6 +6,9 @@ export interface LoginCredentials {
 }
 
 export interface LoginResponse {
-  accessToken: string;
+  tokens: {
+    accessToken: string;
+    refreshToken: string | null;
+  };
   user: UserDetail;
 }

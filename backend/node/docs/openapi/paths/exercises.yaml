@@ -1,4 +1,69 @@
 paths:
+  /api/exercises:
+    get:
+      operationId: listExercises
+      tags:
+        - Exercises
+      summary: Listar ejercicios con paginación
+      description: Retorna la lista de ejercicios con paginación (alias de /api/exercises/paginated)
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/PageParam'
+        - $ref: '../components/parameters.yaml#/components/parameters/LimitParam'
+        - name: muscular_group
+          in: query
+          schema:
+            type: string
+        - name: difficulty
+          in: query
+          schema:
+            type: string
+            enum:
+              - beginner
+              - intermediate
+              - advanced
+      responses:
+        '200':
+          description: Lista paginada de ejercicios
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/exercises.yaml#/components/schemas/PaginatedExercisesResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+    post:
+      operationId: createExercise
+      tags:
+        - Exercises
+      summary: Crear un nuevo ejercicio
+      description: Crea un nuevo ejercicio en el sistema (admin)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/exercises.yaml#/components/schemas/CreateExerciseRequest'
+      responses:
+        '201':
+          description: Ejercicio creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '../components/schemas/exercises.yaml#/components/schemas/Exercise'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
   /api/exercises/paginated:
     get:
       operationId: listExercisesPaginated

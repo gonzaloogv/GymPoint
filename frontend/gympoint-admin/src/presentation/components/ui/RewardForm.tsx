@@ -31,8 +31,8 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
         type: reward.type,
         cost_tokens: reward.cost_tokens,
         stock: reward.stock,
-        start_date: reward.start_date.split('T')[0],
-        finish_date: reward.finish_date.split('T')[0],
+        start_date: reward.start_date ? reward.start_date.split('T')[0] : '',
+        finish_date: reward.finish_date ? reward.finish_date.split('T')[0] : '',
         available: reward.available,
       });
     }

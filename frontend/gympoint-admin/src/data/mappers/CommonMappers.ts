@@ -79,11 +79,11 @@ export function mapRewardResponseToReward(dto: RewardResponse): Reward {
     name: dto.name,
     description: dto.description,
     type: dto.type as any,
-    cost_tokens: dto.cost_tokens,
-    available: dto.available,
+    cost_tokens: dto.token_cost,
+    available: dto.is_active ?? true,
     stock: dto.stock || 0,
-    start_date: dto.start_date,
-    finish_date: dto.finish_date,
+    start_date: dto.valid_from || null,
+    finish_date: dto.valid_until || null,
     creation_date: dto.created_at,
     deleted_at: dto.deleted_at || null,
   };
@@ -97,11 +97,11 @@ export function mapCreateRewardDTOToRequest(domainDTO: DomainCreateRewardDTO): C
     name: domainDTO.name,
     description: domainDTO.description,
     type: domainDTO.type as any,
-    cost_tokens: domainDTO.cost_tokens,
+    token_cost: domainDTO.cost_tokens,
     stock: domainDTO.stock || 0,
-    start_date: domainDTO.start_date,
-    finish_date: domainDTO.finish_date,
-    available: domainDTO.available ?? true,
+    valid_from: domainDTO.start_date,
+    valid_until: domainDTO.finish_date,
+    is_active: domainDTO.available ?? true,
   };
 }
 
@@ -114,11 +114,11 @@ export function mapUpdateRewardDTOToRequest(domainDTO: DomainUpdateRewardDTO): U
   if (domainDTO.name !== undefined) request.name = domainDTO.name;
   if (domainDTO.description !== undefined) request.description = domainDTO.description;
   if (domainDTO.type !== undefined) request.type = domainDTO.type as any;
-  if (domainDTO.cost_tokens !== undefined) request.cost_tokens = domainDTO.cost_tokens;
+  if (domainDTO.cost_tokens !== undefined) request.token_cost = domainDTO.cost_tokens;
   if (domainDTO.stock !== undefined) request.stock = domainDTO.stock;
-  if (domainDTO.start_date !== undefined) request.start_date = domainDTO.start_date;
-  if (domainDTO.finish_date !== undefined) request.finish_date = domainDTO.finish_date;
-  if (domainDTO.available !== undefined) request.available = domainDTO.available;
+  if (domainDTO.start_date !== undefined) request.valid_from = domainDTO.start_date;
+  if (domainDTO.finish_date !== undefined) request.valid_until = domainDTO.finish_date;
+  if (domainDTO.available !== undefined) request.is_active = domainDTO.available;
 
   return request;
 }
@@ -128,10 +128,21 @@ export function mapUpdateRewardDTOToRequest(domainDTO: DomainUpdateRewardDTO): U
 // ============================================================================
 
 /**
- * El DTO Exercise del OpenAPI puede usarse directamente como entidad
+ * Convierte Exercise (DTO del OpenAPI) a Exercise (entidad del dominio)
+ * El dominio usa null para campos opcionales, pero OpenAPI genera undefined
  */
-export function mapExerciseResponseToExercise(dto: Exercise): Exercise {
-  return dto;
+export function mapExerciseResponseToExercise(dto: Exercise): any {
+  return {
+    id_exercise: dto.id_exercise,
+    exercise_name: dto.exercise_name,
+    description: dto.description ?? null,
+    muscular_group: dto.muscular_group ?? null,
+    equipment_needed: dto.equipment_needed ?? null,
+    difficulty: dto.difficulty ?? null,
+    instructions: dto.instructions ?? null,
+    video_url: dto.video_url ?? null,
+    created_by: dto.created_by ?? null,
+  };
 }
 
 export function mapCreateExerciseToRequest(data: any): CreateExerciseRequest {
@@ -203,10 +214,10 @@ export function mapCreateDailyChallengeDTOToRequest(
     challenge_type: domainDTO.challenge_type as any,
     target_value: domainDTO.target_value,
     target_unit: domainDTO.target_unit || '',
-    tokens_reward: domainDTO.tokens_reward,
+    tokens_reward: domainDTO.tokens_reward ?? 0,
     difficulty: domainDTO.difficulty as any,
     is_active: domainDTO.is_active ?? true,
-    id_template: domainDTO.id_template,
+    id_template: domainDTO.id_template ?? undefined,
     auto_generated: domainDTO.auto_generated ?? false,
   };
 }
@@ -264,7 +275,7 @@ export function mapCreateDailyChallengeTemplateDTOToRequest(
     challenge_type: domainDTO.challenge_type as any,
     target_value: domainDTO.target_value,
     target_unit: domainDTO.target_unit || '',
-    tokens_reward: domainDTO.tokens_reward,
+    tokens_reward: domainDTO.tokens_reward ?? 0,
     difficulty: domainDTO.difficulty as any,
     rotation_weight: domainDTO.rotation_weight ?? 1,
     is_active: domainDTO.is_active ?? true,
