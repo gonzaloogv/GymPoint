@@ -13,10 +13,13 @@ echo "Ejecutando migraciones..."
 # Ejecutar migraciones
 node migrate.js
 
-echo "Ejecutando seed de usuario admin..."
+echo "Ejecutando seeds de datos iniciales..."
 
-# Ejecutar seed de admin
-node scripts/seed-admin.js
+# Ejecutar seed de admin (deprecated - ahora está en initial-data.js)
+# node scripts/seed-admin.js
+
+# Ejecutar seed completo con amenidades, ejercicios, logros y admin
+node seed/initial-data.js
 
 echo "Iniciando el servidor..."
 

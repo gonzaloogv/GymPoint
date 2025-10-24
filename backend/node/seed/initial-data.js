@@ -21,85 +21,114 @@ async function seedInitialData() {
     console.log('Iniciando seed de datos iniciales...\n');
 
     // ========================================
-    // 1. CREAR CUENTA DE ADMINISTRADOR
+    // 1. CREAR CUENTA DE ADMINISTRADOR (SI NO EXISTE)
     // ========================================
-    console.log('Creando cuenta de administrador...');
+    console.log('Verificando cuenta de administrador...');
 
-    const passwordHash = await bcrypt.hash('admin123', 10);
+    const [existingAdmin] = await sequelize.query(`
+      SELECT id_account FROM accounts WHERE email = 'admin@gympoint.com'
+    `, { transaction });
 
-    const [accountResult] = await sequelize.query(`
-      INSERT INTO accounts (email, password_hash, auth_provider, email_verified, is_active, created_at, updated_at)
-      VALUES ('admin@gympoint.com', ?, 'local', TRUE, TRUE, NOW(), NOW())
-    `, {
-      replacements: [passwordHash],
-      transaction
-    });
+    let adminAccountId;
 
-    const adminAccountId = accountResult;
-    console.log(`Cuenta admin creada (ID: ${adminAccountId})`);
+    if (existingAdmin.length > 0) {
+      adminAccountId = existingAdmin[0].id_account;
+      console.log(`✓ Cuenta admin ya existe (ID: ${adminAccountId})`);
+    } else {
+      const passwordHash = await bcrypt.hash('admin123', 10);
 
-    // Asignar rol ADMIN
-    await sequelize.query(`
-      INSERT INTO account_roles (id_account, id_role, assigned_at)
-      SELECT ?, id_role, NOW()
-      FROM roles WHERE role_name = 'ADMIN'
-    `, {
-      replacements: [adminAccountId],
-      transaction
-    });
-    console.log('Rol ADMIN asignado');
-
-    // Crear perfil de administrador
-    await sequelize.query(`
-      INSERT INTO admin_profiles (id_account, name, lastname, department, created_at, updated_at)
-      VALUES (?, 'Admin', 'Sistema', 'IT', NOW(), NOW())
-    `, {
-      replacements: [adminAccountId],
-      transaction
-    });
-    console.log('Perfil de administrador creado\n');
-
-    // ========================================
-    // 2. CREAR AMENIDADES COMUNES
-    // ========================================
-    console.log('Creando amenidades comunes...');
-
-    const amenities = [
-      { name: 'Duchas', category: 'FACILITY', icon: 'shower' },
-      { name: 'Lockers', category: 'FACILITY', icon: 'locker' },
-      { name: 'WiFi', category: 'FACILITY', icon: 'wifi' },
-      { name: 'Estacionamiento', category: 'FACILITY', icon: 'parking' },
-      { name: 'Aire Acondicionado', category: 'FACILITY', icon: 'ac' },
-      { name: 'Vestuarios', category: 'FACILITY', icon: 'changing-room' },
-      { name: 'Agua Potable', category: 'FACILITY', icon: 'water' },
-      { name: 'Entrenador Personal', category: 'SERVICE', icon: 'trainer' },
-      { name: 'Clases Grupales', category: 'SERVICE', icon: 'group-class' },
-      { name: 'Nutricionista', category: 'SERVICE', icon: 'nutrition' },
-      { name: 'Sauna', category: 'FACILITY', icon: 'sauna' },
-      { name: 'Piscina', category: 'FACILITY', icon: 'pool' },
-      { name: 'Máquinas Cardio', category: 'EQUIPMENT', icon: 'cardio' },
-      { name: 'Pesas Libres', category: 'EQUIPMENT', icon: 'weights' },
-      { name: 'Máquinas de Fuerza', category: 'EQUIPMENT', icon: 'machines' },
-      { name: 'Área Funcional', category: 'EQUIPMENT', icon: 'functional' },
-      { name: 'Barras y Discos', category: 'EQUIPMENT', icon: 'barbell' },
-      { name: 'Mancuernas', category: 'EQUIPMENT', icon: 'dumbbell' }
-    ];
-
-    for (const amenity of amenities) {
-      await sequelize.query(`
-        INSERT INTO gym_amenity (name, category, icon_name, created_at)
-        VALUES (?, ?, ?, NOW())
+      const [accountResult] = await sequelize.query(`
+        INSERT INTO accounts (email, password_hash, auth_provider, email_verified, is_active, created_at, updated_at)
+        VALUES ('admin@gympoint.com', ?, 'local', TRUE, TRUE, NOW(), NOW())
       `, {
-        replacements: [amenity.name, amenity.category, amenity.icon],
+        replacements: [passwordHash],
         transaction
       });
+
+      adminAccountId = accountResult;
+      console.log(`✓ Cuenta admin creada (ID: ${adminAccountId})`);
+
+      // Asignar rol ADMIN
+      await sequelize.query(`
+        INSERT INTO account_roles (id_account, id_role, assigned_at)
+        SELECT ?, id_role, NOW()
+        FROM roles WHERE role_name = 'ADMIN'
+      `, {
+        replacements: [adminAccountId],
+        transaction
+      });
+      console.log('✓ Rol ADMIN asignado');
+
+      // Crear perfil de administrador
+      await sequelize.query(`
+        INSERT INTO admin_profiles (id_account, name, lastname, department, created_at, updated_at)
+        VALUES (?, 'Admin', 'Sistema', 'IT', NOW(), NOW())
+      `, {
+        replacements: [adminAccountId],
+        transaction
+      });
+      console.log('✓ Perfil de administrador creado');
     }
-    console.log(`${amenities.length} amenidades creadas\n`);
+    console.log();
 
     // ========================================
-    // 3. CREAR EJERCICIOS BÁSICOS
+    // 2. CREAR AMENIDADES COMUNES (SI NO EXISTEN)
     // ========================================
-    console.log('Creando ejercicios básicos...');
+    console.log('Verificando amenidades comunes...');
+
+    const [existingAmenitiesCount] = await sequelize.query(`
+      SELECT COUNT(*) as count FROM gym_amenity
+    `, { transaction });
+
+    if (existingAmenitiesCount[0].count > 0) {
+      console.log(`✓ Ya existen ${existingAmenitiesCount[0].count} amenidades en la BD`);
+    } else {
+      const amenities = [
+        { name: 'Duchas', category: 'FACILITY', icon: 'shower' },
+        { name: 'Lockers', category: 'FACILITY', icon: 'locker' },
+        { name: 'WiFi', category: 'FACILITY', icon: 'wifi' },
+        { name: 'Estacionamiento', category: 'FACILITY', icon: 'parking' },
+        { name: 'Aire Acondicionado', category: 'FACILITY', icon: 'ac' },
+        { name: 'Vestuarios', category: 'FACILITY', icon: 'changing-room' },
+        { name: 'Agua Potable', category: 'FACILITY', icon: 'water' },
+        { name: 'Entrenador Personal', category: 'SERVICE', icon: 'trainer' },
+        { name: 'Clases Grupales', category: 'SERVICE', icon: 'group-class' },
+        { name: 'Nutricionista', category: 'SERVICE', icon: 'nutrition' },
+        { name: 'Sauna', category: 'FACILITY', icon: 'sauna' },
+        { name: 'Piscina', category: 'FACILITY', icon: 'pool' },
+        { name: 'Máquinas Cardio', category: 'EQUIPMENT', icon: 'cardio' },
+        { name: 'Pesas Libres', category: 'EQUIPMENT', icon: 'weights' },
+        { name: 'Máquinas de Fuerza', category: 'EQUIPMENT', icon: 'machines' },
+        { name: 'Área Funcional', category: 'EQUIPMENT', icon: 'functional' },
+        { name: 'Barras y Discos', category: 'EQUIPMENT', icon: 'barbell' },
+        { name: 'Mancuernas', category: 'EQUIPMENT', icon: 'dumbbell' }
+      ];
+
+      for (const amenity of amenities) {
+        await sequelize.query(`
+          INSERT INTO gym_amenity (name, category, icon_name, created_at)
+          VALUES (?, ?, ?, NOW())
+        `, {
+          replacements: [amenity.name, amenity.category, amenity.icon],
+          transaction
+        });
+      }
+      console.log(`✓ ${amenities.length} amenidades creadas`);
+    }
+    console.log();
+
+    // ========================================
+    // 3. CREAR EJERCICIOS BÁSICOS (SI NO EXISTEN)
+    // ========================================
+    console.log('Verificando ejercicios básicos...');
+
+    const [existingExercisesCount] = await sequelize.query(`
+      SELECT COUNT(*) as count FROM exercise
+    `, { transaction });
+
+    if (existingExercisesCount[0].count > 0) {
+      console.log(`✓ Ya existen ${existingExercisesCount[0].count} ejercicios en la BD\n`);
+    } else {
 
     const exercises = [
       // Pecho
@@ -151,12 +180,21 @@ async function seedInitialData() {
         transaction
       });
     }
-    console.log(`${exercises.length} ejercicios creados\n`);
+      console.log(`✓ ${exercises.length} ejercicios creados\n`);
+    }
 
     // ========================================
-    // 4. CREAR LOGROS BÁSICOS
+    // 4. CREAR LOGROS BÁSICOS (SI NO EXISTEN)
     // ========================================
-    console.log('Creando logros básicos...');
+    console.log('Verificando logros básicos...');
+
+    const [existingAchievementsCount] = await sequelize.query(`
+      SELECT COUNT(*) as count FROM achievement_definition
+    `, { transaction });
+
+    if (existingAchievementsCount[0].count > 0) {
+      console.log(`✓ Ya existen ${existingAchievementsCount[0].count} logros en la BD\n`);
+    } else {
 
     const achievements = [
       // Onboarding
@@ -300,7 +338,8 @@ async function seedInitialData() {
         transaction
       });
     }
-    console.log(`${achievements.length} logros creados\n`);
+      console.log(`✓ ${achievements.length} logros creados\n`);
+    }
 
     await transaction.commit();
 
@@ -320,7 +359,10 @@ async function seedInitialData() {
     console.log('========================================\n');
 
   } catch (error) {
-    await transaction.rollback();
+    // Solo hacer rollback si la transacción no ha sido finalizada
+    if (!transaction.finished) {
+      await transaction.rollback();
+    }
     console.error('Error en seed:', error);
     throw error;
   } finally {

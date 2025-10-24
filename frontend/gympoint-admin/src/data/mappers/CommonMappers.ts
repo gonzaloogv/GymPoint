@@ -84,6 +84,8 @@ export function mapRewardResponseToReward(dto: RewardResponse): Reward {
     stock: dto.stock || 0,
     start_date: dto.valid_from || null,
     finish_date: dto.valid_until || null,
+    image_url: dto.image_url || null,
+    terms: dto.terms || null,
     creation_date: dto.created_at,
     deleted_at: dto.deleted_at || null,
   };
@@ -93,7 +95,10 @@ export function mapRewardResponseToReward(dto: RewardResponse): Reward {
  * Convierte CreateRewardDTO (del dominio) a CreateRewardRequest (DTO del API)
  */
 export function mapCreateRewardDTOToRequest(domainDTO: DomainCreateRewardDTO): CreateRewardRequest {
-  return {
+  console.log('[CommonMappers] Mapeando CreateRewardDTO:', domainDTO);
+  console.log('[CommonMappers] domainDTO.type:', domainDTO.type, 'typeof:', typeof domainDTO.type);
+
+  const request = {
     name: domainDTO.name,
     description: domainDTO.description,
     type: domainDTO.type as any,
@@ -102,7 +107,14 @@ export function mapCreateRewardDTOToRequest(domainDTO: DomainCreateRewardDTO): C
     valid_from: domainDTO.start_date,
     valid_until: domainDTO.finish_date,
     is_active: domainDTO.available ?? true,
+    image_url: domainDTO.image_url || undefined,
+    terms: domainDTO.terms || undefined,
   };
+
+  console.log('[CommonMappers] Request generado:', request);
+  console.log('[CommonMappers] request.type:', request.type, 'typeof:', typeof request.type);
+
+  return request;
 }
 
 /**
@@ -119,6 +131,8 @@ export function mapUpdateRewardDTOToRequest(domainDTO: DomainUpdateRewardDTO): U
   if (domainDTO.start_date !== undefined) request.valid_from = domainDTO.start_date;
   if (domainDTO.finish_date !== undefined) request.valid_until = domainDTO.finish_date;
   if (domainDTO.available !== undefined) request.is_active = domainDTO.available;
+  if (domainDTO.image_url !== undefined) request.image_url = domainDTO.image_url || undefined;
+  if (domainDTO.terms !== undefined) request.terms = domainDTO.terms || undefined;
 
   return request;
 }

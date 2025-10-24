@@ -55,6 +55,7 @@ async function createReward(command) {
       id_gym: command.gymId,
       name: command.name,
       description: command.description,
+      reward_type: command.reward_type,
       token_cost: command.token_cost,
       discount_percentage: command.discount_percentage,
       discount_amount: command.discount_amount,
@@ -92,6 +93,7 @@ async function updateReward(command) {
     const payload = {};
     if (command.name !== undefined) payload.name = command.name;
     if (command.description !== undefined) payload.description = command.description;
+    if (command.reward_type !== undefined) payload.reward_type = command.reward_type;
     if (command.token_cost !== undefined) payload.token_cost = command.token_cost;
     if (command.discount_percentage !== undefined) payload.discount_percentage = command.discount_percentage;
     if (command.discount_amount !== undefined) payload.discount_amount = command.discount_amount;

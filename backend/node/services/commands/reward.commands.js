@@ -18,6 +18,7 @@
  * @property {number|null} gymId - ID del gimnasio (null para recompensas globales)
  * @property {string} name - Nombre de la recompensa
  * @property {string} description - Descripción
+ * @property {string|null} reward_type - Tipo de recompensa (descuento, pase_gratis, producto, servicio, merchandising, otro)
  * @property {number} token_cost - Costo en tokens
  * @property {number|null} discount_percentage - Porcentaje de descuento
  * @property {number|null} discount_amount - Monto fijo de descuento
@@ -34,6 +35,7 @@ class CreateRewardCommand {
     gymId = null,
     name,
     description,
+    reward_type = null,
     token_cost,
     discount_percentage = null,
     discount_amount = null,
@@ -48,6 +50,7 @@ class CreateRewardCommand {
     this.gymId = gymId;
     this.name = name;
     this.description = description;
+    this.reward_type = reward_type;
     this.token_cost = token_cost;
     this.discount_percentage = discount_percentage;
     this.discount_amount = discount_amount;
@@ -68,6 +71,7 @@ class CreateRewardCommand {
  * @property {number} rewardId - ID de la recompensa
  * @property {string} [name] - Nombre
  * @property {string} [description] - Descripción
+ * @property {string|null} [reward_type] - Tipo de recompensa
  * @property {number} [token_cost] - Costo en tokens
  * @property {number|null} [discount_percentage] - Porcentaje de descuento
  * @property {number|null} [discount_amount] - Monto de descuento
@@ -84,6 +88,7 @@ class UpdateRewardCommand {
     rewardId,
     name,
     description,
+    reward_type,
     token_cost,
     discount_percentage,
     discount_amount,
@@ -98,6 +103,7 @@ class UpdateRewardCommand {
     this.rewardId = rewardId;
     this.name = name;
     this.description = description;
+    this.reward_type = reward_type;
     this.token_cost = token_cost;
     this.discount_percentage = discount_percentage;
     this.discount_amount = discount_amount;

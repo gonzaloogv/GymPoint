@@ -41,10 +41,15 @@ const {
  * Mapea CreateRewardRequestDTO a CreateRewardCommand
  */
 function toCreateRewardCommand(dto, gymId = null, createdBy) {
+  console.log('[RewardMappers] Mapeando DTO a Command:', dto);
+  console.log('[RewardMappers] dto.type:', dto.type, 'typeof:', typeof dto.type);
+  console.log('[RewardMappers] dto.type || null resultado:', dto.type || null);
+
   return new CreateRewardCommand({
     gymId,
     name: dto.name,
     description: dto.description,
+    reward_type: dto.type || null, // OpenAPI usa "type", BD usa "reward_type"
     token_cost: dto.token_cost,
     discount_percentage: dto.discount_percentage || null,
     discount_amount: dto.discount_amount || null,
@@ -66,6 +71,7 @@ function toUpdateRewardCommand(dto, rewardId, updatedBy) {
     rewardId,
     name: dto.name,
     description: dto.description,
+    reward_type: dto.type, // OpenAPI usa "type", BD usa "reward_type"
     token_cost: dto.token_cost,
     discount_percentage: dto.discount_percentage,
     discount_amount: dto.discount_amount,
@@ -281,7 +287,7 @@ function toRewardDTO(reward) {
     id_gym: reward.id_gym,
     name: reward.name,
     description: reward.description || null,
-    type: reward.type || null,
+    type: reward.reward_type || null, // BD usa "reward_type", OpenAPI espera "type"
     token_cost: reward.token_cost,
     discount_percentage: reward.discount_percentage || null,
     discount_amount: reward.discount_amount || null,

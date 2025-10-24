@@ -59,10 +59,16 @@ const getReward = async (req, res) => {
  */
 const createReward = async (req, res) => {
   try {
+    console.log('[RewardController] req.body:', req.body);
+    console.log('[RewardController] req.body.type:', req.body.type, 'typeof:', typeof req.body.type);
+
     const createdBy = req.account?.userProfile?.id_user_profile;
     const gymId = req.body.id_gym || null;
 
     const command = rewardMappers.toCreateRewardCommand(req.body, gymId, createdBy);
+    console.log('[RewardController] Command generado:', command);
+    console.log('[RewardController] command.reward_type:', command.reward_type, 'typeof:', typeof command.reward_type);
+
     const reward = await rewardService.createReward(command);
     const dto = rewardMappers.toRewardDTO(reward);
 

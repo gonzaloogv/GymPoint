@@ -19,6 +19,8 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
     start_date: '',
     finish_date: '',
     available: true,
+    image_url: '',
+    terms: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -34,6 +36,8 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
         start_date: reward.start_date ? reward.start_date.split('T')[0] : '',
         finish_date: reward.finish_date ? reward.finish_date.split('T')[0] : '',
         available: reward.available,
+        image_url: reward.image_url || '',
+        terms: reward.terms || '',
       });
     }
   }, [reward]);
@@ -81,6 +85,8 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
+      console.log('[RewardForm] Enviando formData:', formData);
+      console.log('[RewardForm] formData.type:', formData.type, 'type:', typeof formData.type);
       onSubmit(formData);
     }
   };
@@ -123,6 +129,28 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
         rows={3}
         disabled={isLoading}
         error={errors.description}
+      />
+
+      <Input
+        label="🖼️ URL de Imagen (Opcional)"
+        name="image_url"
+        value={formData.image_url || ''}
+        onChange={handleChange}
+        placeholder="https://ejemplo.com/imagen-recompensa.jpg"
+        disabled={isLoading}
+        error={errors.image_url}
+      />
+
+      <Textarea
+        label="📜 Términos y Condiciones (Opcional)"
+        name="terms"
+        value={formData.terms || ''}
+        onChange={handleChange}
+        placeholder="Ej: Válido de lunes a viernes de 6am a 10pm. No acumulable con otras promociones. Expira 30 días después del canje."
+        maxLength={500}
+        rows={4}
+        disabled={isLoading}
+        error={errors.terms}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

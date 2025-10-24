@@ -26,6 +26,11 @@ const Reward = sequelize.define('Reward', {
     type: DataTypes.TEXT,
     allowNull: true
   },
+  reward_type: {
+    type: DataTypes.ENUM('descuento', 'pase_gratis', 'producto', 'servicio', 'merchandising', 'otro'),
+    allowNull: true,
+    comment: 'Tipo de recompensa'
+  },
   token_cost: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -61,6 +66,16 @@ const Reward = sequelize.define('Reward', {
     allowNull: false,
     defaultValue: true,
     comment: 'Si la recompensa está activa'
+  },
+  image_url: {
+    type: DataTypes.STRING(500),
+    allowNull: true,
+    comment: 'URL de la imagen de la recompensa'
+  },
+  terms: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: 'Términos y condiciones de la recompensa'
   }
 }, {
   tableName: 'reward',

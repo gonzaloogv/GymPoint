@@ -11,6 +11,8 @@ export interface Reward {
   stock: number;
   start_date: string | null; // ISO date string
   finish_date: string | null; // ISO date string
+  image_url?: string | null; // URL de la imagen de la recompensa
+  terms?: string | null; // Términos y condiciones
   creation_date: string;
   deleted_at: string | null;
 }
@@ -27,6 +29,8 @@ export interface CreateRewardDTO {
   start_date: string; // Format: YYYY-MM-DD
   finish_date: string; // Format: YYYY-MM-DD
   available?: boolean; // Opcional, por defecto true
+  image_url?: string; // URL de la imagen (opcional)
+  terms?: string; // Términos y condiciones (opcional)
 }
 
 /**
