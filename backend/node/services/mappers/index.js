@@ -28,6 +28,7 @@ const paymentMappers = require('./payment.mappers');
 const notificationMappers = require('./notification.mappers');
 const userFavoriteGymMappers = require('./user-favorite-gym.mappers');
 const userGymMappers = require('./user-gym.mappers');
+const assistanceMappers = require('./assistance.mappers');
 
 module.exports = {
   auth: authMappers,
@@ -51,6 +52,7 @@ module.exports = {
   notification: notificationMappers,
   userFavoriteGym: userFavoriteGymMappers,
   userGym: userGymMappers,
+  assistance: assistanceMappers,
   // Aliases for convenience
   authMappers,
   gymMappers,
@@ -72,4 +74,5 @@ module.exports = {
   notificationMappers,
   userFavoriteGymMappers,
   userGymMappers,
+  assistanceMappers,
 };

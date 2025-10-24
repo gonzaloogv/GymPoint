@@ -30,4 +30,5 @@ module.exports = {
   notificationRepository: require('./notification.repository'),
   userFavoriteGymRepository: require('./user-favorite-gym.repository'),
   userGymRepository: require('./user-gym.repository'),
+  assistanceRepository: require('./assistance.repository'),
 };

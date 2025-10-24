@@ -81,6 +81,29 @@ router.post(
 router.use('/definitions', verificarToken, verificarAdmin);
 
 router.get('/definitions', controller.listDefinitions);
+
+/**
+ * @swagger
+ * /api/achievements/definitions/{id}:
+ *   get:
+ *     summary: Obtener una definición de logro por ID (Admin)
+ *     tags: [Logros]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Definición de logro
+ *       404:
+ *         description: Logro no encontrado
+ */
+router.get('/definitions/:id', controller.getDefinitionById);
+
 /**
  * @swagger
  * /api/achievements/definitions:

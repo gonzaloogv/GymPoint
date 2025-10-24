@@ -1,0 +1,140 @@
+components:
+  schemas:
+    DailyChallengeTemplateResponse:
+      type: object
+      required:
+        - id_template
+        - title
+        - challenge_type
+        - target_value
+        - tokens_reward
+        - difficulty
+        - rotation_weight
+        - is_active
+        - created_at
+        - updated_at
+      properties:
+        id_template:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Entrena 30 minutos
+        description:
+          type:
+            - string
+            - 'null'
+          example: Completa al menos 30 minutos de ejercicio
+        challenge_type:
+          type: string
+          enum:
+            - MINUTES
+            - EXERCISES
+            - FREQUENCY
+          example: MINUTES
+        target_value:
+          type: number
+          minimum: 0
+          example: 30
+        target_unit:
+          type:
+            - string
+            - 'null'
+          example: minutos
+        tokens_reward:
+          type: integer
+          minimum: 0
+          default: 10
+          example: 15
+        difficulty:
+          $ref: ../common.yaml#/components/schemas/ExtendedDifficultyLevel
+          example: EASY
+        rotation_weight:
+          type: number
+          minimum: 0
+          default: 1
+          description: Peso para la rotación automática (mayor = más frecuente)
+          example: 1.5
+        is_active:
+          type: boolean
+          default: true
+        created_by:
+          type:
+            - integer
+            - 'null'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateDailyChallengeTemplateRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - title
+        - challenge_type
+        - target_value
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        challenge_type:
+          type: string
+          enum:
+            - MINUTES
+            - EXERCISES
+            - FREQUENCY
+        target_value:
+          type: number
+          minimum: 0
+        target_unit:
+          type: string
+        tokens_reward:
+          type: integer
+          minimum: 0
+          default: 10
+        difficulty:
+          $ref: ../common.yaml#/components/schemas/ExtendedDifficultyLevel
+          default: MEDIUM
+        rotation_weight:
+          type: number
+          minimum: 0
+          default: 1
+        is_active:
+          type: boolean
+          default: true
+    UpdateDailyChallengeTemplateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        challenge_type:
+          type: string
+          enum:
+            - MINUTES
+            - EXERCISES
+            - FREQUENCY
+        target_value:
+          type: number
+          minimum: 0
+        target_unit:
+          type: string
+        tokens_reward:
+          type: integer
+          minimum: 0
+        difficulty:
+          $ref: ../common.yaml#/components/schemas/ExtendedDifficultyLevel
+        rotation_weight:
+          type: number
+          minimum: 0
+        is_active:
+          type: boolean

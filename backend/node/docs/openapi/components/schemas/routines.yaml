@@ -1,0 +1,175 @@
+components:
+  schemas:
+    Routine:
+      type: object
+      properties:
+        id_routine:
+          type: integer
+        routine_name:
+          type: string
+        description:
+          type: string
+        created_by:
+          type: integer
+        is_template:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id_routine
+        - routine_name
+    RoutineWithDetails:
+      allOf:
+        - $ref: '#/components/schemas/Routine'
+        - type: object
+          properties:
+            creator:
+              type: object
+              properties:
+                id_user_profile:
+                  type: integer
+                name:
+                  type: string
+                lastname:
+                  type: string
+            days:
+              type: array
+              items:
+                $ref: '#/components/schemas/RoutineDay'
+            exercises:
+              type: array
+              items:
+                $ref: 'exercises.yaml#/components/schemas/ExerciseInRoutine'
+    RoutineDay:
+      type: object
+      properties:
+        id_routine_day:
+          type: integer
+        id_routine:
+          type: integer
+        day_number:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id_routine_day
+        - id_routine
+        - day_number
+    CreateRoutineRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        routine_name:
+          type: string
+        description:
+          type: string
+        exercises:
+          type: array
+          items:
+            type: object
+            properties:
+              id_exercise:
+                type: integer
+              series:
+                type: integer
+              reps:
+                type: string
+              order:
+                type: integer
+              day_number:
+                type: integer
+            required:
+              - id_exercise
+              - series
+              - reps
+              - order
+          minItems: 3
+        days:
+          type: array
+          items:
+            type: object
+            properties:
+              day_number:
+                type: integer
+              title:
+                type: string
+              description:
+                type: string
+            required:
+              - day_number
+      required:
+        - routine_name
+        - exercises
+    UpdateRoutineRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        routine_name:
+          type: string
+        description:
+          type: string
+    CreateRoutineDayRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        day_number:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+      required:
+        - day_number
+    UpdateRoutineDayRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        day_number:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+    PaginatedRoutinesResponse:
+      allOf:
+        - $ref: '../common.yaml#/components/schemas/PaginationMeta'
+        - type: object
+          required:
+            - items
+          additionalProperties: false
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Routine'
+    AssignRoutineRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        id_routine:
+          type: integer
+        start_date:
+          type: string
+          format: date-time
+      required:
+        - id_routine
+    ImportRoutineRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        id_template_routine:
+          type: integer
+      required:
+        - id_template_routine

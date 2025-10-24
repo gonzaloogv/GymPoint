@@ -1,0 +1,659 @@
+components:
+  schemas:
+    GymListResponse:
+      allOf:
+        - $ref: '../common.yaml#/components/schemas/PaginationMeta'
+        - type: object
+          required:
+            - items
+          additionalProperties: false
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/GymResponse'
+    GymResponse:
+      type: object
+      required:
+        - id_gym
+        - name
+        - city
+        - address
+        - latitude
+        - longitude
+        - month_price
+        - geofence_radius_meters
+        - min_stay_minutes
+        - created_at
+        - updated_at
+      properties:
+        id_gym:
+          type: integer
+        name:
+          type: string
+          maxLength: 120
+        description:
+          type:
+            - string
+            - 'null'
+        phone:
+          type:
+            - string
+            - 'null'
+        email:
+          type:
+            - string
+            - 'null'
+        website:
+          type:
+            - string
+            - 'null'
+        is_active:
+          type:
+            - boolean
+            - 'null'
+        verified:
+          type:
+            - boolean
+            - 'null'
+        featured:
+          type:
+            - boolean
+            - 'null'
+        auto_checkin_enabled:
+          type:
+            - boolean
+            - 'null'
+        city:
+          type: string
+        address:
+          type: string
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        month_price:
+          type: number
+          format: float
+          minimum: 0
+        week_price:
+          type:
+            - number
+            - 'null'
+          format: float
+          minimum: 0
+        geofence_radius_meters:
+          type: integer
+          minimum: 10
+          maximum: 2000
+        min_stay_minutes:
+          type: integer
+          minimum: 5
+          maximum: 240
+        is_favorite:
+          type:
+            - boolean
+            - 'null'
+        is_subscribed:
+          type:
+            - boolean
+            - 'null'
+        distance:
+          type:
+            - number
+            - 'null'
+          format: float
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateGymRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - city
+        - address
+        - latitude
+        - longitude
+        - month_price
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 120
+        description:
+          type: string
+          maxLength: 2000
+        city:
+          type: string
+          maxLength: 80
+        address:
+          type: string
+          maxLength: 200
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        phone:
+          type: string
+          maxLength: 40
+        email:
+          type: string
+          format: email
+        website:
+          type: string
+          format: uri
+        social_media:
+          type: array
+          items:
+            type: string
+        month_price:
+          type: number
+          minimum: 0
+        week_price:
+          type: number
+          minimum: 0
+        geofence_radius_meters:
+          type: integer
+          minimum: 10
+          maximum: 2000
+          default: 100
+        min_stay_minutes:
+          type: integer
+          minimum: 5
+          maximum: 240
+          default: 30
+        id_types:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+        type_names:
+          type: array
+          items:
+            type: string
+        amenities:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+        rules:
+          type: array
+          items:
+            type: string
+    UpdateGymRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateGymRequest'
+    GymAmenity:
+      type: object
+      required:
+        - id_amenity
+        - name
+      properties:
+        id_amenity:
+          type: integer
+        name:
+          type: string
+        category:
+          type:
+            - string
+            - 'null'
+    GymTypeList:
+      type: array
+      items:
+        type: string
+    CreateGymScheduleRequest:
+      type: object
+      required:
+        - day_of_week
+        - open_time
+        - close_time
+      additionalProperties: false
+      properties:
+        day_of_week:
+          type: integer
+          minimum: 0
+          maximum: 6
+          description: Día de la semana (0=Domingo, 1=Lunes, ..., 6=Sábado)
+          example: 1
+        open_time:
+          type: string
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+          description: Hora de apertura (HH:MM o HH:MM:SS)
+          example: '06:00'
+        close_time:
+          type: string
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+          description: Hora de cierre (HH:MM o HH:MM:SS)
+          example: '22:00'
+        is_closed:
+          type: boolean
+          default: false
+          description: Si el gimnasio está cerrado ese día
+    GymScheduleResponse:
+      type: object
+      required:
+        - id_schedule
+        - id_gym
+        - day_of_week
+        - open_time
+        - close_time
+        - is_closed
+      additionalProperties: false
+      properties:
+        id_schedule:
+          type: integer
+          description: ID del horario
+        id_gym:
+          type: integer
+          description: ID del gimnasio
+        day_of_week:
+          type: integer
+          minimum: 0
+          maximum: 6
+          description: Día de la semana
+        open_time:
+          type: string
+          description: Hora de apertura
+          example: '06:00:00'
+        close_time:
+          type: string
+          description: Hora de cierre
+          example: '22:00:00'
+        is_closed:
+          type: boolean
+          description: Si está cerrado
+    GymSchedulesWeekResponse:
+      type: object
+      description: Horarios de la semana (0=Domingo a 6=Sábado)
+      additionalProperties: false
+      properties:
+        '0':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '1':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '2':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '3':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '4':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '5':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '6':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+    CreateGymReviewRequest:
+      type: object
+      required:
+        - rating
+      additionalProperties: false
+      properties:
+        rating:
+          type: number
+          format: float
+          minimum: 1
+          maximum: 5
+          description: Rating general del gimnasio
+          example: 4.5
+        title:
+          type: string
+          maxLength: 100
+          description: Título de la reseña
+          example: Excelente gimnasio
+        comment:
+          type: string
+          maxLength: 1000
+          description: Comentario detallado
+          example: Muy buenas instalaciones y personal amable
+        cleanliness_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating de limpieza
+        equipment_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating de equipamiento
+        staff_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating del personal
+        facilities_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating de instalaciones
+        value_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating de relación calidad-precio
+    GymReviewResponse:
+      type: object
+      required:
+        - id_review
+        - id_gym
+        - id_user_profile
+        - rating
+        - created_at
+        - updated_at
+      additionalProperties: false
+      properties:
+        id_review:
+          type: integer
+          description: ID de la reseña
+        id_gym:
+          type: integer
+          description: ID del gimnasio
+        id_user_profile:
+          type: integer
+          description: ID del usuario autor
+        rating:
+          type: number
+          format: float
+          description: Rating general
+        title:
+          type: string
+          description: Título
+        comment:
+          type: string
+          description: Comentario
+        cleanliness_rating:
+          type: integer
+        equipment_rating:
+          type: integer
+        staff_rating:
+          type: integer
+        facilities_rating:
+          type: integer
+        value_rating:
+          type: integer
+        helpful_count:
+          type: integer
+          description: Votos útiles
+          default: 0
+        not_helpful_count:
+          type: integer
+          description: Votos no útiles
+          default: 0
+        user:
+          type: object
+          description: Info del usuario autor
+          properties:
+            id_user_profile:
+              type: integer
+            name:
+              type: string
+            profile_picture_url:
+              type: string
+        user_voted:
+          type: boolean
+          description: Si el usuario actual votó útil
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    PaginatedGymReviewsResponse:
+      allOf:
+        - $ref: '../common.yaml#/components/schemas/PaginationMeta'
+        - type: object
+          required:
+            - items
+          additionalProperties: false
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/GymReviewResponse'
+    CreateGymPaymentRequest:
+      type: object
+      required:
+        - amount
+      additionalProperties: false
+      properties:
+        amount:
+          type: number
+          format: float
+          minimum: 0.01
+          description: Monto del pago
+          example: 1500
+        payment_method:
+          type: string
+          maxLength: 50
+          description: Método de pago
+          example: efectivo
+        payment_date:
+          type: string
+          format: date-time
+          description: Fecha del pago
+        period_start:
+          type: string
+          format: date
+          description: Inicio del período pagado
+        period_end:
+          type: string
+          format: date
+          description: Fin del período pagado
+        reference_number:
+          type: string
+          maxLength: 100
+          description: Número de referencia
+        notes:
+          type: string
+          maxLength: 500
+          description: Notas adicionales
+    GymPaymentResponse:
+      type: object
+      required:
+        - id_payment
+        - id_user_profile
+        - id_gym
+        - amount
+        - payment_date
+        - status
+        - created_at
+      additionalProperties: false
+      properties:
+        id_payment:
+          type: integer
+          description: ID del pago
+        id_user_profile:
+          type: integer
+          description: ID del usuario
+        id_gym:
+          type: integer
+          description: ID del gimnasio
+        amount:
+          type: number
+          format: float
+          description: Monto pagado
+        payment_method:
+          type: string
+          description: Método de pago
+        payment_date:
+          type: string
+          format: date-time
+          description: Fecha del pago
+        period_start:
+          type: string
+          format: date
+          description: Inicio del período
+        period_end:
+          type: string
+          format: date
+          description: Fin del período
+        status:
+          $ref: '../common.yaml#/components/schemas/PaymentStatus'
+          description: Estado del pago
+        reference_number:
+          type: string
+          description: Número de referencia
+        notes:
+          type: string
+          description: Notas
+        gym:
+          type: object
+          description: Info del gimnasio
+          properties:
+            id_gym:
+              type: integer
+            name:
+              type: string
+            city:
+              type: string
+        user:
+          type: object
+          description: Info del usuario
+          properties:
+            id_user_profile:
+              type: integer
+            name:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    PaginatedGymPaymentsResponse:
+      allOf:
+        - $ref: '../common.yaml#/components/schemas/PaginationMeta'
+        - type: object
+          required:
+            - items
+          additionalProperties: false
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/GymPaymentResponse'
+    GymSpecialScheduleResponse:
+      type: object
+      required:
+        - id_special_schedule
+        - id_gym
+        - date
+        - closed
+        - motive
+        - created_at
+        - updated_at
+      properties:
+        id_special_schedule:
+          type: integer
+          example: 1
+        id_gym:
+          type: integer
+          example: 5
+        date:
+          type: string
+          format: date
+          description: Fecha del horario especial
+          example: '2025-12-25'
+        opening_time:
+          type:
+            - string
+            - 'null'
+          format: time
+          description: Hora de apertura (HH:MM)
+          example: '10:00'
+        closing_time:
+          type:
+            - string
+            - 'null'
+          format: time
+          description: Hora de cierre (HH:MM)
+          example: '14:00'
+        closed:
+          type: boolean
+          description: Si el gimnasio está cerrado todo el día
+          default: false
+        motive:
+          type: string
+          description: Motivo del horario especial
+          example: Feriado Nacional - Navidad
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateGymSpecialScheduleRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - id_gym
+        - date
+        - closed
+        - motive
+      properties:
+        id_gym:
+          type: integer
+          minimum: 1
+        date:
+          type: string
+          format: date
+        opening_time:
+          type: string
+          format: time
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9]$
+        closing_time:
+          type: string
+          format: time
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9]$
+        closed:
+          type: boolean
+        motive:
+          type: string
+          minLength: 1
+          maxLength: 500
+    UpdateGymSpecialScheduleRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        id_gym:
+          type: integer
+          minimum: 1
+        date:
+          type: string
+          format: date
+        opening_time:
+          type: string
+          format: time
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9]$
+        closing_time:
+          type: string
+          format: time
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9]$
+        closed:
+          type: boolean
+        motive:
+          type: string
+          minLength: 1
+          maxLength: 500

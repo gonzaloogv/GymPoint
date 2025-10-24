@@ -1,0 +1,294 @@
+paths:
+  /api/gyms/{gymId}:
+    parameters:
+      - $ref: '../components/parameters.yaml#/components/parameters/GymIdPathParam'
+    get:
+      operationId: getGym
+      tags:
+        - Gyms
+      summary: Obtener detalle de un gimnasio
+      responses:
+        '200':
+          description: Gimnasio encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/gyms.yaml#/components/schemas/GymResponse'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'
+    put:
+      operationId: updateGym
+      tags:
+        - Gyms
+      summary: Actualizar un gimnasio
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/gyms.yaml#/components/schemas/UpdateGymRequest'
+      responses:
+        '200':
+          description: Gimnasio actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/gyms.yaml#/components/schemas/GymResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'
+    delete:
+      operationId: deleteGym
+      tags:
+        - Gyms
+      summary: Eliminar un gimnasio
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Gimnasio eliminado
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'
+  /api/gyms/tipos:
+    get:
+      operationId: listGymTypes
+      tags:
+        - Gyms
+      summary: Listar tipos de gimnasios
+      responses:
+        '200':
+          description: Lista de tipos disponibles
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/gyms.yaml#/components/schemas/GymTypeList'
+        '400':
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+  /api/gyms/amenidades:
+    get:
+      operationId: listGymAmenities
+      tags:
+        - Gyms
+      summary: Listar amenities disponibles
+      responses:
+        '200':
+          description: Amenities registradas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components/schemas/gyms.yaml#/components/schemas/GymAmenity'
+        '400':
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+  /api/gyms/{gymId}/schedules:
+    parameters:
+      - $ref: '../components/parameters.yaml#/components/parameters/GymIdPathParam'
+    get:
+      operationId: listGymSchedules
+      tags:
+        - Gym Schedules
+      summary: Listar horarios regulares de un gimnasio
+      description: Retorna los horarios de la semana (lunes a domingo)
+      responses:
+        '200':
+          description: Horarios encontrados
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/gyms.yaml#/components/schemas/GymSchedulesWeekResponse'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'
+    post:
+      operationId: createGymSchedule
+      tags:
+        - Gym Schedules
+      summary: Crear horario regular para un día
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/gyms.yaml#/components/schemas/CreateGymScheduleRequest'
+      responses:
+        '201':
+          description: Horario creado
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/gyms.yaml#/components/schemas/GymScheduleResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+  /api/gyms/{gymId}/reviews:
+    parameters:
+      - $ref: '../components/parameters.yaml#/components/parameters/GymIdPathParam'
+    get:
+      operationId: listGymReviews
+      tags:
+        - Gym Reviews
+      summary: Listar reseñas de un gimnasio
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/PageParam'
+        - $ref: '../components/parameters.yaml#/components/parameters/LimitParam'
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum:
+              - created_at
+              - rating
+              - helpful_count
+            default: created_at
+        - $ref: '../components/parameters.yaml#/components/parameters/OrderParam'
+        - name: min_rating
+          in: query
+          schema:
+            type: number
+            minimum: 1
+            maximum: 5
+        - name: with_comment_only
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Lista de reseñas
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/gyms.yaml#/components/schemas/PaginatedGymReviewsResponse'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'
+    post:
+      operationId: createGymReview
+      tags:
+        - Gym Reviews
+      summary: Crear una reseña para un gimnasio
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/gyms.yaml#/components/schemas/CreateGymReviewRequest'
+      responses:
+        '201':
+          description: Reseña creada
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/gyms.yaml#/components/schemas/GymReviewResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+        '409':
+          description: Usuario ya tiene una reseña para este gimnasio
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+  /api/gyms/{gymId}/payments:
+    parameters:
+      - $ref: '../components/parameters.yaml#/components/parameters/GymIdPathParam'
+    get:
+      operationId: listGymPayments
+      tags:
+        - Gym Payments
+      summary: Listar pagos de un gimnasio
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/PageParam'
+        - $ref: '../components/parameters.yaml#/components/parameters/LimitParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - PENDING
+              - COMPLETED
+              - FAILED
+              - REFUNDED
+        - name: from_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Lista de pagos
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/gyms.yaml#/components/schemas/PaginatedGymPaymentsResponse'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+    post:
+      operationId: createGymPayment
+      tags:
+        - Gym Payments
+      summary: Registrar un pago de suscripción a gimnasio
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/gyms.yaml#/components/schemas/CreateGymPaymentRequest'
+      responses:
+        '201':
+          description: Pago registrado
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/gyms.yaml#/components/schemas/GymPaymentResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'

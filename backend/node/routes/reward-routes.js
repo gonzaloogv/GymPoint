@@ -31,10 +31,10 @@ router.get('/:rewardId', rewardController.getReward);
 router.post('/', verificarToken, verificarAdmin, rewardController.createReward);
 
 /**
- * PATCH /api/rewards/:rewardId
+ * PUT /api/rewards/:rewardId
  * Actualiza una recompensa (admin)
  */
-router.patch('/:rewardId', verificarToken, verificarAdmin, rewardController.updateReward);
+router.put('/:rewardId', verificarToken, verificarAdmin, rewardController.updateReward);
 
 /**
  * DELETE /api/rewards/:rewardId

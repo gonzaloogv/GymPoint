@@ -1,0 +1,62 @@
+components:
+  schemas:
+    StreakResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        id_streak:
+          type: integer
+        id_user_profile:
+          type: integer
+        value:
+          type: integer
+          description: Días consecutivos de racha actual
+        last_value:
+          type: integer
+          description: Última racha antes de perderla
+        max_value:
+          type: integer
+          description: Racha máxima alcanzada
+        recovery_items:
+          type: integer
+          description: Items de recuperación disponibles
+        last_assistance_date:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        userProfile:
+          type: object
+          properties:
+            id_user_profile:
+              type: integer
+            name:
+              type: string
+            lastname:
+              type: string
+        frequency:
+          type: object
+          properties:
+            goal:
+              type: integer
+            assist:
+              type: integer
+            achieved_goal:
+              type: boolean
+    StreakStatsResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        totalStreaks:
+          type: integer
+          description: Total de rachas en el sistema
+        averageStreak:
+          type: integer
+          description: Promedio de días de racha
+        maxStreak:
+          type: integer
+          description: Racha máxima registrada

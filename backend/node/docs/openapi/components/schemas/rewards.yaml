@@ -1,0 +1,152 @@
+components:
+  schemas:
+    RewardResponse:
+      type: object
+      required:
+        - id_reward
+        - name
+        - description
+        - type
+        - cost_tokens
+        - available
+        - stock
+        - start_date
+        - finish_date
+        - created_at
+        - updated_at
+      properties:
+        id_reward:
+          type: integer
+          description: ID único de la recompensa
+          example: 1
+        name:
+          type: string
+          description: Nombre de la recompensa
+          example: Pase VIP 1 mes
+        description:
+          type: string
+          description: Descripción detallada
+          example: Acceso VIP durante 1 mes a todos los gimnasios
+        type:
+          type: string
+          description: Tipo de recompensa
+          enum:
+            - descuento
+            - pase_gratis
+            - producto
+            - servicio
+            - merchandising
+            - otro
+          example: pase_gratis
+        cost_tokens:
+          type: integer
+          description: Costo en tokens
+          minimum: 0
+          example: 500
+        available:
+          type: boolean
+          description: Si está disponible para canje
+          default: true
+        stock:
+          type: integer
+          description: Stock disponible
+          minimum: 0
+          example: 10
+        start_date:
+          type: string
+          format: date
+          description: Fecha de inicio de disponibilidad
+          example: '2025-01-01'
+        finish_date:
+          type: string
+          format: date
+          description: Fecha de fin de disponibilidad
+          example: '2025-12-31'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type:
+            - string
+            - 'null'
+          format: date-time
+    CreateRewardRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - description
+        - type
+        - cost_tokens
+        - stock
+        - start_date
+        - finish_date
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+        type:
+          type: string
+          enum:
+            - descuento
+            - pase_gratis
+            - producto
+            - servicio
+            - merchandising
+            - otro
+        cost_tokens:
+          type: integer
+          minimum: 0
+        stock:
+          type: integer
+          minimum: 0
+        start_date:
+          type: string
+          format: date
+        finish_date:
+          type: string
+          format: date
+        available:
+          type: boolean
+          default: true
+    UpdateRewardRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+        type:
+          type: string
+          enum:
+            - descuento
+            - pase_gratis
+            - producto
+            - servicio
+            - merchandising
+            - otro
+        cost_tokens:
+          type: integer
+          minimum: 0
+        stock:
+          type: integer
+          minimum: 0
+        start_date:
+          type: string
+          format: date
+        finish_date:
+          type: string
+          format: date
+        available:
+          type: boolean

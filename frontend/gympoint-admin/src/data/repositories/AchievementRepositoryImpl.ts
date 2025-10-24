@@ -6,43 +6,43 @@ import type {
 } from '@/domain';
 import type { AchievementRepository } from '@/domain/repositories/AchievementRepository';
 import { apiClient } from '../api';
-
-interface AchievementDefinitionsResponse {
-  data: AchievementDefinition[];
-}
-
-interface AchievementDefinitionResponse {
-  message: string;
-  data: AchievementDefinition;
-}
+import { AchievementDefinitionResponse } from '../dto/types';
+import {
+  mapAchievementDefinitionResponseToAchievementDefinition,
+  mapCreateAchievementDefinitionToRequest,
+  mapUpdateAchievementDefinitionToRequest,
+} from '../mappers/CommonMappers';
 
 export class AchievementRepositoryImpl implements AchievementRepository {
   async getDefinitions(params?: AchievementQueryParams): Promise<AchievementDefinition[]> {
-    const response = await apiClient.get<AchievementDefinitionsResponse>('/achievements/definitions', {
+    const response = await apiClient.get<AchievementDefinitionResponse[]>('/api/achievements/definitions', {
       params: {
         category: params?.category,
         includeInactive: params?.includeInactive ?? true,
       },
     });
 
-    return response.data.data;
+    return response.data.map(mapAchievementDefinitionResponseToAchievementDefinition);
   }
 
   async createDefinition(payload: AchievementDefinitionInput): Promise<AchievementDefinition> {
-    const response = await apiClient.post<AchievementDefinitionResponse>('/achievements/definitions', payload);
-    return response.data.data;
+    const request = mapCreateAchievementDefinitionToRequest(payload);
+    const response = await apiClient.post<AchievementDefinitionResponse>('/api/achievements/definitions', request);
+    return mapAchievementDefinitionResponseToAchievementDefinition(response.data);
   }
 
   async updateDefinition(payload: UpdateAchievementDefinitionInput): Promise<AchievementDefinition> {
-    const { id_achievement_definition, ...data } = payload;
+    const { id_achievement_definition, ...domainData } = payload;
+    const request = mapUpdateAchievementDefinitionToRequest(domainData);
     const response = await apiClient.put<AchievementDefinitionResponse>(
-      `/achievements/definitions/${id_achievement_definition}`,
-      data
+      `/api/achievements/definitions/${id_achievement_definition}`,
+      request
     );
-    return response.data.data;
+    return mapAchievementDefinitionResponseToAchievementDefinition(response.data);
   }
 
   async deleteDefinition(id: number): Promise<void> {
-    await apiClient.delete(`/achievements/definitions/${id}`);
+    await apiClient.delete(`/api/achievements/definitions/${id}`);
   }
 }
+

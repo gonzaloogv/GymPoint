@@ -123,6 +123,7 @@ app.use('/api/frequency', frequencyRoutes);
 app.use('/api/streak', streakRoutes);
 app.use('/api/schedules', gymScheduleRoutes);
 app.use('/api/special-schedules', specialScheduleRoutes);
+app.use('/api/gym-special-schedules', specialScheduleRoutes);
 app.use('/api/gym-payments', gymPaymentRoutes);
 app.use('/api/reward-codes', rewardCodeRoutes);
 app.use('/api/users', userRoutes);

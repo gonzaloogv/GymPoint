@@ -1,0 +1,303 @@
+paths:
+  /api/users/me:
+    get:
+      operationId: getUserProfile
+      tags:
+        - Users
+      summary: Obtener perfil del usuario actual
+      description: |
+        Devuelve la información completa del perfil del usuario autenticado.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Perfil del usuario
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/users.yaml#/components/schemas/UserProfileResponse'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'
+    put:
+      operationId: updateUserProfile
+      tags:
+        - Users
+      summary: Actualizar perfil del usuario actual
+      description: |
+        Actualiza los datos del perfil del usuario autenticado. Solo se actualizan los campos proporcionados en el request body.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/users.yaml#/components/schemas/UpdateUserProfileRequest'
+      responses:
+        '200':
+          description: Perfil actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/users.yaml#/components/schemas/UserProfileResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'
+    delete:
+      operationId: requestAccountDeletion
+      tags:
+        - Users
+      summary: Solicitar eliminación de cuenta
+      description: |
+        Inicia el proceso de eliminación de cuenta con período de gracia. La cuenta no se eliminará inmediatamente sino después del período configurado.
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestAccountDeletionRequest'
+      responses:
+        '200':
+          description: Solicitud de eliminación registrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDeletionResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+  /api/users/me/email:
+    put:
+      operationId: updateUserEmail
+      tags:
+        - Users
+      summary: Actualizar email del usuario
+      description: |
+        Actualiza el email del usuario autenticado. Requiere verificación posterior.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEmailRequest'
+      responses:
+        '200':
+          description: Email actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailUpdateResponse'
+        '400':
+          description: Email inválido o ya en uso
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+  /api/users/me/deletion-request:
+    get:
+      operationId: getAccountDeletionStatus
+      tags:
+        - Users
+      summary: Obtener estado de solicitud de eliminación
+      description: |
+        Consulta el estado de una solicitud de eliminación de cuenta pendiente.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Estado de la solicitud
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDeletionStatusResponse'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+    delete:
+      operationId: cancelAccountDeletion
+      tags:
+        - Users
+      summary: Cancelar solicitud de eliminación
+      description: |
+        Cancela una solicitud de eliminación de cuenta pendiente.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Solicitud cancelada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDeletionResponse'
+        '400':
+          description: No hay solicitud pendiente
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+  /api/users/me/notification-settings:
+    get:
+      operationId: getNotificationSettings
+      tags:
+        - Users
+      summary: Obtener configuración de notificaciones
+      description: |
+        Devuelve las preferencias de notificaciones del usuario autenticado.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Configuración de notificaciones
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSettingsResponse'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+    put:
+      operationId: updateNotificationSettings
+      tags:
+        - Users
+      summary: Actualizar configuración de notificaciones
+      description: |
+        Actualiza las preferencias de notificaciones del usuario autenticado.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateNotificationSettingsRequest'
+      responses:
+        '200':
+          description: Configuración actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSettingsResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+  /api/users/{userId}:
+    get:
+      operationId: getUserById
+      tags:
+        - Users
+      summary: Obtener perfil de usuario por ID (admin)
+      description: |
+        Devuelve la información del perfil de un usuario específico. Solo para administradores.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: ID del perfil de usuario
+      responses:
+        '200':
+          description: Perfil del usuario
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/users.yaml#/components/schemas/UserProfileResponse'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'
+  /api/users/{userId}/tokens:
+    post:
+      operationId: updateUserTokens
+      tags:
+        - Users
+      summary: Actualizar tokens de un usuario (admin)
+      description: |
+        Incrementa o decrementa el balance de tokens de un usuario. Solo para administradores.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: ID del perfil de usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/components/schemas/UpdateTokensRequest'
+      responses:
+        '200':
+          description: Tokens actualizados exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/auth.yaml#/components/schemas/TokensUpdateResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'
+  /api/users/{userId}/subscription:
+    put:
+      operationId: updateUserSubscription
+      tags:
+        - Users
+      summary: Actualizar suscripción de un usuario (admin)
+      description: |
+        Cambia el nivel de suscripción de un usuario. Solo para administradores.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: ID del perfil de usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSubscriptionRequest'
+      responses:
+        '200':
+          description: Suscripción actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/users.yaml#/components/schemas/UserProfileResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'

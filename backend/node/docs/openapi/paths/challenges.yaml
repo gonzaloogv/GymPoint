@@ -1,0 +1,72 @@
+paths:
+  /api/challenges/today:
+    get:
+      operationId: getTodayChallenge
+      tags:
+        - Challenges
+      summary: Obtener desafío diario de hoy
+      description: Retorna el desafío del día actual y el progreso del usuario autenticado.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Desafío del día
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  challenge:
+                    $ref: ../components/schemas/challenges.yaml#/components/schemas/TodayChallengeResponse
+        '400':
+          description: Error al obtener desafío
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/challenges/{id}/progress:
+    put:
+      operationId: updateChallengeProgress
+      tags:
+        - Challenges
+      summary: Actualizar progreso del desafío diario
+      description: Actualiza el progreso del usuario en el desafío. Si alcanza el objetivo, otorga tokens automáticamente.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - value
+              properties:
+                value:
+                  type: integer
+                  description: Valor actual del progreso
+                  example: 500
+                  minimum: 0
+      responses:
+        '200':
+          description: Progreso actualizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/challenges.yaml#/components/schemas/ChallengeProgressResponse
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error

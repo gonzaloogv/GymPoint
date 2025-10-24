@@ -1,0 +1,199 @@
+paths:
+  /api/streak/me:
+    get:
+      operationId: getUserStreak
+      tags:
+        - Streaks
+      summary: Obtener racha actual del usuario
+      description: Retorna la racha de asistencias del usuario autenticado con estadísticas.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Racha del usuario
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/streak.yaml#/components/schemas/StreakResponse
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+        '404':
+          description: Racha no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/streak/use-recovery:
+    post:
+      operationId: useRecoveryItem
+      tags:
+        - Streaks
+      summary: Usar item de recuperación
+      description: Consume un item de recuperación para mantener la racha activa.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Item usado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Item de recuperación usado exitosamente
+                  recovery_items_remaining:
+                    type: integer
+                    example: 2
+                  streak_value:
+                    type: integer
+                    example: 15
+        '400':
+          description: Sin items disponibles o error
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/streak/stats:
+    get:
+      operationId: getStreakStats
+      tags:
+        - Streaks
+      summary: Estadísticas globales de rachas (Admin)
+      description: Retorna estadísticas del sistema de rachas.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Estadísticas obtenidas
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/streak.yaml#/components/schemas/StreakStatsResponse
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+        '403':
+          description: Requiere permisos de administrador
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/streak/{id_user_profile}/reset:
+    put:
+      operationId: resetUserStreak
+      tags:
+        - Streaks
+      summary: Resetear racha de usuario (Admin)
+      description: Reinicia la racha de un usuario a cero.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id_user_profile
+          in: path
+          required: true
+          description: ID del perfil de usuario
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Racha reseteada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Racha reseteada exitosamente
+                  racha:
+                    $ref: ../components/schemas/streak.yaml#/components/schemas/StreakResponse
+        '400':
+          description: Error al resetear
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+        '403':
+          description: Requiere permisos de administrador
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/streak/{id_user_profile}/grant-recovery:
+    post:
+      operationId: grantRecoveryItems
+      tags:
+        - Streaks
+      summary: Otorgar items de recuperación (Admin)
+      description: Añade items de recuperación a la racha de un usuario.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id_user_profile
+          in: path
+          required: true
+          description: ID del perfil de usuario
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cantidad
+              properties:
+                cantidad:
+                  type: integer
+                  description: Cantidad de items a otorgar
+                  example: 3
+                  minimum: 1
+      responses:
+        '200':
+          description: Items otorgados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Se otorgaron 3 item(s) de recuperación
+                  racha:
+                    $ref: ../components/schemas/streak.yaml#/components/schemas/StreakResponse
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+        '403':
+          description: Requiere permisos de administrador
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error

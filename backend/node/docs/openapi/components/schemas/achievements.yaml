@@ -1,0 +1,168 @@
+components:
+  schemas:
+    AchievementDefinitionResponse:
+      type: object
+      required:
+        - id_achievement_definition
+        - code
+        - name
+        - category
+        - metric_type
+        - target_value
+        - is_active
+        - created_at
+        - updated_at
+      properties:
+        id_achievement_definition:
+          type: integer
+          example: 1
+        code:
+          type: string
+          description: Código único del achievement
+          example: FIRST_CHECKIN
+        name:
+          type: string
+          description: Nombre del achievement
+          example: Primera Visita
+        description:
+          type:
+            - string
+            - 'null'
+          description: Descripción del achievement
+          example: Completaste tu primera visita al gimnasio
+        category:
+          $ref: ../common.yaml#/components/schemas/AchievementCategory
+          example: ONBOARDING
+        metric_type:
+          type: string
+          enum:
+            - STREAK_DAYS
+            - STREAK_RECOVERY_USED
+            - ASSISTANCE_TOTAL
+            - FREQUENCY_WEEKS_MET
+            - ROUTINE_COMPLETED_COUNT
+            - WORKOUT_SESSION_COMPLETED
+            - DAILY_CHALLENGE_COMPLETED_COUNT
+            - PR_RECORD_COUNT
+            - BODY_WEIGHT_PROGRESS
+            - TOKEN_BALANCE_REACHED
+            - TOKEN_SPENT_TOTAL
+            - ONBOARDING_STEP_COMPLETED
+          example: ASSISTANCE_TOTAL
+        target_value:
+          type: number
+          minimum: 0
+          example: 1
+        metadata:
+          type:
+            - object
+            - 'null'
+          description: Metadatos adicionales del achievement
+          properties:
+            token_reward:
+              type: integer
+            unlock_message:
+              type: string
+            icon:
+              type: string
+        icon_url:
+          type:
+            - string
+            - 'null'
+          example: https://cdn.gympoint.app/icons/first-checkin.png
+        is_active:
+          type: boolean
+          default: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateAchievementDefinitionRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - name
+        - category
+        - metric_type
+        - target_value
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 100
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        category:
+          $ref: ../common.yaml#/components/schemas/AchievementCategory
+        metric_type:
+          type: string
+          enum:
+            - STREAK_DAYS
+            - STREAK_RECOVERY_USED
+            - ASSISTANCE_TOTAL
+            - FREQUENCY_WEEKS_MET
+            - ROUTINE_COMPLETED_COUNT
+            - WORKOUT_SESSION_COMPLETED
+            - DAILY_CHALLENGE_COMPLETED_COUNT
+            - PR_RECORD_COUNT
+            - BODY_WEIGHT_PROGRESS
+            - TOKEN_BALANCE_REACHED
+            - TOKEN_SPENT_TOTAL
+            - ONBOARDING_STEP_COMPLETED
+        target_value:
+          type: number
+          minimum: 0
+        metadata:
+          type: object
+        icon_url:
+          type: string
+        is_active:
+          type: boolean
+          default: true
+    UpdateAchievementDefinitionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 100
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        category:
+          $ref: ../common.yaml#/components/schemas/AchievementCategory
+        metric_type:
+          type: string
+          enum:
+            - STREAK_DAYS
+            - STREAK_RECOVERY_USED
+            - ASSISTANCE_TOTAL
+            - FREQUENCY_WEEKS_MET
+            - ROUTINE_COMPLETED_COUNT
+            - WORKOUT_SESSION_COMPLETED
+            - DAILY_CHALLENGE_COMPLETED_COUNT
+            - PR_RECORD_COUNT
+            - BODY_WEIGHT_PROGRESS
+            - TOKEN_BALANCE_REACHED
+            - TOKEN_SPENT_TOTAL
+            - ONBOARDING_STEP_COMPLETED
+        target_value:
+          type: number
+          minimum: 0
+        metadata:
+          type: object
+        icon_url:
+          type: string
+        is_active:
+          type: boolean

@@ -1,0 +1,220 @@
+paths:
+  /api/user-routines/assign:
+    post:
+      operationId: assignRoutineToUser
+      tags:
+        - User Routines
+      summary: Asignar rutina a usuario
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/user-routines.yaml#/components/schemas/AssignRoutineRequest
+      responses:
+        '201':
+          description: Rutina asignada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/schemas/user-routines.yaml#/components/schemas/UserRoutine
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+  /api/user-routines/active:
+    get:
+      operationId: getActiveRoutine
+      tags:
+        - User Routines
+      summary: Obtener rutina activa
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Rutina activa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: ../components/schemas/user-routines.yaml#/components/schemas/UserRoutine
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound
+  /api/user-routines/active/details:
+    get:
+      operationId: getActiveRoutineWithExercises
+      tags:
+        - User Routines
+      summary: Obtener rutina activa con ejercicios
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Rutina activa con ejercicios
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/schemas/routines.yaml#/components/schemas/RoutineWithDetails
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound
+  /api/user-routines/me:
+    get:
+      operationId: listMyUserRoutines
+      tags:
+        - User Routines
+      summary: Listar mis rutinas asignadas
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/PageParam
+        - $ref: ../components/parameters.yaml#/components/parameters/LimitParam
+        - name: active
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Lista de rutinas del usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: ../components/schemas/user-routines.yaml#/components/schemas/UserRoutine
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+  /api/user-routines/counts:
+    get:
+      operationId: getUserRoutineCounts
+      tags:
+        - User Routines
+      summary: Obtener contadores de rutinas
+      description: Retorna total, importadas y creadas
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Contadores de rutinas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: ../components/schemas/user-routines.yaml#/components/schemas/UserRoutineCounts
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+  /api/user-routines/end:
+    post:
+      operationId: endUserRoutine
+      tags:
+        - User Routines
+      summary: Finalizar rutina activa
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Rutina finalizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/schemas/user-routines.yaml#/components/schemas/UserRoutine
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound
+  /api/user-routines/import:
+    post:
+      operationId: importRoutineTemplate
+      tags:
+        - User Routines
+      summary: Importar plantilla de rutina
+      description: Crea una copia de una rutina template para el usuario
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/user-routines.yaml#/components/schemas/ImportRoutineRequest
+      responses:
+        '201':
+          description: Rutina importada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/schemas/routines.yaml#/components/schemas/Routine
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound
+  /api/user-routines/{id}:
+    get:
+      operationId: getUserRoutineById
+      tags:
+        - User Routines
+      summary: Obtener rutina de usuario por ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
+      responses:
+        '200':
+          description: Rutina de usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: ../components/schemas/user-routines.yaml#/components/schemas/UserRoutine
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound
+  /api/user-routines/{id}/deactivate:
+    put:
+      operationId: deactivateUserRoutine
+      tags:
+        - User Routines
+      summary: Desactivar rutina de usuario
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
+      responses:
+        '200':
+          description: Rutina desactivada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/schemas/user-routines.yaml#/components/schemas/UserRoutine
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound

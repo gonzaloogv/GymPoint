@@ -1,5 +1,7 @@
 import { ReviewRepository, Review, ReviewStats, ApproveReviewDTO } from '@/domain';
 import { apiClient } from '../api';
+import { GymReviewResponse, PaginatedGymReviewsResponse } from '../dto/types';
+import { mapGymReviewResponseToReview } from '../mappers/CommonMappers';
 
 type ReviewFilters = {
   limit?: number;
@@ -27,28 +29,32 @@ export class ReviewRepositoryImpl implements ReviewRepository {
   async getAllReviews(
     filters: ReviewFilters = {}
   ): Promise<{ total: number; reviews: Review[] }> {
-    const response = await apiClient.get<{ message: string; data: { total: number; reviews: Review[] } }>(
-      '/admin/reviews',
+    const response = await apiClient.get<PaginatedGymReviewsResponse>(
+      '/api/gym-reviews',
       { params: buildQueryParams(filters) }
     );
-    return response.data.data;
+    return {
+      total: response.data.total,
+      reviews: response.data.items.map(mapGymReviewResponseToReview),
+    };
   }
 
   async getReviewStats(): Promise<ReviewStats> {
+    // TODO: Agregar endpoint de stats al OpenAPI
     const response = await apiClient.get<{ message: string; data: ReviewStats }>('/admin/reviews/stats');
     return response.data.data;
   }
 
   async approveReview(data: ApproveReviewDTO): Promise<Review> {
     const { id_review, is_approved } = data;
-    const response = await apiClient.put<{ message: string; data: Review }>(
-      `/admin/reviews/${id_review}/approve`,
+    const response = await apiClient.put<GymReviewResponse>(
+      `/api/gym-reviews/${id_review}`,
       { is_approved }
     );
-    return response.data.data;
+    return mapGymReviewResponseToReview(response.data);
   }
 
   async deleteReview(id: number): Promise<void> {
-    await apiClient.delete(`/admin/reviews/${id}`);
+    await apiClient.delete(`/api/gym-reviews/${id}`);
   }
 }

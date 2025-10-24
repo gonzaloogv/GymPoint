@@ -1,0 +1,6355 @@
+openapi: 3.1.0
+info:
+  title: GymPoint API
+  version: 1.0.0
+  description: API del sistema GymPoint para gestión de gimnasios, rutinas, entrenamientos y gamificación.
+servers:
+  - url: http://localhost:3000
+    description: Servidor de desarrollo local
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    BadRequest:
+      description: Datos inválidos o request malformada
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Datos inválidos
+    Unauthorized:
+      description: Autenticación requerida o token inválido/expirado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: No autenticado
+    Forbidden:
+      description: Permisos insuficientes para realizar la operación
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Acceso denegado
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Recurso no encontrado
+    Conflict:
+      description: Conflicto con el estado actual del recurso
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: El recurso ya existe
+    InternalServerError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Error interno del servidor
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Número de página (1-indexado).
+    LimitParam:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: Tamaño máximo de página.
+    OrderParam:
+      name: order
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+        default: desc
+      description: Dirección de ordenamiento.
+    GymSortParam:
+      name: sortBy
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - created_at
+          - name
+          - city
+          - month_price
+        default: created_at
+      description: Campo permitido para ordenar gimnasios.
+    GymIdPathParam:
+      name: gymId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: Identificador del gimnasio (`id_gym`).
+    IdPathParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: Identificador único del recurso
+    UserIdPathParam:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID del usuario
+    ExerciseIdPathParam:
+      name: id_exercise
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID del ejercicio
+    RoutineIdPathParam:
+      name: id_routine
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID de la rutina
+    RoutineDayIdPathParam:
+      name: id_routine_day
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID del día de rutina
+    MediaIdPathParam:
+      name: id_media
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID del elemento multimedia
+    SessionIdPathParam:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID de la sesión de entrenamiento
+    SetIdPathParam:
+      name: setId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID del set de ejercicio
+    StatusQueryParam:
+      name: status
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Filtrar por estado
+    AvailableQueryParam:
+      name: available
+      in: query
+      required: false
+      schema:
+        type: boolean
+      description: Filtrar solo elementos disponibles
+    ActiveQueryParam:
+      name: active
+      in: query
+      required: false
+      schema:
+        type: boolean
+      description: Filtrar solo elementos activos
+    StartDateParam:
+      name: startDate
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date
+      description: Fecha de inicio del rango (YYYY-MM-DD)
+    EndDateParam:
+      name: endDate
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date
+      description: Fecha de fin del rango (YYYY-MM-DD)
+    SearchQueryParam:
+      name: search
+      in: query
+      required: false
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 255
+      description: Término de búsqueda
+    SortByParam:
+      name: sortBy
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Campo por el cual ordenar
+  schemas:
+    PaginationMeta:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+      additionalProperties: false
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          description: Página actual
+          example: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Elementos por página
+          example: 10
+        total:
+          type: integer
+          minimum: 0
+          description: Total de elementos
+          example: 42
+        totalPages:
+          type: integer
+          minimum: 0
+          description: Total de páginas
+          example: 5
+    SubscriptionType:
+      type: string
+      enum:
+        - FREE
+        - PREMIUM
+      description: Tipo de suscripción del usuario
+    Gender:
+      type: string
+      enum:
+        - M
+        - F
+        - O
+      description: Género del usuario (M=Masculino, F=Femenino, O=Otro)
+    DifficultyLevel:
+      type: string
+      enum:
+        - EASY
+        - MEDIUM
+        - HARD
+      description: Nivel de dificultad estándar
+    ExtendedDifficultyLevel:
+      type: string
+      enum:
+        - EASY
+        - MEDIUM
+        - HARD
+        - BEGINNER
+        - INTERMEDIATE
+        - ADVANCED
+      description: Nivel de dificultad extendido
+    WorkoutSessionStatus:
+      type: string
+      enum:
+        - IN_PROGRESS
+        - COMPLETED
+        - CANCELLED
+      description: Estado de una sesión de entrenamiento
+    UserRoutineStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - COMPLETED
+        - CANCELLED
+      description: Estado de una rutina de usuario
+    AchievementCategory:
+      type: string
+      enum:
+        - ONBOARDING
+        - STREAK
+        - FREQUENCY
+        - ATTENDANCE
+        - ROUTINE
+        - CHALLENGE
+        - PROGRESS
+        - TOKEN
+        - SOCIAL
+      description: Categoría de logro
+    MuscleGroup:
+      type: string
+      enum:
+        - CHEST
+        - BACK
+        - LEGS
+        - SHOULDERS
+        - ARMS
+        - ABS
+        - FULL_BODY
+      description: Grupo muscular objetivo
+    ChallengeType:
+      type: string
+      enum:
+        - STEPS
+        - CALORIES
+        - DURATION
+        - REPS
+        - DISTANCE
+      description: Tipo de desafío
+    ChallengeProgressStatus:
+      type: string
+      enum:
+        - NOT_STARTED
+        - IN_PROGRESS
+        - COMPLETED
+      description: Estado del progreso de desafío
+    MediaType:
+      type: string
+      enum:
+        - IMAGE
+        - VIDEO
+      description: Tipo de archivo multimedia
+    EntityType:
+      type: string
+      enum:
+        - USER_PROFILE
+        - GYM
+        - EXERCISE
+        - PROGRESS
+      description: Tipo de entidad asociada
+    RewardCategory:
+      type: string
+      enum:
+        - descuento
+        - pase_gratis
+        - producto
+        - servicio
+        - merchandising
+      description: Categoría de recompensa
+    PaymentStatus:
+      type: string
+      enum:
+        - PENDING
+        - COMPLETED
+        - FAILED
+        - REFUNDED
+      description: Estado del pago
+    AccountDeletionStatus:
+      type: string
+      enum:
+        - PENDING
+        - CANCELLED
+        - COMPLETED
+      description: Estado de solicitud de eliminación
+    AchievementMetric:
+      type: string
+      enum:
+        - STREAK_DAYS
+        - STREAK_RECOVERY_USED
+        - ASSISTANCE_TOTAL
+        - FREQUENCY_WEEKS_MET
+        - ROUTINE_COMPLETED_COUNT
+        - CHALLENGE_COMPLETED_COUNT
+        - TOKEN_EARNED_TOTAL
+        - SOCIAL_SHARE_COUNT
+      description: Métrica de logro
+    ChallengeMetric:
+      type: string
+      enum:
+        - MINUTES
+        - EXERCISES
+        - FREQUENCY
+      description: Métrica de desafío
+    Error:
+      type: object
+      required:
+        - error
+      additionalProperties: false
+      properties:
+        error:
+          type: string
+          description: Mensaje de error descriptivo
+          example: Ha ocurrido un error
+    AchievementDefinitionResponse:
+      type: object
+      required:
+        - id_achievement_definition
+        - code
+        - name
+        - category
+        - metric_type
+        - target_value
+        - is_active
+        - created_at
+        - updated_at
+      properties:
+        id_achievement_definition:
+          type: integer
+          example: 1
+        code:
+          type: string
+          description: Código único del achievement
+          example: FIRST_CHECKIN
+        name:
+          type: string
+          description: Nombre del achievement
+          example: Primera Visita
+        description:
+          type:
+            - string
+            - 'null'
+          description: Descripción del achievement
+          example: Completaste tu primera visita al gimnasio
+        category:
+          $ref: '#/components/schemas/AchievementCategory'
+          example: ONBOARDING
+        metric_type:
+          type: string
+          enum:
+            - STREAK_DAYS
+            - STREAK_RECOVERY_USED
+            - ASSISTANCE_TOTAL
+            - FREQUENCY_WEEKS_MET
+            - ROUTINE_COMPLETED_COUNT
+            - WORKOUT_SESSION_COMPLETED
+            - DAILY_CHALLENGE_COMPLETED_COUNT
+            - PR_RECORD_COUNT
+            - BODY_WEIGHT_PROGRESS
+            - TOKEN_BALANCE_REACHED
+            - TOKEN_SPENT_TOTAL
+            - ONBOARDING_STEP_COMPLETED
+          example: ASSISTANCE_TOTAL
+        target_value:
+          type: number
+          minimum: 0
+          example: 1
+        metadata:
+          type:
+            - object
+            - 'null'
+          description: Metadatos adicionales del achievement
+          properties:
+            token_reward:
+              type: integer
+            unlock_message:
+              type: string
+            icon:
+              type: string
+        icon_url:
+          type:
+            - string
+            - 'null'
+          example: https://cdn.gympoint.app/icons/first-checkin.png
+        is_active:
+          type: boolean
+          default: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateAchievementDefinitionRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - name
+        - category
+        - metric_type
+        - target_value
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 100
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        category:
+          $ref: '#/components/schemas/AchievementCategory'
+        metric_type:
+          type: string
+          enum:
+            - STREAK_DAYS
+            - STREAK_RECOVERY_USED
+            - ASSISTANCE_TOTAL
+            - FREQUENCY_WEEKS_MET
+            - ROUTINE_COMPLETED_COUNT
+            - WORKOUT_SESSION_COMPLETED
+            - DAILY_CHALLENGE_COMPLETED_COUNT
+            - PR_RECORD_COUNT
+            - BODY_WEIGHT_PROGRESS
+            - TOKEN_BALANCE_REACHED
+            - TOKEN_SPENT_TOTAL
+            - ONBOARDING_STEP_COMPLETED
+        target_value:
+          type: number
+          minimum: 0
+        metadata:
+          type: object
+        icon_url:
+          type: string
+        is_active:
+          type: boolean
+          default: true
+    UpdateAchievementDefinitionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 100
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        category:
+          $ref: '#/components/schemas/AchievementCategory'
+        metric_type:
+          type: string
+          enum:
+            - STREAK_DAYS
+            - STREAK_RECOVERY_USED
+            - ASSISTANCE_TOTAL
+            - FREQUENCY_WEEKS_MET
+            - ROUTINE_COMPLETED_COUNT
+            - WORKOUT_SESSION_COMPLETED
+            - DAILY_CHALLENGE_COMPLETED_COUNT
+            - PR_RECORD_COUNT
+            - BODY_WEIGHT_PROGRESS
+            - TOKEN_BALANCE_REACHED
+            - TOKEN_SPENT_TOTAL
+            - ONBOARDING_STEP_COMPLETED
+        target_value:
+          type: number
+          minimum: 0
+        metadata:
+          type: object
+        icon_url:
+          type: string
+        is_active:
+          type: boolean
+    AuthSuccessResponse:
+      type: object
+      required:
+        - tokens
+        - user
+      properties:
+        tokens:
+          $ref: '#/components/schemas/AuthTokenPair'
+        user:
+          $ref: '#/components/schemas/AuthUser'
+    AuthTokenPair:
+      type: object
+      required:
+        - accessToken
+        - refreshToken
+      additionalProperties: false
+      properties:
+        accessToken:
+          type: string
+          description: JWT con vigencia corta (15 minutos).
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refreshToken:
+          type: string
+          description: Token de renovación con vigencia de 30 días.
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    AuthUser:
+      type: object
+      required:
+        - id_account
+        - email
+        - email_verified
+        - roles
+        - profile
+      additionalProperties: false
+      properties:
+        id_account:
+          type: integer
+        email:
+          type: string
+          format: email
+        email_verified:
+          type: boolean
+        roles:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            example: USER
+        profile:
+          $ref: '#/components/schemas/UserProfileSummary'
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - email
+        - password
+        - name
+        - lastname
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 64
+        name:
+          type: string
+          minLength: 2
+          maxLength: 80
+        lastname:
+          type: string
+          minLength: 2
+          maxLength: 80
+        gender:
+          allOf:
+            - $ref: '#/components/schemas/Gender'
+          default: O
+        locality:
+          type: string
+          maxLength: 120
+        birth_date:
+          type:
+            - string
+            - 'null'
+          format: date
+        frequency_goal:
+          type: integer
+          minimum: 1
+          maximum: 14
+          default: 3
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 64
+    GoogleLoginRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - idToken
+      properties:
+        idToken:
+          type: string
+          description: ID token emitido por Google Sign-In.
+    RefreshTokenRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: Token de renovación vigente.
+    RefreshTokenResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - accessToken
+      properties:
+        accessToken:
+          type: string
+          description: Nuevo JWT de acceso.
+    LogoutRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: Refresh token a revocar.
+    UpdateTokensRequest:
+      type: object
+      required:
+        - delta
+      additionalProperties: false
+      properties:
+        delta:
+          type: integer
+          description: Cantidad a incrementar (positivo) o decrementar (negativo)
+          example: 50
+        reason:
+          type: string
+          maxLength: 255
+          description: Razón del ajuste de tokens
+          example: Recompensa por evento especial
+    TokensUpdateResponse:
+      type: object
+      required:
+        - id_user_profile
+        - new_balance
+        - delta
+      additionalProperties: false
+      properties:
+        id_user_profile:
+          type: integer
+          description: ID del perfil de usuario
+        new_balance:
+          type: integer
+          minimum: 0
+          description: Nuevo balance de tokens
+          example: 200
+        delta:
+          type: integer
+          description: Cantidad ajustada
+          example: 50
+    RegisterWorkoutSetRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        id_exercise:
+          type: integer
+        weight:
+          type: number
+        reps:
+          type: integer
+        rpe:
+          type: integer
+        rest_seconds:
+          type: integer
+        is_warmup:
+          type: boolean
+        notes:
+          type: string
+        performed_at:
+          type: string
+          format: date-time
+      required:
+        - id_exercise
+    TodayChallengeResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        challenge:
+          type: object
+          properties:
+            id_challenge:
+              type: integer
+            challenge_date:
+              type: string
+              format: date
+            title:
+              type: string
+            description:
+              type: string
+            challenge_type:
+              $ref: '#/components/schemas/ChallengeType'
+            target_value:
+              type: integer
+            target_unit:
+              type: string
+            tokens_reward:
+              type: integer
+            difficulty:
+              $ref: '#/components/schemas/DifficultyLevel'
+            is_active:
+              type: boolean
+        progress:
+          type: object
+          properties:
+            id_user_challenge:
+              type: integer
+            id_user_profile:
+              type: integer
+            id_challenge:
+              type: integer
+            current_value:
+              type: integer
+            status:
+              $ref: '#/components/schemas/ChallengeProgressStatus'
+            completed_at:
+              type: string
+              format: date-time
+            reward_claimed_at:
+              type: string
+              format: date-time
+    ChallengeProgressResponse:
+      type: object
+      required:
+        - progress
+        - completed
+        - tokens_earned
+      additionalProperties: false
+      properties:
+        progress:
+          type: integer
+          description: Valor actual del progreso
+        completed:
+          type: boolean
+          description: Si el desafío fue completado
+        tokens_earned:
+          type: integer
+          description: Tokens otorgados (si se completó)
+    DailyChallengeTemplateResponse:
+      type: object
+      required:
+        - id_template
+        - title
+        - challenge_type
+        - target_value
+        - tokens_reward
+        - difficulty
+        - rotation_weight
+        - is_active
+        - created_at
+        - updated_at
+      properties:
+        id_template:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Entrena 30 minutos
+        description:
+          type:
+            - string
+            - 'null'
+          example: Completa al menos 30 minutos de ejercicio
+        challenge_type:
+          type: string
+          enum:
+            - MINUTES
+            - EXERCISES
+            - FREQUENCY
+          example: MINUTES
+        target_value:
+          type: number
+          minimum: 0
+          example: 30
+        target_unit:
+          type:
+            - string
+            - 'null'
+          example: minutos
+        tokens_reward:
+          type: integer
+          minimum: 0
+          default: 10
+          example: 15
+        difficulty:
+          $ref: '#/components/schemas/ExtendedDifficultyLevel'
+          example: EASY
+        rotation_weight:
+          type: number
+          minimum: 0
+          default: 1
+          description: Peso para la rotación automática (mayor = más frecuente)
+          example: 1.5
+        is_active:
+          type: boolean
+          default: true
+        created_by:
+          type:
+            - integer
+            - 'null'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateDailyChallengeTemplateRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - title
+        - challenge_type
+        - target_value
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        challenge_type:
+          type: string
+          enum:
+            - MINUTES
+            - EXERCISES
+            - FREQUENCY
+        target_value:
+          type: number
+          minimum: 0
+        target_unit:
+          type: string
+        tokens_reward:
+          type: integer
+          minimum: 0
+          default: 10
+        difficulty:
+          $ref: '#/components/schemas/ExtendedDifficultyLevel'
+          default: MEDIUM
+        rotation_weight:
+          type: number
+          minimum: 0
+          default: 1
+        is_active:
+          type: boolean
+          default: true
+    UpdateDailyChallengeTemplateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        challenge_type:
+          type: string
+          enum:
+            - MINUTES
+            - EXERCISES
+            - FREQUENCY
+        target_value:
+          type: number
+          minimum: 0
+        target_unit:
+          type: string
+        tokens_reward:
+          type: integer
+          minimum: 0
+        difficulty:
+          $ref: '#/components/schemas/ExtendedDifficultyLevel'
+        rotation_weight:
+          type: number
+          minimum: 0
+        is_active:
+          type: boolean
+    DailyChallengeResponse:
+      type: object
+      required:
+        - id_challenge
+        - challenge_date
+        - title
+        - challenge_type
+        - target_value
+        - tokens_reward
+        - difficulty
+        - is_active
+        - created_at
+        - updated_at
+      properties:
+        id_challenge:
+          type: integer
+          example: 1
+        challenge_date:
+          type: string
+          format: date
+          example: '2025-10-23'
+        title:
+          type: string
+          example: Entrena 30 minutos
+        description:
+          type:
+            - string
+            - 'null'
+          example: Completa al menos 30 minutos de ejercicio hoy
+        challenge_type:
+          type: string
+          enum:
+            - MINUTES
+            - EXERCISES
+            - FREQUENCY
+          example: MINUTES
+        target_value:
+          type: number
+          minimum: 0
+          example: 30
+        target_unit:
+          type:
+            - string
+            - 'null'
+          example: minutos
+        tokens_reward:
+          type: integer
+          minimum: 0
+          default: 10
+          example: 15
+        difficulty:
+          $ref: '#/components/schemas/ExtendedDifficultyLevel'
+          example: EASY
+        is_active:
+          type: boolean
+          default: true
+        id_template:
+          type:
+            - integer
+            - 'null'
+          description: ID de la plantilla usada (si aplica)
+        auto_generated:
+          type: boolean
+          default: false
+        created_by:
+          type:
+            - integer
+            - 'null'
+          description: ID del admin que lo creó
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateDailyChallengeRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - challenge_date
+        - title
+        - challenge_type
+        - target_value
+      properties:
+        challenge_date:
+          type: string
+          format: date
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        challenge_type:
+          type: string
+          enum:
+            - MINUTES
+            - EXERCISES
+            - FREQUENCY
+        target_value:
+          type: number
+          minimum: 0
+        target_unit:
+          type: string
+        tokens_reward:
+          type: integer
+          minimum: 0
+          default: 10
+        difficulty:
+          $ref: '#/components/schemas/ExtendedDifficultyLevel'
+          default: MEDIUM
+        is_active:
+          type: boolean
+          default: true
+        id_template:
+          type: integer
+        auto_generated:
+          type: boolean
+          default: false
+    UpdateDailyChallengeRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        challenge_date:
+          type: string
+          format: date
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        challenge_type:
+          type: string
+          enum:
+            - MINUTES
+            - EXERCISES
+            - FREQUENCY
+        target_value:
+          type: number
+          minimum: 0
+        target_unit:
+          type: string
+        tokens_reward:
+          type: integer
+          minimum: 0
+        difficulty:
+          $ref: '#/components/schemas/ExtendedDifficultyLevel'
+        is_active:
+          type: boolean
+        id_template:
+          type: integer
+        auto_generated:
+          type: boolean
+    Exercise:
+      type: object
+      properties:
+        id_exercise:
+          type: integer
+        exercise_name:
+          type: string
+        muscular_group:
+          type: string
+        description:
+          type: string
+        equipment_needed:
+          type: string
+        difficulty:
+          type: string
+          enum:
+            - beginner
+            - intermediate
+            - advanced
+        instructions:
+          type: string
+        video_url:
+          type: string
+        created_by:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id_exercise
+        - exercise_name
+    CreateExerciseRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        exercise_name:
+          type: string
+        muscular_group:
+          type: string
+        description:
+          type: string
+        equipment_needed:
+          type: string
+        difficulty:
+          type: string
+          enum:
+            - beginner
+            - intermediate
+            - advanced
+        instructions:
+          type: string
+        video_url:
+          type: string
+      required:
+        - exercise_name
+    UpdateExerciseRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        exercise_name:
+          type: string
+        muscular_group:
+          type: string
+        description:
+          type: string
+        equipment_needed:
+          type: string
+        difficulty:
+          type: string
+          enum:
+            - beginner
+            - intermediate
+            - advanced
+        instructions:
+          type: string
+        video_url:
+          type: string
+    PaginatedExercisesResponse:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMeta'
+        - type: object
+          required:
+            - items
+          additionalProperties: false
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Exercise'
+    RoutineExercise:
+      type: object
+      properties:
+        id_routine:
+          type: integer
+        id_exercise:
+          type: integer
+        id_routine_day:
+          type: integer
+        series:
+          type: integer
+        reps:
+          type: string
+        order:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id_routine
+        - id_exercise
+        - series
+        - reps
+        - order
+    ExerciseInRoutine:
+      type: object
+      properties:
+        id_exercise:
+          type: integer
+        exercise_name:
+          type: string
+        muscular_group:
+          type: string
+        series:
+          type: integer
+        reps:
+          type: string
+        order:
+          type: integer
+        id_routine_day:
+          type: integer
+    AddExerciseToRoutineRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        id_exercise:
+          type: integer
+        series:
+          type: integer
+        reps:
+          type: string
+        order:
+          type: integer
+        id_routine_day:
+          type: integer
+      required:
+        - id_exercise
+        - series
+        - reps
+        - order
+    UpdateRoutineExerciseRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        series:
+          type: integer
+        reps:
+          type: string
+        order:
+          type: integer
+        id_routine_day:
+          type: integer
+    FrequencyResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        id_frequency:
+          type: integer
+        id_user_profile:
+          type: integer
+        goal:
+          type: integer
+          description: Meta semanal de asistencias
+        assist:
+          type: integer
+          description: Asistencias realizadas en la semana actual
+        achieved_goal:
+          type: boolean
+          description: Si alcanzó la meta esta semana
+        week_start_date:
+          type: string
+          format: date
+          description: Fecha de inicio de semana ISO (Lunes)
+        week_number:
+          type: integer
+          description: Número de semana ISO
+        year:
+          type: integer
+          description: Año de la semana
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    GymSpecialScheduleResponse:
+      type: object
+      required:
+        - id_special_schedule
+        - id_gym
+        - date
+        - closed
+        - motive
+        - created_at
+        - updated_at
+      properties:
+        id_special_schedule:
+          type: integer
+          example: 1
+        id_gym:
+          type: integer
+          example: 5
+        date:
+          type: string
+          format: date
+          description: Fecha del horario especial
+          example: '2025-12-25'
+        opening_time:
+          type:
+            - string
+            - 'null'
+          format: time
+          description: Hora de apertura (HH:MM)
+          example: '10:00'
+        closing_time:
+          type:
+            - string
+            - 'null'
+          format: time
+          description: Hora de cierre (HH:MM)
+          example: '14:00'
+        closed:
+          type: boolean
+          description: Si el gimnasio está cerrado todo el día
+          default: false
+        motive:
+          type: string
+          description: Motivo del horario especial
+          example: Feriado Nacional - Navidad
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateGymSpecialScheduleRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - id_gym
+        - date
+        - closed
+        - motive
+      properties:
+        id_gym:
+          type: integer
+          minimum: 1
+        date:
+          type: string
+          format: date
+        opening_time:
+          type: string
+          format: time
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9]$
+        closing_time:
+          type: string
+          format: time
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9]$
+        closed:
+          type: boolean
+        motive:
+          type: string
+          minLength: 1
+          maxLength: 500
+    UpdateGymSpecialScheduleRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        id_gym:
+          type: integer
+          minimum: 1
+        date:
+          type: string
+          format: date
+        opening_time:
+          type: string
+          format: time
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9]$
+        closing_time:
+          type: string
+          format: time
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9]$
+        closed:
+          type: boolean
+        motive:
+          type: string
+          minLength: 1
+          maxLength: 500
+    GymListResponse:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMeta'
+        - type: object
+          required:
+            - items
+          additionalProperties: false
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/GymResponse'
+    GymResponse:
+      type: object
+      required:
+        - id_gym
+        - name
+        - city
+        - address
+        - latitude
+        - longitude
+        - month_price
+        - geofence_radius_meters
+        - min_stay_minutes
+        - created_at
+        - updated_at
+      properties:
+        id_gym:
+          type: integer
+        name:
+          type: string
+          maxLength: 120
+        description:
+          type:
+            - string
+            - 'null'
+        phone:
+          type:
+            - string
+            - 'null'
+        email:
+          type:
+            - string
+            - 'null'
+        website:
+          type:
+            - string
+            - 'null'
+        is_active:
+          type:
+            - boolean
+            - 'null'
+        verified:
+          type:
+            - boolean
+            - 'null'
+        featured:
+          type:
+            - boolean
+            - 'null'
+        auto_checkin_enabled:
+          type:
+            - boolean
+            - 'null'
+        city:
+          type: string
+        address:
+          type: string
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        month_price:
+          type: number
+          format: float
+          minimum: 0
+        week_price:
+          type:
+            - number
+            - 'null'
+          format: float
+          minimum: 0
+        geofence_radius_meters:
+          type: integer
+          minimum: 10
+          maximum: 2000
+        min_stay_minutes:
+          type: integer
+          minimum: 5
+          maximum: 240
+        is_favorite:
+          type:
+            - boolean
+            - 'null'
+        is_subscribed:
+          type:
+            - boolean
+            - 'null'
+        distance:
+          type:
+            - number
+            - 'null'
+          format: float
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateGymRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - city
+        - address
+        - latitude
+        - longitude
+        - month_price
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 120
+        description:
+          type: string
+          maxLength: 2000
+        city:
+          type: string
+          maxLength: 80
+        address:
+          type: string
+          maxLength: 200
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        phone:
+          type: string
+          maxLength: 40
+        email:
+          type: string
+          format: email
+        website:
+          type: string
+          format: uri
+        social_media:
+          type: array
+          items:
+            type: string
+        month_price:
+          type: number
+          minimum: 0
+        week_price:
+          type: number
+          minimum: 0
+        geofence_radius_meters:
+          type: integer
+          minimum: 10
+          maximum: 2000
+          default: 100
+        min_stay_minutes:
+          type: integer
+          minimum: 5
+          maximum: 240
+          default: 30
+        id_types:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+        type_names:
+          type: array
+          items:
+            type: string
+        amenities:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+        rules:
+          type: array
+          items:
+            type: string
+    UpdateGymRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateGymRequest'
+    GymAmenity:
+      type: object
+      required:
+        - id_amenity
+        - name
+      properties:
+        id_amenity:
+          type: integer
+        name:
+          type: string
+        category:
+          type:
+            - string
+            - 'null'
+    GymTypeList:
+      type: array
+      items:
+        type: string
+    CreateGymScheduleRequest:
+      type: object
+      required:
+        - day_of_week
+        - open_time
+        - close_time
+      additionalProperties: false
+      properties:
+        day_of_week:
+          type: integer
+          minimum: 0
+          maximum: 6
+          description: Día de la semana (0=Domingo, 1=Lunes, ..., 6=Sábado)
+          example: 1
+        open_time:
+          type: string
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+          description: Hora de apertura (HH:MM o HH:MM:SS)
+          example: '06:00'
+        close_time:
+          type: string
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+          description: Hora de cierre (HH:MM o HH:MM:SS)
+          example: '22:00'
+        is_closed:
+          type: boolean
+          default: false
+          description: Si el gimnasio está cerrado ese día
+    GymScheduleResponse:
+      type: object
+      required:
+        - id_schedule
+        - id_gym
+        - day_of_week
+        - open_time
+        - close_time
+        - is_closed
+      additionalProperties: false
+      properties:
+        id_schedule:
+          type: integer
+          description: ID del horario
+        id_gym:
+          type: integer
+          description: ID del gimnasio
+        day_of_week:
+          type: integer
+          minimum: 0
+          maximum: 6
+          description: Día de la semana
+        open_time:
+          type: string
+          description: Hora de apertura
+          example: '06:00:00'
+        close_time:
+          type: string
+          description: Hora de cierre
+          example: '22:00:00'
+        is_closed:
+          type: boolean
+          description: Si está cerrado
+    GymSchedulesWeekResponse:
+      type: object
+      description: Horarios de la semana (0=Domingo a 6=Sábado)
+      additionalProperties: false
+      properties:
+        '0':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '1':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '2':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '3':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '4':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '5':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+        '6':
+          oneOf:
+            - $ref: '#/components/schemas/GymScheduleResponse'
+            - type: 'null'
+    CreateGymReviewRequest:
+      type: object
+      required:
+        - rating
+      additionalProperties: false
+      properties:
+        rating:
+          type: number
+          format: float
+          minimum: 1
+          maximum: 5
+          description: Rating general del gimnasio
+          example: 4.5
+        title:
+          type: string
+          maxLength: 100
+          description: Título de la reseña
+          example: Excelente gimnasio
+        comment:
+          type: string
+          maxLength: 1000
+          description: Comentario detallado
+          example: Muy buenas instalaciones y personal amable
+        cleanliness_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating de limpieza
+        equipment_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating de equipamiento
+        staff_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating del personal
+        facilities_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating de instalaciones
+        value_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Rating de relación calidad-precio
+    GymReviewResponse:
+      type: object
+      required:
+        - id_review
+        - id_gym
+        - id_user_profile
+        - rating
+        - created_at
+        - updated_at
+      additionalProperties: false
+      properties:
+        id_review:
+          type: integer
+          description: ID de la reseña
+        id_gym:
+          type: integer
+          description: ID del gimnasio
+        id_user_profile:
+          type: integer
+          description: ID del usuario autor
+        rating:
+          type: number
+          format: float
+          description: Rating general
+        title:
+          type: string
+          description: Título
+        comment:
+          type: string
+          description: Comentario
+        cleanliness_rating:
+          type: integer
+        equipment_rating:
+          type: integer
+        staff_rating:
+          type: integer
+        facilities_rating:
+          type: integer
+        value_rating:
+          type: integer
+        helpful_count:
+          type: integer
+          description: Votos útiles
+          default: 0
+        not_helpful_count:
+          type: integer
+          description: Votos no útiles
+          default: 0
+        user:
+          type: object
+          description: Info del usuario autor
+          properties:
+            id_user_profile:
+              type: integer
+            name:
+              type: string
+            profile_picture_url:
+              type: string
+        user_voted:
+          type: boolean
+          description: Si el usuario actual votó útil
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    PaginatedGymReviewsResponse:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMeta'
+        - type: object
+          required:
+            - items
+          additionalProperties: false
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/GymReviewResponse'
+    CreateGymPaymentRequest:
+      type: object
+      required:
+        - amount
+      additionalProperties: false
+      properties:
+        amount:
+          type: number
+          format: float
+          minimum: 0.01
+          description: Monto del pago
+          example: 1500
+        payment_method:
+          type: string
+          maxLength: 50
+          description: Método de pago
+          example: efectivo
+        payment_date:
+          type: string
+          format: date-time
+          description: Fecha del pago
+        period_start:
+          type: string
+          format: date
+          description: Inicio del período pagado
+        period_end:
+          type: string
+          format: date
+          description: Fin del período pagado
+        reference_number:
+          type: string
+          maxLength: 100
+          description: Número de referencia
+        notes:
+          type: string
+          maxLength: 500
+          description: Notas adicionales
+    GymPaymentResponse:
+      type: object
+      required:
+        - id_payment
+        - id_user_profile
+        - id_gym
+        - amount
+        - payment_date
+        - status
+        - created_at
+      additionalProperties: false
+      properties:
+        id_payment:
+          type: integer
+          description: ID del pago
+        id_user_profile:
+          type: integer
+          description: ID del usuario
+        id_gym:
+          type: integer
+          description: ID del gimnasio
+        amount:
+          type: number
+          format: float
+          description: Monto pagado
+        payment_method:
+          type: string
+          description: Método de pago
+        payment_date:
+          type: string
+          format: date-time
+          description: Fecha del pago
+        period_start:
+          type: string
+          format: date
+          description: Inicio del período
+        period_end:
+          type: string
+          format: date
+          description: Fin del período
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+          description: Estado del pago
+        reference_number:
+          type: string
+          description: Número de referencia
+        notes:
+          type: string
+          description: Notas
+        gym:
+          type: object
+          description: Info del gimnasio
+          properties:
+            id_gym:
+              type: integer
+            name:
+              type: string
+            city:
+              type: string
+        user:
+          type: object
+          description: Info del usuario
+          properties:
+            id_user_profile:
+              type: integer
+            name:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    PaginatedGymPaymentsResponse:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMeta'
+        - type: object
+          required:
+            - items
+          additionalProperties: false
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/GymPaymentResponse'
+    MediaResponse:
+      type: object
+      properties:
+        id_media:
+          type: integer
+          description: ID del archivo multimedia
+          example: 1
+        entity_type:
+          $ref: '#/components/schemas/EntityType'
+          description: Tipo de entidad asociada
+          example: GYM
+        entity_id:
+          type: integer
+          description: ID de la entidad asociada
+          example: 5
+        media_type:
+          allOf:
+            - $ref: '#/components/schemas/MediaType'
+          description: Tipo de archivo
+          example: IMAGE
+        url:
+          type: string
+          format: uri
+          description: URL del archivo
+          example: https://example.com/gym.jpg
+        thumbnail_url:
+          type: string
+          format: uri
+          description: URL de la miniatura
+          example: https://example.com/gym-thumb.jpg
+        file_size:
+          type: integer
+          description: Tamaño del archivo en bytes
+          example: 1024000
+        mime_type:
+          type: string
+          description: Tipo MIME del archivo
+          example: image/jpeg
+        width:
+          type: integer
+          description: Ancho de la imagen en píxeles
+          example: 1920
+        height:
+          type: integer
+          description: Alto de la imagen en píxeles
+          example: 1080
+        is_primary:
+          type: boolean
+          description: Si es el archivo principal de la entidad
+          example: true
+          default: false
+        display_order:
+          type: integer
+          description: Orden de visualización
+          example: 0
+          default: 0
+        uploaded_at:
+          type: string
+          format: date-time
+          description: Fecha de carga
+        created_at:
+          type: string
+          format: date-time
+          description: Fecha de creación
+        updated_at:
+          type: string
+          format: date-time
+          description: Fecha de última actualización
+    ProgressResponse:
+      type: object
+      properties:
+        id_progress:
+          type: integer
+          description: ID del registro de progreso
+          example: 1
+        id_user_profile:
+          type: integer
+          description: ID del perfil de usuario
+          example: 10
+        date:
+          type: string
+          format: date
+          description: Fecha del registro
+          example: '2025-01-15'
+        total_weight_lifted:
+          type: number
+          format: float
+          description: Peso total levantado en kg
+          example: 5000
+        total_reps:
+          type: integer
+          description: Repeticiones totales
+          example: 100
+        total_sets:
+          type: integer
+          description: Sets totales
+          example: 20
+        notes:
+          type: string
+          description: Notas adicionales
+          example: Great workout session
+        created_at:
+          type: string
+          format: date-time
+          description: Fecha de creación
+        updated_at:
+          type: string
+          format: date-time
+          description: Fecha de última actualización
+    CheckInRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - id_gym
+        - latitude
+        - longitude
+      properties:
+        id_gym:
+          type: integer
+          minimum: 1
+          description: ID del gimnasio
+          example: 3
+        latitude:
+          type: number
+          format: float
+          minimum: -90
+          maximum: 90
+          description: Latitud actual del usuario
+          example: -34.603722
+        longitude:
+          type: number
+          format: float
+          minimum: -180
+          maximum: 180
+          description: Longitud actual del usuario
+          example: -58.38159
+        accuracy:
+          type: number
+          format: float
+          minimum: 0
+          description: Precisión GPS en metros (opcional)
+          example: 10.5
+    AssistanceResponse:
+      type: object
+      properties:
+        id_assistance:
+          type: integer
+          description: ID único de la asistencia
+          example: 42
+        id_user_profile:
+          type: integer
+          description: ID del perfil de usuario
+          example: 5
+        id_gym:
+          type: integer
+          description: ID del gimnasio
+          example: 3
+        date:
+          type: string
+          format: date
+          description: Fecha de la asistencia
+          example: '2025-10-23'
+        check_in_time:
+          type: string
+          format: time
+          description: Hora de check-in
+          example: '14:30:00'
+        check_out_time:
+          type:
+            - string
+            - 'null'
+          format: time
+          description: Hora de check-out (si existe)
+          example: '16:00:00'
+        duration_minutes:
+          type:
+            - integer
+            - 'null'
+          description: Duración en minutos
+          example: 90
+        auto_checkin:
+          type: boolean
+          description: Si fue auto check-in por geofence
+          example: false
+          default: false
+        distance_meters:
+          type:
+            - number
+            - 'null'
+          format: float
+          description: Distancia en metros al momento del check-in
+          example: 6.5
+        verified:
+          type: boolean
+          description: Si la asistencia fue verificada
+          example: true
+          default: false
+        created_at:
+          type: string
+          format: date-time
+          description: Fecha de creación del registro
+          example: '2025-10-23T14:30:00.000Z'
+    CheckInResponseData:
+      type: object
+      properties:
+        asistencia:
+          $ref: '#/components/schemas/AssistanceResponse'
+        distancia:
+          type: integer
+          description: Distancia en metros desde el gimnasio
+          example: 6
+        tokens_actuales:
+          type: integer
+          description: Tokens totales del usuario tras registrar asistencia
+          example: 30
+        racha_actual:
+          type: integer
+          description: Valor actual de la racha
+          example: 5
+    CheckOutResponse:
+      type: object
+      properties:
+        asistencia:
+          $ref: '#/components/schemas/AssistanceResponse'
+        duration_minutes:
+          type: integer
+          description: Duración total de la sesión en minutos
+          example: 90
+        tokens_awarded:
+          type: integer
+          description: Tokens otorgados por duración
+          example: 5
+        tokens_total:
+          type: integer
+          description: Total de tokens del usuario
+          example: 35
+    PresenceRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - id_gym
+        - latitude
+        - longitude
+      properties:
+        id_gym:
+          type: integer
+          minimum: 1
+          description: ID del gimnasio
+          example: 3
+        latitude:
+          type: number
+          format: float
+          minimum: -90
+          maximum: 90
+          description: Latitud actual del usuario
+          example: -34.603722
+        longitude:
+          type: number
+          format: float
+          minimum: -180
+          maximum: 180
+          description: Longitud actual del usuario
+          example: -58.38159
+        accuracy:
+          type: number
+          format: float
+          minimum: 0
+          description: Precisión GPS en metros (opcional)
+          example: 10.5
+    PresenceResponse:
+      type: object
+      properties:
+        duracion_minutos:
+          type: integer
+          description: Minutos de permanencia en el gimnasio
+          example: 5
+        min_stay_minutes:
+          type: integer
+          description: Tiempo mínimo requerido de permanencia
+          example: 10
+        listo_para_checkin:
+          type: boolean
+          description: Si cumplió el tiempo mínimo para auto check-in
+          example: false
+        progreso:
+          type: string
+          description: Progreso en formato texto
+          example: 5/10 min
+    AssistanceHistoryResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Historial de asistencias obtenido con éxito
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id_assistance:
+                type: integer
+                example: 42
+              id_user_profile:
+                type: integer
+                example: 5
+              id_gym:
+                type: integer
+                example: 3
+              date:
+                type: string
+                format: date
+                example: '2025-10-04'
+              check_in_time:
+                type: string
+                format: time
+                example: '14:30:00'
+              check_out_time:
+                type:
+                  - string
+                  - 'null'
+                format: time
+                example: '16:00:00'
+              gym:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: MegaGym Centro
+                  city:
+                    type: string
+                    example: Córdoba
+                  address:
+                    type: string
+                    example: Av. Colón 123
+    RewardResponse:
+      type: object
+      required:
+        - id_reward
+        - name
+        - description
+        - type
+        - cost_tokens
+        - available
+        - stock
+        - start_date
+        - finish_date
+        - created_at
+        - updated_at
+      properties:
+        id_reward:
+          type: integer
+          description: ID único de la recompensa
+          example: 1
+        name:
+          type: string
+          description: Nombre de la recompensa
+          example: Pase VIP 1 mes
+        description:
+          type: string
+          description: Descripción detallada
+          example: Acceso VIP durante 1 mes a todos los gimnasios
+        type:
+          type: string
+          description: Tipo de recompensa
+          enum:
+            - descuento
+            - pase_gratis
+            - producto
+            - servicio
+            - merchandising
+            - otro
+          example: pase_gratis
+        cost_tokens:
+          type: integer
+          description: Costo en tokens
+          minimum: 0
+          example: 500
+        available:
+          type: boolean
+          description: Si está disponible para canje
+          default: true
+        stock:
+          type: integer
+          description: Stock disponible
+          minimum: 0
+          example: 10
+        start_date:
+          type: string
+          format: date
+          description: Fecha de inicio de disponibilidad
+          example: '2025-01-01'
+        finish_date:
+          type: string
+          format: date
+          description: Fecha de fin de disponibilidad
+          example: '2025-12-31'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type:
+            - string
+            - 'null'
+          format: date-time
+    CreateRewardRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - description
+        - type
+        - cost_tokens
+        - stock
+        - start_date
+        - finish_date
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+        type:
+          type: string
+          enum:
+            - descuento
+            - pase_gratis
+            - producto
+            - servicio
+            - merchandising
+            - otro
+        cost_tokens:
+          type: integer
+          minimum: 0
+        stock:
+          type: integer
+          minimum: 0
+        start_date:
+          type: string
+          format: date
+        finish_date:
+          type: string
+          format: date
+        available:
+          type: boolean
+          default: true
+    UpdateRewardRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+        type:
+          type: string
+          enum:
+            - descuento
+            - pase_gratis
+            - producto
+            - servicio
+            - merchandising
+            - otro
+        cost_tokens:
+          type: integer
+          minimum: 0
+        stock:
+          type: integer
+          minimum: 0
+        start_date:
+          type: string
+          format: date
+        finish_date:
+          type: string
+          format: date
+        available:
+          type: boolean
+    Routine:
+      type: object
+      properties:
+        id_routine:
+          type: integer
+        routine_name:
+          type: string
+        description:
+          type: string
+        created_by:
+          type: integer
+        is_template:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id_routine
+        - routine_name
+    RoutineWithDetails:
+      allOf:
+        - $ref: '#/components/schemas/Routine'
+        - type: object
+          properties:
+            creator:
+              type: object
+              properties:
+                id_user_profile:
+                  type: integer
+                name:
+                  type: string
+                lastname:
+                  type: string
+            days:
+              type: array
+              items:
+                $ref: '#/components/schemas/RoutineDay'
+            exercises:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExerciseInRoutine'
+    RoutineDay:
+      type: object
+      properties:
+        id_routine_day:
+          type: integer
+        id_routine:
+          type: integer
+        day_number:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id_routine_day
+        - id_routine
+        - day_number
+    CreateRoutineRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        routine_name:
+          type: string
+        description:
+          type: string
+        exercises:
+          type: array
+          items:
+            type: object
+            properties:
+              id_exercise:
+                type: integer
+              series:
+                type: integer
+              reps:
+                type: string
+              order:
+                type: integer
+              day_number:
+                type: integer
+            required:
+              - id_exercise
+              - series
+              - reps
+              - order
+          minItems: 3
+        days:
+          type: array
+          items:
+            type: object
+            properties:
+              day_number:
+                type: integer
+              title:
+                type: string
+              description:
+                type: string
+            required:
+              - day_number
+      required:
+        - routine_name
+        - exercises
+    UpdateRoutineRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        routine_name:
+          type: string
+        description:
+          type: string
+    CreateRoutineDayRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        day_number:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+      required:
+        - day_number
+    UpdateRoutineDayRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        day_number:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+    PaginatedRoutinesResponse:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMeta'
+        - type: object
+          required:
+            - items
+          additionalProperties: false
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Routine'
+    AssignRoutineRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        id_routine:
+          type: integer
+        start_date:
+          type: string
+          format: date-time
+      required:
+        - id_routine
+    ImportRoutineRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        id_template_routine:
+          type: integer
+      required:
+        - id_template_routine
+    StreakResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        id_streak:
+          type: integer
+        id_user_profile:
+          type: integer
+        value:
+          type: integer
+          description: Días consecutivos de racha actual
+        last_value:
+          type: integer
+          description: Última racha antes de perderla
+        max_value:
+          type: integer
+          description: Racha máxima alcanzada
+        recovery_items:
+          type: integer
+          description: Items de recuperación disponibles
+        last_assistance_date:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        userProfile:
+          type: object
+          properties:
+            id_user_profile:
+              type: integer
+            name:
+              type: string
+            lastname:
+              type: string
+        frequency:
+          type: object
+          properties:
+            goal:
+              type: integer
+            assist:
+              type: integer
+            achieved_goal:
+              type: boolean
+    StreakStatsResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        totalStreaks:
+          type: integer
+          description: Total de rachas en el sistema
+        averageStreak:
+          type: integer
+          description: Promedio de días de racha
+        maxStreak:
+          type: integer
+          description: Racha máxima registrada
+    UserRoutine:
+      type: object
+      properties:
+        id_user_routine:
+          type: integer
+        id_user:
+          type: integer
+        id_routine:
+          type: integer
+        start_date:
+          type: string
+          format: date-time
+        finish_date:
+          type: string
+          format: date-time
+        active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        routine:
+          $ref: '#/components/schemas/RoutineWithDetails'
+      required:
+        - id_user_routine
+        - id_user
+        - id_routine
+        - start_date
+        - active
+    UserRoutineCounts:
+      type: object
+      properties:
+        total_owned:
+          type: integer
+        imported_count:
+          type: integer
+        created_count:
+          type: integer
+    UserProfileSummary:
+      type: object
+      required:
+        - id_user_profile
+        - name
+        - lastname
+        - subscription
+      additionalProperties: false
+      properties:
+        id_user_profile:
+          type: integer
+        name:
+          type: string
+          example: Ana
+        lastname:
+          type: string
+          example: Torres
+        subscription:
+          $ref: '#/components/schemas/SubscriptionType'
+          description: Nivel actual de la app.
+        premium_since:
+          type:
+            - string
+            - 'null'
+          format: date-time
+        tokens_balance:
+          type: integer
+          minimum: 0
+        tokens_lifetime:
+          type: integer
+          minimum: 0
+        locality:
+          type:
+            - string
+            - 'null'
+        gender:
+          oneOf:
+            - $ref: '#/components/schemas/Gender'
+            - type: 'null'
+        birth_date:
+          type:
+            - string
+            - 'null'
+          format: date
+    UserProfileResponse:
+      type: object
+      required:
+        - id_user_profile
+        - email
+        - name
+        - lastname
+        - subscription
+        - tokens
+        - created_at
+      additionalProperties: false
+      properties:
+        id_user_profile:
+          type: integer
+          description: ID único del perfil de usuario
+          example: 42
+        email:
+          type: string
+          format: email
+          description: Email del usuario
+          example: usuario@example.com
+        name:
+          type: string
+          minLength: 2
+          maxLength: 80
+          description: Nombre del usuario
+          example: Juan
+        lastname:
+          type: string
+          minLength: 2
+          maxLength: 80
+          description: Apellido del usuario
+          example: Pérez
+        gender:
+          oneOf:
+            - $ref: '#/components/schemas/Gender'
+            - type: 'null'
+          description: Género del usuario
+          example: M
+        birth_date:
+          oneOf:
+            - type: string
+              format: date
+            - type: 'null'
+          description: Fecha de nacimiento (YYYY-MM-DD)
+          example: '1990-05-15'
+        locality:
+          oneOf:
+            - type: string
+            - type: 'null'
+          description: Localidad del usuario
+          example: Buenos Aires
+        profile_picture_url:
+          oneOf:
+            - type: string
+              format: uri
+            - type: 'null'
+          description: URL de la foto de perfil
+        subscription:
+          allOf:
+            - $ref: '#/components/schemas/SubscriptionType'
+          description: Nivel de suscripción actual
+          example: FREE
+        tokens:
+          type: integer
+          minimum: 0
+          description: Balance actual de tokens
+          example: 150
+        preferred_language:
+          type: string
+          description: Idioma preferido (código ISO 639-1)
+          example: es
+        timezone:
+          oneOf:
+            - type: string
+            - type: 'null'
+          description: Zona horaria del usuario
+          example: America/Argentina/Buenos_Aires
+        onboarding_completed:
+          type: boolean
+          description: Indica si completó el onboarding
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          description: Fecha de creación del perfil
+        updated_at:
+          oneOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          description: Fecha de última actualización
+    UpdateUserProfileRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 80
+          description: Nombre del usuario
+        lastname:
+          type: string
+          minLength: 2
+          maxLength: 80
+          description: Apellido del usuario
+        gender:
+          $ref: '#/components/schemas/Gender'
+        birth_date:
+          type: string
+          format: date
+          description: Fecha de nacimiento (YYYY-MM-DD)
+          example: '1990-05-15'
+        locality:
+          type: string
+          maxLength: 100
+          description: Localidad del usuario
+        profile_picture_url:
+          type: string
+          format: uri
+          description: URL de la foto de perfil
+        preferred_language:
+          type: string
+          pattern: ^[a-z]{2}$
+          description: Idioma preferido (código ISO 639-1)
+          example: es
+        timezone:
+          type: string
+          description: Zona horaria del usuario
+          example: America/Argentina/Buenos_Aires
+        onboarding_completed:
+          type: boolean
+          description: Marca el onboarding como completado
+    WorkoutSession:
+      type: object
+      properties:
+        id_workout_session:
+          type: integer
+        id_user_profile:
+          type: integer
+        id_routine:
+          type: integer
+        id_routine_day:
+          type: integer
+        status:
+          $ref: '#/components/schemas/WorkoutSessionStatus'
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+        duration_seconds:
+          type: integer
+        total_sets:
+          type: integer
+        total_reps:
+          type: integer
+        total_weight:
+          type: number
+        notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        routine:
+          type: object
+          properties:
+            id_routine:
+              type: integer
+            routine_name:
+              type: string
+        routine_day:
+          type: object
+          properties:
+            id_routine_day:
+              type: integer
+            day_number:
+              type: integer
+            title:
+              type: string
+        sets:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkoutSet'
+      required:
+        - id_workout_session
+        - id_user_profile
+        - status
+        - started_at
+    StartWorkoutSessionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        id_routine:
+          type: integer
+        id_routine_day:
+          type: integer
+        started_at:
+          type: string
+          format: date-time
+        notes:
+          type: string
+    UpdateWorkoutSetRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        weight:
+          type: number
+        reps:
+          type: integer
+        rpe:
+          type: integer
+        rest_seconds:
+          type: integer
+        is_warmup:
+          type: boolean
+        notes:
+          type: string
+    WorkoutSet:
+      type: object
+      properties:
+        id_workout_set:
+          type: integer
+        id_workout_session:
+          type: integer
+        id_exercise:
+          type: integer
+        set_number:
+          type: integer
+        weight:
+          type: number
+        reps:
+          type: integer
+        rpe:
+          type: integer
+        rest_seconds:
+          type: integer
+        is_warmup:
+          type: boolean
+        notes:
+          type: string
+        performed_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        exercise:
+          type: object
+          properties:
+            id_exercise:
+              type: integer
+            exercise_name:
+              type: string
+            muscular_group:
+              type: string
+      required:
+        - id_workout_set
+        - id_workout_session
+        - id_exercise
+        - set_number
+    WorkoutStats:
+      type: object
+      properties:
+        total_workouts:
+          type: integer
+        total_sets:
+          type: integer
+        total_reps:
+          type: integer
+        total_weight:
+          type: number
+    CompleteWorkoutSessionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        ended_at:
+          type: string
+          format: date-time
+        notes:
+          type: string
+    UpdateWorkoutSessionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        notes:
+          type: string
+paths:
+  /api/achievements:
+    get:
+      operationId: listAchievements
+      tags:
+        - Achievements
+      summary: Listar todas las definiciones de logros
+      description: Obtiene la lista de todas las definiciones de achievements
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - ONBOARDING
+              - STREAK
+              - FREQUENCY
+              - ATTENDANCE
+              - ROUTINE
+              - CHALLENGE
+              - PROGRESS
+              - TOKEN
+              - SOCIAL
+          description: Filtrar por categoría
+        - name: is_active
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: Filtrar solo achievements activos
+      responses:
+        '200':
+          description: Lista de definiciones de logros
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AchievementDefinitionResponse'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: createAchievement
+      tags:
+        - Achievements
+      summary: Crear una nueva definición de logro
+      description: Crea una nueva definición de achievement (admin)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAchievementDefinitionRequest'
+      responses:
+        '201':
+          description: Achievement creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AchievementDefinitionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/achievements/{id}:
+    get:
+      operationId: getAchievementById
+      tags:
+        - Achievements
+      summary: Obtener un logro por ID
+      description: Obtiene los detalles de una definición de achievement
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+          description: ID del achievement
+      responses:
+        '200':
+          description: Detalles del achievement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AchievementDefinitionResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: updateAchievement
+      tags:
+        - Achievements
+      summary: Actualizar una definición de logro
+      description: Actualiza los datos de un achievement (admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+          description: ID del achievement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAchievementDefinitionRequest'
+      responses:
+        '200':
+          description: Achievement actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AchievementDefinitionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteAchievement
+      tags:
+        - Achievements
+      summary: Eliminar un logro
+      description: Elimina lógicamente un achievement (soft delete)
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+          description: ID del achievement
+      responses:
+        '204':
+          description: Achievement eliminado exitosamente
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/auth/register:
+    post:
+      operationId: registerAccount
+      tags:
+        - Auth
+      summary: Registrar una nueva cuenta de usuario
+      description: |
+        Crea una `Account`, `UserProfile`, `Frequency` y `Streak` iniciales. Retorna los tokens de autenticación y la información básica del usuario.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registro exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email ya registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/auth/login:
+    post:
+      operationId: loginWithPassword
+      tags:
+        - Auth
+      summary: Autenticación por email y contraseña
+      description: |
+        Valida las credenciales y emite un nuevo par de tokens JWT/refresh.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Autenticación exitosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/auth/google:
+    post:
+      operationId: loginWithGoogle
+      tags:
+        - Auth
+      summary: Login con Google OAuth
+      description: |
+        Valida un ID token de Google. Crea o vincula la cuenta y responde con tokens de acceso.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleLoginRequest'
+      responses:
+        '200':
+          description: Autenticación exitosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/auth/refresh-token:
+    post:
+      operationId: refreshAccessToken
+      tags:
+        - Auth
+      summary: Renovar access token usando refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Nuevo access token emitido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/auth/logout:
+    post:
+      operationId: revokeRefreshToken
+      tags:
+        - Auth
+      summary: Revocar un refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+      responses:
+        '204':
+          description: Refresh token revocado
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/challenges/today:
+    get:
+      operationId: getTodayChallenge
+      tags:
+        - Challenges
+      summary: Obtener desafío diario de hoy
+      description: Retorna el desafío del día actual y el progreso del usuario autenticado.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Desafío del día
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  challenge:
+                    $ref: '#/components/schemas/TodayChallengeResponse'
+        '400':
+          description: Error al obtener desafío
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/challenges/{id}/progress:
+    put:
+      operationId: updateChallengeProgress
+      tags:
+        - Challenges
+      summary: Actualizar progreso del desafío diario
+      description: Actualiza el progreso del usuario en el desafío. Si alcanza el objetivo, otorga tokens automáticamente.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - value
+              properties:
+                value:
+                  type: integer
+                  description: Valor actual del progreso
+                  example: 500
+                  minimum: 0
+      responses:
+        '200':
+          description: Progreso actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengeProgressResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/daily-challenge-templates:
+    get:
+      operationId: listDailyChallengeTemplates
+      tags:
+        - Challenges
+      summary: Listar plantillas de desafíos
+      description: Obtiene la lista de plantillas de desafíos diarios (admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: is_active
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: Filtrar solo plantillas activas
+      responses:
+        '200':
+          description: Lista de plantillas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DailyChallengeTemplateResponse'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: createDailyChallengeTemplate
+      tags:
+        - Challenges
+      summary: Crear una nueva plantilla de desafío
+      description: Crea una nueva plantilla de desafío diario (admin)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDailyChallengeTemplateRequest'
+      responses:
+        '201':
+          description: Plantilla creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyChallengeTemplateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/daily-challenge-templates/{id}:
+    get:
+      operationId: getDailyChallengeTemplateById
+      tags:
+        - Challenges
+      summary: Obtener una plantilla por ID
+      description: Obtiene los detalles de una plantilla específica
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+          description: ID de la plantilla
+      responses:
+        '200':
+          description: Detalles de la plantilla
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyChallengeTemplateResponse'
+        '404':
+          description: Plantilla no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: updateDailyChallengeTemplate
+      tags:
+        - Challenges
+      summary: Actualizar una plantilla
+      description: Actualiza los datos de una plantilla (admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+          description: ID de la plantilla
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDailyChallengeTemplateRequest'
+      responses:
+        '200':
+          description: Plantilla actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyChallengeTemplateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Plantilla no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: deleteDailyChallengeTemplate
+      tags:
+        - Challenges
+      summary: Eliminar una plantilla
+      description: Elimina una plantilla de desafío
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+          description: ID de la plantilla
+      responses:
+        '204':
+          description: Plantilla eliminada exitosamente
+        '404':
+          description: Plantilla no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/daily-challenges:
+    get:
+      operationId: listDailyChallenges
+      tags:
+        - Challenges
+      summary: Listar desafíos diarios
+      description: Obtiene la lista de desafíos diarios (admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: from_date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Fecha inicial (YYYY-MM-DD)
+        - name: to_date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Fecha final (YYYY-MM-DD)
+      responses:
+        '200':
+          description: Lista de desafíos diarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DailyChallengeResponse'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: createDailyChallenge
+      tags:
+        - Challenges
+      summary: Crear un nuevo desafío diario
+      description: Crea un nuevo desafío diario (admin)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDailyChallengeRequest'
+      responses:
+        '201':
+          description: Desafío creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyChallengeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/daily-challenges/{id}:
+    get:
+      operationId: getDailyChallengeById
+      tags:
+        - Challenges
+      summary: Obtener un desafío diario por ID
+      description: Obtiene los detalles de un desafío diario específico
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+          description: ID del desafío
+      responses:
+        '200':
+          description: Detalles del desafío
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyChallengeResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: updateDailyChallenge
+      tags:
+        - Challenges
+      summary: Actualizar un desafío diario
+      description: Actualiza los datos de un desafío diario (admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+          description: ID del desafío
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDailyChallengeRequest'
+      responses:
+        '200':
+          description: Desafío actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyChallengeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteDailyChallenge
+      tags:
+        - Challenges
+      summary: Eliminar un desafío diario
+      description: Elimina un desafío diario
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+          description: ID del desafío
+      responses:
+        '204':
+          description: Desafío eliminado exitosamente
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/exercises/paginated:
+    get:
+      operationId: listExercisesPaginated
+      tags:
+        - Exercises
+      summary: Listar ejercicios con paginación
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: muscular_group
+          in: query
+          schema:
+            type: string
+        - name: difficulty
+          in: query
+          schema:
+            type: string
+            enum:
+              - beginner
+              - intermediate
+              - advanced
+      responses:
+        '200':
+          description: Lista paginada de ejercicios
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedExercisesResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/exercises/{id}:
+    get:
+      operationId: getExerciseById
+      tags:
+        - Exercises
+      summary: Obtener ejercicio por ID
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      responses:
+        '200':
+          description: Ejercicio encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Exercise'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: updateExercise
+      tags:
+        - Exercises
+      summary: Actualizar ejercicio
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateExerciseRequest'
+      responses:
+        '200':
+          description: Ejercicio actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Exercise'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteExercise
+      tags:
+        - Exercises
+      summary: Eliminar ejercicio
+      description: Solo el creador o admin puede eliminar
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      responses:
+        '204':
+          description: Ejercicio eliminado
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/frequency:
+    post:
+      operationId: createWeeklyGoal
+      tags:
+        - Frequency
+      summary: Crear o actualizar meta semanal
+      description: Define la meta semanal de asistencias del usuario.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - goal
+              properties:
+                goal:
+                  type: integer
+                  description: Número de asistencias objetivo por semana
+                  example: 3
+                  minimum: 1
+      responses:
+        '201':
+          description: Meta creada o actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FrequencyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/frequency/me:
+    get:
+      operationId: getUserFrequency
+      tags:
+        - Frequency
+      summary: Consultar estado de frecuencia semanal
+      description: Retorna la meta semanal y el progreso del usuario autenticado.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Estado actual de frecuencia
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FrequencyResponse'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Frecuencia no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/frequency/reset:
+    put:
+      operationId: resetAllFrequencies
+      tags:
+        - Frequency
+      summary: Reiniciar todas las frecuencias semanales (Admin)
+      description: Reinicia los contadores de asistencias de todos los usuarios (cron semanal).
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Frecuencias reiniciadas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Frecuencias reiniciadas con éxito
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Requiere permisos de administrador
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/gym-special-schedules/{gymId}:
+    get:
+      operationId: listGymSpecialSchedules
+      tags:
+        - Gym Schedules
+      summary: Listar horarios especiales de un gimnasio
+      description: Obtiene todos los horarios especiales de un gimnasio específico
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: gymId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del gimnasio
+      responses:
+        '200':
+          description: Lista de horarios especiales
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GymSpecialScheduleResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: createGymSpecialSchedule
+      tags:
+        - Gym Schedules
+      summary: Crear un horario especial
+      description: Crea un nuevo horario especial para el gimnasio (admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: gymId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del gimnasio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGymSpecialScheduleRequest'
+      responses:
+        '201':
+          description: Horario especial creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymSpecialScheduleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/gym-special-schedules/{id}:
+    put:
+      operationId: updateGymSpecialSchedule
+      tags:
+        - Gym Schedules
+      summary: Actualizar un horario especial
+      description: Actualiza los datos de un horario especial (admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+          description: ID del horario especial
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGymSpecialScheduleRequest'
+      responses:
+        '200':
+          description: Horario especial actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymSpecialScheduleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteGymSpecialSchedule
+      tags:
+        - Gym Schedules
+      summary: Eliminar un horario especial
+      description: Elimina un horario especial
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+          description: ID del horario especial
+      responses:
+        '204':
+          description: Horario especial eliminado exitosamente
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/gyms/{gymId}:
+    parameters:
+      - $ref: '#/components/parameters/GymIdPathParam'
+    get:
+      operationId: getGym
+      tags:
+        - Gyms
+      summary: Obtener detalle de un gimnasio
+      responses:
+        '200':
+          description: Gimnasio encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: updateGym
+      tags:
+        - Gyms
+      summary: Actualizar un gimnasio
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGymRequest'
+      responses:
+        '200':
+          description: Gimnasio actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteGym
+      tags:
+        - Gyms
+      summary: Eliminar un gimnasio
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Gimnasio eliminado
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/gyms/tipos:
+    get:
+      operationId: listGymTypes
+      tags:
+        - Gyms
+      summary: Listar tipos de gimnasios
+      responses:
+        '200':
+          description: Lista de tipos disponibles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymTypeList'
+        '400':
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api/gyms/amenidades:
+    get:
+      operationId: listGymAmenities
+      tags:
+        - Gyms
+      summary: Listar amenities disponibles
+      responses:
+        '200':
+          description: Amenities registradas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GymAmenity'
+        '400':
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api/gyms/{gymId}/schedules:
+    parameters:
+      - $ref: '#/components/parameters/GymIdPathParam'
+    get:
+      operationId: listGymSchedules
+      tags:
+        - Gym Schedules
+      summary: Listar horarios regulares de un gimnasio
+      description: Retorna los horarios de la semana (lunes a domingo)
+      responses:
+        '200':
+          description: Horarios encontrados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymSchedulesWeekResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: createGymSchedule
+      tags:
+        - Gym Schedules
+      summary: Crear horario regular para un día
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGymScheduleRequest'
+      responses:
+        '201':
+          description: Horario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymScheduleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/gyms/{gymId}/reviews:
+    parameters:
+      - $ref: '#/components/parameters/GymIdPathParam'
+    get:
+      operationId: listGymReviews
+      tags:
+        - Gym Reviews
+      summary: Listar reseñas de un gimnasio
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum:
+              - created_at
+              - rating
+              - helpful_count
+            default: created_at
+        - $ref: '#/components/parameters/OrderParam'
+        - name: min_rating
+          in: query
+          schema:
+            type: number
+            minimum: 1
+            maximum: 5
+        - name: with_comment_only
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Lista de reseñas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGymReviewsResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: createGymReview
+      tags:
+        - Gym Reviews
+      summary: Crear una reseña para un gimnasio
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGymReviewRequest'
+      responses:
+        '201':
+          description: Reseña creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymReviewResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Usuario ya tiene una reseña para este gimnasio
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/gyms/{gymId}/payments:
+    parameters:
+      - $ref: '#/components/parameters/GymIdPathParam'
+    get:
+      operationId: listGymPayments
+      tags:
+        - Gym Payments
+      summary: Listar pagos de un gimnasio
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - PENDING
+              - COMPLETED
+              - FAILED
+              - REFUNDED
+        - name: from_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Lista de pagos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGymPaymentsResponse'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      operationId: createGymPayment
+      tags:
+        - Gym Payments
+      summary: Registrar un pago de suscripción a gimnasio
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGymPaymentRequest'
+      responses:
+        '201':
+          description: Pago registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymPaymentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/media:
+    get:
+      operationId: listUserMedia
+      tags:
+        - Media
+      summary: Listar archivos multimedia del usuario
+      description: |
+        Obtiene todos los archivos multimedia asociados al usuario autenticado.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lista de archivos multimedia
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MediaResponse'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: createMedia
+      tags:
+        - Media
+      summary: Crear un nuevo archivo multimedia
+      description: |
+        Crea un nuevo registro de archivo multimedia asociado a una entidad (usuario, gimnasio, ejercicio, progreso).
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - entity_type
+                - entity_id
+                - url
+              properties:
+                entity_type:
+                  $ref: '#/components/schemas/EntityType'
+                  description: Tipo de entidad
+                  example: GYM
+                entity_id:
+                  type: integer
+                  description: ID de la entidad
+                  example: 5
+                media_type:
+                  allOf:
+                    - $ref: '#/components/schemas/MediaType'
+                  default: IMAGE
+                  description: Tipo de archivo
+                url:
+                  type: string
+                  format: uri
+                  description: URL del archivo
+                  example: https://example.com/gym.jpg
+                thumbnail_url:
+                  type: string
+                  format: uri
+                  description: URL de la miniatura
+                  example: https://example.com/gym-thumb.jpg
+                file_size:
+                  type: integer
+                  description: Tamaño del archivo en bytes
+                  example: 1024000
+                mime_type:
+                  type: string
+                  description: Tipo MIME del archivo
+                  example: image/jpeg
+                width:
+                  type: integer
+                  description: Ancho de la imagen en píxeles
+                  example: 1920
+                height:
+                  type: integer
+                  description: Alto de la imagen en píxeles
+                  example: 1080
+                is_primary:
+                  type: boolean
+                  default: false
+                  description: Si es el archivo principal de la entidad
+                display_order:
+                  type: integer
+                  default: 0
+                  description: Orden de visualización
+      responses:
+        '201':
+          description: Archivo multimedia creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/MediaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/media/{entity_type}/{entity_id}:
+    get:
+      operationId: listMediaByEntity
+      tags:
+        - Media
+      summary: Listar archivos multimedia de una entidad
+      description: |
+        Obtiene todos los archivos multimedia asociados a una entidad específica (usuario, gimnasio, ejercicio, progreso).
+      parameters:
+        - name: entity_type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - USER_PROFILE
+              - GYM
+              - EXERCISE
+              - PROGRESS
+          description: Tipo de entidad
+          example: GYM
+        - name: entity_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la entidad
+          example: 5
+        - name: media_type
+          in: query
+          schema:
+            type: string
+            enum:
+              - IMAGE
+              - VIDEO
+          description: Filtrar por tipo de archivo
+      responses:
+        '200':
+          description: Lista de archivos multimedia
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MediaResponse'
+        '400':
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/media/{id_media}/primary:
+    post:
+      operationId: setPrimaryMedia
+      tags:
+        - Media
+      summary: Establecer archivo como principal
+      description: |
+        Marca un archivo multimedia como principal para su entidad. Automáticamente desmarca otros archivos de la misma entidad.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MediaIdPathParam'
+          description: ID del archivo multimedia
+          example: 1
+      responses:
+        '200':
+          description: Archivo marcado como principal
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/MediaResponse'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/media/{id_media}:
+    delete:
+      operationId: deleteMedia
+      tags:
+        - Media
+      summary: Eliminar archivo multimedia
+      description: |
+        Elimina un archivo multimedia del sistema.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MediaIdPathParam'
+          description: ID del archivo multimedia
+          example: 1
+      responses:
+        '204':
+          description: Archivo eliminado exitosamente
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/progress:
+    post:
+      operationId: registerProgress
+      tags:
+        - Progress
+      summary: Registrar progreso físico del usuario
+      description: |
+        Registra el progreso físico del usuario incluyendo peso total levantado, repeticiones totales, sets totales y ejercicios realizados.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - date
+                - total_weight_lifted
+                - total_reps
+                - total_sets
+              properties:
+                date:
+                  type: string
+                  format: date
+                  description: Fecha del registro
+                  example: '2025-01-15'
+                total_weight_lifted:
+                  type: number
+                  format: float
+                  description: Peso total levantado en kg
+                  example: 5000
+                total_reps:
+                  type: integer
+                  description: Repeticiones totales
+                  example: 100
+                total_sets:
+                  type: integer
+                  description: Sets totales
+                  example: 20
+                notes:
+                  type: string
+                  description: Notas adicionales
+                  example: Great workout session
+                exercises:
+                  type: array
+                  description: Lista de ejercicios realizados
+                  items:
+                    type: object
+                    required:
+                      - id_exercise
+                      - used_weight
+                      - reps
+                    properties:
+                      id_exercise:
+                        type: integer
+                        description: ID del ejercicio
+                        example: 5
+                      used_weight:
+                        type: number
+                        format: float
+                        description: Peso utilizado en kg
+                        example: 80
+                      reps:
+                        type: integer
+                        description: Número de repeticiones
+                        example: 10
+                      sets:
+                        type: integer
+                        description: Número de sets
+                        example: 3
+                        default: 1
+      responses:
+        '201':
+          description: Progreso registrado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Progreso registrado con éxito
+                  data:
+                    $ref: '#/components/schemas/ProgressResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/progress/me:
+    get:
+      operationId: getUserProgress
+      tags:
+        - Progress
+      summary: Obtener historial de progreso del usuario
+      description: |
+        Obtiene todo el historial de progreso físico del usuario autenticado con opciones de paginación y filtrado.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          description: Número máximo de registros a retornar
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Número de registros a saltar
+        - name: include_exercises
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Incluir detalles de ejercicios
+      responses:
+        '200':
+          description: Historial de progreso obtenido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProgressResponse'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/progress/me/estadistica:
+    get:
+      operationId: getWeightStats
+      tags:
+        - Progress
+      summary: Obtener estadísticas de peso levantado
+      description: |
+        Obtiene estadísticas de peso total levantado del usuario en un rango de fechas opcional.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Fecha de inicio del rango
+          example: '2025-01-01'
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Fecha de fin del rango
+          example: '2025-01-31'
+      responses:
+        '200':
+          description: Estadísticas obtenidas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        total_weight_lifted:
+                          type: number
+                        total_reps:
+                          type: integer
+                        total_sets:
+                          type: integer
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/progress/me/ejercicios:
+    get:
+      operationId: getExerciseHistory
+      tags:
+        - Progress
+      summary: Obtener historial completo de ejercicios
+      description: |
+        Obtiene el historial completo de todos los ejercicios realizados por el usuario autenticado.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 100
+          description: Número máximo de registros
+      responses:
+        '200':
+          description: Historial de ejercicios obtenido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        exercise_name:
+                          type: string
+                        muscular_group:
+                          type: string
+                        used_weight:
+                          type: number
+                        reps:
+                          type: integer
+                        sets:
+                          type: integer
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/progress/me/ejercicios/{id_exercise}:
+    get:
+      operationId: getExerciseHistoryByExercise
+      tags:
+        - Progress
+      summary: Obtener historial de un ejercicio específico
+      description: |
+        Obtiene el historial de un ejercicio específico del usuario autenticado.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ExerciseIdPathParam'
+          description: ID del ejercicio
+          example: 5
+      responses:
+        '200':
+          description: Historial del ejercicio obtenido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        used_weight:
+                          type: number
+                        reps:
+                          type: integer
+                        sets:
+                          type: integer
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/progress/me/ejercicios/{id_exercise}/mejor:
+    get:
+      operationId: getPersonalRecord
+      tags:
+        - Progress
+      summary: Obtener récord personal de un ejercicio
+      description: |
+        Obtiene el mejor levantamiento (peso máximo) del usuario para un ejercicio específico.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ExerciseIdPathParam'
+          description: ID del ejercicio
+          example: 5
+      responses:
+        '200':
+          description: Récord personal obtenido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      date:
+                        type: string
+                        format: date
+                      used_weight:
+                        type: number
+                      reps:
+                        type: integer
+                      sets:
+                        type: integer
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/progress/me/ejercicios/{id_exercise}/promedio:
+    get:
+      operationId: getExerciseAverages
+      tags:
+        - Progress
+      summary: Obtener promedios de un ejercicio
+      description: |
+        Obtiene los promedios de peso, repeticiones y sets para un ejercicio específico del usuario.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ExerciseIdPathParam'
+          description: ID del ejercicio
+          example: 5
+      responses:
+        '200':
+          description: Promedios obtenidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      average_weight:
+                        type: number
+                        description: Peso promedio
+                      average_reps:
+                        type: number
+                        description: Repeticiones promedio
+                      average_sets:
+                        type: number
+                        description: Sets promedio
+                      total_records:
+                        type: integer
+                        description: Total de registros
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/rewards:
+    get:
+      operationId: listRewards
+      tags:
+        - Rewards
+      summary: Listar todas las recompensas
+      description: Obtiene la lista de todas las recompensas disponibles
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AvailableQueryParam'
+          description: Filtrar solo recompensas disponibles
+      responses:
+        '200':
+          description: Lista de recompensas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RewardResponse'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: createReward
+      tags:
+        - Rewards
+      summary: Crear una nueva recompensa
+      description: Crea una nueva recompensa en el sistema (admin)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRewardRequest'
+      responses:
+        '201':
+          description: Recompensa creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RewardResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/rewards/{id}:
+    get:
+      operationId: getRewardById
+      tags:
+        - Rewards
+      summary: Obtener una recompensa por ID
+      description: Obtiene los detalles de una recompensa específica
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+          description: ID de la recompensa
+      responses:
+        '200':
+          description: Detalles de la recompensa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RewardResponse'
+        '404':
+          description: Recompensa no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: updateReward
+      tags:
+        - Rewards
+      summary: Actualizar una recompensa
+      description: Actualiza los datos de una recompensa existente (admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+          description: ID de la recompensa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRewardRequest'
+      responses:
+        '200':
+          description: Recompensa actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RewardResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Recompensa no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: deleteReward
+      tags:
+        - Rewards
+      summary: Eliminar una recompensa
+      description: Elimina lógicamente una recompensa (soft delete)
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+          description: ID de la recompensa
+      responses:
+        '204':
+          description: Recompensa eliminada exitosamente
+        '404':
+          description: Recompensa no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/routines/me:
+    get:
+      operationId: getMyRoutines
+      tags:
+        - Routines
+      summary: Obtener mis rutinas
+      description: Lista las rutinas del usuario autenticado
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Lista de rutinas del usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Routine'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/routines/templates:
+    get:
+      operationId: listRoutineTemplates
+      tags:
+        - Routines
+      summary: Listar plantillas de rutinas
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Lista paginada de templates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRoutinesResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/routines/{id}:
+    get:
+      operationId: getRoutineById
+      tags:
+        - Routines
+      summary: Obtener rutina por ID
+      description: Obtiene rutina con ejercicios y días
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      responses:
+        '200':
+          description: Rutina encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RoutineWithDetails'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: updateRoutine
+      tags:
+        - Routines
+      summary: Actualizar rutina
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoutineRequest'
+      responses:
+        '200':
+          description: Rutina actualizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Routine'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteRoutine
+      tags:
+        - Routines
+      summary: Eliminar rutina
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      responses:
+        '204':
+          description: Rutina eliminada
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/routines/{id}/exercises:
+    post:
+      operationId: addExerciseToRoutine
+      tags:
+        - Routines
+      summary: Agregar ejercicio a rutina
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddExerciseToRoutineRequest'
+      responses:
+        '201':
+          description: Ejercicio agregado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RoutineExercise'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/routines/{id}/exercises/{id_exercise}:
+    put:
+      operationId: updateRoutineExercise
+      tags:
+        - Routines
+      summary: Actualizar ejercicio en rutina
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+        - $ref: '#/components/parameters/ExerciseIdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoutineExerciseRequest'
+      responses:
+        '200':
+          description: Ejercicio actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RoutineExercise'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteRoutineExercise
+      tags:
+        - Routines
+      summary: Eliminar ejercicio de rutina
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+        - $ref: '#/components/parameters/ExerciseIdPathParam'
+      responses:
+        '204':
+          description: Ejercicio eliminado de rutina
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/routines/{id}/days:
+    get:
+      operationId: listRoutineDays
+      tags:
+        - Routines
+      summary: Listar días de rutina
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      responses:
+        '200':
+          description: Lista de días
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RoutineDay'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: createRoutineDay
+      tags:
+        - Routines
+      summary: Crear día de rutina
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoutineDayRequest'
+      responses:
+        '201':
+          description: Día creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RoutineDay'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/routines/days/{id_routine_day}:
+    put:
+      operationId: updateRoutineDay
+      tags:
+        - Routines
+      summary: Actualizar día de rutina
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RoutineDayIdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoutineDayRequest'
+      responses:
+        '200':
+          description: Día actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RoutineDay'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteRoutineDay
+      tags:
+        - Routines
+      summary: Eliminar día de rutina
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/RoutineDayIdPathParam'
+      responses:
+        '204':
+          description: Día eliminado
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/streak/me:
+    get:
+      operationId: getUserStreak
+      tags:
+        - Streaks
+      summary: Obtener racha actual del usuario
+      description: Retorna la racha de asistencias del usuario autenticado con estadísticas.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Racha del usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreakResponse'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Racha no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/streak/use-recovery:
+    post:
+      operationId: useRecoveryItem
+      tags:
+        - Streaks
+      summary: Usar item de recuperación
+      description: Consume un item de recuperación para mantener la racha activa.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Item usado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Item de recuperación usado exitosamente
+                  recovery_items_remaining:
+                    type: integer
+                    example: 2
+                  streak_value:
+                    type: integer
+                    example: 15
+        '400':
+          description: Sin items disponibles o error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/streak/stats:
+    get:
+      operationId: getStreakStats
+      tags:
+        - Streaks
+      summary: Estadísticas globales de rachas (Admin)
+      description: Retorna estadísticas del sistema de rachas.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Estadísticas obtenidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreakStatsResponse'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Requiere permisos de administrador
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/streak/{id_user_profile}/reset:
+    put:
+      operationId: resetUserStreak
+      tags:
+        - Streaks
+      summary: Resetear racha de usuario (Admin)
+      description: Reinicia la racha de un usuario a cero.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id_user_profile
+          in: path
+          required: true
+          description: ID del perfil de usuario
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Racha reseteada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Racha reseteada exitosamente
+                  racha:
+                    $ref: '#/components/schemas/StreakResponse'
+        '400':
+          description: Error al resetear
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Requiere permisos de administrador
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/streak/{id_user_profile}/grant-recovery:
+    post:
+      operationId: grantRecoveryItems
+      tags:
+        - Streaks
+      summary: Otorgar items de recuperación (Admin)
+      description: Añade items de recuperación a la racha de un usuario.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id_user_profile
+          in: path
+          required: true
+          description: ID del perfil de usuario
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cantidad
+              properties:
+                cantidad:
+                  type: integer
+                  description: Cantidad de items a otorgar
+                  example: 3
+                  minimum: 1
+      responses:
+        '200':
+          description: Items otorgados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Se otorgaron 3 item(s) de recuperación
+                  racha:
+                    $ref: '#/components/schemas/StreakResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Requiere permisos de administrador
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/user-routines/assign:
+    post:
+      operationId: assignRoutineToUser
+      tags:
+        - User Routines
+      summary: Asignar rutina a usuario
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignRoutineRequest'
+      responses:
+        '201':
+          description: Rutina asignada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/UserRoutine'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/user-routines/active:
+    get:
+      operationId: getActiveRoutine
+      tags:
+        - User Routines
+      summary: Obtener rutina activa
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Rutina activa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserRoutine'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/user-routines/active/details:
+    get:
+      operationId: getActiveRoutineWithExercises
+      tags:
+        - User Routines
+      summary: Obtener rutina activa con ejercicios
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Rutina activa con ejercicios
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RoutineWithDetails'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/user-routines/me:
+    get:
+      operationId: listMyUserRoutines
+      tags:
+        - User Routines
+      summary: Listar mis rutinas asignadas
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: active
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Lista de rutinas del usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserRoutine'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/user-routines/counts:
+    get:
+      operationId: getUserRoutineCounts
+      tags:
+        - User Routines
+      summary: Obtener contadores de rutinas
+      description: Retorna total, importadas y creadas
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Contadores de rutinas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserRoutineCounts'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/user-routines/end:
+    post:
+      operationId: endUserRoutine
+      tags:
+        - User Routines
+      summary: Finalizar rutina activa
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Rutina finalizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/UserRoutine'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/user-routines/import:
+    post:
+      operationId: importRoutineTemplate
+      tags:
+        - User Routines
+      summary: Importar plantilla de rutina
+      description: Crea una copia de una rutina template para el usuario
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportRoutineRequest'
+      responses:
+        '201':
+          description: Rutina importada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Routine'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/user-routines/{id}:
+    get:
+      operationId: getUserRoutineById
+      tags:
+        - User Routines
+      summary: Obtener rutina de usuario por ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      responses:
+        '200':
+          description: Rutina de usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserRoutine'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/user-routines/{id}/deactivate:
+    put:
+      operationId: deactivateUserRoutine
+      tags:
+        - User Routines
+      summary: Desactivar rutina de usuario
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      responses:
+        '200':
+          description: Rutina desactivada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/UserRoutine'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/users/me:
+    get:
+      operationId: getUserProfile
+      tags:
+        - Users
+      summary: Obtener perfil del usuario actual
+      description: |
+        Devuelve la información completa del perfil del usuario autenticado.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Perfil del usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: updateUserProfile
+      tags:
+        - Users
+      summary: Actualizar perfil del usuario actual
+      description: |
+        Actualiza los datos del perfil del usuario autenticado. Solo se actualizan los campos proporcionados en el request body.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserProfileRequest'
+      responses:
+        '200':
+          description: Perfil actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: requestAccountDeletion
+      tags:
+        - Users
+      summary: Solicitar eliminación de cuenta
+      description: |
+        Inicia el proceso de eliminación de cuenta con período de gracia. La cuenta no se eliminará inmediatamente sino después del período configurado.
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestAccountDeletionRequest'
+      responses:
+        '200':
+          description: Solicitud de eliminación registrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDeletionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/users/me/email:
+    put:
+      operationId: updateUserEmail
+      tags:
+        - Users
+      summary: Actualizar email del usuario
+      description: |
+        Actualiza el email del usuario autenticado. Requiere verificación posterior.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEmailRequest'
+      responses:
+        '200':
+          description: Email actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailUpdateResponse'
+        '400':
+          description: Email inválido o ya en uso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/users/me/deletion-request:
+    get:
+      operationId: getAccountDeletionStatus
+      tags:
+        - Users
+      summary: Obtener estado de solicitud de eliminación
+      description: |
+        Consulta el estado de una solicitud de eliminación de cuenta pendiente.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Estado de la solicitud
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDeletionStatusResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      operationId: cancelAccountDeletion
+      tags:
+        - Users
+      summary: Cancelar solicitud de eliminación
+      description: |
+        Cancela una solicitud de eliminación de cuenta pendiente.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Solicitud cancelada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDeletionResponse'
+        '400':
+          description: No hay solicitud pendiente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/users/me/notification-settings:
+    get:
+      operationId: getNotificationSettings
+      tags:
+        - Users
+      summary: Obtener configuración de notificaciones
+      description: |
+        Devuelve las preferencias de notificaciones del usuario autenticado.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Configuración de notificaciones
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSettingsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      operationId: updateNotificationSettings
+      tags:
+        - Users
+      summary: Actualizar configuración de notificaciones
+      description: |
+        Actualiza las preferencias de notificaciones del usuario autenticado.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateNotificationSettingsRequest'
+      responses:
+        '200':
+          description: Configuración actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSettingsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/users/{userId}:
+    get:
+      operationId: getUserById
+      tags:
+        - Users
+      summary: Obtener perfil de usuario por ID (admin)
+      description: |
+        Devuelve la información del perfil de un usuario específico. Solo para administradores.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: ID del perfil de usuario
+      responses:
+        '200':
+          description: Perfil del usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/users/{userId}/tokens:
+    post:
+      operationId: updateUserTokens
+      tags:
+        - Users
+      summary: Actualizar tokens de un usuario (admin)
+      description: |
+        Incrementa o decrementa el balance de tokens de un usuario. Solo para administradores.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: ID del perfil de usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTokensRequest'
+      responses:
+        '200':
+          description: Tokens actualizados exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokensUpdateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/users/{userId}/subscription:
+    put:
+      operationId: updateUserSubscription
+      tags:
+        - Users
+      summary: Actualizar suscripción de un usuario (admin)
+      description: |
+        Cambia el nivel de suscripción de un usuario. Solo para administradores.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: ID del perfil de usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSubscriptionRequest'
+      responses:
+        '200':
+          description: Suscripción actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/workouts/sessions:
+    post:
+      operationId: startWorkoutSession
+      tags:
+        - Workouts
+      summary: Iniciar sesión de entrenamiento
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartWorkoutSessionRequest'
+      responses:
+        '201':
+          description: Sesión iniciada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/WorkoutSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Ya existe una sesión activa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/workouts/sessions/active:
+    get:
+      operationId: getActiveWorkoutSession
+      tags:
+        - Workouts
+      summary: Obtener sesión activa
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Sesión activa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WorkoutSession'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/workouts/sessions/me:
+    get:
+      operationId: listMyWorkoutSessions
+      tags:
+        - Workouts
+      summary: Listar mis sesiones de entrenamiento
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - IN_PROGRESS
+              - COMPLETED
+              - CANCELLED
+      responses:
+        '200':
+          description: Lista de sesiones
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkoutSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/workouts/stats:
+    get:
+      operationId: getWorkoutStats
+      tags:
+        - Workouts
+      summary: Obtener estadísticas de workout
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Estadísticas de workout
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WorkoutStats'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/workouts/sessions/{id}:
+    get:
+      operationId: getWorkoutSession
+      tags:
+        - Workouts
+      summary: Obtener sesión por ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      responses:
+        '200':
+          description: Sesión encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WorkoutSession'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      operationId: updateWorkoutSession
+      tags:
+        - Workouts
+      summary: Actualizar sesión (notas)
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkoutSessionRequest'
+      responses:
+        '200':
+          description: Sesión actualizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/WorkoutSession'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/workouts/sessions/{id}/complete:
+    put:
+      operationId: completeWorkoutSession
+      tags:
+        - Workouts
+      summary: Completar sesión
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompleteWorkoutSessionRequest'
+      responses:
+        '200':
+          description: Sesión completada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/WorkoutSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/workouts/sessions/{id}/cancel:
+    put:
+      operationId: cancelWorkoutSession
+      tags:
+        - Workouts
+      summary: Cancelar sesión
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      responses:
+        '200':
+          description: Sesión cancelada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/WorkoutSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/workouts/sessions/{id}/sets:
+    get:
+      operationId: listWorkoutSets
+      tags:
+        - Workouts
+      summary: Listar sets de una sesión
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+        - name: id_exercise
+          in: query
+          schema:
+            type: integer
+          description: Filtrar por ejercicio
+      responses:
+        '200':
+          description: Lista de sets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkoutSet'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    post:
+      operationId: registerWorkoutSet
+      tags:
+        - Workouts
+      summary: Registrar un set
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterWorkoutSetRequest'
+      responses:
+        '201':
+          description: Set registrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/WorkoutSet'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/workouts/sets/{id}:
+    put:
+      operationId: updateWorkoutSet
+      tags:
+        - Workouts
+      summary: Actualizar un set
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkoutSetRequest'
+      responses:
+        '200':
+          description: Set actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/WorkoutSet'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: deleteWorkoutSet
+      tags:
+        - Workouts
+      summary: Eliminar un set
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPathParam'
+      responses:
+        '204':
+          description: Set eliminado
+        '404':
+          $ref: '#/components/responses/NotFound'
+security:
+  - bearerAuth: []

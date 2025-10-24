@@ -1,0 +1,35 @@
+components:
+  schemas:
+    FrequencyResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        id_frequency:
+          type: integer
+        id_user_profile:
+          type: integer
+        goal:
+          type: integer
+          description: Meta semanal de asistencias
+        assist:
+          type: integer
+          description: Asistencias realizadas en la semana actual
+        achieved_goal:
+          type: boolean
+          description: Si alcanzó la meta esta semana
+        week_start_date:
+          type: string
+          format: date
+          description: Fecha de inicio de semana ISO (Lunes)
+        week_number:
+          type: integer
+          description: Número de semana ISO
+        year:
+          type: integer
+          description: Año de la semana
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time

@@ -76,6 +76,30 @@ const listDefinitions = async (req, res, next) => {
   }
 };
 
+const getDefinitionById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const definitionId = Number(id);
+    if (Number.isNaN(definitionId)) {
+      throw new ValidationError('ID inválido');
+    }
+    const definition = await achievementService.getDefinitionById(definitionId);
+    if (!definition) {
+      return res.status(404).json({
+        error: {
+          code: 'ACHIEVEMENT_NOT_FOUND',
+          message: 'Logro no encontrado'
+        }
+      });
+    }
+    res.json({
+      data: definition
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const createDefinition = async (req, res, next) => {
   try {
     const definition = await achievementService.createDefinition(req.body);

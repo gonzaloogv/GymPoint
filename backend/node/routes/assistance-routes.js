@@ -230,6 +230,62 @@ router.put('/:id/checkout', verificarToken, verificarUsuarioApp, controller.chec
  */
 router.get('/me', verificarToken, verificarUsuarioApp, controller.obtenerHistorialAsistencias);
 
-// Podés agregar otros endpoints como historial más adelante
+/**
+ * @swagger
+ * /api/assistances/presence:
+ *   post:
+ *     summary: Registrar presencia del usuario en el rango geofence (PREMIUM)
+ *     tags: [Asistencias]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [id_gym, latitude, longitude]
+ *             properties:
+ *               id_gym:
+ *                 type: integer
+ *               latitude:
+ *                 type: number
+ *               longitude:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Presencia actualizada
+ *       403:
+ *         description: Función exclusiva premium
+ */
+router.post('/presence', verificarToken, verificarUsuarioApp, controller.registrarPresencia);
+
+/**
+ * @swagger
+ * /api/assistances/verify-auto-checkin:
+ *   post:
+ *     summary: Verificar y registrar auto check-in si cumplió permanencia mínima (PREMIUM)
+ *     tags: [Asistencias]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [id_gym]
+ *             properties:
+ *               id_gym:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Auto check-in completado
+ *       400:
+ *         description: No cumple permanencia mínima
+ *       403:
+ *         description: Función exclusiva premium
+ */
+router.post('/verify-auto-checkin', verificarToken, verificarUsuarioApp, controller.verificarAutoCheckIn);
 
 module.exports = router;

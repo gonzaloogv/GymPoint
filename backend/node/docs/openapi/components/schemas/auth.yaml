@@ -1,0 +1,201 @@
+components:
+  schemas:
+    AuthSuccessResponse:
+      type: object
+      required:
+        - tokens
+        - user
+      properties:
+        tokens:
+          $ref: '#/components/schemas/AuthTokenPair'
+        user:
+          $ref: '#/components/schemas/AuthUser'
+    AuthTokenPair:
+      type: object
+      required:
+        - accessToken
+        - refreshToken
+      additionalProperties: false
+      properties:
+        accessToken:
+          type: string
+          description: JWT con vigencia corta (15 minutos).
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refreshToken:
+          type: string
+          description: Token de renovación con vigencia de 30 días.
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    AuthUser:
+      type: object
+      required:
+        - id_account
+        - email
+        - email_verified
+        - roles
+        - profile
+      additionalProperties: false
+      properties:
+        id_account:
+          type: integer
+        email:
+          type: string
+          format: email
+        email_verified:
+          type: boolean
+        roles:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            example: USER
+        profile:
+          $ref: 'users.yaml#/components/schemas/UserProfileSummary'
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - email
+        - password
+        - name
+        - lastname
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 64
+        name:
+          type: string
+          minLength: 2
+          maxLength: 80
+        lastname:
+          type: string
+          minLength: 2
+          maxLength: 80
+        gender:
+          allOf:
+            - $ref: '../common.yaml#/components/schemas/Gender'
+          default: O
+        locality:
+          type: string
+          maxLength: 120
+        birth_date:
+          type:
+            - string
+            - 'null'
+          format: date
+        frequency_goal:
+          type: integer
+          minimum: 1
+          maximum: 14
+          default: 3
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 64
+    GoogleLoginRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - idToken
+      properties:
+        idToken:
+          type: string
+          description: ID token emitido por Google Sign-In.
+    RefreshTokenRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: Token de renovación vigente.
+    RefreshTokenResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - accessToken
+      properties:
+        accessToken:
+          type: string
+          description: Nuevo JWT de acceso.
+    LogoutRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: Refresh token a revocar.
+    UpdateTokensRequest:
+      type: object
+      required:
+        - delta
+      additionalProperties: false
+      properties:
+        delta:
+          type: integer
+          description: Cantidad a incrementar (positivo) o decrementar (negativo)
+          example: 50
+        reason:
+          type: string
+          maxLength: 255
+          description: Razón del ajuste de tokens
+          example: Recompensa por evento especial
+    TokensUpdateResponse:
+      type: object
+      required:
+        - id_user_profile
+        - new_balance
+        - delta
+      additionalProperties: false
+      properties:
+        id_user_profile:
+          type: integer
+          description: ID del perfil de usuario
+        new_balance:
+          type: integer
+          minimum: 0
+          description: Nuevo balance de tokens
+          example: 200
+        delta:
+          type: integer
+          description: Cantidad ajustada
+          example: 50
+    RegisterWorkoutSetRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        id_exercise:
+          type: integer
+        weight:
+          type: number
+        reps:
+          type: integer
+        rpe:
+          type: integer
+        rest_seconds:
+          type: integer
+        is_warmup:
+          type: boolean
+        notes:
+          type: string
+        performed_at:
+          type: string
+          format: date-time
+      required:
+        - id_exercise

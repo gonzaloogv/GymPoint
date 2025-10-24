@@ -1,44 +1,75 @@
+/**
+ * Controller para Assistance (CQRS refactored - Phase 4 Compliant)
+ * Usa Commands/Queries para comunicarse con el service
+ */
+
 const assistanceService = require('../services/assistance-service');
+const assistanceMappers = require('../services/mappers/assistance.mappers');
+const {
+  CreateAssistanceCommand,
+  CheckOutCommand,
+  RegisterPresenceCommand,
+  VerifyAutoCheckInCommand
+} = require('../services/commands/assistance.commands');
+const {
+  ListAssistancesQuery
+} = require('../services/queries/assistance.queries');
 
 /**
- * Registrar asistencia a un gimnasio
+ * Registrar asistencia a un gimnasio (check-in normal)
  * @route POST /api/assistances
  * @access Private (Usuario app)
  */
 const registrarAsistencia = async (req, res) => {
   try {
     const { id_gym, latitude, longitude, accuracy } = req.body;
-    const id_user_profile = req.user.id_user_profile; // Del middleware verificarToken
+    const id_user_profile = req.user.id_user_profile;
 
-    // Validación
+    // Validación básica
     if (id_gym == null || latitude == null || longitude == null) {
-      return res.status(400).json({ 
-        error: { 
-          code: 'MISSING_FIELDS', 
-          message: 'Faltan datos requeridos: id_gym, latitude, longitude' 
-        } 
+      return res.status(400).json({
+        error: {
+          code: 'MISSING_FIELDS',
+          message: 'Faltan datos requeridos: id_gym, latitude, longitude'
+        }
       });
     }
 
-    const resultado = await assistanceService.registrarAsistencia({
-      id_user: id_user_profile, // El service espera id_user
-      id_gym,
+    // Crear Command y llamar al service
+    const command = new CreateAssistanceCommand({
+      userProfileId: id_user_profile,
+      gymId: id_gym,
       latitude,
       longitude,
       accuracy
     });
+    const resultado = await assistanceService.registrarAsistencia(command);
+
+    // Transformar resultado a DTO usando mapper
+    const responseDTO = assistanceMappers.toCheckInResponseDTO(resultado);
 
     return res.status(201).json({
       message: 'Asistencia registrada con éxito',
-      data: resultado
+      data: responseDTO
     });
   } catch (err) {
     console.error('Error en registrarAsistencia:', err.message);
-    return res.status(400).json({ 
-      error: { 
-        code: 'ASSISTANCE_REGISTRATION_FAILED', 
-        message: err.message 
-      } 
+
+    // Manejar errores específicos
+    if (err.code === 'OUT_OF_RANGE' || err.code === 'GPS_INACCURATE') {
+      return res.status(400).json({
+        error: {
+          code: err.code,
+          message: err.message
+        }
+      });
+    }
+
+    return res.status(400).json({
+      error: {
+        code: err.code || 'ASSISTANCE_REGISTRATION_FAILED',
+        message: err.message
+      }
     });
   }
 };
@@ -51,18 +82,24 @@ const registrarAsistencia = async (req, res) => {
 const obtenerHistorialAsistencias = async (req, res) => {
   try {
     const id_user_profile = req.user.id_user_profile;
-    const historial = await assistanceService.obtenerHistorialAsistencias(id_user_profile);
-    
-    res.json({
-      message: 'Historial de asistencias obtenido con éxito',
-      data: historial
+
+    // Crear Query y obtener historial del service
+    const query = new ListAssistancesQuery({
+      userProfileId: id_user_profile,
+      includeGymDetails: true
     });
+    const historial = await assistanceService.obtenerHistorialAsistencias(query);
+
+    // Transformar a DTO usando mapper
+    const responseDTO = assistanceMappers.toAssistanceHistoryDTO(historial);
+
+    res.json(responseDTO);
   } catch (err) {
-    res.status(400).json({ 
-      error: { 
-        code: 'GET_ASSISTANCE_HISTORY_FAILED', 
-        message: err.message 
-      } 
+    res.status(400).json({
+      error: {
+        code: 'GET_ASSISTANCE_HISTORY_FAILED',
+        message: err.message
+      }
     });
   }
 };
@@ -86,23 +123,39 @@ const autoCheckIn = async (req, res) => {
       });
     }
 
-    const resultado = await assistanceService.autoCheckIn({
-      id_user: id_user_profile,
-      id_gym,
+    // Crear Command y llamar al service
+    const command = new CreateAssistanceCommand({
+      userProfileId: id_user_profile,
+      gymId: id_gym,
       latitude,
       longitude,
-      accuracy
+      accuracy,
+      autoCheckin: true
     });
+    const resultado = await assistanceService.autoCheckIn(command);
+
+    // Transformar resultado a DTO
+    const responseDTO = assistanceMappers.toCheckInResponseDTO(resultado);
 
     return res.status(201).json({
       message: 'Auto check-in registrado con éxito',
-      data: resultado
+      data: responseDTO
     });
   } catch (err) {
     console.error('Error en autoCheckIn:', err.message);
+
+    if (err.code === 'AUTO_CHECKIN_DISABLED' || err.code === 'OUT_OF_GEOFENCE_RANGE') {
+      return res.status(400).json({
+        error: {
+          code: err.code,
+          message: err.message
+        }
+      });
+    }
+
     return res.status(400).json({
       error: {
-        code: 'AUTO_CHECKIN_FAILED',
+        code: err.code || 'AUTO_CHECKIN_FAILED',
         message: err.message
       }
     });
@@ -118,20 +171,45 @@ const checkOut = async (req, res) => {
   try {
     const assistanceId = parseInt(req.params.id, 10);
     const id_user_profile = req.user.id_user_profile;
+
     if (!Number.isInteger(assistanceId)) {
-      return res.status(400).json({ error: { code: 'INVALID_ID', message: 'ID de asistencia inválido' } });
+      return res.status(400).json({
+        error: {
+          code: 'INVALID_ID',
+          message: 'ID de asistencia inválido'
+        }
+      });
     }
 
-    const result = await assistanceService.checkOut(assistanceId, id_user_profile);
+    // Crear Command y llamar al service
+    const command = new CheckOutCommand({
+      assistanceId,
+      userProfileId: id_user_profile
+    });
+    const result = await assistanceService.checkOut(command);
+
+    // Transformar resultado a DTO
+    const responseDTO = assistanceMappers.toCheckOutResponseDTO(result);
+
     return res.json({
       message: 'Check-out completado',
-      data: result
+      data: responseDTO
     });
   } catch (err) {
     console.error('Error en checkOut:', err.message);
+
+    if (err.code === 'FORBIDDEN' || err.code === 'CHECKIN_REQUIRED') {
+      return res.status(403).json({
+        error: {
+          code: err.code,
+          message: err.message
+        }
+      });
+    }
+
     return res.status(400).json({
       error: {
-        code: 'CHECKOUT_FAILED',
+        code: err.code || 'CHECKOUT_FAILED',
         message: err.message
       }
     });
@@ -142,7 +220,7 @@ const checkOut = async (req, res) => {
  * Registrar presencia del usuario en el rango geofence
  * @route POST /api/assistances/presence
  * @access Private (Usuario app)
- * 
+ *
  * Esta función se llama cada 30 segundos desde el frontend
  * para trackear la presencia del usuario en el gym.
  */
@@ -160,26 +238,26 @@ const registrarPresencia = async (req, res) => {
       });
     }
 
-    // Registrar o actualizar presencia
-    const resultado = await assistanceService.registrarPresencia({
-      id_user: id_user_profile,
-      id_gym,
+    // Crear Command y registrar o actualizar presencia
+    const command = new RegisterPresenceCommand({
+      userProfileId: id_user_profile,
+      gymId: id_gym,
       latitude,
-      longitude
+      longitude,
+      accuracy
     });
+    const resultado = await assistanceService.registrarPresencia(command);
+
+    // Transformar resultado a DTO
+    const responseDTO = assistanceMappers.toPresenceResponseDTO(resultado);
 
     return res.status(200).json({
       message: 'Presencia actualizada',
-      data: {
-        duracion_minutos: resultado.duracion_minutos,
-        min_stay_minutes: resultado.min_stay_minutes,
-        listo_para_checkin: resultado.listo_para_checkin,
-        progreso: `${resultado.duracion_minutos}/${resultado.min_stay_minutes} min`
-      }
+      data: responseDTO
     });
   } catch (err) {
     console.error('Error en registrarPresencia:', err.message);
-    
+
     // Error específico si no es premium
     if (err.code === 'PREMIUM_FEATURE_REQUIRED') {
       return res.status(403).json({
@@ -190,19 +268,28 @@ const registrarPresencia = async (req, res) => {
             feature: 'Auto Check-in',
             description: 'Registra tu asistencia automáticamente al permanecer 10 minutos en el gym',
             benefits: [
-              ' Check-in automático',
-              ' Sin olvidar registrar asistencia',
-              ' Tracking en tiempo real',
-              ' Notificaciones cuando estés listo'
+              '✓ Check-in automático',
+              '✓ Sin olvidar registrar asistencia',
+              '✓ Tracking en tiempo real',
+              '✓ Notificaciones cuando estés listo'
             ]
           }
         }
       });
     }
 
+    if (err.code === 'OUT_OF_GEOFENCE_RANGE') {
+      return res.status(400).json({
+        error: {
+          code: err.code,
+          message: err.message
+        }
+      });
+    }
+
     return res.status(400).json({
       error: {
-        code: 'PRESENCE_REGISTRATION_FAILED',
+        code: err.code || 'PRESENCE_REGISTRATION_FAILED',
         message: err.message
       }
     });
@@ -211,9 +298,9 @@ const registrarPresencia = async (req, res) => {
 
 /**
  * Verificar y registrar auto check-in si usuario cumplió permanencia mínima
- * @route POST /api/assistances/auto-checkin  
+ * @route POST /api/assistances/verify-auto-checkin
  * @access Private (Usuario app)
- * 
+ *
  * El frontend llama a esta función cuando detecta que
  * el usuario cumplió el tiempo mínimo de permanencia.
  */
@@ -231,24 +318,23 @@ const verificarAutoCheckIn = async (req, res) => {
       });
     }
 
-    // Verificar presencia y crear auto check-in
-    const resultado = await assistanceService.verificarAutoCheckIn({
-      id_user: id_user_profile,
-      id_gym
+    // Crear Command y verificar presencia para auto check-in
+    const command = new VerifyAutoCheckInCommand({
+      userProfileId: id_user_profile,
+      gymId: id_gym
     });
+    const resultado = await assistanceService.verificarAutoCheckIn(command);
+
+    // Transformar resultado a DTO
+    const responseDTO = assistanceMappers.toCheckInResponseDTO(resultado);
 
     return res.status(201).json({
       message: '¡Auto check-in completado! 🎉',
-      data: {
-        asistencia: resultado.asistencia,
-        duracion_minutos: resultado.duracion_minutos,
-        tokens_actuales: resultado.tokens_actuales,
-        racha_actual: resultado.racha_actual
-      }
+      data: responseDTO
     });
   } catch (err) {
     console.error('Error en verificarAutoCheckIn:', err.message);
-    
+
     // Error específico si no es premium
     if (err.code === 'PREMIUM_FEATURE_REQUIRED') {
       return res.status(403).json({
@@ -264,10 +350,10 @@ const verificarAutoCheckIn = async (req, res) => {
     }
 
     // Error específico si no cumple permanencia
-    if (err.code === 'MIN_STAY_NOT_MET') {
+    if (err.code === 'MIN_STAY_NOT_MET' || err.code === 'NO_ACTIVE_PRESENCE') {
       return res.status(400).json({
         error: {
-          code: 'MIN_STAY_NOT_MET',
+          code: err.code,
           message: err.message
         }
       });
@@ -275,7 +361,7 @@ const verificarAutoCheckIn = async (req, res) => {
 
     return res.status(400).json({
       error: {
-        code: 'AUTO_CHECKIN_VERIFICATION_FAILED',
+        code: err.code || 'AUTO_CHECKIN_VERIFICATION_FAILED',
         message: err.message
       }
     });

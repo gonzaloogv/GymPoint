@@ -233,7 +233,7 @@ WorkoutSession.js, WorkoutSet.js
 3) **Gyms & Catálogo**: `Gym, GymType, GymAmenity, GymGymType, GymGymAmenity, Media`  
 4) **Horarios/Reseñas/Pagos Gym**: `GymSchedule, GymSpecialSchedule, GymPayment, GymReview, ReviewHelpful, GymRatingStats`  
 5) **Rewards & Tokens**: `Reward, RewardCode, ClaimedReward, TokenLedger, RewardGymStatsDaily`  
-6) **Challenges & Streaks & Frecuencia**: `DailyChallenge, DailyChallengeTemplate, DailyChallengeSettings, UserDailyChallenge, Streak, Frequency, FrequencyHistory`  
+6) **Challenges & Streaks & Frecuencia**: `DailyChallenge, DailyChallengeTemplate, DailyChallengeSettings, UserDailyChallenge, Streak, Frequency, FrequencyHistory, Assistance`  
 7) **Routines & Workout**: `Exercise, Routine, RoutineDay, RoutineExercise, WorkoutSession, WorkoutSet, UserRoutine, UserImportedRoutine`  
 8) **Progress & Métricas & Achievements**: `Progress, ProgressExercise, UserBodyMetric, AchievementDefinition, UserAchievement, UserAchievementEvent`  
 9) **Pagos externos & Notifs & Fav/Afiliación**: `MercadoPagoPayment, Notification, UserFavoriteGym, UserGym`
