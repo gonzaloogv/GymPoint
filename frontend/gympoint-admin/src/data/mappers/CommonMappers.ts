@@ -148,6 +148,8 @@ export function mapExerciseResponseToExercise(dto: Exercise): any {
     instructions: dto.instructions ?? null,
     video_url: dto.video_url ?? null,
     created_by: dto.created_by ?? null,
+    created_at: dto.created_at ?? null,
+    updated_at: dto.updated_at ?? null
   };
 }
 

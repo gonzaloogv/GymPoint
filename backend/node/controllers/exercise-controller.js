@@ -13,11 +13,16 @@ const { NotFoundError } = require('../utils/errors');
  */
 const getAllExercises = async (req, res) => {
   try {
-    const query = exerciseMappers.toGetAllExercisesQuery(req.query);
-    const exercises = await exerciseService.getAllExercises(query);
+    const query = exerciseMappers.toListExercisesQuery(req.query);
+    const result = await exerciseService.listExercises(query);
 
+    // Mapear los items al formato correcto de response
     res.json({
-      data: exerciseMappers.toExercisesResponse(exercises)
+      items: exerciseMappers.toExercisesResponse(result.items),
+      page: result.page,
+      limit: result.limit,
+      total: result.total,
+      totalPages: result.totalPages
     });
   } catch (err) {
     res.status(400).json({

@@ -7,7 +7,7 @@ const Routine = sequelize.define('Routine', {
     autoIncrement: true,
     primaryKey: true
   },
-  name: {
+  routine_name: {
     type: DataTypes.STRING(100),
     allowNull: false,
     comment: 'Nombre de la rutina'

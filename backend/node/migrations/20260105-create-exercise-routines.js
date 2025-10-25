@@ -61,6 +61,11 @@ module.exports = {
           type: Sequelize.TEXT,
           allowNull: true
         },
+        instructions: {
+          type: Sequelize.TEXT,
+          allowNull: true,
+          comment: 'Instrucciones del ejercicio'
+        },
         video_url: {
           type: Sequelize.STRING(500),
           allowNull: true
@@ -116,7 +121,7 @@ module.exports = {
           primaryKey: true,
           autoIncrement: true
         },
-        name: {
+        routine_name: {
           type: Sequelize.STRING(100),
           allowNull: false
         },
@@ -252,13 +257,14 @@ module.exports = {
         },
         id_routine_day: {
           type: Sequelize.INTEGER,
-          allowNull: false,
+          allowNull: true,
           references: {
             model: 'routine_day',
             key: 'id_routine_day'
           },
-          onDelete: 'CASCADE',
-          onUpdate: 'CASCADE'
+          onDelete: 'SET NULL',
+          onUpdate: 'CASCADE',
+          comment: 'Día de la rutina (NULL para rutinas sin días específicos)'
         },
         id_exercise: {
           type: Sequelize.INTEGER,

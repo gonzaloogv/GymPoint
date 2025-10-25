@@ -45,6 +45,8 @@ export interface Exercise {
   instructions: string | null;
   video_url: string | null;
   created_by?: number | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 /**
@@ -82,11 +84,17 @@ export interface CreateRoutineTemplateDTO {
   description?: string;
   recommended_for: RoutineDifficulty;
   template_order?: number;
+  days?: {
+    day_number: number;
+    title?: string;
+    description?: string;
+  }[];
   exercises: {
     id_exercise: number;
     series: number;
     reps: number;
     order: number;
+    day_number?: number; // Opcional: día al que pertenece el ejercicio
   }[];
 }
 

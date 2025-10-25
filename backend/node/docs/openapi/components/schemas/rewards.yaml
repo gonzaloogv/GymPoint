@@ -4,7 +4,7 @@ components:
       type: object
       required:
         - id_reward
-        - name
+        - routine_name
         - description
         - token_cost
         - created_at

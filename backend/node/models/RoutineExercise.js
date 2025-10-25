@@ -9,14 +9,14 @@ const RoutineExercise = sequelize.define('RoutineExercise', {
   },
   id_routine_day: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     references: {
       model: 'routine_day',
       key: 'id_routine_day'
     },
-    onDelete: 'CASCADE',
+    onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
-    comment: 'Día de la rutina'
+    comment: 'Día de la rutina (NULL para rutinas sin días específicos)'
   },
   id_exercise: {
     type: DataTypes.INTEGER,

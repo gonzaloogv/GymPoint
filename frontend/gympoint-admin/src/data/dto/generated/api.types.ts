@@ -3273,7 +3273,7 @@ export interface components {
              * @description Tipo de recompensa
              * @example pase_gratis
              */
-            type?: string;
+            reward_type?: string;
             /**
              * @description Costo en tokens
              * @example 500
@@ -3316,7 +3316,7 @@ export interface components {
             name: string;
             description: string;
             /** @enum {string} */
-            type?: "descuento" | "pase_gratis" | "producto" | "servicio" | "merchandising" | "otro";
+            reward_type?: "descuento" | "pase_gratis" | "producto" | "servicio" | "merchandising" | "otro";
             token_cost: number;
             discount_percentage?: number;
             discount_amount?: number;
@@ -3334,7 +3334,7 @@ export interface components {
             name?: string;
             description?: string;
             /** @enum {string} */
-            type?: "descuento" | "pase_gratis" | "producto" | "servicio" | "merchandising" | "otro";
+            reward_type?: "descuento" | "pase_gratis" | "producto" | "servicio" | "merchandising" | "otro";
             token_cost?: number;
             discount_percentage?: number;
             discount_amount?: number;

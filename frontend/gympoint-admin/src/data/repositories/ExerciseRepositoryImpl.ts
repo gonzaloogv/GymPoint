@@ -10,8 +10,8 @@ import {
 
 export class ExerciseRepositoryImpl implements ExerciseRepository {
   async getAllExercises(): Promise<Exercise[]> {
-    const response = await apiClient.get<{ data: ExerciseDTO[] }>('/exercises');
-    return response.data.data.map(mapExerciseResponseToExercise);
+    const response = await apiClient.get<PaginatedExercisesResponse>('/exercises');
+    return response.data.items.map(mapExerciseResponseToExercise);
   }
 
   async getExerciseById(id: number): Promise<Exercise> {
