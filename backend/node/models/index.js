@@ -324,6 +324,32 @@ RoutineDay.belongsTo(Routine, {
   as: 'routine'
 });
 
+// Routine ←→ Exercise (many-to-many through RoutineExercise)
+Routine.belongsToMany(Exercise, {
+  through: RoutineExercise,
+  foreignKey: 'id_routine',
+  otherKey: 'id_exercise',
+  as: 'Exercises'
+});
+
+Exercise.belongsToMany(Routine, {
+  through: RoutineExercise,
+  foreignKey: 'id_exercise',
+  otherKey: 'id_routine',
+  as: 'routines'
+});
+
+// RoutineExercise direct associations
+Routine.hasMany(RoutineExercise, {
+  foreignKey: 'id_routine',
+  as: 'routineExercises'
+});
+
+RoutineExercise.belongsTo(Routine, {
+  foreignKey: 'id_routine',
+  as: 'routine'
+});
+
 RoutineDay.hasMany(RoutineExercise, {
   foreignKey: 'id_routine_day',
   as: 'routineExercises'
@@ -332,6 +358,11 @@ RoutineDay.hasMany(RoutineExercise, {
 RoutineExercise.belongsTo(RoutineDay, {
   foreignKey: 'id_routine_day',
   as: 'routineDay'
+});
+
+Exercise.hasMany(RoutineExercise, {
+  foreignKey: 'id_exercise',
+  as: 'routineExercises'
 });
 
 RoutineExercise.belongsTo(Exercise, {

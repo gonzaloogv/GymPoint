@@ -2,7 +2,6 @@
 import { useGyms, useCreateGym, useUpdateGym, useDeleteGym, useGymTypes } from '../hooks';
 import { Card, Loading, Button, GymsList } from '../components';
 import { GymForm } from '../components/ui/GymForm';
-import { GymCard } from '../components/ui/GymCard';
 import { GymScheduleManager } from '../components/ui/GymScheduleManager';
 import { GymSpecialScheduleManager } from '../components/ui/GymSpecialScheduleManager';
 import { CreateGymDTO, UpdateGymDTO, Gym } from '@/domain';
@@ -21,7 +20,7 @@ export const Gyms = () => {
   const [filterCity, setFilterCity] = useState('');
 
   const handleApiError = (error: any, context: string) => {
-    const errorMessage = error.response?.data?.error?.message || 'OcurriÃ³ un error inesperado';
+    const errorMessage = error.response?.data?.error?.message || 'Ocurrió un error inesperado';
     console.error(`Error en ${context}:`, error);
     alert(`Error en ${context}: ${errorMessage}`);
   };
@@ -38,7 +37,7 @@ export const Gyms = () => {
       setShowForm(false);
       setEditingGym(null);
     } catch (error) {
-      handleApiError(error, editingGym ? 'actualizaciÃ³n' : 'creaciÃ³n');
+      handleApiError(error, editingGym ? 'actualización' : 'creación');
     }
   };
 
@@ -53,7 +52,7 @@ export const Gyms = () => {
         await deleteGymMutation.mutateAsync(id);
         alert(' Gimnasio eliminado exitosamente');
       } catch (error) {
-        handleApiError(error, 'eliminacion');
+        handleApiError(error, 'eliminación');
       }
     }
   };
@@ -95,7 +94,7 @@ export const Gyms = () => {
   if (managingScheduleGym) {
     return (
       <div className="p-6">
-        <Button onClick={() => setManagingScheduleGym(null)} variant="secondary" className="mb-6">â† Volver</Button>
+        <Button onClick={() => setManagingScheduleGym(null)} variant="secondary" className="mb-6">Volver</Button>
         <GymScheduleManager id_gym={managingScheduleGym.id_gym} gymName={managingScheduleGym.name} />
       </div>
     );
@@ -104,7 +103,7 @@ export const Gyms = () => {
   if (managingSpecialScheduleGym) {
     return (
       <div className="p-6">
-        <Button onClick={() => setManagingSpecialScheduleGym(null)} variant="secondary" className="mb-6">â† Volver</Button>
+        <Button onClick={() => setManagingSpecialScheduleGym(null)} variant="secondary" className="mb-6">Volver</Button>
         <GymSpecialScheduleManager id_gym={managingSpecialScheduleGym.id_gym} gymName={managingSpecialScheduleGym.name} />
       </div>
     );
@@ -114,11 +113,11 @@ export const Gyms = () => {
     <div className="p-6 bg-bg dark:bg-bg-dark min-h-screen">
       <header className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-text dark:text-text-dark">GestiÃ³n de Gimnasios</h1>
+          <h1 className="text-2xl font-bold text-text dark:text-text-dark">Gestión de Gimnasios</h1>
           <p className="text-text-muted">{gyms?.length || 0} gimnasios registrados</p>
         </div>
         <Button onClick={() => { setEditingGym(null); setShowForm(!showForm); }} variant={showForm ? 'secondary' : 'primary'}>
-          {showForm ? 'âœ• Cancelar' : '+ Nuevo Gimnasio'}
+          {showForm ? 'Cancelar' : '+ Nuevo Gimnasio'}
         </Button>
       </header>
 

@@ -64,9 +64,9 @@ const importTemplate = async (userId, templateRoutineId) => {
     await RoutineExercise.create({
       id_routine: copy.id_routine,
       id_exercise: ex.id_exercise,
-      series: ex.series,
+      sets: ex.sets,
       reps: ex.reps,
-      order: ex.order,
+      exercise_order: ex.exercise_order,
       id_routine_day: ex.id_routine_day || null
     });
   }
@@ -87,10 +87,12 @@ const importTemplate = async (userId, templateRoutineId) => {
 module.exports = {
   getRecommendedRoutines,
   importTemplate,
-  // Admin: crear plantilla con ejercicios
-  async createTemplate({ routine_name, description, recommended_for, template_order = 0, exercises = [] }) {
+  // Admin: crear plantilla con ejercicios y días
+  async createTemplate({ routine_name, description, recommended_for, template_order = 0, days = [], exercises = [] }) {
     if (!routine_name) throw new Error('routine_name requerido');
     if (!Array.isArray(exercises) || exercises.length < 1) throw new Error('Debe incluir al menos 1 ejercicio');
+
+    const RoutineDay = require('../models/RoutineDay');
 
     return await sequelize.transaction(async (transaction) => {
       const routine = await Routine.create({
@@ -102,15 +104,40 @@ module.exports = {
         template_order: Number.isInteger(template_order) ? template_order : 0
       }, { transaction });
 
+      // Crear días si existen
+      const dayMap = new Map(); // day_number -> id_routine_day
+      if (Array.isArray(days) && days.length > 0) {
+        for (const day of days) {
+          if (typeof day.day_number !== 'number') {
+            throw new Error('Cada día debe especificar day_number');
+          }
+          const routineDay = await RoutineDay.create({
+            id_routine: routine.id_routine,
+            day_number: day.day_number,
+            day_name: day.title || `Día ${day.day_number}`,
+            description: day.description || null,
+            rest_day: false
+          }, { transaction });
+          dayMap.set(day.day_number, routineDay.id_routine_day);
+        }
+      }
+
+      // Crear ejercicios y vincularlos a días si corresponde
       for (const ex of exercises) {
         if (!ex || ex.id_exercise == null) throw new Error('Cada ejercicio debe incluir id_exercise');
+
+        let idRoutineDay = null;
+        if (ex.day_number && dayMap.has(ex.day_number)) {
+          idRoutineDay = dayMap.get(ex.day_number);
+        }
+
         await RoutineExercise.create({
           id_routine: routine.id_routine,
           id_exercise: ex.id_exercise,
-          series: ex.series ?? 3,
+          sets: ex.series ?? 3,
           reps: ex.reps ?? 10,
-          order: ex.order ?? 1,
-          id_routine_day: null
+          exercise_order: ex.order ?? 1,
+          id_routine_day: idRoutineDay
         }, { transaction });
       }
 
@@ -118,21 +145,102 @@ module.exports = {
     });
   },
 
-  // Admin: listar y actualizar metadatos
+  // Admin: listar plantillas con ejercicios
   async listTemplates({ difficulty, limit = 50, offset = 0 } = {}) {
     const where = { is_template: true };
     if (difficulty) where.recommended_for = difficulty;
-    return Routine.findAll({ where, order: [['template_order', 'ASC']], limit, offset });
+
+    const routines = await Routine.findAll({
+      where,
+      order: [['template_order', 'ASC']],
+      limit,
+      offset,
+      include: [{
+        model: Exercise,
+        as: 'Exercises',
+        through: {
+          attributes: ['sets', 'reps', 'exercise_order', 'id_routine_day']
+        },
+        attributes: ['id_exercise', 'exercise_name', 'muscular_group']
+      }]
+    });
+
+    // Transformar al formato esperado
+    return routines.map(routine => ({
+      ...routine.get({ plain: true }),
+      exercises: routine.Exercises?.map(ex => ({
+        id_exercise: ex.id_exercise,
+        exercise_name: ex.exercise_name,
+        muscular_group: ex.muscular_group,
+        series: ex.RoutineExercise?.sets,
+        reps: ex.RoutineExercise?.reps,
+        order: ex.RoutineExercise?.exercise_order,
+        id_routine_day: ex.RoutineExercise?.id_routine_day
+      })) || []
+    }));
   },
 
   async updateTemplateMeta(id, data = {}) {
     const routine = await Routine.findByPk(id);
     if (!routine || !routine.is_template) throw new Error('Plantilla no encontrada');
-    const fields = ['routine_name', 'description', 'recommended_for', 'template_order'];
-    const payload = {};
-    for (const f of fields) if (data[f] !== undefined) payload[f] = data[f];
-    await routine.update(payload);
-    return routine;
+
+    const RoutineDay = require('../models/RoutineDay');
+
+    return await sequelize.transaction(async (transaction) => {
+      // Actualizar metadatos básicos
+      const fields = ['routine_name', 'description', 'recommended_for', 'template_order'];
+      const payload = {};
+      for (const f of fields) if (data[f] !== undefined) payload[f] = data[f];
+      await routine.update(payload, { transaction });
+
+      // Si se envían días y ejercicios, actualizar todo
+      if (data.days !== undefined || data.exercises !== undefined) {
+        // Eliminar días y ejercicios existentes
+        await RoutineDay.destroy({ where: { id_routine: id }, transaction });
+        await RoutineExercise.destroy({ where: { id_routine: id }, transaction });
+
+        // Crear días nuevos
+        const dayMap = new Map();
+        if (Array.isArray(data.days) && data.days.length > 0) {
+          for (const day of data.days) {
+            if (typeof day.day_number !== 'number') {
+              throw new Error('Cada día debe especificar day_number');
+            }
+            const routineDay = await RoutineDay.create({
+              id_routine: id,
+              day_number: day.day_number,
+              day_name: day.title || `Día ${day.day_number}`,
+              description: day.description || null,
+              rest_day: false
+            }, { transaction });
+            dayMap.set(day.day_number, routineDay.id_routine_day);
+          }
+        }
+
+        // Crear ejercicios nuevos
+        if (Array.isArray(data.exercises) && data.exercises.length > 0) {
+          for (const ex of data.exercises) {
+            if (!ex || ex.id_exercise == null) throw new Error('Cada ejercicio debe incluir id_exercise');
+
+            let idRoutineDay = null;
+            if (ex.day_number && dayMap.has(ex.day_number)) {
+              idRoutineDay = dayMap.get(ex.day_number);
+            }
+
+            await RoutineExercise.create({
+              id_routine: id,
+              id_exercise: ex.id_exercise,
+              sets: ex.series ?? 3,
+              reps: ex.reps ?? 10,
+              exercise_order: ex.order ?? 1,
+              id_routine_day: idRoutineDay
+            }, { transaction });
+          }
+        }
+      }
+
+      return routine;
+    });
   },
 
   async deleteTemplate(id) {

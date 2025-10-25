@@ -255,6 +255,17 @@ module.exports = {
           primaryKey: true,
           autoIncrement: true
         },
+        id_routine: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'routine',
+            key: 'id_routine'
+          },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE',
+          comment: 'Rutina a la que pertenece el ejercicio'
+        },
         id_routine_day: {
           type: Sequelize.INTEGER,
           allowNull: true,
@@ -301,6 +312,10 @@ module.exports = {
         }
       }, { transaction });
 
+      await queryInterface.addIndex('routine_exercise', ['id_routine'], {
+        name: 'idx_routine_exercise_routine',
+        transaction
+      });
       await queryInterface.addIndex('routine_exercise', ['id_routine_day', 'exercise_order'], {
         name: 'idx_routine_exercise_day_order',
         transaction
@@ -309,7 +324,7 @@ module.exports = {
         name: 'idx_routine_exercise_exercise',
         transaction
       });
-      console.log(' Tabla "routine_exercise" creada con 2 índices\n');
+      console.log(' Tabla "routine_exercise" creada con 3 índices\n');
 
       // ========================================
       // TABLA: user_routine

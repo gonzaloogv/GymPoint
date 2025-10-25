@@ -3,8 +3,8 @@ const templateService = require('../services/template-service');
 // POST /api/admin/routines/templates
 const createTemplate = async (req, res) => {
   try {
-    const { routine_name, description, recommended_for, template_order, exercises } = req.body || {};
-    const routine = await templateService.createTemplate({ routine_name, description, recommended_for, template_order, exercises });
+    const { routine_name, description, recommended_for, template_order, days, exercises } = req.body || {};
+    const routine = await templateService.createTemplate({ routine_name, description, recommended_for, template_order, days, exercises });
     res.status(201).json({ id_routine: routine.id_routine, routine_name: routine.routine_name });
   } catch (err) {
     res.status(400).json({ error: { code: 'CREATE_TEMPLATE_FAILED', message: err.message } });

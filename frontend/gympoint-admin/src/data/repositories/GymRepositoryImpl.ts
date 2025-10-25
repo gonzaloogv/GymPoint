@@ -26,7 +26,7 @@ export class GymRepositoryImpl implements GymRepository {
    * Obtener un gimnasio por ID
    */
   async getGymById(id: number): Promise<Gym> {
-    const response = await apiClient.get<GymResponse>(`/api/gyms/${id}`);
+    const response = await apiClient.get<GymResponse>(`/gyms/${id}`);
     return mapGymResponseToGym(response.data);
   }
 
@@ -45,7 +45,7 @@ export class GymRepositoryImpl implements GymRepository {
   async updateGym(gym: UpdateGymDTO): Promise<Gym> {
     const { id_gym } = gym;
     const request = mapUpdateGymDTOToRequest(gym);
-    const response = await apiClient.put<GymResponse>(`/api/gyms/${id_gym}`, request);
+    const response = await apiClient.put<GymResponse>(`/gyms/${id_gym}`, request);
     return mapGymResponseToGym(response.data);
   }
 
@@ -53,7 +53,7 @@ export class GymRepositoryImpl implements GymRepository {
    * Eliminar un gimnasio (soft delete)
    */
   async deleteGym(id: number): Promise<void> {
-    await apiClient.delete(`/api/gyms/${id}`);
+    await apiClient.delete(`/gyms/${id}`);
   }
 
   /**

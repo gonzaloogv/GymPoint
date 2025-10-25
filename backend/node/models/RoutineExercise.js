@@ -7,6 +7,17 @@ const RoutineExercise = sequelize.define('RoutineExercise', {
     primaryKey: true,
     autoIncrement: true
   },
+  id_routine: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'routine',
+      key: 'id_routine'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+    comment: 'Rutina a la que pertenece el ejercicio'
+  },
   id_routine_day: {
     type: DataTypes.INTEGER,
     allowNull: true,
@@ -59,6 +70,10 @@ const RoutineExercise = sequelize.define('RoutineExercise', {
   tableName: 'routine_exercise',
   timestamps: false,
   indexes: [
+    {
+      fields: ['id_routine'],
+      name: 'idx_routine_exercise_routine'
+    },
     {
       fields: ['id_routine_day', 'exercise_order'],
       name: 'idx_routine_exercise_day_order'

@@ -40,22 +40,40 @@ export const RoutineTemplateList: React.FC<RoutineTemplateListProps> = ({
               </div>
             }
           >
-            <p className="text-sm text-text-muted mb-4 h-16 overflow-hidden">
-              {template.description || 'Sin descripción'}
-            </p>
-            <div className="flex justify-between items-center">
-              <Badge
-                variant={
-                  template.recommended_for === 'BEGINNER'
-                    ? 'active'
-                    : template.recommended_for === 'INTERMEDIATE'
-                    ? 'warning'
-                    : 'danger'
-                }
-              >
-                {template.recommended_for}
-              </Badge>
-              <span className="text-sm font-semibold">Orden: {template.template_order}</span>
+            <div className="space-y-3">
+              <p className="text-sm text-text-muted dark:text-text-muted-dark line-clamp-2 min-h-[2.5rem]">
+                {template.description || 'Sin descripción'}
+              </p>
+
+              {/* Stats */}
+              <div className="flex gap-3 text-sm">
+                <div className="flex items-center gap-1">
+                  <span className="font-semibold text-primary dark:text-primary-dark">
+                    {template.exercises?.length || 0}
+                  </span>
+                  <span className="text-text-muted dark:text-text-muted-dark">ejercicios</span>
+                </div>
+              </div>
+
+              {/* Difficulty and Order */}
+              <div className="flex justify-between items-center pt-2 border-t border-border dark:border-border-dark">
+                <Badge
+                  variant={
+                    template.recommended_for === 'BEGINNER'
+                      ? 'active'
+                      : template.recommended_for === 'INTERMEDIATE'
+                      ? 'warning'
+                      : 'danger'
+                  }
+                >
+                  {template.recommended_for === 'BEGINNER' ? '🟢 Principiante' :
+                   template.recommended_for === 'INTERMEDIATE' ? '🟡 Intermedio' :
+                   '🔴 Avanzado'}
+                </Badge>
+                <span className="text-sm font-semibold text-text-muted dark:text-text-muted-dark">
+                  Orden: {template.template_order}
+                </span>
+              </div>
             </div>
           </Card>
         ))}
