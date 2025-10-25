@@ -35,7 +35,27 @@ const Exercise = sequelize.define('Exercise', {
   difficulty_level: {
     type: DataTypes.ENUM('BEGINNER', 'INTERMEDIATE', 'ADVANCED'),
     allowNull: true,
-    comment: 'Nivel de dificultad'
+    comment: 'Nivel de dificultad',
+    field: 'difficulty_level' // Nombre de columna en BD
+  },
+  difficulty: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      const level = this.getDataValue('difficulty_level');
+      return level ? level.toLowerCase() : null;
+    },
+    set(value) {
+      if (value) {
+        this.setDataValue('difficulty_level', value.toUpperCase());
+      } else {
+        this.setDataValue('difficulty_level', null);
+      }
+    }
+  },
+  instructions: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: 'Instrucciones del ejercicio'
   },
   video_url: {
     type: DataTypes.STRING(500),

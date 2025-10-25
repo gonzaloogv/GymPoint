@@ -56,17 +56,17 @@ export const ExerciseForm = ({ exercise, onSubmit, onCancel, isSubmitting }: Exe
           <Input label="Nombre *" name="exercise_name" value={formData.exercise_name} onChange={handleInputChange} required />
           <Input label="Grupo Muscular" name="muscular_group" value={formData.muscular_group} onChange={handleInputChange} />
           <Input label="Equipamiento" name="equipment_needed" value={formData.equipment_needed} onChange={handleInputChange} />
-          <Select 
-            label="Dificultad" 
-            name="difficulty" 
-            value={formData.difficulty} 
-            onChange={handleInputChange} 
+          <Select
+            label="Dificultad"
+            name="difficulty"
+            value={formData.difficulty}
+            onChange={handleInputChange}
             options={[
               {value: '', label: 'Seleccionar'},
-              {value: 'Principiante', label: 'Principiante'},
-              {value: 'Intermedio', label: 'Intermedio'},
-              {value: 'Avanzado', label: 'Avanzado'}
-            ]} 
+              {value: 'beginner', label: 'Principiante'},
+              {value: 'intermediate', label: 'Intermedio'},
+              {value: 'advanced', label: 'Avanzado'}
+            ]}
           />
         </div>
         <Textarea label="Descripción" name="description" value={formData.description} onChange={handleInputChange} rows={2} />

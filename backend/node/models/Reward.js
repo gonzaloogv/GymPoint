@@ -97,7 +97,15 @@ const Reward = sequelize.define('Reward', {
       fields: ['deleted_at'],
       name: 'idx_reward_deleted'
     }
-  ]
+  ],
+  hooks: {
+    beforeSave: (reward) => {
+      // Normalizar reward_type a minúsculas
+      if (reward.reward_type) {
+        reward.reward_type = reward.reward_type.toLowerCase();
+      }
+    }
+  }
 });
 
 module.exports = Reward;

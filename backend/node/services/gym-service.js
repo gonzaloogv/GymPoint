@@ -408,9 +408,8 @@ const toggleFavorito = async (id_user_profile, id_gym) => {
 };
 
 const listarAmenidades = async (input = {}) => {
-  const query = ensureGetGymAmenitiesQuery(input);
-  const where = query.activeOnly ? { is_active: true } : undefined;
-  return gymAmenityRepository.findAll({ where });
+  // GymAmenity no tiene campo is_active, devolvemos todas
+  return gymAmenityRepository.findAll({});
 };
 
 module.exports = {

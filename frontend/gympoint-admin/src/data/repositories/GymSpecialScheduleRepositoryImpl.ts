@@ -21,7 +21,7 @@ export class GymSpecialScheduleRepositoryImpl implements GymSpecialScheduleRepos
    */
   async getSpecialSchedulesByGymId(id_gym: number): Promise<GymSpecialSchedule[]> {
     const response = await apiClient.get<GymSpecialScheduleResponse[]>(
-      `/api/gym-special-schedules/${id_gym}`
+      `/special-schedules/${id_gym}`
     );
     return response.data.map(mapGymSpecialScheduleResponseToGymSpecialSchedule);
   }
@@ -32,7 +32,7 @@ export class GymSpecialScheduleRepositoryImpl implements GymSpecialScheduleRepos
   async createSpecialSchedule(schedule: CreateGymSpecialScheduleDTO): Promise<GymSpecialSchedule> {
     const request = mapCreateGymSpecialScheduleDTOToRequest(schedule);
     const response = await apiClient.post<GymSpecialScheduleResponse>(
-      '/gym-special-schedules',
+      `/special-schedules`,
       request
     );
     return mapGymSpecialScheduleResponseToGymSpecialSchedule(response.data);
@@ -45,7 +45,7 @@ export class GymSpecialScheduleRepositoryImpl implements GymSpecialScheduleRepos
     const { id_special_schedule } = schedule;
     const request = mapUpdateGymSpecialScheduleDTOToRequest(schedule);
     const response = await apiClient.put<GymSpecialScheduleResponse>(
-      `/api/gym-special-schedules/${id_special_schedule}`,
+      `/special-schedules/${id_special_schedule}`,
       request
     );
     return mapGymSpecialScheduleResponseToGymSpecialSchedule(response.data);
@@ -64,6 +64,6 @@ export class GymSpecialScheduleRepositoryImpl implements GymSpecialScheduleRepos
       throw new Error('id_special_schedule es requerido para delete');
     }
 
-    await apiClient.delete(`/api/gym-special-schedules/${id}`);
+    await apiClient.delete(`/special-schedules/${id}`);
   }
 }

@@ -54,6 +54,11 @@ module.exports = {
           type: Sequelize.TEXT,
           allowNull: true
         },
+        reward_type: {
+          type: Sequelize.ENUM('descuento', 'pase_gratis', 'producto', 'servicio', 'merchandising', 'otro'),
+          allowNull: true,
+          comment: 'Tipo de recompensa: descuento, pase_gratis, producto, servicio, merchandising, otro'
+        },
         token_cost: {
           type: Sequelize.INTEGER,
           allowNull: false,
@@ -81,6 +86,16 @@ module.exports = {
         valid_until: {
           type: Sequelize.DATEONLY,
           allowNull: true
+        },
+        image_url: {
+          type: Sequelize.STRING(500),
+          allowNull: true,
+          comment: 'URL de la imagen de la recompensa'
+        },
+        terms: {
+          type: Sequelize.TEXT,
+          allowNull: true,
+          comment: 'Términos y condiciones de la recompensa'
         },
         is_active: {
           type: Sequelize.BOOLEAN,

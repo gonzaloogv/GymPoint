@@ -2,6 +2,7 @@ import React from 'react';
 import { Exercise } from '@/domain';
 import { Card, Input, Select, Button, Badge } from './ui';
 import { UseMutationResult } from '@tanstack/react-query';
+import { translateDifficulty } from '@/utils/translations';
 
 interface ExercisesListProps {
   exercises: Exercise[];
@@ -103,14 +104,14 @@ export const ExercisesList: React.FC<ExercisesListProps> = ({
                   <td className="px-4 py-3 border-b border-border dark:border-border-dark">
                     <Badge
                       variant={
-                        exercise.difficulty === 'Principiante'
+                        exercise.difficulty === 'beginner' || exercise.difficulty === 'BEGINNER'
                           ? 'active'
-                          : exercise.difficulty === 'Intermedio'
+                          : exercise.difficulty === 'intermediate' || exercise.difficulty === 'INTERMEDIATE'
                           ? 'warning'
                           : 'danger'
                       }
                     >
-                      {exercise.difficulty || 'N/A'}
+                      {translateDifficulty(exercise.difficulty)}
                     </Badge>
                   </td>
                   <td className="px-4 py-3 border-b border-border dark:border-border-dark text-sm text-text-muted max-w-xs truncate">

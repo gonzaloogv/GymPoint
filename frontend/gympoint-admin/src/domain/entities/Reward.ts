@@ -5,7 +5,7 @@ export interface Reward {
   id_reward: number;
   name: string;
   description: string;
-  type: string;
+  reward_type: string;
   cost_tokens: number;
   available: boolean;
   stock: number;
@@ -23,7 +23,7 @@ export interface Reward {
 export interface CreateRewardDTO {
   name: string;
   description: string;
-  type: string;
+  reward_type: string;
   cost_tokens: number;
   stock: number;
   start_date: string; // Format: YYYY-MM-DD

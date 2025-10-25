@@ -27,7 +27,7 @@ components:
           type: string
           description: Descripción detallada
           example: Acceso VIP durante 1 mes a todos los gimnasios
-        type:
+        reward_type:
           type:
             - string
             - 'null'
@@ -121,7 +121,7 @@ components:
         description:
           type: string
           minLength: 1
-        type:
+        reward_type:
           type: string
           enum:
             - descuento
@@ -167,7 +167,7 @@ components:
         description:
           type: string
           minLength: 1
-        type:
+        reward_type:
           type: string
           enum:
             - descuento

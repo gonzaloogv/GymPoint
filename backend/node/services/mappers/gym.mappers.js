@@ -315,12 +315,12 @@ function toGymTypeResponse(gymType) {
  */
 function toGymAmenityResponse(amenity) {
   return {
-    id_gym_amenity: amenity.id_gym_amenity,
+    id_amenity: amenity.id_amenity,
     name: amenity.name,
-    icon: amenity.icon || null,
-    is_active: amenity.is_active,
-    created_at: amenity.created_at.toISOString(),
-    updated_at: amenity.updated_at.toISOString(),
+    category: amenity.category || null,
+    icon_name: amenity.icon_name || null,
+    created_at: amenity.created_at ? amenity.created_at.toISOString() : null,
+    updated_at: amenity.updated_at ? amenity.updated_at.toISOString() : null,
   };
 }
 

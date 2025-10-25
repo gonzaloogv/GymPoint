@@ -78,7 +78,7 @@ export function mapRewardResponseToReward(dto: RewardResponse): Reward {
     id_reward: dto.id_reward,
     name: dto.name,
     description: dto.description,
-    type: dto.type as any,
+    reward_type: dto.reward_type as any,
     cost_tokens: dto.token_cost,
     available: dto.is_active ?? true,
     stock: dto.stock || 0,
@@ -95,13 +95,10 @@ export function mapRewardResponseToReward(dto: RewardResponse): Reward {
  * Convierte CreateRewardDTO (del dominio) a CreateRewardRequest (DTO del API)
  */
 export function mapCreateRewardDTOToRequest(domainDTO: DomainCreateRewardDTO): CreateRewardRequest {
-  console.log('[CommonMappers] Mapeando CreateRewardDTO:', domainDTO);
-  console.log('[CommonMappers] domainDTO.type:', domainDTO.type, 'typeof:', typeof domainDTO.type);
-
-  const request = {
+  return {
     name: domainDTO.name,
     description: domainDTO.description,
-    type: domainDTO.type as any,
+    reward_type: domainDTO.reward_type as any,
     token_cost: domainDTO.cost_tokens,
     stock: domainDTO.stock || 0,
     valid_from: domainDTO.start_date,
@@ -110,11 +107,6 @@ export function mapCreateRewardDTOToRequest(domainDTO: DomainCreateRewardDTO): C
     image_url: domainDTO.image_url || undefined,
     terms: domainDTO.terms || undefined,
   };
-
-  console.log('[CommonMappers] Request generado:', request);
-  console.log('[CommonMappers] request.type:', request.type, 'typeof:', typeof request.type);
-
-  return request;
 }
 
 /**
@@ -125,7 +117,7 @@ export function mapUpdateRewardDTOToRequest(domainDTO: DomainUpdateRewardDTO): U
 
   if (domainDTO.name !== undefined) request.name = domainDTO.name;
   if (domainDTO.description !== undefined) request.description = domainDTO.description;
-  if (domainDTO.type !== undefined) request.type = domainDTO.type as any;
+  if (domainDTO.reward_type !== undefined) request.reward_type = domainDTO.reward_type as any;
   if (domainDTO.cost_tokens !== undefined) request.token_cost = domainDTO.cost_tokens;
   if (domainDTO.stock !== undefined) request.stock = domainDTO.stock;
   if (domainDTO.start_date !== undefined) request.valid_from = domainDTO.start_date;

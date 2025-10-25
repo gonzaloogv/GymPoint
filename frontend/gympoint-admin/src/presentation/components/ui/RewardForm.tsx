@@ -13,7 +13,7 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
   const [formData, setFormData] = useState<CreateRewardDTO>({
     name: '',
     description: '',
-    type: 'descuento',
+    reward_type: 'descuento',
     cost_tokens: 50,
     stock: 100,
     start_date: '',
@@ -30,7 +30,7 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
       setFormData({
         name: reward.name,
         description: reward.description,
-        type: reward.type,
+        reward_type: reward.reward_type || 'descuento', // Usar 'descuento' por defecto si es null/undefined
         cost_tokens: reward.cost_tokens,
         stock: reward.stock,
         start_date: reward.start_date ? reward.start_date.split('T')[0] : '',
@@ -85,8 +85,6 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      console.log('[RewardForm] Enviando formData:', formData);
-      console.log('[RewardForm] formData.type:', formData.type, 'type:', typeof formData.type);
       onSubmit(formData);
     }
   };
@@ -111,8 +109,8 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
         />
         <Select
           label="📦 Tipo de Recompensa *"
-          name="type"
-          value={formData.type}
+          name="reward_type"
+          value={formData.reward_type}
           onChange={handleChange}
           disabled={isLoading}
           options={rewardTypeOptions}

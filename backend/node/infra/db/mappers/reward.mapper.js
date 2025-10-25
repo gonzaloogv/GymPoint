@@ -13,7 +13,7 @@ function toReward(model) {
     id_gym: model.id_gym,
     name: model.name,
     description: model.description,
-    type: model.type,
+    reward_type: model.reward_type,
     token_cost: model.token_cost,
     discount_percentage: model.discount_percentage,
     discount_amount: model.discount_amount,

@@ -1,5 +1,6 @@
 import { Reward } from '@/domain';
 import { Card, Button, Badge } from './index';
+import { translateRewardType } from '@/utils/translations';
 
 interface RewardCardProps {
   reward: Reward;
@@ -56,7 +57,7 @@ export const RewardCard = ({ reward, onEdit, onDelete, isDeleting }: RewardCardP
 
           <div className="flex flex-col">
             <span className="text-xs text-text-muted uppercase">🏷️ Tipo:</span>
-            <span className="font-semibold">{reward.type ? reward.type.replace(/_/g, ' ') : 'N/A'}</span>
+            <span className="font-semibold">{translateRewardType(reward.reward_type)}</span>
           </div>
 
           <div className="flex flex-col">
