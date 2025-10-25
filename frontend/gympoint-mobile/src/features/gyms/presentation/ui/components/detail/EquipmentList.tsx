@@ -1,43 +1,30 @@
-import styled from 'styled-components/native';
+import { View, Text } from 'react-native';
 import { Gym } from '@features/gyms/domain/entities/Gym';
-
-const Wrapper = styled.View`
-  padding: 16px;
-`;
-
-const Category = styled.View`
-  margin-bottom: 12px;
-`;
-
-const Row = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const CatTitle = styled.Text`
-  font-size: 15px;
-  font-weight: bold;
-`;
-
-const Item = styled.Text`
-  margin-left: 12px;
-  color: #555;
-`;
+import { useTheme } from '@shared/hooks';
 
 interface Props {
   equipment?: Gym['equipment'];
 }
 
 export const EquipmentList = ({ equipment }: Props) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  
   if (!equipment || equipment.length === 0) return null;
 
   return (
-    <Wrapper>
-      <CatTitle>Equipamiento</CatTitle>
+    <View className="px-4 py-4">
+      <Text className={isDark ? 'text-base font-bold mb-3 text-textPrimary-dark' : 'text-base font-bold mb-3 text-textPrimary'}>
+        Equipamiento
+      </Text>
       {equipment.map((item, index) => (
-        <Item key={index}>• {item}</Item>
+        <Text 
+          key={index} 
+          className={isDark ? 'ml-3 mb-1 text-textSecondary-dark' : 'ml-3 mb-1 text-textSecondary'}
+        >
+          • {item}
+        </Text>
       ))}
-    </Wrapper>
+    </View>
   );
 };

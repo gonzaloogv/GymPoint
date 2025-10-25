@@ -1,16 +1,6 @@
-import styled from 'styled-components/native';
-import { Row } from './Row';
+import { View, Text } from 'react-native';
+import { useTheme } from '@shared/hooks';
 import { ProgressFill, ProgressTrack } from './ProgressBar';
-
-const Body = styled.View`
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const Spread = styled(Row).attrs({ $justify: 'space-between' })``;
-
-const Subtext = styled.Text`
-  color: ${({ theme }) => theme.colors.subtext};
-`;
 
 type Props = {
   current: number;
@@ -27,18 +17,24 @@ export function ProgressSection({
   label = 'Meta semanal',
   description,
 }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const displayDescription = description || `${current} de ${goal} entrenamientos`;
 
   return (
-    <Body>
-      <Spread>
-        <Subtext>{label}</Subtext>
-        <Subtext>{displayDescription}</Subtext>
-      </Spread>
+    <View className="gap-2">
+      <View className="flex-row justify-between items-center">
+        <Text className={isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}>
+          {label}
+        </Text>
+        <Text className={isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}>
+          {displayDescription}
+        </Text>
+      </View>
 
       <ProgressTrack>
         <ProgressFill value={progressPct} />
       </ProgressTrack>
-    </Body>
+    </View>
   );
 }

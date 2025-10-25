@@ -5,36 +5,30 @@
 import React, { useCallback, useEffect } from 'react';
 import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import styled from 'styled-components/native';
 import { Feather } from '@expo/vector-icons';
 import { Button, ButtonText } from '@shared/components/ui';
+import { useTheme } from '@shared/hooks';
 import { ProfileHeader } from '../components/ProfileHeader';
-import { NotificationSettings } from '../components/NotificationSettings';
-import { LocationSettings } from '../components/LocationSettings';
+import { PremiumAlert } from '../components/PremiumAlert';
+import { PremiumBadge } from '../components/PremiumBadge';
+import { StatsSection } from '../components/StatsSection';
+import { SettingsCard } from '../components/SettingsCard';
 import { MenuOptions } from '../components/MenuOptions';
 import { PremiumBenefitsCard } from '../components/PremiumBenefitsCard';
+import { LegalFooter } from '../components/LegalFooter';
 import { useUserProfileStore } from '../../state/userProfile.store';
 import { UserProfile, UserProfileScreenProps } from '../../../types/userTypes';
 
 // Importar el tema
 import { lightTheme } from '@presentation/theme';
 
-const Container = styled(SafeAreaView)`
-  flex: 1;
-  background-color: #f5f5f5;
-`;
-
-const ContentWrapper = styled(ScrollView)`
-  flex: 1;
-  padding: 16px;
-`;
-
 const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   user,
   onLogout,
   onUpdateUser,
-  navigation,
 }) => {
+  const { theme: themeMode } = useTheme();
+  const isDark = themeMode === 'dark';
   const theme = lightTheme;
   const defaultUser: UserProfile = {
     id_user: 0,
@@ -88,15 +82,6 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
     }
   };
 
-  const handleTokenHistory = useCallback(() => {
-    navigation?.navigate?.('TokenHistory', { userId: resolvedUser.id_user.toString() });
-  }, [navigation, resolvedUser.id_user]);
-
-  const handleRewards = useCallback(() => {
-    // Navegar a la screen de Recompensas
-    navigation?.navigate?.('Rewards');
-  }, [navigation]);
-
   // ============================================
   // RENDER
   // ============================================
@@ -108,47 +93,48 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   };
 
   return (
-    <Container edges={['top', 'left', 'right']}>
-      <ContentWrapper showsVerticalScrollIndicator={false}>
-        {/* 1. Header con avatar y email */}
+    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1" style={{ backgroundColor: isDark ? '#0f1419' : '#ffffff' }}>
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 p-4 gap-4">
+        {/* 1. Header */}
         <ProfileHeader user={resolvedUser} theme={theme} />
 
-        {/* 2. Notificaciones */}
-        <NotificationSettings
-          notifications={notifications}
-          onToggle={handleNotificationToggle}
-          theme={theme}
-        />
-
-        {/* 3. Ubicación */}
-        <LocationSettings
-          locationEnabled={locationEnabled}
-          onToggle={toggleLocation}
-          theme={theme}
-        />
-
-        {/* 4. Apariencia (Modo oscuro) */}
-        {/* TODO: Implementar en el futuro */}
-
-        {/* 5. General - Menú de opciones */}
-        <MenuOptions
-          isPremium={resolvedUser.plan === 'Premium'}
-          theme={theme}
-          onTokenHistoryPress={handleTokenHistory}
-          onRewardsPress={handleRewards}
-        />
-
-        {/* 6. Beneficios Premium - Solo si es Free */}
-        {resolvedUser.plan === 'Free' && (
-          <PremiumBenefitsCard onUpgrade={handleUpgradeToPremium} theme={theme} />
+        {/* 2. Plan */}
+        {resolvedUser.plan === 'Free' ? (
+          <PremiumAlert onUpgrade={handleUpgradeToPremium} />
+        ) : (
+          <PremiumBadge />
         )}
 
-        {/* 7. Logout */}
+        {/* 3. Stats */}
+        <StatsSection
+          stats={stats || defaultStats}
+          isPremium={resolvedUser.plan === 'Premium'}
+        />
+
+        {/* 4. Configuraciones */}
+        <SettingsCard
+          notifications={notifications}
+          onNotificationToggle={handleNotificationToggle}
+          locationEnabled={locationEnabled}
+          onLocationToggle={toggleLocation}
+        />
+
+        {/* 5. Menú */}
+        <MenuOptions isPremium={resolvedUser.plan === 'Premium'} theme={theme} />
+
+        {/* 6. Beneficios Premium */}
+        {resolvedUser.plan === 'Free' && (
+          <PremiumBenefitsCard onUpgrade={handleUpgradeToPremium} />
+        )}
+
+        {/* 7. Footer */}
+        <LegalFooter theme={theme} />
+
+        {/* 8. Logout */}
         <Button
           onPress={handleLogoutPress}
+          className="mb-4"
           style={{
-            marginTop: theme.spacing(2),
-            marginBottom: theme.spacing(4),
             backgroundColor: 'transparent',
             borderWidth: 1,
             borderColor: theme.colors.danger,
@@ -162,8 +148,8 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
           />
           <ButtonText style={{ color: theme.colors.danger }}>Cerrar sesión</ButtonText>
         </Button>
-      </ContentWrapper>
-    </Container>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

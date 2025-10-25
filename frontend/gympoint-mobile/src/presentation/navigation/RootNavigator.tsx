@@ -1,35 +1,25 @@
-import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useTheme as useAppTheme } from 'styled-components/native';
-
 import { LoginScreen, RegisterScreen, useAuthStore } from '@features/auth';
 import AppTabs from './AppTabs';
-import { useNavigationTheme } from './navTheme';
 
-const Stack = createNativeStackNavigator();
+type RootStackParamList = {
+  App: undefined;
+  Login: undefined;
+  Register: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootNavigator() {
-  const theme = useAppTheme();
-  const user = useAuthStore((s) => s.user);
-
-  const navTheme = useNavigationTheme({
-    bg: theme.colors.bg,
-    card: theme.colors.card,
-    text: theme.colors.text,
-    primary: theme.colors.primary,
-    border: theme.colors.border,
-    danger: theme.colors.danger,
-  });
-
-  const screenOptions = {
-    headerShown: false,
-    contentStyle: { backgroundColor: theme.colors.bg },
-  };
+  const user = useAuthStore((state) => state.user);
 
   return (
-    <NavigationContainer theme={navTheme}>
-      <Stack.Navigator screenOptions={screenOptions}>
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName={user ? "App" : "Login"}
+        screenOptions={{ headerShown: false }}
+      >
         {user ? (
           <Stack.Screen name="App" component={AppTabs} />
         ) : (

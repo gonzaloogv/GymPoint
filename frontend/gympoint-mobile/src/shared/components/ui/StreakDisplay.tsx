@@ -1,14 +1,5 @@
-import styled from 'styled-components/native';
+import { View, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Row } from './Row';
-
-const StreakRow = styled(Row)``;
-
-const StreakText = styled.Text`
-  margin-left: ${({ theme }) => theme.spacing(0.75)}px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.warning || '#ea580c'};
-`;
 
 type Props = {
   streak: number;
@@ -20,9 +11,11 @@ export function StreakDisplay({ streak, size = 16, color }: Props) {
   const iconColor = color || '#ea580c';
 
   return (
-    <StreakRow>
+    <View className="flex-row items-center">
       <MaterialCommunityIcons name="fire" size={size} color={iconColor} />
-      <StreakText>Racha: {streak} días</StreakText>
-    </StreakRow>
+      <Text className="ml-0.75 font-semibold" style={{ color: iconColor }}>
+        Racha: {streak} días
+      </Text>
+    </View>
   );
 }

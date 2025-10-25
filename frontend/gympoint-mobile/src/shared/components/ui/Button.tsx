@@ -1,84 +1,113 @@
-import styled from 'styled-components/native';
-import { View, Text, TouchableOpacity, Image, TouchableOpacityProps } from 'react-native';
-import { rad, sp, font } from '@shared/styles';
+import { useTheme } from '@shared/hooks';
+import React from 'react';
+import { TouchableOpacity, Text, ActivityIndicator, View, StyleProp, ViewStyle, StyleSheet } from 'react-native';
 
-export const Button = styled.TouchableOpacity<{ variant?: 'primary' | 'danger' }>`
-  background-color: ${({ theme, variant }) =>
-    variant === 'danger'
-      ? theme.colors.danger
-      : variant === 'primary'
-        ? '#3b82f6'
-        : theme.colors.primary};
-  border-radius: ${({ theme }) => theme.radius.lg || 12}px;
-  padding: ${({ theme }) => (theme.spacing ? theme.spacing(1.75) : 14)}px;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-`;
 
-export const ButtonsGrid = styled(View)`
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  padding: ${({ theme }) => sp(theme, 2)}px;
-`;
+type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+type ButtonSize = 'sm' | 'md' | 'lg';
 
-export const FeatureButton = styled(TouchableOpacity)`
-  width: 45%;
-  height: 45vw;
-  max-height: 180px;
-  background-color: ${({ theme }) => theme?.colors?.card ?? '#f5f5f5'};
-  border-radius: ${({ theme }) => rad(theme, 'md', 12)}px;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: ${({ theme }) => sp(theme, 2)}px;
-  border-width: 1px;
-  border-color: ${({ theme }) => theme?.colors?.border ?? '#ddd'};
-`;
-export const ButtonIcon = styled(Image)`
-  width: 60px;
-  height: 60px;
-  margin-bottom: ${({ theme }) => sp(theme, 1)}px;
-`;
-export const ButtonText = styled(Text)`
-  font-size: ${({ theme }) => (font ? font(theme, 'small', 14) : 14)}px;
-  color: ${({ theme }) => theme?.colors?.primaryText ?? '#ffffff'};
-  text-align: center;
-  font-weight: 600;
-`;
-
-//social
-
-const Btn = styled.TouchableOpacity`
-  margin-top: ${(p) => sp(p.theme, 2)}px;
-  border-width: 1px;
-  border-color: ${(p) => p.theme?.colors?.border ?? '#e5e7eb'};
-  background-color: ${(p) => p.theme?.colors?.bg ?? '#fafafa'};
-  padding: ${(p) => sp(p.theme, 1.5)}px;
-  border-radius: ${(p) => rad(p.theme, 'lg', 12)}px;
-  align-items: center;
-  flex-direction: row;
-  justify-content: center;
-  gap: 8px;
-`;
-const Glyph = styled.View`
-  width: 18px;
-  height: 18px;
-  border-radius: 9px;
-  background-color: #fff;
-  border-width: 1px;
-  border-color: #e5e7eb;
-`;
-
-export function SocialButton({
-  children,
-  leftGlyph = true,
-  ...rest
-}: TouchableOpacityProps & { children: string; leftGlyph?: boolean }) {
-  return (
-    <Btn {...rest}>
-      {leftGlyph && <Glyph />}
-      <Text>{children}</Text>
-    </Btn>
-  );
+interface ButtonProps {
+  children: React.ReactNode;
+  onPress?: () => void;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  disabled?: boolean;
+  loading?: boolean;
+  fullWidth?: boolean;
+  icon?: React.ReactNode;
+  className?: string;
+  style?: StyleProp<ViewStyle>;
 }
+
+export const Button: React.FC<ButtonProps> = ({
+  children,
+  onPress,
+  variant = 'primary',
+  size = 'md',
+  disabled = false,
+  loading = false,
+  fullWidth = false,
+  icon,
+  className = '',
+  style,
+}) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const baseClasses = 'rounded-xl flex-row items-center justify-center';
+
+  const variantClasses = {
+    primary: 'bg-primary',
+    secondary: isDark
+      ? 'bg-surface-dark border-2 border-border-dark'
+      : 'bg-surface border-2 border-border',
+    outline: 'bg-transparent border-2 border-primary',
+    ghost: 'bg-transparent',
+    danger: 'bg-error',
+  };
+
+  const sizeClasses = {
+    sm: 'px-4 py-2',
+    md: 'px-6 py-4',
+    lg: 'px-8 py-5',
+  };
+
+  const textVariantClasses = {
+    primary: 'text-onPrimary',
+    secondary: isDark ? 'text-text-dark' : 'text-text',
+    outline: 'text-primary',
+    ghost: 'text-primary',
+    danger: 'text-onError',
+  };
+
+  const textSizeClasses = {
+    sm: 'text-sm',
+    md: 'text-base',
+    lg: 'text-lg',
+  };
+
+  const widthClass = fullWidth ? 'w-full' : '';
+  const disabledClass = disabled || loading ? 'opacity-50' : '';
+
+  const buttonClasses = `
+    ${baseClasses}
+    ${variantClasses[variant]}
+    ${sizeClasses[size]}
+    ${widthClass}
+    ${disabledClass}
+    ${className}
+  `.trim();
+
+  const textClasses = `
+    ${textVariantClasses[variant]}
+    ${textSizeClasses[size]}
+    font-semibold
+  `.trim();
+
+  const spinnerColor = variant === 'primary' || variant === 'danger'
+    ? '#FFFFFF'
+    : '#4A9CF5';
+
+  const computedStyle = StyleSheet.flatten([style]);
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={disabled || loading}
+      activeOpacity={0.7}
+      className={buttonClasses}
+      style={computedStyle}
+    >
+      {loading ? (
+        <ActivityIndicator color={spinnerColor} />
+      ) : (
+        <View className="flex-row items-center">
+          {icon && <View className="mr-2">{icon}</View>}
+          <Text className={textClasses}>{children}</Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+};
+
+export const ButtonText = Text;

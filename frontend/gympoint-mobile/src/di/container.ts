@@ -46,7 +46,7 @@ import { GetUserProfile } from '@features/user/domain/usecases/GetUserProfile';
 import { UpdateUserSettings } from '@features/user/domain/usecases/UpdateUserSettings';
 import { UpgradeToPremium } from '@features/user/domain/usecases/UpgradeToPremium';
 
-// ===== Progress =====
+/* ===== Progress =====
 import { ProgressRepository } from '@features/progress/domain/repositories/ProgressRepository';
 import { ProgressRepositoryImpl } from '@features/progress/data/ProgressRepositoryImpl';
 import { ProgressLocal } from '@features/progress/data/datasources/ProgressLocal';
@@ -63,7 +63,7 @@ import { TokenHistoryRepository } from '@features/progress/domain/repositories/T
 import { TokenHistoryRepositoryImpl } from '@features/progress/data/TokenHistoryRepositoryImpl';
 import { TokenHistoryLocal } from '@features/progress/data/datasources/TokenHistoryLocal';
 import { GetTokenHistory } from '@features/progress/domain/usecases/GetTokenHistory';
-
+*/
 class Container {
   // Auth
   authRepository: AuthRepository;
@@ -106,7 +106,7 @@ class Container {
   updateUserSettings: UpdateUserSettings;
   upgradeToPremium: UpgradeToPremium;
 
-  // Progress
+  /* Progress
   progressLocal: ProgressLocal;
   progressRepository: ProgressRepository;
   getProgress: GetProgress;
@@ -119,7 +119,7 @@ class Container {
   tokenHistoryLocal: TokenHistoryLocal;
   tokenHistoryRepository: TokenHistoryRepository;
   getTokenHistory: GetTokenHistory;
-
+*/
   constructor() {
     // Auth
     this.authRepository = new AuthRepositoryImpl();
@@ -162,7 +162,7 @@ class Container {
     this.updateUserSettings = new UpdateUserSettings(this.userRepository);
     this.upgradeToPremium = new UpgradeToPremium(this.userRepository);
 
-    // Progress
+    /* Progress
     this.progressLocal = new ProgressLocal();
     this.progressRepository = new ProgressRepositoryImpl(this.progressLocal);
     this.getProgress = new GetProgress(this.progressRepository);
@@ -178,6 +178,7 @@ class Container {
     this.tokenHistoryLocal = new TokenHistoryLocal();
     this.tokenHistoryRepository = new TokenHistoryRepositoryImpl(this.tokenHistoryLocal);
     this.getTokenHistory = new GetTokenHistory(this.tokenHistoryRepository);
+    */
   }
 }
 

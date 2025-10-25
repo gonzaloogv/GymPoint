@@ -1,6 +1,7 @@
 import React from 'react';
-import { FlatList } from 'react-native';
-import { Container, Separator } from '@shared/components/ui';
+import { FlatList, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '@shared/hooks';
 
 type Props = {
   data: any[];
@@ -21,18 +22,22 @@ export function RoutinesLayout({
   ListFooterComponent,
   contentContainerStyle,
 }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const bgColor = isDark ? '#111827' : '#f9fafb';
+
   return (
-    <Container edges={['top', 'left', 'right']}>
+    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1" style={{ backgroundColor: bgColor }}>
       <FlatList
         data={data}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
-        ItemSeparatorComponent={() => <Separator />}
+        ItemSeparatorComponent={() => <View className="h-3" />}
         ListHeaderComponent={ListHeaderComponent}
         ListEmptyComponent={ListEmptyComponent}
         ListFooterComponent={ListFooterComponent}
         contentContainerStyle={contentContainerStyle}
       />
-    </Container>
+    </SafeAreaView>
   );
 }

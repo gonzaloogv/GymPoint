@@ -1,15 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import { FlatList, View } from 'react-native';
 import { User } from '@features/auth/domain/entities/User';
 import { Reward, GeneratedCode } from '@features/rewards/domain/entities';
-import { RewardItem } from './RewardItem';
-import { GeneratedCodeItem } from './GeneratedCodeItem';
-import { EmptyCodes } from './EmptyCodes';
-import { TabsContent } from '../styles/tabs';
-import { CodeStatusFilter } from './CodeStatusFilter';
+import { RewardItem, GeneratedCodeItem, EmptyCodes } from './';
 
 type TabType = 'available' | 'codes';
-type CodeStatusType = 'active' | 'used' | 'expired';
 
 type RewardsContentProps = {
   activeTab: TabType;
@@ -32,59 +27,34 @@ export const RewardsContent: React.FC<RewardsContentProps> = ({
   onToggleCode,
   onViewRewards,
 }) => {
-  const [codeStatusFilter, setCodeStatusFilter] = useState<CodeStatusType>('active');
-
-  // Códigos disponibles (activos, sin usar, no vencidos) para la pestaña "Disponibles"
-  const availableCodes = useMemo(() => {
-    return generatedCodes.filter((code) => {
-      const isExpired = code.expiresAt ? new Date() > code.expiresAt : false;
-      return !code.used && !isExpired;
-    });
-  }, [generatedCodes]);
-
-  // Filtrar códigos según el estado seleccionado para la pestaña "Mis códigos"
-  const filteredCodes = useMemo(() => {
-    return generatedCodes.filter((code) => {
-      const isExpired = code.expiresAt ? new Date() > code.expiresAt : false;
-
-      if (codeStatusFilter === 'active') {
-        return !code.used && !isExpired;
-      } else if (codeStatusFilter === 'used') {
-        return code.used;
-      } else if (codeStatusFilter === 'expired') {
-        return isExpired && !code.used;
-      }
-      return true;
-    });
-  }, [generatedCodes, codeStatusFilter]);
-
-  // Renderizado para GENERATED CODE ITEM (con botones Canjear/Marcar usado)
-  const renderAvailableCodeItem = ({ item }: { item: GeneratedCode }) => (
-    <GeneratedCodeItem
-      item={item}
-      onCopy={onCopy}
-      onToggle={onToggleCode}
-      showActions={true}
-    />
+  // Renderizado para REWARD ITEM
+  const renderRewardItem = ({ item }: { item: Reward }) => (
+    <RewardItem reward={item} tokens={user.tokens} onGenerate={onGenerate} />
   );
 
-  // Renderizado para GENERATED CODE ITEM (sin botones de acción, solo Ver QR para usados)
+  // Renderizado para GENERATED CODE ITEM
   const renderCodeItem = ({ item }: { item: GeneratedCode }) => (
-    <GeneratedCodeItem
-      item={item}
-      onCopy={onCopy}
-      onToggle={onToggleCode}
-      showActions={false}
-    />
+    <GeneratedCodeItem item={item} onCopy={onCopy} onToggle={onToggleCode} />
   );
 
   return (
-    <TabsContent>
+    <View className="pt-5 min-h-52">
       {activeTab === 'available' && (
         <FlatList
-          data={availableCodes}
+          data={rewards}
           keyExtractor={(item) => item.id}
-          renderItem={renderAvailableCodeItem}
+          renderItem={renderRewardItem}
+          scrollEnabled={false}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 16 }}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        />
+      )}
+      {activeTab === 'codes' && (
+        <FlatList
+          data={generatedCodes}
+          keyExtractor={(item) => item.id}
+          renderItem={renderCodeItem}
           scrollEnabled={false}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 16 }}
@@ -92,24 +62,6 @@ export const RewardsContent: React.FC<RewardsContentProps> = ({
           ListEmptyComponent={() => <EmptyCodes onViewRewards={onViewRewards} />}
         />
       )}
-      {activeTab === 'codes' && (
-        <>
-          <CodeStatusFilter
-            activeStatus={codeStatusFilter}
-            onStatusChange={setCodeStatusFilter}
-          />
-          <FlatList
-            data={filteredCodes}
-            keyExtractor={(item) => item.id}
-            renderItem={renderCodeItem}
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 16, paddingTop: 16 }}
-            ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-            ListEmptyComponent={() => <EmptyCodes onViewRewards={onViewRewards} />}
-          />
-        </>
-      )}
-    </TabsContent>
+    </View>
   );
 };

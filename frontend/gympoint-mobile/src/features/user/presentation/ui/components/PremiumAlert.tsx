@@ -4,66 +4,66 @@
  */
 
 import React from 'react';
-import { View } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import {
-  AlertCard,
-  BodyText,
-  SmallText,
-  Button,
-  ButtonText,
-} from '../styles/ProfileStyles';
-import { AppTheme } from '@presentation/theme';
+import { useTheme } from '@shared/hooks';
 
 interface PremiumAlertProps {
   onUpgrade: () => void;
-  theme: AppTheme;
 }
 
-export const PremiumAlert: React.FC<PremiumAlertProps> = ({ onUpgrade, theme }) => {
+export const PremiumAlert: React.FC<PremiumAlertProps> = ({ onUpgrade }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   return (
-    <AlertCard purple theme={theme}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'flex-start',
-          gap: theme.spacing(1.5),
-        }}
-      >
+    <View
+      className="rounded-md p-4 mb-4 border"
+      style={{
+        backgroundColor: isDark ? '#F3E8FF' : '#F3E8FF',
+        borderColor: '#C084FC',
+      }}
+    >
+      <View className="flex-row items-start gap-3">
         {/* Icono de corona */}
         <Feather name="award" size={16} color="#9333EA" />
 
         {/* Contenido del alert */}
-        <View style={{ flex: 1 }}>
+        <View className="flex-1">
           {/* Título */}
-          <BodyText
+          <Text
+            className="font-semibold mb-1"
             style={{
-              fontWeight: '600',
               color: '#7C3AED',
-              marginBottom: 4,
             }}
           >
             ¡Actualizá a Premium!
-          </BodyText>
+          </Text>
 
           {/* Descripción */}
-          <SmallText
+          <Text
+            className="text-xs mb-3"
             style={{
               color: '#7C3AED',
-              marginBottom: theme.spacing(1.5),
             }}
           >
             Desbloqueá estadísticas avanzadas, recompensas exclusivas y más.
-          </SmallText>
+          </Text>
 
           {/* Botón de acción */}
-          <Button small purple onPress={onUpgrade} theme={theme}>
-            <ButtonText small purple theme={theme}>
+          <TouchableOpacity
+            className="rounded px-4 py-2 items-center justify-center"
+            style={{
+              backgroundColor: '#9333EA',
+            }}
+            onPress={onUpgrade}
+          >
+            <Text className="font-semibold text-xs" style={{ color: '#FFFFFF' }}>
               Ver beneficios Premium
-            </ButtonText>
-          </Button>
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
-    </AlertCard>
+    </View>
   );
 };

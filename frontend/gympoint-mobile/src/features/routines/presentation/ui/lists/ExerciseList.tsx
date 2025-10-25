@@ -1,64 +1,45 @@
-import styled from 'styled-components/native';
+import { View, Text } from 'react-native';
+import { useTheme } from '@shared/hooks';
 import { Card, MetaChip } from '@shared/components/ui';
 import type { Exercise } from '@features/routines/domain/entities';
-
-const CardInner = styled.View`
-  padding: ${({ theme }) => theme.spacing(2)}px;
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const ExRow = styled.View`
-  padding: ${({ theme }) => theme.spacing(1)}px 0;
-`;
-
-const ExName = styled.Text`
-  color: ${({ theme }) => theme.colors.text};
-  font-weight: 700;
-`;
-
-const ExMeta = styled.Text`
-  color: ${({ theme }) => theme.colors.subtext};
-  font-size: ${({ theme }) => theme.typography.small}px;
-`;
-
-const Chips = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const Separator = styled.View`
-  height: 1px;
-  background: ${({ theme }) => theme.colors.border};
-  margin: ${({ theme }) => theme.spacing(1)}px 0;
-`;
 
 type Props = {
   exercises: Exercise[];
 };
 
 export function ExerciseList({ exercises }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   const renderItem = ({ item }: { item: Exercise }) => (
-    <Card style={{ marginHorizontal: 16 }}>
-      <CardInner>
-        <ExRow>
-          <ExName>{item.name}</ExName>
-          <ExMeta>{`Series: ${item.sets} • Reps: ${item.reps} • Descanso: ${item.rest}s`}</ExMeta>
-        </ExRow>
-        <Chips>
+    <Card className="mx-4">
+      <View className="p-2 gap-1">
+        <View className="py-1">
+          <Text className={`font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>
+            {item.name}
+          </Text>
+          <Text className={`text-sm ${isDark ? 'text-subtext-dark' : 'text-subtext'}`}>
+            {`Series: ${item.sets} • Reps: ${item.reps} • Descanso: ${item.rest}s`}
+          </Text>
+        </View>
+        <View className="flex-row flex-wrap gap-1">
           {item.muscleGroups.map((m) => (
             <MetaChip key={m}>{m}</MetaChip>
           ))}
-        </Chips>
-      </CardInner>
+        </View>
+      </View>
     </Card>
   );
 
   const keyExtractor = (item: Exercise) => item.id;
 
+  const ItemSeparatorComponent = () => (
+    <View className={`h-px my-1 ${isDark ? 'bg-border-dark' : 'bg-border'}`} />
+  );
+
   return {
     renderItem,
     keyExtractor,
-    ItemSeparatorComponent: () => <Separator />,
+    ItemSeparatorComponent,
   };
 }

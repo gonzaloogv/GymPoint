@@ -1,11 +1,5 @@
-import styled from 'styled-components/native';
-import { sp } from '@shared/styles';
-
-const InfoText = styled.Text`
-  color: ${({ theme }) => theme.colors.subtext};
-  padding: 0 ${({ theme }) => sp(theme, 2)}px;
-  margin-top: ${({ theme }) => theme.spacing(0.75)}px;
-`;
+import { Text } from 'react-native';
+import { useTheme } from '@shared/hooks';
 
 type Props = {
   count: number;
@@ -20,15 +14,18 @@ export function ResultsInfo({
   itemName = 'gimnasio',
   itemNamePlural = 'gimnasios',
 }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   const plural = count !== 1;
   const itemLabel = plural ? itemNamePlural : itemName;
   const foundLabel = plural ? 'encontrados' : 'encontrado';
   const locationSuffix = hasUserLocation ? ' ordenados por distancia' : '';
 
   return (
-    <InfoText>
+    <Text className={`px-4 mt-0.75 ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
       {count} {itemLabel} {foundLabel}
       {locationSuffix}
-    </InfoText>
+    </Text>
   );
 }

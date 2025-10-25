@@ -1,66 +1,108 @@
-import styled, { DefaultTheme, useTheme } from 'styled-components/native';
-import { useState } from 'react';
-import { TextInputProps, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { TextInput, View, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-
-export const Input = styled.TextInput.attrs(({ theme }: { theme: DefaultTheme }) => ({
-  placeholderTextColor: theme.colors.subtext,
-}))`
-  background-color: ${({ theme }) => theme.colors.inputBg};
-  border: 1px solid ${({ theme }) => theme.colors.inputBorder};
-  padding: ${({ theme }) => theme.spacing(1.5)}px;
-  border-radius: ${({ theme }) => theme.radius.md}px;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing(2)}px;
-  width: 100%;
-`;
-
-export const InputLogin = styled.TextInput.attrs(
-  ({ theme }: { theme: DefaultTheme }) => ({
-    placeholderTextColor: theme.colors.subtext,
-  }),
-)`
-  background-color: ${({ theme }) => theme.colors.inputBg};
-  border: 1px solid ${({ theme }) => theme.colors.inputBorder};
-  padding: ${({ theme }) => theme.spacing(1.5)}px;
-  border-radius: ${({ theme }) => theme.radius.md}px;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing(2)}px;
-  width: 80%;
-`;
-
-//password
-
-const Relative = styled.View`
-  position: relative;
-  width: 100%;
-`;
-const EyeToggle = styled(TouchableOpacity)`
-  position: absolute;
-  right: 12px;
-  top: 0;
-  bottom: 12px;
-  justify-content: center;
-  padding: 6px;
-`;
-
-export function PasswordInput(props: TextInputProps) {
-  const [show, setShow] = useState(false);
-  const theme = useTheme() as any;
-  return (
-    <Relative>
-      <InputLogin
-        {...props}
-        secureTextEntry={!show}
-        style={[{ width: '100%', paddingRight: 44 }, props.style]}
-      />
-      <EyeToggle onPress={() => setShow((v) => !v)}>
-        <Feather
-          name={show ? 'eye-off' : 'eye'}
-          size={20}
-          color={theme?.colors?.subtext ?? '#6b7280'}
-        />
-      </EyeToggle>
-    </Relative>
-  );
+import { useTheme } from '@shared/hooks';
+interface InputProps {
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder?: string;
+  type?: 'text' | 'email' | 'password';
+  secureTextEntry?: boolean;
+  error?: boolean;
+  disabled?: boolean;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
+  maxLength?: number;
+  className?: string;
 }
+
+export const Input: React.FC<InputProps> = ({
+  value,
+  onChangeText,
+  placeholder,
+  type = 'text',
+  error = false,
+  disabled = false,
+  autoCapitalize = 'sentences',
+  keyboardType = 'default',
+  className = '',
+}) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const [isFocused, setIsFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const bgColor = isDark ? 'bg-surfaceVariant-dark' : 'bg-surface';
+  const textColor = isDark ? 'text-text-dark' : 'text-text';
+  const borderColor = error
+    ? 'border-inputBorderError'
+    : isFocused
+    ? 'border-inputBorderFocused'
+    : isDark
+    ? 'border-inputBorder-dark'
+    : 'border-inputBorder';
+
+  const baseClasses = `
+    w-full
+    px-4 py-4
+    ${bgColor}
+    ${textColor}
+    border-2
+    ${borderColor}
+    rounded-xl
+    text-base
+    ${disabled ? 'opacity-50' : ''}
+    ${className}
+  `.trim();
+
+  const iconColor = isDark ? '#B0B8C8' : '#666666';
+
+  if (type === 'password') {
+    return (
+      <View className="relative w-full">
+        <TextInput
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={isDark ? '#6B7280' : '#999999'}
+          secureTextEntry={!showPassword}
+          autoCapitalize="none"
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          editable={!disabled}
+          className={baseClasses}
+        />
+        <TouchableOpacity
+          onPress={() => setShowPassword(!showPassword)}
+          className="absolute right-4 top-4"
+        >
+          <Feather
+            name={showPassword ? 'eye-off' : 'eye'}
+            size={20}
+            color={iconColor}
+          />
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <TextInput
+      value={value}
+      onChangeText={onChangeText}
+      placeholder={placeholder}
+      placeholderTextColor={isDark ? '#6B7280' : '#999999'}
+      autoCapitalize={autoCapitalize}
+      keyboardType={keyboardType}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
+      editable={!disabled}
+      className={baseClasses}
+    />
+  );
+};
+
+export const InputLogin = Input;
+export const PasswordInput = (props: Omit<InputProps, 'type'>) => (
+  <Input {...props} type="password" />
+);

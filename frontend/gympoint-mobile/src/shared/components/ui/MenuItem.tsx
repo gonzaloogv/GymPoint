@@ -1,45 +1,7 @@
 import React from 'react';
-import styled from 'styled-components/native';
+import { TouchableOpacity, View, Text } from 'react-native';
+import { useTheme } from '@shared/hooks';
 import { Feather } from '@expo/vector-icons';
-
-const MenuItemContainer = styled.TouchableOpacity`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: ${({ theme }) => theme.spacing(2)}px;
-  border-bottom-width: 1px;
-  border-bottom-color: ${({ theme }) => theme.colors.border};
-`;
-
-const MenuItemLeft = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing(1.5)}px;
-  flex: 1;
-`;
-
-const TextContainer = styled.View`
-  flex: 1;
-  gap: 2px;
-`;
-
-const MenuItemRight = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const MenuText = styled.Text`
-  color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.body}px;
-  font-weight: 500;
-`;
-
-const MenuSubtext = styled.Text`
-  color: ${({ theme }) => theme.colors.subtext};
-  font-size: ${({ theme }) => theme.typography.small}px;
-  opacity: 0.6;
-`;
 
 type Props = {
   icon: string;
@@ -58,19 +20,34 @@ export function MenuItem({
   showChevron = true,
   rightComponent,
 }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   return (
-    <MenuItemContainer onPress={onPress}>
-      <MenuItemLeft>
-        <Feather name={icon as any} size={18} color="#666" />
-        <TextContainer>
-          <MenuText>{title}</MenuText>
-          {subtitle && <MenuSubtext>{subtitle}</MenuSubtext>}
-        </TextContainer>
-      </MenuItemLeft>
-      <MenuItemRight>
+    <TouchableOpacity
+      onPress={onPress}
+      className="flex-row items-center justify-between p-4 border-b"
+      style={{
+        borderColor: isDark ? '#2C3444' : '#DDDDDD',
+      }}
+    >
+      <View className="flex-row items-center gap-3 flex-1">
+        <Feather name={icon as any} size={18} color={isDark ? '#B0B8C8' : '#666'} />
+        <Text className={`text-base font-medium ${isDark ? 'text-text-dark' : 'text-text'}`}>
+          {title}
+        </Text>
+      </View>
+      <View className="flex-row items-center gap-2">
+        {subtitle && (
+          <Text className="text-xs opacity-60" style={{ color: isDark ? '#B0B8C8' : '#666' }}>
+            {subtitle}
+          </Text>
+        )}
         {rightComponent}
-        {showChevron && <Feather name="chevron-right" size={16} color="#666" />}
-      </MenuItemRight>
-    </MenuItemContainer>
+        {showChevron && (
+          <Feather name="chevron-right" size={16} color={isDark ? '#B0B8C8' : '#666'} />
+        )}
+      </View>
+    </TouchableOpacity>
   );
 }

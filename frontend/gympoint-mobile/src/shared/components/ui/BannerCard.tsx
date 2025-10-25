@@ -1,108 +1,8 @@
-import styled from 'styled-components/native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import FeatherIcon from '@expo/vector-icons/Feather';
+import { useTheme } from '@shared/hooks';
 import { Card } from './Card';
-import { Row } from './Row';
-import { palette, rad } from '@shared/styles';
-
-const BannerCardContainer = styled(Card)<{ $variant: 'warning' | 'premium' | 'info' }>`
-  border-color: ${({ $variant }) => {
-    switch ($variant) {
-      case 'warning':
-        return palette.warningBorder;
-      case 'premium':
-        return palette.premiumBorder;
-      case 'info':
-        return palette.infoBorder;
-      default:
-        return palette.neutralBorder;
-    }
-  }};
-  background-color: ${({ $variant }) => {
-    switch ($variant) {
-      case 'warning':
-        return palette.warningSurface;
-      case 'premium':
-        return palette.premiumSurface;
-      case 'info':
-        return palette.infoSurface;
-      default:
-        return palette.surfaceMuted;
-    }
-  }};
-`;
-
-const BannerContent = styled(Row).attrs({ $align: 'flex-start' })`
-  flex: 1;
-`;
-
-const BannerCopy = styled.View`
-  flex: 1;
-  margin-left: ${({ theme }) => theme.spacing(1.5)}px;
-`;
-
-const Title = styled.Text<{ $variant: 'warning' | 'premium' | 'info' }>`
-  margin-bottom: ${({ theme }) => theme.spacing(0.25)}px;
-  font-weight: 600;
-  color: ${({ $variant }) => {
-    switch ($variant) {
-      case 'warning':
-        return palette.warningStrong;
-      case 'premium':
-        return palette.premiumStrong;
-      case 'info':
-        return palette.infoStrong;
-      default:
-        return palette.textStrong;
-    }
-  }};
-`;
-
-const Description = styled.Text<{ $variant: 'warning' | 'premium' | 'info' }>`
-  margin-bottom: ${({ theme }) => theme.spacing(1)}px;
-  color: ${({ $variant }) => {
-    switch ($variant) {
-      case 'warning':
-        return palette.warningText;
-      case 'premium':
-        return palette.premiumText;
-      case 'info':
-        return palette.info;
-      default:
-        return palette.textMuted;
-    }
-  }};
-`;
-
-const OutlineButton = styled.TouchableOpacity`
-  min-height: ${({ theme }) => theme.spacing(5)}px;
-  padding: ${({ theme }) => theme.spacing(1.25)}px ${({ theme }) => theme.spacing(1.75)}px;
-  border-radius: ${({ theme }) => rad(theme, 'lg', 12)}px;
-  border-width: 1px;
-  border-color: ${({ theme }) => theme.colors.border};
-  align-items: center;
-  justify-content: center;
-`;
-
-const OutlineText = styled.Text`
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-const LeadingIcon = styled(FeatherIcon)<{ $variant: 'warning' | 'premium' | 'info' }>`
-  margin-top: ${({ theme }) => theme.spacing(0.25)}px;
-  color: ${({ $variant }) => {
-    switch ($variant) {
-      case 'warning':
-        return palette.warningIcon;
-      case 'premium':
-        return palette.premiumIcon;
-      case 'info':
-        return palette.info;
-      default:
-        return palette.textMuted;
-    }
-  }};
-`;
+import { palette } from '@shared/styles';
 
 type Props = {
   visible: boolean;
@@ -114,6 +14,43 @@ type Props = {
   onButtonPress: () => void;
 };
 
+const getVariantStyles = (variant: 'warning' | 'premium' | 'info') => {
+  switch (variant) {
+    case 'warning':
+      return {
+        borderColor: palette.warningBorder,
+        bgColor: palette.warningSurface,
+        titleColor: palette.warningStrong,
+        descColor: palette.warningText,
+        iconColor: palette.warningIcon,
+      };
+    case 'premium':
+      return {
+        borderColor: palette.premiumBorder,
+        bgColor: palette.premiumSurface,
+        titleColor: palette.premiumStrong,
+        descColor: palette.premiumText,
+        iconColor: palette.premiumIcon,
+      };
+    case 'info':
+      return {
+        borderColor: palette.infoBorder,
+        bgColor: palette.infoSurface,
+        titleColor: palette.infoStrong,
+        descColor: palette.info,
+        iconColor: palette.info,
+      };
+    default:
+      return {
+        borderColor: palette.neutralBorder,
+        bgColor: palette.surfaceMuted,
+        titleColor: palette.textStrong,
+        descColor: palette.textMuted,
+        iconColor: palette.textMuted,
+      };
+  }
+};
+
 export function BannerCard({
   visible,
   variant,
@@ -123,20 +60,40 @@ export function BannerCard({
   buttonText,
   onButtonPress,
 }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const styles = getVariantStyles(variant);
+
   if (!visible) return null;
 
   return (
-    <BannerCardContainer $variant={variant}>
-      <BannerContent>
-        <LeadingIcon name={icon} size={20} $variant={variant} />
-        <BannerCopy>
-          <Title $variant={variant}>{title}</Title>
-          <Description $variant={variant}>{description}</Description>
-          <OutlineButton onPress={onButtonPress}>
-            <OutlineText>{buttonText}</OutlineText>
-          </OutlineButton>
-        </BannerCopy>
-      </BannerContent>
-    </BannerCardContainer>
+    <Card
+      className="border-2"
+      style={{ borderColor: styles.borderColor, backgroundColor: styles.bgColor }}
+    >
+      <View className="flex-row items-start gap-4">
+        <FeatherIcon name={icon} size={20} color={styles.iconColor} className="mt-1" />
+        <View className="flex-1">
+          <Text className="mb-0.5 font-semibold text-sm" style={{ color: styles.titleColor }}>
+            {title}
+          </Text>
+          <Text className="mb-3 text-sm" style={{ color: styles.descColor }}>
+            {description}
+          </Text>
+          <TouchableOpacity
+            onPress={onButtonPress}
+            className="rounded-lg border items-center justify-center py-2 px-3"
+            style={{ borderColor: isDark ? '#444' : '#ddd' }}
+          >
+            <Text
+              className="font-semibold text-sm"
+              style={{ color: isDark ? '#fff' : '#000' }}
+            >
+              {buttonText}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Card>
   );
 }

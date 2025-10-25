@@ -1,52 +1,67 @@
-/**
- * Shared UI Components
- * Re-exports of all reusable UI components
- */
-
-export * from './ActionCard';
-export * from './AlertCard';
-export * from './Avatar';
-export * from './BadgeDot';
-export * from './BannerCard';
+// Core Components
 export * from './Button';
 export * from './Card';
 export * from './CardHeader';
-export * from './ChipSelector';
-export * from './Circle';
+export * from './Heading';
 export * from './Divider';
-export * from './EmptyState';
-export * from './ErrorState';
-export * from './FilterSheet';
-export * from './FloatingActionBar';
-export * from './FormField';
-export * from './GeneratedCodeCard';
-export * from './GradientCard';
-export * from './IndexBadge';
 export * from './Input';
+export * from './FormField';
+export * from './Row';
+export * from './Screen';
+// export * from './Text'; // Removed because ErrorText and H1 are duplicated from Heading and FormField
+export * from './Circle';
+
+// Card Variants
+export * from './ActionCard';
+export * from './AlertCard';
+export * from './BannerCard';
+export * from './GradientCard';
+export * from './GeneratedCodeCard';
+export * from './StatsCard';
+
+// Content Components
+export * from './Avatar';
+export * from './MenuList';
+export * from './MenuItem';
 export * from './ListItem';
+export * from './ProgressSection';
+export * from './ProgressBar';
+
+// Badge & Indicator Components
+export * from './BadgeDot';
+export * from './IndexBadge';
+export * from './UnifiedBadge';
+export * from './MetaChip';
+export * from './SetPill';
+export * from './StatusPill';
+export * from './TabPill';
+export * from './TokenPill';
+
+// Selection Components
+export * from './ChipSelector';
+export * from './SegmentedControl';
+export * from './SwitchRow';
+
+// Header & Navigation
+export * from './SearchHeader';
+export * from './FilterSheet';
+
+// Map Components
 export * from './MapBox';
 export * from './MapFallback';
 export * from './MapMarker';
-export * from './MenuItem';
-export * from './MenuList';
-export * from './MetaChip';
-export * from './PremiumCard';
-export * from './ProgressBar';
-export * from './ProgressSection';
-export * from './ResultsInfo';
-export * from './Row';
-export * from './Screen';
-export * from './SearchHeader';
-export * from './SegmentedControl';
-export * from './SetPill';
-export * from './StatusPill';
-export * from './StatsCard';
-export * from './StepContainer';
-export * from './StreakDisplay';
-export * from './SwitchRow';
-export * from './TabPill';
-export * from './Text';
-export * from './TipsBanner';
-export * from './TokenPill';
-export * from './UnifiedBadge';
 export * from './UserLocationPin';
+export * from './ResultsInfo';
+
+// Feedback Components
+export * from './EmptyState';
+export * from './ErrorState';
+export * from './TipsBanner';
+
+// Layout & Structure
+export * from './StepContainer';
+export * from './FloatingActionBar';
+export * from './StreakDisplay';
+
+// Input specializations
+export { PasswordInput, InputLogin } from './Input';

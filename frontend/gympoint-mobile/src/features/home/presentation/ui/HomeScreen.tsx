@@ -11,6 +11,7 @@ import {
   QuickActions,
   LocationBanner,
   DailyChallengeCard,
+  PremiumUpsellBanner,
 } from './components';
 
 type AppTabsParamList = {
@@ -27,38 +28,29 @@ export default function HomeScreen() {
   const { bottom } = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
 
-  const {
-    user,
-    weeklyGoal,
-    currentProgress,
-    progressPct,
-    dailyChallenge,
-    perm,
-    requestLocation,
-  } =
+  const { user, weeklyGoal, currentProgress, progressPct, perm, requestLocation } =
     useHome();
 
   const goToGyms = () => navigation.navigate('Mapa');
   const goToRoutines = () => navigation.navigate('Rutinas');
-  const goToProgress = () => navigation.navigate('Progreso' as any);
 
   const contentSpacing = {
     paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingTop: 4,
     paddingBottom: tabBarHeight + bottom + 8,
     rowGap: 16,
   };
 
   return (
     <Screen scroll contentContainerStyle={contentSpacing}>
-      <HomeHeader userName={user.name} tokens={user.tokens} streak={user.streak} />
+      <HomeHeader userName={user.name} plan={user.plan} tokens={user.tokens} />
 
       <WeeklyProgressCard
         current={currentProgress}
         goal={weeklyGoal}
         progressPct={progressPct}
         streak={user.streak}
-        onStats={goToProgress}
+        onStats={() => {}}
       />
 
       <QuickActions
@@ -67,7 +59,8 @@ export default function HomeScreen() {
       />
 
       <LocationBanner visible={perm !== 'granted'} onEnable={requestLocation} />
-      <DailyChallengeCard challenge={dailyChallenge} />
+      <DailyChallengeCard />
+      <PremiumUpsellBanner visible={user.plan === 'Free'} onPress={() => {}} />
     </Screen>
   );
 }

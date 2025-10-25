@@ -1,8 +1,3 @@
-/**
- * Opciones de formularios compartidas
- * Constantes para dropdowns, radios, etc. usadas en múltiples features
- */
-
 export const GENDER_OPTIONS = [
   { value: 'male', label: 'Hombre' },
   { value: 'female', label: 'Mujer' },

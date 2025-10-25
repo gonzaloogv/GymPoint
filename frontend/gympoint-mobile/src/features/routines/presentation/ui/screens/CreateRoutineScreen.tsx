@@ -1,22 +1,11 @@
-import styled from 'styled-components/native';
 import { View } from 'react-native';
+import { useTheme } from '@shared/hooks';
 import { Screen } from '@shared/components/ui';
 import { StepIndicator } from '../components/StepIndicator';
 import { BasicInfoStep, ExercisesStep, ReviewStep } from '../components/steps';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { CreateRoutineFooter } from '../components/CreateRoutineFooter';
 import { useCreateRoutine } from '../../hooks/useCreateRoutine';
-import { sp } from '@shared/styles';
-
-const StepIndicatorContainer = styled(View)`
-  padding: ${({ theme }) => sp(theme, 3)}px ${({ theme }) => sp(theme, 2)}px;
-  background-color: ${({ theme }) => theme.colors.card};
-`;
-
-const ContentContainer = styled(View)`
-  flex: 1;
-  background-color: ${({ theme }) => theme.colors.bg};
-`;
 
 const STEPS = [
   { number: 1, label: 'Básicos', subtitle: 'Info general' },
@@ -25,6 +14,11 @@ const STEPS = [
 ];
 
 export default function CreateRoutineScreen() {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const cardBg = isDark ? '#1f2937' : '#ffffff';
+  const bgColor = isDark ? '#111827' : '#f9fafb';
+
   const {
     currentStep,
     basicInfo,
@@ -38,7 +32,6 @@ export default function CreateRoutineScreen() {
   } = useCreateRoutine();
 
   const renderStep = () => {
-    console.log('Rendering step:', currentStep, 'basicInfo:', basicInfo);
     switch (currentStep) {
       case 1:
         return <BasicInfoStep data={basicInfo} onChange={setBasicInfo} />;
@@ -55,11 +48,13 @@ export default function CreateRoutineScreen() {
     <Screen>
       <ScreenHeader title="Nueva rutina" onBack={handleBack} />
 
-      <StepIndicatorContainer>
+      <View className="px-4 py-6" style={{ backgroundColor: cardBg }}>
         <StepIndicator steps={STEPS} currentStep={currentStep} />
-      </StepIndicatorContainer>
+      </View>
 
-      <ContentContainer>{renderStep()}</ContentContainer>
+      <View className="flex-1" style={{ backgroundColor: bgColor }}>
+        {renderStep()}
+      </View>
 
       <CreateRoutineFooter
         currentStep={currentStep}

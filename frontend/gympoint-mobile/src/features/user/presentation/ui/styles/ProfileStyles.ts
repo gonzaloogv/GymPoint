@@ -1,292 +1,197 @@
 /**
- * Estilos para los componentes del perfil de usuario
- * Utiliza styled-components/native
+ * Style constants for User Profile components (NativeWind)
  */
-
-import styled from 'styled-components/native';
-import { AppTheme } from '@presentation/theme';
 
 // ============================================
 // CONTAINERS
 // ============================================
 
-export const Container = styled.ScrollView`
-  flex: 1;
-  background-color: ${(props: { theme: AppTheme }) => props.theme.colors.bg};
-`;
+export const ContainerStyles = {
+  className: 'flex-1',
+};
 
-export const ContentWrapper = styled.View`
-  padding: ${(props: { theme: AppTheme }) => props.theme.spacing(2)}px;
-`;
+export const ContentWrapperStyles = {
+  className: 'p-4',
+};
 
 // ============================================
 // CARDS
 // ============================================
 
-export const Card = styled.View`
-  background-color: ${(props: { theme: AppTheme }) => props.theme.colors.card};
-  border-radius: ${(props: { theme: AppTheme }) => props.theme.radius.md}px;
-  padding: ${(props: { theme: AppTheme }) => props.theme.spacing(3)}px;
-  margin-bottom: ${(props: { theme: AppTheme }) => props.theme.spacing(2)}px;
-  shadow-color: #000;
-  shadow-offset: 0px 2px;
-  shadow-opacity: 0.05;
-  shadow-radius: 4px;
-  elevation: 2;
-`;
+export const CardStyles = {
+  className: 'rounded-md p-6 mb-4 shadow-sm',
+};
 
-export const AlertCard = styled.View<{ purple?: boolean }>`
-  background-color: ${(props) => (props.purple ? '#F3E8FF' : props.theme.colors.card)};
-  border: 1px solid ${(props) => (props.purple ? '#C084FC' : props.theme.colors.border)};
-  border-radius: ${(props: { theme: AppTheme }) => props.theme.radius.md}px;
-  padding: ${(props: { theme: AppTheme }) => props.theme.spacing(2)}px;
-  margin-bottom: ${(props: { theme: AppTheme }) => props.theme.spacing(2)}px;
-`;
+export const AlertCardStyles = {
+  default: {
+    className: 'rounded-md p-4 mb-4 border',
+  },
+  purple: {
+    className: 'rounded-md p-4 mb-4 border',
+  },
+};
 
-export const GradientCard = styled.View`
-  background-color: #f3e8ff;
-  border: 1px solid #c084fc;
-  border-radius: ${(props: { theme: AppTheme }) => props.theme.radius.md}px;
-  padding: ${(props: { theme: AppTheme }) => props.theme.spacing(2)}px;
-  margin-bottom: ${(props: { theme: AppTheme }) => props.theme.spacing(2)}px;
-`;
+export const GradientCardStyles = {
+  className: 'rounded-md p-4 mb-4 border',
+};
 
 // ============================================
 // AVATAR
 // ============================================
 
-export const AvatarContainer = styled.View`
-  width: 64px;
-  height: 64px;
-  border-radius: 32px;
-  background-color: ${(props: { theme: AppTheme }) => props.theme.colors.primary};
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-`;
+export const AvatarContainerStyles = {
+  className: 'w-16 h-16 rounded-full items-center justify-center overflow-hidden',
+};
 
-export const AvatarImage = styled.Image`
-  width: 100%;
-  height: 100%;
-`;
+export const AvatarImageStyles = {
+  className: 'w-full h-full',
+};
 
-export const AvatarFallback = styled.Text`
-  font-size: ${(props: { theme: AppTheme }) => props.theme.typography.h2}px;
-  color: ${(props: { theme: AppTheme }) => props.theme.colors.primaryText};
-  font-weight: bold;
-`;
+export const AvatarFallbackStyles = {
+  className: 'text-xl font-bold',
+};
 
 // ============================================
 // BADGES
 // ============================================
 
-interface BadgeProps {
-  theme: AppTheme;
-  premium?: boolean;
-  outline?: boolean;
-}
+export const BadgeStyles = {
+  default: {
+    className: 'flex-row items-center px-3 py-1 rounded',
+  },
+  premium: {
+    className: 'flex-row items-center px-3 py-1 rounded',
+  },
+  outline: {
+    className: 'flex-row items-center px-3 py-1 rounded border',
+  },
+};
 
-export const Badge = styled.View<BadgeProps>`
-  flex-direction: row;
-  align-items: center;
-  padding: ${(props) => props.theme.spacing(0.5)}px
-    ${(props) => props.theme.spacing(1.5)}px;
-  border-radius: ${(props) => props.theme.radius.sm}px;
-  background-color: ${(props) => {
-    if (props.premium) return '#9333EA';
-    if (props.outline) return 'transparent';
-    return props.theme.colors.muted;
-  }};
-  border: ${(props) =>
-    props.outline ? `1px solid ${props.theme.colors.border}` : 'none'};
-`;
-
-interface BadgeTextProps {
-  theme: AppTheme;
-  premium?: boolean;
-}
-
-export const BadgeText = styled.Text<BadgeTextProps>`
-  font-size: ${(props) => props.theme.typography.small}px;
-  color: ${(props) => (props.premium ? '#FFFFFF' : props.theme.colors.text)};
-  font-weight: 600;
-`;
+export const BadgeTextStyles = {
+  default: {
+    className: 'text-xs font-semibold',
+  },
+  premium: {
+    className: 'text-xs font-semibold',
+  },
+};
 
 // ============================================
 // BUTTONS
 // ============================================
 
-interface ButtonProps {
-  theme: AppTheme;
-  outline?: boolean;
-  purple?: boolean;
-  small?: boolean;
-}
+export const ButtonStyles = {
+  default: {
+    className: 'rounded px-6 py-3 items-center justify-center flex-row',
+  },
+  purple: {
+    className: 'rounded px-6 py-3 items-center justify-center flex-row',
+  },
+  outline: {
+    className: 'rounded px-6 py-3 items-center justify-center flex-row border-2',
+  },
+  small: {
+    className: 'rounded px-4 py-2 items-center justify-center flex-row',
+  },
+};
 
-export const Button = styled.TouchableOpacity<ButtonProps>`
-  background-color: ${(props) => {
-    if (props.outline) return 'transparent';
-    if (props.purple) return '#9333EA';
-    return props.theme.colors.primary;
-  }};
-  border: ${(props) =>
-    props.outline ? `2px solid ${props.theme.colors.danger}` : 'none'};
-  border-radius: ${(props) => props.theme.radius.sm}px;
-  padding: ${(props) =>
-    props.small ? props.theme.spacing(1) : props.theme.spacing(1.5)}px;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
-`;
-
-interface ButtonTextProps {
-  theme: AppTheme;
-  outline?: boolean;
-  purple?: boolean;
-  primary?: boolean;
-  small?: boolean;
-}
-
-export const ButtonText = styled.Text<ButtonTextProps>`
-  color: ${(props) => {
-    if (props.outline) return props.theme.colors.danger;
-    if (props.purple || props.primary) return '#FFFFFF';
-    return props.theme.colors.text;
-  }};
-  font-size: ${(props) =>
-    props.small ? props.theme.typography.small : props.theme.typography.body}px;
-  font-weight: 600;
-`;
+export const ButtonTextStyles = {
+  default: {
+    className: 'font-semibold',
+  },
+  purple: {
+    className: 'font-semibold',
+  },
+  outline: {
+    className: 'font-semibold',
+  },
+  small: {
+    className: 'font-semibold text-xs',
+  },
+};
 
 // ============================================
 // TEXT COMPONENTS
 // ============================================
 
-interface TitleProps {
-  theme: AppTheme;
-  large?: boolean;
-}
+export const TitleStyles = {
+  default: {
+    className: 'text-lg font-bold',
+  },
+  large: {
+    className: 'text-2xl font-bold',
+  },
+};
 
-export const Title = styled.Text<TitleProps>`
-  font-size: ${(props) =>
-    props.large ? props.theme.typography.h1 : props.theme.typography.h2}px;
-  font-weight: bold;
-  color: ${(props) => props.theme.colors.text};
-`;
+export const SubtitleStyles = {
+  className: 'text-base opacity-60',
+};
 
-export const Subtitle = styled.Text<{ theme: AppTheme }>`
-  font-size: ${(props) => props.theme.typography.body}px;
-  color: ${(props) => props.theme.colors.subtext};
-  opacity: 0.6;
-`;
+export const BodyTextStyles = {
+  className: 'text-base',
+};
 
-export const BodyText = styled.Text<{ theme: AppTheme }>`
-  font-size: ${(props) => props.theme.typography.body}px;
-  color: ${(props) => props.theme.colors.text};
-`;
-
-interface SmallTextProps {
-  theme: AppTheme;
-  muted?: boolean;
-}
-
-export const SmallText = styled.Text<SmallTextProps>`
-  font-size: ${(props) => props.theme.typography.small}px;
-  color: ${(props) =>
-    props.muted ? props.theme.colors.textMuted : props.theme.colors.text};
-`;
+export const SmallTextStyles = {
+  default: {
+    className: 'text-xs',
+  },
+  muted: {
+    className: 'text-xs',
+  },
+};
 
 // ============================================
 // STATS
 // ============================================
 
-interface StatBoxProps {
-  theme: AppTheme;
-  color?: string;
-}
+export const StatBoxStyles = {
+  className: 'flex-1 rounded px-3 py-3 items-center justify-center m-1',
+};
 
-export const StatBox = styled.View<StatBoxProps>`
-  flex: 1;
-  background-color: ${(props) => props.color || '#E3F2FD'};
-  border-radius: ${(props) => props.theme.radius.sm}px;
-  padding: ${(props) => props.theme.spacing(1.5)}px;
-  align-items: center;
-  justify-content: center;
-  margin: ${(props) => props.theme.spacing(0.5)}px;
-`;
+export const StatValueStyles = {
+  className: 'text-3xl font-bold',
+};
 
-interface StatValueProps {
-  color?: string;
-}
-
-export const StatValue = styled.Text<StatValueProps>`
-  font-size: 28px;
-  font-weight: bold;
-  color: ${(props) => props.color || '#1976D2'};
-`;
-
-interface StatLabelProps {
-  color?: string;
-}
-
-export const StatLabel = styled.Text<StatLabelProps>`
-  font-size: 11px;
-  color: ${(props) => props.color || '#1976D2'};
-  margin-top: 4px;
-  text-align: center;
-`;
+export const StatLabelStyles = {
+  className: 'text-2xs text-center mt-1',
+};
 
 // ============================================
 // MENU ITEMS
 // ============================================
 
-export const MenuItem = styled.TouchableOpacity`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: ${(props: { theme: AppTheme }) => props.theme.spacing(2)}px;
-  border-bottom-width: 1px;
-  border-bottom-color: ${(props: { theme: AppTheme }) => props.theme.colors.border};
-`;
+export const MenuItemStyles = {
+  className: 'flex-row items-center justify-between py-4 border-b',
+};
 
-export const MenuItemLeft = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: ${(props: { theme: AppTheme }) => props.theme.spacing(1.5)}px;
-`;
+export const MenuItemLeftStyles = {
+  className: 'flex-row items-center gap-3',
+};
 
-export const MenuItemRight = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: ${(props: { theme: AppTheme }) => props.theme.spacing(1)}px;
-`;
+export const MenuItemRightStyles = {
+  className: 'flex-row items-center gap-1.5',
+};
 
 // ============================================
 // SWITCHES
 // ============================================
 
-export const SwitchRow = styled.View`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: ${(props: { theme: AppTheme }) => props.theme.spacing(1.5)}px 0;
-`;
+export const SwitchRowStyles = {
+  className: 'flex-row items-center justify-between py-3',
+};
 
-export const SwitchRowLeft = styled.View`
-  flex: 1;
-`;
+export const SwitchRowLeftStyles = {
+  className: 'flex-1',
+};
 
 // ============================================
 // SECTIONS
 // ============================================
 
-export const Section = styled.View`
-  margin-bottom: ${(props: { theme: AppTheme }) => props.theme.spacing(3)}px;
-`;
+export const SectionStyles = {
+  className: 'mb-6',
+};
 
-export const SectionTitle = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: ${(props: { theme: AppTheme }) => props.theme.spacing(1)}px;
-  margin-bottom: ${(props: { theme: AppTheme }) => props.theme.spacing(1.5)}px;
-`;
+export const SectionTitleStyles = {
+  className: 'flex-row items-center gap-1.5 mb-3',
+};

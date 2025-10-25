@@ -1,11 +1,6 @@
 import { useMemo } from 'react';
-import styled from 'styled-components/native';
+import { View } from 'react-native';
 import { Card, ProgressSection } from '@shared/components/ui';
-
-const Wrap = styled.View`
-  padding: 0 ${({ theme }) => theme.spacing(2)}px;
-  margin-bottom: ${({ theme }) => theme.spacing(2)}px;
-`;
 
 type Props = { completed: number; goal: number };
 
@@ -16,7 +11,7 @@ export default function RoutineProgress({ completed, goal }: Props) {
   );
 
   return (
-    <Wrap>
+    <View className="px-4 mb-4">
       <Card>
         <ProgressSection
           current={completed}
@@ -26,6 +21,6 @@ export default function RoutineProgress({ completed, goal }: Props) {
           description={`${completed}/${goal} entrenamientos`}
         />
       </Card>
-    </Wrap>
+    </View>
   );
 }

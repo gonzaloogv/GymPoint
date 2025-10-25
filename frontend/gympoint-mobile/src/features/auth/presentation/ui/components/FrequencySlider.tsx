@@ -1,54 +1,66 @@
+import React from 'react';
 import { View, Text } from 'react-native';
-import styled from 'styled-components/native';
 import Slider from '@react-native-community/slider';
 
-const Container = styled(View)`
-  gap: 8px;
-`;
-
-const SliderWrapper = styled(View)`
-  padding-horizontal: 4px;
-`;
-
-const LabelsRow = styled(View)`
-  flex-direction: row;
-  justify-content: space-between;
-  padding-horizontal: 8px;
-`;
-
-const LabelText = styled(Text)<{ $selected?: boolean }>`
-  color: ${({ theme, $selected }) =>
-    $selected ? theme.colors.primary : theme.colors.subtext};
-  font-size: 13px;
-  font-weight: ${({ $selected }) => ($selected ? '600' : '400')};
-`;
+import { useTheme } from '@shared/hooks'; // Correcto: usando tu hook de contexto
 
 interface Props {
   value: number;
   onChange: (frequency: number) => void;
+  className?: string;
 }
 
-export function FrequencySlider({ value, onChange }: Props) {
+export const FrequencySlider: React.FC<Props> = ({
+  value,
+  onChange,
+  className = '',
+}) => {
+  const { isDark } = useTheme(); // Obtenemos 'isDark' directamente de nuestro hook
+
+  // --- Valores de color directos desde tailwind.config.js ---
+  // El componente Slider no acepta className, por lo que pasamos los colores como props.
+  const minTrackColor = '#4A9CF5'; // colors.primary
+  const maxTrackColor = isDark
+    ? '#252B3D' // colors.surfaceVariant.dark
+    : '#F5F5F5'; // colors.surfaceVariant.DEFAULT
+
+  // --- Clases de Nativewind para los componentes de texto ---
+  const selectedLabelClasses = 'font-semibold text-primary';
+  const unselectedLabelClasses = isDark
+    ? 'text-textSecondary-dark'
+    : 'text-textSecondary';
+
+  // Helper para renderizar las etiquetas de los extremos
+  const renderLabel = (day: number, text: string) => {
+    const isSelected = value === day;
+    return (
+      <Text className={isSelected ? selectedLabelClasses : unselectedLabelClasses}>
+        {text}
+      </Text>
+    );
+  };
+
   return (
-    <Container>
-      <SliderWrapper>
+    <View className={`gap-2 ${className}`}>
+      <View className="px-1">
         <Slider
           value={value}
           onValueChange={onChange}
           minimumValue={1}
           maximumValue={7}
           step={1}
-          minimumTrackTintColor="#007AFF"
-          maximumTrackTintColor="#E0E0E0"
+          minimumTrackTintColor={minTrackColor}
+          maximumTrackTintColor={maxTrackColor}
+          thumbTintColor={minTrackColor} // Hacemos que el pulgar coincida con el color primario
         />
-      </SliderWrapper>
-      <LabelsRow>
-        <LabelText $selected={value === 1}>1 día</LabelText>
-        <LabelText $selected={value >= 2 && value <= 4}>
-          {value === 3 ? '3 días por semana' : `${value} días`}
-        </LabelText>
-        <LabelText $selected={value === 7}>7 días</LabelText>
-      </LabelsRow>
-    </Container>
+      </View>
+      <View className="flex-row justify-between px-2">
+        {renderLabel(1, '1 día')}
+        <Text className={unselectedLabelClasses}>
+          {`${value} ${value === 1 ? 'día' : 'días'}`}
+        </Text>
+        {renderLabel(7, '7 días')}
+      </View>
+    </View>
   );
-}
+};

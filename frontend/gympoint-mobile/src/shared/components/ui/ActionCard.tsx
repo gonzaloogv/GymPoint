@@ -1,34 +1,8 @@
-import styled from 'styled-components/native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import FeatherIcon from '@expo/vector-icons/Feather';
+import { useTheme } from '@shared/hooks';
 import { Card } from './Card';
 import { Circle } from './Circle';
-import { sp } from '@shared/styles';
-
-const ActionCardContainer = styled(Card)<{ $spaced?: boolean }>`
-  flex: 1;
-  align-items: center;
-  padding-vertical: ${({ theme }) => sp(theme, 2)}px;
-  ${({ $spaced, theme }) => ($spaced ? `margin-right: ${sp(theme, 1.5)}px;` : '')}
-`;
-
-const ActionButton = styled.TouchableOpacity.attrs({ activeOpacity: 0.6 })`
-  flex: 1;
-  align-items: center;
-`;
-
-const ActionCircle = styled(Circle)`
-  margin-bottom: ${({ theme }) => sp(theme, 1)}px;
-`;
-
-const Heading = styled.Text`
-  margin-bottom: ${({ theme }) => theme.spacing(0.25)}px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-const Subtext = styled.Text`
-  color: ${({ theme }) => theme.colors.subtext};
-`;
 
 type Props = {
   label: string;
@@ -49,15 +23,23 @@ export function ActionCard({
   onPress,
   spaced = false,
 }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const spacedClass = spaced ? 'mr-3' : '';
+
   return (
-    <ActionCardContainer $spaced={spaced}>
-      <ActionButton onPress={onPress}>
-        <ActionCircle $size={48} $background={iconBackground}>
+    <Card className={`flex-1 items-center py-4 ${spacedClass}`}>
+      <TouchableOpacity onPress={onPress} className="flex-1 items-center" activeOpacity={0.6}>
+        <Circle size={48} backgroundColor={iconBackground} className="mb-2">
           <FeatherIcon name={icon} size={24} color={iconColor} />
-        </ActionCircle>
-        <Heading>{label}</Heading>
-        <Subtext>{description}</Subtext>
-      </ActionButton>
-    </ActionCardContainer>
+        </Circle>
+        <Text className={`mb-0.5 font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>
+          {label}
+        </Text>
+        <Text className={isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}>
+          {description}
+        </Text>
+      </TouchableOpacity>
+    </Card>
   );
 }

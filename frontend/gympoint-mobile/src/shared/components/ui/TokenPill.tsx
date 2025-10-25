@@ -1,18 +1,5 @@
-import styled from 'styled-components/native';
+import { View, Text } from 'react-native';
 import FeatherIcon from '@expo/vector-icons/Feather';
-import { Row } from './Row';
-
-const TokenPillContainer = styled(Row)`
-  padding: ${({ theme }) => theme.spacing(0.5)}px ${({ theme }) => theme.spacing(1)}px;
-  border-radius: 999px;
-  background-color: #fff7ed;
-`;
-
-const TokenValue = styled.Text`
-  margin-left: ${({ theme }) => theme.spacing(0.5)}px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.primary};
-`;
 
 type Props = {
   value: number;
@@ -21,9 +8,9 @@ type Props = {
 
 export function TokenPill({ value, size = 14 }: Props) {
   return (
-    <TokenPillContainer>
+    <View className="flex-row items-center px-2 py-1 rounded-full" style={{ backgroundColor: '#fff7ed' }}>
       <FeatherIcon name="zap" size={size} color="#F59E0B" />
-      <TokenValue>{value}</TokenValue>
-    </TokenPillContainer>
+      <Text className="ml-1 font-semibold text-primary">{value}</Text>
+    </View>
   );
 }

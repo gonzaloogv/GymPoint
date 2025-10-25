@@ -4,102 +4,51 @@
  */
 
 import React from 'react';
-import { View, Text, Switch as RNSwitch } from 'react-native';
-import styled from 'styled-components/native';
+import { View, Text, Switch } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { AppTheme } from '@presentation/theme';
+import { useTheme } from '@shared/hooks';
 
 interface LocationSettingsProps {
   locationEnabled: boolean;
   onToggle: (value: boolean) => void;
-  theme: AppTheme;
 }
-
-const Container = styled(View)`
-  margin-bottom: 24px;
-`;
-
-const SectionTitle = styled(Text)`
-  font-size: 18px;
-  font-weight: 700;
-  color: #111;
-  margin-bottom: 12px;
-`;
-
-const Card = styled(View)`
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  border-width: 1px;
-  border-color: #f0f0f0;
-`;
-
-const Row = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const LeftContent = styled(View)`
-  flex: 1;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-`;
-
-const IconContainer = styled(View)`
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  background-color: #f5f5f5;
-  align-items: center;
-  justify-content: center;
-`;
-
-const TextContent = styled(View)`
-  flex: 1;
-`;
-
-const Title = styled(Text)`
-  font-size: 15px;
-  font-weight: 600;
-  color: #111;
-  margin-bottom: 2px;
-`;
-
-const Subtitle = styled(Text)`
-  font-size: 13px;
-  color: #666;
-`;
 
 export const LocationSettings: React.FC<LocationSettingsProps> = ({
   locationEnabled,
   onToggle,
-  theme,
 }) => {
-  return (
-    <Container>
-      <SectionTitle>Ubicación</SectionTitle>
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const textColor = isDark ? '#ffffff' : '#1a1a1a';
+  const subtextColor = isDark ? '#9ca3af' : '#6b7280';
 
-      <Card>
-        <Row>
-          <LeftContent>
-            <IconContainer>
-              <Feather name="map-pin" size={20} color="#635BFF" />
-            </IconContainer>
-            <TextContent>
-              <Title>Acceso a ubicación</Title>
-              <Subtitle>Para encontrar gyms cercanos y check-ins automáticos</Subtitle>
-            </TextContent>
-          </LeftContent>
-          <RNSwitch
+  return (
+    <View className="mb-6">
+      {/* Título de la sección */}
+      <View className="flex-row items-center gap-1.5 mb-3">
+        <Feather name="map-pin" size={16} color={textColor} />
+        <Text className="font-semibold text-base" style={{ color: textColor }}>
+          Ubicación
+        </Text>
+      </View>
+
+      {/* Switch de ubicación */}
+      <View>
+        <Text className="font-medium text-base mb-1" style={{ color: textColor }}>
+          Acceso a ubicación
+        </Text>
+        <Text className="text-xs mb-2" style={{ color: subtextColor, opacity: 0.6 }}>
+          Para encontrar gimnasios cercanos
+        </Text>
+        <View className="flex-row items-center">
+          <Switch
             value={locationEnabled}
             onValueChange={onToggle}
-            trackColor={{ false: '#E5E7EB', true: '#635BFF' }}
+            trackColor={{ false: '#D1D5DB', true: '#4F9CF9' }}
             thumbColor="#FFFFFF"
           />
-        </Row>
-      </Card>
-    </Container>
+        </View>
+      </View>
+    </View>
   );
 };

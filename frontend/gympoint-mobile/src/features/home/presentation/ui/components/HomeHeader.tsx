@@ -1,93 +1,46 @@
-import styled from 'styled-components/native';
-import { Row } from '@shared/components/ui';
+import { View, Text, TouchableOpacity } from 'react-native';
+import FeatherIcon from '@expo/vector-icons/Feather';
+import { useTheme } from '@shared/hooks';
+import { Avatar, TokenPill } from '@shared/components/ui';
 import { palette } from '@shared/styles';
-
-const Container = styled(Row).attrs({ $justify: 'space-between', $align: 'flex-start' })``;
-
-const Identity = styled.View`
-  flex: 1;
-`;
-
-const Heading = styled.Text`
-  font-size: 26px;
-  font-weight: 700;
-  color: ${({ theme }) => theme?.colors?.text ?? palette.textStrong};
-  margin-bottom: 2px;
-`;
-
-const Subtext = styled.Text`
-  font-size: 15px;
-  color: ${({ theme }) => theme?.colors?.subtext ?? palette.textMuted};
-`;
-
-const Actions = styled(Row)`
-  gap: 8px;
-`;
-
-const TokenBadge = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: 4px;
-  background-color: #fef3c7;
-  padding: 8px 12px;
-  border-radius: 20px;
-`;
-
-const TokenIcon = styled.Text`
-  font-size: 18px;
-`;
-
-const TokenCount = styled.Text`
-  font-size: 15px;
-  font-weight: 700;
-  color: #92400e;
-`;
-
-const FireBadge = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: 4px;
-  background-color: #fed7d7;
-  padding: 8px 12px;
-  border-radius: 20px;
-`;
-
-const FireIcon = styled.Text`
-  font-size: 18px;
-`;
-
-const FireCount = styled.Text`
-  font-size: 15px;
-  font-weight: 700;
-  color: #991b1b;
-`;
 
 type Props = {
   userName: string;
+  plan: 'Free' | 'Premium';
   tokens: number;
-  streak?: number;
+  onBellPress?: () => void;
 };
 
-export default function HomeHeader({ userName, tokens, streak = 7 }: Props) {
+export default function HomeHeader({ userName, plan, tokens, onBellPress }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   const parts = userName.trim().split(/\s+/);
   const firstName = parts[0] ?? userName;
-  return (
-    <Container>
-      <Identity>
-        <Heading>¡Hola, {firstName}!</Heading>
-        <Subtext>¿Listo para entrenar hoy?</Subtext>
-      </Identity>
 
-      <Actions>
-        <TokenBadge>
-          <TokenIcon>⚡</TokenIcon>
-          <TokenCount>{tokens}</TokenCount>
-        </TokenBadge>
-        <FireBadge>
-          <FireIcon>🔥</FireIcon>
-          <FireCount>{streak}</FireCount>
-        </FireBadge>
-      </Actions>
-    </Container>
+  return (
+    <View className="flex-row justify-between items-center">
+      <View className="flex-1 flex-row items-center">
+        <Avatar userName={userName} />
+        <View className="ml-3">
+          <Text className={`font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>
+            ¡Hola, {firstName}!
+          </Text>
+          <Text className={`mt-0.5 ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
+            Usuario {plan}
+          </Text>
+        </View>
+      </View>
+
+      <View className="flex-row items-center ml-3">
+        <TokenPill value={tokens} />
+        <TouchableOpacity
+          onPress={onBellPress}
+          className="ml-2 w-11 h-11 items-center justify-center"
+        >
+          <FeatherIcon name="bell" size={20} color={palette.textStrong} />
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }

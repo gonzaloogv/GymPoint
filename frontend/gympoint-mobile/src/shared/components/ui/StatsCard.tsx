@@ -1,47 +1,5 @@
 import React from 'react';
-import styled from 'styled-components/native';
-
-const StatsContainer = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-  margin: ${({ theme }) => theme.spacing(-0.5)}px;
-`;
-
-const StatBox = styled.View<{ $color: string }>`
-  width: 50%;
-  padding: ${({ theme }) => theme.spacing(0.5)}px;
-`;
-
-const StatCard = styled.View<{ $backgroundColor: string }>`
-  background-color: ${({ $backgroundColor }) => $backgroundColor};
-  border-radius: ${({ theme }) => theme.radius.md}px;
-  padding: ${({ theme }) => theme.spacing(2)}px;
-  align-items: center;
-  min-height: 80px;
-  justify-content: center;
-`;
-
-const StatValue = styled.Text<{ $color: string }>`
-  font-size: ${({ theme }) => theme.typography.h2}px;
-  font-weight: 800;
-  color: ${({ $color }) => $color};
-  margin-bottom: ${({ theme }) => theme.spacing(0.5)}px;
-`;
-
-const StatLabel = styled.Text<{ $color: string }>`
-  font-size: ${({ theme }) => theme.typography.small}px;
-  color: ${({ $color }) => $color};
-  text-align: center;
-  font-weight: 600;
-`;
-
-const StatText = styled.Text<{ $color: string }>`
-  font-size: ${({ theme }) => theme.typography.small}px;
-  color: ${({ $color }) => $color};
-  text-align: center;
-  font-weight: 700;
-  margin-bottom: ${({ theme }) => theme.spacing(0.5)}px;
-`;
+import { View, Text } from 'react-native';
 
 type StatItem = {
   value: number | string;
@@ -57,19 +15,28 @@ type Props = {
 
 export function StatsCard({ stats }: Props) {
   return (
-    <StatsContainer>
+    <View className="flex-row flex-wrap -m-1">
       {stats.map((stat, index) => (
-        <StatBox key={index} $color={stat.color}>
-          <StatCard $backgroundColor={stat.backgroundColor}>
-            {stat.isText ? (
-              <StatText $color={stat.color}>{stat.value}</StatText>
-            ) : (
-              <StatValue $color={stat.color}>{stat.value}</StatValue>
-            )}
-            <StatLabel $color={stat.color}>{stat.label}</StatLabel>
-          </StatCard>
-        </StatBox>
+        <View key={index} className="w-1/2 p-1">
+          <View
+            className="rounded-md p-4 items-center justify-center min-h-20"
+            style={{ backgroundColor: stat.backgroundColor }}
+          >
+            <Text
+              className={`font-black ${stat.isText ? 'text-xs' : 'text-2xl'} mb-1 text-center`}
+              style={{ color: stat.color }}
+            >
+              {stat.value}
+            </Text>
+            <Text
+              className="text-xs font-semibold text-center"
+              style={{ color: stat.color }}
+            >
+              {stat.label}
+            </Text>
+          </View>
+        </View>
       ))}
-    </StatsContainer>
+    </View>
   );
 }

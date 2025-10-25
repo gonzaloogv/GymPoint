@@ -1,78 +1,45 @@
-import styled from 'styled-components/native';
-import { ScrollView, View, Text } from 'react-native';
-
-export const ScrollContainer = styled(ScrollView).attrs({
+// Style constants for Layout components (NativeWind)
+export const ScrollContainerStyles = {
+  className: 'flex-1',
   contentContainerStyle: { paddingBottom: 48, paddingHorizontal: 16 },
-})`
-  flex: 1;
-  background-color: ${({ theme }) => theme.colors.bg};
-`;
+};
 
-export const Container = styled(View)`
-  flex: 1;
-  background-color: ${({ theme }) => theme.colors.bg};
-  padding-bottom: 24px;
-`;
+export const ContainerStyles = {
+  className: 'flex-1 pb-6',
+};
 
-export const HeaderWrapper = styled(View)`
-  padding: 20px 0 16px 0;
-  background-color: ${({ theme }) => theme.colors.bg};
-`;
+export const HeaderWrapperStyles = {
+  className: 'flex-row items-start justify-between py-5 mb-5',
+};
 
-export const HeaderTexts = styled(View)`
-  flex-shrink: 1;
-  gap: 4px;
-`;
+export const HeaderTextsStyles = {
+  className: 'flex-shrink gap-1',
+};
 
-export const HeaderTitle = styled(Text)`
-  font-size: 28px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.text};
-  letter-spacing: -0.5px;
-`;
+export const HeaderTitleStyles = {
+  className: 'text-2xl font-bold -tracking-0.5',
+};
 
-export const HeaderSubtitle = styled(Text)`
-  font-size: 13px;
-  color: #6b7280;
-  line-height: 18px;
-  flex-direction: row;
-  align-items: center;
-  background-color: #f9f5ff;
-  padding: 8px 12px;
-  border-radius: 8px;
-  margin-bottom: 4px;
-`;
+export const HeaderSubtitleStyles = {
+  className: 'text-sm mt-1 leading-5',
+};
 
-export const LoadingMessage = styled(HeaderTitle)`
-  text-align: center;
-  margin-top: 50px;
-`;
+export const LoadingMessageStyles = {
+  className: 'text-2xl font-bold text-center mt-12',
+};
 
-export const TokenDisplay = styled(View)`
-  align-items: flex-end;
-  background-color: #fffbeb;
-  padding: 12px 16px;
-  border-radius: 12px;
-  border-width: 1px;
-  border-color: #fde68a;
-`;
+export const TokenDisplayStyles = {
+  className: 'items-end rounded-xl p-4 border',
+};
 
-export const TokenWrapper = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  gap: 6px;
-`;
+export const TokenWrapperStyles = {
+  className: 'flex-row items-center gap-1.5',
+};
 
-export const TokenText = styled(Text)`
-  font-size: 20px;
-  font-weight: 700;
-  color: #facc15;
-`;
+export const TokenTextStyles = {
+  className: 'text-xl font-bold',
+};
 
-export const TokenLabel = styled(Text)`
-  font-size: 11px;
-  color: #6b7280;
-  text-align: right;
-  margin-top: 2px;
-  font-weight: 500;
-`;
+export const TokenLabelStyles = {
+  className: 'text-xs text-right mt-0.5 font-medium',
+};

@@ -1,29 +1,6 @@
-import styled from 'styled-components/native';
+import { View, Text } from 'react-native';
+import { useTheme } from '@shared/hooks';
 import { SegmentedControl } from '@shared/components/ui';
-
-const Container = styled.View`
-  padding: ${({ theme }) => theme.spacing(2)}px;
-  background-color: ${({ theme }) => theme.colors.card};
-  border-bottom-width: 1px;
-  border-bottom-color: ${({ theme }) => theme.colors.border};
-`;
-
-const Title = styled.Text`
-  font-size: ${({ theme }) => theme.typography.small}px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.subtext};
-  margin-bottom: ${({ theme }) => theme.spacing(1.5)}px;
-`;
-
-const Description = styled.Text`
-  font-size: ${({ theme }) => theme.typography.small}px;
-  color: ${({ theme }) => theme.colors.subtext};
-  margin-bottom: ${({ theme }) => theme.spacing(2)}px;
-`;
-
-const TabContainer = styled.View`
-  align-items: center;
-`;
 
 type Tab = {
   value: string;
@@ -45,13 +22,29 @@ export function ImportTabHeader({
   activeTab,
   onTabChange,
 }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const cardBg = isDark ? '#1f2937' : '#ffffff';
+  const borderColor = isDark ? '#374151' : '#e5e7eb';
+  const subtextColor = isDark ? '#9ca3af' : '#6b7280';
+
   return (
-    <Container>
-      <Title>{title}</Title>
-      <Description>{description}</Description>
-      <TabContainer>
+    <View
+      className="p-4 border-b"
+      style={{
+        backgroundColor: cardBg,
+        borderBottomColor: borderColor,
+      }}
+    >
+      <Text className="text-sm font-semibold mb-1.5" style={{ color: subtextColor }}>
+        {title}
+      </Text>
+      <Text className="text-sm mb-4" style={{ color: subtextColor }}>
+        {description}
+      </Text>
+      <View className="items-center">
         <SegmentedControl options={tabs} value={activeTab} onChange={onTabChange} />
-      </TabContainer>
-    </Container>
+      </View>
+    </View>
   );
 }

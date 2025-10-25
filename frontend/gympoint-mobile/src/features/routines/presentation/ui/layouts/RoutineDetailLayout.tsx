@@ -1,12 +1,7 @@
 import React from 'react';
 import { FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import styled from 'styled-components/native';
-
-const Screen = styled(SafeAreaView)`
-  flex: 1;
-  background: ${({ theme }) => theme.colors.bg};
-`;
+import { useTheme } from '@shared/hooks';
 
 type Props = {
   data: any[];
@@ -27,8 +22,12 @@ export function RoutineDetailLayout({
   contentContainerStyle,
   ItemSeparatorComponent,
 }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const bgColor = isDark ? '#111827' : '#f9fafb';
+
   return (
-    <Screen edges={['top', 'left', 'right']}>
+    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1" style={{ backgroundColor: bgColor }}>
       <FlatList
         data={data}
         keyExtractor={keyExtractor}
@@ -38,6 +37,6 @@ export function RoutineDetailLayout({
         ItemSeparatorComponent={ItemSeparatorComponent}
         contentContainerStyle={contentContainerStyle}
       />
-    </Screen>
+    </SafeAreaView>
   );
 }

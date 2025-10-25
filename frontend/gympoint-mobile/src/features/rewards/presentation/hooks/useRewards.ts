@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { User } from '../../auth/domain/entities/User';
+import { User } from '@features/auth/domain/entities/User';
 import { useRewardsStore } from '../state/rewards.store';
 
 type RewardsTab = 'available' | 'codes';

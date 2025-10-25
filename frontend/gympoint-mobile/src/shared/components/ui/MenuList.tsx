@@ -1,12 +1,7 @@
 import React from 'react';
-import styled from 'styled-components/native';
+import { View } from 'react-native';
 import { Card } from './Card';
 import { MenuItem } from './MenuItem';
-
-const MenuContainer = styled(Card)`
-  padding: 0;
-  overflow: hidden;
-`;
 
 type MenuOption = {
   icon: string;
@@ -23,7 +18,7 @@ type Props = {
 
 export function MenuList({ items }: Props) {
   return (
-    <MenuContainer>
+    <Card className="p-0 overflow-hidden">
       {items.map((item, index) => (
         <MenuItem
           key={index}
@@ -35,6 +30,6 @@ export function MenuList({ items }: Props) {
           rightComponent={item.rightComponent}
         />
       ))}
-    </MenuContainer>
+    </Card>
   );
 }

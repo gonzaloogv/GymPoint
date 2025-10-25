@@ -1,42 +1,8 @@
-import styled from 'styled-components/native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { useTheme } from '@shared/hooks';
 import { FILTERS } from '../../hooks/useRoutinesFilters';
 import { RoutineStatus } from '@features/routines/domain/entities';
 import { Input } from '@shared/components/ui';
-
-const Header = styled.View`
-  padding: ${({ theme }) => theme.spacing(2)}px;
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const Title = styled.Text`
-  font-size: ${({ theme }) => theme.typography.h1}px;
-  color: ${({ theme }) => theme.colors.text};
-  font-weight: 700;
-`;
-
-const FiltersRow = styled.ScrollView.attrs({
-  horizontal: true,
-  showsHorizontalScrollIndicator: false,
-})`
-  margin-top: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const Chip = styled.TouchableOpacity<{ $active?: boolean }>`
-  padding: ${({ theme }) => theme.spacing(0.75)}px ${({ theme }) => theme.spacing(1.5)}px;
-  border-radius: ${({ theme }) => theme.radius.lg}px;
-  background-color: ${({ theme, $active }) =>
-    $active ? theme.colors.primary : theme.colors.card};
-  border: 1px solid
-    ${({ theme, $active }) => ($active ? theme.colors.primary : theme.colors.border)};
-  margin-right: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const ChipText = styled.Text<{ $active?: boolean }>`
-  color: ${({ theme, $active }) =>
-    $active ? theme.colors.onPrimary : theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.small}px;
-  font-weight: 600;
-`;
 
 type Props = {
   search: string;
@@ -51,24 +17,53 @@ export default function RoutinesHeader({
   status,
   onStatusChange,
 }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const primaryColor = '#3B82F6';
+  const cardBg = isDark ? '#1f2937' : '#ffffff';
+  const borderColor = isDark ? '#374151' : '#e5e7eb';
+  const textColor = isDark ? '#ffffff' : '#000000';
+
   return (
-    <Header>
-      <Title>Mis rutinas</Title>
+    <View className="p-4 gap-1">
+      <Text className="text-2xl font-bold" style={{ color: textColor }}>
+        Mis rutinas
+      </Text>
       <Input
         placeholder="Buscar por nombre o músculo…"
         value={search}
         onChangeText={onSearchChange}
       />
-      <FiltersRow>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        className="mt-1"
+      >
         {FILTERS.map(({ key, label }) => {
           const active = key === status;
           return (
-            <Chip key={key} $active={active} onPress={() => onStatusChange(key)}>
-              <ChipText $active={active}>{label}</ChipText>
-            </Chip>
+            <TouchableOpacity
+              key={key}
+              onPress={() => onStatusChange(key)}
+              className="px-3 py-1.5 rounded-lg mr-1 border"
+              style={{
+                backgroundColor: active ? primaryColor : cardBg,
+                borderColor: active ? primaryColor : borderColor,
+                borderWidth: 1,
+              }}
+            >
+              <Text
+                className="text-xs font-semibold"
+                style={{
+                  color: active ? '#ffffff' : textColor,
+                }}
+              >
+                {label}
+              </Text>
+            </TouchableOpacity>
           );
         })}
-      </FiltersRow>
-    </Header>
+      </ScrollView>
+    </View>
   );
 }

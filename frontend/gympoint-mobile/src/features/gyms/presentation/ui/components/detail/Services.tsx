@@ -1,38 +1,14 @@
-import styled from 'styled-components/native';
+import { View, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-
-const Wrapper = styled.View`
-  padding: 16px;
-`;
-
-const Title = styled.Text`
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 8px;
-`;
-
-const Row = styled.View`
-  flex-direction: row;
-  flex-wrap: wrap;
-`;
-
-const Service = styled.View`
-  flex-direction: row;
-  align-items: center;
-  margin-right: 12px;
-  margin-bottom: 6px;
-`;
-
-const Label = styled.Text`
-  font-size: 14px;
-  margin-left: 4px;
-`;
+import { useTheme } from '@shared/hooks';
 
 interface Props {
   services: string[];
 }
 
 export const Services = ({ services }: Props) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const icons: Record<string, string> = {
     Pesas: 'activity',
     WiFi: 'wifi',
@@ -41,16 +17,20 @@ export const Services = ({ services }: Props) => {
   };
 
   return (
-    <Wrapper>
-      <Title>Servicios</Title>
-      <Row>
+    <View className="px-4 py-4">
+      <Text className={isDark ? 'text-base font-bold mb-2 text-textPrimary-dark' : 'text-base font-bold mb-2 text-textPrimary'}>
+        Servicios
+      </Text>
+      <View className="flex-row flex-wrap">
         {services.map((s) => (
-          <Service key={s}>
-            <Feather wname="circle" size={16} color="black" />
-            <Label>{s}</Label>
-          </Service>
+          <View key={s} className="flex-row items-center mr-3 mb-1.5">
+            <Feather name={(icons[s] as any) || 'check'} size={16} color={isDark ? '#fff' : '#000'} />
+            <Text className={isDark ? 'ml-1 text-sm text-textPrimary-dark' : 'ml-1 text-sm text-textPrimary'}>
+              {s}
+            </Text>
+          </View>
         ))}
-      </Row>
-    </Wrapper>
+      </View>
+    </View>
   );
 };

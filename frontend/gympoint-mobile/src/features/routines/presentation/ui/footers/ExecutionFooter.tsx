@@ -1,26 +1,6 @@
-import styled from 'styled-components/native';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { useTheme } from '@shared/hooks';
 import { Button, ButtonText } from '@shared/components/ui';
-
-const Footer = styled.View`
-  padding: ${({ theme }) => theme.spacing(2)}px;
-  background: ${({ theme }) => theme.colors.bg};
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const OutlineButton = styled.TouchableOpacity<{ disabled?: boolean }>`
-  min-height: 48px;
-  align-items: center;
-  justify-content: center;
-  border-radius: ${({ theme }) => theme.radius.lg}px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ theme }) => theme.colors.card};
-  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
-`;
-
-const OutlineLabel = styled.Text`
-  color: ${({ theme }) => theme.colors.text};
-  font-weight: 600;
-`;
 
 type Props = {
   currentSet: number;
@@ -41,6 +21,13 @@ export function ExecutionFooter({
   onPrevious,
   onNext,
 }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const textColor = isDark ? '#ffffff' : '#000000';
+  const cardBg = isDark ? '#1f2937' : '#ffffff';
+  const borderColor = isDark ? '#374151' : '#e5e7eb';
+  const bgColor = isDark ? '#111827' : '#f9fafb';
+
   const getButtonText = () => {
     if (currentSet < totalSets) {
       return 'Marcar serie completa';
@@ -51,19 +38,46 @@ export function ExecutionFooter({
     return 'Finalizar';
   };
 
+  const isPrevDisabled = exerciseIndex === 0;
+  const isNextDisabled = exerciseIndex === totalExercises - 1;
+
   return (
-    <Footer>
+    <View className="p-4 gap-1" style={{ backgroundColor: bgColor }}>
       <Button onPress={onCompleteSet}>
         <ButtonText>{getButtonText()}</ButtonText>
       </Button>
 
-      <OutlineButton onPress={onPrevious} disabled={exerciseIndex === 0}>
-        <OutlineLabel>Anterior</OutlineLabel>
-      </OutlineButton>
+      <TouchableOpacity
+        onPress={onPrevious}
+        disabled={isPrevDisabled}
+        className="min-h-12 items-center justify-center rounded-lg border"
+        style={{
+          backgroundColor: cardBg,
+          borderColor: borderColor,
+          borderWidth: 1,
+          opacity: isPrevDisabled ? 0.5 : 1,
+        }}
+      >
+        <Text className="font-semibold" style={{ color: textColor }}>
+          Anterior
+        </Text>
+      </TouchableOpacity>
 
-      <OutlineButton onPress={onNext} disabled={exerciseIndex === totalExercises - 1}>
-        <OutlineLabel>Siguiente</OutlineLabel>
-      </OutlineButton>
-    </Footer>
+      <TouchableOpacity
+        onPress={onNext}
+        disabled={isNextDisabled}
+        className="min-h-12 items-center justify-center rounded-lg border"
+        style={{
+          backgroundColor: cardBg,
+          borderColor: borderColor,
+          borderWidth: 1,
+          opacity: isNextDisabled ? 0.5 : 1,
+        }}
+      >
+        <Text className="font-semibold" style={{ color: textColor }}>
+          Siguiente
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 }

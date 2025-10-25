@@ -1,19 +1,33 @@
-import styled from 'styled-components/native';
+import { View, ViewProps, StyleSheet } from 'react-native';
 import { palette } from '@shared/styles';
+
+type AlertCardProps = ViewProps & {
+  premium?: boolean;
+};
 
 /**
  * AlertCard - Card con variante de alerta (puede ser premium o estándar)
  * Reutilizable para mostrar mensajes importantes con borde destacado
  */
-export const AlertCard = styled.View<{ $premium?: boolean }>`
-  background-color: ${({ $premium }) =>
-    $premium ? palette.premiumBg : palette.surfaceMuted};
-  border: 1px solid
-    ${({ $premium, theme }) =>
-      $premium
-        ? palette.premiumBorderAlt
-        : (theme?.colors?.border ?? palette.neutralBorder)};
-  border-radius: ${({ theme }) => theme?.radius?.md ?? 12}px;
-  padding: ${({ theme }) => (theme?.spacing ? theme.spacing(2) : 16)}px;
-  margin-bottom: ${({ theme }) => (theme?.spacing ? theme.spacing(2) : 16)}px;
-`;
+export const AlertCard = ({
+  premium = false,
+  className = '',
+  style,
+  ...props
+}: AlertCardProps) => {
+  const computedStyle = StyleSheet.flatten([
+    {
+      backgroundColor: premium ? palette.premiumBg : palette.surfaceMuted,
+      borderColor: premium ? palette.premiumBorderAlt : palette.neutralBorder,
+    },
+    style,
+  ]);
+
+  return (
+    <View
+      className={`p-4 mb-4 rounded-xl border ${className}`}
+      style={computedStyle}
+      {...props}
+    />
+  );
+};

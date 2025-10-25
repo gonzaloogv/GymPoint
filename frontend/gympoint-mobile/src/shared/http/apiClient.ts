@@ -40,16 +40,11 @@ api.interceptors.response.use(
         const refreshToken = await SecureStore.getItemAsync('refreshToken');
         if (!refreshToken) throw new Error('No refresh token');
 
-        const { data } = await axios.post(`${API_BASE_URL}/api/auth/refresh-token`, {
-          token: refreshToken,
+        const { data } = await axios.post(`${API_BASE_URL}/api/v1/auth/refresh`, {
+          refreshToken,
         });
 
-        const newAccessToken = data.accessToken ?? data.token;
-        if (!newAccessToken) {
-          throw new Error('No se pudo refrescar el token de acceso');
-        }
-
-        await SecureStore.setItemAsync('accessToken', newAccessToken);
+        await SecureStore.setItemAsync('accessToken', data.accessToken);
         queue.forEach((fn) => fn());
         queue = [];
 

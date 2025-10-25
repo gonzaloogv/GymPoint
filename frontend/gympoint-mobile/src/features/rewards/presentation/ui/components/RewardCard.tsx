@@ -1,84 +1,10 @@
-import { Ionicons } from '@expo/vector-icons';
-import styled from 'styled-components/native';
-import { View, Text } from 'react-native';
-
-import { Card, Button, ButtonText } from '@shared/components/ui';
+import React from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { Ionicons, Feather } from '@expo/vector-icons';
+import { useTheme } from '@shared/hooks';
+import { Card, Button } from '@shared/components/ui';
 import { palette } from '@shared/styles';
 import { Reward } from '@features/rewards/domain/entities';
-
-// Styled components específicos para RewardCard
-const RewardCardContent = styled(View)`
-  gap: 12px;
-`;
-
-const RewardHeader = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const RewardIconWrapper = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-`;
-
-const RewardIcon = styled(View)`
-  width: 44px;
-  height: 44px;
-  border-radius: 22px;
-  background-color: #dbeafe;
-  align-items: center;
-  justify-content: center;
-`;
-
-const RewardIconText = styled(Text)`
-  font-size: 22px;
-`;
-
-const RewardDiscount = styled(Text)`
-  font-size: 18px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-const StatusBadge = styled(View)<{ $available: boolean }>`
-  background-color: ${({ $available }) => ($available ? '#dbeafe' : '#f3f4f6')};
-  padding: 6px 12px;
-  border-radius: 12px;
-`;
-
-const StatusText = styled(Text)<{ $available: boolean }>`
-  font-size: 12px;
-  font-weight: 600;
-  color: ${({ $available }) => ($available ? '#2563eb' : '#6b7280')};
-`;
-
-const RewardTitle = styled(Text)`
-  font-size: 14px;
-  color: #6b7280;
-  line-height: 20px;
-`;
-
-const RewardCost = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  gap: 4px;
-  margin-top: 4px;
-`;
-
-const CostText = styled(Text)`
-  font-size: 13px;
-  font-weight: 600;
-  color: ${palette.highlight};
-`;
-
-const ButtonsRow = styled(View)`
-  flex-direction: row;
-  gap: 8px;
-  margin-top: 8px;
-`;
 
 type RewardCardProps = {
   reward: Reward;
@@ -95,71 +21,95 @@ export function RewardCard({
   getCategoryColor,
   getCategoryName,
 }: RewardCardProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   const isAffordable = tokens >= reward.cost;
   const isDisabled = !reward.available || !isAffordable;
-
-  // Extraer el porcentaje de descuento del título si existe
-  const discountMatch = reward.title.match(/(\d+%)/);
-  const discount = discountMatch ? discountMatch[1] : '';
+  const categoryColor = getCategoryColor(reward.category);
 
   return (
     <Card
+      className={`${isAffordable ? 'border-2' : 'border-2'}`}
       style={{
-        opacity: reward.available ? 1 : 0.6,
-        borderWidth: 1,
-        borderColor: reward.available ? '#e5e7eb' : '#f3f4f6',
+        opacity: reward.available ? 1 : 0.5,
+        borderColor: isAffordable ? palette.lifestylePrimary : palette.neutralBorder,
       }}
     >
-      <RewardCardContent>
-        {/* Header con icono, descuento y estado */}
-        <RewardHeader>
-          <RewardIconWrapper>
-            <RewardIcon>
-              <RewardIconText>{reward.icon}</RewardIconText>
-            </RewardIcon>
-            {discount && <RewardDiscount>{discount}</RewardDiscount>}
-          </RewardIconWrapper>
-          <StatusBadge $available={reward.available && isAffordable}>
-            <StatusText $available={reward.available && isAffordable}>
-              {!reward.available ? 'Solo Premium' : isAffordable ? 'Disponible' : 'No disponible'}
-            </StatusText>
-          </StatusBadge>
-        </RewardHeader>
+      <View className="flex-row gap-3">
+        {/* Icon */}
+        <View className="w-12 h-12 rounded-full items-center justify-center bg-[#E3F2FD]">
+          <Text className="text-xl">{reward.icon}</Text>
+        </View>
 
-        {/* Título/Descripción */}
-        <RewardTitle>{reward.description || reward.title}</RewardTitle>
+        {/* Info */}
+        <View className="flex-1 gap-2">
+          {/* Header Row */}
+          <View className="flex-row justify-between items-start">
+            <View className="flex-1 gap-1">
+              <Text className={`text-base font-semibold ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                {reward.title}
+              </Text>
+              <Text className="text-sm text-[#78716C] leading-[18px]">
+                {reward.description}
+              </Text>
+            </View>
 
-        {/* Costo en tokens */}
-        <RewardCost>
-          <Ionicons name="flash" size={14} color={palette.highlight} />
-          <CostText>{reward.cost} tokens</CostText>
-        </RewardCost>
+            <View className="flex-row items-center gap-1">
+              <Ionicons name="flash" size={14} color={palette.highlight} />
+              <Text className="text-sm font-semibold text-[#F59E0B]">{reward.cost}</Text>
+            </View>
+          </View>
 
-        {/* Botón de acción */}
-        <Button
-          variant={isDisabled ? undefined : 'primary'}
-          onPress={() => onGenerate(reward)}
-          disabled={isDisabled}
-          style={{
-            opacity: isDisabled ? 0.5 : 1,
-            backgroundColor: isDisabled ? '#f3f4f6' : '#3b82f6',
-            minHeight: 44,
-          }}
-        >
-          <ButtonText
-            style={{
-              color: isDisabled ? '#9ca3af' : '#ffffff',
-              fontWeight: '600',
-            }}
+          {/* Badge Wrapper */}
+          <View className="flex-row justify-between items-center">
+            <View
+              className="rounded-xl px-2 py-1 border"
+              style={{
+                backgroundColor: `${categoryColor}20`,
+                borderColor: categoryColor,
+              }}
+            >
+              <Text className="text-xs font-medium" style={{ color: categoryColor }}>
+                {getCategoryName(reward.category)}
+              </Text>
+            </View>
+
+            <View className="flex-row items-center gap-1">
+              <Feather name="clock" size={10} color={palette.slate500} />
+              <Text className="text-xs text-[#64748B]">{reward.validDays} días</Text>
+            </View>
+          </View>
+
+          {/* Terms */}
+          {reward.terms && (
+            <Text className="text-xs text-[#78716C] italic">{reward.terms}</Text>
+          )}
+
+          {/* Button */}
+          <TouchableOpacity
+            onPress={() => onGenerate(reward)}
+            disabled={isDisabled}
+            activeOpacity={0.7}
+            className={`rounded-xl items-center justify-center min-h-[44px] px-6 py-4 ${
+              isDisabled ? 'bg-[#F5F5F4] opacity-50' : 'bg-primary'
+            }`}
           >
-            {!reward.available
-              ? 'Solo Premium'
-              : !isAffordable
-                ? `Faltan ${reward.cost - tokens} tokens`
-                : 'Canjear'}
-          </ButtonText>
-        </Button>
-      </RewardCardContent>
+            <Text
+              className="font-semibold text-base"
+              style={{
+                color: isDisabled ? palette.textMuted : '#ffffff',
+              }}
+            >
+              {!reward.available
+                ? 'Solo Premium'
+                : !isAffordable
+                  ? `Faltan ${reward.cost - tokens} tokens`
+                  : 'Generar código'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </Card>
   );
 }

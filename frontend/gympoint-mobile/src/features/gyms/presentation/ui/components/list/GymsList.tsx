@@ -1,5 +1,6 @@
 // src/features/gyms/ui/components/GymsList.tsx
 import { View, Text, FlatList } from 'react-native';
+import { useTheme } from '@shared/hooks';
 import { GymListItem } from './GymListItem';
 
 type Item = {
@@ -17,13 +18,21 @@ type Props = {
 };
 
 export default function GymsList({ data, headerText, onPressItem }: Props) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   return (
     <FlatList
       data={data}
       keyExtractor={(item) => String(item.id)}
       ListHeaderComponent={
         headerText ? (
-          <Text style={{ color: '#6b7280', paddingHorizontal: 16, marginBottom: 8 }}>
+          <Text
+            className={
+              isDark
+                ? 'text-textSecondary-dark px-4 mb-2'
+                : 'text-textSecondary px-4 mb-2'
+            }
+          >
             {headerText}
           </Text>
         ) : null
@@ -39,9 +48,7 @@ export default function GymsList({ data, headerText, onPressItem }: Props) {
           onPress={onPressItem}
         />
       )}
-      ItemSeparatorComponent={() => (
-        <View style={{ height: 1, backgroundColor: '#eee' }} />
-      )}
+      ItemSeparatorComponent={() => <View className="h-px bg-border" />}
       contentContainerStyle={{ paddingBottom: 24, backgroundColor: 'transparent' }}
     />
   );

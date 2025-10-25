@@ -1,88 +1,62 @@
 import React from 'react';
 import { Ionicons, Feather } from '@expo/vector-icons';
-import styled from 'styled-components/native';
 import { View, Text } from 'react-native';
-
-const TipsBannerContainer = styled(View)`
-  background-color: ${({ theme }) => theme.colors.infoLight || '#EFF6FF'};
-  border-color: ${({ theme }) => theme.colors.infoBorder || '#BFDBFE'};
-  border-width: 1px;
-  border-radius: ${({ theme }) => theme.radius.lg}px;
-  padding: ${({ theme }) => theme.spacing(2)}px;
-  margin-top: ${({ theme }) => theme.spacing(2)}px;
-  gap: ${({ theme }) => theme.spacing(1.5)}px;
-`;
-
-const TipsHeader = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const TipsIcon = styled(Feather)`
-  color: ${({ theme }) => theme.colors.info || '#3B82F6'};
-`;
-
-const TipsTitle = styled(Text)`
-  font-size: ${({ theme }) => theme.typography.body}px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-const TipsList = styled(View)`
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const TipsRow = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing(1)}px;
-`;
-
-const TipsText = styled(Text)`
-  font-size: ${({ theme }) => theme.typography.small}px;
-  color: ${({ theme }) => theme.colors.subtext};
-  flex: 1;
-`;
+import { useTheme } from '@shared/hooks';
 
 type TipsBannerProps = {
   title?: string;
-  tips: Array<{
-    icon: keyof typeof Ionicons.glyphMap | keyof typeof Feather.glyphMap;
-    iconType: 'ionicons' | 'feather';
-    text: string;
-  }>;
+  tips: Array<
+    | { icon: keyof typeof Ionicons.glyphMap; iconType: 'ionicons'; text: string }
+    | { icon: keyof typeof Feather.glyphMap; iconType: 'feather'; text: string }
+  >;
   iconColor?: string;
 };
 
 export function TipsBanner({ title = '💡 Tips', tips, iconColor }: TipsBannerProps) {
-  return (
-    <TipsBannerContainer>
-      <TipsHeader>
-        <TipsIcon name="info" size={20} />
-        <TipsTitle>{title}</TipsTitle>
-      </TipsHeader>
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const infoColor = iconColor || '#3B82F6';
+  const infoBg = isDark ? '#1e3a8a' : '#EFF6FF';
+  const infoBorder = isDark ? '#1e40af' : '#BFDBFE';
 
-      <TipsList>
+  return (
+    <View
+      className="rounded-lg p-4 mt-4 gap-1.5"
+      style={{
+        backgroundColor: infoBg,
+        borderColor: infoBorder,
+        borderWidth: 1,
+      }}
+    >
+      <View className="flex-row items-center gap-1">
+        <Feather name="info" size={20} color={infoColor} />
+        <Text className="text-base font-semibold" style={{ color: isDark ? '#e0e7ff' : '#1f2937' }}>
+          {title}
+        </Text>
+      </View>
+
+      <View className="gap-1">
         {tips.map((tip, index) => (
-          <TipsRow key={index}>
+          <View key={index} className="flex-row items-center gap-1">
             {tip.iconType === 'ionicons' ? (
               <Ionicons
                 name={tip.icon as keyof typeof Ionicons.glyphMap}
                 size={14}
-                color={iconColor || '#3B82F6'}
+                color={infoColor}
               />
             ) : (
               <Feather
                 name={tip.icon as keyof typeof Feather.glyphMap}
                 size={14}
-                color={iconColor || '#3B82F6'}
+                color={infoColor}
               />
             )}
-            <TipsText>{tip.text}</TipsText>
-          </TipsRow>
+            <Text className="flex-1 text-xs" style={{ color: isDark ? '#9ca3af' : '#6b7280' }}>
+              {tip.text}
+            </Text>
+          </View>
         ))}
-      </TipsList>
-    </TipsBannerContainer>
+      </View>
+    </View>
   );
 }

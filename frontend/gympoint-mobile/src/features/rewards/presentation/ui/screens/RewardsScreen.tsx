@@ -1,8 +1,10 @@
 // src/features/rewards/ui/RewardsScreen.tsx
 
 import React from 'react';
+import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+import { useTheme } from '@shared/hooks';
 
 // 1. IMPORTACIONES DE DOMINIO Y HOOKS
 import { User } from '@features/auth/domain/entities/User';
@@ -14,13 +16,9 @@ import {
   RewardsTabs,
   RewardsContent,
   LoadingState,
+  PremiumUpsell,
+  TokensTips,
 } from '@features/rewards/presentation/ui/components';
-
-// 3. IMPORTACIONES DE ESTILOS MODULARES
-import {
-  ScrollContainer,
-  Container,
-} from '@features/rewards/presentation/ui/styles/layout';
 
 // --- INTERFAZ DE PROPS ---
 interface RewardsScreenProps {
@@ -30,6 +28,10 @@ interface RewardsScreenProps {
 // ------------------------------------------------------------------------------------------------
 
 const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const bgColor = isDark ? '#111827' : '#f9fafb';
+
   // Estado de carga
   if (!user) {
     return <LoadingState />;
@@ -48,24 +50,31 @@ const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser }) => 
 
   // Handlers
   const handleViewRewards = () => setActiveTab('available');
+  const handlePremiumPress = () => {
+    // TODO: Navegar a la pantalla Premium o modal
+  };
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: '#ffffff' }}
+      style={{ flex: 1, backgroundColor: bgColor }}
       edges={['top', 'left', 'right']}
     >
-      <ScrollContainer
+      <ScrollView
         contentContainerStyle={{
-          paddingBottom: 50,
+          paddingBottom: 48,
           paddingHorizontal: 16,
           flexGrow: 1,
         }}
         showsVerticalScrollIndicator={false}
         bounces={true}
+        style={{ flex: 1, backgroundColor: bgColor }}
       >
-        <Container>
-          {/* Header con título y barra de progreso */}
+        <View className="flex-1">
+          {/* Header con título y tokens */}
           <RewardsHeader user={user} />
+
+          {/* Banner Premium para usuarios Free */}
+          {user.plan === 'Free' && <PremiumUpsell onPress={handlePremiumPress} />}
 
           {/* Sistema de pestañas */}
           <RewardsTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -81,8 +90,11 @@ const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser }) => 
             onToggleCode={handleToggleCode}
             onViewRewards={handleViewRewards}
           />
-        </Container>
-      </ScrollContainer>
+
+          {/* Banner de consejos */}
+          <TokensTips />
+        </View>
+      </ScrollView>
       <Toast />
     </SafeAreaView>
   );
