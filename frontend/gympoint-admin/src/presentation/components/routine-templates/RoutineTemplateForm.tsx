@@ -43,22 +43,44 @@ export const RoutineTemplateForm: React.FC<RoutineTemplateFormProps> = ({
 
   useEffect(() => {
     if (template) {
-      // TODO: Cargar días y ejercicios existentes cuando se implemente el endpoint completo
-      // Por ahora, cargamos solo los ejercicios si están disponibles
-      const existingExercises = template.exercises?.map((ex, index) => ({
-        id_exercise: ex.id_exercise,
-        series: ex.series,
-        reps: ex.reps,
-        order: ex.order || index + 1,
-        day_number: undefined // TODO: Cargar day_number cuando esté disponible
+      console.log('🔍 Template recibido:', template);
+      console.log('🔍 Template.exercises:', template.exercises);
+      console.log('🔍 Template.days:', template.days);
+      
+      // Cargar días existentes
+      const existingDays = template.days?.map(day => ({
+        day_number: day.day_number,
+        title: day.title || `Día ${day.day_number}`,
+        description: day.description || '',
       })) || [];
+
+      console.log('✅ existingDays:', existingDays);
+
+      // Cargar ejercicios existentes con su día asociado
+      const existingExercises = template.exercises?.map((ex, index) => {
+        console.log('🔍 Procesando ejercicio:', ex);
+        const dayNumber = ex.id_routine_day ? 
+          template.days?.find(d => d.id_routine_day === ex.id_routine_day)?.day_number : 
+          undefined;
+        console.log('🔍 day_number calculado:', dayNumber);
+        
+        return {
+          id_exercise: ex.id_exercise,
+          series: ex.series,
+          reps: ex.reps,
+          order: ex.order || index + 1,
+          day_number: dayNumber
+        };
+      }) || [];
+
+      console.log('✅ existingExercises:', existingExercises);
 
       setFormData({
         routine_name: template.routine_name,
         description: template.description || '',
         recommended_for: template.recommended_for || 'BEGINNER',
         template_order: template.template_order,
-        days: [], // TODO: Cargar días existentes cuando esté disponible
+        days: existingDays,
         selectedExercises: existingExercises,
       });
     } else {

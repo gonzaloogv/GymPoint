@@ -8,8 +8,18 @@ export class RoutineTemplateRepositoryImpl implements RoutineTemplateRepository 
   }
 
   async getTemplateById(id: number): Promise<RoutineTemplate> {
-    const response = await apiClient.get<RoutineTemplate>(`/admin/routines/templates/${id}`);
-    return response.data;
+    // Usar el endpoint genérico de rutinas que sí incluye días y ejercicios
+    const response = await apiClient.get<any>(`/routines/${id}`);
+    console.log('🔍 Response RAW:', response);
+    console.log('🔍 Response.data:', response.data);
+    console.log('🔍 Response.data.data:', response.data.data);
+    
+    const template = response.data.data as RoutineTemplate;
+    console.log('🔍 Template parseado:', template);
+    console.log('🔍 Template.days:', template.days);
+    console.log('🔍 Template.exercises:', template.exercises);
+    
+    return template;
   }
 
   async createTemplate(template: CreateRoutineTemplateDTO): Promise<RoutineTemplate> {

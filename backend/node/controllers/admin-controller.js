@@ -90,11 +90,11 @@ const otorgarTokens = async (req, res) => {
       });
     }
 
-    const newBalance = await userService.actualizarTokens(
-      parseInt(id),
-      parseInt(delta),
-      reason || `Admin: ${req.user.email}`
-    );
+    const newBalance = await userService.actualizarTokens({
+      userProfileId: parseInt(id),
+      delta: parseInt(delta),
+      reason: reason || `Admin: ${req.account?.email || 'admin'}`,
+    });
 
     res.json({
       id_user_profile: parseInt(id),
@@ -132,10 +132,10 @@ const actualizarSuscripcion = async (req, res) => {
       });
     }
 
-    const result = await userService.actualizarSuscripcion(
-      parseInt(id),
-      subscription
-    );
+    const result = await userService.actualizarSuscripcion({
+      userProfileId: parseInt(id),
+      subscription: subscription,
+    });
 
     res.json(result);
   } catch (err) {

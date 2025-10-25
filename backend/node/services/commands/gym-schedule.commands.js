@@ -98,7 +98,7 @@ class DeleteGymScheduleCommand {
 class CreateGymSpecialScheduleCommand {
   constructor({
     gymId,
-    special_date,
+    date,
     open_time = null,
     close_time = null,
     is_closed = false,
@@ -106,7 +106,7 @@ class CreateGymSpecialScheduleCommand {
     createdBy,
   }) {
     this.gymId = gymId;
-    this.special_date = special_date;
+    this.date = date;
     this.open_time = open_time;
     this.close_time = close_time;
     this.is_closed = is_closed;

@@ -24,7 +24,7 @@ export class GymScheduleRepositoryImpl implements GymScheduleRepository {
    * Obtener todos los horarios de un gimnasio
    */
   async getSchedulesByGym(id_gym: number): Promise<GymSchedule[]> {
-    const response = await apiClient.get<GymScheduleResponse[]>(`/schedules/${id_gym}`);
+    const response = await apiClient.get<GymScheduleResponse[]>(`/gyms/${id_gym}/schedules`);
     return response.data.map(mapGymScheduleResponseToGymSchedule);
   }
 
@@ -33,7 +33,10 @@ export class GymScheduleRepositoryImpl implements GymScheduleRepository {
    */
   async createSchedule(schedule: CreateGymScheduleDTO): Promise<GymSchedule> {
     const request = mapCreateGymScheduleDTOToRequest(schedule);
-    const response = await apiClient.post<GymScheduleResponse>(`/schedules`, request);
+    const response = await apiClient.post<GymScheduleResponse>(
+      `/gyms/${schedule.id_gym}/schedules`,
+      request
+    );
     return mapGymScheduleResponseToGymSchedule(response.data);
   }
 
@@ -41,10 +44,10 @@ export class GymScheduleRepositoryImpl implements GymScheduleRepository {
    * Actualizar un horario existente
    */
   async updateSchedule(schedule: UpdateGymScheduleDTO): Promise<GymSchedule> {
-    const { id_schedule } = schedule;
+    const { id_schedule, id_gym } = schedule;
     const request = mapUpdateGymScheduleDTOToRequest(schedule);
-    const response = await apiClient.put<GymScheduleResponse>(
-      `/schedules/${id_schedule}`,
+    const response = await apiClient.patch<GymScheduleResponse>(
+      `/gyms/${id_gym}/schedules/${id_schedule}`,
       request
     );
     return mapGymScheduleResponseToGymSchedule(response.data);
@@ -55,7 +58,7 @@ export class GymScheduleRepositoryImpl implements GymScheduleRepository {
    */
   async getSpecialSchedulesByGym(id_gym: number): Promise<GymSpecialSchedule[]> {
     const response = await apiClient.get<GymSpecialScheduleResponse[]>(
-      `/special-schedules/${id_gym}`
+      `/gyms/${id_gym}/special-schedules`
     );
     return response.data.map(mapGymSpecialScheduleResponseToGymSpecialSchedule);
   }
@@ -66,7 +69,7 @@ export class GymScheduleRepositoryImpl implements GymScheduleRepository {
   async createSpecialSchedule(schedule: CreateGymSpecialScheduleDTO): Promise<GymSpecialSchedule> {
     const request = mapCreateGymSpecialScheduleDTOToRequest(schedule);
     const response = await apiClient.post<GymSpecialScheduleResponse>(
-      `/special-schedules`,
+      `/gyms/${schedule.id_gym}/special-schedules`,
       request
     );
     return mapGymSpecialScheduleResponseToGymSpecialSchedule(response.data);

@@ -95,7 +95,7 @@ export function mapRewardResponseToReward(dto: RewardResponse): Reward {
  * Convierte CreateRewardDTO (del dominio) a CreateRewardRequest (DTO del API)
  */
 export function mapCreateRewardDTOToRequest(domainDTO: DomainCreateRewardDTO): CreateRewardRequest {
-  return {
+  const request: any = {
     name: domainDTO.name,
     description: domainDTO.description,
     reward_type: domainDTO.reward_type as any,
@@ -104,9 +104,13 @@ export function mapCreateRewardDTOToRequest(domainDTO: DomainCreateRewardDTO): C
     valid_from: domainDTO.start_date,
     valid_until: domainDTO.finish_date,
     is_active: domainDTO.available ?? true,
-    image_url: domainDTO.image_url || undefined,
-    terms: domainDTO.terms || undefined,
   };
+
+  // Solo agregar campos opcionales si tienen valor
+  if (domainDTO.image_url) request.image_url = domainDTO.image_url;
+  if (domainDTO.terms) request.terms = domainDTO.terms;
+
+  return request;
 }
 
 /**

@@ -31,6 +31,7 @@ export interface CreateGymSpecialScheduleDTO {
  */
 export interface UpdateGymSpecialScheduleDTO extends Partial<CreateGymSpecialScheduleDTO> {
   id_special_schedule: number;
+  id_gym: number; // Necesario para construir la URL
 }
 
 /**

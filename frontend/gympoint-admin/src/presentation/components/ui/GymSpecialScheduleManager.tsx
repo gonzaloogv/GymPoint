@@ -40,7 +40,11 @@ export const GymSpecialScheduleManager = ({ id_gym, gymName }: GymSpecialSchedul
     e.preventDefault();
     try {
       if (editingSchedule) {
-        await updateMutation.mutateAsync({ id_special_schedule: editingSchedule.id_special_schedule, ...formData });
+        await updateMutation.mutateAsync({ 
+          id_special_schedule: editingSchedule.id_special_schedule,
+          id_gym: editingSchedule.id_gym,
+          ...formData 
+        });
         alert(' Horario especial actualizado exitosamente');
       } else {
         await createMutation.mutateAsync(formData);
@@ -60,7 +64,7 @@ export const GymSpecialScheduleManager = ({ id_gym, gymName }: GymSpecialSchedul
       opening_time: schedule.opening_time || '08:00',
       closing_time: schedule.closing_time || '22:00',
       closed: schedule.closed,
-      motive: schedule.motive,
+      motive: schedule.motive || '',
     });
     setShowForm(true);
   };
@@ -68,7 +72,10 @@ export const GymSpecialScheduleManager = ({ id_gym, gymName }: GymSpecialSchedul
   const handleDelete = async (schedule: GymSpecialSchedule) => {
     if (window.confirm(`¿Eliminar horario especial del ${schedule.date}?\n\nMotivo: ${schedule.motive}`)) {
       try {
-        await deleteMutation.mutateAsync({ id: schedule.id_special_schedule, id_gym });
+        await deleteMutation.mutateAsync({ 
+          id_special_schedule: schedule.id_special_schedule, 
+          id_gym: schedule.id_gym 
+        });
         alert(' Horario especial eliminado exitosamente');
       } catch (err: any) {
         alert(` Error al eliminar: ${err.response?.data?.error?.message || err.message}`);

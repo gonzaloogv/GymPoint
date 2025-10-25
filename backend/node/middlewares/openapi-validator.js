@@ -26,7 +26,7 @@ const openapiValidatorMiddleware = OpenApiValidator.middleware({
   validateResponses: process.env.NODE_ENV !== 'production',
 
   // Ignorar rutas que no están en el spec
-  ignorePaths: /^\/(docs|openapi\.yaml|health|ready|api-docs|api\/admin.*)/,
+  ignorePaths: /^\/(docs|openapi\.yaml|health|ready|api-docs|api\/admin.*|api\/gyms\/\d+\/(schedules|special-schedules).*)/,
 
   // Opciones adicionales
   validateSecurity: false, // Por ahora, auth lo manejamos custom

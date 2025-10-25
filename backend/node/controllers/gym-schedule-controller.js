@@ -151,8 +151,7 @@ const listGymSpecialSchedules = async (req, res) => {
     const gymId = parseInt(req.params.gymId, 10);
     const { from_date, to_date, future_only } = req.query;
 
-    const query = gymScheduleMappers.toGetGymSpecialSchedulesQuery({
-      gymId,
+    const query = gymScheduleMappers.toListGymSpecialSchedulesQuery(gymId, {
       from_date,
       to_date,
       future_only: future_only === 'true',
@@ -234,12 +233,14 @@ const createGymSpecialSchedule = async (req, res) => {
  */
 const updateGymSpecialSchedule = async (req, res) => {
   try {
+    const gymId = parseInt(req.params.gymId, 10);
     const specialScheduleId = parseInt(req.params.specialScheduleId, 10);
     const updatedBy = req.account?.userProfile?.id_user_profile;
 
     const command = gymScheduleMappers.toUpdateGymSpecialScheduleCommand(
       req.body,
       specialScheduleId,
+      gymId,
       updatedBy
     );
     const schedule = await gymScheduleService.updateGymSpecialSchedule(command);
@@ -323,6 +324,39 @@ const getEffectiveGymSchedule = async (req, res) => {
   }
 };
 
+// ============================================================================
+// LEGACY WRAPPERS
+// ============================================================================
+
+/**
+ * Wrapper legacy para obtener horarios por gimnasio
+ * Convierte req.params.id_gym a req.params.gymId
+ */
+const obtenerHorariosPorGimnasio = async (req, res) => {
+  req.params.gymId = req.params.id_gym;
+  return listGymSchedules(req, res);
+};
+
+/**
+ * Wrapper legacy para actualizar horario
+ * Convierte req.params.id_schedule a req.params.scheduleId
+ */
+const actualizarHorario = async (req, res) => {
+  req.params.scheduleId = req.params.id_schedule;
+  return updateGymSchedule(req, res);
+};
+
+/**
+ * Wrapper legacy para crear horario
+ * Extrae id_gym del body y lo pone en params
+ */
+const crearHorario = async (req, res) => {
+  if (req.body.id_gym) {
+    req.params.gymId = req.body.id_gym;
+  }
+  return createGymSchedule(req, res);
+};
+
 module.exports = {
   // Regular schedules
   listGymSchedules,
@@ -341,10 +375,10 @@ module.exports = {
   // Combined
   getEffectiveGymSchedule,
 
-  // Legacy compatibility (old function names)
-  crearHorario: createGymSchedule,
-  obtenerHorariosPorGimnasio: listGymSchedules,
-  actualizarHorario: updateGymSchedule,
+  // Legacy compatibility (old function names with wrappers)
+  crearHorario,
+  obtenerHorariosPorGimnasio,
+  actualizarHorario,
   crearHorarioEspecial: createGymSpecialSchedule,
   obtenerHorariosEspecialesPorGimnasio: listGymSpecialSchedules,
 };

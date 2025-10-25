@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const gymController = require('../controllers/gym-controller');
-const { verificarToken, verificarRol, verificarUsuarioApp } = require('../middlewares/auth');
+const gymScheduleController = require('../controllers/gym-schedule-controller');
+const { verificarToken, verificarRol, verificarUsuarioApp, verificarAdmin } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -299,6 +300,27 @@ router.get('/localidad', gymController.getGymsByCity);
  *         description: Lista de gimnasios favoritos
  */
 router.get('/me/favorites', verificarToken, verificarUsuarioApp, gymController.obtenerFavoritos);
+
+// ============================================================================
+// NESTED SCHEDULE ROUTES - RESTful Pattern
+// IMPORTANT: These routes must be BEFORE /:id routes to avoid conflicts
+// ============================================================================
+
+router.get('/:gymId/schedules', gymScheduleController.listGymSchedules);
+router.post('/:gymId/schedules', verificarToken, verificarAdmin, gymScheduleController.createGymSchedule);
+router.patch('/:gymId/schedules/:scheduleId', verificarToken, verificarAdmin, gymScheduleController.updateGymSchedule);
+router.delete('/:gymId/schedules/:scheduleId', verificarToken, verificarAdmin, gymScheduleController.deleteGymSchedule);
+
+router.get('/:gymId/special-schedules', gymScheduleController.listGymSpecialSchedules);
+router.post('/:gymId/special-schedules', verificarToken, verificarAdmin, gymScheduleController.createGymSpecialSchedule);
+router.patch('/:gymId/special-schedules/:specialScheduleId', verificarToken, verificarAdmin, gymScheduleController.updateGymSpecialSchedule);
+router.delete('/:gymId/special-schedules/:specialScheduleId', verificarToken, verificarAdmin, gymScheduleController.deleteGymSpecialSchedule);
+
+// ============================================================================
+// GYM ROUTES WITH :id PARAMETER
+// IMPORTANT: These routes must be AFTER more specific routes
+// ============================================================================
+
 /**
  * @swagger
  * /api/gyms/{id}/favorite:

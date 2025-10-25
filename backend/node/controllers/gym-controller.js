@@ -44,6 +44,11 @@ const getGymById = async (req, res) => {
 
 const createGym = async (req, res) => {
   try {
+    console.log('=== CONTROLLER createGym ===');
+    console.log('Request body equipment:', JSON.stringify(req.body.equipment));
+    console.log('Request body rules:', JSON.stringify(req.body.rules));
+    console.log('Request body amenities:', JSON.stringify(req.body.amenities));
+    
     const command = gymMapper.toCreateGymCommand(req.body, req.account?.id_account || null);
     const gym = await gymService.createGym(command);
     res.status(201).json(gymMapper.toGymResponse(gym));

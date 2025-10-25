@@ -1,5 +1,5 @@
 // src/features/gyms/data/GymRepositoryImpl.ts
-import { api } from '@shared/services/api';
+import { api } from '@shared/http/apiClient';
 
 import { Gym } from '../domain/entities/Gym';
 import { GymRepository, ListNearbyParams } from '../domain/repositories/GymRepository';
@@ -7,12 +7,16 @@ import { GymDTO } from './dto/GymDTO';
 import { mapGymDTOtoEntity } from './mappers/gym.mappers';
 import { MOCK_UI } from '../data/datasources/GymMocks';
 
+/**
+ * Calcula la distancia entre dos puntos usando la fórmula de Haversine
+ * Usa el radio WGS84 (6378137 m) - mismo que Mapbox y GPS
+ */
 function distanceMeters(
   a: { lat: number; lng: number },
   b: { lat: number; lng: number },
 ) {
   const toRad = (x: number) => (x * Math.PI) / 180;
-  const R = 6371000;
+  const R = 6378137; // WGS84 - usado por Mapbox y GPS
   const dLat = toRad(b.lat - a.lat);
   const dLon = toRad(b.lng - a.lng);
   const lat1 = toRad(a.lat);
@@ -25,54 +29,34 @@ function distanceMeters(
 export class GymRepositoryImpl implements GymRepository {
   async listNearby({ lat, lng, radius = 10000 }: ListNearbyParams): Promise<Gym[]> {
     try {
-      console.log('🔄 Intentando obtener gimnasios de la API...');
+      console.log('🔄 Obteniendo todos los gimnasios de la API...');
 
-      // Intentar primero /cercanos:
-      try {
-        const res = await api.get('/api/gyms/cercanos', {
-          params: { lat, lng, radiusKm: radius / 1000 }, // Convertir metros a km
-        });
-        const list: GymDTO[] = Array.isArray(res.data)
-          ? res.data
-          : (res.data?.data ?? []);
+      // Obtener todos los gimnasios
+      const res = await api.get('/api/gyms');
+      
+      // Extraer la lista de gimnasios (manejar respuesta paginada)
+      const list: GymDTO[] = Array.isArray(res.data) 
+        ? res.data 
+        : (res.data?.items ?? res.data?.data ?? []);
 
-        if (list.length > 0) {
-          console.log(
-            '✅ Datos obtenidos de /api/gyms/cercanos:',
-            list.length,
-            'gimnasios',
-          );
-          return list
-            .map(mapGymDTOtoEntity)
-            .filter((g): g is Gym => !!g)
-            .sort((a, b) => (a.distancia ?? Infinity) - (b.distancia ?? Infinity));
-        }
-
-        throw new Error('No hay datos en /cercanos');
-      } catch (cercanoError) {
-        console.log('⚠️ /cercanos falló, intentando /api/gyms...');
-
-        // Fallback: /api/gyms
-        const res = await api.get('/api/gyms');
-        const list: GymDTO[] = Array.isArray(res.data) ? res.data : [];
-
-        if (list.length > 0) {
-          console.log('✅ Datos obtenidos de /api/gyms:', list.length, 'gimnasios');
-          return list
-            .map(mapGymDTOtoEntity)
-            .filter((g): g is Gym => !!g)
-            .map((g) => ({
-              ...g,
-              distancia: distanceMeters({ lat, lng }, { lat: g.lat, lng: g.lng }),
-            }))
-            .filter((g) => (g.distancia ?? Infinity) <= radius)
-            .sort((a, b) => (a.distancia ?? Infinity) - (b.distancia ?? Infinity));
-        }
-
-        throw new Error('No hay datos en /api/gyms');
+      if (list.length > 0) {
+        console.log('✅ Datos obtenidos de /api/gyms:', list.length, 'gimnasios');
+        
+        // Calcular distancia en el cliente y filtrar por radio
+        return list
+          .map(mapGymDTOtoEntity)
+          .filter((g): g is Gym => !!g)
+          .map((g) => ({
+            ...g,
+            distancia: distanceMeters({ lat, lng }, { lat: g.lat, lng: g.lng }),
+          }))
+          .filter((g) => (g.distancia ?? Infinity) <= radius)
+          .sort((a, b) => (a.distancia ?? Infinity) - (b.distancia ?? Infinity));
       }
+
+      throw new Error('No hay datos en /api/gyms');
     } catch (apiError) {
-      console.log('❌ API falló completamente, usando mocks...', apiError);
+      console.log('❌ API falló, usando mocks...', apiError);
 
       // Fallback final: usar mocks
       return MOCK_UI.map((mockGym) => ({
@@ -88,7 +72,11 @@ export class GymRepositoryImpl implements GymRepository {
     try {
       console.log('🔄 Obteniendo todos los gimnasios de la API...');
       const res = await api.get('/api/gyms');
-      const list: GymDTO[] = Array.isArray(res.data) ? res.data : [];
+      
+      // Extraer la lista de gimnasios (manejar respuesta paginada)
+      const list: GymDTO[] = Array.isArray(res.data) 
+        ? res.data 
+        : (res.data?.items ?? res.data?.data ?? []);
 
       if (list.length > 0) {
         console.log('✅ Datos obtenidos de /api/gyms:', list.length, 'gimnasios');

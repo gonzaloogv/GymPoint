@@ -72,11 +72,11 @@ function toDeleteGymScheduleCommand(scheduleId, gymId, deletedBy) {
 function toCreateGymSpecialScheduleCommand(dto, gymId, createdBy) {
   return new CreateGymSpecialScheduleCommand({
     gymId,
-    special_date: new Date(dto.special_date),
+    date: dto.date ? new Date(dto.date) : new Date(dto.special_date), // Soporte para ambos nombres
     open_time: dto.open_time || null,
     close_time: dto.close_time || null,
     is_closed: dto.is_closed !== undefined ? dto.is_closed : false,
-    reason: dto.reason || null,
+    reason: dto.reason || dto.motive || null, // Soporte para ambos nombres
     createdBy,
   });
 }
@@ -91,7 +91,7 @@ function toUpdateGymSpecialScheduleCommand(dto, specialScheduleId, gymId, update
     open_time: dto.open_time,
     close_time: dto.close_time,
     is_closed: dto.is_closed,
-    reason: dto.reason,
+    reason: dto.reason || dto.motive, // Soporte para ambos nombres
     updatedBy,
   });
 }
@@ -150,10 +150,10 @@ function toGetGymSpecialScheduleByIdQuery(specialScheduleId, gymId) {
 /**
  * Mapea a GetGymSpecialScheduleByDateQuery
  */
-function toGetGymSpecialScheduleByDateQuery(gymId, special_date) {
+function toGetGymSpecialScheduleByDateQuery(gymId, date) {
   return new GetGymSpecialScheduleByDateQuery({
     gymId,
-    special_date: new Date(special_date),
+    date: new Date(date),
   });
 }
 
@@ -186,6 +186,13 @@ function toGymScheduleResponse(schedule) {
 }
 
 /**
+ * Mapea array de schedules a array de DTOs
+ */
+function toGymSchedulesDTO(schedules) {
+  return schedules.map(schedule => toGymScheduleResponse(schedule));
+}
+
+/**
  * Mapea array de schedules a response agrupado por día
  */
 function toGymSchedulesWeekResponse(schedules) {
@@ -213,13 +220,35 @@ function toGymSpecialScheduleResponse(specialSchedule) {
   return {
     id_special_schedule: specialSchedule.id_special_schedule,
     id_gym: specialSchedule.id_gym,
-    special_date: specialSchedule.special_date,
+    date: specialSchedule.date, // Usar 'date' como está en el modelo
     open_time: specialSchedule.open_time,
     close_time: specialSchedule.close_time,
     is_closed: specialSchedule.is_closed,
-    reason: specialSchedule.reason || null,
+    motive: specialSchedule.reason || null,
     created_at: specialSchedule.created_at ? specialSchedule.created_at.toISOString() : null,
+    updated_at: specialSchedule.updated_at ? specialSchedule.updated_at.toISOString() : null,
   };
+}
+
+/**
+ * Mapea un special schedule a DTO (alias para consistencia)
+ */
+function toGymSpecialScheduleDTO(specialSchedule) {
+  return toGymSpecialScheduleResponse(specialSchedule);
+}
+
+/**
+ * Mapea array de special schedules a array de DTOs
+ */
+function toGymSpecialSchedulesDTO(specialSchedules) {
+  return specialSchedules.map(schedule => toGymSpecialScheduleResponse(schedule));
+}
+
+/**
+ * Mapea un schedule a DTO (alias para consistencia)
+ */
+function toGymScheduleDTO(schedule) {
+  return toGymScheduleResponse(schedule);
 }
 
 module.exports = {
@@ -242,6 +271,10 @@ module.exports = {
 
   // Entity → ResponseDTO
   toGymScheduleResponse,
+  toGymScheduleDTO,
+  toGymSchedulesDTO,
   toGymSchedulesWeekResponse,
   toGymSpecialScheduleResponse,
+  toGymSpecialScheduleDTO,
+  toGymSpecialSchedulesDTO,
 };

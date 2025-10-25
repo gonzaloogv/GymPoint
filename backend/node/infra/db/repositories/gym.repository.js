@@ -52,6 +52,7 @@ async function updateGym(idGym, payload, options = {}) {
     where: { id_gym: idGym },
     transaction: options.transaction,
   });
+  console.log('Update payload:', payload);
 
   if (options.returning === false) {
     return null;
@@ -167,7 +168,7 @@ async function findByCity(city, options = {}) {
 }
 
 async function findNearby({ lat, lng, radiusKm, limit, offset }) {
-  const earthRadiusKm = 6371;
+  const earthRadiusKm = 6378.137; // WGS84 - usado por Mapbox y GPS
 
   const latMin = lat - (radiusKm / earthRadiusKm) * (180 / Math.PI);
   const latMax = lat + (radiusKm / earthRadiusKm) * (180 / Math.PI);
@@ -183,7 +184,7 @@ async function findNearby({ lat, lng, radiusKm, limit, offset }) {
       include: [
         [
           literal(
-            `(6371 * acos(cos(radians(${lat})) * cos(radians(latitude)) * cos(radians(longitude) - radians(${lng})) + sin(radians(${lat})) * sin(radians(latitude))))`
+            `(6378.137 * acos(cos(radians(${lat})) * cos(radians(latitude)) * cos(radians(longitude) - radians(${lng})) + sin(radians(${lat})) * sin(radians(latitude))))`
           ),
           'distance_km',
         ],

@@ -91,8 +91,7 @@ const UserProfile = sequelize.define('UserProfile', {
   timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at',
-  paranoid: true,
-  deletedAt: 'deleted_at',
+  paranoid: false,
   indexes: [
     {
       unique: true,
@@ -110,10 +109,6 @@ const UserProfile = sequelize.define('UserProfile', {
     {
       fields: ['tokens'],
       name: 'idx_user_profiles_tokens'
-    },
-    {
-      fields: ['deleted_at'],
-      name: 'idx_user_profiles_deleted'
     }
   ]
 });

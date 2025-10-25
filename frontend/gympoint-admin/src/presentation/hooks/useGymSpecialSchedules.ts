@@ -35,8 +35,8 @@ export const useUpdateGymSpecialSchedule = () => {
 export const useDeleteGymSpecialSchedule = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, id_gym }: { id: number; id_gym: number }) => 
-      gymSpecialScheduleRepository.deleteSpecialSchedule(id),
+    mutationFn: ({ id_special_schedule, id_gym }: { id_special_schedule: number; id_gym: number }) => 
+      gymSpecialScheduleRepository.deleteSpecialSchedule({ id_special_schedule, id_gym }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['gymSpecialSchedules', variables.id_gym] });
     },

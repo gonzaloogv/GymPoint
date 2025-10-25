@@ -65,23 +65,23 @@ async function findSpecialSchedulesByGymId(gymId, filters = {}, options = {}) {
   const where = { id_gym: gymId };
 
   if (filters.from_date) {
-    where.special_date = where.special_date || {};
-    where.special_date[Op.gte] = filters.from_date;
+    where.date = where.date || {};
+    where.date[Op.gte] = filters.from_date;
   }
 
   if (filters.to_date) {
-    where.special_date = where.special_date || {};
-    where.special_date[Op.lte] = filters.to_date;
+    where.date = where.date || {};
+    where.date[Op.lte] = filters.to_date;
   }
 
   if (filters.future_only) {
-    where.special_date = where.special_date || {};
-    where.special_date[Op.gte] = new Date();
+    where.date = where.date || {};
+    where.date[Op.gte] = new Date();
   }
 
   const schedules = await GymSpecialSchedule.findAll({
     where,
-    order: [['special_date', 'ASC']],
+    order: [['date', 'ASC']],
     transaction: options.transaction,
   });
   return toGymSpecialSchedules(schedules);
@@ -94,9 +94,9 @@ async function findSpecialScheduleById(specialScheduleId, options = {}) {
   return toGymSpecialSchedule(schedule);
 }
 
-async function findSpecialScheduleByGymAndDate(gymId, special_date, options = {}) {
+async function findSpecialScheduleByGymAndDate(gymId, date, options = {}) {
   const schedule = await GymSpecialSchedule.findOne({
-    where: { id_gym: gymId, special_date },
+    where: { id_gym: gymId, date },
     transaction: options.transaction,
   });
   return toGymSpecialSchedule(schedule);

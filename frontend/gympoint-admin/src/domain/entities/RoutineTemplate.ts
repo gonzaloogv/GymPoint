@@ -4,6 +4,20 @@
 export type RoutineDifficulty = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
 
 /**
+ * Día de una rutina
+ */
+export interface RoutineDay {
+  id_routine_day: number;
+  id_routine: number;
+  day_number: number;
+  title: string | null;
+  description: string | null;
+  created_at?: string;
+  updated_at?: string;
+  exercises?: RoutineExercise[]; // Ejercicios de este día específico
+}
+
+/**
  * Plantilla de Rutina
  */
 export interface RoutineTemplate {
@@ -16,6 +30,7 @@ export interface RoutineTemplate {
   template_order: number;
   created_at?: string;
   updated_at?: string;
+  days?: RoutineDay[]; // Días de la rutina
   exercises?: RoutineExercise[]; // Ejercicios de la rutina
 }
 
@@ -23,12 +38,13 @@ export interface RoutineTemplate {
  * Ejercicio dentro de una rutina
  */
 export interface RoutineExercise {
-  id_routine_exercise: number;
+  id_routine_exercise?: number;
   id_routine: number;
   id_exercise: number;
   series: number;
   reps: number;
   order: number;
+  id_routine_day?: number | null; // Día al que pertenece el ejercicio
   exercise?: Exercise; // Información del ejercicio
 }
 

@@ -36,6 +36,7 @@
  * @property {Array<string>} [type_names=[]] - Nombres de tipos a crear/asociar
  * @property {Array<number>} [amenities=[]] - IDs de amenidades asociadas
  * @property {Array<string>} [rules=[]] - Reglas del gimnasio
+ * @property {Array<string>} [equipment=[]] - Equipamiento del gimnasio
  * @property {number} createdBy - ID del admin que crea el gym
  */
 class CreateGymCommand {
@@ -61,6 +62,7 @@ class CreateGymCommand {
     type_names = [],
     amenities = [],
     rules = [],
+    equipment = [],
   }) {
     this.name = name;
     this.city = city;
@@ -83,6 +85,7 @@ class CreateGymCommand {
     this.type_names = type_names;
     this.amenities = amenities;
     this.rules = rules;
+    this.equipment = equipment;
   }
 }
 
@@ -111,6 +114,7 @@ class CreateGymCommand {
  * @property {Array<string>} [type_names] - Nombres de tipos a crear/asociar
  * @property {Array<number>} [amenities] - IDs de amenidades
  * @property {Array<string>} [rules] - Reglas del gimnasio
+ * @property {Array<string>} [equipment] - Equipamiento del gimnasio
  * @property {number} updatedBy - ID del admin que actualiza el gym
  */
 class UpdateGymCommand {
@@ -137,6 +141,7 @@ class UpdateGymCommand {
     type_names,
     amenities,
     rules,
+    equipment,
   }) {
     this.gymId = gymId;
     this.name = name;
@@ -160,6 +165,7 @@ class UpdateGymCommand {
     this.type_names = type_names;
     this.amenities = amenities;
     this.rules = rules;
+    this.equipment = equipment;
   }
 }
 

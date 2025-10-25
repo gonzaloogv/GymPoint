@@ -25,7 +25,7 @@ function toGymSpecialSchedule(model) {
   return {
     id_special_schedule: model.id_special_schedule,
     id_gym: model.id_gym,
-    special_date: model.special_date,
+    date: model.date,
     open_time: model.open_time,
     close_time: model.close_time,
     is_closed: model.is_closed,

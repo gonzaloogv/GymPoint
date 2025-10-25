@@ -17,7 +17,7 @@
  * console.log(distancia); // ~150 metros
  */
 function calculateDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371000; // Radio de la Tierra en metros (más preciso que 6378137)
+  const R = 6378137; // Radio de la Tierra en metros (WGS84 - usado por Mapbox y GPS)
   const rad = Math.PI / 180;
   
   const dLat = (lat2 - lat1) * rad;

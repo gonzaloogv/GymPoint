@@ -158,12 +158,17 @@ function toGetRoutineExercisesQuery(idRoutine, idRoutineDay = null) {
 function toRoutineResponse(routine) {
   if (!routine) return null;
 
+  console.log('🔍 [toRoutineResponse] routine.days:', routine.days);
+  console.log('🔍 [toRoutineResponse] routine.exercises:', routine.exercises);
+
   const response = {
     id_routine: routine.id_routine || routine.idRoutine,
     routine_name: routine.routine_name || routine.routineName,
     description: routine.description || null,
     created_by: routine.created_by || routine.createdBy,
     is_template: routine.is_template ?? routine.isTemplate ?? false,
+    recommended_for: routine.recommended_for || null,
+    template_order: routine.template_order || 0,
     created_at: routine.created_at || routine.createdAt,
     updated_at: routine.updated_at || routine.updatedAt
   };
@@ -179,14 +184,20 @@ function toRoutineResponse(routine) {
 
   // Include days if available
   if (routine.days) {
+    console.log('✅ [toRoutineResponse] Mapeando days...');
     response.days = routine.days.map((day) => toRoutineDayResponse(day));
+    console.log('✅ [toRoutineResponse] response.days:', response.days);
+  } else {
+    console.log('❌ [toRoutineResponse] NO HAY routine.days');
   }
 
   // Include exercises if available
   if (routine.exercises) {
+    console.log('✅ [toRoutineResponse] Mapeando exercises...');
     response.exercises = routine.exercises.map((exercise) => toRoutineExerciseInListResponse(exercise));
   }
 
+  console.log('🔍 [toRoutineResponse] response final:', response);
   return response;
 }
 
@@ -249,11 +260,18 @@ function toRoutineExerciseInListResponse(exercise) {
   };
 
   // Include RoutineExercise through data if available
+  // Puede venir como objeto anidado o aplanado
   if (exercise.RoutineExercise) {
     response.series = exercise.RoutineExercise.series;
     response.reps = exercise.RoutineExercise.reps;
     response.order = exercise.RoutineExercise.order;
     response.id_routine_day = exercise.RoutineExercise.id_routine_day || null;
+  } else if (exercise.series !== undefined) {
+    // Datos ya aplanados por el mapper del repositorio
+    response.series = exercise.series;
+    response.reps = exercise.reps;
+    response.order = exercise.order;
+    response.id_routine_day = exercise.id_routine_day || null;
   }
 
   return response;

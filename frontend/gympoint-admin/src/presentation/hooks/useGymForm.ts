@@ -73,6 +73,7 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
 
       if (Array.isArray(gym.equipment)) {
         setEquipmentInput(gym.equipment.join(', '));
+        setFormData(prev => ({ ...prev, equipment: gym.equipment }));
       }
       if (Array.isArray(gym.amenities)) {
         const ids = gym.amenities
@@ -165,7 +166,6 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
       ...prev,
       rules: [...(prev.rules || []), rule]
     }));
-    console.log('Form Data after adding rule:', formData);
   };
 
   const removeRule = (index: number) => {

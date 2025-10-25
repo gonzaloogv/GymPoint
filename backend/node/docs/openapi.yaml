@@ -2483,7 +2483,7 @@ components:
       type: object
       required:
         - id_reward
-        - name
+        - routine_name
         - description
         - token_cost
         - created_at
@@ -2507,7 +2507,17 @@ components:
           description: Descripción detallada
           example: Acceso VIP durante 1 mes a todos los gimnasios
         reward_type:
-          type: string
+          type:
+            - string
+            - 'null'
+          enum:
+            - descuento
+            - pase_gratis
+            - producto
+            - servicio
+            - merchandising
+            - otro
+            - null
           description: Tipo de recompensa
           example: pase_gratis
         token_cost:
@@ -2555,10 +2565,15 @@ components:
           type:
             - string
             - 'null'
+          maxLength: 500
+          description: URL de la imagen de la recompensa
+          example: https://cdn.gympoint.com/rewards/vip-pass.jpg
         terms:
           type:
             - string
             - 'null'
+          description: Términos y condiciones de la recompensa
+          example: Válido solo en horarios de 6am a 10pm. No acumulable con otras promociones.
         created_at:
           type: string
           format: date-time
@@ -2572,7 +2587,7 @@ components:
           format: date-time
     CreateRewardRequest:
       type: object
-      additionalProperties: false
+      additionalProperties: true
       required:
         - name
         - description
@@ -2622,7 +2637,7 @@ components:
           type: string
     UpdateRewardRequest:
       type: object
-      additionalProperties: false
+      additionalProperties: true
       properties:
         name:
           type: string

@@ -122,6 +122,7 @@ function toUserProfileSummary(profile) {
 function toAuthUser(account, profile) {
   if (!account) {
     return {
+      id_user: null,
       id_account: null,
       email: null,
       email_verified: false,
@@ -134,12 +135,15 @@ function toAuthUser(account, profile) {
     ? account.roles.map((role) => role.role_name || role)
     : [];
 
+  const userProfile = profile || account.userProfile;
+
   return {
+    id_user: userProfile?.id_user_profile || null,
     id_account: account.id_account,
     email: account.email,
     email_verified: Boolean(account.email_verified),
     roles,
-    profile: toUserProfileSummary(profile || account.userProfile),
+    profile: toUserProfileSummary(userProfile),
   };
 }
 
@@ -148,8 +152,8 @@ function toAuthSuccessResponse(result) {
   const refreshToken = result.refreshToken ?? null;
   return {
     tokens: {
-      accessToken,
-      refreshToken,
+      accessToken: accessToken,
+      refreshToken: refreshToken
     },
     user: toAuthUser(result.account, result.profile),
   };
@@ -157,7 +161,7 @@ function toAuthSuccessResponse(result) {
 
 function toRefreshTokenResponse(result) {
   return {
-    accessToken: result.accessToken || result.token || null,
+    token: result.accessToken || result.token || result.access_token || null,
   };
 }
 

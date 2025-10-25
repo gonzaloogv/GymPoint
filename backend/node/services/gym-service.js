@@ -236,6 +236,7 @@ const createGym = async (input) => {
     featured: command.featured || false,
     auto_checkin_enabled: command.auto_checkin_enabled || false,
     rules: normalizeRules(command.rules),
+    equipment: command.equipment || [],
   };
 
   const gym = await gymRepository.createGym(payload);
@@ -283,6 +284,9 @@ const updateGym = async (id, data = {}) => {
 
   if (command.rules !== undefined) {
     payload.rules = normalizeRules(command.rules);
+  }
+  if (command.equipment !== undefined) {
+    payload.equipment = command.equipment;
   }
 
   await gymRepository.updateGym(command.gymId, payload, { returning: false });

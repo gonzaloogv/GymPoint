@@ -62,6 +62,7 @@ function toCreateGymCommand(dto, createdBy) {
     type_names: dto.type_names || [],
     amenities: dto.amenities || [],
     rules: dto.rules || [],
+    equipment: dto.equipment || [],
   });
 }
 
@@ -97,6 +98,7 @@ function toUpdateGymCommand(dto, gymId, updatedBy) {
     type_names: dto.type_names,
     amenities: dto.amenities,
     rules: dto.rules,
+    equipment: dto.equipment,
   });
 }
 
@@ -274,6 +276,9 @@ function toGymResponse(gym, options = {}) {
     auto_checkin_enabled: gym.auto_checkin_enabled,
     created_at: gym.created_at.toISOString(),
     updated_at: gym.updated_at.toISOString(),
+    equipment: gym.equipment || null,
+    rules: gym.rules || null,
+    amenities: gym.amenities || null,
   };
 
   // Agregar campos opcionales si están presentes

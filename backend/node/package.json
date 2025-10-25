@@ -10,11 +10,21 @@
     "test:watch": "jest --watch",
     "test:unit": "jest --testPathPatterns tests --testPathIgnorePatterns=tests/integration",
     "test:integration": "jest --testPathPatterns tests/integration",
+    "test:postman": "newman run postman/GymPoint-API-Collection.postman_collection.json -e postman/GymPoint-Local.postman_environment.json",
+    "test:postman:html": "newman run postman/GymPoint-API-Collection.postman_collection.json -e postman/GymPoint-Local.postman_environment.json --reporters cli,html --reporter-html-export postman/test-reports/report.html",
+    "test:postman:all": "npm run test:postman:html && npm run test:postman:prod",
+    "test:postman:prod": "newman run postman/GymPoint-API-Collection.postman_collection.json -e postman/GymPoint-Production.postman_environment.json --reporters cli,html --reporter-html-export postman/test-reports/report-prod.html",
     "staging:migrate": "node migrate.js",
     "staging:seed": "node seed/seed-staging.js",
     "staging:setup": "npm run staging:migrate && npm run staging:seed",
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint .",
+    "openapi:bundle": "node docs/scripts/bundle.js",
     "openapi:lint": "redocly lint docs/openapi.yaml",
+    "openapi:generate-types": "openapi-typescript docs/openapi.yaml -o ../../frontend/gympoint-admin/src/data/dto/generated/api.types.ts",
+    "openapi:sync": "npm run openapi:bundle && npm run openapi:generate-types",
+    "openapi:validate": "node scripts/validate-openapi-sync.js",
+    "schema:sync-helper": "node scripts/schema-sync-helper.js",
+    "schema:report": "node scripts/schema-sync-helper.js --report",
     "validate:routes": "node scripts/validate-routes.js",
     "prestart": "node scripts/validate-routes.js"
   },
@@ -22,6 +32,15 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix"
+    ],
+    "docs/openapi/components/schemas/*.yaml": [
+      "npm run openapi:bundle",
+      "npm run openapi:generate-types"
+    ]
+  },
   "dependencies": {
     "@sentry/node": "^10.20.0",
     "bcryptjs": "^3.0.2",
@@ -41,6 +60,8 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "umzug": "^3.8.2",
+    "winston": "^3.18.3",
+    "winston-daily-rotate-file": "^5.0.0",
     "yaml": "^2.8.1"
   },
   "devDependencies": {
@@ -51,9 +72,12 @@
     "@stoplight/spectral-rulesets": "^1.22.0",
     "@stoplight/spectral-runtime": "^1.1.4",
     "eslint": "^9.29.0",
+    "husky": "^9.1.7",
     "jest": "^30.0.2",
     "js-yaml": "^4.1.0",
+    "lint-staged": "^16.2.6",
     "nodemon": "^3.1.10",
-    "supertest": "^7.1.1"
+    "openapi-typescript": "^7.10.1",
+    "supertest": "^7.1.4"
   }
 }

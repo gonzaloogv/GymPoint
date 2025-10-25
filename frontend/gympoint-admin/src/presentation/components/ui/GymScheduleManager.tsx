@@ -51,9 +51,19 @@ export const GymScheduleManager = ({ id_gym, gymName }: GymScheduleManagerProps)
     try {
       const schedule = getScheduleForDay(editingDay);
       if (schedule) {
-        await updateMutation.mutateAsync({ id_schedule: schedule.id_schedule, ...formData });
+        await updateMutation.mutateAsync({ 
+          id_schedule: schedule.id_schedule, 
+          id_gym, 
+          ...formData 
+        });
       } else {
-        await createMutation.mutateAsync({ id_gym, day_of_week: editingDay, ...formData });
+        await createMutation.mutateAsync({ 
+          id_gym, 
+          day_of_week: editingDay, 
+          closed: formData.closed,
+          opening_time: formData.opening_time,
+          closing_time: formData.closing_time,
+        });
       }
       setEditingDay(null);
       alert(' Horario guardado correctamente');

@@ -171,7 +171,7 @@ async function createGymSpecialSchedule(command) {
     // Validar que no exista un horario especial para esa fecha
     const existing = await gymScheduleRepository.findSpecialScheduleByGymAndDate(
       command.gymId,
-      command.special_date,
+      command.date,
       { transaction }
     );
 
@@ -190,11 +190,11 @@ async function createGymSpecialSchedule(command) {
 
     const payload = {
       id_gym: command.gymId,
-      special_date: command.special_date,
+      date: command.date,
       open_time: command.open_time,
       close_time: command.close_time,
       is_closed: command.is_closed,
-      motive: command.motive,
+      reason: command.reason,
     };
 
     const schedule = await gymScheduleRepository.createSpecialSchedule(payload, { transaction });
@@ -250,7 +250,7 @@ async function updateGymSpecialSchedule(command) {
     if (command.open_time !== undefined) payload.open_time = command.open_time;
     if (command.close_time !== undefined) payload.close_time = command.close_time;
     if (command.is_closed !== undefined) payload.is_closed = command.is_closed;
-    if (command.motive !== undefined) payload.motive = command.motive;
+    if (command.reason !== undefined) payload.reason = command.reason;
 
     // Validar si no está cerrado
     const isClosed = command.is_closed !== undefined ? command.is_closed : schedule.is_closed;

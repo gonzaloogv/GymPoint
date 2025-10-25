@@ -94,9 +94,9 @@ class GetGymSpecialScheduleByIdQuery {
  * @property {Date} special_date - Fecha específica
  */
 class GetGymSpecialScheduleByDateQuery {
-  constructor({ gymId, special_date }) {
+  constructor({ gymId, date }) {
     this.gymId = gymId;
-    this.special_date = special_date;
+    this.date = date;
   }
 }
 

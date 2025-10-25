@@ -1,4 +1,5 @@
 const { AppError } = require('../utils/errors');
+const logger = require('../config/logger');
 
 /**
  * Middleware de manejo centralizado de errores
@@ -7,14 +8,15 @@ const { AppError } = require('../utils/errors');
  * y los formatea de manera consistente para el cliente.
  */
 const errorHandler = (err, req, res, next) => {
-  // Log del error (en producción usar logger como Winston)
-  console.error('❌ Error:', {
-    message: err.message,
-    code: err.code || 'UNKNOWN',
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+  // Log del error con Winston
+  logger.logError(err, {
     url: req.originalUrl,
     method: req.method,
-    user: req.user?.id_user_profile || req.user?.id
+    userId: req.account?.id_account || req.user?.id_user_profile || req.user?.id,
+    body: req.method !== 'GET' ? sanitizeBody(req.body) : undefined,
+    query: req.query,
+    ip: req.ip,
+    userAgent: req.get('user-agent')
   });
 
   // Errores de validación de OpenAPI (express-openapi-validator)
@@ -167,6 +169,25 @@ const asyncHandler = (fn) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 };
+
+/**
+ * Sanitiza el body de la request para logging
+ * Remueve campos sensibles como passwords, tokens, etc.
+ */
+function sanitizeBody(body) {
+  if (!body || typeof body !== 'object') return body;
+  
+  const sensitiveFields = ['password', 'token', 'secret', 'apiKey', 'api_key', 'refreshToken', 'refresh_token'];
+  const sanitized = { ...body };
+  
+  sensitiveFields.forEach(field => {
+    if (sanitized[field]) {
+      sanitized[field] = '***REDACTED***';
+    }
+  });
+  
+  return sanitized;
+}
 
 module.exports = {
   errorHandler,

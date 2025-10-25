@@ -133,22 +133,18 @@ const generateAccessToken = (account, roles = [], profile = null) => {
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: ACCESS_EXPIRATION });
 };
 
-const generateRefreshToken = async (userProfileId, meta = {}) => {
-  const { userAgent, ipAddress } = extractTokenMeta(meta);
-
+const generateRefreshToken = async (accountId, meta = {}) => {
   const refreshToken = jwt.sign(
-    { id_user_profile: userProfileId },
+    { id_account: accountId },
     process.env.JWT_REFRESH_SECRET,
     { expiresIn: `${REFRESH_EXPIRATION_DAYS}d` }
   );
 
   await refreshTokenRepository.createRefreshToken({
-    id_user: userProfileId,
+    id_account: accountId,
     token: refreshToken,
-    user_agent: userAgent,
-    ip_address: ipAddress,
     expires_at: new Date(Date.now() + REFRESH_EXPIRATION_DAYS * 86400000),
-    revoked: false,
+    is_revoked: false,
   });
 
   return refreshToken;
@@ -234,11 +230,11 @@ const register = async (input, context = {}) => {
 
     const streak = await streakRepository.createStreak(
       {
-        id_user: userProfile.id_user_profile,
+        id_user_profile: userProfile.id_user_profile,
         value: 0,
-        last_value: null,
+        last_value: 0,
+        max_value: 0,
         recovery_items: 0,
-        achieved_goal: false,
         id_frequency: frequency.id_frequency,
       },
       { transaction }
@@ -262,10 +258,7 @@ const register = async (input, context = {}) => {
 
   const profile = account.userProfile || account.adminProfile || null;
   const token = generateAccessToken(account, account.roles || [], profile);
-  const refreshToken =
-    profile && profile.id_user_profile
-      ? await generateRefreshToken(profile.id_user_profile, context)
-      : null;
+  const refreshToken = await generateRefreshToken(account.id_account, context);
 
   return {
     token,
@@ -309,10 +302,7 @@ const login = async (...args) => {
   const profile = account.userProfile || account.adminProfile || null;
   const token = generateAccessToken(account, account.roles || [], profile);
 
-  const refreshToken =
-    profile && profile.id_user_profile
-      ? await generateRefreshToken(profile.id_user_profile, context)
-      : null;
+  const refreshToken = await generateRefreshToken(account.id_account, context);
 
   return {
     token,
@@ -399,11 +389,11 @@ const googleLogin = async (input, context = {}) => {
 
         const streak = await streakRepository.createStreak(
           {
-            id_user: userProfile.id_user_profile,
+            id_user_profile: userProfile.id_user_profile,
             value: 0,
-            last_value: null,
+            last_value: 0,
+            max_value: 0,
             recovery_items: 0,
-            achieved_goal: false,
             id_frequency: frequency.id_frequency,
           },
           { transaction }
@@ -433,10 +423,7 @@ const googleLogin = async (input, context = {}) => {
   const profile = account.userProfile || account.adminProfile || null;
   const token = generateAccessToken(account, account.roles || [], profile);
 
-  const refreshToken =
-    profile && profile.id_user_profile
-      ? await generateRefreshToken(profile.id_user_profile, context)
-      : null;
+  const refreshToken = await generateRefreshToken(account.id_account, context);
 
   return {
     token,
@@ -465,13 +452,10 @@ const refreshAccessToken = async (input) => {
     throw new UnauthorizedError('Refresh token expirado');
   }
 
-  const userProfile = await userProfileRepository.findById(decoded.id_user_profile);
-  if (!userProfile) {
-    throw new NotFoundError('Usuario');
-  }
-
-  const account = await accountRepository.findById(userProfile.id_account, {
+  const account = await accountRepository.findById(decoded.id_account, {
     includeRoles: true,
+    includeUserProfile: true,
+    includeAdminProfile: true,
   });
   if (!account) {
     throw new NotFoundError('Cuenta');
@@ -479,7 +463,8 @@ const refreshAccessToken = async (input) => {
 
   await refreshTokenRepository.revokeByToken(command.refreshToken);
 
-  const newAccessToken = generateAccessToken(account, account.roles || [], userProfile);
+  const profile = account.userProfile || account.adminProfile || null;
+  const newAccessToken = generateAccessToken(account, account.roles || [], profile);
 
   return { token: newAccessToken };
 };

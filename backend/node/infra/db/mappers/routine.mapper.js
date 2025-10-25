@@ -15,6 +15,8 @@ function toRoutine(instance) {
     description: plain.description || null,
     created_by: plain.created_by,
     is_template: plain.is_template || false,
+    recommended_for: plain.recommended_for || null,
+    template_order: plain.template_order || 0,
     created_at: plain.created_at,
     updated_at: plain.updated_at
   };
@@ -34,18 +36,26 @@ function toRoutine(instance) {
   }
 
   // Include exercises relation if present (through RoutineExercise)
-  if (plain.exercises && Array.isArray(plain.exercises)) {
-    result.exercises = plain.exercises.map(ex => ({
-      id_exercise: ex.id_exercise,
-      exercise_name: ex.exercise_name,
-      category: ex.category || null,
-      RoutineExercise: ex.RoutineExercise ? {
-        series: ex.RoutineExercise.series,
-        reps: ex.RoutineExercise.reps,
-        order: ex.RoutineExercise.order,
-        id_routine_day: ex.RoutineExercise.id_routine_day || null
-      } : null
-    }));
+  // Manejar tanto 'exercises' como 'Exercises' (el alias en el modelo es con mayúscula)
+  const exercisesData = plain.Exercises || plain.exercises;
+  if (exercisesData && Array.isArray(exercisesData)) {
+    result.exercises = exercisesData.map(ex => {
+      const exercise = {
+        id_exercise: ex.id_exercise,
+        exercise_name: ex.exercise_name,
+        muscular_group: ex.muscular_group || null
+      };
+      
+      // Agregar datos de RoutineExercise directamente al ejercicio (aplanar)
+      if (ex.RoutineExercise) {
+        exercise.series = ex.RoutineExercise.sets; // Mapear sets a series
+        exercise.reps = ex.RoutineExercise.reps;
+        exercise.order = ex.RoutineExercise.exercise_order; // Mapear exercise_order a order
+        exercise.id_routine_day = ex.RoutineExercise.id_routine_day || null;
+      }
+      
+      return exercise;
+    });
   }
 
   return result;
@@ -76,13 +86,13 @@ function toRoutineDay(instance) {
       id_routine: re.id_routine,
       id_exercise: re.id_exercise,
       id_routine_day: re.id_routine_day,
-      series: re.series,
+      series: re.sets, // Mapear sets a series
       reps: re.reps,
-      order: re.order,
+      order: re.exercise_order, // Mapear exercise_order a order
       exercise: re.exercise ? {
         id_exercise: re.exercise.id_exercise,
         exercise_name: re.exercise.exercise_name,
-        category: re.exercise.category || null
+        muscular_group: re.exercise.muscular_group || null
       } : null
     }));
   }

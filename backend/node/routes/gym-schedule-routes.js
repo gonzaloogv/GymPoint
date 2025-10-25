@@ -8,6 +8,8 @@ const { verificarToken, verificarAdmin } = require('../middlewares/auth');
  * /api/schedules:
  *   post:
  *     summary: Registrar un nuevo horario para un gimnasio
+ *     deprecated: true
+ *     description: DEPRECATED - Usar POST /api/gyms/{gymId}/schedules en su lugar
  *     tags: [Horarios]
  *     security:
  *       - bearerAuth: []
@@ -51,6 +53,8 @@ router.post('/', verificarToken, verificarAdmin, controller.crearHorario);
  * /api/schedules/{id_gym}:
  *   get:
  *     summary: Obtener los horarios configurados para un gimnasio
+ *     deprecated: true
+ *     description: DEPRECATED - Usar GET /api/gyms/{gymId}/schedules en su lugar
  *     tags: [Horarios]
  *     parameters:
  *       - in: path
@@ -72,6 +76,8 @@ router.get('/:id_gym', controller.obtenerHorariosPorGimnasio);
  * /api/schedules/{id_schedule}:
  *   put:
  *     summary: Actualizar un horario existente
+ *     deprecated: true
+ *     description: DEPRECATED - Usar PATCH /api/gyms/{gymId}/schedules/{scheduleId} en su lugar
  *     tags: [Horarios]
  *     security:
  *       - bearerAuth: []

@@ -18,7 +18,7 @@ async function findByToken(token, options = {}) {
 
 async function findActiveByToken(token, options = {}) {
   const refreshToken = await RefreshToken.findOne({
-    where: { token, revoked: false },
+    where: { token, is_revoked: false },
     transaction: options.transaction,
   });
   return toRefreshToken(refreshToken);
@@ -26,7 +26,7 @@ async function findActiveByToken(token, options = {}) {
 
 async function revokeByToken(token, options = {}) {
   await RefreshToken.update(
-    { revoked: true, revoked_at: new Date() },
+    { is_revoked: true },
     {
       where: { token },
       transaction: options.transaction,
@@ -36,7 +36,7 @@ async function revokeByToken(token, options = {}) {
 
 async function revokeById(idRefreshToken, options = {}) {
   await RefreshToken.update(
-    { revoked: true, revoked_at: new Date() },
+    { is_revoked: true },
     {
       where: { id_refresh_token: idRefreshToken },
       transaction: options.transaction,

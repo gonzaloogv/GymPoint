@@ -41,7 +41,7 @@ export function mapGymResponseToGym(dto: GymResponse): Gym {
     created_at: dto.created_at,
     updated_at: dto.updated_at,
     deleted_at: dto.deleted_at || null,
-    amenities: [], // Se debe popular desde otro endpoint si es necesario
+    amenities: dto.amenities || [],
   };
 }
 
@@ -56,26 +56,33 @@ export function mapCreateGymDTOToRequest(domainDTO: DomainCreateGymDTO): CreateG
     address: domainDTO.address,
     latitude: Number(domainDTO.latitude),
     longitude: Number(domainDTO.longitude),
-    phone: domainDTO.phone || undefined,
-    whatsapp: domainDTO.whatsapp || undefined,
-    email: domainDTO.email || undefined,
-    website: domainDTO.website || undefined,
+    phone: domainDTO.phone && domainDTO.phone.trim() !== '' ? domainDTO.phone : undefined,
+    whatsapp: domainDTO.whatsapp && domainDTO.whatsapp.trim() !== '' ? domainDTO.whatsapp : undefined,
+    email: domainDTO.email && domainDTO.email.trim() !== '' ? domainDTO.email : undefined,
+    website: domainDTO.website && domainDTO.website.trim() !== '' ? domainDTO.website : undefined,
     social_media: domainDTO.social_media as Record<string, any> | undefined,
-    instagram: domainDTO.instagram || undefined,
-    facebook: domainDTO.facebook || undefined,
-    google_maps_url: domainDTO.google_maps_url || undefined,
-    equipment: Array.isArray(domainDTO.equipment) ? domainDTO.equipment : [domainDTO.equipment],
+    instagram: domainDTO.instagram && domainDTO.instagram.trim() !== '' ? domainDTO.instagram : undefined,
+    facebook: domainDTO.facebook && domainDTO.facebook.trim() !== '' ? domainDTO.facebook : undefined,
+    google_maps_url: domainDTO.google_maps_url && domainDTO.google_maps_url.trim() !== '' ? domainDTO.google_maps_url : undefined,
+    equipment: Array.isArray(domainDTO.equipment) 
+  ? domainDTO.equipment.filter(item => item && item.trim() !== '') 
+  : (domainDTO.equipment && domainDTO.equipment.trim() !== '' ? [domainDTO.equipment] : []),
     max_capacity: domainDTO.max_capacity,
     area_sqm: domainDTO.area_sqm,
     verified: domainDTO.verified,
     featured: domainDTO.featured,
     month_price: domainDTO.month_price,
     week_price: domainDTO.week_price,
-    photo_url: domainDTO.photo_url || undefined,
+    photo_url: domainDTO.photo_url && domainDTO.photo_url.trim() !== '' ? domainDTO.photo_url : undefined,
     auto_checkin_enabled: domainDTO.auto_checkin_enabled ?? true,
     geofence_radius_meters: domainDTO.geofence_radius_meters ?? 150,
     min_stay_minutes: domainDTO.min_stay_minutes ?? 10,
-    rules: domainDTO.rules || undefined,
+    rules: domainDTO.rules && domainDTO.rules.length > 0 
+  ? domainDTO.rules.filter(rule => rule && rule.trim() !== '') 
+  : [],
+  amenities: domainDTO.amenities && domainDTO.amenities.length > 0 
+  ? domainDTO.amenities 
+  : [],
   };
 }
 
@@ -94,16 +101,18 @@ export function mapUpdateGymDTOToRequest(domainDTO: DomainUpdateGymDTO): UpdateG
   if (rest.address !== undefined) request.address = rest.address;
   if (rest.latitude !== undefined) request.latitude = Number(rest.latitude);
   if (rest.longitude !== undefined) request.longitude = Number(rest.longitude);
-  if (rest.phone !== undefined) request.phone = rest.phone;
-  if (rest.whatsapp !== undefined) request.whatsapp = rest.whatsapp;
-  if (rest.email !== undefined) request.email = rest.email;
-  if (rest.website !== undefined) request.website = rest.website;
+  if (rest.phone !== undefined) request.phone = rest.phone && rest.phone.trim() !== '' ? rest.phone : undefined;
+  if (rest.whatsapp !== undefined) request.whatsapp = rest.whatsapp && rest.whatsapp.trim() !== '' ? rest.whatsapp : undefined;
+  if (rest.email !== undefined) request.email = rest.email && rest.email.trim() !== '' ? rest.email : undefined;
+  if (rest.website !== undefined) request.website = rest.website && rest.website.trim() !== '' ? rest.website : undefined;
   if (rest.social_media !== undefined) request.social_media = rest.social_media as Record<string, any> | undefined;
-  if (rest.instagram !== undefined) request.instagram = rest.instagram;
-  if (rest.facebook !== undefined) request.facebook = rest.facebook;
-  if (rest.google_maps_url !== undefined) request.google_maps_url = rest.google_maps_url;
+  if (rest.instagram !== undefined) request.instagram = rest.instagram && rest.instagram.trim() !== '' ? rest.instagram : undefined;
+  if (rest.facebook !== undefined) request.facebook = rest.facebook && rest.facebook.trim() !== '' ? rest.facebook : undefined;
+  if (rest.google_maps_url !== undefined) request.google_maps_url = rest.google_maps_url && rest.google_maps_url.trim() !== '' ? rest.google_maps_url : undefined;
   if (rest.equipment !== undefined) {
-    request.equipment = Array.isArray(rest.equipment) ? rest.equipment : [rest.equipment];
+    request.equipment = Array.isArray(rest.equipment) 
+      ? rest.equipment.filter(item => item && item.trim() !== '') 
+      : (rest.equipment && rest.equipment.trim() !== '' ? [rest.equipment] : []);
   }
   if (rest.max_capacity !== undefined) request.max_capacity = rest.max_capacity;
   if (rest.area_sqm !== undefined) request.area_sqm = rest.area_sqm;
@@ -115,7 +124,16 @@ export function mapUpdateGymDTOToRequest(domainDTO: DomainUpdateGymDTO): UpdateG
   if (rest.auto_checkin_enabled !== undefined) request.auto_checkin_enabled = rest.auto_checkin_enabled;
   if (rest.geofence_radius_meters !== undefined) request.geofence_radius_meters = rest.geofence_radius_meters;
   if (rest.min_stay_minutes !== undefined) request.min_stay_minutes = rest.min_stay_minutes;
-  if (rest.rules !== undefined) request.rules = rest.rules;
+  if (rest.rules !== undefined) {
+    request.rules = rest.rules && rest.rules.length > 0 
+      ? rest.rules.filter(rule => rule && rule.trim() !== '') 
+      : [];
+  }
+  if (rest.amenities !== undefined) {
+    request.amenities = rest.amenities && rest.amenities.length > 0 
+      ? rest.amenities 
+      : [];
+  }
 
   return request as UpdateGymRequest;
 }

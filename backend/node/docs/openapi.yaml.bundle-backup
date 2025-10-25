@@ -2483,14 +2483,9 @@ components:
       type: object
       required:
         - id_reward
-        - name
+        - routine_name
         - description
-        - type
-        - cost_tokens
-        - available
-        - stock
-        - start_date
-        - finish_date
+        - token_cost
         - created_at
         - updated_at
       properties:
@@ -2498,6 +2493,11 @@ components:
           type: integer
           description: ID único de la recompensa
           example: 1
+        id_gym:
+          type:
+            - integer
+            - 'null'
+          description: ID del gimnasio (null para recompensas globales)
         name:
           type: string
           description: Nombre de la recompensa
@@ -2506,9 +2506,10 @@ components:
           type: string
           description: Descripción detallada
           example: Acceso VIP durante 1 mes a todos los gimnasios
-        type:
-          type: string
-          description: Tipo de recompensa
+        reward_type:
+          type:
+            - string
+            - 'null'
           enum:
             - descuento
             - pase_gratis
@@ -2516,31 +2517,63 @@ components:
             - servicio
             - merchandising
             - otro
+            - null
+          description: Tipo de recompensa
           example: pase_gratis
-        cost_tokens:
+        token_cost:
           type: integer
           description: Costo en tokens
           minimum: 0
           example: 500
-        available:
-          type: boolean
-          description: Si está disponible para canje
-          default: true
+        discount_percentage:
+          type:
+            - number
+            - 'null'
+          minimum: 0
+          maximum: 100
+        discount_amount:
+          type:
+            - number
+            - 'null'
+          minimum: 0
         stock:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: Stock disponible
           minimum: 0
           example: 10
-        start_date:
-          type: string
+        valid_from:
+          type:
+            - string
+            - 'null'
           format: date
-          description: Fecha de inicio de disponibilidad
+          description: Fecha de inicio de validez
           example: '2025-01-01'
-        finish_date:
-          type: string
+        valid_until:
+          type:
+            - string
+            - 'null'
           format: date
-          description: Fecha de fin de disponibilidad
+          description: Fecha de fin de validez
           example: '2025-12-31'
+        is_active:
+          type: boolean
+          description: Si está activa para canje
+          default: true
+        image_url:
+          type:
+            - string
+            - 'null'
+          maxLength: 500
+          description: URL de la imagen de la recompensa
+          example: https://cdn.gympoint.com/rewards/vip-pass.jpg
+        terms:
+          type:
+            - string
+            - 'null'
+          description: Términos y condiciones de la recompensa
+          example: Válido solo en horarios de 6am a 10pm. No acumulable con otras promociones.
         created_at:
           type: string
           format: date-time
@@ -2567,7 +2600,7 @@ components:
         description:
           type: string
           minLength: 1
-        type:
+        reward_type:
           type: string
           enum:
             - descuento
@@ -2613,7 +2646,7 @@ components:
         description:
           type: string
           minLength: 1
-        type:
+        reward_type:
           type: string
           enum:
             - descuento
@@ -2622,20 +2655,56 @@ components:
             - servicio
             - merchandising
             - otro
-        cost_tokens:
+        token_cost:
           type: integer
+          minimum: 0
+        discount_percentage:
+          type: number
+          minimum: 0
+          maximum: 100
+        discount_amount:
+          type: number
           minimum: 0
         stock:
           type: integer
           minimum: 0
-        start_date:
+        valid_from:
           type: string
           format: date
-        finish_date:
+        valid_until:
           type: string
           format: date
-        available:
+        is_active:
           type: boolean
+        image_url:
+          type: string
+        terms:
+          type: string
+    PaginatedRewardsResponse:
+      type: object
+      required:
+        - items
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RewardResponse'
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
     Routine:
       type: object
       properties:

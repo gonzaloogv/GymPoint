@@ -61,13 +61,35 @@ export function mapGymDTOtoEntity(dto: GymDTO): Gym | null {
   return {
     id: String(dto.id_gym),
     name: dto.name ?? 'Gym',
+    description: dto.description ?? undefined,
     address: dto.address ?? undefined,
     city: dto.city ?? undefined,
     lat,
     lng,
     monthPrice: toNum(dto.month_price),
     weekPrice: toNum(dto.week_price),
-    equipment: parseEquipment(dto.equipment),
+    
+    // Equipment, rules y amenities vienen como arrays del backend
+    equipment: Array.isArray(dto.equipment) ? dto.equipment : undefined,
+    rules: Array.isArray(dto.rules) ? dto.rules : undefined,
+    amenities: Array.isArray(dto.amenities) ? dto.amenities : undefined,
+    
     distancia: distancia ? distancia * 1000 : undefined, // Convertir km a metros
+    
+    // Información de contacto
+    phone: dto.phone ?? undefined,
+    email: dto.email ?? undefined,
+    website: dto.website ?? undefined,
+    google_maps_url: dto.google_maps_url ?? undefined,
+    
+    // Configuración de check-in
+    geofence_radius_meters: dto.geofence_radius_meters,
+    min_stay_minutes: dto.min_stay_minutes,
+    auto_checkin_enabled: dto.auto_checkin_enabled,
+    
+    // Estado
+    verified: dto.verified,
+    featured: dto.featured,
+    is_active: dto.is_active,
   };
 }

@@ -108,7 +108,7 @@ components:
           format: date-time
     CreateRewardRequest:
       type: object
-      additionalProperties: false
+      additionalProperties: true
       required:
         - name
         - description
@@ -158,7 +158,7 @@ components:
           type: string
     UpdateRewardRequest:
       type: object
-      additionalProperties: false
+      additionalProperties: true
       properties:
         name:
           type: string

@@ -3263,7 +3263,7 @@ export interface components {
              * @description Nombre de la recompensa
              * @example Pase VIP 1 mes
              */
-            name: string;
+            name?: string;
             /**
              * @description Descripción detallada
              * @example Acceso VIP durante 1 mes a todos los gimnasios
@@ -3272,8 +3272,9 @@ export interface components {
             /**
              * @description Tipo de recompensa
              * @example pase_gratis
+             * @enum {string|null}
              */
-            reward_type?: string;
+            reward_type?: "descuento" | "pase_gratis" | "producto" | "servicio" | "merchandising" | "otro" | null;
             /**
              * @description Costo en tokens
              * @example 500
@@ -3303,7 +3304,15 @@ export interface components {
              * @default true
              */
             is_active: boolean;
+            /**
+             * @description URL de la imagen de la recompensa
+             * @example https://cdn.gympoint.com/rewards/vip-pass.jpg
+             */
             image_url?: string | null;
+            /**
+             * @description Términos y condiciones de la recompensa
+             * @example Válido solo en horarios de 6am a 10pm. No acumulable con otras promociones.
+             */
             terms?: string | null;
             /** Format: date-time */
             created_at: string;
@@ -3329,6 +3338,8 @@ export interface components {
             is_active: boolean;
             image_url?: string;
             terms?: string;
+        } & {
+            [key: string]: unknown;
         };
         UpdateRewardRequest: {
             name?: string;
@@ -3346,6 +3357,8 @@ export interface components {
             is_active?: boolean;
             image_url?: string;
             terms?: string;
+        } & {
+            [key: string]: unknown;
         };
         PaginatedRewardsResponse: {
             items: components["schemas"]["RewardResponse"][];

@@ -40,9 +40,9 @@ async function findRoutineById(idRoutine, options = {}) {
   if (options.includeExercises) {
     includeOptions.push({
       model: Exercise,
-      as: 'exercises',
+      as: 'Exercises', // Usar el alias correcto con mayúscula
       through: {
-        attributes: ['series', 'reps', 'order', 'id_routine_day']
+        attributes: ['sets', 'reps', 'exercise_order', 'id_routine_day']
       }
     });
   }
@@ -57,7 +57,7 @@ async function findRoutineById(idRoutine, options = {}) {
 
 async function findRoutineWithExercises(idRoutine, options = {}) {
   const routine = await Routine.findByPk(idRoutine, {
-    attributes: ['id_routine', 'routine_name', 'description', 'created_by', 'is_template'],
+    attributes: ['id_routine', 'routine_name', 'description', 'created_by', 'is_template', 'recommended_for', 'template_order'],
     include: [
       {
         model: UserProfile,
@@ -76,7 +76,7 @@ async function findRoutineWithExercises(idRoutine, options = {}) {
               {
                 model: Exercise,
                 as: 'exercise',
-                attributes: ['id_exercise', 'exercise_name', 'category']
+                attributes: ['id_exercise', 'exercise_name', 'muscular_group']
               }
             ]
           }
@@ -85,9 +85,9 @@ async function findRoutineWithExercises(idRoutine, options = {}) {
       },
       {
         model: Exercise,
-        as: 'exercises',
+        as: 'Exercises', // Usar el alias correcto con mayúscula
         through: {
-          attributes: ['series', 'reps', 'order', 'id_routine_day']
+          attributes: ['sets', 'reps', 'exercise_order', 'id_routine_day']
         }
       }
     ],

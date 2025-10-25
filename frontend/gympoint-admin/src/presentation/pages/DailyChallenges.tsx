@@ -58,16 +58,20 @@ const TEMPLATE_DIFFICULTY_OPTIONS: DifficultyOption[] = [
 const createDefaultChallengeForm = (): CreateDailyChallengeDTO => ({
   challenge_date: '',
   title: '',
+  description: '',
   challenge_type: 'MINUTES',
   target_value: 30,
+  target_unit: '',
   tokens_reward: 10,
   difficulty: 'MEDIUM',
 });
 
 const createDefaultTemplateForm = (): CreateDailyChallengeTemplateDTO => ({
   title: '',
+  description: '',
   challenge_type: 'MINUTES',
   target_value: 30,
+  target_unit: '',
   tokens_reward: 10,
   rotation_weight: 1,
   difficulty: 'BEGINNER',
@@ -164,14 +168,27 @@ export const DailyChallenges = () => {
   const handleChallengeSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      await createChallengeMutation.mutateAsync({
-        ...challengeForm,
+      const payload: CreateDailyChallengeDTO = {
+        challenge_date: challengeForm.challenge_date,
+        title: challengeForm.title,
+        challenge_type: challengeForm.challenge_type,
         target_value: Number(challengeForm.target_value),
-        tokens_reward: Number(challengeForm.tokens_reward ?? 0),
-        id_template: challengeForm.id_template
-          ? Number(challengeForm.id_template)
-          : undefined,
-      });
+        tokens_reward: Number(challengeForm.tokens_reward ?? 10),
+        difficulty: challengeForm.difficulty || 'MEDIUM',
+      };
+
+      // Solo agregar campos opcionales si tienen valor
+      if (challengeForm.description && challengeForm.description.trim()) {
+        payload.description = challengeForm.description.trim();
+      }
+      if (challengeForm.target_unit && challengeForm.target_unit.trim()) {
+        payload.target_unit = challengeForm.target_unit.trim();
+      }
+      if (challengeForm.id_template) {
+        payload.id_template = Number(challengeForm.id_template);
+      }
+
+      await createChallengeMutation.mutateAsync(payload);
       setChallengeForm(createDefaultChallengeForm());
       window.alert('Desafio creado correctamente');
     } catch (error) {
@@ -183,12 +200,24 @@ export const DailyChallenges = () => {
   const handleTemplateSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      await createTemplateMutation.mutateAsync({
-        ...templateForm,
+      const payload: CreateDailyChallengeTemplateDTO = {
+        title: templateForm.title,
+        challenge_type: templateForm.challenge_type,
         target_value: Number(templateForm.target_value),
-        tokens_reward: Number(templateForm.tokens_reward ?? 0),
+        tokens_reward: Number(templateForm.tokens_reward ?? 10),
         rotation_weight: Number(templateForm.rotation_weight ?? 1),
-      });
+        difficulty: templateForm.difficulty || 'BEGINNER',
+      };
+
+      // Solo agregar campos opcionales si tienen valor
+      if (templateForm.description && templateForm.description.trim()) {
+        payload.description = templateForm.description.trim();
+      }
+      if (templateForm.target_unit && templateForm.target_unit.trim()) {
+        payload.target_unit = templateForm.target_unit.trim();
+      }
+
+      await createTemplateMutation.mutateAsync(payload);
       setTemplateForm(createDefaultTemplateForm());
       window.alert('Plantilla creada correctamente');
     } catch (error) {

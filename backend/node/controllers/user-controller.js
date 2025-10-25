@@ -8,7 +8,7 @@ const { user: userMapper } = require('../services/mappers');
 const obtenerPerfil = async (req, res) => {
   try {
     // req.user.id contiene id_account gracias al middleware
-    const query = userMapper.toGetUserByAccountIdQuery({ accountId: req.user.id });
+    const query = userMapper.toGetUserByAccountIdQuery(req.user.id);
     const usuario = await userService.getUserByAccountId(query);
     res.json(userMapper.toUserProfileResponse(usuario));
   } catch (err) {
