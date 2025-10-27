@@ -28,19 +28,26 @@ export const PremiumBenefitsCard: React.FC<PremiumBenefitsCardProps> = ({
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
+  // Dynamic colors based on dark mode
+  const backgroundColor = isDark ? '#2D1B4E' : '#F3E8FF';
+  const borderColor = isDark ? '#7C3AED' : '#C084FC';
+  const titleColor = isDark ? '#E9D5FF' : '#7C3AED';
+  const subtitleColor = isDark ? '#D8B4FE' : '#7C3AED';
+  const checkmarkColor = isDark ? '#D8B4FE' : '#7C3AED';
+
   return (
     <View
       className="rounded-lg p-4 mb-4 border"
       style={{
-        backgroundColor: palette.premiumSurface,
-        borderColor: palette.premiumBorder,
+        backgroundColor,
+        borderColor,
       }}
     >
       <View className="flex-row items-center mb-3">
-        <Feather name="gift" size={20} color={palette.premiumStrong} />
+        <Feather name="gift" size={20} color={titleColor} />
         <Text
           className="ml-2 font-bold text-lg"
-          style={{ color: palette.premiumStrong }}
+          style={{ color: titleColor }}
         >
           Beneficios Premium
         </Text>
@@ -48,17 +55,17 @@ export const PremiumBenefitsCard: React.FC<PremiumBenefitsCardProps> = ({
 
       <Text
         className="mb-3 text-sm"
-        style={{ color: palette.premiumText }}
+        style={{ color: subtitleColor }}
       >
         Desbloqueá todas las funcionalidades premium
       </Text>
 
       {PREMIUM_BENEFITS.map((benefit, index) => (
         <View key={index} className="flex-row items-center mb-2">
-          <Feather name="check" size={16} color={palette.premiumStrong} />
+          <Feather name="check" size={16} color={checkmarkColor} />
           <Text
             className="ml-2 text-sm flex-1"
-            style={{ color: palette.premiumText }}
+            style={{ color: subtitleColor }}
           >
             {benefit}
           </Text>

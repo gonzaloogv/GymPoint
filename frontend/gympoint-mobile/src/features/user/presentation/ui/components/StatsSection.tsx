@@ -9,6 +9,7 @@ import { Feather } from '@expo/vector-icons';
 import { Card, StatsCard } from '@shared/components/ui';
 import { palette } from '@shared/styles';
 import { UserStats } from '@features/user/types/userTypes';
+import { useTheme } from '@shared/hooks';
 
 interface StatsSectionProps {
   stats: UserStats;
@@ -21,6 +22,8 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
   isPremium,
   theme,
 }) => {
+  const { theme: themeMode } = useTheme();
+  const isDark = themeMode === 'dark';
   const statsData = [
     {
       value: stats.totalCheckIns,
@@ -55,8 +58,8 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
       <View
         style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}
       >
-        <Feather name="bar-chart-2" size={20} color="#000" />
-        <Text style={{ fontSize: 18, fontWeight: '700', color: '#000' }}>
+        <Feather name="bar-chart-2" size={20} color={isDark ? '#E5E7EB' : '#000000'} />
+        <Text style={{ fontSize: 18, fontWeight: '700', color: isDark ? '#FFFFFF' : '#000000' }}>
           Estadísticas
         </Text>
       </View>

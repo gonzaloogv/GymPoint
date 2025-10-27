@@ -9,13 +9,12 @@ import { TabPill } from '@shared/components/ui/TabPill';
 import WorkoutIcon from '@assets/icons/workout.svg';
 import HomeIcon from '@assets/icons/home.svg';
 import MapIcon from '@assets/icons/map.svg';
-import StoreIcon from '@assets/icons/gift.svg';
 import UserIcon from '@assets/icons/user.svg';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '@features/auth';
 import { GymsScreen } from '@features/gyms';
 import { GymDetailScreenWrapper } from '@features/gyms/presentation/ui/screens/GymDetailScreenWrapper';
 import { HomeScreen } from '@features/home';
-import { RewardsScreen } from '@features/rewards';
 import { UserProfileScreen } from '@features/user';
 import {
   RoutineDetailScreen,
@@ -25,9 +24,14 @@ import {
   CreateRoutineScreen,
   ImportRoutineScreen,
 } from '@features/routines';
+import { ProgressScreen } from '@features/progress/presentation/ui/screens/ProgressScreen';
+import { PhysicalProgressScreen } from '@features/progress/presentation/ui/screens/PhysicalProgressScreen';
+import { ExerciseProgressScreen } from '@features/progress/presentation/ui/screens/ExerciseProgressScreen';
+import { TokenHistoryScreen } from '@features/progress/presentation/ui/screens/TokenHistoryScreen';
+import { AchievementsScreen } from '@features/progress/presentation/ui/screens/AchievementsScreen';
 
 import { TabIcon } from './components/TabIcon';
-import type { RoutinesStackParamList, GymsStackParamList } from './types';
+import type { RoutinesStackParamList, GymsStackParamList, ProgressStackParamList } from './types';
 
 const Tabs = createBottomTabNavigator();
 
@@ -91,6 +95,41 @@ function GymsStackNavigator() {
   );
 }
 
+// ====== Progress nested stack ======
+const ProgressStack = createNativeStackNavigator<ProgressStackParamList>();
+
+function ProgressStackNavigator() {
+  return (
+    <ProgressStack.Navigator>
+      <ProgressStack.Screen
+        name="ProgressMain"
+        component={ProgressScreen}
+        options={{ headerShown: false }}
+      />
+      <ProgressStack.Screen
+        name="PhysicalProgress"
+        component={PhysicalProgressScreen}
+        options={{ headerShown: false }}
+      />
+      <ProgressStack.Screen
+        name="ExerciseProgress"
+        component={ExerciseProgressScreen}
+        options={{ headerShown: false }}
+      />
+      <ProgressStack.Screen
+        name="TokenHistory"
+        component={TokenHistoryScreen}
+        options={{ headerShown: false }}
+      />
+      <ProgressStack.Screen
+        name="Achievements"
+        component={AchievementsScreen}
+        options={{ headerShown: false }}
+      />
+    </ProgressStack.Navigator>
+  );
+}
+
 export default function AppTabs() {
   const { theme, isDark } = useTheme();
   const user = useAuthStore((s) => s.user);
@@ -114,10 +153,6 @@ export default function AppTabs() {
     </TabPill>
   );
 
-  const renderRewardsScreen = React.useCallback(
-    () => <RewardsScreen user={user} onUpdateUser={updateUser} />,
-    [user, updateUser],
-  );
 
   const handleLogout = React.useCallback(() => {
     setUser(null);
@@ -204,18 +239,18 @@ export default function AppTabs() {
       />
 
       <Tabs.Screen
-        name="Recompensa"
-        children={renderRewardsScreen}
+        name="Progreso"
+        component={ProgressStackNavigator}
         options={{
           tabBarIcon: ({ focused, size = 20 }) =>
             renderTabPill(
               focused,
-              <TabIcon
-                source={StoreIcon}
+              <Ionicons
+                name="stats-chart"
                 size={size}
                 color={focused ? '#635BFF' : (isDark ? '#9CA3AF' : '#6B7280')}
               />,
-              'Tienda',
+              'Progreso',
             ),
         }}
       />

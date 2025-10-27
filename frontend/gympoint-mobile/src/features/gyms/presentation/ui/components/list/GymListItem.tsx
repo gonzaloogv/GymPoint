@@ -31,19 +31,19 @@ export function GymListItem({
     <ListItem
       onPress={() => onPress?.(id)}
       Left={<IndexBadge n={index + 1} />}
-      Right={<Text className="text-slate-400">{`>`}</Text>}
+      Right={<Text className={isDark ? 'text-gray-600' : 'text-slate-400'}>{`>`}</Text>}
     >
-      <Text className="font-semibold text-base" numberOfLines={1}>
+      <Text className={`font-semibold text-base ${isDark ? 'text-white' : 'text-gray-900'}`} numberOfLines={1}>
         {name}
       </Text>
       <Text
-        className={isDark ? 'text-textSecondary-dark text-xs' : 'text-textSecondary text-xs'}
+        className={isDark ? 'text-gray-400 text-xs' : 'text-textSecondary text-xs'}
       >
         {formatDistance(distancia)} • {hours ?? '—'}
       </Text>
       {address && (
         <Text
-          className={isDark ? 'text-textSecondary-dark text-xs' : 'text-textSecondary text-xs'}
+          className={isDark ? 'text-gray-400 text-xs' : 'text-textSecondary text-xs'}
           numberOfLines={1}
         >
           {address}

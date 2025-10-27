@@ -22,32 +22,37 @@ export default function HeaderActions({
   const isDark = theme === 'dark';
   
   return (
-    <>
-      <Row className="gap-2.5" align="center">
-        <View className="relative">
-          <TouchableOpacity 
-            onPress={onOpenFilters}
-            className={`px-3 py-2 mb-1.5 border rounded-md ${
-              isDark 
-                ? 'border-border-dark bg-card-dark' 
-                : 'border-border bg-card'
-            }`}
-          >
-            <Ionicons name="filter-sharp" size={16} color={isDark ? '#fff' : '#000'} />
-          </TouchableOpacity>
-          {activeFilters > 0 && <BadgeDot count={activeFilters} />}
-        </View>
-      </Row>
+    <View className="flex-row gap-2 items-center">
+      <View className="relative flex-shrink-0">
+        <TouchableOpacity
+          onPress={onOpenFilters}
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: isDark ? '#d1d5db' : '#d1d5db',
+            backgroundColor: '#ffffff',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Ionicons name="filter-sharp" size={16} color="#6b7280" />
+        </TouchableOpacity>
+        {activeFilters > 0 && <BadgeDot count={activeFilters} />}
+      </View>
 
-      <SegmentedControl
-        value={viewMode}
-        onChange={(value: any) => value && onChangeViewMode(value as 'map' | 'list')}
-        options={[
-          { value: 'map', label: 'Mapa' },
-          { value: 'list', label: 'Lista' },
-        ]}
-        size="sm"
-      />
-    </>
+      <View className="flex-1">
+        <SegmentedControl
+          value={viewMode}
+          onChange={(value: any) => value && onChangeViewMode(value as 'map' | 'list')}
+          options={[
+            { value: 'map', label: 'Mapa' },
+            { value: 'list', label: 'Lista' },
+          ]}
+          size="sm"
+        />
+      </View>
+    </View>
   );
 }

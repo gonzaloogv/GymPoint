@@ -9,7 +9,7 @@ export type TabParamList = {
   Inicio: undefined;
   Rutinas: undefined;
   Mapa: undefined;
-  Recompensa: undefined;
+  Progreso: undefined;
   Usuario: undefined;
 };
 
@@ -25,4 +25,12 @@ export type RoutinesStackParamList = {
 export type GymsStackParamList = {
   GymsList: undefined;
   GymDetail: { gymId: string };
+};
+
+export type ProgressStackParamList = {
+  ProgressMain: undefined;
+  PhysicalProgress: undefined;
+  ExerciseProgress: undefined;
+  TokenHistory: undefined;
+  Achievements: undefined;
 };

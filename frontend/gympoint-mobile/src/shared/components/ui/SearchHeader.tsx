@@ -22,12 +22,14 @@ export function SearchHeader({
   const isDark = theme === 'dark';
 
   return (
-    <View className="px-4 pt-0 pb-4">
-      <View className="flex-row justify-between items-center mb-4">
+    <View className="px-4 pt-4 pb-4">
+      <View className="flex-row items-center mb-4 gap-2">
         <Text className={`text-lg font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>
           {title}
         </Text>
-        {children}
+        <View className="flex-1">
+          {children}
+        </View>
       </View>
 
       <View className="w-full">

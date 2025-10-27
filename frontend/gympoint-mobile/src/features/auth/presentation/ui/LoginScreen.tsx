@@ -94,7 +94,8 @@ export default function LoginScreen() {
   return (
     <Screen
       scroll
-      padBottom="safe"
+      safeAreaTop={true}
+      safeAreaBottom={true}
       contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
       keyboardShouldPersistTaps="handled"
     >

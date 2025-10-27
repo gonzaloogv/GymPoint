@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, Linking, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Linking, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { GymDetailScreenProps } from './GymDetailScreen.types';
 import { useTheme } from '@shared/hooks';
+import { Screen } from '@shared/components/ui';
 
 
 export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps) {
@@ -73,9 +74,13 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
   };
 
   return (
-    <ScrollView className={`flex-1 ${isDark ? 'bg-bg-dark' : 'bg-bg'}`}>
-      {/* Hero Image */}
-      <View className={`h-44 ${isDark ? 'bg-primary/20' : 'bg-primary/20'} rounded-xl mx-4 justify-center items-center`}>
+    <Screen
+      scroll={true}
+      safeAreaTop={true}
+      safeAreaBottom={false}
+    >
+      {/* Hero Image - Now respects status bar safe area */}
+      <View className={`h-44 ${isDark ? 'bg-primary/20' : 'bg-primary/20'} rounded-xl mx-4 mt-4 justify-center items-center`}>
         <View className="items-center">
           <View className={`w-16 h-16 ${isDark ? 'bg-primary/30' : 'bg-primary/30'} rounded-full justify-center items-center mb-2`}>
             <Text style={{ fontSize: 32 }}>🏋️</Text>
@@ -393,6 +398,6 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
       </View>
 
       <View className="h-8" />
-    </ScrollView>
+    </Screen>
   );
 }
