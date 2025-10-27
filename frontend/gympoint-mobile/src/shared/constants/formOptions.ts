@@ -1,8 +1,8 @@
+// Valores que coinciden con el backend OpenAPI: M, F, O
 export const GENDER_OPTIONS = [
-  { value: 'male', label: 'Hombre' },
-  { value: 'female', label: 'Mujer' },
-  { value: 'other', label: 'Otro' },
-  { value: 'prefer-not-to-say', label: 'Prefiero no decir' },
+  { value: 'M', label: 'Hombre' },
+  { value: 'F', label: 'Mujer' },
+  { value: 'O', label: 'Otro' },
 ] as const;
 
 export type GenderValue = (typeof GENDER_OPTIONS)[number]['value'];

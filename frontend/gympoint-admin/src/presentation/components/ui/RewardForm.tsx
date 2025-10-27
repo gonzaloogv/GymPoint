@@ -95,8 +95,8 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
   }));
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <Input
           label="🏆 Nombre de la Recompensa *"
           name="name"
@@ -124,7 +124,7 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
         onChange={handleChange}
         placeholder="Describe la recompensa..."
         maxLength={250}
-        rows={3}
+        rows={2}
         disabled={isLoading}
         error={errors.description}
       />
@@ -146,12 +146,12 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
         onChange={handleChange}
         placeholder="Ej: Válido de lunes a viernes de 6am a 10pm. No acumulable con otras promociones. Expira 30 días después del canje."
         maxLength={500}
-        rows={4}
+        rows={3}
         disabled={isLoading}
         error={errors.terms}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <Input
           label="💰 Costo en Tokens *"
           type="number"
@@ -176,7 +176,7 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <Input
           label="📅 Fecha de Inicio *"
           type="date"
@@ -210,7 +210,7 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
         <label htmlFor="available" className="text-sm font-medium text-text dark:text-text-dark">✅ Disponible para canje</label>
       </div>
 
-      <div className="flex justify-end gap-4">
+      <div className="flex justify-end gap-3 pt-3">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isLoading}>✕ Cancelar</Button>
         <Button type="submit" variant="primary" disabled={isLoading}>
           {isLoading ? '⏳ Guardando...' : reward ? '💾 Actualizar Recompensa' : '✨ Crear Recompensa'}

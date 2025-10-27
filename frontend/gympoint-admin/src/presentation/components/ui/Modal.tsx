@@ -25,23 +25,42 @@ const Modal: React.FC<ModalProps> = ({
   const sizeStyles = {
     sm: 'max-w-[400px]',
     md: 'max-w-[600px]',
-    lg: 'max-w-[800px]',
+    lg: 'max-w-[750px]',
   };
 
   const modalContentClasses = clsx(
-    'bg-card dark:bg-card-dark p-8 rounded-xl border border-border dark:border-border-dark shadow-lg w-full',
+    'bg-card dark:bg-card-dark rounded-none sm:rounded-xl border-0 sm:border border-border dark:border-border-dark shadow-2xl w-full',
+    'max-h-[85vh] sm:max-h-[85vh] h-full sm:h-auto flex flex-col',
+    'mx-0 sm:mx-auto',
     sizeStyles[size]
   );
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-0 sm:p-4" onClick={onClose}>
       <div className={modalContentClasses} onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-between items-center mb-4">
+        {/* Header fijo */}
+        <div className="flex items-center justify-between border-b border-border px-6 py-4 dark:border-border-dark">
           {title && <h3 className="text-lg font-semibold text-text dark:text-text-dark">{title}</h3>}
-          <button onClick={onClose} className="text-text-muted hover:text-text dark:hover:text-text-dark text-2xl">&times;</button>
+          <button
+            onClick={onClose}
+            className="text-2xl text-text-muted transition-colors hover:text-text dark:hover:text-text-dark"
+            aria-label="Cerrar"
+          >
+            &times;
+          </button>
         </div>
-        <div>{children}</div>
-        {footer && <div className="mt-4 pt-4 border-t border-border dark:border-border-dark">{footer}</div>}
+
+        {/* Contenido con scroll */}
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+          {children}
+        </div>
+
+        {/* Footer fijo */}
+        {footer && (
+          <div className="border-t border-border px-6 py-4 dark:border-border-dark">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );

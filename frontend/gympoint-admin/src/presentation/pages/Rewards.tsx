@@ -6,13 +6,14 @@ import {
   useDeleteReward,
   useRewardStats
 } from '../hooks';
-import { 
-  Loading, 
-  Button, 
-  RewardForm, 
-  RewardStats, 
-  RewardFilters, 
-  RewardsList 
+import {
+  Loading,
+  Button,
+  RewardForm,
+  RewardStats,
+  RewardFilters,
+  RewardsList,
+  Modal
 } from '../components';
 import { CreateRewardDTO, UpdateRewardDTO, Reward } from '@/domain';
 
@@ -103,39 +104,44 @@ export const Rewards = () => {
           <h1 className="text-2xl font-bold text-text dark:text-text-dark">🎁 Gestión de Recompensas</h1>
           <p className="text-text-muted">Administra las recompensas que los usuarios pueden canjear por tokens</p>
         </div>
-        {!showForm && <Button onClick={() => { setShowForm(true); setEditingReward(null); }} variant="primary">➕ Nueva Recompensa</Button>}
+        <Button onClick={() => { setShowForm(true); setEditingReward(null); }} variant="primary">➕ Nueva Recompensa</Button>
       </div>
 
-      {showForm ? (
-        <RewardForm 
-          reward={editingReward || undefined} 
-          onSubmit={handleSubmit} 
-          onCancel={() => { setShowForm(false); setEditingReward(null); }} 
-          isLoading={createRewardMutation.isPending || updateRewardMutation.isPending} 
+      <div className="space-y-6">
+        <RewardStats stats={stats} />
+        <RewardFilters
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          filterStatus={filterStatus}
+          setFilterStatus={setFilterStatus}
+          totalCount={rewards?.length || 0}
+          activeCount={activeCount}
+          inactiveCount={inactiveCount}
+          expiredCount={expiredCount}
         />
-      ) : (
-        <div className="space-y-6">
-          <RewardStats stats={stats} />
-          <RewardFilters 
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            filterStatus={filterStatus}
-            setFilterStatus={setFilterStatus}
-            totalCount={rewards?.length || 0}
-            activeCount={activeCount}
-            inactiveCount={inactiveCount}
-            expiredCount={expiredCount}
-          />
-          <RewardsList 
-            rewards={filteredRewards}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            deleteRewardMutation={deleteRewardMutation}
-            clearSearch={() => setSearchTerm('')}
-            hasActiveFilter={searchTerm !== '' || filterStatus !== 'all'}
-          />
-        </div>
-      )}
+        <RewardsList
+          rewards={filteredRewards}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          deleteRewardMutation={deleteRewardMutation}
+          clearSearch={() => setSearchTerm('')}
+          hasActiveFilter={searchTerm !== '' || filterStatus !== 'all'}
+        />
+      </div>
+
+      <Modal
+        isOpen={showForm}
+        onClose={() => { setShowForm(false); setEditingReward(null); }}
+        title={editingReward ? 'Editar Recompensa' : 'Nueva Recompensa'}
+        size="lg"
+      >
+        <RewardForm
+          reward={editingReward || undefined}
+          onSubmit={handleSubmit}
+          onCancel={() => { setShowForm(false); setEditingReward(null); }}
+          isLoading={createRewardMutation.isPending || updateRewardMutation.isPending}
+        />
+      </Modal>
     </div>
   );
 };

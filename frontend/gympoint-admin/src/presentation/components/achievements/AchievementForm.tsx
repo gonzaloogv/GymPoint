@@ -184,8 +184,8 @@ export const AchievementForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="grid gap-4 md:grid-cols-2">
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid gap-3 md:grid-cols-2">
         <Input
           label="Código"
           value={formState.code}
@@ -209,10 +209,10 @@ export const AchievementForm = ({
         value={formState.description}
         onChange={handleChange('description')}
         placeholder="Texto descriptivo para el logro"
-        rows={3}
+        rows={2}
       />
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2">
         <Select
           label="Categoría"
           value={formState.category}
@@ -227,7 +227,7 @@ export const AchievementForm = ({
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2">
         <Input
           label="Objetivo"
           type="number"
@@ -244,7 +244,7 @@ export const AchievementForm = ({
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2">
         <Input
           label="Tokens de recompensa"
           type="number"
@@ -276,7 +276,7 @@ export const AchievementForm = ({
         <Alert type="error" message={serverError} />
       )}
 
-      <div className="flex justify-end gap-3 pt-2">
+      <div className="flex justify-end gap-3 pt-3">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting}>
           Cancelar
         </Button>

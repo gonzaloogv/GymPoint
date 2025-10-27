@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { DI } from '@di/container';
 import { useAuthStore } from '../state/auth.store';
+import { parseBackendError, logError } from '@shared/utils/errorParser';
 
 interface RegisterData {
   fullName: string;
@@ -22,10 +23,32 @@ export const useRegister = () => {
     setError(null);
 
     try {
+      // Validar que fullName existe
+      if (!data.fullName || typeof data.fullName !== 'string') {
+        throw new Error('El nombre completo es requerido');
+      }
+
       // Separar nombre y apellido
       const nameParts = data.fullName.trim().split(' ');
       const name = nameParts[0] || '';
       const lastname = nameParts.slice(1).join(' ') || name;
+
+      // Validar campos requeridos
+      if (!data.email || !data.password) {
+        throw new Error('Email y contraseña son requeridos');
+      }
+
+      if (!data.gender) {
+        throw new Error('El género es requerido');
+      }
+
+      if (!data.location) {
+        throw new Error('La localidad es requerida');
+      }
+
+      if (!data.birth_date) {
+        throw new Error('La fecha de nacimiento es requerida');
+      }
 
       const response = await DI.registerUser.execute({
         name,
@@ -37,6 +60,8 @@ export const useRegister = () => {
         birth_date: data.birth_date,
         frequency_goal: data.weeklyFrequency,
       });
+
+      console.log('✅ Registro exitoso:', response);
 
       // Actualizar el estado del usuario en el store
       setUser({
@@ -50,7 +75,10 @@ export const useRegister = () => {
 
       return { success: true };
     } catch (err: any) {
-      const errorMessage = err?.response?.data?.error?.message || err?.message || 'Error al registrar usuario';
+      // Usar utilidad centralizada para logging y parsing de errores
+      logError('Registro', err);
+      const errorMessage = parseBackendError(err);
+
       setError(errorMessage);
       return { success: false, error: errorMessage };
     } finally {
