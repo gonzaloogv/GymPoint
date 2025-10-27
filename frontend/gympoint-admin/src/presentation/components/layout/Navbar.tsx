@@ -1,108 +1,58 @@
-import { useEffect, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React from 'react';
 import { useAdminProfile } from '../../hooks';
 import { Button, ThemeToggle } from '../ui';
 
-const NAV_LINKS = [
-  { path: '/', label: 'Panel' },
-  { path: '/users', label: 'Usuarios' },
-  { path: '/gyms', label: 'Gimnasios' },
-  { path: '/routines', label: 'Rutinas' },
-  { path: '/exercises', label: 'Ejercicios' },
-  { path: '/reviews', label: 'Reviews' },
-  { path: '/transactions', label: 'Transacciones' },
-  { path: '/rewards', label: 'Recompensas' },
-  { path: '/daily-challenges', label: 'Desafios Diarios' },
-  { path: '/achievements', label: 'Logros' },
-];
+interface NavbarProps {
+  onMenuClick: () => void;
+  toggleButtonRef: React.RefObject<HTMLButtonElement>;
+}
 
-export const Navbar = () => {
-  const location = useLocation();
+export const Navbar = ({ onMenuClick, toggleButtonRef }: NavbarProps) => {
   const { data: adminProfile } = useAdminProfile();
-
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const toggleRef = useRef<HTMLButtonElement>(null);
 
   const handleLogout = () => {
     localStorage.removeItem('admin_token');
     window.location.href = '/login';
   };
 
-  const isActivePath = (path: string) =>
-    path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
-
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location.pathname]);
-
-  useEffect(() => {
-    if (!isMenuOpen) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(target) &&
-        !toggleRef.current?.contains(target)
-      ) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleEsc);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEsc);
-    };
-  }, [isMenuOpen]);
-
-  const navLinkClasses = (path: string) =>
-    `block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-      isActivePath(path)
-        ? 'bg-primary/15 text-primary'
-        : 'text-text hover:bg-bg hover:text-primary dark:text-text-dark dark:hover:bg-bg-dark'
-    }`;
-
   return (
-    <nav className="sticky top-0 z-50 border-b-2 border-border bg-card shadow-card dark:border-border-dark dark:bg-card-dark">
-      <div className="mx-auto flex max-w-container items-center justify-between gap-4 px-4 py-4 sm:px-6">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="text-2xl font-bold text-primary transition-colors hover:text-primary/80">
-            Admin
-          </span>
-        </Link>
-
-        <div className="hidden items-center gap-6 md:flex">
-          {NAV_LINKS.map((link) => (
-            <Link key={link.path} to={link.path} className={navLinkClasses(link.path)}>
-              {link.label}
-            </Link>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            ref={toggleRef}
-            type="button"
-            onClick={() => setIsMenuOpen((prev) => !prev)}
-            className="rounded-md border border-border px-3 py-2 text-sm font-medium text-text transition-colors hover:bg-bg hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/40 dark:border-border-dark dark:text-text-dark dark:hover:bg-bg-dark md:hidden"
-            aria-controls="admin-mobile-menu"
-            aria-expanded={isMenuOpen}
+    <nav className="sticky top-0 z-50 h-16 border-b border-border bg-card shadow-sm transition-all duration-300 dark:border-border-dark dark:bg-card-dark">
+      <div className="flex h-full items-center justify-between gap-3 px-4 sm:px-6">
+        {/* Botón AdminPanel - Abre/cierra el sidebar */}
+        <button
+          ref={toggleButtonRef}
+          onClick={(e) => {
+            e.stopPropagation();
+            onMenuClick();
+          }}
+          className="group flex items-center gap-2 rounded-lg px-3 py-2 text-text transition-all hover:bg-bg dark:text-text-dark dark:hover:bg-bg-dark"
+          aria-label="Abrir/cerrar menú"
+        >
+          <svg
+            className="h-5 w-5 transition-transform group-hover:scale-110 sm:h-6 sm:w-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            Menu
-          </button>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+          <span className="text-base font-bold text-primary transition-colors group-hover:text-primary/80 sm:text-lg">
+            Panel de Administracion
+          </span>
+        </button>
 
+        {/* Espaciador */}
+        <div className="flex-1"></div>
+
+        {/* Acciones de usuario */}
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
           {adminProfile && (
-            <div className="hidden text-right sm:block">
+            <div className="hidden text-right md:block">
               <p className="text-sm font-semibold text-text dark:text-text-dark">
                 {adminProfile.name} {adminProfile.lastname}
               </p>
@@ -114,27 +64,12 @@ export const Navbar = () => {
 
           <ThemeToggle />
 
-          <Button variant="danger" size="sm" onClick={handleLogout}>
-            Cerrar Sesion
+          <Button variant="danger" size="sm" onClick={handleLogout} className="shrink-0">
+            <span className="hidden sm:inline">Cerrar Sesión</span>
+            <span className="sm:hidden">Salir</span>
           </Button>
         </div>
       </div>
-
-      {isMenuOpen && (
-        <div
-          id="admin-mobile-menu"
-          ref={menuRef}
-          className="border-t border-border bg-card/95 px-4 py-3 dark:border-border-dark dark:bg-card-dark/95 md:hidden"
-        >
-          <nav className="space-y-1">
-            {NAV_LINKS.map((link) => (
-              <Link key={link.path} to={link.path} className={navLinkClasses(link.path)}>
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      )}
     </nav>
   );
 };

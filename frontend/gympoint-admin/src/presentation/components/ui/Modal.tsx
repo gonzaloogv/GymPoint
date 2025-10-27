@@ -34,7 +34,7 @@ const Modal: React.FC<ModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50" onClick={onClose}>
       <div className={modalContentClasses} onClick={(e) => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-4">
           {title && <h3 className="text-lg font-semibold text-text dark:text-text-dark">{title}</h3>}

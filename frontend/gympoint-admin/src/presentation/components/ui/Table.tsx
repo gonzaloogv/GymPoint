@@ -35,7 +35,7 @@ const Table = <T extends object>({
   ...ariaProps
 }: TableProps<T>) => {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-lg border border-border dark:border-border-dark">
       <table className="min-w-full" {...ariaProps}>
         {caption && <caption className="sr-only">{caption}</caption>}
         <thead>

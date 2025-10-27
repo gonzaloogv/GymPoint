@@ -24,7 +24,7 @@ export const Dashboard = () => {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-bg dark:bg-bg-dark p-6 text-center">
+      <div className="text-center">
         <h1 className="text-2xl font-bold text-red-500">❌ Error en el Panel de Control</h1>
         <p className="text-text-muted mt-2">No se pudieron cargar algunos datos. Intenta refrescar la página.</p>
         <div className="mt-4 text-left bg-card dark:bg-card-dark p-4 rounded-lg max-w-lg mx-auto">
@@ -37,7 +37,7 @@ export const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-bg dark:bg-bg-dark p-6">
+    <div>
       <header className="mb-6">
         <h1 className="text-2xl font-bold text-text dark:text-text-dark">Panel de Control</h1>
         <p className="text-sm text-text-muted mt-1">Resumen general del sistema GymPoint</p>

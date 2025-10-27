@@ -307,7 +307,7 @@ export const DailyChallenges = () => {
   };
 
   return (
-    <div className="min-h-screen space-y-6 bg-bg p-6 dark:bg-bg-dark">
+    <div className="space-y-6">
       <header className="flex flex-col gap-2">
         <h1 className="text-2xl font-bold text-text dark:text-text-dark">
           Gestion de Desafios Diarios

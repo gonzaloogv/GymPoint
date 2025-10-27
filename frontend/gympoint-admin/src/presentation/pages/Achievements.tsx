@@ -146,8 +146,8 @@ export const Achievements = () => {
   };
 
   return (
-    <div className="min-h-screen bg-bg px-6 py-8 dark:bg-bg-dark">
-      <header className="mb-6 flex flex-col justify-between gap-3 md:flex-row md:items-center">
+    <div className="space-y-6">
+      <header className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
         <div>
           <h1 className="text-2xl font-bold text-text dark:text-text-dark">Catálogo de logros</h1>
           <p className="text-sm text-text-muted">

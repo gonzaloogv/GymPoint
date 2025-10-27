@@ -98,7 +98,7 @@ export const Reviews = () => {
   }
 
   return (
-    <div className="p-6 bg-bg dark:bg-bg-dark min-h-screen">
+    <div>
       <header className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-text dark:text-text-dark">Gestion de Reviews</h1>

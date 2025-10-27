@@ -80,7 +80,7 @@ export const Users = () => {
   if (isLoading) return <Loading fullPage />;
 
   return (
-    <div className="p-6 bg-bg dark:bg-bg-dark min-h-screen">
+    <div>
       <header className="mb-6">
         <h1 className="text-2xl font-bold text-text dark:text-text-dark">Gestión de Usuarios</h1>
         <p className="text-sm text-text-muted mt-1">Total: {data?.pagination.total || 0} usuarios</p>
@@ -100,9 +100,38 @@ export const Users = () => {
             onChange={(e) => setSubscription(e.target.value as 'FREE' | 'PREMIUM' | '')}
             options={[{ value: '', label: 'Todas las Suscripciones' }, { value: 'FREE', label: 'FREE' }, { value: 'PREMIUM', label: 'PREMIUM' }]}
           />
-          <div className="flex rounded-lg bg-bg p-1">
-            <Button variant={viewMode === 'grid' ? 'primary' : 'secondary'} onClick={() => setViewMode('grid')} size="sm">Cuadrícula</Button>
-            <Button variant={viewMode === 'table' ? 'primary' : 'secondary'} onClick={() => setViewMode('table')} size="sm">Tabla</Button>
+          <div className="relative inline-flex gap-1 rounded-lg bg-bg p-1 dark:bg-bg-dark shrink-0">
+            {/* Indicador deslizante */}
+            <div
+              className={`absolute inset-y-1 rounded-md bg-primary shadow-sm transition-all duration-300 ease-in-out ${
+                viewMode === 'grid'
+                  ? 'left-1 w-[calc(50%-4px)]'
+                  : 'left-[calc(50%+2px)] w-[calc(50%-4px)]'
+              }`}
+            />
+
+            {/* Botones */}
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`relative z-10 w-16 rounded-md px-2 py-1.5 text-xs font-medium transition-colors duration-200 sm:w-24 sm:px-4 sm:py-2 sm:text-sm ${
+                viewMode === 'grid'
+                  ? 'text-white'
+                  : 'text-text hover:text-primary dark:text-text-dark dark:hover:text-primary'
+              }`}
+            >
+              <span className="sm:hidden">Grid</span>
+              <span className="hidden sm:inline">Cuadrícula</span>
+            </button>
+            <button
+              onClick={() => setViewMode('table')}
+              className={`relative z-10 w-16 rounded-md px-2 py-1.5 text-xs font-medium transition-colors duration-200 sm:w-24 sm:px-4 sm:py-2 sm:text-sm ${
+                viewMode === 'table'
+                  ? 'text-white'
+                  : 'text-text hover:text-primary dark:text-text-dark dark:hover:text-primary'
+              }`}
+            >
+              Tabla
+            </button>
           </div>
         </div>
       </Card>
