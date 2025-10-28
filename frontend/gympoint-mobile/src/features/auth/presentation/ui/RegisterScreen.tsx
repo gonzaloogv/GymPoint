@@ -17,6 +17,7 @@ import {
 } from '@shared/components/ui';
 import { BrandMark } from '@shared/components/brand';
 import { useRegister } from '../hooks/useRegister';
+import { isValidEmail, isValidPassword, isValidName, passwordsMatch } from '@shared/utils/validation';
 
 import { GenderRadioGroup } from './components/GenderRadioGroup';
 import { LocationSelector } from './components/LocationSelector';
@@ -50,25 +51,25 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     // Validación de nombre
-    if (!name.trim() || name.trim().length < 2) {
+    if (!isValidName(name)) {
       Alert.alert('Error', 'El nombre debe tener al menos 2 caracteres');
       return;
     }
 
     // Validación de apellido
-    if (!lastname.trim() || lastname.trim().length < 2) {
+    if (!isValidName(lastname)) {
       Alert.alert('Error', 'El apellido debe tener al menos 2 caracteres');
       return;
     }
 
     // Validación de email
-    if (!email.trim() || !email.includes('@')) {
+    if (!isValidEmail(email)) {
       Alert.alert('Error', 'Por favor, ingresá un email válido');
       return;
     }
 
-    // Validación de contraseña
-    if (password.length < 8) {
+    // Validación de contraseña - mínimo 8 caracteres
+    if (!isValidPassword(password)) {
       Alert.alert('Error', 'La contraseña debe tener al menos 8 caracteres');
       return;
     }
@@ -78,7 +79,7 @@ export default function RegisterScreen() {
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (!passwordsMatch(password, confirmPassword)) {
       Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
@@ -198,20 +199,20 @@ export default function RegisterScreen() {
 
             <FormField label="Contraseña" hint="Mínimo 8 caracteres">
               <Input
+                type="password"
                 placeholder="••••••••"
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry
                 maxLength={64}
               />
             </FormField>
 
             <FormField label="Confirmar contraseña">
               <Input
+                type="password"
                 placeholder="••••••••"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
-                secureTextEntry
                 maxLength={64}
               />
             </FormField>

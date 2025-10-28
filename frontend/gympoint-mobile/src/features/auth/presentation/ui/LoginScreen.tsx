@@ -21,6 +21,7 @@ import { BrandMark } from '@shared/components/brand';
 import { useAuthStore } from '../state/auth.store';
 import { useTheme } from '@shared/hooks';
 import { DI } from '@di/container';
+import { isValidEmail, isValidPassword } from '@shared/utils/validation';
 
 type RootStackParamList = {
   Login: undefined;
@@ -60,9 +61,15 @@ export default function LoginScreen() {
         return;
       }
 
-      // Validación básica
-      if (!email.trim() || !password.trim()) {
-        setError('Por favor, ingresá email y contraseña');
+      // Validación de email
+      if (!isValidEmail(email)) {
+        setError('Por favor, ingresá un email válido');
+        return;
+      }
+
+      // Validación de contraseña - mínimo 8 caracteres
+      if (!isValidPassword(password)) {
+        setError('La contraseña debe tener al menos 8 caracteres');
         return;
       }
 
