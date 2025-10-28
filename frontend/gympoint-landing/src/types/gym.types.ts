@@ -17,7 +17,7 @@ export interface GymFormData {
 
   attributes: {
     photos: string[];
-    training_types: string[];
+    equipment: string[];
   };
   pricing: {
     monthly: number | null;
@@ -53,14 +53,22 @@ export const TRAINING_TYPES = [
 export const AMENITIES = [
   'Duchas',
   'Lockers',
-  'Wi-Fi',
+  'WiFi',
   'Estacionamiento',
-  'Vestuarios',
   'Aire Acondicionado',
-  'Entrenadores Personales',
+  'Vestuarios',
+  'Agua Potable',
+  'Entrenador Personal',
   'Clases Grupales',
-  'Máquinas de Última Generación',
-  'Bar Saludable',
+  'Nutricionista',
+  'Sauna',
+  'Piscina',
+  'Máquinas Cardio',
+  'Pesas Libres',
+  'Máquinas de Fuerza',
+  'Área Funcional',
+  'Barras y Discos',
+  'Mancuernas',
 ] as const;
 
 export const DAYS_OF_WEEK = [

@@ -38,8 +38,8 @@ export const FormStep2: React.FC<FormStep2Props> = ({ formData, updateField }) =
         <CheckboxGroup
           label="¿Qué tipo de entrenamientos ofrecen?"
           options={TRAINING_TYPES}
-          selectedValues={formData.attributes.training_types}
-          onChange={(values) => updateField('attributes.training_types', values)}
+          selectedValues={formData.attributes.equipment}
+          onChange={(values) => updateField('attributes.equipment', values)}
           helperText="Seleccioná todos los que apliquen"
         />
       </div>

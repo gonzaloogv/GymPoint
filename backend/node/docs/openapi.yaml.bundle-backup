@@ -1333,6 +1333,48 @@ components:
         updated_at:
           type: string
           format: date-time
+    GymRequest:
+      type: object
+      properties:
+        id_gym_request:
+          type: integer
+        name:
+          type: string
+        description:
+          type:
+            - string
+            - 'null'
+        city:
+          type: string
+        address:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+            - approved
+            - rejected
+        created_at:
+          type: string
+    CreateGymRequestDTO:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        location:
+          type: object
+        contact:
+          type: object
+        attributes:
+          type: object
+        pricing:
+          type: object
+        schedule:
+          type: array
+        amenities:
+          type: array
     GymSpecialScheduleResponse:
       type: object
       required:
@@ -7300,6 +7342,190 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/users/me/tokens/balance:
+    get:
+      operationId: getMyTokenBalance
+      tags:
+        - Users
+        - Tokens
+      summary: Obtener balance de tokens del usuario autenticado
+      description: |
+        Obtiene el balance actual de tokens del usuario autenticado.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Balance de tokens obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_user_profile:
+                    type: integer
+                    example: 1
+                  balance:
+                    type: integer
+                    example: 150
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/users/me/tokens/ledger:
+    get:
+      operationId: getMyTokenLedger
+      tags:
+        - Users
+        - Tokens
+      summary: Obtener historial de movimientos de tokens del usuario autenticado
+      description: |
+        Obtiene el historial paginado de movimientos de tokens del usuario autenticado.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Número de página
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Cantidad de resultados por página
+        - in: query
+          name: from_date
+          schema:
+            type: string
+            format: date-time
+          description: Filtrar desde esta fecha
+        - in: query
+          name: to_date
+          schema:
+            type: string
+            format: date-time
+          description: Filtrar hasta esta fecha
+        - in: query
+          name: ref_type
+          schema:
+            type: string
+          description: Filtrar por tipo de referencia
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            default: created_at
+          description: Campo por el cual ordenar
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          description: Orden de los resultados
+      responses:
+        '200':
+          description: Historial de tokens obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id_ledger:
+                          type: integer
+                          example: 1
+                        id_user_profile:
+                          type: integer
+                          example: 1
+                        delta:
+                          type: integer
+                          example: 50
+                        balance_after:
+                          type: integer
+                          example: 150
+                        reason:
+                          type: string
+                          example: ACHIEVEMENT_UNLOCKED
+                        ref_type:
+                          type: string
+                          nullable: true
+                          example: achievement
+                        ref_id:
+                          type: integer
+                          nullable: true
+                          example: 5
+                        metadata:
+                          type: object
+                          nullable: true
+                        created_at:
+                          type: string
+                          format: date-time
+                  page:
+                    type: integer
+                    example: 1
+                  limit:
+                    type: integer
+                    example: 20
+                  total:
+                    type: integer
+                    example: 45
+                  totalPages:
+                    type: integer
+                    example: 3
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/users/me/tokens/stats:
+    get:
+      operationId: getMyTokenStats
+      tags:
+        - Users
+        - Tokens
+      summary: Obtener estadísticas de tokens del usuario autenticado
+      description: |
+        Obtiene estadísticas agregadas de tokens del usuario autenticado.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Estadísticas de tokens obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  balance:
+                    type: integer
+                    example: 150
+                  total_earned:
+                    type: integer
+                    example: 500
+                  total_spent:
+                    type: integer
+                    example: 350
+                  earned_this_month:
+                    type: integer
+                    example: 100
+                  spent_this_month:
+                    type: integer
+                    example: 50
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
   /api/users/{userId}/subscription:

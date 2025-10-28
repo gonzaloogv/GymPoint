@@ -81,6 +81,7 @@ const ensureCreateGymCommand = (input = {}) =>
         type_names: input.type_names || [],
         amenities: input.amenities || [],
         rules: input.rules || [],
+        equipment: input.equipment || [],
       });
 
 const ensureUpdateGymCommand = (gymId, input = {}) =>
@@ -109,6 +110,7 @@ const ensureUpdateGymCommand = (gymId, input = {}) =>
         type_names: input.type_names,
         amenities: input.amenities,
         rules: input.rules,
+        equipment: input.equipment,
       });
 
 const ensureDeleteGymCommand = (input) =>

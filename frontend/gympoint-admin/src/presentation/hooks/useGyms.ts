@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { GymRepositoryImpl } from '@/data';
-import { CreateGymDTO, UpdateGymDTO } from '@/domain';
+import { CreateGymDTO, UpdateGymDTO, GymRequest } from '@/domain';
+import { apiClient } from '@/data/api/client';
 
 const gymRepository = new GymRepositoryImpl();
 
@@ -55,6 +56,61 @@ export const useDeleteGym = () => {
     mutationFn: (id: number) => gymRepository.deleteGym(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['gyms'] });
+    },
+  });
+};
+
+// ===== Gym Requests Hooks =====
+
+export const useGymRequests = (status?: 'pending' | 'approved' | 'rejected') => {
+  return useQuery({
+    queryKey: ['gym-requests', status],
+    queryFn: async () => {
+      const params = status ? { status } : {};
+      const response = await apiClient.get('/gym-requests', { params });
+      return response.data.data as GymRequest[];
+    },
+  });
+};
+
+export const useApproveGymRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiClient.post(`/gym-requests/${id}/approve`, {});
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['gym-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['gyms'] });
+    },
+  });
+};
+
+export const useRejectGymRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, reason }: { id: number; reason: string }) => {
+      const response = await apiClient.post(`/gym-requests/${id}/reject`, { reason });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['gym-requests'] });
+    },
+  });
+};
+
+export const useDeleteGymRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      await apiClient.delete(`/gym-requests/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['gym-requests'] });
     },
   });
 };

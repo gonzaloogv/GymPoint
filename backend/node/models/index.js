@@ -24,9 +24,10 @@ const GymPayment = require('./GymPayment');
 const GymSchedule = require('./GymSchedule');
 const GymSpecialSchedule = require('./GymSpecialSchedule');
 const GymType = require('./GymType');
-const GymReview = require('./GymReview'); 
+const GymReview = require('./GymReview');
 const GymRatingStats = require('./GymRatingStats');
 const ReviewHelpful = require('./ReviewHelpful');
+const GymRequest = require('./GymRequest');
 const GymAmenity = require('./GymAmenity');
 const GymGymAmenity = require('./GymGymAmenity');
 const GymGymType = require('./GymGymType');
@@ -832,6 +833,7 @@ module.exports = {
   GymReview,
   GymRatingStats,
   ReviewHelpful,
+  GymRequest,
   Media,
   Notification,
   UserNotificationSetting,

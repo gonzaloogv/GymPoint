@@ -62,6 +62,7 @@ const webhookRoutes = require('./routes/webhook-routes');
 const testRoutes = require('./routes/test-routes');
 // Lote 9
 const userFavoriteGymRoutes = require('./routes/user-favorite-gym-routes');
+const gymRequestRoutes = require('./routes/gym-request-routes');
 
 // Inicializar app
 const app = express();
@@ -108,6 +109,7 @@ app.use('/api/auth/google', authLimiter);
 app.use('/api/auth/register', registerLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/gyms', gymRoutes);
+app.use('/api/gym-requests', gymRequestRoutes);
 app.use('/api/assistances', assistanceRoutes);
 app.use('/api/routines', routineRoutes);
 app.use('/api/exercises', exerciseRoutes);

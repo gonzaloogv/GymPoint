@@ -1,9 +1,10 @@
 ﻿import { useState, useMemo } from 'react';
-import { useGyms, useCreateGym, useUpdateGym, useDeleteGym, useGymTypes } from '../hooks';
+import { useGyms, useCreateGym, useUpdateGym, useDeleteGym, useGymTypes, useGymRequests } from '../hooks';
 import { Card, Loading, Button, GymsList } from '../components';
 import { GymForm } from '../components/ui/GymForm';
 import { GymScheduleManager } from '../components/ui/GymScheduleManager';
 import { GymSpecialScheduleManager } from '../components/ui/GymSpecialScheduleManager';
+import { GymRequestsList } from '../components/GymRequestsList';
 import { CreateGymDTO, UpdateGymDTO, Gym } from '@/domain';
 
 export const Gyms = () => {
@@ -18,6 +19,9 @@ export const Gyms = () => {
   const [managingSpecialScheduleGym, setManagingSpecialScheduleGym] = useState<Gym | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCity, setFilterCity] = useState('');
+  const [showPendingRequests, setShowPendingRequests] = useState(false);
+
+  const { data: pendingRequests } = useGymRequests('pending');
 
   const handleApiError = (error: any, context: string) => {
     const errorMessage = error.response?.data?.error?.message || 'Ocurrió un error inesperado';
@@ -109,6 +113,17 @@ export const Gyms = () => {
     );
   }
 
+  if (showPendingRequests) {
+    return (
+      <div>
+        <Button onClick={() => setShowPendingRequests(false)} variant="secondary" className="mb-6">
+          Volver a Gimnasios
+        </Button>
+        <GymRequestsList />
+      </div>
+    );
+  }
+
   return (
     <div>
       <header className="flex justify-between items-center mb-6">
@@ -116,9 +131,23 @@ export const Gyms = () => {
           <h1 className="text-2xl font-bold text-text dark:text-text-dark">Gestión de Gimnasios</h1>
           <p className="text-text-muted">{gyms?.length || 0} gimnasios registrados</p>
         </div>
-        <Button onClick={() => { setEditingGym(null); setShowForm(!showForm); }} variant={showForm ? 'secondary' : 'primary'}>
-          {showForm ? 'Cancelar' : '+ Nuevo Gimnasio'}
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            onClick={() => setShowPendingRequests(true)}
+            variant="secondary"
+            className="relative"
+          >
+            Solicitudes Pendientes
+            {pendingRequests && pendingRequests.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {pendingRequests.length}
+              </span>
+            )}
+          </Button>
+          <Button onClick={() => { setEditingGym(null); setShowForm(!showForm); }} variant={showForm ? 'secondary' : 'primary'}>
+            {showForm ? 'Cancelar' : '+ Nuevo Gimnasio'}
+          </Button>
+        </div>
       </header>
 
       {showForm ? (

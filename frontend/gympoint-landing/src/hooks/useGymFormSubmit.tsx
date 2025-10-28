@@ -15,6 +15,7 @@ export const useGymFormSubmit = (): UseGymFormSubmitReturn => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
   const formatJSONForEmail = (data: GymFormData): string => {
     const formatted = {
@@ -41,8 +42,8 @@ export const useGymFormSubmit = (): UseGymFormSubmitReturn => {
       ).join('\n'),
       
       '=== TIPOS DE ENTRENAMIENTO ===': '',
-      'Entrenamientos': data.attributes.training_types.length > 0 
-        ? data.attributes.training_types.join(', ') 
+      'Entrenamientos': data.attributes.equipment.length > 0
+        ? data.attributes.equipment.join(', ')
         : 'No especificados',
       
       '=== PRECIOS ===': '',
@@ -76,40 +77,63 @@ export const useGymFormSubmit = (): UseGymFormSubmitReturn => {
     setErrorMessage('');
 
     try {
-
-      const submitData = new FormData();
-      
-      submitData.append('access_key', ACCESS_KEY);
-      submitData.append('subject', `🏋️ Nuevo Registro de Gimnasio: ${formData.name}`);
-      submitData.append('from_name', 'GymPoint - Sistema de Registro');
-      
-      const formattedMessage = formatJSONForEmail(formData);
-      submitData.append('message', formattedMessage);
-      
-      submitData.append('gimnasio_nombre', formData.name);
-      submitData.append('gimnasio_ciudad', formData.location.city);
-      submitData.append('gimnasio_email', formData.contact.email);
-      
-      const response = await fetch('https://api.web3forms.com/submit', {
+      // 1. Enviar al backend API (principal)
+      const apiResponse = await fetch(`${API_URL}/api/gym-requests`, {
         method: 'POST',
-        body: submitData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description,
+          location: formData.location,
+          contact: formData.contact,
+          attributes: formData.attributes,
+          pricing: formData.pricing,
+          schedule: formData.schedule,
+          amenities: formData.amenities
+        }),
       });
 
-      const result = await response.json();
-
-      if (result.success) {
-        setSubmitStatus('success');
-        setIsSubmitting(false);
-        return true;
-      } else {
-        throw new Error(result.message || 'Error al enviar el formulario');
+      if (!apiResponse.ok) {
+        const error = await apiResponse.json();
+        throw new Error(error.error?.message || 'Error al enviar la solicitud');
       }
+
+      // 2. También enviar email a Web3Forms (como notificación adicional)
+      try {
+        const submitData = new FormData();
+
+        submitData.append('access_key', ACCESS_KEY);
+        submitData.append('subject', `🏋️ Nuevo Registro de Gimnasio: ${formData.name}`);
+        submitData.append('from_name', 'GymPoint - Sistema de Registro');
+
+        const formattedMessage = formatJSONForEmail(formData);
+        submitData.append('message', formattedMessage);
+
+        submitData.append('gimnasio_nombre', formData.name);
+        submitData.append('gimnasio_ciudad', formData.location.city);
+        submitData.append('gimnasio_email', formData.contact.email);
+
+        await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: submitData,
+        });
+        // No importa si esto falla, el principal es el backend
+      } catch (emailError) {
+        console.error('Error sending email notification:', emailError);
+        // Continuamos porque ya guardamos en el backend
+      }
+
+      setSubmitStatus('success');
+      setIsSubmitting(false);
+      return true;
     } catch (error) {
       console.error('Error submitting form:', error);
       setSubmitStatus('error');
       setErrorMessage(
-        error instanceof Error 
-          ? error.message 
+        error instanceof Error
+          ? error.message
           : 'Error de conexión. Por favor, intenta nuevamente.'
       );
       setIsSubmitting(false);

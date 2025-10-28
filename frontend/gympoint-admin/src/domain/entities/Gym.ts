@@ -68,3 +68,32 @@ export interface CreateGymDTO {
 export interface UpdateGymDTO extends Partial<CreateGymDTO> {
   id_gym: number;
 }
+
+export interface GymRequest {
+  id_gym_request: number;
+  name: string;
+  description: string | null;
+  city: string;
+  address: string;
+  latitude: number | null;
+  longitude: number | null;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  instagram: string | null;
+  facebook: string | null;
+  photos: string[];
+  equipment: string[];
+  monthly_price: number | null;
+  weekly_price: number | null;
+  daily_price: number | null;
+  schedule: any[];
+  amenities: number[]; // IDs de amenidades
+  status: 'pending' | 'approved' | 'rejected';
+  rejection_reason: string | null;
+  id_gym: number | null;
+  processed_by: number | null;
+  processed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}

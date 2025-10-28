@@ -17,11 +17,14 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
 }) => {
   const { theme } = useTheme();
 
+  // Asegurar que selectedValues sea siempre un array
+  const safeSelectedValues = selectedValues || [];
+
   const handleToggle = (value: string) => {
-    if (selectedValues.includes(value)) {
-      onChange(selectedValues.filter((v) => v !== value));
+    if (safeSelectedValues.includes(value)) {
+      onChange(safeSelectedValues.filter((v) => v !== value));
     } else {
-      onChange([...selectedValues, value]);
+      onChange([...safeSelectedValues, value]);
     }
   };
 
@@ -47,7 +50,7 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
               flex items-center space-x-2 p-3 rounded-lg border-2 cursor-pointer
               transition-all
               ${
-                selectedValues.includes(option)
+                safeSelectedValues.includes(option)
                   ? 'border-secondary bg-secondary/10'
                   : theme === 'light'
                     ? 'border-gray-300 hover:border-secondary/50'
@@ -57,7 +60,7 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
           >
             <input
               type="checkbox"
-              checked={selectedValues.includes(option)}
+              checked={safeSelectedValues.includes(option)}
               onChange={() => handleToggle(option)}
               className="w-4 h-4 text-secondary focus:ring-secondary rounded"
             />

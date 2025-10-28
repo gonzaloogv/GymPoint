@@ -31,7 +31,7 @@ const getInitialFormData = (): GymFormData => {
     },
     attributes: {
       photos: [],
-      training_types: [],
+      equipment: [],
     },
     pricing: {
       monthly: null,

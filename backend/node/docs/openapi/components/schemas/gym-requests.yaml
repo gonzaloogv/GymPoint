@@ -1,0 +1,42 @@
+components:
+  schemas:
+    GymRequest:
+      type: object
+      properties:
+        id_gym_request:
+          type: integer
+        name:
+          type: string
+        description:
+          type:
+            - string
+            - 'null'
+        city:
+          type: string
+        address:
+          type: string
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        created_at:
+          type: string
+
+    CreateGymRequestDTO:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        location:
+          type: object
+        contact:
+          type: object
+        attributes:
+          type: object
+        pricing:
+          type: object
+        schedule:
+          type: array
+        amenities:
+          type: array

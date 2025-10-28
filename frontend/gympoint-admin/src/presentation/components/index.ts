@@ -1,6 +1,7 @@
 export * from './layout';
 export * from './ui';
 export * from './GymsList';
+export * from './GymRequestsList';
 export * from './ExerciseForm';
 export * from './ExercisesList';
 export * from './reviews';

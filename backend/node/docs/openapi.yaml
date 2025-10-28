@@ -1333,6 +1333,48 @@ components:
         updated_at:
           type: string
           format: date-time
+    GymRequest:
+      type: object
+      properties:
+        id_gym_request:
+          type: integer
+        name:
+          type: string
+        description:
+          type:
+            - string
+            - 'null'
+        city:
+          type: string
+        address:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+            - approved
+            - rejected
+        created_at:
+          type: string
+    CreateGymRequestDTO:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        location:
+          type: object
+        contact:
+          type: object
+        attributes:
+          type: object
+        pricing:
+          type: object
+        schedule:
+          type: array
+        amenities:
+          type: array
     GymSpecialScheduleResponse:
       type: object
       required:
@@ -5029,6 +5071,118 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /api/gym-requests:
+    get:
+      tags:
+        - Gym Requests
+      summary: Obtener todas las solicitudes de gimnasios
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum:
+              - pending
+              - approved
+              - rejected
+      responses:
+        '200':
+          description: Solicitudes obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+    post:
+      tags:
+        - Gym Requests
+      summary: Crear solicitud de gimnasio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGymRequestDTO'
+      responses:
+        '201':
+          description: Solicitud creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/gym-requests/{id}:
+    get:
+      tags:
+        - Gym Requests
+      summary: Obtener solicitud por ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Solicitud obtenida
+    delete:
+      tags:
+        - Gym Requests
+      summary: Eliminar solicitud
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Solicitud eliminada
+  /api/gym-requests/{id}/approve:
+    post:
+      tags:
+        - Gym Requests
+      summary: Aprobar solicitud
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Solicitud aprobada
+  /api/gym-requests/{id}/reject:
+    post:
+      tags:
+        - Gym Requests
+      summary: Rechazar solicitud
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Solicitud rechazada
   /api/gym-special-schedules/{gymId}:
     get:
       operationId: listGymSpecialSchedules

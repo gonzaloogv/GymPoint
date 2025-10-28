@@ -38,6 +38,7 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
 
   const [equipmentInput, setEquipmentInput] = useState('');
   const [selectedAmenityIds, setSelectedAmenityIds] = useState<number[]>([]);
+  const [jsonInput, setJsonInput] = useState('');
   const { isExtracting, extractData } = useGoogleMapsExtractor();
 
   useEffect(() => {
@@ -175,14 +176,67 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
     }));
   };
 
+  const handleJsonImport = (jsonText: string) => {
+    try {
+      const data = JSON.parse(jsonText);
+
+      // Extraer equipment del landing
+      const equipment = data.attributes?.equipment || [];
+
+      // Extraer datos del JSON del landing
+      const extractedData: Partial<CreateGymDTO> = {
+        name: data.name || '',
+        description: data.description || '',
+        city: data.location?.city || '',
+        address: data.location?.address || '',
+        latitude: data.location?.latitude || 0,
+        longitude: data.location?.longitude || 0,
+        phone: data.contact?.phone || '',
+        email: data.contact?.email || '',
+        instagram: data.contact?.social_media?.instagram || '',
+        facebook: data.contact?.social_media?.facebook || '',
+        month_price: data.pricing?.monthly || 0,
+        week_price: data.pricing?.weekly || 0,
+        equipment: equipment,
+        photo_url: data.attributes?.photos?.[0] || '',
+      };
+
+      // Actualizar formData
+      setFormData(prev => ({
+        ...prev,
+        ...extractedData
+      }));
+
+      // Actualizar equipment input
+      if (Array.isArray(equipment) && equipment.length > 0) {
+        setEquipmentInput(equipment.join(', '));
+      }
+
+      // Limpiar el input después de importar
+      setJsonInput('');
+
+      alert(`✅ Datos importados correctamente desde el JSON!\n\nRevisa y completa la información faltante antes de guardar.\n\nNOTA: Las amenidades ya fueron convertidas automáticamente al recibir el JSON en el backend.`);
+    } catch (error) {
+      alert('❌ Error al importar JSON\n\nAsegúrate de pegar un JSON válido del formulario de la landing.');
+      console.error('Error parsing JSON:', error);
+    }
+  };
+
+  const handleJsonInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setJsonInput(e.target.value);
+  };
+
   return {
     formData,
     equipmentInput,
     selectedAmenityIds,
+    jsonInput,
     isExtracting,
     handleInputChange,
     handleGoogleMapsUrlChange,
     handleEquipmentChange,
+    handleJsonImport,
+    handleJsonInputChange,
     toggleAmenity,
     handleSubmit,
     addRule,
