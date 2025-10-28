@@ -21,6 +21,7 @@ import { useRegister } from '../hooks/useRegister';
 import { GenderRadioGroup } from './components/GenderRadioGroup';
 import { LocationSelector } from './components/LocationSelector';
 import { FrequencySlider } from './components/FrequencySlider';
+import { BirthDatePicker } from './components/BirthDatePicker';
 import { useTheme } from '@shared/hooks';
 
 type RootStackParamList = {
@@ -37,37 +38,101 @@ export default function RegisterScreen() {
   const isDark = theme === 'dark';
   const { register, loading, error } = useRegister();
 
-  const [fullName, setFullName] = useState('');
+  const [name, setName] = useState('');
+  const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [location, setLocation] = useState('');
-  const [age, setAge] = useState('');
+  const [birthDate, setBirthDate] = useState<Date | null>(null);
   const [gender, setGender] = useState('');
   const [weeklyFrequency, setWeeklyFrequency] = useState(3);
 
   const handleRegister = async () => {
+    // Validación de nombre
+    if (!name.trim() || name.trim().length < 2) {
+      Alert.alert('Error', 'El nombre debe tener al menos 2 caracteres');
+      return;
+    }
+
+    // Validación de apellido
+    if (!lastname.trim() || lastname.trim().length < 2) {
+      Alert.alert('Error', 'El apellido debe tener al menos 2 caracteres');
+      return;
+    }
+
+    // Validación de email
+    if (!email.trim() || !email.includes('@')) {
+      Alert.alert('Error', 'Por favor, ingresá un email válido');
+      return;
+    }
+
+    // Validación de contraseña
+    if (password.length < 8) {
+      Alert.alert('Error', 'La contraseña debe tener al menos 8 caracteres');
+      return;
+    }
+
+    if (password.length > 64) {
+      Alert.alert('Error', 'La contraseña no puede tener más de 64 caracteres');
+      return;
+    }
+
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
 
+    // Validación de fecha de nacimiento
+    if (!birthDate) {
+      Alert.alert('Error', 'Por favor, seleccioná tu fecha de nacimiento');
+      return;
+    }
+
+    // Validación de género
+    if (!gender) {
+      Alert.alert('Error', 'Por favor, seleccioná tu género');
+      return;
+    }
+
+    // Validación de localidad
+    if (!location.trim()) {
+      Alert.alert('Error', 'Por favor, seleccioná tu provincia');
+      return;
+    }
+
+    // Formatear fecha a YYYY-MM-DD para el backend
+    const formattedBirthDate = birthDate.toISOString().split('T')[0];
+
+    console.log('🚀 Iniciando registro con datos:', {
+      name,
+      lastname,
+      email,
+      gender,
+      location,
+      birth_date: formattedBirthDate,
+      weeklyFrequency,
+    });
+
     const result = await register({
-      fullName,
+      fullName: `${name} ${lastname}`,
       email,
       password,
       location,
-      birth_date: age, // age field is used for birth date in registration form
+      birth_date: formattedBirthDate,
       gender,
       weeklyFrequency,
     });
 
     if (result.success) {
+      console.log('✅ Navegando a App...');
       navigation.navigate('App');
     } else {
+      console.error('❌ Error en registro:', result.error);
       Alert.alert(
         'Error de registro',
-        result.error || 'No se pudo completar el registro'
+        result.error || 'No se pudo completar el registro. Verificá tus datos e intentá nuevamente.',
+        [{ text: 'Aceptar' }]
       );
     }
   };
@@ -103,11 +168,21 @@ export default function RegisterScreen() {
           </H2>
 
           <View className="w-full">
-            <FormField label="Nombre completo">
+            <FormField label="Nombre">
               <Input
-                placeholder="Juan Pérez"
-                value={fullName}
-                onChangeText={setFullName}
+                placeholder="Juan"
+                value={name}
+                onChangeText={setName}
+                maxLength={80}
+              />
+            </FormField>
+
+            <FormField label="Apellido">
+              <Input
+                placeholder="Pérez"
+                value={lastname}
+                onChangeText={setLastname}
+                maxLength={80}
               />
             </FormField>
 
@@ -121,12 +196,13 @@ export default function RegisterScreen() {
               />
             </FormField>
 
-            <FormField label="Contraseña">
+            <FormField label="Contraseña" hint="Mínimo 8 caracteres">
               <Input
                 placeholder="••••••••"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
+                maxLength={64}
               />
             </FormField>
 
@@ -136,6 +212,7 @@ export default function RegisterScreen() {
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry
+                maxLength={64}
               />
             </FormField>
 
@@ -143,14 +220,8 @@ export default function RegisterScreen() {
               <LocationSelector value={location} onChange={setLocation} />
             </FormField>
 
-            <FormField label="Edad">
-              <Input
-                placeholder="Ej: 25"
-                value={age}
-                onChangeText={setAge}
-                keyboardType="numeric"
-                maxLength={2}
-              />
+            <FormField label="Fecha de nacimiento">
+              <BirthDatePicker value={birthDate} onChange={setBirthDate} />
             </FormField>
 
             <FormField label="Género">
