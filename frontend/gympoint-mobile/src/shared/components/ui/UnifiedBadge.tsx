@@ -12,12 +12,20 @@ type Props = {
   iconSize?: number;
 };
 
-const getVariantStyles = (variant: 'primary' | 'secondary' | 'outline' | 'success' | 'warning' | 'danger') => {
+const getVariantStyles = (
+  variant: 'primary' | 'secondary' | 'outline' | 'success' | 'warning' | 'danger',
+  isDark: boolean
+) => {
   switch (variant) {
     case 'primary':
       return { bg: '#4A9CF5', border: '#4A9CF5', text: '#FFFFFF', icon: '#FFFFFF' };
     case 'outline':
-      return { bg: 'transparent', border: '#DDDDDD', text: '#1A1A1A', icon: '#1A1A1A' };
+      return {
+        bg: 'transparent',
+        border: isDark ? '#4B5563' : '#DDDDDD',
+        text: isDark ? '#E5E7EB' : '#1A1A1A',
+        icon: isDark ? '#E5E7EB' : '#1A1A1A',
+      };
     case 'success':
       return { bg: '#4CAF50', border: '#4CAF50', text: '#FFFFFF', icon: '#FFFFFF' };
     case 'warning':
@@ -25,7 +33,12 @@ const getVariantStyles = (variant: 'primary' | 'secondary' | 'outline' | 'succes
     case 'danger':
       return { bg: '#F44336', border: '#F44336', text: '#FFFFFF', icon: '#FFFFFF' };
     default: // secondary
-      return { bg: '#f3f4f6', border: '#DDDDDD', text: '#1A1A1A', icon: '#666666' };
+      return {
+        bg: isDark ? '#374151' : '#f3f4f6',
+        border: isDark ? '#4B5563' : '#DDDDDD',
+        text: isDark ? '#E5E7EB' : '#1A1A1A',
+        icon: isDark ? '#9CA3AF' : '#666666',
+      };
   }
 };
 
@@ -61,7 +74,7 @@ export function UnifiedBadge({
 }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const styles = getVariantStyles(variant);
+  const styles = getVariantStyles(variant, isDark);
   const paddingClass = getPadding(size);
   const fontClass = getFontSize(size);
   const finalIconColor = iconColor || styles.icon;

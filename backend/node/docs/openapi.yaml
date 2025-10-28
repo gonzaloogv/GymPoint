@@ -3664,13 +3664,13 @@ paths:
           description: Achievement eliminado exitosamente
         '404':
           $ref: '#/components/responses/NotFound'
-  /api/achievements:
+  /api/achievements/me:
     get:
-      operationId: listAchievements
+      operationId: getMyAchievements
       tags:
         - Achievements
-      summary: Listar todas las definiciones de logros
-      description: Obtiene la lista de todas las definiciones de achievements
+      summary: Listar los logros del usuario autenticado
+      description: Obtiene la lista de achievements del usuario con su progreso actual
       security:
         - BearerAuth: []
       parameters:
@@ -3690,121 +3690,91 @@ paths:
               - TOKEN
               - SOCIAL
           description: Filtrar por categoría
-        - name: is_active
-          in: query
-          required: false
-          schema:
-            type: boolean
-          description: Filtrar solo achievements activos
       responses:
         '200':
-          description: Lista de definiciones de logros
+          description: Lista de logros del usuario con progreso
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AchievementDefinitionResponse'
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        code:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        category:
+                          type: string
+                        metric_type:
+                          type: string
+                        target_value:
+                          type: number
+                        icon_url:
+                          type: string
+                        is_active:
+                          type: boolean
+                        metadata:
+                          type: object
+                        progress:
+                          type: number
+                        unlocked:
+                          type: boolean
+                        unlocked_at:
+                          type: string
+                          format: date-time
+                        last_source_type:
+                          type: string
+                        last_source_id:
+                          type: integer
         '401':
-          description: No autorizado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
+  /api/achievements/sync:
     post:
-      operationId: createAchievement
+      operationId: syncMyAchievements
       tags:
         - Achievements
-      summary: Crear una nueva definición de logro
-      description: Crea una nueva definición de achievement (admin)
+      summary: Recalcular los logros del usuario
+      description: Sincroniza y recalcula todos los achievements del usuario autenticado
       security:
         - BearerAuth: []
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateAchievementDefinitionRequest'
+              type: object
+              properties:
+                category:
+                  type: string
+                  description: Si se especifica, recalcula solo esa categoría
       responses:
-        '201':
-          description: Achievement creado exitosamente
+        '200':
+          description: Logros sincronizados exitosamente
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AchievementDefinitionResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                  unlocked:
+                    type: array
+                    items:
+                      type: object
         '401':
-          description: No autorizado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /api/achievements/{id}:
-    get:
-      operationId: getAchievementById
-      tags:
-        - Achievements
-      summary: Obtener un logro por ID
-      description: Obtiene los detalles de una definición de achievement
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
-          description: ID del achievement
-      responses:
-        '200':
-          description: Detalles del achievement
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AchievementDefinitionResponse'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    put:
-      operationId: updateAchievement
-      tags:
-        - Achievements
-      summary: Actualizar una definición de logro
-      description: Actualiza los datos de un achievement (admin)
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
-          description: ID del achievement
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateAchievementDefinitionRequest'
-      responses:
-        '200':
-          description: Achievement actualizado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AchievementDefinitionResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    delete:
-      operationId: deleteAchievement
-      tags:
-        - Achievements
-      summary: Eliminar un logro
-      description: Elimina lógicamente un achievement (soft delete)
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
-          description: ID del achievement
-      responses:
-        '204':
-          description: Achievement eliminado exitosamente
-        '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: '#/components/responses/Unauthorized'
   /api/admin/stats:
     get:
       operationId: getAdminStats
@@ -7330,6 +7300,190 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/users/me/tokens/balance:
+    get:
+      operationId: getMyTokenBalance
+      tags:
+        - Users
+        - Tokens
+      summary: Obtener balance de tokens del usuario autenticado
+      description: |
+        Obtiene el balance actual de tokens del usuario autenticado.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Balance de tokens obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_user_profile:
+                    type: integer
+                    example: 1
+                  balance:
+                    type: integer
+                    example: 150
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/users/me/tokens/ledger:
+    get:
+      operationId: getMyTokenLedger
+      tags:
+        - Users
+        - Tokens
+      summary: Obtener historial de movimientos de tokens del usuario autenticado
+      description: |
+        Obtiene el historial paginado de movimientos de tokens del usuario autenticado.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Número de página
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Cantidad de resultados por página
+        - in: query
+          name: from_date
+          schema:
+            type: string
+            format: date-time
+          description: Filtrar desde esta fecha
+        - in: query
+          name: to_date
+          schema:
+            type: string
+            format: date-time
+          description: Filtrar hasta esta fecha
+        - in: query
+          name: ref_type
+          schema:
+            type: string
+          description: Filtrar por tipo de referencia
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            default: created_at
+          description: Campo por el cual ordenar
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          description: Orden de los resultados
+      responses:
+        '200':
+          description: Historial de tokens obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id_ledger:
+                          type: integer
+                          example: 1
+                        id_user_profile:
+                          type: integer
+                          example: 1
+                        delta:
+                          type: integer
+                          example: 50
+                        balance_after:
+                          type: integer
+                          example: 150
+                        reason:
+                          type: string
+                          example: ACHIEVEMENT_UNLOCKED
+                        ref_type:
+                          type: string
+                          nullable: true
+                          example: achievement
+                        ref_id:
+                          type: integer
+                          nullable: true
+                          example: 5
+                        metadata:
+                          type: object
+                          nullable: true
+                        created_at:
+                          type: string
+                          format: date-time
+                  page:
+                    type: integer
+                    example: 1
+                  limit:
+                    type: integer
+                    example: 20
+                  total:
+                    type: integer
+                    example: 45
+                  totalPages:
+                    type: integer
+                    example: 3
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/users/me/tokens/stats:
+    get:
+      operationId: getMyTokenStats
+      tags:
+        - Users
+        - Tokens
+      summary: Obtener estadísticas de tokens del usuario autenticado
+      description: |
+        Obtiene estadísticas agregadas de tokens del usuario autenticado.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Estadísticas de tokens obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  balance:
+                    type: integer
+                    example: 150
+                  total_earned:
+                    type: integer
+                    example: 500
+                  total_spent:
+                    type: integer
+                    example: 350
+                  earned_this_month:
+                    type: integer
+                    example: 100
+                  spent_this_month:
+                    type: integer
+                    example: 50
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
   /api/users/{userId}/subscription:

@@ -140,13 +140,13 @@ paths:
           description: Achievement eliminado exitosamente
         '404':
           $ref: ../components/responses.yaml#/components/responses/NotFound
-  /api/achievements:
+  /api/achievements/me:
     get:
-      operationId: listAchievements
+      operationId: getMyAchievements
       tags:
         - Achievements
-      summary: Listar todas las definiciones de logros
-      description: Obtiene la lista de todas las definiciones de achievements
+      summary: Listar los logros del usuario autenticado
+      description: Obtiene la lista de achievements del usuario con su progreso actual
       security:
         - BearerAuth: []
       parameters:
@@ -166,118 +166,88 @@ paths:
               - TOKEN
               - SOCIAL
           description: Filtrar por categoría
-        - name: is_active
-          in: query
-          required: false
-          schema:
-            type: boolean
-          description: Filtrar solo achievements activos
       responses:
         '200':
-          description: Lista de definiciones de logros
+          description: Lista de logros del usuario con progreso
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: ../components/common.yaml#/components/schemas/AchievementDefinitionResponse
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        code:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        category:
+                          type: string
+                        metric_type:
+                          type: string
+                        target_value:
+                          type: number
+                        icon_url:
+                          type: string
+                        is_active:
+                          type: boolean
+                        metadata:
+                          type: object
+                        progress:
+                          type: number
+                        unlocked:
+                          type: boolean
+                        unlocked_at:
+                          type: string
+                          format: date-time
+                        last_source_type:
+                          type: string
+                        last_source_id:
+                          type: integer
         '401':
-          description: No autorizado
-          content:
-            application/json:
-              schema:
-                $ref: ../components/common.yaml#/components/schemas/Error
+          $ref: ../components/responses.yaml#/components/responses/Unauthorized
+  /api/achievements/sync:
     post:
-      operationId: createAchievement
+      operationId: syncMyAchievements
       tags:
         - Achievements
-      summary: Crear una nueva definición de logro
-      description: Crea una nueva definición de achievement (admin)
+      summary: Recalcular los logros del usuario
+      description: Sincroniza y recalcula todos los achievements del usuario autenticado
       security:
         - BearerAuth: []
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
-              $ref: ../components/common.yaml#/components/schemas/CreateAchievementDefinitionRequest
+              type: object
+              properties:
+                category:
+                  type: string
+                  description: Si se especifica, recalcula solo esa categoría
       responses:
-        '201':
-          description: Achievement creado exitosamente
+        '200':
+          description: Logros sincronizados exitosamente
           content:
             application/json:
               schema:
-                $ref: ../components/common.yaml#/components/schemas/AchievementDefinitionResponse
-        '400':
-          $ref: ../components/responses.yaml#/components/responses/BadRequest
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                  unlocked:
+                    type: array
+                    items:
+                      type: object
         '401':
-          description: No autorizado
-          content:
-            application/json:
-              schema:
-                $ref: ../components/common.yaml#/components/schemas/Error
-  /api/achievements/{id}:
-    get:
-      operationId: getAchievementById
-      tags:
-        - Achievements
-      summary: Obtener un logro por ID
-      description: Obtiene los detalles de una definición de achievement
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
-          description: ID del achievement
-      responses:
-        '200':
-          description: Detalles del achievement
-          content:
-            application/json:
-              schema:
-                $ref: ../components/common.yaml#/components/schemas/AchievementDefinitionResponse
-        '404':
-          $ref: ../components/responses.yaml#/components/responses/NotFound
-    put:
-      operationId: updateAchievement
-      tags:
-        - Achievements
-      summary: Actualizar una definición de logro
-      description: Actualiza los datos de un achievement (admin)
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
-          description: ID del achievement
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: ../components/common.yaml#/components/schemas/UpdateAchievementDefinitionRequest
-      responses:
-        '200':
-          description: Achievement actualizado
-          content:
-            application/json:
-              schema:
-                $ref: ../components/common.yaml#/components/schemas/AchievementDefinitionResponse
-        '400':
-          $ref: ../components/responses.yaml#/components/responses/BadRequest
-        '404':
-          $ref: ../components/responses.yaml#/components/responses/NotFound
-    delete:
-      operationId: deleteAchievement
-      tags:
-        - Achievements
-      summary: Eliminar un logro
-      description: Elimina lógicamente un achievement (soft delete)
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
-          description: ID del achievement
-      responses:
-        '204':
-          description: Achievement eliminado exitosamente
-        '404':
-          $ref: ../components/responses.yaml#/components/responses/NotFound
+          $ref: ../components/responses.yaml#/components/responses/Unauthorized

@@ -62,3 +62,6 @@ api.interceptors.response.use(
     throw error;
   },
 );
+
+// Export as apiClient for consistency with remote services
+export const apiClient = api;

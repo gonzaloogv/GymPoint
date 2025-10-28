@@ -3,7 +3,7 @@
  */
 
 import React, { useCallback, useEffect } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { Button, ButtonText } from '@shared/components/ui';
@@ -11,7 +11,6 @@ import { useTheme } from '@shared/hooks';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { PremiumAlert } from '../components/PremiumAlert';
 import { PremiumBadge } from '../components/PremiumBadge';
-import { StatsSection } from '../components/StatsSection';
 import { SettingsCard } from '../components/SettingsCard';
 import { MenuOptions } from '../components/MenuOptions';
 import { PremiumBenefitsCard } from '../components/PremiumBenefitsCard';
@@ -46,11 +45,9 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   // ============================================
   const {
     profile,
-    stats,
     notifications,
     locationEnabled,
     fetchUserProfile,
-    fetchUserStats,
     updateNotifications,
     toggleLocation,
     upgradeToPremium,
@@ -58,7 +55,6 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
 
   useEffect(() => {
     fetchUserProfile();
-    fetchUserStats();
   }, []);
 
   // ============================================
@@ -85,50 +81,49 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   // ============================================
   // RENDER
   // ============================================
-  const defaultStats = {
-    totalCheckIns: 0,
-    longestStreak: 0,
-    favoriteGym: '-',
-    monthlyVisits: 0,
-  };
-
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1" style={{ backgroundColor: isDark ? '#0f1419' : '#ffffff' }}>
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 p-4 gap-4">
+    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1" style={{ backgroundColor: isDark ? '#111827' : '#f9fafb' }}>
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 p-4" style={{ backgroundColor: isDark ? '#111827' : '#f9fafb' }}>
         {/* 1. Header */}
-        <ProfileHeader user={resolvedUser} theme={theme} />
+        <View className="mb-4">
+          <ProfileHeader user={resolvedUser} theme={theme} />
+        </View>
 
         {/* 2. Plan */}
-        {resolvedUser.plan === 'Free' ? (
-          <PremiumAlert onUpgrade={handleUpgradeToPremium} />
-        ) : (
-          <PremiumBadge />
-        )}
+        <View className="mb-4">
+          {resolvedUser.plan === 'Free' ? (
+            <PremiumAlert onUpgrade={handleUpgradeToPremium} />
+          ) : (
+            <PremiumBadge />
+          )}
+        </View>
 
-        {/* 3. Stats */}
-        <StatsSection
-          stats={stats || defaultStats}
-          isPremium={resolvedUser.plan === 'Premium'}
-        />
-
-        {/* 4. Configuraciones */}
-        <SettingsCard
-          notifications={notifications}
-          onNotificationToggle={handleNotificationToggle}
-          locationEnabled={locationEnabled}
-          onLocationToggle={toggleLocation}
-        />
+        {/* 3. Configuraciones */}
+        <View className="mb-4">
+          <SettingsCard
+            notifications={notifications}
+            onNotificationToggle={handleNotificationToggle}
+            locationEnabled={locationEnabled}
+            onLocationToggle={toggleLocation}
+          />
+        </View>
 
         {/* 5. Menú */}
-        <MenuOptions isPremium={resolvedUser.plan === 'Premium'} theme={theme} />
+        <View className="mb-4">
+          <MenuOptions isPremium={resolvedUser.plan === 'Premium'} theme={theme} />
+        </View>
 
         {/* 6. Beneficios Premium */}
         {resolvedUser.plan === 'Free' && (
-          <PremiumBenefitsCard onUpgrade={handleUpgradeToPremium} />
+          <View className="mb-4">
+            <PremiumBenefitsCard onUpgrade={handleUpgradeToPremium} />
+          </View>
         )}
 
         {/* 7. Footer */}
-        <LegalFooter theme={theme} />
+        <View className="mb-4">
+          <LegalFooter theme={theme} />
+        </View>
 
         {/* 8. Logout */}
         <Button
@@ -136,17 +131,17 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
           className="mb-4"
           style={{
             backgroundColor: 'transparent',
-            borderWidth: 1,
-            borderColor: theme.colors.danger,
+            borderWidth: 2,
+            borderColor: isDark ? '#EF4444' : '#F87171',
           }}
         >
           <Feather
             name="log-out"
             size={16}
-            color={theme.colors.danger}
+            color={isDark ? '#EF4444' : '#F87171'}
             style={{ marginRight: 8 }}
           />
-          <ButtonText style={{ color: theme.colors.danger }}>Cerrar sesión</ButtonText>
+          <ButtonText style={{ color: isDark ? '#EF4444' : '#F87171' }}>Cerrar sesión</ButtonText>
         </Button>
       </ScrollView>
     </SafeAreaView>

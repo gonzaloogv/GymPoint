@@ -11,9 +11,13 @@ import { UserStats } from '../../domain/entities/UserStats';
  * Transforma el DTO del backend a la entidad del dominio
  */
 export const mapUserProfileDTOToEntity = (dto: UserProfileResponseDTO): UserProfile => {
+  // Construir nombre completo con fallback
+  const fullName = [dto.name, dto.lastname].filter(Boolean).join(' ').trim();
+  const displayName = fullName || dto.name || dto.lastname || 'Usuario';
+
   return {
     id_user: dto.id_user_profile,
-    name: dto.name,
+    name: displayName,
     email: dto.email,
     role: dto.subscription === 'PREMIUM' ? 'PREMIUM' : 'USER',
     tokens: dto.tokens,

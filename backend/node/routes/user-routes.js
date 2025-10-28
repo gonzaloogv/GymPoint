@@ -191,6 +191,24 @@ const rewardController = require('../controllers/reward-controller');
 const tokenController = require('../controllers/token-controller');
 
 /**
+ * GET /api/users/me/tokens/balance
+ * Obtiene el balance de tokens del usuario autenticado
+ */
+router.get('/me/tokens/balance', verificarToken, verificarUsuarioApp, tokenController.getMyTokenBalance);
+
+/**
+ * GET /api/users/me/tokens/ledger
+ * Lista el historial de movimientos de tokens del usuario autenticado
+ */
+router.get('/me/tokens/ledger', verificarToken, verificarUsuarioApp, tokenController.getMyTokenLedger);
+
+/**
+ * GET /api/users/me/tokens/stats
+ * Obtiene estadísticas de tokens del usuario autenticado
+ */
+router.get('/me/tokens/stats', verificarToken, verificarUsuarioApp, tokenController.getMyTokenStats);
+
+/**
  * GET /api/users/:userId/claimed-rewards
  * Lista recompensas canjeadas por un usuario
  */

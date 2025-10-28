@@ -8,15 +8,16 @@ type Props = {
   userName: string;
   plan: 'Free' | 'Premium';
   tokens: number;
+  streak?: number;
   onBellPress?: () => void;
 };
 
-export default function HomeHeader({ userName, plan, tokens, onBellPress }: Props) {
+export default function HomeHeader({ userName, plan, tokens, streak = 0, onBellPress }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const parts = userName.trim().split(/\s+/);
-  const firstName = parts[0] ?? userName;
+  const parts = (userName || '').trim().split(/\s+/);
+  const firstName = parts[0] ?? userName ?? 'Usuario';
 
   return (
     <View className="flex-row justify-between items-center">
@@ -32,14 +33,19 @@ export default function HomeHeader({ userName, plan, tokens, onBellPress }: Prop
         </View>
       </View>
 
-      <View className="flex-row items-center ml-3">
+      <View className="flex-row items-center gap-2 ml-3">
         <TokenPill value={tokens} />
-        <TouchableOpacity
-          onPress={onBellPress}
-          className="ml-2 w-11 h-11 items-center justify-center"
+        <View
+          className="flex-row items-center px-3 py-1.5 rounded-full"
+          style={{
+            backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2'
+          }}
         >
-          <FeatherIcon name="bell" size={20} color={palette.textStrong} />
-        </TouchableOpacity>
+          <Text className="text-lg">🔥</Text>
+          <Text className={`ml-1 font-semibold ${isDark ? 'text-red-400' : 'text-red-700'}`}>
+            {streak}
+          </Text>
+        </View>
       </View>
     </View>
   );

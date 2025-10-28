@@ -82,9 +82,9 @@ export default function MapSection({
       </MapBox>
 
       {hasMoreGyms && (
-        <BaseCard padding="none" className="mx-2 overflow-hidden">
-          <View className="px-2 pt-1.5">
-            <Text className={isDark ? 'text-textPrimary-dark font-semibold' : 'text-textPrimary font-semibold'}>
+        <BaseCard padding="none" className={`mx-4 mt-4 overflow-hidden ${isDark ? 'bg-gray-900/50' : 'bg-white'}`}>
+          <View className="px-4 pt-4">
+            <Text className={isDark ? 'text-white font-semibold' : 'text-gray-900 font-semibold'}>
               Más cercanos
             </Text>
           </View>

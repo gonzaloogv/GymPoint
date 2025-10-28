@@ -35,8 +35,14 @@ export function SegmentedControl({
 
   return (
     <View
-      className="flex-row self-center border rounded-md overflow-hidden"
-      style={computedStyle}
+      style={{
+        flexDirection: 'row',
+        borderWidth: 1,
+        borderColor: computedStyle.borderColor,
+        borderRadius: 6,
+        overflow: 'hidden',
+        backgroundColor: computedStyle.backgroundColor,
+      }}
     >
       {options.map((opt) => {
         const active = opt.value === value;
@@ -44,14 +50,23 @@ export function SegmentedControl({
           <Pressable
             key={opt.value}
             onPress={() => onChange(opt.value)}
-            className={`${itemPadding} ${itemHeight} justify-center items-center flex-1`}
             style={{
+              flex: 1,
+              paddingHorizontal: size === 'sm' ? 8 : 12,
+              paddingVertical: size === 'sm' ? 6 : 10,
+              justifyContent: 'center',
+              alignItems: 'center',
               backgroundColor: active ? '#4A9CF5' : isDark ? '#252B3D' : '#FFFFFF',
+              flexWrap: 'nowrap',
             }}
           >
             <Text
-              className={`font-semibold ${fontSize}`}
-              style={{ color: active ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A' }}
+              numberOfLines={1}
+              style={{
+                fontWeight: '600',
+                fontSize: size === 'sm' ? 12 : 13,
+                color: active ? '#FFFFFF' : isDark ? '#6B7280' : '#1A1A1A',
+              }}
             >
               {opt.label}
             </Text>

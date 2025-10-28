@@ -91,6 +91,8 @@ export default function MapScreen() {
   return (
     <Screen
       scroll={!isListView}
+      safeAreaTop={true}
+      safeAreaBottom={false}
       contentContainerStyle={!isListView ? { paddingBottom: 24 } : undefined}
     >
       <MapScreenHeader

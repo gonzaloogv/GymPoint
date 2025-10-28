@@ -27,6 +27,7 @@ import { GetRoutineHistory } from '@features/routines/domain/usecases/GetRoutine
 // ===== Rewards =====
 import { RewardRepository } from '@features/rewards/domain/repositories/RewardRepository';
 import { RewardRepositoryImpl } from '@features/rewards/data/RewardRepositoryImpl';
+import { RewardRemote } from '@features/rewards/data/reward.remote';
 import { RewardLocal } from '@features/rewards/data/datasources/RewardLocal';
 import { GetAvailableRewards } from '@features/rewards/domain/usecases/GetAvailableRewards';
 import { GenerateRewardCode } from '@features/rewards/domain/usecases/GenerateRewardCode';
@@ -45,6 +46,20 @@ import { UserRepositoryImpl } from '@features/user/data/UserRepositoryImpl';
 import { GetUserProfile } from '@features/user/domain/usecases/GetUserProfile';
 import { UpdateUserSettings } from '@features/user/domain/usecases/UpdateUserSettings';
 import { UpgradeToPremium } from '@features/user/domain/usecases/UpgradeToPremium';
+
+// ===== Achievements =====
+import { AchievementRepository } from '@features/progress/domain/repositories/AchievementRepository';
+import { AchievementRepositoryImpl } from '@features/progress/data/AchievementRepositoryImpl';
+import { AchievementRemote } from '@features/progress/data/achievement.remote';
+import { GetAchievements } from '@features/progress/domain/useCases/GetAchievements';
+import { SyncAchievements } from '@features/progress/domain/useCases/SyncAchievements';
+
+// ===== Tokens =====
+import { TokenRepository } from '@features/tokens/domain/repositories/TokenRepository';
+import { TokenRepositoryImpl } from '@features/tokens/data/TokenRepositoryImpl';
+import { TokenRemote } from '@features/tokens/data/token.remote';
+import { GetTokenHistory } from '@features/tokens/domain/useCases/GetTokenHistory';
+import { GetTokenBalance } from '@features/tokens/domain/useCases/GetTokenBalance';
 
 /* ===== Progress =====
 import { ProgressRepository } from '@features/progress/domain/repositories/ProgressRepository';
@@ -88,6 +103,7 @@ class Container {
   getRoutineHistory: GetRoutineHistory;
 
   // Rewards
+  rewardRemote: RewardRemote;
   rewardLocal: RewardLocal;
   rewardRepository: RewardRepository;
   getAvailableRewards: GetAvailableRewards;
@@ -105,6 +121,18 @@ class Container {
   getUserProfile: GetUserProfile;
   updateUserSettings: UpdateUserSettings;
   upgradeToPremium: UpgradeToPremium;
+
+  // Achievements
+  achievementRemote: AchievementRemote;
+  achievementRepository: AchievementRepository;
+  getAchievements: GetAchievements;
+  syncAchievements: SyncAchievements;
+
+  // Tokens
+  tokenRemote: TokenRemote;
+  tokenRepository: TokenRepository;
+  getTokenHistory: GetTokenHistory;
+  getTokenBalance: GetTokenBalance;
 
   /* Progress
   progressLocal: ProgressLocal;
@@ -144,8 +172,9 @@ class Container {
     this.getRoutineHistory = new GetRoutineHistory(this.routineRepository);
 
     // Rewards
+    this.rewardRemote = new RewardRemote();
     this.rewardLocal = new RewardLocal();
-    this.rewardRepository = new RewardRepositoryImpl(this.rewardLocal);
+    this.rewardRepository = new RewardRepositoryImpl(this.rewardRemote, this.rewardLocal);
     this.getAvailableRewards = new GetAvailableRewards(this.rewardRepository);
     this.generateRewardCode = new GenerateRewardCode(this.rewardRepository);
     this.getGeneratedCodes = new GetGeneratedCodes(this.rewardRepository);
@@ -161,6 +190,18 @@ class Container {
     this.getUserProfile = new GetUserProfile(this.userRepository);
     this.updateUserSettings = new UpdateUserSettings(this.userRepository);
     this.upgradeToPremium = new UpgradeToPremium(this.userRepository);
+
+    // Achievements
+    this.achievementRemote = new AchievementRemote();
+    this.achievementRepository = new AchievementRepositoryImpl(this.achievementRemote);
+    this.getAchievements = new GetAchievements(this.achievementRepository);
+    this.syncAchievements = new SyncAchievements(this.achievementRepository);
+
+    // Tokens
+    this.tokenRemote = new TokenRemote();
+    this.tokenRepository = new TokenRepositoryImpl(this.tokenRemote);
+    this.getTokenHistory = new GetTokenHistory(this.tokenRepository);
+    this.getTokenBalance = new GetTokenBalance(this.tokenRepository);
 
     /* Progress
     this.progressLocal = new ProgressLocal();

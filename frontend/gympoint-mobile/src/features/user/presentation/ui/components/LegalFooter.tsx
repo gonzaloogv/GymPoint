@@ -7,12 +7,16 @@ import React from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { Card } from '@shared/components/ui';
 import { AppTheme } from '@presentation/theme';
+import { useTheme } from '@shared/hooks';
 
 interface LegalFooterProps {
   theme: AppTheme;
 }
 
 export const LegalFooter: React.FC<LegalFooterProps> = ({ theme }) => {
+  const { theme: themeMode } = useTheme();
+  const isDark = themeMode === 'dark';
+
   return (
     <Card>
       <View style={{ alignItems: 'center' }}>
@@ -25,20 +29,20 @@ export const LegalFooter: React.FC<LegalFooterProps> = ({ theme }) => {
           }}
         >
           <TouchableOpacity>
-            <Text style={{ fontSize: 14, opacity: 0.6 }}>Términos de Uso</Text>
+            <Text style={{ fontSize: 14, opacity: 0.6, color: isDark ? '#E5E7EB' : '#1A1A1A' }}>Términos de Uso</Text>
           </TouchableOpacity>
 
           <TouchableOpacity>
-            <Text style={{ fontSize: 14, opacity: 0.6 }}>Privacidad</Text>
+            <Text style={{ fontSize: 14, opacity: 0.6, color: isDark ? '#E5E7EB' : '#1A1A1A' }}>Privacidad</Text>
           </TouchableOpacity>
 
           <TouchableOpacity>
-            <Text style={{ fontSize: 14, opacity: 0.6 }}>Soporte</Text>
+            <Text style={{ fontSize: 14, opacity: 0.6, color: isDark ? '#E5E7EB' : '#1A1A1A' }}>Soporte</Text>
           </TouchableOpacity>
         </View>
 
         {/* Versión de la app */}
-        <Text style={{ fontSize: 12, opacity: 0.4 }}>GymPoint v1.0.0</Text>
+        <Text style={{ fontSize: 12, opacity: 0.4, color: isDark ? '#E5E7EB' : '#1A1A1A' }}>GymPoint v1.0.0</Text>
       </View>
     </Card>
   );

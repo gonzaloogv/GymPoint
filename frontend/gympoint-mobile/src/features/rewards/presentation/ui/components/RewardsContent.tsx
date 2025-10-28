@@ -2,7 +2,7 @@ import React from 'react';
 import { FlatList, View } from 'react-native';
 import { User } from '@features/auth/domain/entities/User';
 import { Reward, GeneratedCode } from '@features/rewards/domain/entities';
-import { RewardItem, GeneratedCodeItem, EmptyCodes } from './';
+import { RewardItem, GeneratedCodeItem, EmptyCodes, EmptyRewards } from './';
 
 type TabType = 'available' | 'codes';
 
@@ -48,6 +48,7 @@ export const RewardsContent: React.FC<RewardsContentProps> = ({
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 16 }}
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          ListEmptyComponent={() => <EmptyRewards />}
         />
       )}
       {activeTab === 'codes' && (

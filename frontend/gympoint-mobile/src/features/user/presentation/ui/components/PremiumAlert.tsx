@@ -18,10 +18,10 @@ export const PremiumAlert: React.FC<PremiumAlertProps> = ({ onUpgrade }) => {
 
   return (
     <View
-      className="rounded-md p-4 mb-4 border"
+      className="rounded-2xl p-5 mb-4 border"
       style={{
-        backgroundColor: isDark ? '#F3E8FF' : '#F3E8FF',
-        borderColor: '#C084FC',
+        backgroundColor: isDark ? '#2D1B4E' : '#F3E8FF',
+        borderColor: isDark ? '#7C3AED' : '#C084FC',
       }}
     >
       <View className="flex-row items-start gap-3">
@@ -34,7 +34,7 @@ export const PremiumAlert: React.FC<PremiumAlertProps> = ({ onUpgrade }) => {
           <Text
             className="font-semibold mb-1"
             style={{
-              color: '#7C3AED',
+              color: isDark ? '#E9D5FF' : '#7C3AED',
             }}
           >
             ¡Actualizá a Premium!
@@ -44,7 +44,7 @@ export const PremiumAlert: React.FC<PremiumAlertProps> = ({ onUpgrade }) => {
           <Text
             className="text-xs mb-3"
             style={{
-              color: '#7C3AED',
+              color: isDark ? '#D8B4FE' : '#7C3AED',
             }}
           >
             Desbloqueá estadísticas avanzadas, recompensas exclusivas y más.
@@ -55,11 +55,13 @@ export const PremiumAlert: React.FC<PremiumAlertProps> = ({ onUpgrade }) => {
             className="rounded px-4 py-2 items-center justify-center"
             style={{
               backgroundColor: '#9333EA',
+              opacity: 0.5,
             }}
-            onPress={onUpgrade}
+            // onPress={onUpgrade} // DESACTIVADO: Trae datos mock que sobrescriben datos reales
+            disabled
           >
             <Text className="font-semibold text-xs" style={{ color: '#FFFFFF' }}>
-              Ver beneficios Premium
+              Próximamente
             </Text>
           </TouchableOpacity>
         </View>

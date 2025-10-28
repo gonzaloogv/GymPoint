@@ -62,7 +62,7 @@ export default function ImportRoutineScreen() {
   };
 
   return (
-    <Screen>
+    <Screen safeAreaTop={true} safeAreaBottom={false}>
       <ScreenHeader title="Importar rutina" onBack={() => navigation.goBack()} />
       <ImportTabHeader
         title={content.title}

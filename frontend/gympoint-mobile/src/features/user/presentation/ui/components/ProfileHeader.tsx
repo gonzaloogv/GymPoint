@@ -7,6 +7,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { Card, Avatar, UnifiedBadge } from '@shared/components/ui';
 import { UserProfile } from '@features/user/types/userTypes';
+import { useTheme } from '@shared/hooks';
 
 interface ProfileHeaderProps {
   user: UserProfile;
@@ -14,6 +15,9 @@ interface ProfileHeaderProps {
 }
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, theme }) => {
+  const { theme: themeMode } = useTheme();
+  const isDark = themeMode === 'dark';
+
   return (
     <Card>
       <View
@@ -30,11 +34,11 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, theme }) => 
         <View style={{ flex: 1 }}>
           <View style={{ marginBottom: 8 }}>
             <Text
-              style={{ fontSize: 22, fontWeight: '700', color: '#000', marginBottom: 4 }}
+              style={{ fontSize: 22, fontWeight: '700', color: isDark ? '#FFFFFF' : '#000000', marginBottom: 4 }}
             >
               {user.name}
             </Text>
-            <Text style={{ fontSize: 16, color: '#666' }}>{user.email}</Text>
+            <Text style={{ fontSize: 16, color: isDark ? '#9CA3AF' : '#666666' }}>{user.email}</Text>
           </View>
 
           {/* Badges de plan y racha */}
@@ -51,7 +55,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, theme }) => 
             >
               {user.plan}
             </UnifiedBadge>
-            <UnifiedBadge variant="outline" icon="zap" iconColor="#FFA726">
+            <UnifiedBadge variant="outline" icon="zap" iconColor={isDark ? '#FBBF24' : '#FFA726'}>
               {user.streak || 0} días
             </UnifiedBadge>
           </View>

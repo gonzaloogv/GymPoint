@@ -45,7 +45,7 @@ export default function CreateRoutineScreen() {
   };
 
   return (
-    <Screen>
+    <Screen safeAreaTop={true} safeAreaBottom={false}>
       <ScreenHeader title="Nueva rutina" onBack={handleBack} />
 
       <View className="px-4 py-6" style={{ backgroundColor: cardBg }}>

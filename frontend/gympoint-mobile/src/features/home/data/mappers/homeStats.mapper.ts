@@ -14,7 +14,7 @@ export const mapHomeStatsDTOToEntity = (
 ): HomeStats => {
   const fullName = [profile.name, profile.lastname].filter(Boolean).join(' ').trim();
   return {
-    name: fullName || profile.name || '',
+    name: fullName || profile.name || profile.lastname || 'Usuario',
     plan: profile.subscription === 'PREMIUM' ? 'Premium' : 'Free',
     tokens: profile.tokens ?? 0,
     streak: streak?.value ?? 0,

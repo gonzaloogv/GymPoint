@@ -2,6 +2,7 @@ export * from './RewardItem';
 export * from './RewardCard';
 export * from './GeneratedCodeItem';
 export * from './EmptyCodes';
+export * from './EmptyRewards';
 export * from './PremiumUpsell';
 export * from './TokensTips';
 export * from './RewardsHeader';

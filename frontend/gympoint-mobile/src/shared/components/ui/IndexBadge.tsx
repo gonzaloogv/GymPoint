@@ -9,10 +9,13 @@ export function IndexBadge({ n }: Props) {
 
   return (
     <View
-      className="w-6.5 h-6.5 rounded-full items-center justify-center"
-      style={{ backgroundColor: isDark ? '#FFFFFF' : '#1A1A1A' }}
+      className={`w-7 h-7 rounded-full items-center justify-center ${
+        isDark ? 'bg-white' : 'bg-black'
+      }`}
     >
-      <Text className="text-white font-bold text-xs" style={{ color: isDark ? '#000' : '#fff' }}>
+      <Text
+        className={`font-bold text-xs ${isDark ? 'text-black' : 'text-white'}`}
+      >
         {n}
       </Text>
     </View>

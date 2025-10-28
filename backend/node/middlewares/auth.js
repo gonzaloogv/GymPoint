@@ -70,7 +70,7 @@ const verificarToken = async (req, res, next) => {
     req.account = account;
     req.profile = account.userProfile || account.adminProfile;
     req.roles = account.roles.map(r => r.role_name);
-    
+
     // Retrocompatibilidad con cÃ³digo existente
     req.user = {
       id: decoded.id,

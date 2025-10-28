@@ -23,7 +23,7 @@ export function ResultsInfo({
   const locationSuffix = hasUserLocation ? ' ordenados por distancia' : '';
 
   return (
-    <Text className={`px-4 mt-0.75 ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
+    <Text className={`px-4 mt-0.75 text-center ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
       {count} {itemLabel} {foundLabel}
       {locationSuffix}
     </Text>
