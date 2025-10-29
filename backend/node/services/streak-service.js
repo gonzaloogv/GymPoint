@@ -21,13 +21,26 @@ const ensureQuery = (input) => input;
 const getUserStreak = async (query) => {
   const q = typeof query === 'object' && query.idUserProfile ? query : { idUserProfile: query };
 
+  console.log(`[streak-service] Buscando streak para usuario ${q.idUserProfile}`);
+
+  // NO incluir relaciones para evitar error de SQL con id_user
   const streak = await streakRepository.findByUserProfileId(q.idUserProfile, {
-    includeRelations: true
+    includeRelations: false
   });
 
+  console.log(`[streak-service] Streak encontrado:`, streak);
+
   if (!streak) {
+    console.error(`[streak-service] NO se encontró streak para usuario ${q.idUserProfile}`);
     throw new NotFoundError('Racha del usuario');
   }
+
+  console.log(`[streak-service] Devolviendo streak:`, {
+    id_streak: streak.id_streak,
+    value: streak.value,
+    last_value: streak.last_value,
+    recovery_items: streak.recovery_items
+  });
 
   return streak;
 };

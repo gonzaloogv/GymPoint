@@ -79,8 +79,8 @@ function toListAssistancesQuery(params, userProfileId) {
     gymId: params.gymId || params.id_gym,
     startDate: params.startDate || params.start_date,
     endDate: params.endDate || params.end_date,
-    page: params.page ? parseInt(params.page, 10) : 1,
-    limit: params.limit ? parseInt(params.limit, 10) : 20,
+    page: params.page ? Number.parseInt(params.page, 10) : 1,
+    limit: params.limit ? Number.parseInt(params.limit, 10) : 20,
     includeGymDetails: params.includeGymDetails !== 'false'
   });
 }
@@ -115,7 +115,7 @@ function toAssistanceDTO(assistance) {
     check_out_time: assistance.check_out_time,
     duration_minutes: assistance.duration_minutes,
     auto_checkin: assistance.auto_checkin,
-    distance_meters: assistance.distance_meters ? parseFloat(assistance.distance_meters) : null,
+    distance_meters: assistance.distance_meters ? Number.parseFloat(assistance.distance_meters) : null,
     verified: assistance.verified,
     created_at: assistance.created_at ? assistance.created_at.toISOString() : null,
     // Include gym if present

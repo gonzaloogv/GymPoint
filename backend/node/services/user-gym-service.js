@@ -71,6 +71,16 @@ async function subscribeToGym(command) {
       throw new ConflictError('El usuario ya tiene una suscripción activa en este gimnasio');
     }
 
+    // ⭐ NUEVA VALIDACIÓN: Límite de 2 gimnasios activos
+    const activeCount = await userGymRepository.countActiveSubscriptions(
+      command.userProfileId,
+      { transaction }
+    );
+
+    if (activeCount >= 2) {
+      throw new ValidationError('No puedes tener más de 2 gimnasios activos simultáneamente. Cancela una suscripción para continuar.');
+    }
+
     // Calculate dates
     const subscriptionStart = command.subscriptionStart ? new Date(command.subscriptionStart) : new Date();
     const subscriptionEnd = command.subscriptionEnd
@@ -249,7 +259,7 @@ async function listExpiringSubscriptions(query) {
 // LEGACY COMPATIBILITY
 // ============================================================================
 
-const darAltaEnGimnasio = async ({ id_user, id_gym, plan }) => {
+const darAltaEnGimnasio = async ({ id_user, id_gym, plan, subscription_start, subscription_end }) => {
   // Map old plan names to new ones
   const PLAN_MAP = {
     MENSUAL: 'MONTHLY',
@@ -264,6 +274,8 @@ const darAltaEnGimnasio = async ({ id_user, id_gym, plan }) => {
     userProfileId: id_user,
     gymId: id_gym,
     subscriptionPlan: normalizedPlan,
+    subscriptionStart: subscription_start, // Opcional: permite entrada manual
+    subscriptionEnd: subscription_end,     // Opcional: permite entrada manual
   });
 };
 

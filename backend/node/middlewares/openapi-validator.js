@@ -1,5 +1,5 @@
 const OpenApiValidator = require('express-openapi-validator');
-const path = require('path');
+const path = require('node:path');
 
 /**
  * Middleware de validación OpenAPI

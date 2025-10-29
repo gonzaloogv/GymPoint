@@ -63,7 +63,7 @@ const obtenerEstadisticas = async (req, res) => {
 const resetearRacha = async (req, res) => {
   try {
     const { id_user_profile } = req.params;
-    const racha = await streakService.resetearRachaUsuario(parseInt(id_user_profile));
+    const racha = await streakService.resetearRachaUsuario(Number.parseInt(id_user_profile));
     res.json({
       message: 'Racha reseteada exitosamente',
       racha
@@ -97,7 +97,7 @@ const otorgarRecuperacion = async (req, res) => {
     }
 
     const racha = await streakService.otorgarItemsRecuperacion(
-      parseInt(id_user_profile),
+      Number.parseInt(id_user_profile),
       cantidad
     );
 

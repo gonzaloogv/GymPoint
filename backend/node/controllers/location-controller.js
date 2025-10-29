@@ -17,9 +17,9 @@ const updateLocation = async (req, res) => {
       });
     }
 
-    const lat = parseFloat(latitude);
-    const lng = parseFloat(longitude);
-    const radius = radiusKm ? parseFloat(radiusKm) : undefined;
+    const lat = Number.parseFloat(latitude);
+    const lng = Number.parseFloat(longitude);
+    const radius = radiusKm ? Number.parseFloat(radiusKm) : undefined;
 
     const nearby = await gymService.buscarGimnasiosCercanos(lat, lng, radius);
     return res.json({

@@ -15,7 +15,7 @@ const getToday = async (req, res) => {
 const updateProgress = async (req, res) => {
   try {
     const idUser = req.user.id_user_profile;
-    const id = parseInt(req.params.id, 10);
+    const id = Number.parseInt(req.params.id, 10);
     const { value } = req.body || {};
     if (!Number.isInteger(id)) return res.status(400).json({ error: { code: 'INVALID_ID', message: 'ID inválido' } });
     if (value == null) return res.status(400).json({ error: { code: 'MISSING_VALUE', message: 'Falta value' } });

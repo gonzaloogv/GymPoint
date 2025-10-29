@@ -40,7 +40,7 @@ function toCreateGymScheduleCommand(dto, gymId, createdBy) {
     day_of_week: dto.day_of_week,
     open_time: dto.open_time,
     close_time: dto.close_time,
-    is_closed: dto.is_closed !== undefined ? dto.is_closed : false,
+    is_closed: dto.is_closed === undefined ? false : dto.is_closed,
     createdBy,
   });
 }
@@ -75,7 +75,7 @@ function toCreateGymSpecialScheduleCommand(dto, gymId, createdBy) {
     date: dto.date ? new Date(dto.date) : new Date(dto.special_date), // Soporte para ambos nombres
     open_time: dto.open_time || null,
     close_time: dto.close_time || null,
-    is_closed: dto.is_closed !== undefined ? dto.is_closed : false,
+    is_closed: dto.is_closed === undefined ? false : dto.is_closed,
     reason: dto.reason || dto.motive || null, // Soporte para ambos nombres
     createdBy,
   });

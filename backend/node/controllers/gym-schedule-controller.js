@@ -18,7 +18,7 @@ const {
  */
 const listGymSchedules = async (req, res) => {
   try {
-    const gymId = parseInt(req.params.gymId, 10);
+    const gymId = Number.parseInt(req.params.gymId, 10);
 
     const query = gymScheduleMappers.toGetGymSchedulesQuery(gymId);
     const schedules = await gymScheduleService.getGymSchedules(query);
@@ -41,7 +41,7 @@ const listGymSchedules = async (req, res) => {
  */
 const getGymSchedule = async (req, res) => {
   try {
-    const scheduleId = parseInt(req.params.scheduleId, 10);
+    const scheduleId = Number.parseInt(req.params.scheduleId, 10);
 
     const query = gymScheduleMappers.toGetGymScheduleQuery(scheduleId);
     const schedule = await gymScheduleService.getGymSchedule(query);
@@ -73,7 +73,7 @@ const getGymSchedule = async (req, res) => {
  */
 const createGymSchedule = async (req, res) => {
   try {
-    const gymId = parseInt(req.params.gymId, 10);
+    const gymId = Number.parseInt(req.params.gymId, 10);
     const createdBy = req.account?.userProfile?.id_user_profile;
 
     const command = gymScheduleMappers.toCreateGymScheduleCommand(req.body, gymId, createdBy);
@@ -97,7 +97,7 @@ const createGymSchedule = async (req, res) => {
  */
 const updateGymSchedule = async (req, res) => {
   try {
-    const scheduleId = parseInt(req.params.scheduleId, 10);
+    const scheduleId = Number.parseInt(req.params.scheduleId, 10);
     const updatedBy = req.account?.userProfile?.id_user_profile;
 
     const command = gymScheduleMappers.toUpdateGymScheduleCommand(req.body, scheduleId, updatedBy);
@@ -121,7 +121,7 @@ const updateGymSchedule = async (req, res) => {
  */
 const deleteGymSchedule = async (req, res) => {
   try {
-    const scheduleId = parseInt(req.params.scheduleId, 10);
+    const scheduleId = Number.parseInt(req.params.scheduleId, 10);
     const deletedBy = req.account?.userProfile?.id_user_profile;
 
     const command = gymScheduleMappers.toDeleteGymScheduleCommand(scheduleId, deletedBy);
@@ -148,7 +148,7 @@ const deleteGymSchedule = async (req, res) => {
  */
 const listGymSpecialSchedules = async (req, res) => {
   try {
-    const gymId = parseInt(req.params.gymId, 10);
+    const gymId = Number.parseInt(req.params.gymId, 10);
     const { from_date, to_date, future_only } = req.query;
 
     const query = gymScheduleMappers.toListGymSpecialSchedulesQuery(gymId, {
@@ -177,7 +177,7 @@ const listGymSpecialSchedules = async (req, res) => {
  */
 const getGymSpecialSchedule = async (req, res) => {
   try {
-    const specialScheduleId = parseInt(req.params.specialScheduleId, 10);
+    const specialScheduleId = Number.parseInt(req.params.specialScheduleId, 10);
 
     const query = gymScheduleMappers.toGetGymSpecialScheduleQuery(specialScheduleId);
     const schedule = await gymScheduleService.getGymSpecialSchedule(query);
@@ -209,7 +209,7 @@ const getGymSpecialSchedule = async (req, res) => {
  */
 const createGymSpecialSchedule = async (req, res) => {
   try {
-    const gymId = parseInt(req.params.gymId, 10);
+    const gymId = Number.parseInt(req.params.gymId, 10);
     const createdBy = req.account?.userProfile?.id_user_profile;
 
     const command = gymScheduleMappers.toCreateGymSpecialScheduleCommand(req.body, gymId, createdBy);
@@ -233,8 +233,8 @@ const createGymSpecialSchedule = async (req, res) => {
  */
 const updateGymSpecialSchedule = async (req, res) => {
   try {
-    const gymId = parseInt(req.params.gymId, 10);
-    const specialScheduleId = parseInt(req.params.specialScheduleId, 10);
+    const gymId = Number.parseInt(req.params.gymId, 10);
+    const specialScheduleId = Number.parseInt(req.params.specialScheduleId, 10);
     const updatedBy = req.account?.userProfile?.id_user_profile;
 
     const command = gymScheduleMappers.toUpdateGymSpecialScheduleCommand(
@@ -263,7 +263,7 @@ const updateGymSpecialSchedule = async (req, res) => {
  */
 const deleteGymSpecialSchedule = async (req, res) => {
   try {
-    const specialScheduleId = parseInt(req.params.specialScheduleId, 10);
+    const specialScheduleId = Number.parseInt(req.params.specialScheduleId, 10);
     const deletedBy = req.account?.userProfile?.id_user_profile;
 
     const command = gymScheduleMappers.toDeleteGymSpecialScheduleCommand(
@@ -289,7 +289,7 @@ const deleteGymSpecialSchedule = async (req, res) => {
  */
 const getEffectiveGymSchedule = async (req, res) => {
   try {
-    const gymId = parseInt(req.params.gymId, 10);
+    const gymId = Number.parseInt(req.params.gymId, 10);
     const { date } = req.query;
 
     if (!date) {

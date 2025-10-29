@@ -285,6 +285,17 @@ module.exports = {
           defaultValue: true,
           comment: 'Si la suscripción está activa'
         },
+        trial_used: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+          comment: 'Si el usuario ya usó su visita de prueba en este gimnasio'
+        },
+        trial_date: {
+          type: Sequelize.DATEONLY,
+          allowNull: true,
+          comment: 'Fecha en que usó el trial (si aplica)'
+        },
         created_at: {
           type: Sequelize.DATE,
           allowNull: false,
@@ -302,8 +313,8 @@ module.exports = {
         name: 'idx_user_gym_user_gym',
         transaction
       });
-      await queryInterface.addIndex('user_gym', ['is_active', 'subscription_end'], {
-        name: 'idx_user_gym_active_end',
+      await queryInterface.addIndex('user_gym', ['is_active', 'subscription_end', 'trial_used'], {
+        name: 'idx_user_gym_active_end_trial',
         transaction
       });
       console.log(' Tabla "user_gym" creada con 2 índices\n');

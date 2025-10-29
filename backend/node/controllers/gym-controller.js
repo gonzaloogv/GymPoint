@@ -74,16 +74,20 @@ const updateGym = async (req, res) => {
     const gym = await gymService.updateGym(command.gymId, command);
     res.json(gymMapper.toGymResponse(gym));
   } catch (err) {
-    const status =
-      err instanceof ValidationError ? 400 : err instanceof NotFoundError ? 404 : 500;
+    let status = 500;
+    let code = 'UPDATE_GYM_FAILED';
+
+    if (err instanceof ValidationError) {
+      status = 400;
+      code = 'INVALID_DATA';
+    } else if (err instanceof NotFoundError) {
+      status = 404;
+      code = 'GYM_NOT_FOUND';
+    }
+
     res.status(status).json({
       error: {
-        code:
-          status === 400
-            ? 'INVALID_DATA'
-            : status === 404
-            ? 'GYM_NOT_FOUND'
-            : 'UPDATE_GYM_FAILED',
+        code,
         message: err.message,
       },
     });
@@ -112,9 +116,9 @@ const deleteGym = async (req, res) => {
 const buscarGimnasiosCercanos = async (req, res) => {
   try {
     const gyms = await gymService.buscarGimnasiosCercanos(req.query);
-    const lat = parseFloat(req.query.lat);
-    const lng = parseFloat(req.query.lng ?? req.query.lon);
-    const radiusKm = parseFloat(req.query.radiusKm ?? req.query.radius ?? 5);
+    const lat = Number.parseFloat(req.query.lat);
+    const lng = Number.parseFloat(req.query.lng ?? req.query.lon);
+    const radiusKm = Number.parseFloat(req.query.radiusKm ?? req.query.radius ?? 5);
 
     res.json({
       message: 'Gimnasios cercanos obtenidos con éxito',
@@ -166,17 +170,19 @@ const filtrarGimnasios = async (req, res) => {
     }
 
     const { subscription } = userProfile;
-    const amenityIds = Array.isArray(req.query.amenities)
-      ? req.query.amenities.flat().map(Number).filter(Number.isFinite)
-      : typeof req.query.amenities === 'string' && req.query.amenities.length
-      ? req.query.amenities.split(',').map(Number).filter(Number.isFinite)
-      : [];
+
+    let amenityIds = [];
+    if (Array.isArray(req.query.amenities)) {
+      amenityIds = req.query.amenities.flat().map(Number).filter(Number.isFinite);
+    } else if (typeof req.query.amenities === 'string' && req.query.amenities.length) {
+      amenityIds = req.query.amenities.split(',').map(Number).filter(Number.isFinite);
+    }
 
     const { resultados, advertencia } = await gymService.filtrarGimnasios({
       city: req.query.city || null,
       type: subscription === 'PREMIUM' ? req.query.type : null,
-      minPrice: req.query.minPrice ? parseFloat(req.query.minPrice) : null,
-      maxPrice: req.query.maxPrice ? parseFloat(req.query.maxPrice) : null,
+      minPrice: req.query.minPrice ? Number.parseFloat(req.query.minPrice) : null,
+      maxPrice: req.query.maxPrice ? Number.parseFloat(req.query.maxPrice) : null,
       amenities: subscription === 'PREMIUM' ? amenityIds : null,
     });
 

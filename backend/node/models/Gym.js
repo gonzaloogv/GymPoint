@@ -151,7 +151,13 @@ const Gym = sequelize.define('Gym', {
     allowNull: false, // âœ… CORREGIDO
     defaultValue: 10, // âœ… CORREGIDO: 10 min por defecto
     comment: 'Tiempo mi­nimo de estadi­a en minutos'
-  }
+  },
+  trial_allowed: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+    comment: 'Si el gimnasio permite visitas de prueba sin suscripción'
+  },
 }, {
   tableName: 'gym',
   timestamps: true,

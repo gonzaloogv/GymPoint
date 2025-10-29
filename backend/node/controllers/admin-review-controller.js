@@ -16,7 +16,7 @@ const getAllReviews = async (req, res) => {
     const options = {
       limit: parseIntegerQuery(limit, { min: 1, defaultValue: 20 }),
       offset: parseIntegerQuery(offset, { min: 0, defaultValue: 0 }),
-      is_approved: is_approved !== undefined ? is_approved === 'true' : undefined,
+      is_approved: is_approved === undefined ? undefined : is_approved === 'true',
       sortBy: typeof sortBy === 'string' ? sortBy : undefined,
       order: typeof order === 'string' ? order : undefined,
       searchTerm: typeof searchTerm === 'string' ? searchTerm : undefined

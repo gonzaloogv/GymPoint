@@ -262,6 +262,40 @@ router.post('/presence', verificarToken, verificarUsuarioApp, controller.registr
 
 /**
  * @swagger
+ * /api/assistances/today-status:
+ *   get:
+ *     summary: Verificar si el usuario ya hizo check-in hoy
+ *     tags: [Asistencias]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Estado de check-in del día
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 has_checked_in_today:
+ *                   type: boolean
+ *                   example: true
+ *                 assistance:
+ *                   type: object
+ *                   nullable: true
+ *                   properties:
+ *                     id_assistance:
+ *                       type: integer
+ *                     id_gym:
+ *                       type: integer
+ *                     entry_time:
+ *                       type: string
+ *                     gym_name:
+ *                       type: string
+ */
+router.get('/today-status', verificarToken, verificarUsuarioApp, controller.verificarCheckInHoy);
+
+/**
+ * @swagger
  * /api/assistances/verify-auto-checkin:
  *   post:
  *     summary: Verificar y registrar auto check-in si cumplió permanencia mínima (PREMIUM)

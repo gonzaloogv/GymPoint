@@ -79,6 +79,8 @@ function normalizeDate(value) {
   try {
     return new Date(value).toISOString();
   } catch (err) {
+    // mostrar error en logs
+    console.error('normalizeDate error:', err);
     return null;
   }
 }

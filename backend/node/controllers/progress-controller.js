@@ -66,7 +66,7 @@ const obtenerHistorialEjercicios = async (req, res) => {
 const obtenerHistorialPorEjercicio = async (req, res) => {
   try {
     const idUserProfile = req.user.id_user_profile;
-    const idExercise = parseInt(req.params.id_exercise, 10);
+    const idExercise = Number.parseInt(req.params.id_exercise, 10);
     const query = progressMappers.toGetExerciseHistoryQuery({ idUserProfile, idExercise, ...req.query });
     const history = await progressService.getExerciseHistory(query);
     res.json({
@@ -81,7 +81,7 @@ const obtenerHistorialPorEjercicio = async (req, res) => {
 const obtenerMejorLevantamiento = async (req, res) => {
   try {
     const idUserProfile = req.user.id_user_profile;
-    const idExercise = parseInt(req.params.id_exercise, 10);
+    const idExercise = Number.parseInt(req.params.id_exercise, 10);
     const query = progressMappers.toGetPersonalRecordQuery(idUserProfile, idExercise);
     const pr = await progressService.getPersonalRecord(query);
     if (!pr) {
@@ -99,7 +99,7 @@ const obtenerMejorLevantamiento = async (req, res) => {
 const obtenerPromedioLevantamiento = async (req, res) => {
   try {
     const idUserProfile = req.user.id_user_profile;
-    const idExercise = parseInt(req.params.id_exercise, 10);
+    const idExercise = Number.parseInt(req.params.id_exercise, 10);
     const query = progressMappers.toGetExerciseAveragesQuery(idUserProfile, idExercise);
     const averages = await progressService.getExerciseAverages(query);
     if (!averages) {

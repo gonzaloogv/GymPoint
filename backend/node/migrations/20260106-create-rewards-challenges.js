@@ -3,7 +3,7 @@
 /**
  * MIGRACIÓN 6: Rewards, Challenges and Achievements System
  *
- * Esta migración crea todo el sistema de gamificación:
+ * Esta migración crea el sistema de gamificación:
  * - reward: Catálogo de recompensas disponibles
  * - reward_code: Códigos para canjear recompensas
  * - claimed_reward: Recompensas reclamadas por usuarios

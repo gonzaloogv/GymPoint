@@ -3,7 +3,7 @@
 /**
  * MIGRACIÓN 3: Gym Ecosystem Tables (REFACTORIZADA)
  *
- * Esta migración crea todo el ecosistema de gimnasios:
+ * Esta migración crea el ecosistema de gimnasios:
  * - gym: Información principal de gimnasios (con geofencing integrado)
  *   · services: Array de strings ["Funcional", "CrossFit", "Musculación"]
  *   · equipment: Objeto categorizado { "fuerza": [{ name, quantity }], "cardio": [...] }
@@ -177,6 +177,12 @@ module.exports = {
           allowNull: false,
           defaultValue: 10,
           comment: 'Tiempo mínimo de estadía para confirmar check-in'
+        },
+        trial_allowed: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+          comment: 'Si el gimnasio permite visitas de prueba sin suscripción'
         },
         registration_date: {
           type: Sequelize.DATE,

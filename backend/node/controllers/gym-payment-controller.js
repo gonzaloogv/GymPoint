@@ -18,15 +18,15 @@ const {
  */
 const getUserPayments = async (req, res) => {
   try {
-    const userId = parseInt(req.params.userId, 10);
+    const userId = Number.parseInt(req.params.userId, 10);
     const { page, limit, status, gymId, from_date, to_date, sortBy, order } = req.query;
 
     const query = gymPaymentMappers.toGetUserPaymentsQuery({
       userId,
-      page: page ? parseInt(page, 10) : undefined,
-      limit: limit ? parseInt(limit, 10) : undefined,
+      page: page ? Number.parseInt(page, 10) : undefined,
+      limit: limit ? Number.parseInt(limit, 10) : undefined,
       status,
-      gymId: gymId ? parseInt(gymId, 10) : undefined,
+      gymId: gymId ? Number.parseInt(gymId, 10) : undefined,
       from_date,
       to_date,
       sortBy,
@@ -53,13 +53,13 @@ const getUserPayments = async (req, res) => {
  */
 const getGymPayments = async (req, res) => {
   try {
-    const gymId = parseInt(req.params.gymId, 10);
+    const gymId = Number.parseInt(req.params.gymId, 10);
     const { page, limit, status, payment_method, from_date, to_date, sortBy, order } = req.query;
 
     const query = gymPaymentMappers.toGetGymPaymentsQuery({
       gymId,
-      page: page ? parseInt(page, 10) : undefined,
-      limit: limit ? parseInt(limit, 10) : undefined,
+      page: page ? Number.parseInt(page, 10) : undefined,
+      limit: limit ? Number.parseInt(limit, 10) : undefined,
       status,
       payment_method,
       from_date,
@@ -88,7 +88,7 @@ const getGymPayments = async (req, res) => {
  */
 const getGymPayment = async (req, res) => {
   try {
-    const paymentId = parseInt(req.params.paymentId, 10);
+    const paymentId = Number.parseInt(req.params.paymentId, 10);
 
     const query = gymPaymentMappers.toGetGymPaymentQuery(paymentId);
     const payment = await gymPaymentService.getGymPayment(query);
@@ -120,7 +120,7 @@ const getGymPayment = async (req, res) => {
  */
 const createGymPayment = async (req, res) => {
   try {
-    const gymId = parseInt(req.params.gymId, 10);
+    const gymId = Number.parseInt(req.params.gymId, 10);
     const userId = req.account?.userProfile?.id_user_profile || req.user?.id_user_profile;
 
     if (!userId) {
@@ -153,7 +153,7 @@ const createGymPayment = async (req, res) => {
  */
 const updateGymPayment = async (req, res) => {
   try {
-    const paymentId = parseInt(req.params.paymentId, 10);
+    const paymentId = Number.parseInt(req.params.paymentId, 10);
     const updatedBy = req.account?.userProfile?.id_user_profile;
 
     const command = gymPaymentMappers.toUpdateGymPaymentCommand(req.body, paymentId, updatedBy);
@@ -177,7 +177,7 @@ const updateGymPayment = async (req, res) => {
  */
 const deleteGymPayment = async (req, res) => {
   try {
-    const paymentId = parseInt(req.params.paymentId, 10);
+    const paymentId = Number.parseInt(req.params.paymentId, 10);
     const deletedBy = req.account?.userProfile?.id_user_profile;
 
     const command = gymPaymentMappers.toDeleteGymPaymentCommand(paymentId, deletedBy);
@@ -204,7 +204,7 @@ const deleteGymPayment = async (req, res) => {
  */
 const getGymTotalRevenue = async (req, res) => {
   try {
-    const gymId = parseInt(req.params.gymId, 10);
+    const gymId = Number.parseInt(req.params.gymId, 10);
     const { status, from_date, to_date } = req.query;
 
     const query = gymPaymentMappers.toGetGymTotalRevenueQuery({
@@ -234,8 +234,8 @@ const getGymTotalRevenue = async (req, res) => {
  */
 const countPendingPayments = async (req, res) => {
   try {
-    const userId = parseInt(req.params.userId, 10);
-    const gymId = parseInt(req.params.gymId, 10);
+    const userId = Number.parseInt(req.params.userId, 10);
+    const gymId = Number.parseInt(req.params.gymId, 10);
 
     const query = gymPaymentMappers.toCountPendingPaymentsQuery(userId, gymId);
     const count = await gymPaymentService.countPendingPayments(query);

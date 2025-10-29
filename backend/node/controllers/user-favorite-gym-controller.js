@@ -61,7 +61,7 @@ const removeFavoriteGym = asyncHandler(async (req, res) => {
 
   const command = userFavoriteGymMappers.toRemoveFavoriteGymCommand({
     userProfileId: profile.id_user_profile,
-    gymId: parseInt(gymId, 10),
+    gymId: Number.parseInt(gymId, 10),
   });
 
   await userFavoriteGymService.removeFavoriteGym(command);
@@ -105,7 +105,7 @@ const checkIsFavorite = asyncHandler(async (req, res) => {
 
   const query = userFavoriteGymMappers.toIsFavoriteGymQuery({
     userProfileId: profile.id_user_profile,
-    gymId: parseInt(gymId, 10),
+    gymId: Number.parseInt(gymId, 10),
   });
 
   const isFavorite = await userFavoriteGymService.isFavoriteGym(query);
@@ -141,9 +141,9 @@ const listUsersWhoFavorited = asyncHandler(async (req, res) => {
   const { page, limit } = req.query;
 
   const query = userFavoriteGymMappers.toListUsersWhoFavoritedGymQuery({
-    gymId: parseInt(gymId, 10),
-    page: page ? parseInt(page, 10) : 1,
-    limit: limit ? parseInt(limit, 10) : 20,
+    gymId: Number.parseInt(gymId, 10),
+    page: page ? Number.parseInt(page, 10) : 1,
+    limit: limit ? Number.parseInt(limit, 10) : 20,
   });
 
   const result = await userFavoriteGymService.listUsersWhoFavoritedGym(query);

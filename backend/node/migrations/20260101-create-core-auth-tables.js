@@ -284,7 +284,7 @@ module.exports = {
         'SELECT role_name FROM roles',
         { transaction, type: queryInterface.sequelize.QueryTypes.SELECT }
       );
-      const existingRoleNames = existingRoles.map(r => r.role_name);
+      const existingRoleNames = new Set(existingRoles.map(r => r.role_name));
 
       const rolesToInsert = [
         {
@@ -302,7 +302,7 @@ module.exports = {
           description: 'Propietario de gimnasio con permisos de gestión',
           created_at: new Date()
         }
-      ].filter(role => !existingRoleNames.includes(role.role_name));
+      ].filter(role => !existingRoleNames.has(role.role_name));
 
       if (rolesToInsert.length > 0) {
         console.log(`Insertando ${rolesToInsert.length} roles iniciales...`);

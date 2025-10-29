@@ -104,27 +104,30 @@ function toUserGymDTO(userGym) {
   if (!userGym) return null;
 
   const dto = {
-    id: userGym.id_user_gym,
-    userProfileId: userGym.id_user_profile,
-    gymId: userGym.id_gym,
-    subscriptionPlan: userGym.subscription_plan,
-    subscriptionStart: userGym.subscription_start,
-    subscriptionEnd: userGym.subscription_end,
-    isActive: userGym.is_active,
-    createdAt: userGym.created_at,
-    updatedAt: userGym.updated_at,
+    id_user_gym: userGym.id_user_gym,
+    id_user_profile: userGym.id_user_profile,
+    id_gym: userGym.id_gym,
+    subscription_plan: userGym.subscription_plan,
+    subscription_start: userGym.subscription_start,
+    subscription_end: userGym.subscription_end,
+    is_active: userGym.is_active,
+    trial_used: userGym.trial_used || false,
+    trial_date: userGym.trial_date || null,
+    created_at: userGym.created_at,
+    updated_at: userGym.updated_at,
   };
 
   // Include gym details if available (from join)
   if (userGym.gym || userGym.Gym) {
     const gym = userGym.gym || userGym.Gym;
     dto.gym = {
-      id: gym.id_gym,
+      id_gym: gym.id_gym,
       name: gym.name,
-      city: gym.city,
       address: gym.address,
-      monthPrice: gym.month_price ? parseFloat(gym.month_price) : null,
-      weekPrice: gym.week_price ? parseFloat(gym.week_price) : null,
+      latitude: gym.latitude,
+      longitude: gym.longitude,
+      profile_image_url: gym.profile_image_url || null,
+      trial_allowed: gym.trial_allowed || false,
     };
   }
 

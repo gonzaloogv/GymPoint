@@ -21,12 +21,12 @@ const listAllGymReviews = async (req, res) => {
     const { page, limit, min_rating, max_rating, with_comment_only, sortBy, order, gym_id } = req.query;
 
     const query = gymReviewMappers.toListGymReviewsQuery(
-      gym_id ? parseInt(gym_id, 10) : undefined,
+      gym_id ? Number.parseInt(gym_id, 10) : undefined,
       {
-        page: page ? parseInt(page, 10) : undefined,
-        limit: limit ? parseInt(limit, 10) : undefined,
-        min_rating: min_rating ? parseFloat(min_rating) : undefined,
-        max_rating: max_rating ? parseFloat(max_rating) : undefined,
+        page: page ? Number.parseInt(page, 10) : undefined,
+        limit: limit ? Number.parseInt(limit, 10) : undefined,
+        min_rating: min_rating ? Number.parseFloat(min_rating) : undefined,
+        max_rating: max_rating ? Number.parseFloat(max_rating) : undefined,
         with_comment_only: with_comment_only === 'true',
         sortBy,
         order,
@@ -54,16 +54,16 @@ const listAllGymReviews = async (req, res) => {
  */
 const listGymReviews = async (req, res) => {
   try {
-    const gymId = parseInt(req.params.gymId, 10);
+    const gymId = Number.parseInt(req.params.gymId, 10);
     const { page, limit, min_rating, max_rating, with_comment_only, sortBy, order } = req.query;
 
     const query = gymReviewMappers.toListGymReviewsQuery(
       gymId,
       {
-        page: page ? parseInt(page, 10) : undefined,
-        limit: limit ? parseInt(limit, 10) : undefined,
-        min_rating: min_rating ? parseFloat(min_rating) : undefined,
-        max_rating: max_rating ? parseFloat(max_rating) : undefined,
+        page: page ? Number.parseInt(page, 10) : undefined,
+        limit: limit ? Number.parseInt(limit, 10) : undefined,
+        min_rating: min_rating ? Number.parseFloat(min_rating) : undefined,
+        max_rating: max_rating ? Number.parseFloat(max_rating) : undefined,
         with_comment_only: with_comment_only === 'true',
         sortBy,
         order,
@@ -91,7 +91,7 @@ const listGymReviews = async (req, res) => {
  */
 const getGymReview = async (req, res) => {
   try {
-    const reviewId = parseInt(req.params.reviewId, 10);
+    const reviewId = Number.parseInt(req.params.reviewId, 10);
 
     const query = gymReviewMappers.toGetGymReviewByIdQuery(
       reviewId,
@@ -126,14 +126,14 @@ const getGymReview = async (req, res) => {
  */
 const getUserReviews = async (req, res) => {
   try {
-    const userId = parseInt(req.params.userId, 10);
+    const userId = Number.parseInt(req.params.userId, 10);
     const { page, limit, sortBy, order } = req.query;
 
     const query = gymReviewMappers.toListUserReviewsQuery(
       userId,
       {
-        page: page ? parseInt(page, 10) : undefined,
-        limit: limit ? parseInt(limit, 10) : undefined,
+        page: page ? Number.parseInt(page, 10) : undefined,
+        limit: limit ? Number.parseInt(limit, 10) : undefined,
         sortBy,
         order,
       }
@@ -159,7 +159,7 @@ const getUserReviews = async (req, res) => {
  */
 const createGymReview = async (req, res) => {
   try {
-    const gymId = parseInt(req.params.gymId, 10);
+    const gymId = Number.parseInt(req.params.gymId, 10);
     const userProfile = req.account?.userProfile;
 
     if (!userProfile) {
@@ -197,7 +197,7 @@ const createGymReview = async (req, res) => {
  */
 const updateGymReview = async (req, res) => {
   try {
-    const reviewId = parseInt(req.params.reviewId, 10);
+    const reviewId = Number.parseInt(req.params.reviewId, 10);
     const userProfile = req.account?.userProfile;
     const isAdmin = req.roles?.includes('ADMIN');
 
@@ -228,7 +228,7 @@ const updateGymReview = async (req, res) => {
  */
 const deleteGymReview = async (req, res) => {
   try {
-    const reviewId = parseInt(req.params.reviewId, 10);
+    const reviewId = Number.parseInt(req.params.reviewId, 10);
     const userProfile = req.account?.userProfile;
     const isAdmin = req.roles?.includes('ADMIN');
 
@@ -261,7 +261,7 @@ const deleteGymReview = async (req, res) => {
  */
 const markReviewHelpful = async (req, res) => {
   try {
-    const reviewId = parseInt(req.params.reviewId, 10);
+    const reviewId = Number.parseInt(req.params.reviewId, 10);
     const userProfile = req.account?.userProfile;
 
     if (!userProfile) {
@@ -299,7 +299,7 @@ const markReviewHelpful = async (req, res) => {
  */
 const unmarkReviewHelpful = async (req, res) => {
   try {
-    const reviewId = parseInt(req.params.reviewId, 10);
+    const reviewId = Number.parseInt(req.params.reviewId, 10);
     const userProfile = req.account?.userProfile;
 
     if (!userProfile) {
@@ -339,7 +339,7 @@ const unmarkReviewHelpful = async (req, res) => {
  */
 const getGymRatingStats = async (req, res) => {
   try {
-    const gymId = parseInt(req.params.gymId, 10);
+    const gymId = Number.parseInt(req.params.gymId, 10);
 
     const query = gymReviewMappers.toGetGymRatingStatsQuery(gymId);
     const stats = await reviewService.getGymRatingStats(query);

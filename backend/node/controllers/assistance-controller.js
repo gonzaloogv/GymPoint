@@ -169,7 +169,7 @@ const autoCheckIn = async (req, res) => {
  */
 const checkOut = async (req, res) => {
   try {
-    const assistanceId = parseInt(req.params.id, 10);
+    const assistanceId = Number.Number.parseInt(req.params.id, 10);
     const id_user_profile = req.user.id_user_profile;
 
     if (!Number.isInteger(assistanceId)) {
@@ -297,6 +297,42 @@ const registrarPresencia = async (req, res) => {
 };
 
 /**
+ * Verificar si el usuario ya hizo check-in hoy
+ * @route GET /api/assistances/today-status
+ * @access Private (Usuario app)
+ */
+const verificarCheckInHoy = async (req, res) => {
+  try {
+    const id_user_profile = req.user.id_user_profile;
+
+    // Obtener la fecha de hoy en formato YYYY-MM-DD
+    const hoy = new Date().toISOString().split('T')[0];
+
+    // Buscar asistencia del día
+    const { assistanceRepository } = require('../infra/db/repositories');
+    const asistenciaHoy = await assistanceRepository.findAssistanceByUserAndDate(id_user_profile, hoy);
+
+    return res.json({
+      has_checked_in_today: !!asistenciaHoy,
+      assistance: asistenciaHoy ? {
+        id_assistance: asistenciaHoy.id_assistance,
+        id_gym: asistenciaHoy.id_gym,
+        entry_time: asistenciaHoy.entry_time,
+        gym_name: asistenciaHoy.gym?.name || null
+      } : null
+    });
+  } catch (err) {
+    console.error('Error en verificarCheckInHoy:', err.message);
+    return res.status(500).json({
+      error: {
+        code: 'CHECK_STATUS_FAILED',
+        message: err.message
+      }
+    });
+  }
+};
+
+/**
  * Verificar y registrar auto check-in si usuario cumplió permanencia mínima
  * @route POST /api/assistances/verify-auto-checkin
  * @access Private (Usuario app)
@@ -374,5 +410,6 @@ module.exports = {
   autoCheckIn,
   checkOut,
   registrarPresencia,
-  verificarAutoCheckIn
+  verificarAutoCheckIn,
+  verificarCheckInHoy
 };

@@ -23,7 +23,7 @@ const METRIC_VALUES = Object.values(AchievementDefinition.METRIC_TYPES);
 const METRIC_CALCULATORS = {
   STREAK_DAYS: async (idUserProfile) => {
     const streak = await Streak.findOne({
-      where: { id_user: idUserProfile }
+      where: { id_user_profile: idUserProfile }
     });
 
     return {
@@ -34,7 +34,7 @@ const METRIC_CALCULATORS = {
   },
   STREAK_RECOVERY_USED: async (idUserProfile) => {
     const streak = await Streak.findOne({
-      where: { id_user: idUserProfile }
+      where: { id_user_profile: idUserProfile }
     });
 
     // recovery_items representa items disponibles; si existe metadata con key used, usarla
@@ -47,7 +47,7 @@ const METRIC_CALCULATORS = {
   },
   ASSISTANCE_TOTAL: async (idUserProfile) => {
     const total = await Assistance.count({
-      where: { id_user: idUserProfile }
+      where: { id_user_profile: idUserProfile }
     });
     return {
       value: total,
@@ -69,7 +69,7 @@ const METRIC_CALCULATORS = {
   ROUTINE_COMPLETED_COUNT: async (idUserProfile) => {
     const total = await UserRoutine.count({
       where: {
-        id_user: idUserProfile,
+        id_user_profile: idUserProfile,
         finish_date: { [Op.ne]: null }
       }
     });
@@ -108,7 +108,7 @@ const METRIC_CALCULATORS = {
   PR_RECORD_COUNT: async (idUserProfile) => {
     const progressIds = await Progress.findAll({
       attributes: ['id_progress'],
-      where: { id_user: idUserProfile }
+      where: { id_user_profile: idUserProfile }
     });
 
     if (!progressIds.length) {
@@ -132,7 +132,7 @@ const METRIC_CALCULATORS = {
     const progressEntries = await Progress.findAll({
       attributes: ['body_weight', 'date'],
       where: {
-        id_user: idUserProfile,
+        id_user_profile: idUserProfile,
         body_weight: { [Op.ne]: null }
       },
       order: [['date', 'ASC']],

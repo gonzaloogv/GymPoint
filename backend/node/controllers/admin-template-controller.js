@@ -15,7 +15,7 @@ const createTemplate = async (req, res) => {
 const listTemplates = async (req, res) => {
   try {
     const { difficulty, limit, offset } = req.query;
-    const templates = await templateService.listTemplates({ difficulty, limit: limit ? parseInt(limit, 10) : 50, offset: offset ? parseInt(offset, 10) : 0 });
+    const templates = await templateService.listTemplates({ difficulty, limit: limit ? Number.parseInt(limit, 10) : 50, offset: offset ? Number.parseInt(offset, 10) : 0 });
     res.json({ templates });
   } catch (err) {
     res.status(400).json({ error: { code: 'LIST_TEMPLATES_FAILED', message: err.message } });
@@ -25,7 +25,7 @@ const listTemplates = async (req, res) => {
 // PUT /api/admin/routines/templates/:id
 const updateTemplateMeta = async (req, res) => {
   try {
-    const id = parseInt(req.params.id, 10);
+    const id = Number.parseInt(req.params.id, 10);
     if (!Number.isInteger(id)) return res.status(400).json({ error: { code: 'INVALID_ID', message: 'ID inválido' } });
     const routine = await templateService.updateTemplateMeta(id, req.body || {});
     res.json({ id_routine: routine.id_routine, routine_name: routine.routine_name, recommended_for: routine.recommended_for, template_order: routine.template_order });
@@ -37,7 +37,7 @@ const updateTemplateMeta = async (req, res) => {
 // DELETE /api/admin/routines/templates/:id
 const deleteTemplate = async (req, res) => {
   try {
-    const id = parseInt(req.params.id, 10);
+    const id = Number.parseInt(req.params.id, 10);
     if (!Number.isInteger(id)) return res.status(400).json({ error: { code: 'INVALID_ID', message: 'ID inválido' } });
     await templateService.deleteTemplate(id);
     res.status(204).send();

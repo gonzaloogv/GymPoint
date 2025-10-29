@@ -14,7 +14,7 @@ const listGymSpecialSchedules = async (req, res) => {
   try {
     // Support both gymId (OpenAPI) and id_gym (legacy) parameter names
     const gymId = req.params.gymId || req.params.id_gym;
-    const resultado = await service.obtenerHorariosEspecialesPorGimnasio(parseInt(gymId, 10));
+    const resultado = await service.obtenerHorariosEspecialesPorGimnasio(Number.Number.parseInt(gymId, 10));
     res.json(resultado);
   } catch (err) {
     res.status(404).json({
@@ -46,7 +46,7 @@ const createGymSpecialSchedule = async (req, res) => {
     }
 
     const resultado = await service.crearHorarioEspecial({
-      id_gym: parseInt(gymId, 10),
+      id_gym: Number.Number.parseInt(gymId, 10),
       date,
       opening_time,
       closing_time,
@@ -82,7 +82,7 @@ const updateGymSpecialSchedule = async (req, res) => {
     const { id } = req.params;
     const { id_gym, date, opening_time, closing_time, closed, motive } = req.body;
 
-    const schedule = await GymSpecialSchedule.findByPk(parseInt(id, 10));
+    const schedule = await GymSpecialSchedule.findByPk(Number.Number.parseInt(id, 10));
 
     if (!schedule) {
       return res.status(404).json({
@@ -128,7 +128,7 @@ const updateGymSpecialSchedule = async (req, res) => {
 const deleteGymSpecialSchedule = async (req, res) => {
   try {
     const { id } = req.params;
-    const schedule = await GymSpecialSchedule.findByPk(parseInt(id, 10));
+    const schedule = await GymSpecialSchedule.findByPk(Number.Number.parseInt(id, 10));
 
     if (!schedule) {
       return res.status(404).json({

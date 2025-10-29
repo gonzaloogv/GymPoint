@@ -5,12 +5,12 @@ const DEFAULT_RANGE_DAYS = 30;
 const resolveDateRange = (from, to) => {
   const end = to ? new Date(to) : new Date();
   if (Number.isNaN(end.getTime())) {
-    throw new Error('Fecha final invalida');
+    throw new TypeError('Fecha final invalida');
   }
 
   const start = from ? new Date(from) : new Date(end.getTime() - DEFAULT_RANGE_DAYS * 24 * 60 * 60 * 1000);
   if (Number.isNaN(start.getTime())) {
-    throw new Error('Fecha inicial invalida');
+    throw new TypeError('Fecha inicial invalida');
   }
 
   if (start > end) {
@@ -61,7 +61,7 @@ const getGymRewardStats = async (req, res) => {
     const { from: resolvedFrom, to: resolvedTo } = resolveDateRange(from, to);
 
     const stats = await rewardStatsService.getGymStatsById(
-      parseInt(id_gym, 10),
+      Number.parseInt(id_gym, 10),
       resolvedFrom,
       resolvedTo
     );

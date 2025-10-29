@@ -154,10 +154,20 @@ const approveGymRequest = async (req, res) => {
       }
     });
   } catch (err) {
-    const status = err instanceof NotFoundError ? 404 : err instanceof ValidationError ? 400 : 500;
+    let status = 500;
+    let code = 'APPROVE_REQUEST_FAILED';
+
+    if (err instanceof NotFoundError) {
+      status = 404;
+      code = 'REQUEST_NOT_FOUND';
+    } else if (err instanceof ValidationError) {
+      status = 400;
+      code = 'INVALID_DATA';
+    }
+
     res.status(status).json({
       error: {
-        code: status === 404 ? 'REQUEST_NOT_FOUND' : status === 400 ? 'INVALID_DATA' : 'APPROVE_REQUEST_FAILED',
+        code,
         message: err.message,
       },
     });
@@ -179,10 +189,20 @@ const rejectGymRequest = async (req, res) => {
       data: request
     });
   } catch (err) {
-    const status = err instanceof NotFoundError ? 404 : err instanceof ValidationError ? 400 : 500;
+    let status = 500;
+    let code = 'REJECT_REQUEST_FAILED';
+
+    if (err instanceof NotFoundError) {
+      status = 404;
+      code = 'REQUEST_NOT_FOUND';
+    } else if (err instanceof ValidationError) {
+      status = 400;
+      code = 'INVALID_DATA';
+    }
+
     res.status(status).json({
       error: {
-        code: status === 404 ? 'REQUEST_NOT_FOUND' : status === 400 ? 'INVALID_DATA' : 'REJECT_REQUEST_FAILED',
+        code,
         message: err.message,
       },
     });

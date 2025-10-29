@@ -81,8 +81,8 @@ function toGetChallengeByIdQuery(idChallenge) {
 
 function toListChallengesQuery(dto) {
   return new ListChallengesQuery({
-    page: dto.page ? parseInt(dto.page, 10) : 1,
-    limit: dto.limit ? parseInt(dto.limit, 10) : 20,
+    page: dto.page ? Number.parseInt(dto.page, 10) : 1,
+    limit: dto.limit ? Number.parseInt(dto.limit, 10) : 20,
     sortBy: dto.sortBy || dto.sort_by || 'challenge_date',
     order: dto.order || 'DESC',
     startDate: dto.start_date || dto.startDate || null,
@@ -100,8 +100,8 @@ function toGetUserChallengeProgressQuery(idUserProfile, idChallenge) {
 function toListUserChallengesQuery(dto, idUserProfile) {
   return new ListUserChallengesQuery({
     idUserProfile,
-    page: dto.page ? parseInt(dto.page, 10) : 1,
-    limit: dto.limit ? parseInt(dto.limit, 10) : 20,
+    page: dto.page ? Number.parseInt(dto.page, 10) : 1,
+    limit: dto.limit ? Number.parseInt(dto.limit, 10) : 20,
     status: dto.status || null
   });
 }
@@ -141,8 +141,8 @@ function toGetChallengeTemplateByIdQuery(idTemplate) {
 
 function toListChallengeTemplatesQuery(dto) {
   return new ListChallengeTemplatesQuery({
-    page: dto.page ? parseInt(dto.page, 10) : 1,
-    limit: dto.limit ? parseInt(dto.limit, 10) : 20,
+    page: dto.page ? Number.parseInt(dto.page, 10) : 1,
+    limit: dto.limit ? Number.parseInt(dto.limit, 10) : 20,
     isActive: dto.is_active ?? dto.isActive ?? null
   });
 }

@@ -173,7 +173,7 @@ const cancelarSolicitudEliminacion = async (req, res) => {
 const obtenerUsuarioPorId = async (req, res) => {
   try {
     const { id } = req.params;
-    const query = userMapper.toGetUserProfileByIdQuery({ userProfileId: parseInt(id) });
+    const query = userMapper.toGetUserProfileByIdQuery({ userProfileId: Number.parseInt(id) });
     const usuario = await userService.getUserProfileById(query);
     res.json(userMapper.toUserProfileResponse(usuario));
   } catch (err) {
@@ -207,17 +207,17 @@ const actualizarTokens = async (req, res) => {
     }
 
     const command = userMapper.toUpdateUserTokensCommand({
-      userProfileId: parseInt(id),
-      delta: parseInt(delta),
+      userProfileId: Number.parseInt(id),
+      delta: Number.parseInt(delta),
       reason
     });
 
     const newBalance = await userService.updateUserTokens(command);
 
     res.json({
-      id_user_profile: parseInt(id),
+      id_user_profile: Number.parseInt(id),
       new_balance: newBalance,
-      delta: parseInt(delta)
+      delta: Number.parseInt(delta)
     });
   } catch (err) {
     res.status(400).json({
@@ -250,7 +250,7 @@ const actualizarSuscripcion = async (req, res) => {
     }
 
     const command = userMapper.toUpdateUserSubscriptionCommand({
-      userProfileId: parseInt(id),
+      userProfileId: Number.parseInt(id),
       subscription
     });
 

@@ -4,7 +4,7 @@ const templateService = require('../services/template-service');
 const getTemplates = async (req, res) => {
   try {
     const { difficulty = 'BEGINNER', limit } = req.query;
-    const lim = limit ? parseInt(limit, 10) : 5;
+    const lim = limit ? Number.parseInt(limit, 10) : 5;
     const routines = await templateService.getRecommendedRoutines(difficulty, lim);
     res.json({ routines });
   } catch (err) {
@@ -16,7 +16,7 @@ const getTemplates = async (req, res) => {
 const importTemplate = async (req, res) => {
   try {
     const idUser = req.user.id_user_profile;
-    const id = parseInt(req.params.id, 10);
+    const id = Number.parseInt(req.params.id, 10);
     if (!Number.isInteger(id)) return res.status(400).json({ error: { code: 'INVALID_ID', message: 'ID inválido' } });
 
     const copy = await templateService.importTemplate(idUser, id);

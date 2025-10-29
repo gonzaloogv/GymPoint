@@ -3,7 +3,7 @@
 /**
  * MIGRACIÓN 5: Exercise and Routines System
  *
- * Esta migración crea todo el sistema de ejercicios, rutinas y entrenamientos:
+ * Esta migración crea el sistema de ejercicios, rutinas y entrenamientos:
  * - exercise: Catálogo de ejercicios
  * - routine: Rutinas de entrenamiento
  * - routine_day: Días dentro de una rutina

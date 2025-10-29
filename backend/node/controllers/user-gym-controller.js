@@ -13,7 +13,7 @@ const { userGymMappers } = require('../services/mappers');
 const darAltaEnGimnasio = async (req, res) => {
   try {
     const id_user = req.user?.id_user_profile;
-    const { id_gym, plan } = req.body;
+    const { id_gym, plan, subscription_start, subscription_end } = req.body;
 
     if (!id_gym || !plan) {
       return res.status(400).json({
@@ -41,6 +41,8 @@ const darAltaEnGimnasio = async (req, res) => {
       id_user,
       id_gym,
       plan: planNormalizado,
+      subscription_start, // Opcional: fecha manual
+      subscription_end,   // Opcional: fecha manual
     });
 
     const dto = userGymMappers.toUserGymDTO(alta);

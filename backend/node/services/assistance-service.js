@@ -38,6 +38,49 @@ const syncAttendanceAchievements = async (idUserProfile) => {
 };
 
 /**
+ * Validar suscripción activa o trial disponible (Enfoque Híbrido)
+ * @param {number} userProfileId
+ * @param {number} gymId
+ * @returns {Promise<{allowed: boolean, reason: string, usedTrial?: boolean}>}
+ */
+const validateSubscriptionOrTrial = async (userProfileId, gymId) => {
+  const { userGymRepository } = require('../infra/db/repositories');
+
+  // 1. Buscar relación user_gym (puede no existir)
+  const userGym = await userGymRepository.findByUserAndGym(userProfileId, gymId);
+
+  const hoy = new Date().toISOString().split('T')[0];
+
+  // 2. ✅ CASO A: Usuario TIENE suscripción activa y vigente
+  if (userGym && userGym.is_active && userGym.subscription_end) {
+    if (userGym.subscription_end >= hoy) {
+      return { allowed: true, reason: 'ACTIVE_SUBSCRIPTION' };
+    }
+  }
+
+  // 3. Verificar si gym permite trials
+  const gym = await gymRepository.findById(gymId);
+  if (!gym) throw new NotFoundError('Gimnasio');
+
+  // 4. ✅ CASO B: Gym permite trial Y usuario NO lo ha usado
+  if (gym.trial_allowed && (!userGym || !userGym.trial_used)) {
+    return { allowed: true, reason: 'TRIAL_VISIT', usedTrial: false };
+  }
+
+  // 5. ❌ CASO C: No cumple ninguna condición
+  const errorMessage = userGym && userGym.trial_used
+    ? `Ya utilizaste tu visita de prueba en ${gym.name}. Para seguir entrenando, activa tu suscripción.`
+    : `Necesitas una suscripción activa para hacer check-in en ${gym.name}.`;
+
+  throw new BusinessError(errorMessage, 'SUBSCRIPTION_REQUIRED', {
+    gymId,
+    gymName: gym.name,
+    trialUsed: userGym?.trial_used || false,
+    hasSubscription: !!userGym
+  });
+};
+
+/**
  * Registrar asistencia a un gimnasio
  * @param {CreateAssistanceCommand} command
  * @returns {Promise<Object>} POJO con asistencia + tokens + racha
@@ -49,6 +92,10 @@ const registrarAsistencia = async (command) => {
 
   const idUserProfile = command.userProfileId;
   const idGym = command.gymId;
+
+  // ⭐ NUEVA VALIDACIÓN: Verificar suscripción o trial
+  const validation = await validateSubscriptionOrTrial(idUserProfile, idGym);
+  const isTrialVisit = validation.reason === 'TRIAL_VISIT';
 
   // Validar que no haya registrado ya hoy
   const asistenciaHoy = await assistanceRepository.findAssistanceByUserAndDate(idUserProfile, fecha);
@@ -79,8 +126,22 @@ const registrarAsistencia = async (command) => {
   const userProfile = await userProfileRepository.findById(idUserProfile);
   if (!userProfile) throw new NotFoundError('Usuario');
 
-  const racha = await streakRepository.findById(userProfile.id_streak);
-  if (!racha) throw new NotFoundError('Racha');
+  // El streak se crea automáticamente con el usuario (id_streak = id_user_profile)
+  // Buscar el streak usando directamente el id del usuario
+  let racha = await streakRepository.findById(idUserProfile);
+
+  if (!racha) {
+    console.error(`[assistance-service] ERROR: Usuario ${idUserProfile} no tiene streak asociado`);
+    console.error(`[assistance-service] user_profile.id_streak:`, userProfile.id_streak);
+    throw new NotFoundError('Racha no encontrada para el usuario');
+  }
+
+  console.log(`[assistance-service] Streak encontrado para usuario ${idUserProfile}:`, {
+    id_streak: racha.id_streak,
+    value: racha.value,
+    last_value: racha.last_value,
+    recovery_items: racha.recovery_items
+  });
 
   // Crear asistencia
   const nuevaAsistencia = await assistanceRepository.createAssistance({
@@ -94,6 +155,12 @@ const registrarAsistencia = async (command) => {
     distance_meters: command.distanceMeters || null,
     verified: command.verified || false
   });
+
+  // ⭐ Si es trial, marcar como usado
+  if (isTrialVisit) {
+    const { userGymRepository } = require('../infra/db/repositories');
+    await userGymRepository.markTrialAsUsed(idUserProfile, idGym, fecha);
+  }
 
   // Actualizar racha
   const ayer = new Date(hoy);
@@ -245,6 +312,10 @@ const autoCheckIn = async (command) => {
   const idUserProfile = command.userProfileId;
   const idGym = command.gymId;
 
+  // ⭐ NUEVA VALIDACIÓN: Verificar suscripción o trial
+  const validation = await validateSubscriptionOrTrial(idUserProfile, idGym);
+  const isTrialVisit = validation.reason === 'TRIAL_VISIT';
+
   // Validar que no haya registrado ya hoy
   const asistenciaHoy = await assistanceRepository.findAssistanceByUserAndDate(idUserProfile, fecha);
   if (asistenciaHoy) throw new ConflictError('Ya registraste asistencia hoy');
@@ -287,6 +358,12 @@ const autoCheckIn = async (command) => {
     distance_meters: Math.round(distancia),
     verified: true
   });
+
+  // ⭐ Si es trial, marcar como usado
+  if (isTrialVisit) {
+    const { userGymRepository } = require('../infra/db/repositories');
+    await userGymRepository.markTrialAsUsed(idUserProfile, idGym, fecha);
+  }
 
   // Actualizar racha
   const ayer = new Date(hoy);
@@ -429,6 +506,10 @@ const verificarAutoCheckIn = async (command) => {
     );
   }
 
+  // ⭐ NUEVA VALIDACIÓN: Verificar suscripción o trial
+  const validation = await validateSubscriptionOrTrial(command.userProfileId, command.gymId);
+  const isTrialVisit = validation.reason === 'TRIAL_VISIT';
+
   // Buscar presencia activa
   const presencias = await presenceRepository.findAll({
     filters: {
@@ -482,6 +563,12 @@ const verificarAutoCheckIn = async (command) => {
     distance_meters: presencia.distance_meters,
     verified: true
   });
+
+  // ⭐ Si es trial, marcar como usado
+  if (isTrialVisit) {
+    const { userGymRepository } = require('../infra/db/repositories');
+    await userGymRepository.markTrialAsUsed(command.userProfileId, command.gymId, hoy);
+  }
 
   // Actualizar racha
   const ayer = new Date(ahora);

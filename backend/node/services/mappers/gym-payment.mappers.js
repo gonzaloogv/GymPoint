@@ -109,7 +109,7 @@ function toListUserGymPaymentsQuery(userId, queryParams) {
     sortBy,
     order,
     status: queryParams.status || null,
-    gymId: queryParams.gym_id ? parseInt(queryParams.gym_id) : null,
+    gymId: queryParams.gym_id ? Number.parseInt(queryParams.gym_id) : null,
     from_date: queryParams.from_date ? new Date(queryParams.from_date) : null,
     to_date: queryParams.to_date ? new Date(queryParams.to_date) : null,
   });
@@ -177,7 +177,7 @@ function toGymPaymentResponse(payment, options = {}) {
     id_payment: payment.id_payment,
     id_user_profile: payment.id_user_profile,
     id_gym: payment.id_gym,
-    amount: parseFloat(payment.amount),
+    amount: Number.parseFloat(payment.amount),
     payment_method: payment.payment_method || null,
     payment_date: payment.payment_date.toISOString(),
     period_start: payment.period_start ? payment.period_start : null,
@@ -223,7 +223,7 @@ function toGymPaymentStatsResponse(stats) {
   return {
     id_gym: stats.id_gym,
     total_payments: stats.total_payments || 0,
-    total_revenue: parseFloat(stats.total_revenue) || 0,
+    total_revenue: Number.parseFloat(stats.total_revenue) || 0,
     completed_payments: stats.completed_payments || 0,
     pending_payments: stats.pending_payments || 0,
     failed_payments: stats.failed_payments || 0,

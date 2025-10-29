@@ -37,8 +37,8 @@ const listarNotificaciones = asyncHandler(async (req, res) => {
 
   const query = notificationMappers.toListNotificationsQuery({
     userProfileId: profile.id_user_profile,
-    limit: limit ? parseInt(limit, 10) : 20,
-    page: offset ? Math.floor(parseInt(offset, 10) / 20) + 1 : 1,
+    limit: limit ? Number.parseInt(limit, 10) : 20,
+    page: offset ? Math.floor(Number.parseInt(offset, 10) / 20) + 1 : 1,
     includeRead: includeRead !== 'false',
     since,
   });
@@ -78,7 +78,7 @@ const marcarComoLeida = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   const command = notificationMappers.toMarkNotificationAsReadCommand({
-    notificationId: parseInt(id, 10),
+    notificationId: Number.parseInt(id, 10),
     userProfileId: profile.id_user_profile,
   });
 

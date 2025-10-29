@@ -1,8 +1,8 @@
 const adminDailyChallengeService = require('../services/admin-daily-challenge-service');
 
 const parsePagination = (req) => {
-  const limit = req.query.limit ? Math.min(parseInt(req.query.limit, 10) || 20, 100) : 50;
-  const offset = req.query.offset ? Math.max(parseInt(req.query.offset, 10) || 0, 0) : 0;
+  const limit = req.query.limit ? Math.min(Number.parseInt(req.query.limit, 10) || 20, 100) : 50;
+  const offset = req.query.offset ? Math.max(Number.parseInt(req.query.offset, 10) || 0, 0) : 0;
   return { limit, offset };
 };
 

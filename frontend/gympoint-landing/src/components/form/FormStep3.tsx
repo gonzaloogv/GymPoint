@@ -70,6 +70,33 @@ export const FormStep3: React.FC<FormStep3Props> = ({ formData, updateField }) =
         />
       </div>
 
+      <div className={`p-5 rounded-lg ${
+        theme === 'light'
+          ? 'bg-blue-50 border border-blue-200'
+          : 'bg-blue-900/20 border border-blue-700'
+      }`}>
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={formData.trial_allowed || false}
+            onChange={(e) => updateField('trial_allowed', e.target.checked)}
+            className="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          <div>
+            <span className={`text-base font-semibold block ${
+              theme === 'light' ? 'text-gray-900' : 'text-gray-100'
+            }`}>
+              🎁 ¿Tu gimnasio permite pase gratis por 1 día?
+            </span>
+            <span className={`text-sm ${
+              theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+            }`}>
+              Los usuarios podrán hacer 1 visita de prueba sin necesidad de suscripción
+            </span>
+          </div>
+        </label>
+      </div>
+
       <div>
         <h3 className={`text-lg font-semibold mb-2 ${
           theme === 'light' ? 'text-gray-900' : 'text-gray-100'

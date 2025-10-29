@@ -30,6 +30,7 @@ export interface Gym {
   area_sqm: number | null;
   verified: boolean;
   featured: boolean;
+  trial_allowed: boolean;
   month_price: number;
   week_price: number;
   photo_url: string | null;
@@ -64,6 +65,7 @@ export interface CreateGymDTO {
   area_sqm?: number;
   verified?: boolean;
   featured?: boolean;
+  trial_allowed?: boolean;
   month_price: number;
   week_price: number;
   photo_url?: string;

@@ -9,6 +9,7 @@ const { startRewardStatsJob } = require('./jobs/reward-stats-job');
 const { startCleanupJob } = require('./jobs/cleanup-job');
 const { startAccountDeletionJob } = require('./jobs/account-deletion-job');
 const { startDailyChallengeJob } = require('./jobs/daily-challenge-job');
+const { startSubscriptionExpirationJob } = require('./jobs/subscription-expiration-job');
 const { errorHandler, notFoundHandler } = require('./middlewares/error-handler');
 const openapiValidatorMiddleware = require('./middlewares/openapi-validator');
 const { initSentry, sentryRequestHandler, sentryErrorHandler } = require('./config/sentry');
@@ -193,6 +194,7 @@ async function startServer() {
       startCleanupJob(); // Diario a las 3 AM
       startAccountDeletionJob(); // Diario a las 2 AM
       startDailyChallengeJob(); // Diario a las 00:01 UTC
+      startSubscriptionExpirationJob(); // Diario a las 9 AM
     }
     
   } catch (error) {

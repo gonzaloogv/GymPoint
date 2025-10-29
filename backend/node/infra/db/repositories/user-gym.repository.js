@@ -30,6 +30,18 @@ async function findSubscriptionById(id, options = {}) {
   return toUserGym(subscription);
 }
 
+async function findByUserAndGym(userProfileId, gymId, options = {}) {
+  const subscription = await UserGym.findOne({
+    where: {
+      id_user_profile: userProfileId,
+      id_gym: gymId,
+    },
+    include: options.includeGym ? [{ model: Gym, as: 'gym' }] : [],
+    transaction: options.transaction,
+  });
+  return toUserGym(subscription);
+}
+
 async function findActiveSubscription(userProfileId, gymId, options = {}) {
   const subscription = await UserGym.findOne({
     where: {
@@ -107,6 +119,16 @@ async function countGymMembers(gymId, options = {}) {
   });
 }
 
+async function countActiveSubscriptions(userProfileId, options = {}) {
+  return UserGym.count({
+    where: {
+      id_user_profile: userProfileId,
+      is_active: true,
+    },
+    transaction: options.transaction,
+  });
+}
+
 async function findExpiringSubscriptions(daysBeforeExpiry = 7, limit = 100, options = {}) {
   const today = new Date();
   const expiryDate = new Date();
@@ -177,6 +199,43 @@ async function renewSubscription(id, newEndDate, options = {}) {
   return findSubscriptionById(id, options);
 }
 
+async function markTrialAsUsed(userProfileId, gymId, trialDate, options = {}) {
+  // Buscar o crear el registro user_gym
+  const [userGym, created] = await UserGym.findOrCreate({
+    where: {
+      id_user_profile: userProfileId,
+      id_gym: gymId,
+    },
+    defaults: {
+      id_user_profile: userProfileId,
+      id_gym: gymId,
+      trial_used: true,
+      trial_date: trialDate,
+      is_active: false, // No tiene suscripción activa, solo usó el trial
+    },
+    transaction: options.transaction,
+  });
+
+  // Si ya existía, actualizar
+  if (!created && !userGym.trial_used) {
+    await UserGym.update(
+      {
+        trial_used: true,
+        trial_date: trialDate,
+      },
+      {
+        where: {
+          id_user_profile: userProfileId,
+          id_gym: gymId,
+        },
+        transaction: options.transaction,
+      }
+    );
+  }
+
+  return findByUserAndGym(userProfileId, gymId, options);
+}
+
 // ============================================================================
 // EXPORTS
 // ============================================================================
@@ -184,12 +243,15 @@ async function renewSubscription(id, newEndDate, options = {}) {
 module.exports = {
   createSubscription,
   findSubscriptionById,
+  findByUserAndGym,
   findActiveSubscription,
   findUserSubscriptions,
   findGymMembers,
   countGymMembers,
+  countActiveSubscriptions,
   findExpiringSubscriptions,
   updateSubscription,
   deactivateSubscription,
   renewSubscription,
+  markTrialAsUsed,
 };

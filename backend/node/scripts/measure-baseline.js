@@ -6,7 +6,7 @@
 //   GET /api/gyms/filtro (auth)
 //   GET /api/frequency/me (auth)
 
-const http = require('http');
+const http = require('node:http');
 
 const BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
 const RUNS = Number(process.env.MEASURE_RUNS || '100');
@@ -19,7 +19,7 @@ function request(method, path, { headers, body } = {}) {
     headers: {
       'Content-Type': 'application/json',
       ...(payload ? { 'Content-Length': String(payload.length) } : {}),
-      ...(headers || {})
+      ...headers
     }
   };
   return new Promise((resolve, reject) => {
@@ -107,6 +107,7 @@ async function main() {
         }
       } catch (e) {
         fail++;
+        if (!firstFail) firstFail = { status: 'ERROR', body: e.message };
       }
     }
     const p50 = percentile(times, 50).toFixed(2);

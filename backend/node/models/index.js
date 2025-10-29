@@ -624,15 +624,19 @@ MercadoPagoPayment.belongsTo(Gym, {
   as: 'gym'
 });
 
-MercadoPagoPayment.hasMany(UserGym, {
-  foreignKey: 'id_payment',
-  as: 'memberships'
-});
+// MercadoPagoPayment.hasMany(UserGym, {
+//   foreignKey: 'id_payment',
+//   as: 'memberships'
+// });
 
-UserGym.belongsTo(MercadoPagoPayment, {
-  foreignKey: 'id_payment',
-  as: 'payment'
-});
+// UserGym.belongsTo(MercadoPagoPayment, {
+//   foreignKey: 'id_payment',
+//   as: 'payment'
+// });
+
+// NOTA: La asociación UserGym <-> MercadoPagoPayment está comentada porque
+// el campo id_payment no existe en la tabla user_gym. Si se necesita en el futuro,
+// agregar el campo a la migración primero.
 
 UserProfile.hasMany(UserBodyMetric, {
   foreignKey: 'id_user_profile',
@@ -742,6 +746,17 @@ UserProfile.hasMany(UserGym, {
 UserGym.belongsTo(UserProfile, {
   foreignKey: 'id_user_profile',
   as: 'userProfile'
+});
+
+// Gym ←→ UserGym
+Gym.hasMany(UserGym, {
+  foreignKey: 'id_gym',
+  as: 'userGyms'
+});
+
+UserGym.belongsTo(Gym, {
+  foreignKey: 'id_gym',
+  as: 'gym'
 });
 
 // UserProfile ←→ UserRoutine

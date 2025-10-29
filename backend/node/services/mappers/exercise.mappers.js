@@ -52,8 +52,8 @@ function toGetAllExercisesQuery(dto = {}) {
     muscularGroup: dto.muscular_group || dto.muscularGroup || null,
     difficulty: dto.difficulty || null,
     equipmentNeeded: dto.equipment_needed || dto.equipmentNeeded || null,
-    limit: dto.limit ? parseInt(dto.limit, 10) : null,
-    offset: dto.offset ? parseInt(dto.offset, 10) : null,
+    limit: dto.limit ? Number.parseInt(dto.limit, 10) : null,
+    offset: dto.offset ? Number.parseInt(dto.offset, 10) : null,
     sortBy: dto.sort_by || dto.sortBy || 'exercise_name',
     order: dto.order || 'ASC'
   });
@@ -64,8 +64,8 @@ function toListExercisesQuery(dto = {}) {
     muscularGroup: dto.muscular_group || dto.muscularGroup || null,
     difficulty: dto.difficulty || null,
     equipmentNeeded: dto.equipment_needed || dto.equipmentNeeded || null,
-    page: dto.page ? parseInt(dto.page, 10) : 1,
-    limit: dto.limit ? parseInt(dto.limit, 10) : 20,
+    page: dto.page ? Number.parseInt(dto.page, 10) : 1,
+    limit: dto.limit ? Number.parseInt(dto.limit, 10) : 20,
     sortBy: dto.sort_by || dto.sortBy || 'exercise_name',
     order: dto.order || 'ASC'
   });

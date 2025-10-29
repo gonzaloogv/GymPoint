@@ -16,7 +16,7 @@ const { rewardMappers } = require('../services/mappers');
  */
 const addTokens = async (req, res) => {
   try {
-    const userId = parseInt(req.params.userId, 10);
+    const userId = Number.parseInt(req.params.userId, 10);
     const command = rewardMappers.toAddTokensCommand(req.body, userId);
     const result = await tokenService.addTokens(command);
 
@@ -37,7 +37,7 @@ const addTokens = async (req, res) => {
  */
 const spendTokens = async (req, res) => {
   try {
-    const userId = parseInt(req.params.userId, 10);
+    const userId = Number.parseInt(req.params.userId, 10);
     const command = rewardMappers.toSpendTokensCommand(req.body, userId);
     const result = await tokenService.spendTokens(command);
 
@@ -62,7 +62,7 @@ const spendTokens = async (req, res) => {
  */
 const getTokenBalance = async (req, res) => {
   try {
-    const userId = parseInt(req.params.userId, 10);
+    const userId = Number.parseInt(req.params.userId, 10);
     const query = rewardMappers.toGetTokenBalanceQuery(userId);
     const balance = await tokenService.getTokenBalance(query);
     const dto = rewardMappers.toTokenBalanceDTO(balance.userId, balance.balance);
@@ -84,7 +84,7 @@ const getTokenBalance = async (req, res) => {
  */
 const listTokenLedger = async (req, res) => {
   try {
-    const userId = parseInt(req.params.userId, 10);
+    const userId = Number.parseInt(req.params.userId, 10);
     const query = rewardMappers.toListTokenLedgerQuery(userId, req.query);
     const result = await tokenService.listTokenLedger(query);
     const dto = rewardMappers.toPaginatedTokenLedgerDTO(result);
@@ -106,7 +106,7 @@ const listTokenLedger = async (req, res) => {
  */
 const getTokenStats = async (req, res) => {
   try {
-    const userId = parseInt(req.params.userId, 10);
+    const userId = Number.parseInt(req.params.userId, 10);
     const query = rewardMappers.toGetTokenBalanceQuery(userId);
     const stats = await tokenService.getTokenStats(query);
 

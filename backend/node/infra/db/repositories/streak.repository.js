@@ -11,8 +11,17 @@ async function createStreak(payload, options = {}) {
 async function findById(idStreak, options = {}) {
   const streak = await Streak.findByPk(idStreak, {
     include: options.includeRelations ? [
-      { model: UserProfile, as: 'userProfile', attributes: ['id_user_profile', 'name', 'lastname'] },
-      { model: Frequency, as: 'frequency', attributes: ['goal', 'assist', 'achieved_goal'] }
+      {
+        model: UserProfile,
+        as: 'userProfile',
+        attributes: ['id_user_profile', 'name', 'lastname']
+      },
+      {
+        model: Frequency,
+        as: 'frequency',
+        attributes: ['goal', 'assist', 'achieved_goal'],
+        required: false  // LEFT JOIN en lugar de INNER JOIN
+      }
     ] : undefined,
     transaction: options.transaction
   });
@@ -21,16 +30,27 @@ async function findById(idStreak, options = {}) {
 }
 
 async function findByUserProfileId(idUserProfile, options = {}) {
-  const userProfile = await UserProfile.findByPk(idUserProfile, {
-    attributes: ['id_streak'],
+  // Buscar directamente por id_user_profile en la tabla streak
+  // ya que existe un índice único para esta columna
+  const streak = await Streak.findOne({
+    where: { id_user_profile: idUserProfile },
+    include: options.includeRelations ? [
+      {
+        model: UserProfile,
+        as: 'userProfile',
+        attributes: ['id_user_profile', 'name', 'lastname']
+      },
+      {
+        model: Frequency,
+        as: 'frequency',
+        attributes: ['goal', 'assist', 'achieved_goal'],
+        required: false  // LEFT JOIN
+      }
+    ] : undefined,
     transaction: options.transaction
   });
 
-  if (!userProfile || !userProfile.id_streak) {
-    return null;
-  }
-
-  return findById(userProfile.id_streak, options);
+  return streak ? toStreak(streak) : null;
 }
 
 async function updateStreak(idStreak, payload, options = {}) {

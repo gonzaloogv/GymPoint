@@ -37,7 +37,7 @@ const iniciarSesion = asyncHandler(async (req, res) => {
  * Obtener sesión por ID
  */
 const getSesion = asyncHandler(async (req, res) => {
-  const query = workoutMappers.toGetWorkoutSessionQuery(parseInt(req.params.id, 10), true);
+  const query = workoutMappers.toGetWorkoutSessionQuery(Number.parseInt(req.params.id, 10), true);
   const session = await workoutService.getWorkoutSession(query);
 
   res.json({
@@ -128,7 +128,7 @@ const getStats = asyncHandler(async (req, res) => {
  * Registrar un set en una sesión
  */
 const registrarSet = asyncHandler(async (req, res) => {
-  const sessionId = parseInt(req.params.id, 10);
+  const sessionId = Number.parseInt(req.params.id, 10);
   if (Number.isNaN(sessionId)) {
     return res.status(400).json({
       error: {
@@ -152,7 +152,7 @@ const registrarSet = asyncHandler(async (req, res) => {
  * Listar sets de una sesión
  */
 const listarSets = asyncHandler(async (req, res) => {
-  const sessionId = parseInt(req.params.id, 10);
+  const sessionId = Number.parseInt(req.params.id, 10);
   if (Number.isNaN(sessionId)) {
     return res.status(400).json({
       error: {
@@ -175,7 +175,7 @@ const listarSets = asyncHandler(async (req, res) => {
  * Actualizar un set
  */
 const updateSet = asyncHandler(async (req, res) => {
-  const setId = parseInt(req.params.id, 10);
+  const setId = Number.parseInt(req.params.id, 10);
   if (Number.isNaN(setId)) {
     return res.status(400).json({
       error: {
@@ -199,7 +199,7 @@ const updateSet = asyncHandler(async (req, res) => {
  * Eliminar un set
  */
 const deleteSet = asyncHandler(async (req, res) => {
-  const setId = parseInt(req.params.id, 10);
+  const setId = Number.parseInt(req.params.id, 10);
   if (Number.isNaN(setId)) {
     return res.status(400).json({
       error: {
@@ -220,7 +220,7 @@ const deleteSet = asyncHandler(async (req, res) => {
  * Completar una sesión
  */
 const completarSesion = asyncHandler(async (req, res) => {
-  const sessionId = parseInt(req.params.id, 10);
+  const sessionId = Number.parseInt(req.params.id, 10);
   if (Number.isNaN(sessionId)) {
     return res.status(400).json({
       error: {
@@ -244,7 +244,7 @@ const completarSesion = asyncHandler(async (req, res) => {
  * Cancelar una sesión
  */
 const cancelarSesion = asyncHandler(async (req, res) => {
-  const sessionId = parseInt(req.params.id, 10);
+  const sessionId = Number.parseInt(req.params.id, 10);
   if (Number.isNaN(sessionId)) {
     return res.status(400).json({
       error: {
@@ -268,7 +268,7 @@ const cancelarSesion = asyncHandler(async (req, res) => {
  * Actualizar metadata de sesión (notas)
  */
 const updateSesion = asyncHandler(async (req, res) => {
-  const sessionId = parseInt(req.params.id, 10);
+  const sessionId = Number.parseInt(req.params.id, 10);
   if (Number.isNaN(sessionId)) {
     return res.status(400).json({
       error: {

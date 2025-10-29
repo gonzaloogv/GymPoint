@@ -52,8 +52,8 @@ function toGetFrequencyByIdQuery(idFrequency) {
 function toListFrequencyHistoryQuery(dto, idUserProfile) {
   return new ListFrequencyHistoryQuery({
     idUserProfile,
-    page: dto.page ? parseInt(dto.page, 10) : 1,
-    limit: dto.limit ? parseInt(dto.limit, 10) : 20,
+    page: dto.page ? Number.parseInt(dto.page, 10) : 1,
+    limit: dto.limit ? Number.parseInt(dto.limit, 10) : 20,
     startDate: dto.start_date || dto.startDate || null,
     endDate: dto.end_date || dto.endDate || null
   });

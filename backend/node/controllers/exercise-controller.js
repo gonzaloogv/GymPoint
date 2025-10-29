@@ -65,7 +65,7 @@ const listExercises = async (req, res) => {
  */
 const getExerciseById = async (req, res) => {
   try {
-    const query = exerciseMappers.toGetExerciseByIdQuery(parseInt(req.params.id, 10));
+    const query = exerciseMappers.toGetExerciseByIdQuery(Number.parseInt(req.params.id, 10));
     const exercise = await exerciseService.getExerciseById(query);
 
     res.json({
@@ -128,7 +128,7 @@ const createExercise = async (req, res) => {
  */
 const updateExercise = async (req, res) => {
   try {
-    const command = exerciseMappers.toUpdateExerciseCommand(req.body, parseInt(req.params.id, 10));
+    const command = exerciseMappers.toUpdateExerciseCommand(req.body, Number.parseInt(req.params.id, 10));
     const exercise = await exerciseService.updateExercise(command);
 
     res.json({
@@ -160,7 +160,7 @@ const updateExercise = async (req, res) => {
 const deleteExercise = async (req, res) => {
   try {
     const Exercise = require('../models/Exercise');
-    const exerciseId = parseInt(req.params.id, 10);
+    const exerciseId = Number.parseInt(req.params.id, 10);
     const exercise = await Exercise.findByPk(exerciseId);
 
     if (!exercise) {

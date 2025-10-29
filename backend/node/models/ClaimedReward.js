@@ -103,7 +103,7 @@ ClaimedReward.prototype.daysUntilExpiration = function() {
   const expiresAt = new Date(this.expires_at);
   const diffTime = expiresAt - now;
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays > 0 ? diffDays : 0;
+  return Math.max(diffDays, 0);
 };
 
 module.exports = ClaimedReward;

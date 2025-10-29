@@ -40,7 +40,7 @@ const {
 /**
  * Mapea CreateRewardRequestDTO a CreateRewardCommand
  */
-function toCreateRewardCommand(dto, gymId = null, createdBy) {
+function toCreateRewardCommand(dto, createdBy, gymId = null) {
   return new CreateRewardCommand({
     gymId,
     name: dto.name,
@@ -156,13 +156,13 @@ function toSpendTokensCommand(dto, userId) {
  */
 function toListRewardsQuery(queryParams = {}) {
   return new ListRewardsQuery({
-    gymId: queryParams.gymId ? parseInt(queryParams.gymId, 10) : null,
-    is_active: queryParams.is_active !== 'false',
-    min_cost: queryParams.min_cost ? parseInt(queryParams.min_cost, 10) : null,
-    max_cost: queryParams.max_cost ? parseInt(queryParams.max_cost, 10) : null,
+    gymId: queryParams.gymId ? Number.parseInt(queryParams.gymId, 10) : null,
+    is_active: queryParams.is_active === undefined || queryParams.is_active === 'true',
+    min_cost: queryParams.min_cost ? Number.parseInt(queryParams.min_cost, 10) : null,
+    max_cost: queryParams.max_cost ? Number.parseInt(queryParams.max_cost, 10) : null,
     available_only: queryParams.available_only === 'true',
-    page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
-    limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 20,
+    page: queryParams.page ? Number.parseInt(queryParams.page, 10) : 1,
+    limit: queryParams.limit ? Number.parseInt(queryParams.limit, 10) : 20,
     sortBy: queryParams.sortBy || 'created_at',
     order: queryParams.order || 'desc',
   });
@@ -172,7 +172,7 @@ function toListRewardsQuery(queryParams = {}) {
  * Mapea a GetRewardByIdQuery
  */
 function toGetRewardByIdQuery(rewardId) {
-  return new GetRewardByIdQuery({ rewardId: parseInt(rewardId, 10) });
+  return new GetRewardByIdQuery({ rewardId: Number.parseInt(rewardId, 10) });
 }
 
 /**
@@ -180,7 +180,7 @@ function toGetRewardByIdQuery(rewardId) {
  */
 function toListRewardCodesQuery(rewardId, queryParams = {}) {
   return new ListRewardCodesQuery({
-    rewardId: parseInt(rewardId, 10),
+    rewardId: Number.parseInt(rewardId, 10),
     unused_only: queryParams.unused_only === 'true',
   });
 }
@@ -196,7 +196,7 @@ function toGetRewardCodeByStringQuery(code) {
  * Mapea a GetRewardCodeByIdQuery
  */
 function toGetRewardCodeByIdQuery(codeId) {
-  return new GetRewardCodeByIdQuery({ codeId: parseInt(codeId, 10) });
+  return new GetRewardCodeByIdQuery({ codeId: Number.parseInt(codeId, 10) });
 }
 
 /**
@@ -204,13 +204,13 @@ function toGetRewardCodeByIdQuery(codeId) {
  */
 function toListClaimedRewardsQuery(userId, queryParams = {}) {
   return new ListClaimedRewardsQuery({
-    userId: parseInt(userId, 10),
+    userId: Number.parseInt(userId, 10),
     status: queryParams.status || null,
-    gymId: queryParams.gymId ? parseInt(queryParams.gymId, 10) : null,
+    gymId: queryParams.gymId ? Number.parseInt(queryParams.gymId, 10) : null,
     from_date: queryParams.from_date ? new Date(queryParams.from_date) : null,
     to_date: queryParams.to_date ? new Date(queryParams.to_date) : null,
-    page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
-    limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 20,
+    page: queryParams.page ? Number.parseInt(queryParams.page, 10) : 1,
+    limit: queryParams.limit ? Number.parseInt(queryParams.limit, 10) : 20,
     sortBy: queryParams.sortBy || 'claimed_date',
     order: queryParams.order || 'desc',
   });
@@ -219,10 +219,10 @@ function toListClaimedRewardsQuery(userId, queryParams = {}) {
 /**
  * Mapea a GetClaimedRewardByIdQuery
  */
-function toGetClaimedRewardByIdQuery(claimedRewardId, userId = null) {
+function toGetClaimedRewardByIdQuery(claimedRewardId, userId) {
   return new GetClaimedRewardByIdQuery({
-    claimedRewardId: parseInt(claimedRewardId, 10),
-    userId: userId ? parseInt(userId, 10) : null,
+    claimedRewardId: Number.parseInt(claimedRewardId, 10),
+    userId: userId ? Number.parseInt(userId, 10) : null,
   });
 }
 
@@ -230,7 +230,7 @@ function toGetClaimedRewardByIdQuery(claimedRewardId, userId = null) {
  * Mapea a GetTokenBalanceQuery
  */
 function toGetTokenBalanceQuery(userId) {
-  return new GetTokenBalanceQuery({ userId: parseInt(userId, 10) });
+  return new GetTokenBalanceQuery({ userId: Number.parseInt(userId, 10) });
 }
 
 /**
@@ -238,12 +238,12 @@ function toGetTokenBalanceQuery(userId) {
  */
 function toListTokenLedgerQuery(userId, queryParams = {}) {
   return new ListTokenLedgerQuery({
-    userId: parseInt(userId, 10),
+    userId: Number.parseInt(userId, 10),
     from_date: queryParams.from_date ? new Date(queryParams.from_date) : null,
     to_date: queryParams.to_date ? new Date(queryParams.to_date) : null,
     ref_type: queryParams.ref_type || null,
-    page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
-    limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 50,
+    page: queryParams.page ? Number.parseInt(queryParams.page, 10) : 1,
+    limit: queryParams.limit ? Number.parseInt(queryParams.limit, 10) : 50,
     sortBy: queryParams.sortBy || 'created_at',
     order: queryParams.order || 'desc',
   });
@@ -254,7 +254,7 @@ function toListTokenLedgerQuery(userId, queryParams = {}) {
  */
 function toGetRewardStatsQuery(gymId, queryParams = {}) {
   return new GetRewardStatsQuery({
-    gymId: parseInt(gymId, 10),
+    gymId: Number.parseInt(gymId, 10),
     from_date: queryParams.from_date ? new Date(queryParams.from_date) : null,
     to_date: queryParams.to_date ? new Date(queryParams.to_date) : null,
   });
@@ -275,6 +275,15 @@ function toGetGlobalRewardStatsQuery(queryParams = {}) {
 // ============================================================================
 
 /**
+ * Helper: Formatea fecha a string YYYY-MM-DD
+ */
+function formatDateToString(date) {
+  if (!date) return null;
+  if (typeof date === 'string') return date;
+  return date.toISOString().split('T')[0];
+}
+
+/**
  * Mapea entidad Reward a RewardResponseDTO
  */
 function toRewardDTO(reward) {
@@ -288,8 +297,8 @@ function toRewardDTO(reward) {
     discount_percentage: reward.discount_percentage || null,
     discount_amount: reward.discount_amount || null,
     stock: reward.stock,
-    valid_from: reward.valid_from ? (typeof reward.valid_from === 'string' ? reward.valid_from : reward.valid_from.toISOString().split('T')[0]) : null,
-    valid_until: reward.valid_until ? (typeof reward.valid_until === 'string' ? reward.valid_until : reward.valid_until.toISOString().split('T')[0]) : null,
+    valid_from: formatDateToString(reward.valid_from),
+    valid_until: formatDateToString(reward.valid_until),
     is_active: reward.is_active,
     image_url: reward.image_url || null,
     terms: reward.terms || null,

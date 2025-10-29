@@ -30,6 +30,7 @@ export interface GymFormData {
   description: string;
   schedule: DaySchedule[];
   amenities: string[];
+  trial_allowed?: boolean;
 }
 
 export interface DaySchedule {

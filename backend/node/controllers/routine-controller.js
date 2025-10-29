@@ -13,7 +13,7 @@ const { NotFoundError, ValidationError, BusinessError } = require('../utils/erro
  */
 const getRoutineWithExercises = async (req, res) => {
   try {
-    const query = routineMappers.toGetRoutineWithExercisesQuery(parseInt(req.params.id, 10));
+    const query = routineMappers.toGetRoutineWithExercisesQuery(Number.parseInt(req.params.id, 10));
     const routine = await routineService.getRoutineWithExercises(query);
 
     res.json({
@@ -145,7 +145,7 @@ const createRoutineWithExercises = async (req, res) => {
  */
 const updateRoutine = async (req, res) => {
   try {
-    const command = routineMappers.toUpdateRoutineCommand(req.body, parseInt(req.params.id, 10));
+    const command = routineMappers.toUpdateRoutineCommand(req.body, Number.parseInt(req.params.id, 10));
     const routine = await routineService.updateRoutine(command);
 
     res.json({
@@ -176,7 +176,7 @@ const updateRoutine = async (req, res) => {
  */
 const deleteRoutine = async (req, res) => {
   try {
-    const command = routineMappers.toDeleteRoutineCommand(parseInt(req.params.id, 10));
+    const command = routineMappers.toDeleteRoutineCommand(Number.parseInt(req.params.id, 10));
     await routineService.deleteRoutine(command);
     res.status(204).send();
   } catch (err) {
@@ -203,7 +203,7 @@ const deleteRoutine = async (req, res) => {
  */
 const addExerciseToRoutine = async (req, res) => {
   try {
-    const command = routineMappers.toAddExerciseToRoutineCommand(req.body, parseInt(req.params.id, 10));
+    const command = routineMappers.toAddExerciseToRoutineCommand(req.body, Number.parseInt(req.params.id, 10));
     const routineExercise = await routineService.addExerciseToRoutine(command);
 
     res.status(201).json({
@@ -237,8 +237,8 @@ const updateRoutineExercise = async (req, res) => {
     const { id, id_exercise } = req.params;
     const command = routineMappers.toUpdateRoutineExerciseCommand(
       req.body,
-      parseInt(id, 10),
-      parseInt(id_exercise, 10)
+      Number.parseInt(id, 10),
+      Number.parseInt(id_exercise, 10)
     );
     const routineExercise = await routineService.updateRoutineExercise(command);
 
@@ -271,7 +271,7 @@ const updateRoutineExercise = async (req, res) => {
 const deleteRoutineExercise = async (req, res) => {
   try {
     const { id, id_exercise } = req.params;
-    const command = routineMappers.toDeleteRoutineExerciseCommand(parseInt(id, 10), parseInt(id_exercise, 10));
+    const command = routineMappers.toDeleteRoutineExerciseCommand(Number.parseInt(id, 10), Number.parseInt(id_exercise, 10));
     await routineService.deleteRoutineExercise(command);
     res.status(204).send();
   } catch (err) {
@@ -298,7 +298,7 @@ const deleteRoutineExercise = async (req, res) => {
  */
 const listRoutineDays = async (req, res) => {
   try {
-    const query = routineMappers.toListRoutineDaysQuery(parseInt(req.params.id, 10));
+    const query = routineMappers.toListRoutineDaysQuery(Number.parseInt(req.params.id, 10));
     const days = await routineService.listRoutineDays(query);
 
     res.json({
@@ -329,7 +329,7 @@ const listRoutineDays = async (req, res) => {
  */
 const createRoutineDay = async (req, res) => {
   try {
-    const command = routineMappers.toCreateRoutineDayCommand(req.body, parseInt(req.params.id, 10));
+    const command = routineMappers.toCreateRoutineDayCommand(req.body, Number.parseInt(req.params.id, 10));
     const day = await routineService.createRoutineDay(command);
 
     res.status(201).json({
@@ -368,7 +368,7 @@ const createRoutineDay = async (req, res) => {
  */
 const updateRoutineDay = async (req, res) => {
   try {
-    const command = routineMappers.toUpdateRoutineDayCommand(req.body, parseInt(req.params.id_routine_day, 10));
+    const command = routineMappers.toUpdateRoutineDayCommand(req.body, Number.parseInt(req.params.id_routine_day, 10));
     const day = await routineService.updateRoutineDay(command);
 
     res.json({
@@ -407,7 +407,7 @@ const updateRoutineDay = async (req, res) => {
  */
 const deleteRoutineDay = async (req, res) => {
   try {
-    const command = routineMappers.toDeleteRoutineDayCommand(parseInt(req.params.id_routine_day, 10));
+    const command = routineMappers.toDeleteRoutineDayCommand(Number.parseInt(req.params.id_routine_day, 10));
     await routineService.deleteRoutineDay(command);
     res.status(204).send();
   } catch (err) {

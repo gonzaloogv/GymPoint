@@ -15,7 +15,6 @@ const register = async (req, res) => {
       status = 409;
       code = 'EMAIL_ALREADY_EXISTS';
     } else if (err instanceof ValidationError) {
-      status = 400;
       code = 'INVALID_DATA';
     }
 

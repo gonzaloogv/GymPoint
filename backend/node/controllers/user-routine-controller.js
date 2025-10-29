@@ -141,7 +141,7 @@ const listMyRoutines = async (req, res) => {
  */
 const getUserRoutineById = async (req, res) => {
   try {
-    const query = userRoutineMappers.toGetUserRoutineByIdQuery(parseInt(req.params.id, 10));
+    const query = userRoutineMappers.toGetUserRoutineByIdQuery(Number.parseInt(req.params.id, 10));
     const userRoutine = await userRoutineService.getUserRoutineById(query);
 
     res.json({
@@ -274,7 +274,7 @@ const importRoutine = async (req, res) => {
  */
 const deactivateUserRoutine = async (req, res) => {
   try {
-    const command = userRoutineMappers.toDeactivateUserRoutineCommand(parseInt(req.params.id, 10));
+    const command = userRoutineMappers.toDeactivateUserRoutineCommand(Number.parseInt(req.params.id, 10));
     const userRoutine = await userRoutineService.deactivateUserRoutine(command);
 
     res.json({

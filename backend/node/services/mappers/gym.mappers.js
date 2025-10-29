@@ -29,6 +29,18 @@ const { normalizePagination } = require('../../utils/pagination');
 const { normalizeSortParams, GYM_SORTABLE_FIELDS } = require('../../utils/sort-whitelist');
 
 // ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Normaliza un valor a array (si no es array, lo envuelve en array)
+ */
+function normalizeToArray(value) {
+  if (!value) return null;
+  return Array.isArray(value) ? value : [value];
+}
+
+// ============================================================================
 // RequestDTO → Command/Query
 // ============================================================================
 
@@ -53,9 +65,10 @@ function toCreateGymCommand(dto, createdBy) {
     phone: dto.phone || null,
     email: dto.email || null,
     website: dto.website || null,
-    is_active: dto.is_active !== undefined ? dto.is_active : true,
+    is_active: dto.is_active === undefined ? true : dto.is_active,
     verified: dto.verified || false,
     featured: dto.featured || false,
+    trial_allowed: dto.trial_allowed || false,
     auto_checkin_enabled: dto.auto_checkin_enabled || false,
     createdBy,
     // id_types y type_names eliminados - ahora en services
@@ -92,6 +105,7 @@ function toUpdateGymCommand(dto, gymId, updatedBy) {
     is_active: dto.is_active,
     verified: dto.verified,
     featured: dto.featured,
+    trial_allowed: dto.trial_allowed,
     auto_checkin_enabled: dto.auto_checkin_enabled,
     updatedBy,
     // id_types y type_names eliminados - ahora en services
@@ -146,10 +160,10 @@ function toListGymsQuery(queryParams, userId = null) {
     latitude: queryParams.latitude ? parseFloat(queryParams.latitude) : null,
     longitude: queryParams.longitude ? parseFloat(queryParams.longitude) : null,
     radius: queryParams.radius ? parseFloat(queryParams.radius) : null,
-    types: queryParams.types ? (Array.isArray(queryParams.types) ? queryParams.types : [queryParams.types]) : null,
-    amenities: queryParams.amenities ? (Array.isArray(queryParams.amenities) ? queryParams.amenities : [queryParams.amenities]) : null,
-    verified: queryParams.verified !== undefined ? queryParams.verified === 'true' : null,
-    featured: queryParams.featured !== undefined ? queryParams.featured === 'true' : null,
+    types: normalizeToArray(queryParams.types),
+    amenities: normalizeToArray(queryParams.amenities),
+    verified: queryParams.verified === undefined ? null : queryParams.verified === 'true',
+    featured: queryParams.featured === undefined ? null : queryParams.featured === 'true',
     min_price: queryParams.min_price ? parseFloat(queryParams.min_price) : null,
     max_price: queryParams.max_price ? parseFloat(queryParams.max_price) : null,
     userId,
@@ -274,6 +288,7 @@ function toGymResponse(gym, options = {}) {
     verified: gym.verified,
     featured: gym.featured,
     auto_checkin_enabled: gym.auto_checkin_enabled,
+    trial_allowed: gym.trial_allowed || false,
     created_at: gym.created_at.toISOString(),
     updated_at: gym.updated_at.toISOString(),
     equipment: gym.equipment || {},

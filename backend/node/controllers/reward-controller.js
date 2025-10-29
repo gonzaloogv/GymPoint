@@ -37,7 +37,7 @@ const listRewards = async (req, res) => {
  */
 const getReward = async (req, res) => {
   try {
-    const rewardId = parseInt(req.params.rewardId, 10);
+    const rewardId = Number.parseInt(req.params.rewardId, 10);
     const query = rewardMappers.toGetRewardByIdQuery(rewardId);
     const reward = await rewardService.getReward(query);
     const dto = rewardMappers.toRewardDTO(reward);
@@ -62,7 +62,7 @@ const createReward = async (req, res) => {
     const createdBy = req.account?.userProfile?.id_user_profile;
     const gymId = req.body.id_gym || null;
 
-    const command = rewardMappers.toCreateRewardCommand(req.body, gymId, createdBy);
+    const command = rewardMappers.toCreateRewardCommand(req.body, createdBy, gymId);
     const reward = await rewardService.createReward(command);
     const dto = rewardMappers.toRewardDTO(reward);
 
@@ -83,7 +83,7 @@ const createReward = async (req, res) => {
  */
 const updateReward = async (req, res) => {
   try {
-    const rewardId = parseInt(req.params.rewardId, 10);
+    const rewardId = Number.parseInt(req.params.rewardId, 10);
     const updatedBy = req.account?.userProfile?.id_user_profile;
 
     const command = rewardMappers.toUpdateRewardCommand(req.body, rewardId, updatedBy);
@@ -107,7 +107,7 @@ const updateReward = async (req, res) => {
  */
 const deleteReward = async (req, res) => {
   try {
-    const rewardId = parseInt(req.params.rewardId, 10);
+    const rewardId = Number.parseInt(req.params.rewardId, 10);
     const deletedBy = req.account?.userProfile?.id_user_profile;
 
     const command = rewardMappers.toDeleteRewardCommand(rewardId, deletedBy);
@@ -134,7 +134,7 @@ const deleteReward = async (req, res) => {
  */
 const listRewardCodes = async (req, res) => {
   try {
-    const rewardId = parseInt(req.params.rewardId, 10);
+    const rewardId = Number.parseInt(req.params.rewardId, 10);
     const query = rewardMappers.toListRewardCodesQuery(rewardId, req.query);
     const codes = await rewardService.listRewardCodes(query);
 
@@ -155,7 +155,7 @@ const listRewardCodes = async (req, res) => {
  */
 const createRewardCode = async (req, res) => {
   try {
-    const rewardId = parseInt(req.params.rewardId, 10);
+    const rewardId = Number.parseInt(req.params.rewardId, 10);
     const createdBy = req.account?.userProfile?.id_user_profile;
 
     const command = rewardMappers.toCreateRewardCodeCommand(req.body, rewardId, createdBy);
@@ -183,7 +183,7 @@ const createRewardCode = async (req, res) => {
  */
 const listClaimedRewards = async (req, res) => {
   try {
-    const userId = parseInt(req.params.userId, 10);
+    const userId = Number.parseInt(req.params.userId, 10);
     const query = rewardMappers.toListClaimedRewardsQuery(userId, req.query);
     const result = await rewardService.listClaimedRewards(query);
     const dto = rewardMappers.toPaginatedClaimedRewardsDTO(result);
@@ -205,7 +205,7 @@ const listClaimedRewards = async (req, res) => {
  */
 const getClaimedReward = async (req, res) => {
   try {
-    const claimedRewardId = parseInt(req.params.claimedRewardId, 10);
+    const claimedRewardId = Number.parseInt(req.params.claimedRewardId, 10);
     const userId = req.account?.userProfile?.id_user_profile;
 
     const query = rewardMappers.toGetClaimedRewardByIdQuery(claimedRewardId, userId);
@@ -229,7 +229,7 @@ const getClaimedReward = async (req, res) => {
  */
 const claimReward = async (req, res) => {
   try {
-    const rewardId = parseInt(req.params.rewardId, 10);
+    const rewardId = Number.parseInt(req.params.rewardId, 10);
     const userId = req.account?.userProfile?.id_user_profile;
 
     if (!userId) {
@@ -262,7 +262,7 @@ const claimReward = async (req, res) => {
  */
 const markClaimedRewardAsUsed = async (req, res) => {
   try {
-    const claimedRewardId = parseInt(req.params.claimedRewardId, 10);
+    const claimedRewardId = Number.parseInt(req.params.claimedRewardId, 10);
     const userId = req.account?.userProfile?.id_user_profile;
 
     if (!userId) {

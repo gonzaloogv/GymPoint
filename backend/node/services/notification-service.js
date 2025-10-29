@@ -189,6 +189,52 @@ async function sendScheduledNotifications(command) {
 }
 
 // ============================================================================
+// SUBSCRIPTION EXPIRATION NOTIFICATIONS
+// ============================================================================
+
+async function notifyExpiringSubscriptions(command) {
+  const { userGymRepository } = require('../infra/db/repositories');
+
+  const daysBeforeExpiry = command.daysBeforeExpiry || 7;
+
+  // Buscar suscripciones próximas a vencer
+  const expiringSubscriptions = await userGymRepository.findExpiringSubscriptions(daysBeforeExpiry, 100);
+
+  let notifiedCount = 0;
+
+  for (const subscription of expiringSubscriptions) {
+    try {
+      const daysRemaining = Math.ceil((new Date(subscription.subscription_end) - new Date()) / (1000 * 60 * 60 * 24));
+
+      const title = 'Tu suscripción está por vencer';
+      const message = daysRemaining === 1
+        ? `Tu suscripción a ${subscription.gym?.name || 'tu gimnasio'} vence mañana. Renuévala para seguir entrenando.`
+        : `Tu suscripción a ${subscription.gym?.name || 'tu gimnasio'} vence en ${daysRemaining} días. No olvides renovarla.`;
+
+      await createNotification({
+        userProfileId: subscription.id_user_profile,
+        type: 'GYM_UPDATE',
+        title,
+        message,
+        priority: daysRemaining <= 3 ? 'HIGH' : 'NORMAL',
+        data: {
+          gymId: subscription.id_gym,
+          gymName: subscription.gym?.name,
+          subscriptionEnd: subscription.subscription_end,
+          daysRemaining,
+        },
+      });
+
+      notifiedCount++;
+    } catch (error) {
+      console.error(`[notification-service] Error notificando suscripción ${subscription.id_user_gym}:`, error.message);
+    }
+  }
+
+  return { notified: notifiedCount, total: expiringSubscriptions.length };
+}
+
+// ============================================================================
 // NOTIFICATION SETTINGS
 // ============================================================================
 
@@ -279,6 +325,7 @@ module.exports = {
   countUnreadNotifications,
   deleteNotification,
   sendScheduledNotifications,
+  notifyExpiringSubscriptions,
   getNotificationSettings,
   updateNotificationSettings,
 

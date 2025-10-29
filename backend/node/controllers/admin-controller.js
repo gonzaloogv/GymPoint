@@ -91,15 +91,15 @@ const otorgarTokens = async (req, res) => {
     }
 
     const newBalance = await userService.actualizarTokens({
-      userProfileId: parseInt(id),
-      delta: parseInt(delta),
+      userProfileId: Number.parseInt(id),
+      delta: Number.parseInt(delta),
       reason: reason || `Admin: ${req.account?.email || 'admin'}`,
     });
 
     res.json({
-      id_user_profile: parseInt(id),
+      id_user_profile: Number.parseInt(id),
       new_balance: newBalance,
-      delta: parseInt(delta),
+      delta: Number.parseInt(delta),
       reason: reason || 'Admin adjustment'
     });
   } catch (err) {
@@ -133,7 +133,7 @@ const actualizarSuscripcion = async (req, res) => {
     }
 
     const result = await userService.actualizarSuscripcion({
-      userProfileId: parseInt(id),
+      userProfileId: Number.parseInt(id),
       subscription: subscription,
     });
 
@@ -155,11 +155,11 @@ const actualizarSuscripcion = async (req, res) => {
 const desactivarUsuario = async (req, res) => {
   try {
     const { id } = req.params;
-    await adminService.desactivarCuenta(parseInt(id));
+    await adminService.desactivarCuenta(Number.parseInt(id));
 
     res.json({
       message: 'Usuario desactivado correctamente',
-      id_account: parseInt(id)
+      id_account: Number.parseInt(id)
     });
   } catch (err) {
     res.status(400).json({
@@ -178,11 +178,11 @@ const desactivarUsuario = async (req, res) => {
 const activarUsuario = async (req, res) => {
   try {
     const { id } = req.params;
-    await adminService.activarCuenta(parseInt(id));
+    await adminService.activarCuenta(Number.parseInt(id));
 
     res.json({
       message: 'Usuario activado correctamente',
-      id_account: parseInt(id)
+      id_account: Number.parseInt(id)
     });
   } catch (err) {
     res.status(400).json({
@@ -202,7 +202,7 @@ const activarUsuario = async (req, res) => {
  */
 const obtenerActividad = async (req, res) => {
   try {
-    const days = req.query.days ? parseInt(req.query.days) : 7;
+    const days = req.query.days ? Number.parseInt(req.query.days) : 7;
     const activity = await adminService.obtenerActividadReciente(days);
     res.json(activity);
   } catch (err) {
@@ -223,10 +223,10 @@ const obtenerActividad = async (req, res) => {
  */
 const obtenerTransacciones = async (req, res) => {
   try {
-    const userId = req.query.user_id ? parseInt(req.query.user_id) : null;
+    const userId = req.query.user_id ? Number.parseInt(req.query.user_id) : null;
     const options = {
-      limit: req.query.limit ? parseInt(req.query.limit) : 50,
-      page: req.query.page ? parseInt(req.query.page) : 1
+      limit: req.query.limit ? Number.parseInt(req.query.limit) : 50,
+      page: req.query.page ? Number.parseInt(req.query.page) : 1
     };
 
     const result = await adminService.obtenerTransacciones(userId, options);

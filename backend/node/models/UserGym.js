@@ -49,7 +49,18 @@ const UserGym = sequelize.define('UserGym', {
     allowNull: false,
     defaultValue: true,
     comment: 'Si la suscripción está activa'
-  }
+  },
+  trial_used: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+    comment: 'Si el usuario ya usó su visita de prueba en este gimnasio'
+  },
+  trial_date: {
+    type: DataTypes.DATEONLY,
+    allowNull: true,
+    comment: 'Fecha en que usó el trial (si aplica)'
+  },
 }, {
   tableName: 'user_gym',
   timestamps: true,
