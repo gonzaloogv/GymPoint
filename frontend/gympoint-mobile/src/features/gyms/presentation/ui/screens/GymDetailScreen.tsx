@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Linking, ActivityIndicator, Pressable } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { GymDetailScreenProps } from './GymDetailScreen.types';
@@ -16,6 +16,18 @@ import {
   GymRulesCard,
   CheckInSection,
 } from '../components/gym-detail';
+import {
+  useGymReviews,
+  useGymRatingStats,
+  useReviewActions,
+  RatingStars,
+  ReviewsList,
+  CreateReviewModal,
+  Review,
+  CreateReviewData,
+  UpdateReviewData,
+} from '@features/reviews';
+import { useAuthStore } from '@features/auth';
 
 export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps) {
   console.log('🔴 [GymDetailScreen] gym.id:', gym.id, 'tipo:', typeof gym.id);
@@ -23,6 +35,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
 
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  const { user } = useAuthStore();
 
   // Fetch detailed gym data
   const { gym: gymDetail, schedules, loading, error, averageRating, totalReviews } = useGymDetail(gym.id);
@@ -33,6 +46,34 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
     gym.name,
     gymDetail?.trial_allowed || false
   );
+
+  // Reviews state
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
+
+  // Reviews functionality
+  const {
+    reviews,
+    pagination,
+    isLoading: reviewsLoading,
+    refetch: refetchReviews,
+    loadNextPage,
+  } = useGymReviews({
+    gymId: gym.id,
+    limit: 5,
+    sortBy: 'created_at',
+    order: 'DESC',
+  });
+
+  const { stats: ratingStats } = useGymRatingStats(gym.id);
+  const {
+    createReview,
+    updateReview,
+    deleteReview,
+    markHelpful,
+    isCreating,
+    isUpdating,
+  } = useReviewActions();
 
   // Additional info
   const additionalInfo = {
@@ -65,6 +106,46 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
     if (additionalInfo.phone) {
       Linking.openURL(`tel:${additionalInfo.phone}`);
     }
+  };
+
+  // Review handlers
+  const handleCreateReview = () => {
+    setReviewToEdit(null);
+    setShowReviewModal(true);
+  };
+
+  const handleEditReview = (review: Review) => {
+    setReviewToEdit(review);
+    setShowReviewModal(true);
+  };
+
+  const handleSubmitReview = async (data: CreateReviewData | UpdateReviewData) => {
+    if (reviewToEdit) {
+      const result = await updateReview(reviewToEdit.id, data as UpdateReviewData);
+      if (result) {
+        await refetchReviews();
+        setShowReviewModal(false);
+        setReviewToEdit(null);
+      }
+    } else {
+      const result = await createReview(data as CreateReviewData);
+      if (result) {
+        await refetchReviews();
+        setShowReviewModal(false);
+      }
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: number) => {
+    const success = await deleteReview(reviewId);
+    if (success) {
+      await refetchReviews();
+    }
+  };
+
+  const handleMarkHelpful = async (reviewId: number) => {
+    await markHelpful(reviewId);
+    await refetchReviews();
   };
 
   // Format schedules for display
@@ -261,6 +342,57 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
       {/* Rules Card */}
       <GymRulesCard rules={gymRules} />
 
+      {/* Reviews Section */}
+      <Card className="mx-4 mt-4">
+        <View className="flex-row items-center justify-between mb-3">
+          <View className="flex-row items-center flex-1">
+            <View className={`w-10 h-10 rounded-lg justify-center items-center mr-3 ${isDark ? 'bg-yellow-500/30' : 'bg-yellow-100'}`}>
+              <Ionicons name="star" size={20} color={isDark ? '#FCD34D' : '#F59E0B'} />
+            </View>
+            <Text className={`text-lg font-semibold ${isDark ? 'text-text-dark' : 'text-text'}`}>
+              Reseñas
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={handleCreateReview}
+            className="flex-row items-center"
+            activeOpacity={0.7}
+          >
+            <Ionicons name="add-circle-outline" size={24} color={isDark ? '#60A5FA' : '#3B82F6'} />
+            <Text className={`ml-1 text-sm font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+              Escribir
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Rating Summary */}
+        {ratingStats && ratingStats.totalReviews > 0 && (
+          <View className={`rounded-lg p-3 mb-3 ${isDark ? 'bg-surface-dark/50' : 'bg-gray-50'}`}>
+            <View className="flex-row items-center justify-between">
+              <RatingStars rating={ratingStats.averageRating} size={20} />
+              <Text className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                {ratingStats.totalReviews} {ratingStats.totalReviews === 1 ? 'reseña' : 'reseñas'}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {/* Reviews List */}
+        <ReviewsList
+          reviews={reviews}
+          isLoading={reviewsLoading}
+          error={null}
+          pagination={pagination}
+          currentUserId={user?.id_user}
+          onRefresh={refetchReviews}
+          onLoadMore={pagination?.hasNextPage ? loadNextPage : undefined}
+          onHelpful={handleMarkHelpful}
+          onEdit={handleEditReview}
+          onDelete={handleDeleteReview}
+          emptyMessage="No hay reseñas aún. ¡Sé el primero en dejar una!"
+        />
+      </Card>
+
       {/* Check-in Section */}
       <CheckInSection
         gymId={gym.id}
@@ -268,6 +400,20 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
         distance={gym.distance}
         subscriptionStatus={subscriptionStatus}
         onCheckIn={onCheckIn}
+      />
+
+      {/* Review Modal */}
+      <CreateReviewModal
+        visible={showReviewModal}
+        gymId={gym.id}
+        gymName={gym.name}
+        existingReview={reviewToEdit}
+        onClose={() => {
+          setShowReviewModal(false);
+          setReviewToEdit(null);
+        }}
+        onSubmit={handleSubmitReview}
+        isSubmitting={isCreating || isUpdating}
       />
       </View>
     </Screen>
