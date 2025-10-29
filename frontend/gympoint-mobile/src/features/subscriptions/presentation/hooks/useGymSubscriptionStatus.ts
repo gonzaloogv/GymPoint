@@ -57,12 +57,8 @@ export function useGymSubscriptionStatus(
       console.log('🔍 [useGymSubscriptionStatus] Buscando suscripción para gymId:', gymId);
       console.log('🔍 [useGymSubscriptionStatus] Suscripciones activas:', subscriptionsWithStatus.map(s => ({ gymId: s.gymId, status: s.status })));
 
-      // Buscar suscripción para este gimnasio - CONVERTIR AMBOS A NUMBER para comparación
-      const gymIdNumber = typeof gymId === 'string' ? parseInt(gymId, 10) : gymId;
-      const gymSubscription = subscriptionsWithStatus.find((sub) => {
-        const subGymIdNumber = typeof sub.gymId === 'string' ? parseInt(sub.gymId, 10) : sub.gymId;
-        return subGymIdNumber === gymIdNumber;
-      });
+      // Buscar suscripción para este gimnasio
+      const gymSubscription = subscriptionsWithStatus.find((sub) => sub.gymId === gymId);
 
       console.log('🔍 [useGymSubscriptionStatus] Suscripción encontrada:', gymSubscription);
 
@@ -103,9 +99,11 @@ export function useGymSubscriptionStatus(
   }, [fetchStatus]);
 
   const subscribe = async (plan: string, dates?: SubscriptionDates): Promise<boolean> => {
-    // Asegurar que gymId sea un número
-    const gymIdNumber = typeof gymId === 'string' ? parseInt(gymId, 10) : gymId;
-    const success = await subscribeAction(gymIdNumber, plan as any, dates);
+    console.log('🟢 [useGymSubscriptionStatus.subscribe] gymId:', gymId, 'tipo:', typeof gymId);
+    console.log('🟢 [useGymSubscriptionStatus.subscribe] plan:', plan);
+    console.log('🟢 [useGymSubscriptionStatus.subscribe] dates:', dates);
+
+    const success = await subscribeAction(gymId, plan as any, dates);
     if (success) {
       await fetchStatus();
     }

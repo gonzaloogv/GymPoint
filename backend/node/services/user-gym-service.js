@@ -87,15 +87,48 @@ async function subscribeToGym(command) {
       ? new Date(command.subscriptionEnd)
       : calculateEndDate(command.subscriptionPlan, subscriptionStart);
 
-    // Create subscription
-    const subscription = await userGymRepository.createSubscription({
-      id_user_profile: command.userProfileId,
-      id_gym: command.gymId,
-      subscription_plan: command.subscriptionPlan,
-      subscription_start: subscriptionStart,
-      subscription_end: subscriptionEnd,
-      is_active: true,
-    }, { transaction });
+    // Check if there's an inactive subscription to reactivate (to avoid UNIQUE constraint violation)
+    const { UserGym } = require('../models');
+    const existingInactive = await UserGym.findOne({
+      where: {
+        id_user_profile: command.userProfileId,
+        id_gym: command.gymId,
+        is_active: false
+      },
+      transaction
+    });
+
+    let subscription;
+
+    if (existingInactive) {
+      // Reactivate existing inactive subscription
+      console.log('[subscribeToGym] Reactivando suscripción inactiva:', existingInactive.id_user_gym);
+      await userGymRepository.updateSubscription(
+        existingInactive.id_user_gym,
+        {
+          subscription_plan: command.subscriptionPlan,
+          subscription_start: subscriptionStart,
+          subscription_end: subscriptionEnd,
+          is_active: true,
+          trial_used: existingInactive.trial_used, // Mantener el estado del trial
+        },
+        { transaction }
+      );
+
+      // Fetch the updated subscription to return
+      subscription = await userGymRepository.findSubscriptionById(existingInactive.id_user_gym, { transaction });
+    } else {
+      // Create new subscription
+      console.log('[subscribeToGym] Creando nueva suscripción');
+      subscription = await userGymRepository.createSubscription({
+        id_user_profile: command.userProfileId,
+        id_gym: command.gymId,
+        subscription_plan: command.subscriptionPlan,
+        subscription_start: subscriptionStart,
+        subscription_end: subscriptionEnd,
+        is_active: true,
+      }, { transaction });
+    }
 
     await transaction.commit();
     return subscription;

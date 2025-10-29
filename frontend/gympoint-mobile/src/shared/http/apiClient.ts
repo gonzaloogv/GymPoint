@@ -16,6 +16,26 @@ api.interceptors.request.use(async (config) => {
     (headers as Record<string, string>).Authorization = `Bearer ${token}`;
     config.headers = headers;
   }
+
+  // Log detallado del request para debugging
+  if (config.url?.includes('/api/user-gym/alta')) {
+    console.log('🌐 [apiClient] Request completo:', {
+      url: config.url,
+      method: config.method,
+      data: config.data,
+      dataType: typeof config.data,
+      dataStringified: JSON.stringify(config.data),
+      headers: config.headers,
+    });
+
+    if (config.data && typeof config.data === 'object') {
+      console.log('🌐 [apiClient] Body properties:', Object.keys(config.data));
+      Object.keys(config.data).forEach(key => {
+        console.log(`  ${key}: ${config.data[key]} (tipo: ${typeof config.data[key]})`);
+      });
+    }
+  }
+
   return config;
 });
 
@@ -25,6 +45,16 @@ let queue: Array<() => void> = [];
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // Log detallado de errores en subscribe
+    if (error.config?.url?.includes('/api/user-gym/alta')) {
+      console.log('❌ [apiClient] Error en /api/user-gym/alta:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        headers: error.response?.headers,
+      });
+    }
+
     const original = error.config as RetryableConfig;
 
     if (error.response?.status === 401 && !original._retry) {

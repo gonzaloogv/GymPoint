@@ -6,7 +6,8 @@ export interface TodayCheckInStatus {
   assistanceDetails: {
     id_assistance: number;
     id_gym: number;
-    entry_time: string;
+    check_in_time: string;
+    date: string;
     gym_name: string | null;
   } | null;
   isLoading: boolean;

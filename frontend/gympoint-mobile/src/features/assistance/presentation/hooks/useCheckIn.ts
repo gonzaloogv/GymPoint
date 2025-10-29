@@ -3,7 +3,7 @@ import * as Location from 'expo-location';
 import { AssistanceRemote } from '../../data/assistance.remote';
 
 export interface UseCheckInResult {
-  checkIn: (gymId: number | string) => Promise<boolean>;
+  checkIn: (gymId: number) => Promise<boolean>;
   isCheckingIn: boolean;
   error: string | null;
 }
@@ -15,15 +15,12 @@ export function useCheckIn(): UseCheckInResult {
   const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const checkIn = async (gymId: number | string): Promise<boolean> => {
+  const checkIn = async (gymId: number): Promise<boolean> => {
     setIsCheckingIn(true);
     setError(null);
 
     try {
-      // Asegurar que gymId sea un número
-      const gymIdNumber = typeof gymId === 'string' ? parseInt(gymId, 10) : gymId;
-
-      console.log('🚀 [useCheckIn] Iniciando check-in para gymId:', gymIdNumber, '(tipo:', typeof gymIdNumber, ')');
+      console.log('🚀 [useCheckIn] Iniciando check-in para gymId:', gymId, '(tipo:', typeof gymId, ')');
 
       // Obtener ubicación actual del usuario
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -48,14 +45,14 @@ export function useCheckIn(): UseCheckInResult {
 
       // Realizar check-in
       console.log('📤 [useCheckIn] Enviando request:', {
-        id_gym: gymIdNumber,
+        id_gym: gymId,
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
         accuracy: location.coords.accuracy,
       });
 
       const response = await AssistanceRemote.checkIn({
-        id_gym: gymIdNumber,
+        id_gym: gymId,
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
         accuracy: location.coords.accuracy || undefined,

@@ -24,7 +24,7 @@ export type RoutinesStackParamList = {
 
 export type GymsStackParamList = {
   GymsList: undefined;
-  GymDetail: { gymId: string };
+  GymDetail: { gymId: number };
 };
 
 export type ProgressStackParamList = {

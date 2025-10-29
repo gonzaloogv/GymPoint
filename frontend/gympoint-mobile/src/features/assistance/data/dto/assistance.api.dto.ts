@@ -87,7 +87,8 @@ export interface TodayStatusResponseDTO {
   assistance: {
     id_assistance: number;
     id_gym: number;
-    entry_time: string;
+    check_in_time: string; // Hora en formato HH:MM:SS
+    date: string; // Fecha en formato YYYY-MM-DD
     gym_name: string | null;
   } | null;
 }

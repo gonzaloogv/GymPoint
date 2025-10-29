@@ -1,5 +1,5 @@
 // src/features/gyms/domain/entities/Gym.ts
-export type GymId = string;
+export type GymId = number;
 
 export interface Amenity {
   id_amenity: number;

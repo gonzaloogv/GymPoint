@@ -85,7 +85,8 @@ export default function MapScreen() {
   const listHeader = formatResultsLabel(resultsCount, hasUserLocation);
 
   const handleGymPress = (gymId: string | number) => {
-    navigation.navigate('GymDetail', { gymId: gymId.toString() });
+    const numericGymId = typeof gymId === 'string' ? parseInt(gymId, 10) : gymId;
+    navigation.navigate('GymDetail', { gymId: numericGymId });
   };
 
   return (

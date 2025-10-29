@@ -29,12 +29,20 @@ export function useSubscriptionActions(): UseSubscriptionActionsResult {
   const subscribe = async (gymId: number, plan: SubscriptionPlan, dates?: SubscriptionDates): Promise<boolean> => {
     setIsSubscribing(true);
 
+    console.log('🔵 [useSubscriptionActions.subscribe] gymId recibido:', gymId, 'tipo:', typeof gymId);
+    console.log('🔵 [useSubscriptionActions.subscribe] plan:', plan);
+    console.log('🔵 [useSubscriptionActions.subscribe] dates:', dates);
+
     try {
-      const response = await SubscriptionRemote.subscribe({
+      const payload = {
         id_gym: gymId,
         plan,
         ...dates, // Incluye subscription_start y subscription_end si se proporcionan
-      });
+      };
+      console.log('🔵 [useSubscriptionActions.subscribe] Payload antes de enviar:', payload);
+      console.log('🔵 [useSubscriptionActions.subscribe] Tipo de payload.id_gym:', typeof payload.id_gym);
+
+      const response = await SubscriptionRemote.subscribe(payload);
 
       Toast.show({
         type: 'success',

@@ -47,7 +47,7 @@ export function useGymDetail(gymId: string | number): UseGymDetailResult {
           // Map API response to Gym entity
           // Response structure: GymResponse (flat object with id_gym, latitude, longitude, equipment, services, rules, amenities)
           return {
-            id: String(gymData.id_gym),
+            id: gymData.id_gym,
             name: gymData.name,
             description: gymData.description,
             address: gymData.address,

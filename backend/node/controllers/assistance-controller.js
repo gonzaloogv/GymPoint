@@ -317,7 +317,8 @@ const verificarCheckInHoy = async (req, res) => {
       assistance: asistenciaHoy ? {
         id_assistance: asistenciaHoy.id_assistance,
         id_gym: asistenciaHoy.id_gym,
-        entry_time: asistenciaHoy.entry_time,
+        check_in_time: asistenciaHoy.check_in_time,
+        date: asistenciaHoy.date,
         gym_name: asistenciaHoy.gym?.name || null
       } : null
     });

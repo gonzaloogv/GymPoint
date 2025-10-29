@@ -35,21 +35,43 @@ export function GymDetailScreenWrapper() {
   } = useNearbyGyms(coords?.latitude, coords?.longitude);
 
   const gym = useMemo(() => {
-    console.log('🔍 Buscando gimnasio:', { gymId, gymsDataLength: gymsData?.length });
+    console.log('🔍 Buscando gimnasio:', { gymId, gymsDataLength: gymsData?.length, gymIdType: typeof gymId });
 
     if (!gymsData || !gymId) {
       console.log('❌ No hay datos o gymId:', { gymsData: !!gymsData, gymId });
       return null;
     }
 
-    console.log(
-      '📋 IDs disponibles:',
-      gymsData.map((g) => g.id),
-    );
+    console.log('📋 IDs disponibles:', gymsData.map((g) => ({ id: g.id, type: typeof g.id })));
+    console.log('📋 Comparando gymId:', gymId, 'con tipo:', typeof gymId);
 
-    const foundGym = gymsData.find((g: GymEntity) => g.id === gymId);
+    const foundGym = gymsData.find((g: GymEntity) => {
+      const match = g.id === gymId;
+      console.log(`  Comparando ${g.id} (${typeof g.id}) === ${gymId} (${typeof gymId}) -> ${match}`);
+      return match;
+    });
+
     if (!foundGym) {
-      console.log('❌ Gimnasio no encontrado con ID:', gymId);
+      console.log('❌ Gimnasio no encontrado con ID:', gymId, 'tipo:', typeof gymId);
+      console.log('❌ Intentando comparación flexible (== en lugar de ===)');
+      const foundGymFlexible = gymsData.find((g: GymEntity) => g.id == gymId);
+      if (foundGymFlexible) {
+        console.log('✅ Encontrado con ==:', foundGymFlexible.name, 'ID:', foundGymFlexible.id);
+        // Usar foundGymFlexible para mapear
+        return {
+          id: foundGymFlexible.id,
+          name: foundGymFlexible.name,
+          distance: foundGymFlexible.distancia ? foundGymFlexible.distancia / 1000 : 0,
+          services: foundGymFlexible.equipment || [],
+          hours: undefined,
+          rating: undefined,
+          address: foundGymFlexible.address || 'Dirección no disponible',
+          city: foundGymFlexible.city || 'Ciudad no disponible',
+          coordinates: [foundGymFlexible.lat, foundGymFlexible.lng] as [number, number],
+          price: foundGymFlexible.monthPrice,
+          equipment: [],
+        };
+      }
       return null;
     }
 
@@ -64,6 +86,7 @@ export function GymDetailScreenWrapper() {
       hours: undefined, // Will be populated from schedules in useGymDetail
       rating: undefined, // Will be populated from reviews in useGymDetail
       address: foundGym.address || 'Dirección no disponible',
+      city: foundGym.city || 'Ciudad no disponible',
       coordinates: [foundGym.lat, foundGym.lng] as [number, number],
       price: foundGym.monthPrice,
       equipment: [], // Will be populated from API data in GymDetailScreen
