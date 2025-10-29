@@ -167,16 +167,47 @@ export const GymRequestsList = () => {
                   </div>
                 )}
 
-                {request.equipment && request.equipment.length > 0 && (
+                {request.services && Array.isArray(request.services) && request.services.length > 0 && (
                   <div>
-                    <h4 className="font-semibold text-text dark:text-text-dark mb-2">Equipment / Tipos de Entrenamiento</h4>
+                    <h4 className="font-semibold text-text dark:text-text-dark mb-2">Servicios / Tipos de Entrenamiento</h4>
                     <div className="flex flex-wrap gap-2">
-                      {request.equipment.map((type, idx) => (
+                      {request.services.map((service, idx) => (
                         <span key={idx} className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded text-xs">
-                          {type}
+                          {service}
                         </span>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {request.equipment && typeof request.equipment === 'object' && Object.keys(request.equipment).length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-text dark:text-text-dark mb-2">Equipamiento</h4>
+                    <div className="space-y-2">
+                      {Object.entries(request.equipment).map(([category, items]) => (
+                        <div key={category}>
+                          <strong className="text-text dark:text-text-dark capitalize">{category}:</strong>
+                          <span className="ml-2 text-text-muted">
+                            {Array.isArray(items) && items.map((item: any, idx: number) => (
+                              <span key={idx}>
+                                {item.name} ({item.quantity}){idx < items.length - 1 ? ', ' : ''}
+                              </span>
+                            ))}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {request.rules && Array.isArray(request.rules) && request.rules.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-text dark:text-text-dark mb-2">Reglas</h4>
+                    <ul className="list-disc list-inside text-text-muted space-y-1">
+                      {request.rules.map((rule, idx) => (
+                        <li key={idx}>{rule}</li>
+                      ))}
+                    </ul>
                   </div>
                 )}
 

@@ -7,6 +7,13 @@ export interface Amenity {
   icon?: string;
 }
 
+export interface EquipmentItem {
+  name: string;
+  quantity: number;
+}
+
+export type EquipmentByCategory = Record<string, EquipmentItem[]>;
+
 export interface Gym {
   id: GymId;
   name: string;
@@ -17,7 +24,8 @@ export interface Gym {
   lng: number;
   monthPrice?: number;
   weekPrice?: number;
-  equipment?: string[]; // Array de strings: ["Pesas", "Cardio", "Boxeo"]
+  equipment?: EquipmentByCategory; // Equipamiento categorizado: { "fuerza": [{ name: "Banco press", quantity: 4 }], "cardio": [...] }
+  services?: string[]; // Servicios/tipos del gimnasio: ["Funcional", "CrossFit", "Musculación"]
   rules?: string[]; // Array de reglas del gimnasio
   amenities?: Amenity[]; // Servicios/comodidades
   distancia?: number; // en metros (opcional)

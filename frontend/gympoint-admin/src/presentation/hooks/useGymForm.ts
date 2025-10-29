@@ -12,6 +12,7 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
     name: '',
     description: '',
     rules: [],
+    services: [],
     city: '',
     address: '',
     latitude: 0,
@@ -23,7 +24,7 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
     instagram: '',
     facebook: '',
     google_maps_url: '',
-    equipment: [],
+    equipment: {},
     max_capacity: undefined,
     area_sqm: undefined,
     verified: false,
@@ -36,7 +37,6 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
     min_stay_minutes: 10,
   });
 
-  const [equipmentInput, setEquipmentInput] = useState('');
   const [selectedAmenityIds, setSelectedAmenityIds] = useState<number[]>([]);
   const [jsonInput, setJsonInput] = useState('');
   const { isExtracting, extractData } = useGoogleMapsExtractor();
@@ -47,6 +47,7 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
         name: gym.name,
         description: gym.description,
         rules: Array.isArray(gym.rules) ? gym.rules : [],
+        services: Array.isArray(gym.services) ? gym.services : [],
         city: gym.city,
         address: gym.address,
         latitude: typeof gym.latitude === 'string' ? parseFloat(gym.latitude) : gym.latitude,
@@ -58,7 +59,7 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
         instagram: gym.instagram || '',
         facebook: gym.facebook || '',
         google_maps_url: gym.google_maps_url || '',
-        equipment: Array.isArray(gym.equipment) ? gym.equipment : [],
+        equipment: gym.equipment || {},
         max_capacity: gym.max_capacity || undefined,
         area_sqm: gym.area_sqm || undefined,
         verified: gym.verified,
@@ -72,10 +73,6 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
       };
       setFormData(initialFormData as CreateGymDTO);
 
-      if (Array.isArray(gym.equipment)) {
-        setEquipmentInput(gym.equipment.join(', '));
-        setFormData(prev => ({ ...prev, equipment: gym.equipment }));
-      }
       if (Array.isArray(gym.amenities)) {
         const ids = gym.amenities
           .map((amenity: any) => Number(amenity?.id_amenity))
@@ -129,11 +126,22 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
     }
   };
 
-  const handleEquipmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEquipmentInput(value);
-    const equipmentArray = value.split(',').map(item => item.trim()).filter(item => item);
-    setFormData(prev => ({ ...prev, equipment: equipmentArray }));
+  const updateEquipment = (equipment: Record<string, Array<{ name: string; quantity: number }>>) => {
+    setFormData(prev => ({ ...prev, equipment }));
+  };
+
+  const addService = (service: string) => {
+    setFormData(prev => ({
+      ...prev,
+      services: [...(prev.services || []), service]
+    }));
+  };
+
+  const removeService = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      services: (prev.services || []).filter((_, idx) => idx !== index)
+    }));
   };
 
   const toggleAmenity = (amenityId: number) => {
@@ -180,8 +188,10 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
     try {
       const data = JSON.parse(jsonText);
 
-      // Extraer equipment del landing
-      const equipment = data.attributes?.equipment || [];
+      // Extraer equipment del landing (ahora es categorizado)
+      const equipment = data.attributes?.equipment || {};
+      const services = data.attributes?.services || [];
+      const rules = data.attributes?.rules || [];
 
       // Extraer datos del JSON del landing
       const extractedData: Partial<CreateGymDTO> = {
@@ -198,6 +208,8 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
         month_price: data.pricing?.monthly || 0,
         week_price: data.pricing?.weekly || 0,
         equipment: equipment,
+        services: services,
+        rules: rules,
         photo_url: data.attributes?.photos?.[0] || '',
       };
 
@@ -206,11 +218,6 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
         ...prev,
         ...extractedData
       }));
-
-      // Actualizar equipment input
-      if (Array.isArray(equipment) && equipment.length > 0) {
-        setEquipmentInput(equipment.join(', '));
-      }
 
       // Limpiar el input después de importar
       setJsonInput('');
@@ -228,13 +235,14 @@ export const useGymForm = ({ gym, onSubmit }: UseGymFormProps) => {
 
   return {
     formData,
-    equipmentInput,
     selectedAmenityIds,
     jsonInput,
     isExtracting,
     handleInputChange,
     handleGoogleMapsUrlChange,
-    handleEquipmentChange,
+    updateEquipment,
+    addService,
+    removeService,
     handleJsonImport,
     handleJsonInputChange,
     toggleAmenity,

@@ -12,6 +12,7 @@ export const Navbar = ({ onMenuClick, toggleButtonRef }: NavbarProps) => {
 
   const handleLogout = () => {
     localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_refresh_token');
     window.location.href = '/login';
   };
 

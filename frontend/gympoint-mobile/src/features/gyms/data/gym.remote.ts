@@ -69,4 +69,11 @@ export const GymRemote = {
    */
   listNearby: (lat: number, lng: number, radiusKm: number) =>
     api.get('/api/gyms/cercanos', { params: { lat, lng, radiusKm } }).then((r) => r.data),
+
+  /**
+   * GET /api/gyms/{gymId}/reviews
+   * Listar reseñas de un gimnasio con paginación (OpenAPI path)
+   */
+  listReviews: (gymId: number, params?: { page?: number; limit?: number; sortBy?: string; order?: string }) =>
+    api.get(`/api/gyms/${gymId}/reviews`, { params }).then((r) => r.data),
 };

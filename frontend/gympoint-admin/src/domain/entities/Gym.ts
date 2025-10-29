@@ -1,5 +1,12 @@
 import { Amenity } from './Amenity';
 
+export interface EquipmentItem {
+  name: string;
+  quantity: number;
+}
+
+export type EquipmentByCategory = Record<string, EquipmentItem[]>;
+
 export interface Gym {
   id_gym: number;
   name: string;
@@ -17,7 +24,8 @@ export interface Gym {
   facebook: string | null;
   google_maps_url: string | null;
   registration_date: string;
-  equipment: string[] | string;
+  equipment: EquipmentByCategory; // Equipamiento categorizado: { "fuerza": [{ name: "Banco press", quantity: 4 }] }
+  services: string[]; // Servicios/tipos del gimnasio: ["Funcional", "CrossFit", "Musculación"]
   max_capacity: number | null;
   area_sqm: number | null;
   verified: boolean;
@@ -50,7 +58,8 @@ export interface CreateGymDTO {
   instagram?: string;
   facebook?: string;
   google_maps_url?: string;
-  equipment: string[] | string;
+  equipment: EquipmentByCategory;
+  services: string[];
   max_capacity?: number;
   area_sqm?: number;
   verified?: boolean;
@@ -83,7 +92,9 @@ export interface GymRequest {
   instagram: string | null;
   facebook: string | null;
   photos: string[];
-  equipment: string[];
+  equipment: EquipmentByCategory; // Equipamiento categorizado
+  services: string[]; // Servicios/tipos
+  rules: string[]; // Reglas del gimnasio
   monthly_price: number | null;
   weekly_price: number | null;
   daily_price: number | null;

@@ -23,14 +23,14 @@ const Gym = require('./Gym');
 const GymPayment = require('./GymPayment');
 const GymSchedule = require('./GymSchedule');
 const GymSpecialSchedule = require('./GymSpecialSchedule');
-const GymType = require('./GymType');
+// GymType - ELIMINADO: Ya no se usa, reemplazado por services array
 const GymReview = require('./GymReview');
 const GymRatingStats = require('./GymRatingStats');
 const ReviewHelpful = require('./ReviewHelpful');
 const GymRequest = require('./GymRequest');
 const GymAmenity = require('./GymAmenity');
 const GymGymAmenity = require('./GymGymAmenity');
-const GymGymType = require('./GymGymType');
+// GymGymType - ELIMINADO: Ya no se usa, reemplazado por services array
 const DailyChallenge = require('./DailyChallenge');
 const DailyChallengeTemplate = require('./DailyChallengeTemplate');
 const DailyChallengeSettings = require('./DailyChallengeSettings');
@@ -599,40 +599,9 @@ GymAmenity.hasMany(GymGymAmenity, {
   as: 'gymLinks'
 });
 
-// Gym types (many-to-many)
-Gym.belongsToMany(GymType, {
-  through: GymGymType,
-  foreignKey: 'id_gym',
-  otherKey: 'id_type',
-  as: 'types'
-});
-
-GymType.belongsToMany(Gym, {
-  through: GymGymType,
-  foreignKey: 'id_type',
-  otherKey: 'id_gym',
-  as: 'gyms'
-});
-
-GymGymType.belongsTo(Gym, {
-  foreignKey: 'id_gym',
-  as: 'gym'
-});
-
-GymGymType.belongsTo(GymType, {
-  foreignKey: 'id_type',
-  as: 'type'
-});
-
-Gym.hasMany(GymGymType, {
-  foreignKey: 'id_gym',
-  as: 'gymTypeLinks'
-});
-
-GymType.hasMany(GymGymType, {
-  foreignKey: 'id_type',
-  as: 'gymLinks'
-});
+// Gym types - ELIMINADO: Ya no se usa relación many-to-many
+// Los tipos/servicios ahora están en gym.services como array de strings
+// Ejemplo: ["Funcional", "CrossFit", "Musculación"]
 
 // MercadoPago payments
 UserProfile.hasMany(MercadoPagoPayment, {
@@ -826,10 +795,10 @@ module.exports = {
   GymPayment,
   GymAmenity,
   GymGymAmenity,
-  GymGymType,
+  // GymGymType - eliminado
   GymSchedule,
   GymSpecialSchedule,
-  GymType,
+  // GymType - eliminado
   GymReview,
   GymRatingStats,
   ReviewHelpful,

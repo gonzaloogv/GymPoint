@@ -60,39 +60,13 @@ export function GymDetailScreenWrapper() {
       id: foundGym.id,
       name: foundGym.name,
       distance: foundGym.distancia ? foundGym.distancia / 1000 : 0, // Convertir metros a km
-      services: foundGym.equipment || ['Pesas', 'Cardio', 'Funcional'],
-      hours: '6:00 - 23:00',
-      rating: 4.5,
+      services: foundGym.equipment || [],
+      hours: undefined, // Will be populated from schedules in useGymDetail
+      rating: undefined, // Will be populated from reviews in useGymDetail
       address: foundGym.address || 'Dirección no disponible',
       coordinates: [foundGym.lat, foundGym.lng] as [number, number],
       price: foundGym.monthPrice,
-      equipment: [
-        {
-          category: 'Máquinas de peso',
-          icon: '🏋️',
-          items: [
-            { name: 'Prensa', quantity: 2 },
-            { name: 'Polea', quantity: 3 },
-            { name: 'Extensión de piernas', quantity: 3 },
-          ],
-        },
-        {
-          category: 'Cardio',
-          icon: '🏃',
-          items: [
-            { name: 'Cintas de correr', quantity: 10 },
-            { name: 'Bicicletas fijas', quantity: 5 },
-          ],
-        },
-        {
-          category: 'Pesas libres',
-          icon: '💪',
-          items: [
-            { name: 'Mancuernas', quantity: 12 },
-            { name: 'Barras', quantity: 8 },
-          ],
-        },
-      ],
+      equipment: [], // Will be populated from API data in GymDetailScreen
     };
   }, [gymsData, gymId]);
 

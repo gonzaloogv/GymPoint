@@ -26,7 +26,8 @@ export function mapGymResponseToGym(dto: GymResponse): Gym {
     facebook: dto.facebook || null,
     google_maps_url: dto.google_maps_url || null,
     registration_date: dto.registration_date || dto.created_at,
-    equipment: dto.equipment || [],
+    equipment: (dto.equipment || {}) as import('@/domain/entities/Gym').EquipmentByCategory, // Objeto categorizado
+    services: dto.services || [], // Array de servicios/tipos
     max_capacity: dto.max_capacity || null,
     area_sqm: dto.area_sqm || null,
     verified: dto.verified ?? false,
@@ -41,7 +42,7 @@ export function mapGymResponseToGym(dto: GymResponse): Gym {
     created_at: dto.created_at,
     updated_at: dto.updated_at,
     deleted_at: dto.deleted_at || null,
-    amenities: dto.amenities || [],
+    amenities: dto.amenities || [], // Amenidades desde gym_amenity a través de gym_gym_amenity
   };
 }
 
@@ -64,9 +65,10 @@ export function mapCreateGymDTOToRequest(domainDTO: DomainCreateGymDTO): CreateG
     instagram: domainDTO.instagram && domainDTO.instagram.trim() !== '' ? domainDTO.instagram : undefined,
     facebook: domainDTO.facebook && domainDTO.facebook.trim() !== '' ? domainDTO.facebook : undefined,
     google_maps_url: domainDTO.google_maps_url && domainDTO.google_maps_url.trim() !== '' ? domainDTO.google_maps_url : undefined,
-    equipment: Array.isArray(domainDTO.equipment) 
-  ? domainDTO.equipment.filter(item => item && item.trim() !== '') 
-  : (domainDTO.equipment && domainDTO.equipment.trim() !== '' ? [domainDTO.equipment] : []),
+    equipment: domainDTO.equipment as any || {}, // Objeto categorizado
+    services: domainDTO.services && domainDTO.services.length > 0
+      ? domainDTO.services.filter(service => service && service.trim() !== '')
+      : [],
     max_capacity: domainDTO.max_capacity,
     area_sqm: domainDTO.area_sqm,
     verified: domainDTO.verified,
@@ -109,10 +111,11 @@ export function mapUpdateGymDTOToRequest(domainDTO: DomainUpdateGymDTO): UpdateG
   if (rest.instagram !== undefined) request.instagram = rest.instagram && rest.instagram.trim() !== '' ? rest.instagram : undefined;
   if (rest.facebook !== undefined) request.facebook = rest.facebook && rest.facebook.trim() !== '' ? rest.facebook : undefined;
   if (rest.google_maps_url !== undefined) request.google_maps_url = rest.google_maps_url && rest.google_maps_url.trim() !== '' ? rest.google_maps_url : undefined;
-  if (rest.equipment !== undefined) {
-    request.equipment = Array.isArray(rest.equipment) 
-      ? rest.equipment.filter(item => item && item.trim() !== '') 
-      : (rest.equipment && rest.equipment.trim() !== '' ? [rest.equipment] : []);
+  if (rest.equipment !== undefined) request.equipment = rest.equipment as any || {};
+  if (rest.services !== undefined) {
+    request.services = rest.services && rest.services.length > 0
+      ? rest.services.filter(service => service && service.trim() !== '')
+      : [];
   }
   if (rest.max_capacity !== undefined) request.max_capacity = rest.max_capacity;
   if (rest.area_sqm !== undefined) request.area_sqm = rest.area_sqm;

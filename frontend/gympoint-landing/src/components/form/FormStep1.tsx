@@ -78,14 +78,13 @@ export const FormStep1: React.FC<FormStep1Props> = ({ formData, updateField }) =
 
       {/* Email */}
       <Input
-        label="Correo electrónico de contacto *"
+        label="Correo electrónico de contacto"
         type="email"
         value={formData.contact.email}
         onChange={handleEmailChange}
         placeholder="info@gimnasio.com"
         error={errors.email}
-        helperText={errors.email ? '' : 'Email principal de contacto'}
-        required
+        helperText={errors.email ? '' : 'Email de contacto (opcional)'}
       />
 
       {/* Teléfono */}

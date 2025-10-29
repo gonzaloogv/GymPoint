@@ -90,7 +90,7 @@ function GymsStackNavigator() {
       <GymsStack.Screen
         name="GymDetail"
         component={GymDetailScreenWrapper}
-        options={{ title: 'Detalle del gimnasio' }}
+        options={{ headerShown: false }}
       />
     </GymsStack.Navigator>
   );

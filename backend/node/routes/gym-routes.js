@@ -16,23 +16,7 @@ const { verificarToken, verificarRol, verificarUsuarioApp, verificarAdmin } = re
  */
 router.get('/', gymController.getAllGyms);
 
-/**
- * @swagger
- * /api/gyms/tipos:
- *   get:
- *     summary: Obtener los tipos de gimnasio disponibles
- *     tags: [Gimnasios]
- *     responses:
- *       200:
- *         description: Lista de tipos válidos
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: string
- */
-router.get('/tipos', gymController.getGymTypes);
+// /tipos - ELIMINADO: Los tipos ahora están en gym.services como array de strings
 
 /**
  * @swagger

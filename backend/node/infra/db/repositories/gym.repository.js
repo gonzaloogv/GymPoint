@@ -1,5 +1,5 @@
 const { Op, literal } = require('sequelize');
-const { Gym, GymAmenity, GymType, UserFavoriteGym } = require('../../../models');
+const { Gym, GymAmenity, UserFavoriteGym } = require('../../../models');
 const { toGym, toGyms } = require('../../db/mappers/gym.mapper');
 const { toUserFavoriteGyms } = require('../../db/mappers/user-favorite-gym.mapper');
 
@@ -9,22 +9,18 @@ const AMENITY_ASSOC = {
   through: { attributes: [] },
 };
 
-const TYPE_ASSOC = {
-  model: GymType,
-  as: 'types',
-  through: { attributes: [] },
-};
+// TYPE_ASSOC - ELIMINADO: Ya no se usa, los tipos están en services array
 
 const FAVORITE_GYM_ASSOC = {
   model: Gym,
   as: 'gym',
-  include: [AMENITY_ASSOC, TYPE_ASSOC],
+  include: [AMENITY_ASSOC],
 };
 
 const defaultInclude = (options = {}) => {
   const include = [];
   if (options.includeAmenities !== false) include.push(AMENITY_ASSOC);
-  if (options.includeTypes !== false) include.push(TYPE_ASSOC);
+  // includeTypes eliminado - ya no se usa
   return include.length ? include : undefined;
 };
 
@@ -36,7 +32,6 @@ async function findById(idGym, options = {}) {
   });
   return toGym(gym, {
     includeAmenities: options.includeAmenities !== false,
-    includeTypes: options.includeTypes !== false,
   });
 }
 
@@ -150,7 +145,6 @@ async function searchGyms({
   return {
     rows: toGyms(rows, {
       includeAmenities: options.includeAmenities !== false,
-      includeTypes: options.includeTypes !== false,
     }),
     count,
   };
@@ -163,7 +157,6 @@ async function findByCity(city, options = {}) {
   });
   return toGyms(gyms, {
     includeAmenities: options.includeAmenities !== false,
-    includeTypes: options.includeTypes !== false,
   });
 }
 

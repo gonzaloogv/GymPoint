@@ -163,14 +163,34 @@ components:
             - 'null'
           items:
             type: string
-          description: Servicios ofrecidos por el gimnasio
+          description: 'Servicios/tipos del gimnasio (ej: ["Funcional", "CrossFit", "Musculación"])'
+          example: ["Funcional", "CrossFit", "Musculación"]
         equipment:
           type:
-            - array
+            - object
             - 'null'
-          items:
-            type: string
-          description: Lista de equipamiento disponible
+          description: 'Equipamiento categorizado por tipo con cantidades (ej: { "fuerza": [{ "name": "Banco press", "quantity": 4 }] })'
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Nombre del equipo
+                quantity:
+                  type: integer
+                  minimum: 1
+                  description: Cantidad disponible
+          example:
+            fuerza:
+              - name: Banco press
+                quantity: 4
+              - name: Rack sentadillas
+                quantity: 2
+            cardio:
+              - name: Cinta de correr
+                quantity: 8
         max_capacity:
           type:
             - integer
@@ -191,6 +211,36 @@ components:
           items:
             type: string
           description: Reglas del gimnasio
+        amenities:
+          type:
+            - array
+            - 'null'
+          items:
+            type: object
+            properties:
+              id_amenity:
+                type: integer
+              name:
+                type: string
+              category:
+                type:
+                  - string
+                  - 'null'
+              icon_name:
+                type:
+                  - string
+                  - 'null'
+              created_at:
+                type:
+                  - string
+                  - 'null'
+                format: date-time
+              updated_at:
+                type:
+                  - string
+                  - 'null'
+                format: date-time
+          description: Amenidades del gimnasio (desde gym_amenity a través de gym_gym_amenity)
         deleted_at:
           type:
             - string
@@ -283,15 +333,36 @@ components:
           maxLength: 500
           description: URL de la foto principal
         equipment:
-          type: array
-          items:
-            type: string
-          description: Lista de equipamiento
+          type: object
+          description: 'Equipamiento categorizado por tipo con cantidades'
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              required:
+                - name
+                - quantity
+              properties:
+                name:
+                  type: string
+                  description: Nombre del equipo
+                quantity:
+                  type: integer
+                  minimum: 1
+                  description: Cantidad disponible
+          example:
+            fuerza:
+              - name: Banco press
+                quantity: 4
+            cardio:
+              - name: Cinta de correr
+                quantity: 8
         services:
           type: array
           items:
             type: string
-          description: Lista de servicios
+          description: 'Servicios/tipos del gimnasio (ej: ["Funcional", "CrossFit"])'
+          example: ["Funcional", "CrossFit", "Musculación"]
         max_capacity:
           type: integer
           minimum: 1
@@ -310,15 +381,6 @@ components:
           type: boolean
           default: true
           description: Auto check-in habilitado
-        id_types:
-          type: array
-          items:
-            type: integer
-            minimum: 1
-        type_names:
-          type: array
-          items:
-            type: string
         amenities:
           type: array
           items:
@@ -345,10 +407,7 @@ components:
           type:
             - string
             - 'null'
-    GymTypeList:
-      type: array
-      items:
-        type: string
+    # GymTypeList - ELIMINADO: Los tipos ahora están en gym.services como array de strings
     CreateGymScheduleRequest:
       type: object
       required:

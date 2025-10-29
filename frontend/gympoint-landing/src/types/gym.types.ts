@@ -17,7 +17,9 @@ export interface GymFormData {
 
   attributes: {
     photos: string[];
-    equipment: string[];
+    equipment: Record<string, Array<{ name: string; quantity: number }>>; // Equipamiento categorizado
+    services: string[]; // Servicios/tipos de entrenamiento
+    rules: string[]; // Reglas del gimnasio
   };
   pricing: {
     monthly: number | null;

@@ -20,7 +20,7 @@ const getAllGyms = async (req, res) => {
 
 const getGymById = async (req, res) => {
   try {
-    const query = gymMapper.toGetGymDetailQuery({ gymId: req.params.id });
+    const query = gymMapper.toGetGymDetailQuery(req.params.id);
     const gym = await gymService.getGymById(query);
     if (!gym) {
       return res.status(404).json({
@@ -47,6 +47,7 @@ const createGym = async (req, res) => {
     console.log('=== CONTROLLER createGym ===');
     console.log('Request body equipment:', JSON.stringify(req.body.equipment));
     console.log('Request body rules:', JSON.stringify(req.body.rules));
+    console.log('Request body services:', JSON.stringify(req.body.services));
     console.log('Request body amenities:', JSON.stringify(req.body.amenities));
     
     const command = gymMapper.toCreateGymCommand(req.body, req.account?.id_account || null);
@@ -194,19 +195,7 @@ const filtrarGimnasios = async (req, res) => {
   }
 };
 
-const getGymTypes = async (req, res) => {
-  try {
-    const tipos = await gymService.getGymTypes(req.query);
-    res.json(tipos);
-  } catch (err) {
-    res.status(500).json({
-      error: {
-        code: 'GET_GYM_TYPES_FAILED',
-        message: err.message,
-      },
-    });
-  }
-};
+// getGymTypes - ELIMINADO: Ya no se usa, los tipos están en gym.services como array de strings
 
 const getAmenities = async (req, res) => {
   try {
@@ -296,7 +285,7 @@ module.exports = {
   buscarGimnasiosCercanos,
   getGymsByCity,
   filtrarGimnasios,
-  getGymTypes,
+  // getGymTypes - eliminado
   getAmenities,
   obtenerFavoritos,
   toggleFavorito,

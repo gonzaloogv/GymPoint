@@ -115,27 +115,7 @@ paths:
           description: Gimnasio eliminado
         '404':
           $ref: '../components/responses.yaml#/components/responses/NotFound'
-  /api/gyms/tipos:
-    get:
-      operationId: listGymTypes
-      tags:
-        - Gyms
-      summary: Listar tipos de gimnasios
-      responses:
-        '200':
-          description: Lista de tipos disponibles
-          content:
-            application/json:
-              schema:
-                $ref: '../components/schemas/gyms.yaml#/components/schemas/GymTypeList'
-        '400':
-          description: Parámetros inválidos
-          content:
-            application/json:
-              schema:
-                $ref: '../components/common.yaml#/components/schemas/Error'
-        '500':
-          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+  # /api/gyms/tipos - ELIMINADO: Los tipos ahora están en gym.services como array de strings
   /api/gyms/amenidades:
     get:
       operationId: listGymAmenities

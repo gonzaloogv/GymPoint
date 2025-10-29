@@ -2,7 +2,7 @@ const Joi = require('joi');
 const { NotFoundError, ValidationError } = require('../utils/errors');
 const {
   gymRepository,
-  gymTypeRepository,
+  // gymTypeRepository - ELIMINADO
   gymAmenityRepository,
 } = require('../infra/db/repositories');
 const {
@@ -13,7 +13,7 @@ const {
 const {
   ListGymsQuery,
   GetGymDetailQuery,
-  GetGymTypesQuery,
+  // GetGymTypesQuery - ELIMINADO
   GetGymAmenitiesQuery,
 } = require('./queries/gym.queries');
 const {
@@ -77,11 +77,10 @@ const ensureCreateGymCommand = (input = {}) =>
         featured: input.featured,
         auto_checkin_enabled: input.auto_checkin_enabled,
         createdBy: input.createdBy ?? null,
-        id_types: input.id_types || [],
-        type_names: input.type_names || [],
         amenities: input.amenities || [],
         rules: input.rules || [],
-        equipment: input.equipment || [],
+        services: input.services || [],
+        equipment: input.equipment || {},
       });
 
 const ensureUpdateGymCommand = (gymId, input = {}) =>
@@ -106,10 +105,9 @@ const ensureUpdateGymCommand = (gymId, input = {}) =>
         featured: input.featured,
         auto_checkin_enabled: input.auto_checkin_enabled,
         updatedBy: input.updatedBy ?? null,
-        id_types: input.id_types,
-        type_names: input.type_names,
         amenities: input.amenities,
         rules: input.rules,
+        services: input.services,
         equipment: input.equipment,
       });
 
@@ -127,12 +125,7 @@ const parseActiveFlag = (value, defaultValue = true) => {
   return Boolean(value);
 };
 
-const ensureGetGymTypesQuery = (input = {}) =>
-  input instanceof GetGymTypesQuery
-    ? input
-    : new GetGymTypesQuery({
-        activeOnly: parseActiveFlag(input.activeOnly ?? input.active_only, true),
-      });
+// ensureGetGymTypesQuery - ELIMINADO
 
 const ensureGetGymAmenitiesQuery = (input = {}) =>
   input instanceof GetGymAmenitiesQuery
@@ -238,16 +231,17 @@ const createGym = async (input) => {
     featured: command.featured || false,
     auto_checkin_enabled: command.auto_checkin_enabled || false,
     rules: normalizeRules(command.rules),
-    equipment: command.equipment || [],
+    equipment: command.equipment || {},
+    services: command.services || [],
   };
+
+  console.log('=== SERVICE createGym ===');
+  console.log('Payload services:', JSON.stringify(payload.services));
+  console.log('Payload equipment:', JSON.stringify(payload.equipment));
 
   const gym = await gymRepository.createGym(payload);
 
-  const ensuredTypeIds = await gymTypeRepository.ensureTypeIdsByNames(command.type_names || []);
-  const finalTypeIds = new Set([...(command.id_types || []), ...ensuredTypeIds]);
-  if (finalTypeIds.size > 0) {
-    await gymRepository.setGymTypes(gym.id_gym, Array.from(finalTypeIds));
-  }
+  // setGymTypes eliminado - los tipos ahora están en services array
 
   const amenityIds = normalizeAmenityIds(command.amenities);
   if (amenityIds.length > 0) {
@@ -290,14 +284,13 @@ const updateGym = async (id, data = {}) => {
   if (command.equipment !== undefined) {
     payload.equipment = command.equipment;
   }
+  if (command.services !== undefined) {
+    payload.services = command.services;
+  }
 
   await gymRepository.updateGym(command.gymId, payload, { returning: false });
 
-  if (command.type_names || command.id_types) {
-    const ensuredTypeIds = await gymTypeRepository.ensureTypeIdsByNames(command.type_names || []);
-    const finalIds = new Set([...(command.id_types || []), ...ensuredTypeIds]);
-    await gymRepository.setGymTypes(command.gymId, Array.from(finalIds));
-  }
+  // setGymTypes eliminado - los tipos ahora están en services array
 
   if (command.amenities !== undefined) {
     const amenityIds = normalizeAmenityIds(command.amenities);
@@ -375,15 +368,7 @@ const filtrarGimnasios = async ({ city, type, minPrice, maxPrice, amenities }) =
   return { resultados: filtrados, advertencia };
 };
 
-const getGymTypes = async (input = {}) => {
-  const query = ensureGetGymTypesQuery(input);
-  const where = query.activeOnly ? { is_active: true } : undefined;
-  const types = await gymTypeRepository.findAll({
-    where,
-    order: [['name', 'ASC']],
-  });
-  return types.map((type) => type.name);
-};
+// getGymTypes - ELIMINADO: Ya no se usa, los tipos están en services array
 
 const obtenerFavoritos = async (id_user_profile) => {
   const favoritos = await gymRepository.findFavorites(id_user_profile);
@@ -428,7 +413,7 @@ module.exports = {
   buscarGimnasiosCercanos,
   getGymsByCity,
   filtrarGimnasios,
-  getGymTypes,
+  // getGymTypes - ELIMINADO
   obtenerFavoritos,
   toggleFavorito,
   listarAmenidades,

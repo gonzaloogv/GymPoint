@@ -101,7 +101,9 @@ const createGymRequest = async (req, res) => {
       instagram: req.body.contact?.social_media?.instagram || req.body.instagram,
       facebook: req.body.contact?.social_media?.facebook || req.body.facebook,
       photos: req.body.attributes?.photos || req.body.photos || [],
-      equipment: req.body.attributes?.equipment || req.body.equipment || [],
+      equipment: req.body.attributes?.equipment || req.body.equipment || {},
+      services: req.body.attributes?.services || req.body.services || [],
+      rules: req.body.attributes?.rules || req.body.rules || [],
       monthly_price: req.body.pricing?.monthly || req.body.monthly_price,
       weekly_price: req.body.pricing?.weekly || req.body.weekly_price,
       daily_price: req.body.pricing?.daily || req.body.daily_price,
@@ -109,8 +111,15 @@ const createGymRequest = async (req, res) => {
       amenities: amenityIds // Ahora son IDs numéricos
     };
 
-    console.log('🔍 DEBUG - Equipment recibido:', req.body.attributes?.equipment);
-    console.log('🔍 DEBUG - RequestData equipment:', requestData.equipment);
+    console.log('🔍 DEBUG - Data recibida:');
+    console.log('  equipment:', req.body.attributes?.equipment);
+    console.log('  services:', req.body.attributes?.services);
+    console.log('  amenities (names):', req.body.amenities);
+    console.log('  amenities (IDs):', amenityIds);
+    console.log('🔍 DEBUG - RequestData:');
+    console.log('  equipment:', requestData.equipment);
+    console.log('  services:', requestData.services);
+    console.log('  amenities:', requestData.amenities);
 
     const request = await gymRequestService.createRequest(requestData);
 

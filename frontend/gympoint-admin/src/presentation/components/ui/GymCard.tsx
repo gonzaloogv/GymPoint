@@ -20,7 +20,12 @@ export const GymCard = ({
   onManageSpecialSchedule,
   isDeleting,
 }: GymCardProps) => {
-  const equipmentList = Array.isArray(gym.equipment) ? gym.equipment.join(', ') : gym.equipment;
+  // Generar lista de equipamiento desde el objeto categorizado
+  const equipmentList = gym.equipment && typeof gym.equipment === 'object'
+    ? Object.keys(gym.equipment).length > 0
+      ? Object.keys(gym.equipment).join(', ')
+      : 'Sin equipamiento'
+    : 'Sin equipamiento';
 
   return (
     <Card className="flex flex-col">

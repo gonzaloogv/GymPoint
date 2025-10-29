@@ -70,12 +70,12 @@ const Gym = sequelize.define('Gym', {
   equipment: {
     type: DataTypes.JSON,
     allowNull: true,
-    comment: 'Equipamiento disponible (JSON)'
+    comment: 'Equipamiento categorizado: { "fuerza": [{ "name": "Banco press", "quantity": 4 }], "cardio": [...] }'
   },
   services: {
     type: DataTypes.JSON,
     allowNull: true,
-    comment: 'Servicios ofrecidos (JSON)'
+    comment: 'Array de servicios/tipos del gimnasio: ["Funcional", "CrossFit", "Musculación"]'
   },
   instagram: {
     type: DataTypes.STRING(100),

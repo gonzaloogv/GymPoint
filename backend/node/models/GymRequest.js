@@ -78,12 +78,28 @@ const GymRequest = sequelize.define('GymRequest', {
     comment: 'URLs de fotos del gimnasio'
   },
 
-  // Equipment / Tipos de entrenamiento
+  // Equipment categorizado por tipo
   equipment: {
     type: DataTypes.JSON,
     allowNull: true,
+    defaultValue: {},
+    comment: 'Equipamiento categorizado: { "fuerza": [{ "name": "Banco press", "quantity": 4 }], "cardio": [...] }'
+  },
+
+  // Services / Tipos de entrenamiento
+  services: {
+    type: DataTypes.JSON,
+    allowNull: true,
     defaultValue: [],
-    comment: 'Equipment / Tipos de entrenamiento ofrecidos'
+    comment: 'Servicios/tipos ofrecidos: ["Funcional", "CrossFit", "Musculación"]'
+  },
+
+  // Reglas del gimnasio
+  rules: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    defaultValue: [],
+    comment: 'Reglas del gimnasio'
   },
 
   // Precios

@@ -3,8 +3,6 @@ import { Input } from '../index';
 import { Amenity, COMMON_AMENITY_ICONS } from '@/domain';
 
 interface GymFormCharacteristicsProps {
-  equipmentInput: string;
-  handleEquipmentChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   formData: {
     max_capacity?: number;
     area_sqm?: number;
@@ -17,8 +15,6 @@ interface GymFormCharacteristicsProps {
 }
 
 export const GymFormCharacteristics: React.FC<GymFormCharacteristicsProps> = ({
-  equipmentInput,
-  handleEquipmentChange,
   formData,
   handleInputChange,
   amenities,
@@ -37,16 +33,8 @@ export const GymFormCharacteristics: React.FC<GymFormCharacteristicsProps> = ({
   const selectedCount = selectedAmenityIds.length;
 
   return (
-    <div className="space-y-6 p-6 bg-card dark:bg-card-dark rounded-xl border border-border dark:border-border-dark">
-      <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-4">Características</h3>
-      <Input
-        label="Equipamiento * (separado por comas)"
-        type="text"
-        value={equipmentInput}
-        onChange={handleEquipmentChange}
-        required
-        placeholder="Ej: Pesas, Máquinas, Cardio, Funcional"
-      />
+    <div className="space-y-6 p-6 bg-card dark:bg-card-dark rounded-xl border border-border dark:border-border-dark transition-all duration-200 hover:shadow-md">
+      <h3 className="text-lg font-semibold text-text dark:text-text-dark mb-4">Características del local</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Input
           label="Capacidad Máxima"

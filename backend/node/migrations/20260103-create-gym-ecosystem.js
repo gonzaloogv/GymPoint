@@ -1,12 +1,12 @@
 'use strict';
 
 /**
- * MIGRACIÓN 3: Gym Ecosystem Tables
+ * MIGRACIÓN 3: Gym Ecosystem Tables (REFACTORIZADA)
  *
  * Esta migración crea todo el ecosistema de gimnasios:
  * - gym: Información principal de gimnasios (con geofencing integrado)
- * - gym_type: Tipos/categorías de gimnasios
- * - gym_gym_type: Relación many-to-many gyms-types
+ *   · services: Array de strings ["Funcional", "CrossFit", "Musculación"]
+ *   · equipment: Objeto categorizado { "fuerza": [{ name, quantity }], "cardio": [...] }
  * - gym_schedule: Horarios regulares
  * - gym_special_schedule: Horarios especiales/excepciones
  * - gym_amenity: Catálogo de amenidades
@@ -15,7 +15,8 @@
  * - gym_rating_stats: Estadísticas consolidadas de ratings
  * - user_favorite_gym: Gimnasios favoritos de usuarios
  * - gym_payment: Histórico de pagos de usuarios en gyms
- * - presence: Sistema de auto check-in con geofencing
+ *
+ * ELIMINADO: gym_type y gym_gym_type (innecesarias, reemplazadas por services array)
  */
 
 module.exports = {
@@ -26,26 +27,10 @@ module.exports = {
       console.log('🔄 [3/7] Creando tablas del ecosistema de gimnasios...\n');
 
       // ========================================
-      // TABLA: gym_type
+      // TABLA: gym_type - ELIMINADA
       // ========================================
-      console.log(' Creando tabla "gym_type"...');
-      await queryInterface.createTable('gym_type', {
-        id_type: {
-          type: Sequelize.INTEGER,
-          primaryKey: true,
-          autoIncrement: true
-        },
-        name: {
-          type: Sequelize.STRING(50),
-          allowNull: false,
-          unique: true
-        },
-        description: {
-          type: Sequelize.TEXT,
-          allowNull: true
-        }
-      }, { transaction });
-      console.log(' Tabla "gym_type" creada\n');
+      // Ya no se necesita tabla gym_type separada
+      // Los tipos/servicios ahora se almacenan como array de strings en gym.services
 
       // ========================================
       // TABLA: gym (Principal)
@@ -105,14 +90,14 @@ module.exports = {
         equipment: {
           type: Sequelize.JSON,
           allowNull: true,
-          defaultValue: '[]',
-          comment: 'Lista de equipamiento disponible'
+          defaultValue: '{}',
+          comment: 'Equipamiento por categoría: { "fuerza": [{ "name": "Banco press", "quantity": 4 }], "cardio": [...] }'
         },
         services: {
           type: Sequelize.JSON,
           allowNull: true,
           defaultValue: '[]',
-          comment: 'Servicios adicionales (clases, entrenadores, etc.)'
+          comment: 'Array de servicios/tipos: ["Funcional", "CrossFit", "Musculación"]'
         },
         month_price: {
           type: Sequelize.DOUBLE,
@@ -415,43 +400,10 @@ module.exports = {
       console.log(' Tabla "gym_gym_amenity" creada con PK compuesta e índice\n');
 
       // ========================================
-      // TABLA: gym_gym_type (Many-to-Many)
+      // TABLA: gym_gym_type - ELIMINADA
       // ========================================
-      console.log(' Creando tabla "gym_gym_type"...');
-      await queryInterface.createTable('gym_gym_type', {
-        id_gym: {
-          type: Sequelize.INTEGER,
-          allowNull: false,
-          references: {
-            model: 'gym',
-            key: 'id_gym'
-          },
-          onDelete: 'CASCADE',
-          onUpdate: 'CASCADE'
-        },
-        id_type: {
-          type: Sequelize.INTEGER,
-          allowNull: false,
-          references: {
-            model: 'gym_type',
-            key: 'id_type'
-          },
-          onDelete: 'CASCADE',
-          onUpdate: 'CASCADE'
-        }
-      }, { transaction });
-
-      await queryInterface.addConstraint('gym_gym_type', {
-        fields: ['id_gym', 'id_type'],
-        type: 'primary key',
-        name: 'pk_gym_gym_type'
-      }, { transaction });
-
-      await queryInterface.addIndex('gym_gym_type', ['id_type'], {
-        name: 'idx_gym_type',
-        transaction
-      });
-      console.log(' Tabla "gym_gym_type" creada con PK compuesta e índice\n');
+      // Ya no se necesita tabla gym_gym_type (relación many-to-many)
+      // Los servicios/tipos ahora están en gym.services como array de strings
 
       // ========================================
       // TABLA: gym_review
@@ -805,16 +757,16 @@ module.exports = {
       console.log('========================================');
       console.log(' MIGRACIÓN 3 COMPLETADA');
       console.log('========================================');
-      console.log(' Tablas creadas: 12');
-      console.log('   - gym_type, gym (con geofencing integrado + redes sociales)');
-      console.log('   - gym_gym_type (N:M gym-types)');
+      console.log(' Tablas creadas: 10');
+      console.log('   - gym (con geofencing + redes sociales + services array + equipment categorizado)');
       console.log('   - gym_schedule, gym_special_schedule');
       console.log('   - gym_amenity, gym_gym_amenity');
       console.log('   - gym_review, gym_rating_stats, review_helpful');
       console.log('   - user_favorite_gym, gym_payment');
-      console.log(' Índices creados: 15');
+      console.log(' Tablas ELIMINADAS: gym_type, gym_gym_type (reemplazadas por services array)');
+      console.log(' Índices creados: 13');
       console.log(' Foreign Keys: Todas las relaciones configuradas');
-      console.log(' Campos adicionales: instagram, facebook, google_maps_url');
+      console.log(' Campos JSON: services (array), equipment (categorizado)');
       console.log('========================================\n');
 
     } catch (error) {
@@ -836,13 +788,12 @@ module.exports = {
       await queryInterface.dropTable('review_helpful', { transaction });
       await queryInterface.dropTable('gym_rating_stats', { transaction });
       await queryInterface.dropTable('gym_review', { transaction });
-      await queryInterface.dropTable('gym_gym_type', { transaction });
+      // gym_gym_type y gym_type eliminadas - ya no existen
       await queryInterface.dropTable('gym_gym_amenity', { transaction });
       await queryInterface.dropTable('gym_amenity', { transaction });
       await queryInterface.dropTable('gym_special_schedule', { transaction });
       await queryInterface.dropTable('gym_schedule', { transaction });
       await queryInterface.dropTable('gym', { transaction });
-      await queryInterface.dropTable('gym_type', { transaction });
 
       await transaction.commit();
       console.log(' Migración 3 revertida\n');

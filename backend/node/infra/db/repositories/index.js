@@ -4,7 +4,7 @@ module.exports = {
   refreshTokenRepository: require('./refresh-token.repository'),
   streakRepository: require('./streak.repository'),
   gymRepository: require('./gym.repository'),
-  gymTypeRepository: require('./gym-type.repository'),
+  // gymTypeRepository eliminado - refactoring Phase 1
   gymAmenityRepository: require('./gym-amenity.repository'),
   userNotificationSettingRepository: require('./user-notification-setting.repository'),
   presenceRepository: require('./presence.repository'),

@@ -86,11 +86,26 @@ module.exports = {
           allowNull: true,
           comment: 'URLs de fotos del gimnasio'
         },
-        // Equipment / Tipos de entrenamiento
+        // Equipment categorizado por tipo
         equipment: {
           type: Sequelize.JSON,
           allowNull: true,
-          comment: 'Equipment / Tipos de entrenamiento ofrecidos'
+          defaultValue: '{}',
+          comment: 'Equipamiento categorizado: { "fuerza": [{ "name": "Banco press", "quantity": 4 }], "cardio": [...] }'
+        },
+        // Services / Tipos de entrenamiento
+        services: {
+          type: Sequelize.JSON,
+          allowNull: true,
+          defaultValue: '[]',
+          comment: 'Servicios/tipos ofrecidos: ["Funcional", "CrossFit", "Musculación"]'
+        },
+        // Reglas del gimnasio
+        rules: {
+          type: Sequelize.JSON,
+          allowNull: true,
+          defaultValue: '[]',
+          comment: 'Reglas del gimnasio'
         },
         // Precios
         monthly_price: {

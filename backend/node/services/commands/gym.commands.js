@@ -32,11 +32,10 @@
  * @property {boolean} [verified=false] - Si está verificado por admin
  * @property {boolean} [featured=false] - Si es destacado
  * @property {boolean} [auto_checkin_enabled=false] - Si tiene auto check-in habilitado
- * @property {Array<number>} [id_types=[]] - IDs de tipos de gimnasio asociados
- * @property {Array<string>} [type_names=[]] - Nombres de tipos a crear/asociar
  * @property {Array<number>} [amenities=[]] - IDs de amenidades asociadas
  * @property {Array<string>} [rules=[]] - Reglas del gimnasio
- * @property {Array<string>} [equipment=[]] - Equipamiento del gimnasio
+ * @property {Array<string>} [services=[]] - Servicios del gimnasio (ej: ["Funcional", "CrossFit", "Musculación"])
+ * @property {Object} [equipment={}] - Equipamiento categorizado (ej: { "fuerza": [{ "name": "Banco press", "quantity": 4 }] })
  * @property {number} createdBy - ID del admin que crea el gym
  */
 class CreateGymCommand {
@@ -58,11 +57,10 @@ class CreateGymCommand {
     featured = false,
     auto_checkin_enabled = false,
     createdBy,
-    id_types = [],
-    type_names = [],
     amenities = [],
     rules = [],
-    equipment = [],
+    services = [],
+    equipment = {},
   }) {
     this.name = name;
     this.city = city;
@@ -81,10 +79,9 @@ class CreateGymCommand {
     this.featured = featured;
     this.auto_checkin_enabled = auto_checkin_enabled;
     this.createdBy = createdBy;
-    this.id_types = id_types;
-    this.type_names = type_names;
     this.amenities = amenities;
     this.rules = rules;
+    this.services = services;
     this.equipment = equipment;
   }
 }
@@ -110,11 +107,10 @@ class CreateGymCommand {
  * @property {boolean} [verified] - Si está verificado por admin
  * @property {boolean} [featured] - Si es destacado
  * @property {boolean} [auto_checkin_enabled] - Si tiene auto check-in habilitado
- * @property {Array<number>} [id_types] - IDs de tipos existentes a asociar
- * @property {Array<string>} [type_names] - Nombres de tipos a crear/asociar
  * @property {Array<number>} [amenities] - IDs de amenidades
  * @property {Array<string>} [rules] - Reglas del gimnasio
- * @property {Array<string>} [equipment] - Equipamiento del gimnasio
+ * @property {Array<string>} [services] - Servicios del gimnasio (ej: ["Funcional", "CrossFit", "Musculación"])
+ * @property {Object} [equipment] - Equipamiento categorizado (ej: { "fuerza": [{ "name": "Banco press", "quantity": 4 }] })
  * @property {number} updatedBy - ID del admin que actualiza el gym
  */
 class UpdateGymCommand {
@@ -137,10 +133,9 @@ class UpdateGymCommand {
     featured,
     auto_checkin_enabled,
     updatedBy,
-    id_types,
-    type_names,
     amenities,
     rules,
+    services,
     equipment,
   }) {
     this.gymId = gymId;
@@ -161,10 +156,9 @@ class UpdateGymCommand {
     this.featured = featured;
     this.auto_checkin_enabled = auto_checkin_enabled;
     this.updatedBy = updatedBy;
-    this.id_types = id_types;
-    this.type_names = type_names;
     this.amenities = amenities;
     this.rules = rules;
+    this.services = services;
     this.equipment = equipment;
   }
 }

@@ -6,6 +6,8 @@ import {
   GymFormLocation,
   GymFormContact,
   GymFormCharacteristics,
+  GymFormEquipment,
+  GymFormServices,
   GymFormPricing,
   GymFormAutoCheckin,
   GymFormExtraOptions,
@@ -22,13 +24,14 @@ interface GymFormProps {
 export const GymForm = ({ gym, onSubmit, onCancel, isLoading }: GymFormProps) => {
   const {
     formData,
-    equipmentInput,
     selectedAmenityIds,
     jsonInput,
     isExtracting,
     handleInputChange,
     handleGoogleMapsUrlChange,
-    handleEquipmentChange,
+    updateEquipment,
+    addService,
+    removeService,
     handleJsonImport,
     handleJsonInputChange,
     toggleAmenity,
@@ -70,11 +73,6 @@ export const GymForm = ({ gym, onSubmit, onCancel, isLoading }: GymFormProps) =>
       )}
 
       <GymFormBasicInfo formData={formData} handleInputChange={handleInputChange} />
-      <GymFormRules
-        rules={formData.rules || []}
-        onAddRule={addRule}
-        onRemoveRule={removeRule}
-      />
       <GymFormLocation
         formData={formData}
         handleInputChange={handleInputChange}
@@ -82,15 +80,27 @@ export const GymForm = ({ gym, onSubmit, onCancel, isLoading }: GymFormProps) =>
         isExtracting={isExtracting}
       />
       <GymFormContact formData={formData} handleInputChange={handleInputChange} />
+      <GymFormServices
+        services={formData.services || []}
+        onAddService={addService}
+        onRemoveService={removeService}
+      />
+      <GymFormEquipment
+        equipment={formData.equipment || {}}
+        onUpdateEquipment={updateEquipment}
+      />
       <GymFormCharacteristics
-        equipmentInput={equipmentInput}
-        handleEquipmentChange={handleEquipmentChange}
         formData={formData}
         handleInputChange={handleInputChange}
         amenities={amenityOptions}
         selectedAmenityIds={selectedAmenityIds}
         amenitiesLoading={amenitiesLoading}
         toggleAmenity={toggleAmenity}
+      />
+      <GymFormRules
+        rules={formData.rules || []}
+        onAddRule={addRule}
+        onRemoveRule={removeRule}
       />
       <GymFormPricing formData={formData} handleInputChange={handleInputChange} />
       <GymFormAutoCheckin formData={formData} handleInputChange={handleInputChange} />

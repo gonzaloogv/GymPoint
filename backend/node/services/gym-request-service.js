@@ -1,6 +1,39 @@
 const GymRequest = require('../models/GymRequest');
 const gymService = require('./gym-service');
+const { Amenity } = require('../models');
 const { NotFoundError, ValidationError } = require('../utils/errors');
+
+/**
+ * Convertir nombres de amenidades a IDs
+ * Si recibe IDs numéricos, los retorna tal cual
+ * Si recibe strings (nombres), busca los IDs correspondientes
+ */
+async function convertAmenitiesToIds(amenities) {
+  if (!Array.isArray(amenities) || amenities.length === 0) {
+    return [];
+  }
+
+  // Si son todos números, retornar directamente
+  const allNumbers = amenities.every(a => typeof a === 'number' || !isNaN(Number(a)));
+  if (allNumbers) {
+    return amenities.map(a => Number(a)).filter(id => id > 0);
+  }
+
+  // Si son strings (nombres), buscar en la BD
+  const stringAmenities = amenities.filter(a => typeof a === 'string');
+  if (stringAmenities.length === 0) {
+    return [];
+  }
+
+  const foundAmenities = await Amenity.findAll({
+    where: {
+      name: stringAmenities
+    },
+    attributes: ['id_amenity', 'name']
+  });
+
+  return foundAmenities.map(a => a.id_amenity);
+}
 
 /**
  * Obtener todas las solicitudes, opcionalmente filtradas por estado
@@ -53,7 +86,9 @@ async function createRequest(data) {
     instagram: data.instagram,
     facebook: data.facebook,
     photos: data.photos || [],
-    equipment: data.equipment || [],
+    equipment: data.equipment || {},
+    services: data.services || [],
+    rules: data.rules || [],
     monthly_price: data.monthly_price,
     weekly_price: data.weekly_price,
     daily_price: data.daily_price,
@@ -79,6 +114,22 @@ async function approveRequest(requestId, adminId) {
     throw new ValidationError('Solo se pueden aprobar solicitudes pendientes');
   }
 
+  // Parse JSON fields if they come as strings (Sequelize sometimes returns JSON as strings)
+  const equipment = typeof request.equipment === 'string' ? JSON.parse(request.equipment) : (request.equipment || {});
+  const services = typeof request.services === 'string' ? JSON.parse(request.services) : (request.services || []);
+  const rules = typeof request.rules === 'string' ? JSON.parse(request.rules) : (request.rules || []);
+  const amenitiesRaw = typeof request.amenities === 'string' ? JSON.parse(request.amenities) : (request.amenities || []);
+
+  // Convertir amenities a IDs si vienen como nombres
+  const amenityIds = await convertAmenitiesToIds(amenitiesRaw);
+
+  console.log('🔍 DEBUG - GymRequest data (raw):');
+  console.log('  services (raw):', request.services, 'type:', typeof request.services);
+  console.log('  services (parsed):', services);
+  console.log('  amenities (raw):', request.amenities, 'type:', typeof request.amenities);
+  console.log('  amenities (parsed):', amenitiesRaw);
+  console.log('  amenityIds converted:', amenityIds);
+
   // Mapear los datos de la solicitud al formato esperado por gymService
   const gymData = {
     name: request.name,
@@ -97,12 +148,15 @@ async function approveRequest(requestId, adminId) {
     verified: false,
     featured: false,
     auto_checkin_enabled: false,
-    equipment: request.equipment || [],
-    rules: [],
-    amenities: request.amenities || [], // IDs de amenidades
-    // Mapear equipment a type_names para compatibilidad con el servicio de gym
-    type_names: request.equipment || []
+    equipment: equipment,
+    services: services,
+    rules: rules,
+    amenities: amenityIds // IDs de amenidades
   };
+
+  console.log('🔍 DEBUG - Gym data to create:');
+  console.log('  services:', gymData.services);
+  console.log('  amenities:', gymData.amenities);
 
   // Si tiene precio semanal, agregarlo a las reglas o descripción
   if (request.weekly_price) {

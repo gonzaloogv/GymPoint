@@ -46,6 +46,7 @@ export const Login = () => {
           }
 
           localStorage.setItem('admin_token', tokens.accessToken);
+          localStorage.setItem('admin_refresh_token', tokens.refreshToken);
           navigate('/');
         },
       },

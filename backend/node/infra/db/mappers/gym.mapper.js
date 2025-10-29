@@ -1,6 +1,6 @@
 const { toPlain } = require('./utils');
 const { toGymAmenities } = require('./gym-amenity.mapper');
-const { toGymTypes } = require('./gym-type.mapper');
+// toGymTypes - ELIMINADO: Ya no se usa, types ahora en services array
 
 function toGym(instance, options = {}) {
   const plain = toPlain(instance);
@@ -20,8 +20,8 @@ function toGym(instance, options = {}) {
     website: plain.website || null,
     logo_url: plain.logo_url || null,
     social_media: plain.social_media || null,
-    equipment: plain.equipment || null,
-    services: plain.services || null,
+    equipment: plain.equipment || {},
+    services: plain.services || [],
     instagram: plain.instagram || null,
     facebook: plain.facebook || null,
     google_maps_url: plain.google_maps_url || null,
@@ -48,9 +48,7 @@ function toGym(instance, options = {}) {
     gym.amenities = toGymAmenities(plain.amenities);
   }
 
-  if (plain.types && (options.includeTypes ?? true)) {
-    gym.types = toGymTypes(plain.types);
-  }
+  // types eliminado - ya no se usa, ahora está en services
 
   return gym;
 }

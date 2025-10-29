@@ -41,11 +41,23 @@ export const useGymFormSubmit = (): UseGymFormSubmitReturn => {
           : `${day.day}: Cerrado`
       ).join('\n'),
       
-      '=== TIPOS DE ENTRENAMIENTO ===': '',
-      'Entrenamientos': data.attributes.equipment.length > 0
-        ? data.attributes.equipment.join(', ')
+      '=== SERVICIOS/TIPOS DE ENTRENAMIENTO ===': '',
+      'Servicios': data.attributes.services.length > 0
+        ? data.attributes.services.join(', ')
         : 'No especificados',
-      
+
+      '=== EQUIPAMIENTO ===': '',
+      'Equipamiento por categoría': Object.keys(data.attributes.equipment).length > 0
+        ? Object.entries(data.attributes.equipment).map(([category, items]) =>
+            `${category}: ${items.map(item => `${item.name} (${item.quantity})`).join(', ')}`
+          ).join('\n')
+        : 'No especificado',
+
+      '=== REGLAS ===': '',
+      'Reglas del gimnasio': data.attributes.rules.length > 0
+        ? data.attributes.rules.join(', ')
+        : 'No especificadas',
+
       '=== PRECIOS ===': '',
       'Cuota Mensual': data.pricing.monthly ? `$${data.pricing.monthly}` : 'No especificado',
       'Pase Semanal': data.pricing.weekly ? `$${data.pricing.weekly}` : 'No especificado',
@@ -85,9 +97,12 @@ export const useGymFormSubmit = (): UseGymFormSubmitReturn => {
         },
         body: JSON.stringify({
           name: formData.name,
-          description: formData.description,
+          description: formData.description.trim() || 'Sin descripción proporcionada',
           location: formData.location,
-          contact: formData.contact,
+          contact: {
+            ...formData.contact,
+            email: formData.contact.email.trim() || undefined
+          },
           attributes: formData.attributes,
           pricing: formData.pricing,
           schedule: formData.schedule,
