@@ -48,3 +48,7 @@ yarn-error.*
 .env
 .env.local
 .env.*.local
+
+# Documentation and logs
+DOCUMENTACION.md
+console/
