@@ -5,38 +5,44 @@
 
 function toGymReview(model) {
   if (!model) return null;
+
+  // Convertir modelo Sequelize a objeto plano
+  const plainModel = model.toJSON ? model.toJSON() : model;
+
   const review = {
-    id_review: model.id_review,
-    id_gym: model.id_gym,
-    id_user_profile: model.id_user_profile,
-    rating: parseFloat(model.rating),
-    title: model.title,
-    comment: model.comment,
-    cleanliness_rating: model.cleanliness_rating,
-    equipment_rating: model.equipment_rating,
-    staff_rating: model.staff_rating,
-    facilities_rating: model.facilities_rating,
-    value_rating: model.value_rating,
-    helpful_count: model.helpful_count || 0,
-    not_helpful_count: model.not_helpful_count || 0,
-    created_at: model.created_at,
-    updated_at: model.updated_at,
+    id_review: plainModel.id_review,
+    id_gym: plainModel.id_gym,
+    id_user_profile: plainModel.id_user_profile,
+    rating: parseFloat(plainModel.rating),
+    title: plainModel.title,
+    comment: plainModel.comment,
+    cleanliness_rating: plainModel.cleanliness_rating,
+    equipment_rating: plainModel.equipment_rating,
+    staff_rating: plainModel.staff_rating,
+    facilities_rating: plainModel.facilities_rating,
+    value_rating: plainModel.value_rating,
+    helpful_count: plainModel.helpful_count || 0,
+    not_helpful_count: plainModel.not_helpful_count || 0,
+    is_verified: plainModel.is_verified || false,
+    reported: plainModel.reported || false,
+    created_at: plainModel.created_at,
+    updated_at: plainModel.updated_at,
   };
 
   // Incluir asociaciones si están presentes
-  if (model.author) {
-    review.userProfile = {
-      id_user_profile: model.author.id_user_profile,
-      name: model.author.name,
-      profile_picture_url: model.author.profile_picture_url,
+  if (plainModel.author) {
+    review.user = {
+      id_user_profile: plainModel.author.id_user_profile,
+      name: plainModel.author.name,
+      profile_picture_url: plainModel.author.profile_picture_url,
     };
   }
 
-  if (model.gym) {
+  if (plainModel.gym) {
     review.gym = {
-      id_gym: model.gym.id_gym,
-      name: model.gym.name,
-      city: model.gym.city,
+      id_gym: plainModel.gym.id_gym,
+      name: plainModel.gym.name,
+      city: plainModel.gym.city,
     };
   }
 

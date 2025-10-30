@@ -11,6 +11,7 @@ interface UseGymDetailResult {
   error: unknown;
   averageRating: number | null;
   totalReviews: number;
+  refetch: () => void;
 }
 
 /**
@@ -24,6 +25,11 @@ export function useGymDetail(gymId: string | number): UseGymDetailResult {
   const [error, setError] = useState<unknown>(null);
   const [averageRating, setAverageRating] = useState<number | null>(null);
   const [totalReviews, setTotalReviews] = useState<number>(0);
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
+
+  const refetch = () => {
+    setRefetchTrigger((prev) => prev + 1);
+  };
 
   useEffect(() => {
     if (!gymId) return;
@@ -78,13 +84,15 @@ export function useGymDetail(gymId: string | number): UseGymDetailResult {
       GymRemote.listReviews(numericId, { page: 1, limit: 100 })
         .then((data: any) => {
           const items = data.items || [];
-          const total = data.totalItems || 0;
+          const total = data.total || data.totalItems || 0;
           const average = items.length > 0
             ? items.reduce((sum: number, item: any) => sum + (item.rating || 0), 0) / items.length
             : null;
           return { total, average };
         })
-        .catch(() => ({ total: 0, average: null })),
+        .catch(() => {
+          return { total: 0, average: null };
+        }),
     ])
       .then(([gymData, schedulesData, reviewsData]) => {
         if (mounted) {
@@ -96,7 +104,6 @@ export function useGymDetail(gymId: string | number): UseGymDetailResult {
       })
       .catch((e) => {
         if (mounted) {
-          console.error('[useGymDetail] Error fetching gym details:', e);
           setError(e);
         }
       })
@@ -109,7 +116,7 @@ export function useGymDetail(gymId: string | number): UseGymDetailResult {
     return () => {
       mounted = false;
     };
-  }, [gymId]);
+  }, [gymId, refetchTrigger]);
 
-  return { gym, schedules, loading, error, averageRating, totalReviews };
+  return { gym, schedules, loading, error, averageRating, totalReviews, refetch };
 }

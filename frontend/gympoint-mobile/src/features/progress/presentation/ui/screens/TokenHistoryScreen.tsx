@@ -57,8 +57,8 @@ export function TokenHistoryScreen({ navigation }: TokenHistoryScreenProps) {
   });
 
   const handleBackPress = useCallback(() => {
-    // Navigate back to Usuario tab (Profile screen)
-    navigation?.navigate('Usuario');
+    // Navigate back (preserves the active tab)
+    navigation?.goBack();
   }, [navigation]);
 
   // Get transactions from history (already filtered by the hook)

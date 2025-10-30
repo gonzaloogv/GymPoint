@@ -22,6 +22,7 @@ import {
   useReviewActions,
   RatingStars,
   ReviewsList,
+  ReviewCard,
   CreateReviewModal,
   Review,
   CreateReviewData,
@@ -30,15 +31,12 @@ import {
 import { useAuthStore } from '@features/auth';
 
 export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps) {
-  console.log('🔴 [GymDetailScreen] gym.id:', gym.id, 'tipo:', typeof gym.id);
-  console.log('🔴 [GymDetailScreen] gym completo:', gym);
-
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const { user } = useAuthStore();
 
   // Fetch detailed gym data
-  const { gym: gymDetail, schedules, loading, error, averageRating, totalReviews } = useGymDetail(gym.id);
+  const { gym: gymDetail, schedules, loading, error, averageRating, totalReviews, refetch: refetchGymDetail } = useGymDetail(gym.id);
 
   // Subscription status
   const subscriptionStatus = useGymSubscriptionStatus(
@@ -62,7 +60,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
     gymId: gym.id,
     limit: 5,
     sortBy: 'created_at',
-    order: 'DESC',
+    order: 'desc',
   });
 
   const { stats: ratingStats } = useGymRatingStats(gym.id);
@@ -124,6 +122,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
       const result = await updateReview(reviewToEdit.id, data as UpdateReviewData);
       if (result) {
         await refetchReviews();
+        refetchGymDetail(); // Actualizar stats en header
         setShowReviewModal(false);
         setReviewToEdit(null);
       }
@@ -131,6 +130,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
       const result = await createReview(data as CreateReviewData);
       if (result) {
         await refetchReviews();
+        refetchGymDetail(); // Actualizar stats en header
         setShowReviewModal(false);
       }
     }
@@ -140,6 +140,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
     const success = await deleteReview(reviewId);
     if (success) {
       await refetchReviews();
+      refetchGymDetail(); // Actualizar stats en header
     }
   };
 
@@ -342,6 +343,35 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
       {/* Rules Card */}
       <GymRulesCard rules={gymRules} />
 
+      {/* Mi Reseña Card - Separado para mejor UX visual */}
+      {(() => {
+        const myReview = reviews.find((r) => r.userId === user?.id_user);
+        if (myReview) {
+          return (
+            <Card className="mx-4 mt-4">
+              <View className="flex-row items-center justify-between mb-3">
+                <View className="flex-row items-center flex-1">
+                  <View className={`w-10 h-10 rounded-lg justify-center items-center mr-3 ${isDark ? 'bg-blue-500/30' : 'bg-blue-100'}`}>
+                    <Ionicons name="person" size={20} color={isDark ? '#60A5FA' : '#3B82F6'} />
+                  </View>
+                  <Text className={`text-lg font-semibold ${isDark ? 'text-text-dark' : 'text-text'}`}>
+                    Mi reseña
+                  </Text>
+                </View>
+              </View>
+              <ReviewCard
+                review={myReview}
+                isOwnReview={true}
+                onHelpful={handleMarkHelpful}
+                onEdit={handleEditReview}
+                onDelete={handleDeleteReview}
+              />
+            </Card>
+          );
+        }
+        return null;
+      })()}
+
       {/* Reviews Section */}
       <Card className="mx-4 mt-4">
         <View className="flex-row items-center justify-between mb-3">
@@ -353,16 +383,18 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
               Reseñas
             </Text>
           </View>
-          <TouchableOpacity
-            onPress={handleCreateReview}
-            className="flex-row items-center"
-            activeOpacity={0.7}
-          >
-            <Ionicons name="add-circle-outline" size={24} color={isDark ? '#60A5FA' : '#3B82F6'} />
-            <Text className={`ml-1 text-sm font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
-              Escribir
-            </Text>
-          </TouchableOpacity>
+          {!reviews.find((r) => r.userId === user?.id_user) && (
+            <TouchableOpacity
+              onPress={handleCreateReview}
+              className="flex-row items-center"
+              activeOpacity={0.7}
+            >
+              <Ionicons name="add-circle-outline" size={24} color={isDark ? '#60A5FA' : '#3B82F6'} />
+              <Text className={`ml-1 text-sm font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                Escribir
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Rating Summary */}
@@ -377,9 +409,9 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
           </View>
         )}
 
-        {/* Reviews List */}
+        {/* Reviews List - Filtrar la reseña del usuario para no mostrarla duplicada */}
         <ReviewsList
-          reviews={reviews}
+          reviews={reviews.filter((r) => r.userId !== user?.id_user)}
           isLoading={reviewsLoading}
           error={null}
           pagination={pagination}

@@ -31,7 +31,5 @@ export type ProgressStackParamList = {
   ProgressMain: undefined;
   PhysicalProgress: undefined;
   ExerciseProgress: undefined;
-  TokenHistory: undefined;
   Achievements: undefined;
-  Rewards: undefined;
 };

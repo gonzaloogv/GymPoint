@@ -23,6 +23,7 @@ const frequencyService = require('./frequency-service');
 const { NotFoundError, ConflictError, BusinessError, ValidationError } = require('../utils/errors');
 const { PROXIMITY_METERS, ACCURACY_MAX_METERS, TOKENS, TOKEN_REASONS } = require('../config/constants');
 const { calculateDistance } = require('../utils/geo');
+const { emitEvent, EVENTS } = require('../websocket/events/event-emitter');
 
 const ATTENDANCE_ACHIEVEMENT_CATEGORIES = ['STREAK', 'ATTENDANCE', 'FREQUENCY'];
 
@@ -34,6 +35,45 @@ const syncAttendanceAchievements = async (idUserProfile) => {
     await processUnlockResults(idUserProfile, results);
   } catch (error) {
     console.error('[assistance-service] Error sincronizando logros', error);
+  }
+};
+
+/**
+ * Emite eventos de WebSocket relacionados con streak
+ * @param {number} userProfileId - ID del usuario
+ * @param {Object} oldStreak - Streak antes de actualizar
+ * @param {Object} newStreak - Streak después de actualizar
+ */
+const emitStreakEvents = (userProfileId, oldStreak, newStreak) => {
+  // Emitir evento de actualización de streak
+  emitEvent(EVENTS.STREAK_UPDATED, {
+    userProfileId,
+    currentStreak: newStreak.value,
+    longestStreak: Math.max(newStreak.value, newStreak.last_value || 0),
+    timestamp: new Date().toISOString(),
+  });
+
+  // Detectar milestones importantes
+  const milestones = [7, 14, 30, 50, 100, 200, 365];
+  const milestone = milestones.find(m => newStreak.value >= m && oldStreak.value < m);
+
+  if (milestone) {
+    const messages = {
+      7: '¡Primera semana completada! 🎉',
+      14: '¡Dos semanas seguidas! 💪',
+      30: '¡Un mes entero! ¡Increíble! 🔥',
+      50: '¡50 días consecutivos! ¡Imparable! ⭐',
+      100: '¡100 días! ¡Eres una leyenda! 👑',
+      200: '¡200 días! ¡Nivel maestro! 🏆',
+      365: '¡UN AÑO COMPLETO! ¡EXTRAORDINARIO! 🌟',
+    };
+
+    emitEvent(EVENTS.STREAK_MILESTONE, {
+      userProfileId,
+      milestone,
+      currentStreak: newStreak.value,
+      message: messages[milestone] || `¡${milestone} días consecutivos!`,
+    });
   }
 };
 
@@ -162,27 +202,56 @@ const registrarAsistencia = async (command) => {
     await userGymRepository.markTrialAsUsed(idUserProfile, idGym, fecha);
   }
 
-  // Actualizar racha
-  const ayer = new Date(hoy);
-  ayer.setDate(hoy.getDate() - 1);
-  const fechaAyer = ayer.toISOString().split('T')[0];
+  // Actualizar racha - NUEVA LÓGICA: Siempre incrementa con cada check-in
+  // Solo se resetea si NO cumplió con la frecuencia semanal
 
-  const ultimaAsistencia = await assistanceRepository.findYesterdayAssistance(idUserProfile, idGym, fechaAyer);
+  // Obtener frecuencia semanal del usuario
+  const { frequencyRepository } = require('../infra/db/repositories');
+  const frequency = await frequencyRepository.findByUserProfileId(idUserProfile);
 
   let updatedStreak;
-  if (ultimaAsistencia) {
+
+  if (!frequency) {
+    // Si no tiene frecuencia, solo incrementar el streak
     updatedStreak = await streakRepository.updateStreak(racha.id_streak, {
-      value: racha.value + 1
+      value: racha.value + 1,
+      max_value: Math.max(racha.max_value || 0, racha.value + 1),
+      last_assistance_date: fecha
     });
   } else {
-    if (racha.recovery_items > 0) {
-      updatedStreak = await streakRepository.updateStreak(racha.id_streak, {
-        recovery_items: racha.recovery_items - 1
-      });
+    // Verificar si es una nueva semana
+    const weekStartDate = frequency.week_start_date;
+    const weekStart = new Date(weekStartDate);
+    const currentDate = new Date(fecha);
+
+    // Calcular días desde el inicio de la semana
+    const daysSinceWeekStart = Math.floor((currentDate - weekStart) / (24 * 60 * 60 * 1000));
+
+    // Si pasó más de 7 días, es una nueva semana
+    if (daysSinceWeekStart >= 7) {
+      // Verificar si cumplió la meta de la semana anterior
+      if (frequency.assist < frequency.goal) {
+        // NO cumplió con la meta - resetear streak
+        updatedStreak = await streakRepository.updateStreak(racha.id_streak, {
+          last_value: racha.value,
+          value: 1, // Comienza nueva racha
+          max_value: Math.max(racha.max_value || 0, racha.value),
+          last_assistance_date: fecha
+        });
+      } else {
+        // Cumplió con la meta - continuar incrementando
+        updatedStreak = await streakRepository.updateStreak(racha.id_streak, {
+          value: racha.value + 1,
+          max_value: Math.max(racha.max_value || 0, racha.value + 1),
+          last_assistance_date: fecha
+        });
+      }
     } else {
+      // Misma semana - siempre incrementar
       updatedStreak = await streakRepository.updateStreak(racha.id_streak, {
-        last_value: racha.value,
-        value: 1
+        value: racha.value + 1,
+        max_value: Math.max(racha.max_value || 0, racha.value + 1),
+        last_assistance_date: fecha
       });
     }
   }
@@ -199,6 +268,15 @@ const registrarAsistencia = async (command) => {
   // Actualizar frecuencia semanal
   await frequencyService.actualizarAsistenciaSemanal(idUserProfile);
   await syncAttendanceAchievements(idUserProfile);
+
+  // Emitir eventos WebSocket
+  emitEvent(EVENTS.ASSISTANCE_REGISTERED, {
+    userId: idUserProfile,
+    gymId: idGym,
+    timestamp: new Date().toISOString(),
+  });
+
+  emitStreakEvents(idUserProfile, racha, updatedStreak);
 
   return {
     asistencia: nuevaAsistencia,
@@ -365,27 +443,56 @@ const autoCheckIn = async (command) => {
     await userGymRepository.markTrialAsUsed(idUserProfile, idGym, fecha);
   }
 
-  // Actualizar racha
-  const ayer = new Date(hoy);
-  ayer.setDate(hoy.getDate() - 1);
-  const fechaAyer = ayer.toISOString().split('T')[0];
+  // Actualizar racha - NUEVA LÓGICA: Siempre incrementa con cada check-in
+  // Solo se resetea si NO cumplió con la frecuencia semanal
 
-  const ultimaAsistencia = await assistanceRepository.findYesterdayAssistance(idUserProfile, idGym, fechaAyer);
+  // Obtener frecuencia semanal del usuario
+  const { frequencyRepository } = require('../infra/db/repositories');
+  const frequency = await frequencyRepository.findByUserProfileId(idUserProfile);
 
   let updatedStreak;
-  if (ultimaAsistencia) {
+
+  if (!frequency) {
+    // Si no tiene frecuencia, solo incrementar el streak
     updatedStreak = await streakRepository.updateStreak(racha.id_streak, {
-      value: racha.value + 1
+      value: racha.value + 1,
+      max_value: Math.max(racha.max_value || 0, racha.value + 1),
+      last_assistance_date: fecha
     });
   } else {
-    if (racha.recovery_items > 0) {
-      updatedStreak = await streakRepository.updateStreak(racha.id_streak, {
-        recovery_items: racha.recovery_items - 1
-      });
+    // Verificar si es una nueva semana
+    const weekStartDate = frequency.week_start_date;
+    const weekStart = new Date(weekStartDate);
+    const currentDate = new Date(fecha);
+
+    // Calcular días desde el inicio de la semana
+    const daysSinceWeekStart = Math.floor((currentDate - weekStart) / (24 * 60 * 60 * 1000));
+
+    // Si pasó más de 7 días, es una nueva semana
+    if (daysSinceWeekStart >= 7) {
+      // Verificar si cumplió la meta de la semana anterior
+      if (frequency.assist < frequency.goal) {
+        // NO cumplió con la meta - resetear streak
+        updatedStreak = await streakRepository.updateStreak(racha.id_streak, {
+          last_value: racha.value,
+          value: 1, // Comienza nueva racha
+          max_value: Math.max(racha.max_value || 0, racha.value),
+          last_assistance_date: fecha
+        });
+      } else {
+        // Cumplió con la meta - continuar incrementando
+        updatedStreak = await streakRepository.updateStreak(racha.id_streak, {
+          value: racha.value + 1,
+          max_value: Math.max(racha.max_value || 0, racha.value + 1),
+          last_assistance_date: fecha
+        });
+      }
     } else {
+      // Misma semana - siempre incrementar
       updatedStreak = await streakRepository.updateStreak(racha.id_streak, {
-        last_value: racha.value,
-        value: 1
+        value: racha.value + 1,
+        max_value: Math.max(racha.max_value || 0, racha.value + 1),
+        last_assistance_date: fecha
       });
     }
   }
@@ -402,6 +509,15 @@ const autoCheckIn = async (command) => {
   // Actualizar frecuencia semanal
   await frequencyService.actualizarAsistenciaSemanal(idUserProfile);
   await syncAttendanceAchievements(idUserProfile);
+
+  // Emitir eventos WebSocket
+  emitEvent(EVENTS.ASSISTANCE_REGISTERED, {
+    userId: idUserProfile,
+    gymId: idGym,
+    timestamp: new Date().toISOString(),
+  });
+
+  emitStreakEvents(idUserProfile, racha, updatedStreak);
 
   return {
     asistencia: nuevaAsistencia,
@@ -570,27 +686,56 @@ const verificarAutoCheckIn = async (command) => {
     await userGymRepository.markTrialAsUsed(command.userProfileId, command.gymId, hoy);
   }
 
-  // Actualizar racha
-  const ayer = new Date(ahora);
-  ayer.setDate(ahora.getDate() - 1);
-  const fechaAyer = ayer.toISOString().split('T')[0];
+  // Actualizar racha - NUEVA LÓGICA: Siempre incrementa con cada check-in
+  // Solo se resetea si NO cumplió con la frecuencia semanal
 
-  const ultimaAsistencia = await assistanceRepository.findYesterdayAssistance(command.userProfileId, command.gymId, fechaAyer);
+  // Obtener frecuencia semanal del usuario
+  const { frequencyRepository } = require('../infra/db/repositories');
+  const frequency = await frequencyRepository.findByUserProfileId(command.userProfileId);
 
   let updatedStreak;
-  if (ultimaAsistencia) {
+
+  if (!frequency) {
+    // Si no tiene frecuencia, solo incrementar el streak
     updatedStreak = await streakRepository.updateStreak(racha.id_streak, {
-      value: racha.value + 1
+      value: racha.value + 1,
+      max_value: Math.max(racha.max_value || 0, racha.value + 1),
+      last_assistance_date: hoy
     });
   } else {
-    if (racha.recovery_items > 0) {
-      updatedStreak = await streakRepository.updateStreak(racha.id_streak, {
-        recovery_items: racha.recovery_items - 1
-      });
+    // Verificar si es una nueva semana
+    const weekStartDate = frequency.week_start_date;
+    const weekStart = new Date(weekStartDate);
+    const currentDate = new Date(hoy);
+
+    // Calcular días desde el inicio de la semana
+    const daysSinceWeekStart = Math.floor((currentDate - weekStart) / (24 * 60 * 60 * 1000));
+
+    // Si pasó más de 7 días, es una nueva semana
+    if (daysSinceWeekStart >= 7) {
+      // Verificar si cumplió la meta de la semana anterior
+      if (frequency.assist < frequency.goal) {
+        // NO cumplió con la meta - resetear streak
+        updatedStreak = await streakRepository.updateStreak(racha.id_streak, {
+          last_value: racha.value,
+          value: 1, // Comienza nueva racha
+          max_value: Math.max(racha.max_value || 0, racha.value),
+          last_assistance_date: hoy
+        });
+      } else {
+        // Cumplió con la meta - continuar incrementando
+        updatedStreak = await streakRepository.updateStreak(racha.id_streak, {
+          value: racha.value + 1,
+          max_value: Math.max(racha.max_value || 0, racha.value + 1),
+          last_assistance_date: hoy
+        });
+      }
     } else {
+      // Misma semana - siempre incrementar
       updatedStreak = await streakRepository.updateStreak(racha.id_streak, {
-        last_value: racha.value,
-        value: 1
+        value: racha.value + 1,
+        max_value: Math.max(racha.max_value || 0, racha.value + 1),
+        last_assistance_date: hoy
       });
     }
   }
@@ -607,6 +752,15 @@ const verificarAutoCheckIn = async (command) => {
   // Actualizar frecuencia
   await frequencyService.actualizarAsistenciaSemanal(command.userProfileId);
   await syncAttendanceAchievements(command.userProfileId);
+
+  // Emitir eventos WebSocket
+  emitEvent(EVENTS.ASSISTANCE_REGISTERED, {
+    userId: command.userProfileId,
+    gymId: command.gymId,
+    timestamp: new Date().toISOString(),
+  });
+
+  emitStreakEvents(command.userProfileId, racha, updatedStreak);
 
   // Marcar presencia como completada
   await presenceRepository.markAsConvertedToAssistance(presencia.id_presence, nuevaAsistencia.id_assistance);

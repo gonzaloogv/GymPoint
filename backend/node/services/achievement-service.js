@@ -429,25 +429,44 @@ const getUserAchievements = async (idUserProfile, { category, categories } = {})
     achievementMap.set(achievement.id_achievement_definition, achievement);
   }
 
-  return definitions.map((definition) => {
-    const achievement = achievementMap.get(definition.id_achievement_definition);
-    const progressValue = achievement?.progress_value || 0;
-    const denominator = achievement?.progress_denominator || definition.target_value || 1;
-    const percentage = denominator > 0 ? Math.min(1, progressValue / denominator) : 0;
+  // Calcular el progreso en tiempo real para cada achievement
+  const results = await Promise.all(
+    definitions.map(async (definition) => {
+      const achievement = achievementMap.get(definition.id_achievement_definition);
 
-    return {
-      definition: definition.get({ plain: true }),
-      progress: {
-        value: progressValue,
-        denominator,
-        percentage
-      },
-      unlocked: Boolean(achievement?.unlocked),
-      unlocked_at: achievement?.unlocked_at || null,
-      last_source_type: achievement?.last_source_type || null,
-      last_source_id: achievement?.last_source_id || null
-    };
-  });
+      // Calcular el progreso actual en tiempo real
+      let progressValue = 0;
+      let denominator = definition.target_value || 1;
+
+      try {
+        const metricResult = await calculateMetric(idUserProfile, definition);
+        progressValue = metricResult.value || 0;
+        denominator = metricResult.denominator || definition.target_value || 1;
+      } catch (error) {
+        console.error(`[achievement-service] Error calculando métrica para ${definition.code}:`, error.message);
+        // Fallback a los valores guardados si falla el cálculo
+        progressValue = achievement?.progress_value || 0;
+        denominator = achievement?.progress_denominator || definition.target_value || 1;
+      }
+
+      const percentage = denominator > 0 ? Math.min(1, progressValue / denominator) : 0;
+
+      return {
+        definition: definition.get({ plain: true }),
+        progress: {
+          value: progressValue,
+          denominator,
+          percentage
+        },
+        unlocked: Boolean(achievement?.unlocked),
+        unlocked_at: achievement?.unlocked_at || null,
+        last_source_type: achievement?.last_source_type || null,
+        last_source_id: achievement?.last_source_id || null
+      };
+    })
+  );
+
+  return results;
 };
 
 const sanitizeDefinitionPayload = (payload, { isUpdate = false } = {}) => {

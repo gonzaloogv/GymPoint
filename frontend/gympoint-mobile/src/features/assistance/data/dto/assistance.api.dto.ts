@@ -90,5 +90,6 @@ export interface TodayStatusResponseDTO {
     check_in_time: string; // Hora en formato HH:MM:SS
     date: string; // Fecha en formato YYYY-MM-DD
     gym_name: string | null;
+    created_at?: string; // Timestamp completo con timezone
   } | null;
 }

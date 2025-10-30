@@ -57,6 +57,7 @@
     "node-cron": "^3.0.3",
     "sequelize": "^6.37.7",
     "silent": "^0.2.3",
+    "socket.io": "^4.8.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "umzug": "^3.8.2",

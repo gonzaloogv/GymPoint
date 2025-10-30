@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const gymController = require('../controllers/gym-controller');
 const gymScheduleController = require('../controllers/gym-schedule-controller');
+const reviewController = require('../controllers/review-controller');
 const { verificarToken, verificarRol, verificarUsuarioApp, verificarAdmin } = require('../middlewares/auth');
 
 /**
@@ -325,6 +326,30 @@ router.delete('/:gymId/special-schedules/:specialScheduleId', verificarToken, ve
  *         description: Estado actualizado del favorito
  */
 router.post('/:id/favorite', verificarToken, verificarUsuarioApp, gymController.toggleFavorito);
+
+// ============================================================================
+// REVIEW ROUTES (OpenAPI: /api/gyms/{gymId}/reviews)
+// IMPORTANT: Estas rutas deben estar ANTES de /:id para que Express las matchee correctamente
+// ============================================================================
+
+/**
+ * GET /api/gyms/:gymId/reviews
+ * Listar reseñas de un gimnasio
+ */
+router.get('/:gymId/reviews', reviewController.listGymReviews);
+
+/**
+ * GET /api/gyms/:gymId/reviews/stats
+ * Obtener estadísticas de rating de un gimnasio
+ */
+router.get('/:gymId/reviews/stats', reviewController.getGymRatingStats);
+
+/**
+ * POST /api/gyms/:gymId/reviews
+ * Crear una reseña para un gimnasio
+ */
+router.post('/:gymId/reviews', verificarToken, verificarUsuarioApp, reviewController.createGymReview);
+
 /**
  * @swagger
  * /api/gyms/{id}:

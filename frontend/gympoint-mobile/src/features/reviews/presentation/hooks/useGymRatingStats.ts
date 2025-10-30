@@ -24,7 +24,8 @@ export function useGymRatingStats(gymId: number): UseGymRatingStatsResult {
 
     try {
       const response = await ReviewRemote.getGymRatingStats(gymId);
-      const statsEntity = mapRatingStatsDTOToEntity(response.data);
+      // Backend retorna directamente el objeto, no dentro de { data: ... }
+      const statsEntity = mapRatingStatsDTOToEntity(response);
       setStats(statsEntity);
     } catch (err: any) {
       console.error('[useGymRatingStats] Error al cargar estadísticas:', err);

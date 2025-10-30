@@ -40,13 +40,8 @@ export class RewardRepositoryImpl implements RewardRepository {
 
   async getAvailableRewards(isPremium: boolean): Promise<Reward[]> {
     try {
-      console.log('[RewardRepository] Fetching rewards from API...');
-
       // Get all active rewards from API
       const dtos = await this.remote.listRewards({ available: true });
-
-      console.log(`[RewardRepository] Received ${dtos.length} rewards from API`);
-
       const rewards = mapRewardResponseDTOArrayToEntityArray(dtos);
 
       // Filter based on user plan
@@ -58,12 +53,9 @@ export class RewardRepositoryImpl implements RewardRepository {
         return reward.available;
       });
 
-      console.log(`[RewardRepository] Returning ${filtered.length} rewards after filtering (isPremium: ${isPremium})`);
-
       return filtered;
     } catch (error) {
       console.error('[RewardRepository] Error fetching available rewards from API:', error);
-      console.log('[RewardRepository] Falling back to local mock data');
 
       // Fallback to local mock data
       const dtos = await this.local.getAllRewards(isPremium);

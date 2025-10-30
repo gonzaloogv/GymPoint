@@ -9,8 +9,6 @@ export class TokenRepositoryImpl implements TokenRepository {
 
   async getTokenHistory(filters?: TokenTransactionFilters): Promise<TokenHistory> {
     try {
-      console.log('[TokenRepository] Fetching token history');
-
       const params: any = {
         page: filters?.page || 1,
         limit: filters?.limit || 50,
@@ -29,8 +27,6 @@ export class TokenRepositoryImpl implements TokenRepository {
       }
 
       const dto = await this.remote.getTokenLedger(params);
-      console.log(`[TokenRepository] Received ${dto.items.length} transactions`);
-
       const history = mapPaginatedTokenLedgerDTOToHistory(dto);
 
       // Filtrar por tipo si se especificó
@@ -57,8 +53,6 @@ export class TokenRepositoryImpl implements TokenRepository {
 
   async getTokenBalance(): Promise<TokenBalance> {
     try {
-      console.log('[TokenRepository] Fetching token balance');
-
       // Usar el endpoint /stats que ya calcula earned y spent en el backend
       const stats = await this.remote.getTokenStats();
 

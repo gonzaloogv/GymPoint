@@ -190,11 +190,20 @@ function toGymReviewResponse(review, options = {}) {
   };
 
   // Agregar info del usuario autor si está disponible
-  if (review.userProfile) {
+  if (review.user) {
     response.user = {
-      id_user_profile: review.userProfile.id_user_profile,
-      name: review.userProfile.name,
-      profile_picture_url: review.userProfile.profile_picture_url || null,
+      id_user_profile: review.user.id_user_profile,
+      name: review.user.name,
+      profile_picture_url: review.user.profile_picture_url || null,
+    };
+  }
+
+  // También agregar info del gym si está disponible
+  if (review.gym) {
+    response.gym = {
+      id_gym: review.gym.id_gym,
+      name: review.gym.name,
+      city: review.gym.city || null,
     };
   }
 

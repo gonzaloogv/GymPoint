@@ -25,17 +25,13 @@ export const MenuOptions: React.FC<MenuOptionsProps> = ({ isPremium, theme }) =>
   const navigation = useNavigation<any>();
 
   const handleTokenHistoryPress = useCallback(() => {
-    // Navigate to the Progreso tab, then to TokenHistory screen
-    navigation.navigate('Progreso', {
-      screen: 'TokenHistory',
-    } as any);
+    // Navigate to TokenHistory modal (no cambia el tab activo)
+    navigation.navigate('TokenHistory' as never);
   }, [navigation]);
 
   const handleRewardsPress = useCallback(() => {
-    // Navigate to the Progreso tab, then to Rewards screen
-    navigation.navigate('Progreso', {
-      screen: 'Rewards',
-    } as any);
+    // Navigate to Rewards modal (no cambia el tab activo)
+    navigation.navigate('Rewards' as never);
   }, [navigation]);
 
   const menuItems = [

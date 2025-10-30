@@ -17,13 +17,10 @@ export const SubscriptionRemote = {
    * POST /api/user-gym/alta
    * Suscribirse a un gimnasio
    */
-  subscribe: (payload: SubscribeToGymRequestDTO) => {
-    console.log('📤 [SubscriptionRemote.subscribe] Payload enviado:', JSON.stringify(payload, null, 2));
-    console.log('📤 [SubscriptionRemote.subscribe] Tipo de id_gym:', typeof payload.id_gym, 'Valor:', payload.id_gym);
-    return api
+  subscribe: (payload: SubscribeToGymRequestDTO) =>
+    api
       .post<SubscribeToGymResponseDTO>('/api/user-gym/alta', payload)
-      .then((r) => r.data);
-  },
+      .then((r) => r.data),
 
   /**
    * PUT /api/user-gym/baja
@@ -41,10 +38,7 @@ export const SubscriptionRemote = {
   getActiveSubscriptions: () =>
     api
       .get<ActiveSubscriptionsResponseDTO>('/api/user-gym/me/activos')
-      .then((r) => {
-        console.log('📥 [SubscriptionRemote] Respuesta de /api/user-gym/me/activos:', JSON.stringify(r.data, null, 2));
-        return r.data;
-      }),
+      .then((r) => r.data),
 
   /**
    * GET /api/user-gym/me/historial

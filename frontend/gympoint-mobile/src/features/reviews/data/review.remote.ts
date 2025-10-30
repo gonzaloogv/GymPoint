@@ -40,27 +40,34 @@ export const ReviewRemote = {
    * Crear una nueva reseña (requiere autenticación y asistencia previa al gym)
    * OpenAPI compliant route
    */
-  createReview: (payload: CreateReviewRequestDTO) =>
-    api
-      .post<ReviewResponseDTO>(`/api/gyms/${payload.id_gym}/reviews`, payload)
-      .then((r) => r.data),
+  createReview: (payload: CreateReviewRequestDTO) => {
+    const gymId = payload.id_gym;
+    const url = `/api/gyms/${gymId}/reviews`;
+
+    // Crear body sin id_gym (ya está en la URL)
+    const { id_gym, ...body } = payload;
+
+    return api
+      .post<ReviewResponseDTO>(url, body)
+      .then((r) => r.data);
+  },
 
   /**
-   * PATCH /api/reviews/:id_review
+   * PATCH /api/gym-reviews/:reviewId
    * Actualizar una reseña existente (solo el autor o admin)
    */
   updateReview: (reviewId: number, payload: UpdateReviewRequestDTO) =>
     api
-      .patch<ReviewResponseDTO>(`/api/reviews/${reviewId}`, payload)
+      .patch<ReviewResponseDTO>(`/api/gym-reviews/${reviewId}`, payload)
       .then((r) => r.data),
 
   /**
-   * DELETE /api/reviews/:id_review
+   * DELETE /api/gym-reviews/:reviewId
    * Eliminar una reseña (solo el autor o admin)
    */
   deleteReview: (reviewId: number) =>
     api
-      .delete<{ message: string }>(`/api/reviews/${reviewId}`)
+      .delete<{ message: string }>(`/api/gym-reviews/${reviewId}`)
       .then((r) => r.data),
 
   /**

@@ -27,9 +27,7 @@ import {
 import { ProgressScreen } from '@features/progress/presentation/ui/screens/ProgressScreen';
 import { PhysicalProgressScreen } from '@features/progress/presentation/ui/screens/PhysicalProgressScreen';
 import { ExerciseProgressScreen } from '@features/progress/presentation/ui/screens/ExerciseProgressScreen';
-import { TokenHistoryScreen } from '@features/progress/presentation/ui/screens/TokenHistoryScreen';
 import { AchievementsScreen } from '@features/progress/presentation/ui/screens/AchievementsScreen';
-import RewardsScreen from '@features/rewards/presentation/ui/screens/RewardsScreen';
 
 import { TabIcon } from './components/TabIcon';
 import type { RoutinesStackParamList, GymsStackParamList, ProgressStackParamList } from './types';
@@ -100,9 +98,6 @@ function GymsStackNavigator() {
 const ProgressStack = createNativeStackNavigator<ProgressStackParamList>();
 
 function ProgressStackNavigator() {
-  const user = useAuthStore((s) => s.user);
-  const updateUser = useAuthStore((s) => s.updateUser);
-
   return (
     <ProgressStack.Navigator>
       <ProgressStack.Screen
@@ -121,21 +116,10 @@ function ProgressStackNavigator() {
         options={{ headerShown: false }}
       />
       <ProgressStack.Screen
-        name="TokenHistory"
-        component={TokenHistoryScreen}
-        options={{ headerShown: false }}
-      />
-      <ProgressStack.Screen
         name="Achievements"
         component={AchievementsScreen}
         options={{ headerShown: false }}
       />
-      <ProgressStack.Screen
-        name="Rewards"
-        options={{ headerShown: false }}
-      >
-        {() => <RewardsScreen user={user} onUpdateUser={updateUser} />}
-      </ProgressStack.Screen>
     </ProgressStack.Navigator>
   );
 }

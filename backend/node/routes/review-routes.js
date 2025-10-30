@@ -20,6 +20,12 @@ router.get('/', verificarToken, verificarRol('ADMIN'), controller.listAllGymRevi
 router.put('/:reviewId', verificarToken, controller.updateGymReview);
 
 /**
+ * PATCH /:reviewId
+ * Actualiza una reseña (alias para PUT) - se sirve como /api/reviews/:reviewId
+ */
+router.patch('/:reviewId', verificarToken, controller.updateGymReview);
+
+/**
  * DELETE /:reviewId
  * Elimina una reseña - se sirve como /api/gym-reviews/:reviewId
  */
@@ -107,7 +113,7 @@ router.delete('/:reviewId', verificarToken, controller.deleteGymReview);
  *       404:
  *         description: Gimnasio no encontrado
  */
-router.get('/gym/:id_gym', controller.listarPorGym);
+router.get('/gym/:gymId', controller.listarPorGym);
 
 /**
  * @swagger

@@ -173,14 +173,17 @@ const createGymReview = async (req, res) => {
 
     const command = gymReviewMappers.toCreateGymReviewCommand(
       req.body,
-      gymId,
-      userProfile.id_user_profile
+      userProfile.id_user_profile,
+      gymId
     );
 
     const review = await reviewService.createGymReview(command);
     const dto = gymReviewMappers.toGymReviewResponse(review);
 
-    res.status(201).json(dto);
+    res.status(201).json({
+      message: 'Review creada exitosamente',
+      data: dto,
+    });
   } catch (error) {
     res.status(error.statusCode || 400).json({
       error: {
@@ -211,7 +214,10 @@ const updateGymReview = async (req, res) => {
     const review = await reviewService.updateGymReview(command);
     const dto = gymReviewMappers.toGymReviewResponse(review);
 
-    res.json(dto);
+    res.json({
+      message: 'Review actualizada exitosamente',
+      data: dto,
+    });
   } catch (error) {
     res.status(error.statusCode || 400).json({
       error: {

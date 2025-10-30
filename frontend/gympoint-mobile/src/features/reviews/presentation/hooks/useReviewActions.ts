@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
-import Toast from 'react-native-toast-message';
 import { ReviewRemote } from '../../data/review.remote';
 import { mapCreateReviewDataToRequestDTO, mapUpdateReviewDataToRequestDTO, mapReviewDTOToEntity } from '../../data/mappers/review.mapper';
 import { CreateReviewData, UpdateReviewData, Review } from '../../domain/entities/Review';
+import { showSuccessAlert, showErrorAlert } from '@shared/utils/alertUtils';
 
 export interface UseReviewActionsResult {
   createReview: (data: CreateReviewData) => Promise<Review | null>;
@@ -37,42 +37,34 @@ export function useReviewActions(): UseReviewActionsResult {
       const response = await ReviewRemote.createReview(requestDTO);
       const review = mapReviewDTOToEntity(response.data);
 
-      Toast.show({
-        type: 'success',
-        text1: '¡Reseña publicada!',
-        text2: response.message || 'Tu reseña ha sido publicada correctamente',
-        position: 'top',
-      });
+      showSuccessAlert(
+        'Reseña publicada',
+        '¡Tu reseña ha sido publicada correctamente!\n\nGracias por compartir tu experiencia.'
+      );
 
       return review;
     } catch (err: any) {
-      console.error('[useReviewActions.createReview] Error:', err);
 
       const errorData = err?.response?.data?.error;
-      let errorMessage = 'Error al publicar la reseña';
+      let errorMessage = 'Ocurrió un error al publicar tu reseña. Por favor intentá nuevamente.';
 
       if (errorData) {
         switch (errorData.code) {
           case 'NO_ATTENDANCE':
-            errorMessage = 'Debes haber asistido al gimnasio para poder dejar una reseña';
+            errorMessage = 'Debes haber asistido al gimnasio para poder dejar una reseña.';
             break;
           case 'REVIEW_EXISTS':
-            errorMessage = 'Ya has dejado una reseña para este gimnasio';
+            errorMessage = 'Ya has dejado una reseña para este gimnasio. Podés editarla desde "Mi reseña".';
             break;
           case 'VALIDATION_ERROR':
-            errorMessage = errorData.message || 'Datos de reseña inválidos';
+            errorMessage = errorData.message || 'Los datos de la reseña no son válidos. Verificá la información ingresada.';
             break;
           default:
             errorMessage = errorData.message || errorMessage;
         }
       }
 
-      Toast.show({
-        type: 'error',
-        text1: 'Error al publicar reseña',
-        text2: errorMessage,
-        position: 'top',
-      });
+      showErrorAlert('Error al publicar', errorMessage);
 
       return null;
     } finally {
@@ -91,25 +83,17 @@ export function useReviewActions(): UseReviewActionsResult {
       const response = await ReviewRemote.updateReview(reviewId, requestDTO);
       const review = mapReviewDTOToEntity(response.data);
 
-      Toast.show({
-        type: 'success',
-        text1: '¡Reseña actualizada!',
-        text2: 'Tu reseña ha sido actualizada correctamente',
-        position: 'top',
-      });
+      showSuccessAlert(
+        'Reseña actualizada',
+        'Tu reseña ha sido actualizada correctamente.'
+      );
 
       return review;
     } catch (err: any) {
-      console.error('[useReviewActions.updateReview] Error:', err);
 
-      const errorMessage = err?.response?.data?.error?.message || 'Error al actualizar la reseña';
+      const errorMessage = err?.response?.data?.error?.message || 'Ocurrió un error al actualizar tu reseña. Por favor intentá nuevamente.';
 
-      Toast.show({
-        type: 'error',
-        text1: 'Error al actualizar',
-        text2: errorMessage,
-        position: 'top',
-      });
+      showErrorAlert('Error al actualizar', errorMessage);
 
       return null;
     } finally {
@@ -123,7 +107,7 @@ export function useReviewActions(): UseReviewActionsResult {
   const deleteReview = async (reviewId: number): Promise<boolean> => {
     return new Promise((resolve) => {
       Alert.alert(
-        'Eliminar reseña',
+        '🗑️ Eliminar reseña',
         '¿Estás seguro que deseas eliminar esta reseña? Esta acción no se puede deshacer.',
         [
           {
@@ -140,25 +124,16 @@ export function useReviewActions(): UseReviewActionsResult {
               try {
                 await ReviewRemote.deleteReview(reviewId);
 
-                Toast.show({
-                  type: 'success',
-                  text1: 'Reseña eliminada',
-                  text2: 'Tu reseña ha sido eliminada correctamente',
-                  position: 'top',
-                });
+                showSuccessAlert(
+                  'Reseña eliminada',
+                  'Tu reseña ha sido eliminada correctamente.'
+                );
 
                 resolve(true);
               } catch (err: any) {
-                console.error('[useReviewActions.deleteReview] Error:', err);
+                const errorMessage = err?.response?.data?.error?.message || 'Ocurrió un error al eliminar tu reseña. Por favor intentá nuevamente.';
 
-                const errorMessage = err?.response?.data?.error?.message || 'Error al eliminar la reseña';
-
-                Toast.show({
-                  type: 'error',
-                  text1: 'Error al eliminar',
-                  text2: errorMessage,
-                  position: 'top',
-                });
+                showErrorAlert('Error al eliminar', errorMessage);
 
                 resolve(false);
               } finally {
@@ -181,16 +156,9 @@ export function useReviewActions(): UseReviewActionsResult {
       await ReviewRemote.markReviewHelpful(reviewId);
       return true;
     } catch (err: any) {
-      console.error('[useReviewActions.markHelpful] Error:', err);
+      const errorMessage = err?.response?.data?.error?.message || 'Ocurrió un error al marcar la reseña como útil. Por favor intentá nuevamente.';
 
-      const errorMessage = err?.response?.data?.error?.message || 'Error al marcar como útil';
-
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: errorMessage,
-        position: 'top',
-      });
+      showErrorAlert('Error', errorMessage);
 
       return false;
     } finally {
@@ -208,7 +176,6 @@ export function useReviewActions(): UseReviewActionsResult {
       await ReviewRemote.unmarkReviewHelpful(reviewId);
       return true;
     } catch (err: any) {
-      console.error('[useReviewActions.unmarkHelpful] Error:', err);
       return false;
     } finally {
       setIsMarking(false);

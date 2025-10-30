@@ -54,13 +54,8 @@ export function useGymSubscriptionStatus(
       const subscriptions = SubscriptionMapper.toDomainList(response.data);
       const subscriptionsWithStatus = subscriptions.map(SubscriptionUtils.withStatus);
 
-      console.log('🔍 [useGymSubscriptionStatus] Buscando suscripción para gymId:', gymId);
-      console.log('🔍 [useGymSubscriptionStatus] Suscripciones activas:', subscriptionsWithStatus.map(s => ({ gymId: s.gymId, status: s.status })));
-
       // Buscar suscripción para este gimnasio
       const gymSubscription = subscriptionsWithStatus.find((sub) => sub.gymId === gymId);
-
-      console.log('🔍 [useGymSubscriptionStatus] Suscripción encontrada:', gymSubscription);
 
       // Contar suscripciones activas
       const activeCount = subscriptionsWithStatus.filter((sub) => sub.status === 'ACTIVE').length;
@@ -82,8 +77,6 @@ export function useGymSubscriptionStatus(
         reachedLimit,
       };
 
-      console.log('✅ [useGymSubscriptionStatus] Nuevo estado:', { hasActiveSubscription: newStatus.hasActiveSubscription, canUseTrial: newStatus.canUseTrial });
-
       setStatus(newStatus);
     } catch (err) {
       console.error('❌ [useGymSubscriptionStatus] Error fetching subscription status:', err);
@@ -99,10 +92,6 @@ export function useGymSubscriptionStatus(
   }, [fetchStatus]);
 
   const subscribe = async (plan: string, dates?: SubscriptionDates): Promise<boolean> => {
-    console.log('🟢 [useGymSubscriptionStatus.subscribe] gymId:', gymId, 'tipo:', typeof gymId);
-    console.log('🟢 [useGymSubscriptionStatus.subscribe] plan:', plan);
-    console.log('🟢 [useGymSubscriptionStatus.subscribe] dates:', dates);
-
     const success = await subscribeAction(gymId, plan as any, dates);
     if (success) {
       await fetchStatus();

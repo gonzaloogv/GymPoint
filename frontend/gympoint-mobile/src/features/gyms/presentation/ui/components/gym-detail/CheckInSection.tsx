@@ -128,7 +128,15 @@ export function CheckInSection({
                     Hora de entrada
                   </Text>
                   <Text className={`text-sm font-bold ${isDark ? 'text-green-200' : 'text-green-900'}`}>
-                    {todayCheckInStatus.assistanceDetails.check_in_time.substring(0, 5)}
+                    {todayCheckInStatus.assistanceDetails.created_at
+                      ? (() => {
+                          const date = new Date(todayCheckInStatus.assistanceDetails.created_at);
+                          // Ajustar a timezone de Argentina (UTC-3)
+                          const hours = String(date.getUTCHours() - 3).padStart(2, '0');
+                          const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+                          return `${hours}:${minutes}`;
+                        })()
+                      : todayCheckInStatus.assistanceDetails.check_in_time.substring(0, 5)}
                   </Text>
                 </View>
               </>

@@ -125,8 +125,17 @@ export default function RegisterScreen() {
     });
 
     if (result.success) {
-      console.log('✅ Navegando a App...');
-      navigation.navigate('App');
+      console.log('✅ Registro exitoso, navegando a Login...');
+      Alert.alert(
+        'Cuenta creada',
+        'Tu cuenta ha sido creada exitosamente. Ahora podés iniciar sesión.',
+        [
+          {
+            text: 'Aceptar',
+            onPress: () => navigation.navigate('Login'),
+          },
+        ]
+      );
     } else {
       console.error('❌ Error en registro:', result.error);
       Alert.alert(

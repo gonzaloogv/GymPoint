@@ -319,7 +319,8 @@ const verificarCheckInHoy = async (req, res) => {
         id_gym: asistenciaHoy.id_gym,
         check_in_time: asistenciaHoy.check_in_time,
         date: asistenciaHoy.date,
-        gym_name: asistenciaHoy.gym?.name || null
+        gym_name: asistenciaHoy.gym?.name || null,
+        created_at: asistenciaHoy.created_at // Timestamp completo con timezone
       } : null
     });
   } catch (err) {

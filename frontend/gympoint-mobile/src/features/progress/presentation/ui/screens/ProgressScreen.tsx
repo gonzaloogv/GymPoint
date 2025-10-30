@@ -20,10 +20,6 @@ export function ProgressScreen({ navigation }: ProgressScreenProps) {
     navigation?.navigate('PhysicalProgress');
   }, [navigation]);
 
-  const handleNavigateToTokenHistory = useCallback(() => {
-    navigation?.navigate('TokenHistory');
-  }, [navigation]);
-
   const handleNavigateToAchievements = useCallback(() => {
     navigation?.navigate('Achievements');
   }, [navigation]);

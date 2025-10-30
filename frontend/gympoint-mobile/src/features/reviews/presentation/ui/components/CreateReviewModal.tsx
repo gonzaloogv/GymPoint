@@ -40,6 +40,13 @@ export function CreateReviewModal({
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
+  // Debug log
+  useEffect(() => {
+    if (visible) {
+      console.log('[CreateReviewModal] Modal abierto para gymId:', gymId, 'gymName:', gymName);
+    }
+  }, [visible, gymId, gymName]);
+
   // Form state
   const [rating, setRating] = useState(existingReview?.rating || 0);
   const [title, setTitle] = useState(existingReview?.title || '');
@@ -126,14 +133,20 @@ export function CreateReviewModal({
             </View>
 
             {/* Gym Name */}
-            <Text className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+            <Text className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               {gymName}
             </Text>
 
+            {/* Scroll Hint */}
+            <Text className={`text-xs mb-2 text-center ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+              ⬇️ Desliza para ver todos los campos
+            </Text>
+
             <ScrollView
-              showsVerticalScrollIndicator={false}
-              className="flex-1"
+              showsVerticalScrollIndicator={true}
               keyboardShouldPersistTaps="handled"
+              style={{ minHeight: 300, maxHeight: 500 }}
+              contentContainerStyle={{ paddingBottom: 20 }}
             >
               {/* Overall Rating */}
               <RatingStarsInput

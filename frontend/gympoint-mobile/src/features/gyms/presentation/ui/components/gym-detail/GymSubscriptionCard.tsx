@@ -13,9 +13,6 @@ interface GymSubscriptionCardProps {
 }
 
 export function GymSubscriptionCard({ gymId, gymName, subscriptionStatus }: GymSubscriptionCardProps) {
-  console.log('🟡 [GymSubscriptionCard] gymId recibido:', gymId, 'tipo:', typeof gymId);
-  console.log('🟡 [GymSubscriptionCard] gymName:', gymName);
-
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const [showManualSubscribeModal, setShowManualSubscribeModal] = useState(false);

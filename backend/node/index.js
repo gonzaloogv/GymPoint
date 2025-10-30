@@ -1,4 +1,5 @@
 const express = require('express');
+const http = require('http');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const sequelize = require('./config/database');
@@ -13,13 +14,14 @@ const { startSubscriptionExpirationJob } = require('./jobs/subscription-expirati
 const { errorHandler, notFoundHandler } = require('./middlewares/error-handler');
 const openapiValidatorMiddleware = require('./middlewares/openapi-validator');
 const { initSentry, sentryRequestHandler, sentryErrorHandler } = require('./config/sentry');
-const { 
-  apiLimiter, 
-  authLimiter, 
-  registerLimiter, 
-  webhookLimiter, 
-  paymentLimiter 
+const {
+  apiLimiter,
+  authLimiter,
+  registerLimiter,
+  webhookLimiter,
+  paymentLimiter
 } = require('./config/rate-limit');
+const { initializeWebSocket } = require('./websocket/socket-manager');
 
 // Cargar variables de entorno
 dotenv.config();
@@ -164,7 +166,7 @@ app.use(errorHandler);     // Manejo centralizado de errores
 // Función para iniciar el servidor
 async function startServer() {
   const PORT = process.env.PORT || 3000;
-  
+
   try {
     // 1. Verificar conexión a base de datos
     console.log('Verificando conexión a MySQL...');
@@ -174,21 +176,29 @@ async function startServer() {
     // 2. Ejecutar migraciones automáticamente
     console.log('Ejecutando migraciones...');
     await runMigrations();
-    
-    // 3. Iniciar servidor
-    app.listen(PORT, '0.0.0.0', () => {
+
+    // 3. Crear servidor HTTP (necesario para WebSocket)
+    const server = http.createServer(app);
+
+    // 4. Inicializar WebSocket
+    console.log('Inicializando WebSocket...');
+    initializeWebSocket(server);
+
+    // 5. Iniciar servidor
+    server.listen(PORT, '0.0.0.0', () => {
       console.log('');
       console.log('='.repeat(50));
       console.log(` Servidor GymPoint corriendo en puerto ${PORT}`);
       console.log(` Documentación API: http://localhost:${PORT}/docs`);
       console.log(` Health check: http://localhost:${PORT}/health`);
       console.log(` Ready check: http://localhost:${PORT}/ready`);
+      console.log(` WebSocket disponible en ws://localhost:${PORT}`);
       console.log(` Entorno: ${process.env.NODE_ENV || 'development'}`);
       console.log('='.repeat(50));
       console.log('');
     });
-    
-    // 4. Iniciar jobs programados
+
+    // 6. Iniciar jobs programados
     if (process.env.NODE_ENV !== 'test') {
       startRewardStatsJob(); // Cada 5 minutos
       startCleanupJob(); // Diario a las 3 AM
@@ -196,7 +206,7 @@ async function startServer() {
       startDailyChallengeJob(); // Diario a las 00:01 UTC
       startSubscriptionExpirationJob(); // Diario a las 9 AM
     }
-    
+
   } catch (error) {
     console.error(' Error fatal al iniciar el servidor:', error);
     process.exit(1);

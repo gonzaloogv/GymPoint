@@ -107,3 +107,5 @@ const Presence = sequelize.define('Presence', {
     }
   ]
 });
+
+module.exports = Presence;

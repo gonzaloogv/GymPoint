@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback, useEffect } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -8,7 +8,10 @@ import { useCurrentLocation } from '@features/gyms/presentation/hooks/useCurrent
 import type { Gym as GymEntity } from '@features/gyms/domain/entities/Gym';
 import { GymDetailScreen } from './GymDetailScreen';
 import type { GymsStackParamList } from '@presentation/navigation/types';
-import { useTheme } from '@shared/hooks';
+import { useTheme, useReviewUpdates, useCheckInUpdates } from '@shared/hooks';
+import Toast from 'react-native-toast-message';
+import { useQueryClient } from '@tanstack/react-query';
+import { websocketService } from '@shared/services/websocket.service';
 
 type GymDetailRouteProp = RouteProp<GymsStackParamList, 'GymDetail'>;
 type GymDetailNavigationProp = NativeStackNavigationProp<GymsStackParamList, 'GymDetail'>;
@@ -19,12 +22,10 @@ export function GymDetailScreenWrapper() {
   const route = useRoute<GymDetailRouteProp>();
   const navigation = useNavigation<GymDetailNavigationProp>();
   const { gymId } = route.params;
+  const queryClient = useQueryClient();
 
   // Obtener ubicación del usuario
   const { coords } = useCurrentLocation();
-
-  // Debug de coordenadas
-  console.log('📍 Coordenadas del usuario:', coords);
 
   // Obtener la lista de gimnasios para encontrar el seleccionado
   const {
@@ -35,28 +36,15 @@ export function GymDetailScreenWrapper() {
   } = useNearbyGyms(coords?.latitude, coords?.longitude);
 
   const gym = useMemo(() => {
-    console.log('🔍 Buscando gimnasio:', { gymId, gymsDataLength: gymsData?.length, gymIdType: typeof gymId });
-
     if (!gymsData || !gymId) {
-      console.log('❌ No hay datos o gymId:', { gymsData: !!gymsData, gymId });
       return null;
     }
 
-    console.log('📋 IDs disponibles:', gymsData.map((g) => ({ id: g.id, type: typeof g.id })));
-    console.log('📋 Comparando gymId:', gymId, 'con tipo:', typeof gymId);
-
-    const foundGym = gymsData.find((g: GymEntity) => {
-      const match = g.id === gymId;
-      console.log(`  Comparando ${g.id} (${typeof g.id}) === ${gymId} (${typeof gymId}) -> ${match}`);
-      return match;
-    });
+    const foundGym = gymsData.find((g: GymEntity) => g.id === gymId);
 
     if (!foundGym) {
-      console.log('❌ Gimnasio no encontrado con ID:', gymId, 'tipo:', typeof gymId);
-      console.log('❌ Intentando comparación flexible (== en lugar de ===)');
       const foundGymFlexible = gymsData.find((g: GymEntity) => g.id == gymId);
       if (foundGymFlexible) {
-        console.log('✅ Encontrado con ==:', foundGymFlexible.name, 'ID:', foundGymFlexible.id);
         // Usar foundGymFlexible para mapear
         return {
           id: foundGymFlexible.id,
@@ -74,8 +62,6 @@ export function GymDetailScreenWrapper() {
       }
       return null;
     }
-
-    console.log('✅ Gimnasio encontrado:', foundGym.name);
 
     // Mapear la entidad Gym al formato esperado por GymDetailScreen
     return {
@@ -99,10 +85,113 @@ export function GymDetailScreenWrapper() {
 
   const handleCheckIn = () => {
     // Implementar lógica de check-in
-    console.log('Check-in en gimnasio:', gym?.name);
     // Aquí puedes agregar la lógica para hacer check-in
     // Por ejemplo, llamar a una API, mostrar un modal, etc.
   };
+
+  /**
+   * WebSocket callbacks para reviews
+   */
+  const handleNewReview = useCallback(() => {
+    console.log('[GymDetailWrapper] New review received, invalidating queries...');
+    // Invalidar queries para refrescar datos
+    queryClient.invalidateQueries({ queryKey: ['gym-reviews', gymId] });
+    queryClient.invalidateQueries({ queryKey: ['gym-rating-stats', gymId] });
+    queryClient.invalidateQueries({ queryKey: ['gym-detail', gymId] });
+  }, [queryClient, gymId]);
+
+  const handleReviewUpdated = useCallback(() => {
+    console.log('[GymDetailWrapper] Review updated, invalidating queries...');
+    queryClient.invalidateQueries({ queryKey: ['gym-reviews', gymId] });
+    queryClient.invalidateQueries({ queryKey: ['gym-rating-stats', gymId] });
+    queryClient.invalidateQueries({ queryKey: ['gym-detail', gymId] });
+  }, [queryClient, gymId]);
+
+  const handleRatingUpdated = useCallback(
+    (data: { averageRating: number; totalReviews: number }) => {
+      console.log('[GymDetailWrapper] Rating updated:', data);
+      Toast.show({
+        type: 'info',
+        text1: 'Rating actualizado',
+        text2: `${data.averageRating.toFixed(1)} ⭐ (${data.totalReviews} reseñas)`,
+        position: 'bottom',
+        visibilityTime: 2000,
+      });
+      queryClient.invalidateQueries({ queryKey: ['gym-detail', gymId] });
+    },
+    [queryClient, gymId],
+  );
+
+  /**
+   * WebSocket callbacks para check-ins
+   */
+  const handleCheckInUpdate = useCallback(
+    (data: { userId: number; gymId: number }) => {
+      console.log('[GymDetailWrapper] New check-in:', data);
+      // Invalidar queries relacionadas con asistencias
+      queryClient.invalidateQueries({ queryKey: ['assistance'] });
+      queryClient.invalidateQueries({ queryKey: ['streak'] });
+    },
+    [queryClient],
+  );
+
+  const handleStreakUpdated = useCallback(
+    (data: { currentStreak: number; longestStreak: number }) => {
+      console.log('[GymDetailWrapper] Streak updated:', data);
+      Toast.show({
+        type: 'success',
+        text1: '🔥 Racha actualizada',
+        text2: `${data.currentStreak} día${data.currentStreak !== 1 ? 's' : ''} consecutivo${data.currentStreak !== 1 ? 's' : ''}`,
+        position: 'top',
+        visibilityTime: 3000,
+        topOffset: 60,
+      });
+      queryClient.invalidateQueries({ queryKey: ['streak'] });
+    },
+    [queryClient],
+  );
+
+  const handleStreakMilestone = useCallback((data: { milestone: number; message: string }) => {
+    console.log('[GymDetailWrapper] Streak milestone:', data);
+    Toast.show({
+      type: 'success',
+      text1: '🎉 ¡Hito alcanzado!',
+      text2: data.message,
+      position: 'top',
+      visibilityTime: 5000,
+      topOffset: 60,
+    });
+  }, []);
+
+  /**
+   * Registrar listeners de WebSocket
+   */
+  useReviewUpdates(gymId, {
+    onNewReview: handleNewReview,
+    onReviewUpdated: handleReviewUpdated,
+    onRatingUpdated: handleRatingUpdated,
+  });
+
+  useCheckInUpdates({
+    onCheckIn: handleCheckInUpdate,
+    onStreakUpdated: handleStreakUpdated,
+    onStreakMilestone: handleStreakMilestone,
+  });
+
+  /**
+   * Join gym room when component mounts to receive real-time updates
+   */
+  useEffect(() => {
+    if (gymId) {
+      console.log('[GymDetailWrapper] Joining gym room:', gymId);
+      websocketService.joinGym(gymId);
+
+      return () => {
+        console.log('[GymDetailWrapper] Leaving gym room:', gymId);
+        websocketService.leaveGym(gymId);
+      };
+    }
+  }, [gymId]);
 
   // Estados de loading y error
   if (gymsLoading) {

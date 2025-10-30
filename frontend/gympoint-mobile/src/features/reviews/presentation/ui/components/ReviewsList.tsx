@@ -2,10 +2,8 @@ import React from 'react';
 import {
   View,
   Text,
-  FlatList,
   ActivityIndicator,
   TouchableOpacity,
-  RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
@@ -33,6 +31,7 @@ interface ReviewsListProps {
 
 /**
  * Componente para mostrar lista de reviews con paginación
+ * Usa map en lugar de FlatList para evitar error de VirtualizedList anidado
  */
 export function ReviewsList({
   reviews,
@@ -49,16 +48,6 @@ export function ReviewsList({
 }: ReviewsListProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-
-  const [isRefreshing, setIsRefreshing] = React.useState(false);
-
-  const handleRefresh = async () => {
-    if (onRefresh) {
-      setIsRefreshing(true);
-      await onRefresh();
-      setIsRefreshing(false);
-    }
-  };
 
   // Loading state
   if (isLoading && reviews.length === 0) {
@@ -115,66 +104,54 @@ export function ReviewsList({
   }
 
   return (
-    <FlatList
-      data={reviews}
-      keyExtractor={(item) => `review-${item.id}`}
-      renderItem={({ item }) => (
+    <View>
+      {/* Lista de reseñas usando map en lugar de FlatList para evitar error de VirtualizedList anidado */}
+      {reviews.map((item) => (
         <ReviewCard
+          key={`review-${item.id}`}
           review={item}
           isOwnReview={currentUserId === item.userId}
           onHelpful={onHelpful}
           onEdit={onEdit}
           onDelete={onDelete}
         />
-      )}
-      contentContainerStyle={{ paddingBottom: 16 }}
-      refreshControl={
-        onRefresh ? (
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={handleRefresh}
-            tintColor={isDark ? '#60A5FA' : '#3B82F6'}
-          />
-        ) : undefined
-      }
-      ListFooterComponent={() => {
-        if (!pagination) return null;
+      ))}
 
-        return (
-          <View className="py-4">
-            {isLoading && (
-              <ActivityIndicator size="small" color={isDark ? '#60A5FA' : '#3B82F6'} />
-            )}
+      {/* Footer - Load More / Paginación */}
+      {pagination && (
+        <View className="py-4">
+          {isLoading && (
+            <ActivityIndicator size="small" color={isDark ? '#60A5FA' : '#3B82F6'} />
+          )}
 
-            {pagination.hasNextPage && !isLoading && onLoadMore && (
-              <TouchableOpacity
-                onPress={onLoadMore}
-                className={`mx-auto px-6 py-3 rounded-lg ${
-                  isDark ? 'bg-surface-dark' : 'bg-white'
-                }`}
-                style={{
-                  borderWidth: 1,
-                  borderColor: isDark ? '#374151' : '#E5E7EB',
-                }}
-              >
-                <Text className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                  Cargar más reseñas
-                </Text>
-              </TouchableOpacity>
-            )}
-
-            {pagination && (
-              <Text
-                className={`text-center text-xs mt-3 ${
-                  isDark ? 'text-gray-500' : 'text-gray-400'
-                }`}
-              >
-                Página {pagination.page} de {pagination.totalPages}
+          {pagination.hasNextPage && !isLoading && onLoadMore && (
+            <TouchableOpacity
+              onPress={onLoadMore}
+              className={`mx-auto px-6 py-3 rounded-lg ${
+                isDark ? 'bg-surface-dark' : 'bg-white'
+              }`}
+              style={{
+                borderWidth: 1,
+                borderColor: isDark ? '#374151' : '#E5E7EB',
+              }}
+            >
+              <Text className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Cargar más reseñas
               </Text>
-            )}
-          </View>
-        );
-      }}
-    />
+            </TouchableOpacity>
+          )}
+
+          {pagination && (
+            <Text
+              className={`text-center text-xs mt-3 ${
+                isDark ? 'text-gray-500' : 'text-gray-400'
+              }`}
+            >
+              Página {pagination.page} de {pagination.totalPages}
+            </Text>
+          )}
+        </View>
+      )}
+    </View>
   );
 }

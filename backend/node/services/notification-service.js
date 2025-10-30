@@ -6,6 +6,7 @@
 const { notificationRepository, userProfileRepository } = require('../infra/db/repositories');
 const { NotFoundError, ValidationError } = require('../utils/errors');
 const sequelize = require('../config/database');
+const { emitEvent, EVENTS } = require('../websocket/events/event-emitter');
 
 // ============================================================================
 // HELPERS
@@ -95,6 +96,26 @@ async function createNotification(command, options = {}) {
     sendPushNotification(notification).catch((error) => {
       console.error('[notification-service] Error enviando push:', error.message);
     });
+  }
+
+  // Emitir evento para WebSocket (sin afectar la lógica existente)
+  if (shouldSendNow) {
+    try {
+      emitEvent(EVENTS.NOTIFICATION_CREATED, {
+        userProfileId: notification.id_user_profile,
+        notification: {
+          id_notification: notification.id_notification,
+          type: notification.type,
+          title: notification.title,
+          message: notification.message,
+          data: notification.data,
+          is_read: notification.is_read,
+          created_at: notification.created_at
+        }
+      });
+    } catch (error) {
+      console.error('[notification-service] Error emitiendo evento WebSocket:', error.message);
+    }
   }
 
   return notification;

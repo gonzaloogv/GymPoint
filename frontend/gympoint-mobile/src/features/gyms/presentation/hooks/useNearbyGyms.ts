@@ -16,13 +16,11 @@ export function useNearbyGyms(lat?: number, lng?: number, radius = 10000) {
 
     // Si no hay coordenadas, usar mocks directamente
     if (typeof lat !== 'number' || typeof lng !== 'number') {
-      console.log('📍 No hay coordenadas disponibles, usando mocks...');
       setTimeout(() => {
         if (mounted) {
           setData(MOCK_UI);
           setDataSource('mocks');
           setLoading(false);
-          console.log(`📦 Mocks cargados: ${MOCK_UI.length} gimnasios`);
         }
       }, 500); // Simular un pequeño delay
 
@@ -38,9 +36,6 @@ export function useNearbyGyms(lat?: number, lng?: number, radius = 10000) {
           setData(d);
           // Los mocks ya vienen con distancia calculada desde el repositorio
           setDataSource('api'); // Si llegamos aquí, los datos vienen del repositorio (que puede usar mocks internamente)
-          console.log(
-            `📍 Hook useNearbyGyms: ${d.length} gimnasios cargados desde repositorio`,
-          );
         }
       })
       .catch((e) => {

@@ -119,7 +119,14 @@ async function createReview(payload, options = {}) {
   const review = await GymReview.create(payload, {
     transaction: options.transaction,
   });
-  return toGymReview(review);
+
+  // Recargar con asociaciones para incluir author y gym en la respuesta
+  const reviewWithAssociations = await GymReview.findByPk(review.id_review, {
+    include: [USER_PROFILE_ASSOC, GYM_ASSOC],
+    transaction: options.transaction,
+  });
+
+  return toGymReview(reviewWithAssociations);
 }
 
 async function updateReview(reviewId, payload, options = {}) {

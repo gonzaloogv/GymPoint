@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { DI } from '@di/container';
-import { useAuthStore } from '../state/auth.store';
 import { parseBackendError, logError } from '@shared/utils/errorParser';
 
 interface RegisterData {
@@ -16,7 +15,6 @@ interface RegisterData {
 export const useRegister = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const setUser = useAuthStore((state) => state.setUser);
 
   const register = async (data: RegisterData) => {
     setLoading(true);
@@ -63,16 +61,7 @@ export const useRegister = () => {
 
       console.log('✅ Registro exitoso:', response);
 
-      // Actualizar el estado del usuario en el store
-      setUser({
-        id_user: response.id,
-        name: response.name,
-        email: response.email,
-        role: 'USER',
-        tokens: 0,
-        plan: response.subscription === 'PREMIUM' ? 'Premium' : 'Free',
-      });
-
+      // No logueamos automáticamente - el usuario debe ir a login
       return { success: true };
     } catch (err: any) {
       // Usar utilidad centralizada para logging y parsing de errores

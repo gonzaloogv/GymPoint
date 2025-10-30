@@ -40,7 +40,7 @@ export function useGymReviews(params: UseGymReviewsParams): UseGymReviewsResult 
     page: initialPage = 1,
     limit = 10,
     sortBy = 'created_at',
-    order = 'DESC',
+    order = 'desc',
     minRating,
     maxRating,
     withCommentOnly,

@@ -260,6 +260,72 @@ paths:
             application/json:
               schema:
                 $ref: '../components/common.yaml#/components/schemas/Error'
+  /api/gyms/{gymId}/reviews/stats:
+    parameters:
+      - $ref: '../components/parameters.yaml#/components/parameters/GymIdPathParam'
+    get:
+      operationId: getGymRatingStats
+      tags:
+        - Gym Reviews
+      summary: Obtener estadísticas de rating de un gimnasio
+      description: Devuelve estadísticas agregadas de las reseñas de un gimnasio (promedio, distribución por estrellas, etc.)
+      responses:
+        '200':
+          description: Estadísticas de rating del gimnasio
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id_gym
+                  - avg_rating
+                  - total_reviews
+                properties:
+                  id_gym:
+                    type: integer
+                  avg_rating:
+                    type: number
+                    format: float
+                    minimum: 0
+                    maximum: 5
+                  total_reviews:
+                    type: integer
+                    minimum: 0
+                  rating_5_count:
+                    type: integer
+                  rating_4_count:
+                    type: integer
+                  rating_3_count:
+                    type: integer
+                  rating_2_count:
+                    type: integer
+                  rating_1_count:
+                    type: integer
+                  avg_cleanliness:
+                    type: number
+                    format: float
+                    nullable: true
+                  avg_equipment:
+                    type: number
+                    format: float
+                    nullable: true
+                  avg_staff:
+                    type: number
+                    format: float
+                    nullable: true
+                  avg_value:
+                    type: number
+                    format: float
+                    nullable: true
+                  last_review_date:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  updated_at:
+                    type: string
+                    format: date-time
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'
   /api/gyms/{gymId}/payments:
     parameters:
       - $ref: '../components/parameters.yaml#/components/parameters/GymIdPathParam'
@@ -394,6 +460,39 @@ paths:
         - Gym Reviews
       summary: Actualizar una reseña
       description: Actualiza una reseña existente (admin o autor)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/gyms.yaml#/components/schemas/CreateGymReviewRequest'
+      responses:
+        '200':
+          description: Reseña actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/gyms.yaml#/components/schemas/GymReviewResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+        '403':
+          $ref: '../components/responses.yaml#/components/responses/Forbidden'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'
+    patch:
+      operationId: patchGymReview
+      tags:
+        - Gym Reviews
+      summary: Actualizar una reseña (PATCH)
+      description: Actualiza una reseña existente (admin o autor) - Alias de PUT
       security:
         - BearerAuth: []
       requestBody:

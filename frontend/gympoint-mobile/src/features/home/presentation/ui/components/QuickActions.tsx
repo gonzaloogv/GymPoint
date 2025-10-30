@@ -67,7 +67,7 @@ export default function QuickActions({ onFindGyms, onMyRoutines }: Props) {
       colorDark: '#fb923c',
       background: '#fef3c7',
       backgroundDark: 'rgba(251, 146, 60, 0.15)',
-      onPress: () => navigation.navigate('Progreso', { screen: 'Rewards' }),
+      onPress: () => navigation.navigate('Rewards' as never),
     },
   ];
 

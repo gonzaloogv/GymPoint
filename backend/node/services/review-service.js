@@ -8,11 +8,13 @@ const {
   gymReviewRepository,
   gymRepository,
   userProfileRepository,
-  presenceRepository,
 } = require('../infra/db/repositories');
 const { NotFoundError, ConflictError, BusinessError } = require('../utils/errors');
 const tokenLedgerService = require('./token-ledger-service');
+const achievementService = require('./achievement-service');
+const { processUnlockResults } = require('./achievement-side-effects');
 const { TOKENS, TOKEN_REASONS } = require('../config/constants');
+const { emitEvent, EVENTS } = require('../websocket/events/event-emitter');
 
 const REVIEW_TOKENS = Number.isFinite(TOKENS.REVIEW) ? TOKENS.REVIEW : 0;
 const REVIEW_TOKEN_REASON = TOKEN_REASONS.REVIEW_SUBMITTED || 'REVIEW_SUBMITTED';
@@ -22,26 +24,6 @@ const REVIEW_TOKEN_REASON = TOKEN_REASONS.REVIEW_SUBMITTED || 'REVIEW_SUBMITTED'
 // ============================================================================
 
 /**
- * Verifica que el usuario haya asistido al gimnasio antes de dejar una reseña
- */
-async function ensureUserCanReview(userId, gymId, transaction) {
-  // Buscar asistencias del usuario en ese gimnasio
-  const presences = await presenceRepository.findPresencesByUser({
-    userId,
-    filters: { gymId },
-    pagination: { limit: 1 },
-    options: { transaction },
-  });
-
-  if (!presences.items || presences.items.length === 0) {
-    throw new BusinessError(
-      'Debes haber asistido al gimnasio antes de dejar una reseña',
-      'REVIEW_REQUIRES_ASSISTANCE'
-    );
-  }
-}
-
-/**
  * Recalcula las estadísticas de rating del gimnasio
  */
 async function recalculateStats(gymId, transaction) {
@@ -49,6 +31,7 @@ async function recalculateStats(gymId, transaction) {
   // Aquí llamamos al repositorio con los datos agregados
   const reviews = await gymReviewRepository.findReviewsByGymId({
     gymId,
+    pagination: { limit: 10000 }, // Obtener todas las reviews para calcular stats
     options: { transaction },
   });
 
@@ -150,7 +133,7 @@ async function recalculateStats(gymId, transaction) {
 async function listGymReviews(query) {
   // Verificar que el gimnasio existe (solo si se especificó gymId)
   if (query.gymId) {
-    const gym = await gymRepository.findGymById(query.gymId);
+    const gym = await gymRepository.findById(query.gymId);
     if (!gym) {
       throw new NotFoundError('Gimnasio no encontrado');
     }
@@ -220,19 +203,16 @@ async function createGymReview(command) {
   const transaction = await sequelize.transaction();
   try {
     // Validar que el gimnasio existe
-    const gym = await gymRepository.findGymById(command.gymId, { transaction });
+    const gym = await gymRepository.findById(command.gymId, { transaction });
     if (!gym) {
       throw new NotFoundError('Gimnasio no encontrado');
     }
 
     // Validar que el usuario existe
-    const user = await userProfileRepository.findProfileById(command.userId, { transaction });
+    const user = await userProfileRepository.findById(command.userId, { transaction });
     if (!user) {
       throw new NotFoundError('Usuario no encontrado');
     }
-
-    // Validar que el usuario ha asistido al gimnasio
-    await ensureUserCanReview(command.userId, command.gymId, transaction);
 
     // Verificar que no exista una reseña previa
     const existing = await gymReviewRepository.findReviewByUserAndGym(
@@ -263,19 +243,66 @@ async function createGymReview(command) {
     // Recalcular estadísticas
     await recalculateStats(command.gymId, transaction);
 
-    // Otorgar tokens si está configurado
+    // Obtener las stats actualizadas para emitir en el evento
+    const updatedStats = await gymReviewRepository.findRatingStatsByGymId(command.gymId, { transaction });
+
+    // Otorgar tokens si está configurado - SOLO LA PRIMERA VEZ (primera review del usuario)
     if (REVIEW_TOKENS > 0) {
-      await tokenLedgerService.registrarMovimiento({
-        userId: command.userId,
-        delta: REVIEW_TOKENS,
-        reason: REVIEW_TOKEN_REASON,
-        refType: 'gym_review',
-        refId: review.id_review,
-        transaction,
+      // Verificar si el usuario YA recibió tokens por alguna review anteriormente
+      const { TokenLedger } = require('../models');
+      const existingReviewTokens = await TokenLedger.findOne({
+        where: {
+          id_user_profile: command.userId,
+          ref_type: 'gym_review'
+        },
+        transaction
       });
+
+      if (!existingReviewTokens) {
+        // Primera review del usuario - otorgar tokens
+        await tokenLedgerService.registrarMovimiento({
+          userId: command.userId,
+          delta: REVIEW_TOKENS,
+          reason: REVIEW_TOKEN_REASON,
+          refType: 'gym_review',
+          refId: review.id_review,
+          transaction,
+        });
+      }
     }
 
     await transaction.commit();
+
+    // Emitir evento WebSocket de nueva review
+    emitEvent(EVENTS.REVIEW_CREATED, {
+      reviewId: review.id_review,
+      gymId: command.gymId,
+      userId: command.userId,
+      rating: review.rating,
+      title: review.title,
+      comment: review.comment,
+    });
+
+    // Emitir evento de actualización de rating del gym
+    if (updatedStats) {
+      emitEvent(EVENTS.GYM_RATING_UPDATED, {
+        gymId: command.gymId,
+        averageRating: parseFloat(updatedStats.avg_rating),
+        totalReviews: updatedStats.total_reviews,
+      });
+    }
+
+    // Sincronizar achievements de tokens DESPUÉS del commit para evitar deadlocks
+    try {
+      const achievementResults = await achievementService.syncAllAchievementsForUser(command.userId, {
+        categories: ['TOKEN']
+      });
+      await processUnlockResults(command.userId, achievementResults);
+    } catch (error) {
+      console.error(`[review-service.createGymReview] Error sincronizando achievements:`, error.message);
+      // No lanzamos el error para no bloquear la creación de la review
+    }
+
     return review;
   } catch (error) {
     await transaction.rollback();
@@ -318,11 +345,33 @@ async function updateGymReview(command) {
     );
 
     // Recalcular estadísticas si cambió el rating
+    let updatedStats = null;
     if (command.rating !== undefined) {
       await recalculateStats(review.id_gym, transaction);
+      updatedStats = await gymReviewRepository.findRatingStatsByGymId(review.id_gym, { transaction });
     }
 
     await transaction.commit();
+
+    // Emitir evento WebSocket de review actualizada
+    emitEvent(EVENTS.REVIEW_UPDATED, {
+      reviewId: command.reviewId,
+      gymId: review.id_gym,
+      userId: review.id_user_profile,
+      rating: updated.rating,
+      title: updated.title,
+      comment: updated.comment,
+    });
+
+    // Emitir evento de actualización de rating del gym si cambió el rating
+    if (updatedStats) {
+      emitEvent(EVENTS.GYM_RATING_UPDATED, {
+        gymId: review.id_gym,
+        averageRating: parseFloat(updatedStats.avg_rating),
+        totalReviews: updatedStats.total_reviews,
+      });
+    }
+
     return updated;
   } catch (error) {
     await transaction.rollback();
@@ -466,7 +515,7 @@ async function unmarkReviewHelpful(command) {
  */
 async function getGymRatingStats(query) {
   // Verificar que el gimnasio existe
-  const gym = await gymRepository.findGymById(query.gymId);
+  const gym = await gymRepository.findById(query.gymId);
   if (!gym) {
     throw new NotFoundError('Gimnasio no encontrado');
   }

@@ -73,25 +73,25 @@ export interface ReviewResponseDTO {
 
 /**
  * Response paginada de reviews
- * GET /api/reviews/gym/:id_gym
+ * GET /api/gyms/:gymId/reviews
  */
 export interface PaginatedReviewsResponseDTO {
-  data: ReviewDTO[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
+  items: ReviewDTO[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }
 
 /**
  * Estadísticas de rating de un gimnasio
- * GET /api/reviews/gym/:id_gym/stats
+ * GET /api/gyms/:gymId/reviews/stats
+ * Backend puede retornar avg_rating o average_rating
  */
 export interface RatingStatsDTO {
   id_gym: number;
-  avg_rating: number; // 0.00-5.00
+  avg_rating?: number; // 0.00-5.00 (legacy)
+  average_rating?: number; // 0.00-5.00 (actual)
   total_reviews: number;
   rating_5_count: number;
   rating_4_count: number;
@@ -101,17 +101,17 @@ export interface RatingStatsDTO {
   avg_cleanliness: number | null;
   avg_equipment: number | null;
   avg_staff: number | null;
+  avg_facilities?: number | null;
   avg_value: number | null;
-  last_review_date: string | null; // ISO datetime
-  updated_at: string; // ISO datetime
+  last_review_date?: string | null; // ISO datetime
+  last_updated?: string | null; // ISO datetime (actual)
+  updated_at?: string; // ISO datetime (legacy)
 }
 
 /**
- * Response de stats
+ * Response de stats - Backend retorna directamente el objeto
  */
-export interface RatingStatsResponseDTO {
-  data: RatingStatsDTO;
-}
+export interface RatingStatsResponseDTO extends RatingStatsDTO {}
 
 /**
  * Query params para listar reviews

@@ -30,7 +30,6 @@ export class TokenRemote {
     const queryString = queryParams.toString();
     const url = `/api/users/me/tokens/ledger${queryString ? `?${queryString}` : ''}`;
 
-    console.log('[TokenRemote] Calling URL:', url);
     const response = await apiClient.get<PaginatedTokenLedgerDTO>(url);
     return response.data;
   }
@@ -40,7 +39,6 @@ export class TokenRemote {
    * Obtiene el balance de tokens del usuario autenticado
    */
   async getTokenBalance(): Promise<TokenBalanceDTO> {
-    console.log('[TokenRemote] Calling URL: /api/users/me/tokens/balance');
     const response = await apiClient.get<TokenBalanceDTO>('/api/users/me/tokens/balance');
     return response.data;
   }
@@ -50,7 +48,6 @@ export class TokenRemote {
    * Obtiene estadísticas de tokens del usuario autenticado (balance, earned, spent)
    */
   async getTokenStats(): Promise<TokenStatsDTO> {
-    console.log('[TokenRemote] Calling URL: /api/users/me/tokens/stats');
     const response = await apiClient.get<TokenStatsDTO>('/api/users/me/tokens/stats');
     return response.data;
   }

@@ -4636,6 +4636,40 @@ paths:
           description: Presencia actualizada
         '403':
           description: Función exclusiva premium
+  /api/assistances/today-status:
+    get:
+      operationId: verificarCheckInHoy
+      summary: Verificar si el usuario ya hizo check-in hoy
+      tags:
+        - Asistencias
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Estado de check-in del día
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  has_checked_in_today:
+                    type: boolean
+                    example: true
+                  assistance:
+                    type: object
+                    nullable: true
+                    properties:
+                      id_assistance:
+                        type: integer
+                      id_gym:
+                        type: integer
+                      entry_time:
+                        type: string
+                        format: date-time
+                      gym_name:
+                        type: string
+        '401':
+          description: No autorizado
   /api/assistances/verify-auto-checkin:
     post:
       operationId: verificarAutoCheckIn
@@ -5990,6 +6024,72 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /api/gyms/{gymId}/reviews/stats:
+    parameters:
+      - $ref: '#/components/parameters/GymIdPathParam'
+    get:
+      operationId: getGymRatingStats
+      tags:
+        - Gym Reviews
+      summary: Obtener estadísticas de rating de un gimnasio
+      description: Devuelve estadísticas agregadas de las reseñas de un gimnasio (promedio, distribución por estrellas, etc.)
+      responses:
+        '200':
+          description: Estadísticas de rating del gimnasio
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id_gym
+                  - avg_rating
+                  - total_reviews
+                properties:
+                  id_gym:
+                    type: integer
+                  avg_rating:
+                    type: number
+                    format: float
+                    minimum: 0
+                    maximum: 5
+                  total_reviews:
+                    type: integer
+                    minimum: 0
+                  rating_5_count:
+                    type: integer
+                  rating_4_count:
+                    type: integer
+                  rating_3_count:
+                    type: integer
+                  rating_2_count:
+                    type: integer
+                  rating_1_count:
+                    type: integer
+                  avg_cleanliness:
+                    type: number
+                    format: float
+                    nullable: true
+                  avg_equipment:
+                    type: number
+                    format: float
+                    nullable: true
+                  avg_staff:
+                    type: number
+                    format: float
+                    nullable: true
+                  avg_value:
+                    type: number
+                    format: float
+                    nullable: true
+                  last_review_date:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  updated_at:
+                    type: string
+                    format: date-time
+        '404':
+          $ref: '#/components/responses/NotFound'
   /api/gyms/{gymId}/payments:
     parameters:
       - $ref: '#/components/parameters/GymIdPathParam'
