@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, Modal, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
@@ -7,74 +7,135 @@ interface MeasurementModalProps {
   visible: boolean;
   onClose: () => void;
   onSave: (data: MeasurementData) => void;
+  initialData?: MeasurementData | null;
+  mode?: 'create' | 'edit';
 }
 
 export interface MeasurementData {
-  weight: string;
-  bodyFat?: string;
   date: string;
-  time: string;
-  note?: string;
+  weight_kg?: string;
+  height_cm?: string;
+  body_fat_percentage?: string;
+  muscle_mass_kg?: string;
+  waist_cm?: string;
+  chest_cm?: string;
+  arms_cm?: string;
+  notes?: string;
 }
 
-export function MeasurementModal({ visible, onClose, onSave }: MeasurementModalProps) {
+export function MeasurementModal({ visible, onClose, onSave, initialData = null, mode = 'create' }: MeasurementModalProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const [weight, setWeight] = useState('');
-  const [bodyFat, setBodyFat] = useState('');
+  // Estado del formulario
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [time, setTime] = useState(new Date().toTimeString().slice(0, 5));
-  const [note, setNote] = useState('');
-  const [errors, setErrors] = useState<{ weight?: string }>({});
+
+  // Información básica
+  const [weight, setWeight] = useState('');
+  const [height, setHeight] = useState('');
+
+  // Métricas avanzadas
+  const [bodyFat, setBodyFat] = useState('');
+  const [muscleMass, setMuscleMass] = useState('');
+  const [waist, setWaist] = useState('');
+  const [chest, setChest] = useState('');
+  const [arms, setArms] = useState('');
+
+  const [notes, setNotes] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [errors, setErrors] = useState<{ weight?: string; height?: string }>({});
+
+  // Cargar datos iniciales cuando el modal se abre en modo edición
+  useEffect(() => {
+    if (visible && initialData) {
+      setDate(initialData.date);
+      setWeight(initialData.weight_kg || '');
+      setHeight(initialData.height_cm || '');
+      setBodyFat(initialData.body_fat_percentage || '');
+      setMuscleMass(initialData.muscle_mass_kg || '');
+      setWaist(initialData.waist_cm || '');
+      setChest(initialData.chest_cm || '');
+      setArms(initialData.arms_cm || '');
+      setNotes(initialData.notes || '');
+
+      // Mostrar sección avanzada si hay datos en ella
+      const hasAdvancedData = initialData.body_fat_percentage || initialData.muscle_mass_kg ||
+                              initialData.waist_cm || initialData.chest_cm || initialData.arms_cm;
+      setShowAdvanced(!!hasAdvancedData);
+    }
+  }, [visible, initialData]);
 
   const handleSave = useCallback(() => {
-    // Validate weight
-    if (!weight.trim()) {
-      setErrors({ weight: 'Peso es requerido' });
+    // Validar que al menos peso o altura estén presentes
+    if (!weight.trim() && !height.trim()) {
+      setErrors({ weight: 'Debes ingresar al menos peso o altura' });
       return;
     }
 
-    onSave({
-      weight,
-      bodyFat: bodyFat || undefined,
+    console.log('[MeasurementModal] Guardando datos:', {
       date,
-      time,
-      note: note || undefined,
+      weight_kg: weight || undefined,
+      height_cm: height || undefined,
+      body_fat_percentage: bodyFat || undefined,
+      muscle_mass_kg: muscleMass || undefined,
+      waist_cm: waist || undefined,
+      chest_cm: chest || undefined,
+      arms_cm: arms || undefined,
+      notes: notes || undefined,
     });
 
-    // Reset form
-    setWeight('');
-    setBodyFat('');
+    onSave({
+      date,
+      weight_kg: weight || undefined,
+      height_cm: height || undefined,
+      body_fat_percentage: bodyFat || undefined,
+      muscle_mass_kg: muscleMass || undefined,
+      waist_cm: waist || undefined,
+      chest_cm: chest || undefined,
+      arms_cm: arms || undefined,
+      notes: notes || undefined,
+    });
+
+    // Reset form solo en modo create
+    if (mode === 'create') {
+      resetForm();
+    }
+  }, [date, weight, height, bodyFat, muscleMass, waist, chest, arms, notes, mode, onSave]);
+
+  const resetForm = () => {
     setDate(new Date().toISOString().split('T')[0]);
-    setTime(new Date().toTimeString().slice(0, 5));
-    setNote('');
+    setWeight('');
+    setHeight('');
+    setBodyFat('');
+    setMuscleMass('');
+    setWaist('');
+    setChest('');
+    setArms('');
+    setNotes('');
+    setShowAdvanced(false);
     setErrors({});
-  }, [weight, bodyFat, date, time, note, onSave]);
+  };
 
   const handleClose = useCallback(() => {
-    // Reset form
-    setWeight('');
-    setBodyFat('');
-    setDate(new Date().toISOString().split('T')[0]);
-    setTime(new Date().toTimeString().slice(0, 5));
-    setNote('');
-    setErrors({});
+    if (mode === 'create') {
+      resetForm();
+    }
     onClose();
-  }, [onClose]);
+  }, [mode, onClose]);
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal visible={visible} transparent animationType="slide">
       <View className="flex-1 bg-black/50 justify-end">
         <View
           className={`w-full rounded-t-3xl p-6 ${
             isDark ? 'bg-gray-900' : 'bg-white'
           }`}
+          style={{ maxHeight: '90%' }}
         >
           {/* Header */}
           <View className="flex-row items-center justify-between mb-6">
             <Text className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              Nueva medición
+              {mode === 'edit' ? 'Editar medición' : 'Nueva medición'}
             </Text>
             <Pressable onPress={handleClose}>
               <Ionicons
@@ -85,90 +146,222 @@ export function MeasurementModal({ visible, onClose, onSave }: MeasurementModalP
             </Pressable>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} className="max-h-96">
-            {/* Weight Input */}
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {/* Fecha - Solo lectura en modo edición */}
             <View className="mb-6">
-              <View className="flex-row items-center mb-2">
-                <Text className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                  Peso (kg)
-                </Text>
-                <Text className="text-red-500 ml-1 font-semibold">*</Text>
-              </View>
+              <Text className={`font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Fecha de medición
+              </Text>
               <TextInput
-                placeholder="Ej: 72.5"
-                value={weight}
-                onChangeText={(text) => {
-                  setWeight(text);
-                  if (errors.weight) setErrors({});
-                }}
-                keyboardType="decimal-pad"
+                value={date}
+                onChangeText={setDate}
+                placeholder="YYYY-MM-DD"
+                editable={mode === 'create'}
                 className={`border rounded-lg p-4 text-base ${
-                  isDark
+                  mode === 'edit'
+                    ? isDark
+                      ? 'bg-gray-800/50 border-gray-700 text-gray-500'
+                      : 'bg-gray-100 border-gray-300 text-gray-500'
+                    : isDark
                     ? 'bg-gray-800 border-gray-700 text-white'
                     : 'bg-gray-50 border-gray-300 text-gray-900'
                 }`}
               />
-              {errors.weight && (
-                <Text className="text-red-500 text-sm mt-1">{errors.weight}</Text>
+              {mode === 'edit' && (
+                <Text className={`text-xs mt-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                  La fecha no se puede modificar en modo edición
+                </Text>
               )}
             </View>
 
-            {/* Body Fat Input */}
-            <View className="mb-6">
-              <Text className={`font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                % Grasa corporal (opcional)
-              </Text>
-              <TextInput
-                placeholder="Ej: 18.2"
-                value={bodyFat}
-                onChangeText={setBodyFat}
-                keyboardType="decimal-pad"
-                className={`border rounded-lg p-4 text-base ${
-                  isDark
-                    ? 'bg-gray-800 border-gray-700 text-white'
-                    : 'bg-gray-50 border-gray-300 text-gray-900'
-                }`}
-              />
-            </View>
-
-            {/* Date and Time */}
-            <View className="mb-6">
-              <Text className={`font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                Fecha
-              </Text>
-              <View className="flex-row gap-3">
-                <TextInput
-                  value={date}
-                  onChangeText={setDate}
-                  placeholder="DD/MM/YYYY"
-                  className={`flex-1 border rounded-lg p-4 text-base ${
-                    isDark
-                      ? 'bg-gray-800 border-gray-700 text-white'
-                      : 'bg-gray-50 border-gray-300 text-gray-900'
-                  }`}
+            {/* Sección: Información Básica */}
+            <View className={`mb-6 p-4 rounded-xl ${isDark ? 'bg-gray-800/50' : 'bg-blue-50'}`}>
+              <View className="flex-row items-center mb-4">
+                <Ionicons
+                  name="information-circle"
+                  size={20}
+                  color={isDark ? '#60A5FA' : '#3B82F6'}
                 />
+                <Text className={`text-base font-semibold ml-2 ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
+                  Información Básica
+                </Text>
+              </View>
+
+              {/* Peso */}
+              <View className="mb-4">
+                <Text className={`font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Peso (kg)
+                </Text>
                 <TextInput
-                  value={time}
-                  onChangeText={setTime}
-                  placeholder="HH:MM"
-                  className={`flex-1 border rounded-lg p-4 text-base ${
+                  placeholder="Ej: 72.5"
+                  value={weight}
+                  onChangeText={(text) => {
+                    setWeight(text);
+                    if (errors.weight) setErrors({});
+                  }}
+                  keyboardType="decimal-pad"
+                  className={`border rounded-lg p-4 text-base ${
                     isDark
-                      ? 'bg-gray-800 border-gray-700 text-white'
-                      : 'bg-gray-50 border-gray-300 text-gray-900'
+                      ? 'bg-gray-900 border-gray-700 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
                   }`}
                 />
               </View>
+
+              {/* Altura */}
+              <View>
+                <Text className={`font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Altura (cm)
+                </Text>
+                <TextInput
+                  placeholder="Ej: 175"
+                  value={height}
+                  onChangeText={(text) => {
+                    setHeight(text);
+                    if (errors.height) setErrors({});
+                  }}
+                  keyboardType="decimal-pad"
+                  className={`border rounded-lg p-4 text-base ${
+                    isDark
+                      ? 'bg-gray-900 border-gray-700 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                />
+              </View>
+
+              {errors.weight && (
+                <Text className="text-red-500 text-sm mt-2">{errors.weight}</Text>
+              )}
             </View>
 
-            {/* Note Input */}
+            {/* Toggle Métricas Avanzadas */}
+            <Pressable
+              onPress={() => setShowAdvanced(!showAdvanced)}
+              className={`mb-4 p-4 rounded-xl flex-row items-center justify-between ${
+                isDark ? 'bg-purple-900/30 border border-purple-700' : 'bg-purple-50 border border-purple-200'
+              }`}
+            >
+              <View className="flex-row items-center">
+                <Ionicons
+                  name="fitness"
+                  size={20}
+                  color={isDark ? '#C084FC' : '#9333EA'}
+                />
+                <Text className={`font-semibold ml-2 ${isDark ? 'text-purple-300' : 'text-purple-700'}`}>
+                  Métricas Avanzadas (opcional)
+                </Text>
+              </View>
+              <Ionicons
+                name={showAdvanced ? 'chevron-up' : 'chevron-down'}
+                size={20}
+                color={isDark ? '#C084FC' : '#9333EA'}
+              />
+            </Pressable>
+
+            {/* Sección: Métricas Avanzadas */}
+            {showAdvanced && (
+              <View className={`mb-6 p-4 rounded-xl ${isDark ? 'bg-gray-800/50' : 'bg-purple-50'}`}>
+                {/* Body Fat Percentage */}
+                <View className="mb-4">
+                  <Text className={`font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    % Grasa corporal
+                  </Text>
+                  <TextInput
+                    placeholder="Ej: 18.5"
+                    value={bodyFat}
+                    onChangeText={setBodyFat}
+                    keyboardType="decimal-pad"
+                    className={`border rounded-lg p-4 text-base ${
+                      isDark
+                        ? 'bg-gray-900 border-gray-700 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  />
+                </View>
+
+                {/* Muscle Mass */}
+                <View className="mb-4">
+                  <Text className={`font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Masa muscular (kg)
+                  </Text>
+                  <TextInput
+                    placeholder="Ej: 45.2"
+                    value={muscleMass}
+                    onChangeText={setMuscleMass}
+                    keyboardType="decimal-pad"
+                    className={`border rounded-lg p-4 text-base ${
+                      isDark
+                        ? 'bg-gray-900 border-gray-700 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  />
+                </View>
+
+                {/* Cintura */}
+                <View className="mb-4">
+                  <Text className={`font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Cintura (cm)
+                  </Text>
+                  <TextInput
+                    placeholder="Ej: 85"
+                    value={waist}
+                    onChangeText={setWaist}
+                    keyboardType="decimal-pad"
+                    className={`border rounded-lg p-4 text-base ${
+                      isDark
+                        ? 'bg-gray-900 border-gray-700 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  />
+                </View>
+
+                {/* Pecho */}
+                <View className="mb-4">
+                  <Text className={`font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Pecho (cm)
+                  </Text>
+                  <TextInput
+                    placeholder="Ej: 100"
+                    value={chest}
+                    onChangeText={setChest}
+                    keyboardType="decimal-pad"
+                    className={`border rounded-lg p-4 text-base ${
+                      isDark
+                        ? 'bg-gray-900 border-gray-700 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  />
+                </View>
+
+                {/* Brazos */}
+                <View>
+                  <Text className={`font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Brazos (cm)
+                  </Text>
+                  <TextInput
+                    placeholder="Ej: 35"
+                    value={arms}
+                    onChangeText={setArms}
+                    keyboardType="decimal-pad"
+                    className={`border rounded-lg p-4 text-base ${
+                      isDark
+                        ? 'bg-gray-900 border-gray-700 text-white'
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
+                  />
+                </View>
+              </View>
+            )}
+
+            {/* Notas */}
             <View className="mb-8">
               <Text className={`font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                Nota (opcional)
+                Notas (opcional)
               </Text>
               <TextInput
                 placeholder="Añade notas sobre esta medición..."
-                value={note}
-                onChangeText={setNote}
+                value={notes}
+                onChangeText={setNotes}
                 multiline
                 numberOfLines={4}
                 className={`border rounded-lg p-4 text-base ${
@@ -176,6 +369,7 @@ export function MeasurementModal({ visible, onClose, onSave }: MeasurementModalP
                     ? 'bg-gray-800 border-gray-700 text-white'
                     : 'bg-gray-50 border-gray-300 text-gray-900'
                 }`}
+                style={{ textAlignVertical: 'top' }}
               />
             </View>
 
@@ -197,7 +391,9 @@ export function MeasurementModal({ visible, onClose, onSave }: MeasurementModalP
                 onPress={handleSave}
                 className="flex-1 py-4 px-6 rounded-xl bg-blue-500 items-center justify-center"
               >
-                <Text className="text-white font-semibold text-base">Guardar</Text>
+                <Text className="text-white font-semibold text-base">
+                  {mode === 'edit' ? 'Actualizar' : 'Guardar'}
+                </Text>
               </Pressable>
             </View>
           </ScrollView>

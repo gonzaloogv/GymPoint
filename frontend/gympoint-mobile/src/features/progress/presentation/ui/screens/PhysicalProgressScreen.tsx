@@ -1,9 +1,11 @@
-import React, { useState, useCallback } from 'react';
-import { ScrollView, View, Text, Pressable } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { ScrollView, View, Text, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { Screen } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useProgress } from '@features/progress/presentation/hooks/useProgress';
+import { useHomeStore } from '@features/home/presentation/state/home.store';
+import { BodyMetricsRemote, type BodyMetricResponseDTO } from '@features/progress/data/bodyMetrics.remote';
 import { KPICard } from '../components/KPICard';
 import { TimeSelector } from '../components/TimeSelector';
 import { ProgressChart } from '../components/ProgressChart';
@@ -17,17 +19,111 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const { selectedPeriod, setSelectedPeriod } = useProgress();
+  const { user, fetchHomeData } = useHomeStore();
   const [showMeasurementModal, setShowMeasurementModal] = useState(false);
+  const [latestMetric, setLatestMetric] = useState<BodyMetricResponseDTO | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [editMode, setEditMode] = useState<'create' | 'edit'>('create');
+  const [editingMetric, setEditingMetric] = useState<MeasurementData | null>(null);
+
+  // Función para cargar la última métrica
+  const loadLatestMetric = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const metric = await BodyMetricsRemote.getLatest();
+      setLatestMetric(metric);
+    } catch (error) {
+      // Error cargando métrica
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Obtener datos reales al montar el componente
+  useEffect(() => {
+    fetchHomeData();
+    loadLatestMetric();
+  }, []);
+
+  const currentStreak = user?.streak || 0;
 
   const handleBackPress = useCallback(() => {
     navigation?.goBack();
   }, [navigation]);
 
-  const handleSaveMeasurement = useCallback((data: MeasurementData) => {
-    // TODO: Save measurement to store/backend
-    console.log('Saving measurement:', data);
-    setShowMeasurementModal(false);
+  const handleEditMetric = useCallback(() => {
+    if (!latestMetric) return;
+
+    // Convertir BodyMetricResponseDTO a MeasurementData
+    const measurementData: MeasurementData = {
+      date: latestMetric.date,
+      weight_kg: latestMetric.weight_kg?.toString() || '',
+      height_cm: latestMetric.height_cm?.toString() || '',
+      body_fat_percentage: latestMetric.body_fat_percentage?.toString() || '',
+      muscle_mass_kg: latestMetric.muscle_mass_kg?.toString() || '',
+      waist_cm: latestMetric.waist_cm?.toString() || '',
+      chest_cm: latestMetric.chest_cm?.toString() || '',
+      arms_cm: latestMetric.arms_cm?.toString() || '',
+      notes: latestMetric.notes || '',
+    };
+
+    setEditingMetric(measurementData);
+    setEditMode('edit');
+    setShowMeasurementModal(true);
+  }, [latestMetric]);
+
+  const handleAddMetric = useCallback(() => {
+    setEditMode('create');
+    setEditingMetric(null);
+    setShowMeasurementModal(true);
   }, []);
+
+  const handleSaveMeasurement = useCallback(async (data: MeasurementData) => {
+    try {
+      const payload = {
+        date: data.date,
+        weight_kg: data.weight_kg ? parseFloat(data.weight_kg) : undefined,
+        height_cm: data.height_cm ? parseFloat(data.height_cm) : undefined,
+        body_fat_percentage: data.body_fat_percentage ? parseFloat(data.body_fat_percentage) : undefined,
+        muscle_mass_kg: data.muscle_mass_kg ? parseFloat(data.muscle_mass_kg) : undefined,
+        waist_cm: data.waist_cm ? parseFloat(data.waist_cm) : undefined,
+        chest_cm: data.chest_cm ? parseFloat(data.chest_cm) : undefined,
+        arms_cm: data.arms_cm ? parseFloat(data.arms_cm) : undefined,
+        notes: data.notes,
+      };
+
+      if (editMode === 'edit' && latestMetric) {
+        // Actualizar métrica existente
+        const updatePayload = { ...payload };
+        delete updatePayload.date; // No se puede cambiar la fecha en edición
+        await BodyMetricsRemote.update(latestMetric.id_metric, updatePayload);
+      } else {
+        // Crear nueva métrica
+        await BodyMetricsRemote.create(payload);
+      }
+
+      Alert.alert(
+        'Éxito',
+        editMode === 'edit'
+          ? 'Métrica corporal actualizada correctamente'
+          : 'Métrica corporal registrada correctamente',
+        [{ text: 'OK' }]
+      );
+
+      setShowMeasurementModal(false);
+      setEditMode('create');
+      setEditingMetric(null);
+
+      // Refrescar datos
+      loadLatestMetric();
+    } catch (error: any) {
+      Alert.alert(
+        'Error',
+        error.response?.data?.error?.message || error.message || 'No se pudo guardar la medición',
+        [{ text: 'OK' }]
+      );
+    }
+  }, [editMode, latestMetric, loadLatestMetric]);
 
   const periods = [
     { value: '7d' as const, label: '7d' },
@@ -36,45 +132,11 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
     { value: '12m' as const, label: '12m' },
   ];
 
-  // Mock metrics data
-  const mockMetrics = [
-    {
-      id: '1',
-      type: 'weight' as const,
-      value: 72.5,
-      unit: 'kg',
-      change: 0.8,
-      changeType: 'up' as const,
-      date: '2025-10-25',
-    },
-    {
-      id: '2',
-      type: 'bodyFat' as const,
-      value: 18.2,
-      unit: '%',
-      change: -1.2,
-      changeType: 'down' as const,
-      date: '2025-10-25',
-    },
-    {
-      id: '3',
-      type: 'imc' as const,
-      value: 22.1,
-      unit: '',
-      change: 0.3,
-      changeType: 'up' as const,
-      date: '2025-10-25',
-    },
-    {
-      id: '4',
-      type: 'streak' as const,
-      value: 14,
-      unit: 'días',
-      change: 7,
-      changeType: 'up' as const,
-      date: '2025-10-25',
-    },
-  ];
+  // Extraer valores de la última métrica o usar valores por defecto
+  const weight = latestMetric?.weight_kg ? parseFloat(latestMetric.weight_kg.toString()) : null;
+  const bodyFat = latestMetric?.body_fat_percentage ? parseFloat(latestMetric.body_fat_percentage.toString()) : null;
+  const bmi = latestMetric?.bmi ? parseFloat(latestMetric.bmi.toString()) : null;
+  const height = latestMetric?.height_cm ? parseFloat(latestMetric.height_cm.toString()) : null;
 
   return (
     <Screen scroll safeAreaTop safeAreaBottom>
@@ -110,104 +172,167 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
             onSelect={setSelectedPeriod}
           />
 
-          {/* Metrics Grid - 2x2 Layout */}
-          <View className="px-4 pb-6">
-            {/* Row 1 */}
-            <View className="flex-row gap-3 mb-3">
-              <View className="w-[48%]">
-                <KPICard
-                  icon={<Ionicons name="scale" size={20} color="#9CA3AF" />}
-                  label="Peso"
-                  value={`${mockMetrics[0].value} ${mockMetrics[0].unit}`}
-                  change={mockMetrics[0].change}
-                  changeType={mockMetrics[0].changeType}
-                />
-              </View>
-              <View className="w-[48%]">
-                <KPICard
-                  icon={<Ionicons name="water" size={20} color="#60A5FA" />}
-                  label="% Grasa"
-                  value={`${mockMetrics[1].value} ${mockMetrics[1].unit}`}
-                  change={mockMetrics[1].change}
-                  changeType={mockMetrics[1].changeType}
-                />
-              </View>
+          {isLoading ? (
+            <View className="py-12 items-center justify-center">
+              <ActivityIndicator size="large" color={isDark ? '#60A5FA' : '#3B82F6'} />
+              <Text className={`mt-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Cargando métricas...
+              </Text>
             </View>
+          ) : (
+            <>
+              {/* Metrics Grid - 2x2 Layout */}
+              <View className="px-4 pb-6">
+                {/* Row 1 */}
+                <View className="flex-row gap-3 mb-3">
+                  <View className="w-[48%]">
+                    <KPICard
+                      icon={<Ionicons name="scale" size={20} color="#9CA3AF" />}
+                      label="Peso"
+                      value={weight ? `${weight.toFixed(1)} kg` : 'Sin datos'}
+                    />
+                  </View>
+                  <View className="w-[48%]">
+                    <KPICard
+                      icon={<Ionicons name="resize" size={20} color="#10B981" />}
+                      label="Altura"
+                      value={height ? `${height.toFixed(0)} cm` : 'Sin datos'}
+                    />
+                  </View>
+                </View>
 
-            {/* Row 2 */}
-            <View className="flex-row gap-3">
-              <View className="w-[48%]">
-                <KPICard
-                  icon={<Ionicons name="bar-chart" size={20} color="#6B7280" />}
-                  label="IMC"
-                  value={`${mockMetrics[2].value}`}
-                  change={mockMetrics[2].change}
-                  changeType={mockMetrics[2].changeType}
-                />
+                {/* Row 2 */}
+                <View className="flex-row gap-3">
+                  <View className="w-[48%]">
+                    <KPICard
+                      icon={<Ionicons name="bar-chart" size={20} color="#6B7280" />}
+                      label="IMC"
+                      value={bmi ? bmi.toFixed(1) : 'Sin datos'}
+                    />
+                  </View>
+                  <View className="w-[48%]">
+                    <KPICard
+                      icon={<Ionicons name="water" size={20} color="#60A5FA" />}
+                      label="% Grasa"
+                      value={bodyFat ? `${bodyFat.toFixed(1)}%` : 'Sin datos'}
+                    />
+                  </View>
+                </View>
               </View>
-              <View className="w-[48%]">
-                <KPICard
-                  icon={<Ionicons name="flame" size={20} color="#FF6B35" />}
-                  label="Racha"
-                  value={`${mockMetrics[3].value} ${mockMetrics[3].unit}`}
-                  change={mockMetrics[3].change}
-                  changeType={mockMetrics[3].changeType}
+
+              {/* Si no hay métricas, mostrar mensaje */}
+              {!latestMetric && (
+                <View className="px-4 pb-6">
+                  <View
+                    className={`p-6 rounded-xl border ${
+                      isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-blue-50 border-blue-200'
+                    }`}
+                  >
+                    <View className="items-center">
+                      <Ionicons
+                        name="fitness"
+                        size={48}
+                        color={isDark ? '#60A5FA' : '#3B82F6'}
+                      />
+                      <Text className={`mt-4 text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                        Sin métricas registradas
+                      </Text>
+                      <Text className={`mt-2 text-center ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                        Comienza a registrar tus métricas corporales para ver tu progreso
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {/* Chart - Solo si hay datos */}
+              {latestMetric && (
+                <ProgressChart
+                  title="Peso vs tiempo"
+                  subtitle="Gráfico de progreso"
+                  count={1}
+                  unit="mediciones registradas"
                 />
-              </View>
-            </View>
-          </View>
+              )}
 
-          {/* Chart */}
-          <ProgressChart
-            title="Peso vs tiempo"
-            subtitle="Gráfico de progreso"
-            count={91}
-            unit="mediciones en 90d"
-          />
+              {/* Latest Metric Info with Edit Button */}
+              {latestMetric && (
+                <View className="px-4 pb-6">
+                  {/* Header con botón de editar */}
+                  <View className="flex-row items-center justify-between mb-3">
+                    <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      Última medición
+                    </Text>
+                    <Pressable
+                      onPress={handleEditMetric}
+                      className={`flex-row items-center px-3 py-2 rounded-lg ${
+                        isDark ? 'bg-blue-900/30' : 'bg-blue-50'
+                      }`}
+                    >
+                      <Ionicons
+                        name="create-outline"
+                        size={16}
+                        color={isDark ? '#60A5FA' : '#3B82F6'}
+                      />
+                      <Text className={`ml-1 text-sm font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                        Editar
+                      </Text>
+                    </Pressable>
+                  </View>
 
-          {/* Min/Avg/Max */}
-          <View className="flex-row px-4 pb-6 gap-2">
-            <View
-              className={`flex-1 p-4 rounded-xl ${
-                isDark ? 'bg-gray-800 border border-gray-700' : 'bg-gray-100 border border-gray-200'
-              }`}
-            >
-              <Text className={`text-xs mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                Mínimo
-              </Text>
-              <Text className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                72.5 kg
-              </Text>
-            </View>
-            <View
-              className={`flex-1 p-4 rounded-xl ${
-                isDark ? 'bg-gray-800 border border-gray-700' : 'bg-gray-100 border border-gray-200'
-              }`}
-            >
-              <Text className={`text-xs mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                Promedio
-              </Text>
-              <Text className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                72.9 kg
-              </Text>
-            </View>
-            <View
-              className={`flex-1 p-4 rounded-xl ${
-                isDark ? 'bg-gray-800 border border-gray-700' : 'bg-gray-100 border border-gray-200'
-              }`}
-            >
-              <Text className={`text-xs mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                Máximo
-              </Text>
-              <Text className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                73.3 kg
-              </Text>
-            </View>
-          </View>
+                  {/* Información de la métrica */}
+                  <View className="flex-row gap-2">
+                    {weight && (
+                      <View
+                        className={`flex-1 p-4 rounded-xl ${
+                          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-gray-100 border border-gray-200'
+                        }`}
+                      >
+                        <Text className={`text-xs mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                          Actual
+                        </Text>
+                        <Text className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                          {weight.toFixed(1)} kg
+                        </Text>
+                      </View>
+                    )}
+                    {bmi && (
+                      <View
+                        className={`flex-1 p-4 rounded-xl ${
+                          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-gray-100 border border-gray-200'
+                        }`}
+                      >
+                        <Text className={`text-xs mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                          IMC
+                        </Text>
+                        <Text className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                          {bmi.toFixed(1)}
+                        </Text>
+                      </View>
+                    )}
+                    {latestMetric.date && (
+                      <View
+                        className={`flex-1 p-4 rounded-xl ${
+                          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-gray-100 border border-gray-200'
+                        }`}
+                      >
+                        <Text className={`text-xs mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                          Fecha
+                        </Text>
+                        <Text className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                          {new Date(latestMetric.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+              )}
+            </>
+          )}
 
           {/* Add Measurement Button */}
           <Pressable
-            onPress={() => setShowMeasurementModal(true)}
+            onPress={handleAddMetric}
             className="mx-4 py-4 px-6 rounded-xl bg-blue-500 items-center justify-center mb-8 flex-row"
           >
             <Ionicons name="add" size={20} color="white" style={{ marginRight: 8 }} />
@@ -220,8 +345,14 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
         {/* Measurement Modal */}
         <MeasurementModal
           visible={showMeasurementModal}
-          onClose={() => setShowMeasurementModal(false)}
+          onClose={() => {
+            setShowMeasurementModal(false);
+            setEditMode('create');
+            setEditingMetric(null);
+          }}
           onSave={handleSaveMeasurement}
+          initialData={editingMetric}
+          mode={editMode}
         />
       </View>
     </Screen>

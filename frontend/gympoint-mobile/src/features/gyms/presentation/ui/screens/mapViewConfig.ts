@@ -38,7 +38,7 @@ export const createRegion = ({ latitude, longitude }: LatLng, delta: number): Re
 
 export const USER_PIN_SOURCE = (() => {
   try {
-    return require('../../../../assets/ubication.png');
+    return require('../../../../assets/icons/gym.svg');
   } catch {
     return undefined;
   }

@@ -586,19 +586,62 @@ const registrarMetricasCorporales = async (id_user_profile, payload = {}) => {
   const profile = await userProfileRepository.findById(id_user_profile);
   if (!profile) throw new NotFoundError('Perfil de usuario');
 
+  const isPremium = profile.subscription === SUBSCRIPTION_TYPES.PREMIUM;
+  const today = new Date().toISOString().split('T')[0];
+
+  // Validar límite de creación según suscripción
+  const recentMetrics = await UserBodyMetric.findAll({
+    where: { id_user_profile },
+    order: [['date', 'DESC']],
+    limit: 1
+  });
+
+  if (recentMetrics.length > 0) {
+    // Normalizar lastMetricDate a formato YYYY-MM-DD string
+    const lastMetric = recentMetrics[0];
+    const lastMetricDate = typeof lastMetric.date === 'string'
+      ? lastMetric.date
+      : lastMetric.date.toISOString().split('T')[0];
+
+    const lastMetricDateObj = new Date(lastMetricDate);
+    const todayDateObj = new Date(today);
+
+    if (isPremium) {
+      // Premium: máximo 1 por semana (7 días)
+      const daysSinceLastMetric = Math.floor((todayDateObj - lastMetricDateObj) / (1000 * 60 * 60 * 24));
+
+      if (daysSinceLastMetric < 7) {
+        const daysRemaining = 7 - daysSinceLastMetric;
+        throw new ConflictError(`Ya registraste tus métricas esta semana. Los usuarios Premium pueden registrar 1 métrica por semana. Podrás registrar nuevamente en ${daysRemaining} día${daysRemaining !== 1 ? 's' : ''}.`);
+      }
+    } else {
+      // Free: máximo 1 por mes
+      const lastMetricMonth = lastMetricDateObj.getMonth();
+      const lastMetricYear = lastMetricDateObj.getFullYear();
+      const currentMonth = todayDateObj.getMonth();
+      const currentYear = todayDateObj.getFullYear();
+
+      if (lastMetricYear === currentYear && lastMetricMonth === currentMonth) {
+        throw new ConflictError('Ya registraste tus métricas este mes. Los usuarios Free pueden registrar 1 métrica por mes. Actualiza a Premium para registrar semanalmente.');
+      }
+    }
+  }
+
   const weight = normalizarNumero(payload.weight_kg);
   const height = normalizarNumero(payload.height_cm);
-  const bodyFat = normalizarNumero(payload.body_fat_percent);
+  const bodyFat = normalizarNumero(payload.body_fat_percentage);
   const muscleMass = normalizarNumero(payload.muscle_mass_kg);
   const waist = normalizarNumero(payload.waist_cm);
-  const hip = normalizarNumero(payload.hip_cm);
+  const chest = normalizarNumero(payload.chest_cm);
+  const arms = normalizarNumero(payload.arms_cm);
 
-  validarRango(weight, 20, 400, 'Peso (kg)');
-  validarRango(height, 100, 250, 'Altura (cm)');
-  validarRango(bodyFat, 0, 75, 'Porcentaje de grasa corporal');
-  validarRango(muscleMass, 0, 200, 'Masa muscular');
+  validarRango(weight, 20, 300, 'Peso (kg)');
+  validarRango(height, 50, 250, 'Altura (cm)');
+  validarRango(bodyFat, 1, 60, 'Porcentaje de grasa corporal');
+  validarRango(muscleMass, 10, 200, 'Masa muscular');
   validarRango(waist, 30, 250, 'Cintura (cm)');
-  validarRango(hip, 30, 250, 'Cadera (cm)');
+  validarRango(chest, 30, 200, 'Pecho (cm)');
+  validarRango(arms, 15, 100, 'Brazos (cm)');
 
   let bmi = null;
   if (weight && height) {
@@ -609,37 +652,46 @@ const registrarMetricasCorporales = async (id_user_profile, payload = {}) => {
     }
   }
 
-  const source = (payload.source || 'MANUAL').toUpperCase();
-  if (!BODY_METRICS_SOURCES.has(source)) {
-    throw new ValidationError(`Fuente inválida. Debe ser ${Array.from(BODY_METRICS_SOURCES).join(', ')}`);
-  }
-
-  const measured_at = payload.measured_at ? new Date(payload.measured_at) : new Date();
+  const date = payload.date || today;
 
   return sequelize.transaction(async (transaction) => {
     const metric = await UserBodyMetric.create({
       id_user_profile,
-      measured_at,
+      date,
       weight_kg: weight,
       height_cm: height,
       bmi,
-      body_fat_percent: bodyFat,
+      body_fat_percentage: bodyFat,
       muscle_mass_kg: muscleMass,
       waist_cm: waist,
-      hip_cm: hip,
+      chest_cm: chest,
+      arms_cm: arms,
       notes: payload.notes || null,
-      source
     }, { transaction });
 
+    // Otorgar tokens solo 1 vez por mes
     if (BODY_METRICS_TOKENS > 0) {
-      await tokenLedgerService.registrarMovimiento({
-        userId: id_user_profile,
-        delta: BODY_METRICS_TOKENS,
-        reason: TOKEN_REASONS.BODY_METRICS_ENTRY,
-        refType: 'user_body_metric',
-        refId: metric.id_body_metric,
-        transaction
-      });
+      // Verificar si ya recibió tokens este mes
+      const firstDayOfMonth = new Date();
+      firstDayOfMonth.setDate(1);
+      firstDayOfMonth.setHours(0, 0, 0, 0);
+
+      const tokensThisMonth = await tokenLedgerService.contarMovimientosPorReason(
+        id_user_profile,
+        TOKEN_REASONS.BODY_METRICS_ENTRY,
+        firstDayOfMonth
+      );
+
+      if (tokensThisMonth === 0) {
+        await tokenLedgerService.registrarMovimiento({
+          userId: id_user_profile,
+          delta: BODY_METRICS_TOKENS,
+          reason: TOKEN_REASONS.BODY_METRICS_ENTRY,
+          refType: 'user_body_metric',
+          refId: metric.id_metric,
+          transaction
+        });
+      }
     }
 
     return metric;
@@ -650,12 +702,14 @@ const listarMetricasCorporales = async (id_user_profile, { limit = 30, offset = 
   const profile = await userProfileRepository.findById(id_user_profile);
   if (!profile) throw new NotFoundError('Perfil de usuario');
 
-  return UserBodyMetric.findAll({
+  const { count, rows } = await UserBodyMetric.findAndCountAll({
     where: { id_user_profile },
-    order: [['measured_at', 'DESC']],
+    order: [['date', 'DESC'], ['created_at', 'DESC']],
     limit,
     offset
   });
+
+  return { data: rows, total: count, limit, offset };
 };
 
 const obtenerUltimaMetricaCorporal = async (id_user_profile) => {
@@ -664,8 +718,73 @@ const obtenerUltimaMetricaCorporal = async (id_user_profile) => {
 
   return UserBodyMetric.findOne({
     where: { id_user_profile },
-    order: [['measured_at', 'DESC']]
+    order: [['date', 'DESC'], ['created_at', 'DESC']]
   });
+};
+
+const actualizarMetricaCorporal = async (id_user_profile, id_metric, payload = {}) => {
+  const profile = await userProfileRepository.findById(id_user_profile);
+  if (!profile) throw new NotFoundError('Perfil de usuario');
+
+  // Buscar la métrica existente y verificar que pertenezca al usuario
+  const metric = await UserBodyMetric.findOne({
+    where: {
+      id_metric,
+      id_user_profile
+    }
+  });
+
+  if (!metric) {
+    throw new NotFoundError('Métrica corporal no encontrada o no pertenece a este usuario');
+  }
+
+  // Validar y normalizar datos
+  const weight = normalizarNumero(payload.weight_kg);
+  const height = normalizarNumero(payload.height_cm);
+  const bodyFat = normalizarNumero(payload.body_fat_percentage);
+  const muscleMass = normalizarNumero(payload.muscle_mass_kg);
+  const waist = normalizarNumero(payload.waist_cm);
+  const chest = normalizarNumero(payload.chest_cm);
+  const arms = normalizarNumero(payload.arms_cm);
+
+  validarRango(weight, 20, 300, 'Peso (kg)');
+  validarRango(height, 50, 250, 'Altura (cm)');
+  validarRango(bodyFat, 1, 60, 'Porcentaje de grasa corporal');
+  validarRango(muscleMass, 10, 200, 'Masa muscular');
+  validarRango(waist, 30, 250, 'Cintura (cm)');
+  validarRango(chest, 30, 200, 'Pecho (cm)');
+  validarRango(arms, 15, 100, 'Brazos (cm)');
+
+  // Recalcular BMI si hay peso y altura
+  let bmi = metric.bmi;
+  const newWeight = weight !== null ? weight : metric.weight_kg;
+  const newHeight = height !== null ? height : metric.height_cm;
+
+  if (newWeight && newHeight) {
+    const heightMeters = newHeight / 100;
+    if (heightMeters > 0) {
+      bmi = Number((newWeight / (heightMeters ** 2)).toFixed(2));
+      validarRango(bmi, 10, 80, 'IMC');
+    }
+  }
+
+  // Actualizar solo los campos proporcionados
+  const updateData = {
+    bmi
+  };
+
+  if (weight !== null) updateData.weight_kg = weight;
+  if (height !== null) updateData.height_cm = height;
+  if (bodyFat !== null) updateData.body_fat_percentage = bodyFat;
+  if (muscleMass !== null) updateData.muscle_mass_kg = muscleMass;
+  if (waist !== null) updateData.waist_cm = waist;
+  if (chest !== null) updateData.chest_cm = chest;
+  if (arms !== null) updateData.arms_cm = arms;
+  if (payload.notes !== undefined) updateData.notes = payload.notes;
+
+  await metric.update(updateData);
+
+  return metric;
 };
 
 // ============================================================================
@@ -701,6 +820,7 @@ module.exports = {
   registrarMetricasCorporales,
   listarMetricasCorporales,
   obtenerUltimaMetricaCorporal,
+  actualizarMetricaCorporal,
 
   // Legacy aliases (mantener para compatibilidad con código existente)
   obtenerUsuario: getUserByAccountId,

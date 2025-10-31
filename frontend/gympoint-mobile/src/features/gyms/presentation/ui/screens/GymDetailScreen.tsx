@@ -401,7 +401,15 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
         {ratingStats && ratingStats.totalReviews > 0 && (
           <View className={`rounded-lg p-3 mb-3 ${isDark ? 'bg-surface-dark/50' : 'bg-gray-50'}`}>
             <View className="flex-row items-center justify-between">
-              <RatingStars rating={ratingStats.averageRating} size={20} />
+              {/*<View className="flex-row items-center mr-2">
+                <Text style={{ fontSize: 16, marginRight: 4 }}>
+                  <Ionicons name="star" size={20} color={isDark ? '#FCD34D' : '#F59E0B'} />
+                </Text>
+                <Text className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  {averageRating.toFixed(1)}
+                </Text>
+              </View>*/}
+              <RatingStars rating={averageRating} size={20} />
               <Text className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                 {ratingStats.totalReviews} {ratingStats.totalReviews === 1 ? 'reseña' : 'reseñas'}
               </Text>

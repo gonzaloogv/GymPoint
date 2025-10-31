@@ -1,9 +1,10 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { ScrollView, View, Text, Pressable } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { Screen } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useProgress } from '@features/progress/presentation/hooks/useProgress';
+import { useHomeStore } from '@features/home/presentation/state/home.store';
 import { KPICard } from '../components/KPICard';
 import { ProgressSection } from '../components/ProgressSection';
 
@@ -14,7 +15,16 @@ type ProgressScreenProps = {
 export function ProgressScreen({ navigation }: ProgressScreenProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const { currentStreak, weeklyWorkouts } = useProgress();
+  const { weeklyWorkouts } = useProgress();
+  const { user, weeklyProgress, fetchHomeData } = useHomeStore();
+
+  // Obtener datos reales al montar el componente
+  useEffect(() => {
+    fetchHomeData();
+  }, []);
+
+  const currentStreak = user?.streak || 0;
+  const currentWeeklyWorkouts = weeklyProgress?.current || weeklyWorkouts;
 
   const handleNavigateToPhysicalProgress = useCallback(() => {
     navigation?.navigate('PhysicalProgress');
@@ -38,16 +48,16 @@ export function ProgressScreen({ navigation }: ProgressScreenProps) {
           {/* KPI Cards */}
           <View className="flex-row px-4 pb-6 gap-2">
             <KPICard
-              icon={<Ionicons name="flame" size={24} color="#FF6B35" />}
+              icon={<Text style={{ fontSize: 24 }}>🔥</Text>}
               label="Racha actual"
               value={`${currentStreak} días`}
               change={7}
               changeType="up"
             />
             <KPICard
-              icon={<Ionicons name="checkmark-circle" size={24} color="#FF6B35" />}
+              icon={<Ionicons name="checkmark-circle" size={24} color="#10B981" />}
               label="Esta semana"
-              value={`${weeklyWorkouts} entrenamientos`}
+              value={`${currentWeeklyWorkouts} entrenos`}
               change={1}
               changeType="up"
             />

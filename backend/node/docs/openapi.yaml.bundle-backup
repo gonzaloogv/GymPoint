@@ -6251,6 +6251,39 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+    patch:
+      operationId: patchGymReview
+      tags:
+        - Gym Reviews
+      summary: Actualizar una reseña (PATCH)
+      description: Actualiza una reseña existente (admin o autor) - Alias de PUT
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGymReviewRequest'
+      responses:
+        '200':
+          description: Reseña actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymReviewResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
     delete:
       operationId: deleteGymReview
       tags:
@@ -7492,6 +7525,421 @@ paths:
                 $ref: '#/components/schemas/Error'
         '403':
           description: Requiere permisos de administrador
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/users/me/body-metrics:
+    post:
+      summary: Crear métrica corporal
+      description: |
+        Registra una nueva métrica corporal para el usuario.
+
+        **Restricciones:**
+        - Usuarios PREMIUM: Pueden crear 1 métrica por día
+        - Usuarios FREE: Pueden crear 1 métrica por mes
+        - Tokens: Se otorgan 5 tokens solo 1 vez por mes (independientemente de la suscripción)
+
+        **Edición:** Para modificar métricas existentes, usar PUT /api/users/me/body-metrics/{id_metric}
+      tags:
+        - Body Metrics
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - date
+              properties:
+                date:
+                  type: string
+                  format: date
+                  description: Fecha de la medición (YYYY-MM-DD)
+                  example: '2025-10-30'
+                weight_kg:
+                  type: number
+                  format: float
+                  minimum: 20
+                  maximum: 300
+                  description: Peso en kilogramos
+                  example: 72.5
+                height_cm:
+                  type: number
+                  format: float
+                  minimum: 50
+                  maximum: 250
+                  description: Altura en centímetros
+                  example: 175
+                body_fat_percentage:
+                  type: number
+                  format: float
+                  minimum: 1
+                  maximum: 60
+                  description: Porcentaje de grasa corporal
+                  example: 18.5
+                muscle_mass_kg:
+                  type: number
+                  format: float
+                  minimum: 10
+                  maximum: 200
+                  description: Masa muscular en kilogramos
+                  example: 45.2
+                waist_cm:
+                  type: number
+                  format: float
+                  minimum: 30
+                  maximum: 250
+                  description: Cintura en centímetros
+                  example: 85
+                chest_cm:
+                  type: number
+                  format: float
+                  minimum: 30
+                  maximum: 200
+                  description: Pecho en centímetros
+                  example: 100
+                arms_cm:
+                  type: number
+                  format: float
+                  minimum: 15
+                  maximum: 100
+                  description: Brazos en centímetros
+                  example: 35
+                notes:
+                  type: string
+                  maxLength: 500
+                  description: Notas opcionales
+                  example: Medición después del entrenamiento
+      responses:
+        '201':
+          description: Métrica corporal creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Métrica corporal registrada exitosamente
+                  data:
+                    type: object
+                    properties:
+                      id_metric:
+                        type: integer
+                      id_user_profile:
+                        type: integer
+                      date:
+                        type: string
+                        format: date
+                      weight_kg:
+                        type: number
+                      height_cm:
+                        type: number
+                      bmi:
+                        type: number
+                      body_fat_percentage:
+                        type: number
+                      muscle_mass_kg:
+                        type: number
+                      waist_cm:
+                        type: number
+                      chest_cm:
+                        type: number
+                      arms_cm:
+                        type: number
+                      notes:
+                        type: string
+                      created_at:
+                        type: string
+                        format: date-time
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Listar métricas corporales del usuario
+      description: Obtiene el historial de métricas corporales del usuario
+      tags:
+        - Body Metrics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 30
+            minimum: 1
+            maximum: 100
+          description: Número máximo de resultados
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          description: Número de resultados a saltar
+      responses:
+        '200':
+          description: Lista de métricas corporales
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id_metric:
+                          type: integer
+                        id_user_profile:
+                          type: integer
+                        date:
+                          type: string
+                          format: date
+                        weight_kg:
+                          type: number
+                        height_cm:
+                          type: number
+                        bmi:
+                          type: number
+                        body_fat_percentage:
+                          type: number
+                        muscle_mass_kg:
+                          type: number
+                        waist_cm:
+                          type: number
+                        chest_cm:
+                          type: number
+                        arms_cm:
+                          type: number
+                        notes:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date-time
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+        '401':
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/users/me/body-metrics/{id_metric}:
+    put:
+      summary: Actualizar métrica corporal
+      description: Actualiza una métrica corporal existente del usuario. No otorga tokens.
+      tags:
+        - Body Metrics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id_metric
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la métrica corporal a actualizar
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                weight_kg:
+                  type: number
+                  format: float
+                  minimum: 20
+                  maximum: 300
+                  description: Peso en kilogramos
+                height_cm:
+                  type: number
+                  format: float
+                  minimum: 50
+                  maximum: 250
+                  description: Altura en centímetros
+                body_fat_percentage:
+                  type: number
+                  format: float
+                  minimum: 1
+                  maximum: 60
+                  description: Porcentaje de grasa corporal
+                muscle_mass_kg:
+                  type: number
+                  format: float
+                  minimum: 10
+                  maximum: 200
+                  description: Masa muscular en kilogramos
+                waist_cm:
+                  type: number
+                  format: float
+                  minimum: 30
+                  maximum: 250
+                  description: Cintura en centímetros
+                chest_cm:
+                  type: number
+                  format: float
+                  minimum: 30
+                  maximum: 200
+                  description: Pecho en centímetros
+                arms_cm:
+                  type: number
+                  format: float
+                  minimum: 15
+                  maximum: 100
+                  description: Brazos en centímetros
+                notes:
+                  type: string
+                  maxLength: 500
+                  description: Notas opcionales
+      responses:
+        '200':
+          description: Métrica corporal actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Métrica corporal actualizada exitosamente
+                  data:
+                    type: object
+                    properties:
+                      id_metric:
+                        type: integer
+                      id_user_profile:
+                        type: integer
+                      date:
+                        type: string
+                        format: date
+                      weight_kg:
+                        type: number
+                      height_cm:
+                        type: number
+                      bmi:
+                        type: number
+                      body_fat_percentage:
+                        type: number
+                      muscle_mass_kg:
+                        type: number
+                      waist_cm:
+                        type: number
+                      chest_cm:
+                        type: number
+                      arms_cm:
+                        type: number
+                      notes:
+                        type: string
+                      created_at:
+                        type: string
+                        format: date-time
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Acceso denegado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Métrica no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/users/me/body-metrics/latest:
+    get:
+      summary: Obtener la métrica más reciente del usuario
+      tags:
+        - Body Metrics
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Métrica más reciente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_metric:
+                    type: integer
+                  id_user_profile:
+                    type: integer
+                  date:
+                    type: string
+                    format: date
+                  weight_kg:
+                    type: number
+                  height_cm:
+                    type: number
+                  bmi:
+                    type: number
+                  body_fat_percentage:
+                    type: number
+                  muscle_mass_kg:
+                    type: number
+                  waist_cm:
+                    type: number
+                  chest_cm:
+                    type: number
+                  arms_cm:
+                    type: number
+                  notes:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+        '401':
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No se encontraron métricas
           content:
             application/json:
               schema:

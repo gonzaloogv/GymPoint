@@ -247,10 +247,35 @@ const obtenerEstadisticas = async (userId) => {
   };
 };
 
+/**
+ * Contar movimientos de un usuario por razón específica desde una fecha
+ * @param {number} userId - ID del user_profile
+ * @param {string} reason - Razón del movimiento (TOKEN_REASONS)
+ * @param {Date} since - Fecha desde la cual contar
+ * @returns {Promise<number>} Cantidad de movimientos encontrados
+ */
+const contarMovimientosPorReason = async (userId, reason, since) => {
+  const { Op } = require('sequelize');
+  const TokenLedger = require('../models/TokenLedger');
+
+  const count = await TokenLedger.count({
+    where: {
+      id_user_profile: userId,
+      reason,
+      created_at: {
+        [Op.gte]: since
+      }
+    }
+  });
+
+  return count;
+};
+
 module.exports = {
   registrarMovimiento,
   obtenerHistorial,
   obtenerBalance,
   existeMovimiento,
-  obtenerEstadisticas
+  obtenerEstadisticas,
+  contarMovimientosPorReason
 };

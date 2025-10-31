@@ -160,6 +160,56 @@ router.post('/', controller.registrarMetricas);
 
 /**
  * @swagger
+ * /api/users/me/body-metrics/{id_metric}:
+ *   put:
+ *     summary: Actualizar métrica corporal
+ *     tags: [Body Metrics]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id_metric
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID de la métrica corporal
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               weight_kg:
+ *                 type: number
+ *               height_cm:
+ *                 type: number
+ *               body_fat_percentage:
+ *                 type: number
+ *               muscle_mass_kg:
+ *                 type: number
+ *               waist_cm:
+ *                 type: number
+ *               chest_cm:
+ *                 type: number
+ *               arms_cm:
+ *                 type: number
+ *               notes:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Métrica actualizada exitosamente
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: Requiere rol de usuario de la app
+ *       404:
+ *         description: Métrica no encontrada
+ */
+router.put('/:id_metric', controller.actualizarMetrica);
+
+/**
+ * @swagger
  * /api/users/me/body-metrics/latest:
  *   get:
  *     summary: Obtener la métrica más reciente del usuario
