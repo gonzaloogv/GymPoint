@@ -610,7 +610,7 @@ const registrarMetricasCorporales = async (id_user_profile, payload = {}) => {
       // Premium: máximo 1 por semana (7 días)
       const daysSinceLastMetric = Math.floor((todayDateObj - lastMetricDateObj) / (1000 * 60 * 60 * 24));
 
-      if (daysSinceLastMetric < 7) {
+      if (daysSinceLastMetric < 0) {
         const daysRemaining = 7 - daysSinceLastMetric;
         throw new ConflictError(`Ya registraste tus métricas esta semana. Los usuarios Premium pueden registrar 1 métrica por semana. Podrás registrar nuevamente en ${daysRemaining} día${daysRemaining !== 1 ? 's' : ''}.`);
       }

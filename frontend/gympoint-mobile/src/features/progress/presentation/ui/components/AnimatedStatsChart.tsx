@@ -38,12 +38,29 @@ export function AnimatedStatsChart({ metrics, period, latestMetric }: AnimatedSt
   const tooltipScale = useSharedValue(0);
   const tooltipOpacity = useSharedValue(0);
 
+  // Valores compartidos para animaciones de transición de métricas
+  const chartOpacity = useSharedValue(1);
+  const chartTranslateY = useSharedValue(0);
+
   // Resetear tooltip cuando cambie la métrica o el período
   useEffect(() => {
     setTooltipData(null);
     tooltipScale.value = 0;
     tooltipOpacity.value = 0;
   }, [selectedMetric, period]);
+
+  // Animar transición al cambiar de métrica
+  useEffect(() => {
+    // Fade out y deslizar hacia abajo
+    chartOpacity.value = withTiming(0, { duration: 150 });
+    chartTranslateY.value = withTiming(10, { duration: 150 });
+
+    // Después de la salida, hacer fade in y volver a posición original
+    setTimeout(() => {
+      chartOpacity.value = withTiming(1, { duration: 200 });
+      chartTranslateY.value = withTiming(0, { duration: 200 });
+    }, 150);
+  }, [selectedMetric]);
 
   // Animar tooltip cuando aparece/desaparece
   useEffect(() => {
@@ -65,6 +82,14 @@ export function AnimatedStatsChart({ metrics, period, latestMetric }: AnimatedSt
     return {
       transform: [{ scale: tooltipScale.value }],
       opacity: tooltipOpacity.value,
+    };
+  });
+
+  // Estilo animado para el contenedor del chart
+  const animatedChartStyle = useAnimatedStyle(() => {
+    return {
+      opacity: chartOpacity.value,
+      transform: [{ translateY: chartTranslateY.value }],
     };
   });
 
@@ -314,7 +339,7 @@ export function AnimatedStatsChart({ metrics, period, latestMetric }: AnimatedSt
 
   // Renderizar gráfico de barras para medidas
   const renderMeasurementsChart = () => {
-    if (metrics.length === 0) {
+    if (!latestMetric) {
       return (
         <View
           className={`p-8 rounded-xl items-center justify-center ${
@@ -332,7 +357,6 @@ export function AnimatedStatsChart({ metrics, period, latestMetric }: AnimatedSt
       );
     }
 
-    const latestMetric = metrics[metrics.length - 1];
     const measurements = [
       { label: 'Cintura', value: latestMetric.waist_cm },
       { label: 'Pecho', value: latestMetric.chest_cm },
@@ -438,18 +462,76 @@ export function AnimatedStatsChart({ metrics, period, latestMetric }: AnimatedSt
       <MetricSelector selected={selectedMetric} onSelect={setSelectedMetric} />
 
       {/* Contenedor con key para forzar remontaje */}
-      <View key={`stats-${selectedMetric}`} className="px-4">
+      <Animated.View key={`stats-${selectedMetric}`} style={animatedChartStyle} className="px-4">
         {/* Tarjeta de estadística resumen */}
-        <View className="mb-4">
-          <StatsCard
-            label={getLabel()}
-            currentValue={currentValue}
-            previousValue={previousValue}
-            unit={getUnit()}
-            decimals={selectedMetric === 'bodyFat' || selectedMetric === 'bmi' ? 1 : 1}
-            higherIsBetter={selectedMetric === 'muscleMass'}
-          />
-        </View>
+        {selectedMetric !== 'measurements' && (
+          <View className="mb-4">
+            <StatsCard
+              label={getLabel()}
+              currentValue={currentValue}
+              previousValue={previousValue}
+              unit={getUnit()}
+              decimals={selectedMetric === 'bodyFat' || selectedMetric === 'bmi' ? 1 : 1}
+              higherIsBetter={selectedMetric === 'muscleMass'}
+            />
+          </View>
+        )}
+
+        {/* Resumen de medidas cuando la métrica es measurements */}
+        {selectedMetric === 'measurements' && latestMetric && (
+          <View className="mb-4">
+            <View
+              className={`rounded-xl p-4 ${
+                isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+              }`}
+            >
+              <Text className={`text-sm font-semibold mb-3 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Medidas corporales
+              </Text>
+              <View className="flex-row gap-3">
+                {latestMetric.waist_cm && (
+                  <View className="flex-1">
+                    <Text className={`text-xs mb-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                      Cintura
+                    </Text>
+                    <Text className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      {parseFloat(latestMetric.waist_cm.toString()).toFixed(0)}
+                    </Text>
+                    <Text className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                      cm
+                    </Text>
+                  </View>
+                )}
+                {latestMetric.chest_cm && (
+                  <View className="flex-1">
+                    <Text className={`text-xs mb-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                      Pecho
+                    </Text>
+                    <Text className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      {parseFloat(latestMetric.chest_cm.toString()).toFixed(0)}
+                    </Text>
+                    <Text className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                      cm
+                    </Text>
+                  </View>
+                )}
+                {latestMetric.arms_cm && (
+                  <View className="flex-1">
+                    <Text className={`text-xs mb-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                      Brazos
+                    </Text>
+                    <Text className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      {parseFloat(latestMetric.arms_cm.toString()).toFixed(0)}
+                    </Text>
+                    <Text className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                      cm
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          </View>
+        )}
 
         {/* Gráfico */}
         {renderChart()}
@@ -497,7 +579,7 @@ export function AnimatedStatsChart({ metrics, period, latestMetric }: AnimatedSt
             </View>
           </Animated.View>
         )}
-      </View>
+      </Animated.View>
     </View>
   );
 }

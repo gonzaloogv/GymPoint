@@ -11,14 +11,14 @@ interface BMIRange {
 }
 
 const BMI_RANGES: BMIRange[] = [
-  { min: 0, max: 18.5, label: 'Bajo peso', color: '#F59E0B', colorDark: '#FBBF24' },
+  { min: 0, max: 18.5, label: 'Bajo peso', color: '#EAB308', colorDark: '#FDE047' },
   { min: 18.5, max: 25, label: 'Normal', color: '#10B981', colorDark: '#34D399' },
-  { min: 25, max: 30, label: 'Sobrepeso', color: '#F59E0B', colorDark: '#FBBF24' },
+  { min: 25, max: 30, label: 'Sobrepeso', color: '#F97316', colorDark: '#FB923C' },
   { min: 30, max: 50, label: 'Obesidad', color: '#EF4444', colorDark: '#F87171' },
 ];
 
 const MIN_BMI = 15;
-const MAX_BMI = 40;
+const MAX_BMI = 35;
 
 interface BMIIndicatorProps {
   bmi: number | null;
@@ -92,13 +92,26 @@ export function BMIIndicator({ bmi }: BMIIndicatorProps) {
       {/* Barra horizontal con zonas de color */}
       <View className="mb-4">
         {/* Barra de fondo con gradientes */}
-        <View className="h-8 rounded-full overflow-hidden flex-row">
+        <View className="h-8 rounded-full overflow-hidden flex-row relative">
           {BMI_RANGES.map((range, index) => {
-            const width = ((range.max - range.min) / (MAX_BMI - MIN_BMI)) * 100;
+            // Calcular posición y ancho basado en MIN_BMI y MAX_BMI
+            const rangeMin = Math.max(range.min, MIN_BMI);
+            const rangeMax = Math.min(range.max, MAX_BMI);
+
+            // Si el rango está completamente fuera de nuestro rango visible, no lo mostramos
+            if (rangeMax <= MIN_BMI || rangeMin >= MAX_BMI) {
+              return null;
+            }
+
+            const leftPosition = ((rangeMin - MIN_BMI) / (MAX_BMI - MIN_BMI)) * 100;
+            const width = ((rangeMax - rangeMin) / (MAX_BMI - MIN_BMI)) * 100;
+
             return (
               <View
                 key={index}
+                className="absolute h-full"
                 style={{
+                  left: `${leftPosition}%`,
                   width: `${width}%`,
                   backgroundColor: isDark ? range.colorDark : range.color,
                   opacity: 0.3,
