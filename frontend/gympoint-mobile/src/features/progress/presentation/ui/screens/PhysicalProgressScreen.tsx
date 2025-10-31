@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { ScrollView, View, Text, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { Screen } from '@shared/components/ui';
@@ -10,6 +10,7 @@ import { KPICard } from '../components/KPICard';
 import { TimeSelector } from '../components/TimeSelector';
 import { ProgressChart } from '../components/ProgressChart';
 import { MeasurementModal, type MeasurementData } from '../components/MeasurementModal';
+import { AnimatedStatsChart } from '../components/AnimatedStatsChart';
 
 type PhysicalProgressScreenProps = {
   navigation: any;
@@ -22,6 +23,7 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
   const { user, fetchHomeData } = useHomeStore();
   const [showMeasurementModal, setShowMeasurementModal] = useState(false);
   const [latestMetric, setLatestMetric] = useState<BodyMetricResponseDTO | null>(null);
+  const [allMetrics, setAllMetrics] = useState<BodyMetricResponseDTO[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [editMode, setEditMode] = useState<'create' | 'edit'>('create');
   const [editingMetric, setEditingMetric] = useState<MeasurementData | null>(null);
@@ -39,11 +41,30 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
     }
   }, []);
 
+  // Función para cargar todas las métricas
+  const loadAllMetrics = useCallback(async () => {
+    try {
+      const response = await BodyMetricsRemote.list({ limit: 100 });
+      setAllMetrics(response.data);
+    } catch (error) {
+      // Error cargando métricas
+    }
+  }, []);
+
   // Obtener datos reales al montar el componente
   useEffect(() => {
     fetchHomeData();
     loadLatestMetric();
+    loadAllMetrics();
   }, []);
+
+  // Filtrar métricas por período seleccionado
+  const filteredMetrics = useMemo(() => {
+    const days = { '7d': 7, '30d': 30, '90d': 90, '12m': 365 }[selectedPeriod];
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+    return allMetrics.filter(m => new Date(m.date) >= cutoffDate);
+  }, [allMetrics, selectedPeriod]);
 
   const currentStreak = user?.streak || 0;
 
@@ -116,6 +137,7 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
 
       // Refrescar datos
       loadLatestMetric();
+      loadAllMetrics();
     } catch (error: any) {
       Alert.alert(
         'Error',
@@ -181,45 +203,6 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
             </View>
           ) : (
             <>
-              {/* Metrics Grid - 2x2 Layout */}
-              <View className="px-4 pb-6">
-                {/* Row 1 */}
-                <View className="flex-row gap-3 mb-3">
-                  <View className="w-[48%]">
-                    <KPICard
-                      icon={<Ionicons name="scale" size={20} color="#9CA3AF" />}
-                      label="Peso"
-                      value={weight ? `${weight.toFixed(1)} kg` : 'Sin datos'}
-                    />
-                  </View>
-                  <View className="w-[48%]">
-                    <KPICard
-                      icon={<Ionicons name="resize" size={20} color="#10B981" />}
-                      label="Altura"
-                      value={height ? `${height.toFixed(0)} cm` : 'Sin datos'}
-                    />
-                  </View>
-                </View>
-
-                {/* Row 2 */}
-                <View className="flex-row gap-3">
-                  <View className="w-[48%]">
-                    <KPICard
-                      icon={<Ionicons name="bar-chart" size={20} color="#6B7280" />}
-                      label="IMC"
-                      value={bmi ? bmi.toFixed(1) : 'Sin datos'}
-                    />
-                  </View>
-                  <View className="w-[48%]">
-                    <KPICard
-                      icon={<Ionicons name="water" size={20} color="#60A5FA" />}
-                      label="% Grasa"
-                      value={bodyFat ? `${bodyFat.toFixed(1)}%` : 'Sin datos'}
-                    />
-                  </View>
-                </View>
-              </View>
-
               {/* Si no hay métricas, mostrar mensaje */}
               {!latestMetric && (
                 <View className="px-4 pb-6">
@@ -245,24 +228,31 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
                 </View>
               )}
 
-              {/* Chart - Solo si hay datos */}
-              {latestMetric && (
-                <ProgressChart
-                  title="Peso vs tiempo"
-                  subtitle="Gráfico de progreso"
-                  count={1}
-                  unit="mediciones registradas"
-                />
-              )}
+              {/* Gráficos de Estadísticas Animadas */}
+              <AnimatedStatsChart
+                metrics={filteredMetrics}
+                period={selectedPeriod}
+                latestMetric={latestMetric}
+              />
 
               {/* Latest Metric Info with Edit Button */}
               {latestMetric && (
                 <View className="px-4 pb-6">
                   {/* Header con botón de editar */}
                   <View className="flex-row items-center justify-between mb-3">
-                    <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                      Última medición
-                    </Text>
+                    <View>
+                      <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                        Última medición completa
+                      </Text>
+                      <Text className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {new Date(latestMetric.date).toLocaleDateString('es-ES', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </Text>
+                    </View>
                     <Pressable
                       onPress={handleEditMetric}
                       className={`flex-row items-center px-3 py-2 rounded-lg ${
@@ -280,49 +270,142 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
                     </Pressable>
                   </View>
 
-                  {/* Información de la métrica */}
-                  <View className="flex-row gap-2">
-                    {weight && (
-                      <View
-                        className={`flex-1 p-4 rounded-xl ${
-                          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-gray-100 border border-gray-200'
-                        }`}
-                      >
-                        <Text className={`text-xs mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                          Actual
-                        </Text>
-                        <Text className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                          {weight.toFixed(1)} kg
-                        </Text>
+                  {/* Grid de todas las métricas */}
+                  <View
+                    className={`rounded-xl p-4 ${
+                      isDark ? 'bg-gray-800 border border-gray-700' : 'bg-gray-50 border border-gray-200'
+                    }`}
+                  >
+                    {/* Fila 1: Peso y Altura */}
+                    <View className="flex-row gap-3 mb-3">
+                      {weight && (
+                        <View className="flex-1">
+                          <View className="flex-row items-center mb-1">
+                            <Ionicons name="scale-outline" size={14} color={isDark ? '#9CA3AF' : '#6B7280'} />
+                            <Text className={`ml-1 text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                              Peso
+                            </Text>
+                          </View>
+                          <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            {weight.toFixed(1)} kg
+                          </Text>
+                        </View>
+                      )}
+                      {height && (
+                        <View className="flex-1">
+                          <View className="flex-row items-center mb-1">
+                            <Ionicons name="resize-outline" size={14} color={isDark ? '#9CA3AF' : '#6B7280'} />
+                            <Text className={`ml-1 text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                              Altura
+                            </Text>
+                          </View>
+                          <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            {height.toFixed(0)} cm
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+
+                    {/* Fila 2: IMC y Grasa Corporal */}
+                    <View className="flex-row gap-3 mb-3">
+                      {bmi && (
+                        <View className="flex-1">
+                          <View className="flex-row items-center mb-1">
+                            <Ionicons name="bar-chart-outline" size={14} color={isDark ? '#9CA3AF' : '#6B7280'} />
+                            <Text className={`ml-1 text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                              IMC
+                            </Text>
+                          </View>
+                          <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            {bmi.toFixed(1)}
+                          </Text>
+                        </View>
+                      )}
+                      {bodyFat && (
+                        <View className="flex-1">
+                          <View className="flex-row items-center mb-1">
+                            <Ionicons name="water-outline" size={14} color={isDark ? '#9CA3AF' : '#6B7280'} />
+                            <Text className={`ml-1 text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                              Grasa Corporal
+                            </Text>
+                          </View>
+                          <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            {bodyFat.toFixed(1)}%
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+
+                    {/* Fila 3: Masa Muscular (si existe) */}
+                    {latestMetric.muscle_mass_kg && (
+                      <View className="flex-row gap-3 mb-3">
+                        <View className="flex-1">
+                          <View className="flex-row items-center mb-1">
+                            <Ionicons name="fitness-outline" size={14} color={isDark ? '#9CA3AF' : '#6B7280'} />
+                            <Text className={`ml-1 text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                              Masa Muscular
+                            </Text>
+                          </View>
+                          <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            {parseFloat(latestMetric.muscle_mass_kg.toString()).toFixed(1)} kg
+                          </Text>
+                        </View>
                       </View>
                     )}
-                    {bmi && (
-                      <View
-                        className={`flex-1 p-4 rounded-xl ${
-                          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-gray-100 border border-gray-200'
-                        }`}
-                      >
+
+                    {/* Fila 4: Medidas corporales (si existen) */}
+                    {(latestMetric.waist_cm || latestMetric.chest_cm || latestMetric.arms_cm) && (
+                      <>
+                        <View className={`border-t my-2 ${isDark ? 'border-gray-700' : 'border-gray-300'}`} />
                         <Text className={`text-xs mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                          IMC
+                          Medidas corporales
                         </Text>
-                        <Text className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                          {bmi.toFixed(1)}
-                        </Text>
-                      </View>
+                        <View className="flex-row gap-3">
+                          {latestMetric.waist_cm && (
+                            <View className="flex-1">
+                              <Text className={`text-xs mb-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                Cintura
+                              </Text>
+                              <Text className={`text-base font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                {parseFloat(latestMetric.waist_cm.toString()).toFixed(0)} cm
+                              </Text>
+                            </View>
+                          )}
+                          {latestMetric.chest_cm && (
+                            <View className="flex-1">
+                              <Text className={`text-xs mb-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                Pecho
+                              </Text>
+                              <Text className={`text-base font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                {parseFloat(latestMetric.chest_cm.toString()).toFixed(0)} cm
+                              </Text>
+                            </View>
+                          )}
+                          {latestMetric.arms_cm && (
+                            <View className="flex-1">
+                              <Text className={`text-xs mb-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                                Brazos
+                              </Text>
+                              <Text className={`text-base font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                {parseFloat(latestMetric.arms_cm.toString()).toFixed(0)} cm
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      </>
                     )}
-                    {latestMetric.date && (
-                      <View
-                        className={`flex-1 p-4 rounded-xl ${
-                          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-gray-100 border border-gray-200'
-                        }`}
-                      >
-                        <Text className={`text-xs mb-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                          Fecha
+
+                    {/* Notas (si existen) */}
+                    {latestMetric.notes && (
+                      <>
+                        <View className={`border-t my-2 ${isDark ? 'border-gray-700' : 'border-gray-300'}`} />
+                        <Text className={`text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                          Notas
                         </Text>
-                        <Text className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                          {new Date(latestMetric.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                        <Text className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {latestMetric.notes}
                         </Text>
-                      </View>
+                      </>
                     )}
                   </View>
                 </View>
