@@ -1,4 +1,5 @@
-import { View, Text, TouchableOpacity, useEffect, useState } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { useEffect, useState } from 'react';
 import { useTheme } from '@shared/hooks';
 import { TimerState } from '@features/routines/domain/entities/ExecutionSession';
 import { formatTime } from '@shared/utils';
@@ -44,7 +45,7 @@ export function RestTimer({ state, onTimerComplete, onSkip }: Props) {
     }
 
     const interval = setInterval(() => {
-      setSecondsLeft((prev) => {
+      setSecondsLeft((prev: number) => {
         const newValue = prev - 1;
 
         // Cuando llega a 0, disparar callback
