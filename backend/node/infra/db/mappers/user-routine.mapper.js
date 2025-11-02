@@ -11,11 +11,11 @@ function toUserRoutine(instance) {
 
   const result = {
     id_user_routine: plain.id_user_routine,
-    id_user: plain.id_user,
+    id_user_profile: plain.id_user_profile,
     id_routine: plain.id_routine,
-    start_date: plain.start_date,
-    finish_date: plain.finish_date || null,
-    active: plain.active || false,
+    started_at: plain.started_at,
+    completed_at: plain.completed_at || null,
+    is_active: plain.is_active || false,
     created_at: plain.created_at,
     updated_at: plain.updated_at
   };
@@ -27,6 +27,13 @@ function toUserRoutine(instance) {
       routine_name: plain.routine.routine_name,
       description: plain.routine.description || null
     };
+
+    // Include exercises if present (check both 'Exercises' and 'exercises')
+    const exercises = plain.routine.Exercises || plain.routine.exercises;
+    if (exercises) {
+      result.routine.Exercises = exercises; // Preserve the original association name
+      result.routine.exercises = exercises; // Also provide lowercase for compatibility
+    }
   }
 
   return result;

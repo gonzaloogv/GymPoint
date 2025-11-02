@@ -93,10 +93,21 @@ const actualizarEmail = async (req, res) => {
 const solicitarEliminacionCuenta = async (req, res) => {
   try {
     const reason = req.body?.reason || req.query?.reason || null;
-    const command = userMapper.toRequestAccountDeletionCommand({
-      accountId: req.user.id_account,
-      reason
-    });
+    const accountId = req.user?.id_account || req.user?.id || req.account?.id_account;
+
+    if (!accountId) {
+      return res.status(400).json({
+        error: {
+          code: 'MISSING_ACCOUNT_ID',
+          message: 'No se pudo determinar el ID de la cuenta'
+        }
+      });
+    }
+
+    const command = userMapper.toRequestAccountDeletionCommand(
+      { reason },
+      accountId
+    );
     const request = await userService.requestAccountDeletion(command);
 
     const graceDays = request?.metadata?.grace_period_days;
@@ -128,7 +139,7 @@ const solicitarEliminacionCuenta = async (req, res) => {
  */
 const obtenerEstadoEliminacion = async (req, res) => {
   try {
-    const query = userMapper.toGetAccountDeletionStatusQuery({ accountId: req.user.id_account });
+    const query = userMapper.toGetAccountDeletionStatusQuery(req.user.id_account);
     const request = await userService.getAccountDeletionStatus(query);
     res.json({
       request: request ? userMapper.toAccountDeletionResponse(request) : null,
@@ -150,7 +161,7 @@ const obtenerEstadoEliminacion = async (req, res) => {
  */
 const cancelarSolicitudEliminacion = async (req, res) => {
   try {
-    const command = userMapper.toCancelAccountDeletionCommand({ accountId: req.user.id_account });
+    const command = userMapper.toCancelAccountDeletionCommand(req.user.id_account);
     const request = await userService.cancelAccountDeletion(command);
     res.json({
       message: 'Solicitud de eliminación cancelada correctamente',

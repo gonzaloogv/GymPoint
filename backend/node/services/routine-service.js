@@ -174,8 +174,8 @@ const createRoutineWithExercises = async (command) => {
   }
 
   // Check subscription limits
-  const profile = await UserProfile.findByPk(cmd.idUser, { attributes: ['subscription'] });
-  const subscription = profile?.subscription || SUBSCRIPTION_TYPES.FREE;
+  const profile = await UserProfile.findByPk(cmd.idUser, { attributes: ['app_tier'] });
+  const subscription = profile?.app_tier || SUBSCRIPTION_TYPES.FREE;
   const { totalOwned } = await userRoutineRepository.getUserRoutineCounts(cmd.idUser);
 
   if (subscription === SUBSCRIPTION_TYPES.FREE) {

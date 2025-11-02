@@ -3,7 +3,7 @@ import { View, Text, Pressable, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 
-type TimePeriod = '7d' | '30d' | '90d' | '12m';
+type TimePeriod = '30d' | '90d' | '12m';
 
 interface TimePeriodSelectorProps {
   value: TimePeriod;
@@ -11,7 +11,6 @@ interface TimePeriodSelectorProps {
 }
 
 const PERIOD_LABELS: Record<TimePeriod, string> = {
-  '7d': 'Últimos 7 días',
   '30d': 'Últimos 30 días',
   '90d': 'Últimos 90 días',
   '12m': 'Últimos 12 meses',

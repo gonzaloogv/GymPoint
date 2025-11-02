@@ -37,13 +37,19 @@ const getActiveRoutineWithExercises = async (query) => {
     throw new NotFoundError('El usuario no tiene una rutina activa');
   }
 
-  // Sort exercises by order as in original implementation
-  if (userRoutine.routine?.exercises) {
-    userRoutine.routine.exercises.sort((a, b) => {
-      const orderA = a.RoutineExercise?.order || 0;
-      const orderB = b.RoutineExercise?.order || 0;
+  // Sort exercises by exercise_order (DB field name, not 'order')
+  // Check both 'Exercises' (from DB association) and 'exercises' (fallback)
+  const exercises = userRoutine.routine?.Exercises || userRoutine.routine?.exercises;
+  if (exercises) {
+    exercises.sort((a, b) => {
+      const orderA = a.RoutineExercise?.exercise_order || 0;
+      const orderB = b.RoutineExercise?.exercise_order || 0;
       return orderA - orderB;
     });
+    // Ensure exercises are accessible in both forms
+    if (!userRoutine.routine.exercises) {
+      userRoutine.routine.exercises = exercises;
+    }
   }
 
   // Return just the routine for backward compatibility
@@ -112,10 +118,10 @@ const assignRoutineToUser = async (command) => {
   }
 
   return userRoutineRepository.createUserRoutine({
-    id_user: cmd.idUser,
+    id_user_profile: cmd.idUser,
     id_routine: cmd.idRoutine,
-    start_date: cmd.startDate || new Date(),
-    active: true
+    started_at: cmd.startDate || new Date(),
+    is_active: true
   });
 };
 

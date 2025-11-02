@@ -95,7 +95,7 @@ components:
               - series
               - reps
               - order
-          minItems: 3
+          minItems: 2
         days:
           type: array
           items:

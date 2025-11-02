@@ -7,7 +7,7 @@ import { useProgress } from '@features/progress/presentation/hooks/useProgress';
 import { useHomeStore } from '@features/home/presentation/state/home.store';
 import { KPICard } from '../components/KPICard';
 import { ProgressSection } from '../components/ProgressSection';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 type ProgressScreenProps = {
   navigation: any;
 };
@@ -35,7 +35,7 @@ export function ProgressScreen({ navigation }: ProgressScreenProps) {
   }, [navigation]);
 
   return (
-    <Screen scroll safeAreaTop safeAreaBottom>
+    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1" style={{ backgroundColor: isDark ? '#111827' : '#f9fafb' }}>
       <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
         {/* Header */}
         <View className="px-4 pt-4 pb-6">
@@ -119,6 +119,6 @@ export function ProgressScreen({ navigation }: ProgressScreenProps) {
           <View className="h-8" />
         </ScrollView>
       </View>
-    </Screen>
+    </SafeAreaView>
   );
 }

@@ -42,6 +42,15 @@ export * from './ChipSelector';
 export * from './SegmentedControl';
 export * from './SwitchRow';
 
+// Refactored Components
+export * from './refactor/Badge';
+export * from './refactor/MetricCard';
+export * from './refactor/TrendCard';
+export * from './refactor/IconButton';
+export * from './refactor/InfoSection';
+export * from './refactor/SelectorModal';
+export * from './refactor/PillSelector';
+
 // Header & Navigation
 export * from './SearchHeader';
 export * from './FilterSheet';

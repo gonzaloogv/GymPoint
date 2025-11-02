@@ -769,6 +769,18 @@ UserRoutine.belongsTo(UserProfile, {
   foreignKey: 'id_user_profile',
   as: 'userProfile'
 });
+
+// UserRoutine ←→ Routine
+UserRoutine.belongsTo(Routine, {
+  foreignKey: 'id_routine',
+  as: 'routine'
+});
+
+Routine.hasMany(UserRoutine, {
+  foreignKey: 'id_routine',
+  as: 'userRoutines'
+});
+
 // Relaciones Presence
 Presence.associate = (models) => {
   Presence.belongsTo(models.UserProfile, {

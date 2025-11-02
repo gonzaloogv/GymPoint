@@ -335,10 +335,13 @@ const getAccountDeletionStatus = async (query) => {
  */
 const requestAccountDeletion = async (command) => {
   const cmd = ensureRequestAccountDeletionCommand(command);
+  console.log('[DEBUG requestAccountDeletion] cmd:', JSON.stringify(cmd, null, 2));
+  console.log('[DEBUG requestAccountDeletion] cmd.accountId:', cmd.accountId);
 
   const transaction = await sequelize.transaction();
 
   try {
+    console.log('[DEBUG requestAccountDeletion] Buscando cuenta con id:', cmd.accountId);
     const account = await Account.findByPk(cmd.accountId, {
       include: {
         model: require('../models').UserProfile,
@@ -349,6 +352,7 @@ const requestAccountDeletion = async (command) => {
       lock: transaction.LOCK.UPDATE,
       transaction
     });
+    console.log('[DEBUG requestAccountDeletion] Cuenta encontrada:', account ? `Si, id_account=${account.id_account}` : 'NO');
 
     if (!account) {
       throw new NotFoundError('Cuenta');
@@ -609,8 +613,8 @@ const registrarMetricasCorporales = async (id_user_profile, payload = {}) => {
     if (isPremium) {
       // Premium: máximo 1 por semana (7 días)
       const daysSinceLastMetric = Math.floor((todayDateObj - lastMetricDateObj) / (1000 * 60 * 60 * 24));
-
-      if (daysSinceLastMetric < 0) {
+      //cambiar de 0 a 7
+      if (daysSinceLastMetric < 7) {
         const daysRemaining = 7 - daysSinceLastMetric;
         throw new ConflictError(`Ya registraste tus métricas esta semana. Los usuarios Premium pueden registrar 1 métrica por semana. Podrás registrar nuevamente en ${daysRemaining} día${daysRemaining !== 1 ? 's' : ''}.`);
       }

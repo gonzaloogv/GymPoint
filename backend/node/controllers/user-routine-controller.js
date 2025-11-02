@@ -14,7 +14,7 @@ const { NotFoundError, ValidationError, BusinessError } = require('../utils/erro
  */
 const assignRoutineToUser = async (req, res) => {
   try {
-    const idUser = req.user.id || req.user.id_user_profile;
+    const idUser = req.user.id_user_profile;
     const command = userRoutineMappers.toAssignRoutineToUserCommand(req.body, idUser);
     const userRoutine = await userRoutineService.assignRoutineToUser(command);
 
@@ -54,7 +54,7 @@ const assignRoutineToUser = async (req, res) => {
  */
 const getActiveRoutine = async (req, res) => {
   try {
-    const idUser = req.user.id || req.user.id_user_profile;
+    const idUser = req.user.id_user_profile;
     const query = userRoutineMappers.toGetActiveUserRoutineQuery(idUser);
     const userRoutine = await userRoutineService.getActiveUserRoutine(query);
 
@@ -86,7 +86,7 @@ const getActiveRoutine = async (req, res) => {
  */
 const getActiveRoutineWithExercises = async (req, res) => {
   try {
-    const idUser = req.user.id || req.user.id_user_profile;
+    const idUser = req.user.id_user_profile;
     const query = userRoutineMappers.toGetActiveRoutineWithExercisesQuery(idUser);
     const routine = await userRoutineService.getActiveRoutineWithExercises(query);
 
@@ -118,7 +118,7 @@ const getActiveRoutineWithExercises = async (req, res) => {
  */
 const listMyRoutines = async (req, res) => {
   try {
-    const idUser = req.user.id || req.user.id_user_profile;
+    const idUser = req.user.id_user_profile;
     const query = userRoutineMappers.toListUserRoutinesQuery(req.query, idUser);
     const userRoutines = await userRoutineService.listUserRoutines(query);
 
@@ -194,7 +194,7 @@ const getUserRoutineCounts = async (req, res) => {
  */
 const endUserRoutine = async (req, res) => {
   try {
-    const idUser = req.user.id || req.user.id_user_profile;
+    const idUser = req.user.id_user_profile;
     const command = userRoutineMappers.toEndUserRoutineCommand(idUser);
     const userRoutine = await userRoutineService.endUserRoutine(command);
 

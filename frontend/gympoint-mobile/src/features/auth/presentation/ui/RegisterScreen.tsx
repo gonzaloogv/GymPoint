@@ -154,7 +154,8 @@ export default function RegisterScreen() {
   return (
     <Screen
       scroll
-      padBottom="safe"
+      safeAreaBottom
+      safeAreaTop
       contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 16 }}
       keyboardShouldPersistTaps="handled"
     >

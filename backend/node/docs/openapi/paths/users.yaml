@@ -483,3 +483,85 @@ paths:
           $ref: '../components/responses.yaml#/components/responses/Forbidden'
         '404':
           $ref: '../components/responses.yaml#/components/responses/NotFound'
+components:
+  schemas:
+    RequestAccountDeletionRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          description: Razón opcional de la eliminación
+          example: "Ya no uso la aplicación"
+
+    AccountDeletionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Solicitud de eliminación registrada."
+        request:
+          type: object
+          properties:
+            id_request:
+              type: integer
+              example: 1
+            id_account:
+              type: integer
+              example: 3
+            reason:
+              type: string
+              nullable: true
+            status:
+              type: string
+              enum: [PENDING, CANCELLED, COMPLETED]
+            scheduled_deletion_date:
+              type: string
+              format: date
+            requested_at:
+              type: string
+              format: date-time
+            cancelled_at:
+              type: string
+              format: date-time
+              nullable: true
+            metadata:
+              type: object
+              nullable: true
+            can_cancel:
+              type: boolean
+
+    AccountDeletionStatusResponse:
+      type: object
+      properties:
+        request:
+          type: object
+          nullable: true
+        has_active_request:
+          type: boolean
+
+    UpdateEmailRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+
+    EmailUpdateResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        email:
+          type: string
+          format: email
+
+    UpdateSubscriptionRequest:
+      type: object
+      required:
+        - subscription
+      properties:
+        subscription:
+          type: string
+          enum: [FREE, PREMIUM]

@@ -105,11 +105,11 @@ const createRoutineWithExercises = async (req, res) => {
       });
     }
 
-    if (!Array.isArray(req.body.exercises) || req.body.exercises.length < 3) {
+    if (!Array.isArray(req.body.exercises) || req.body.exercises.length < 2) {
       return res.status(400).json({
         error: {
           code: 'INVALID_EXERCISES',
-          message: 'La rutina debe tener al menos 3 ejercicios'
+          message: 'La rutina debe tener al menos 2 ejercicios'
         }
       });
     }

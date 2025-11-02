@@ -228,7 +228,7 @@ module.exports = {
           comment: 'Razón de la eliminación (opcional)'
         },
         status: {
-          type: Sequelize.ENUM('PENDING', 'APPROVED', 'REJECTED', 'COMPLETED'),
+          type: Sequelize.ENUM('PENDING', 'APPROVED', 'REJECTED', 'COMPLETED', 'CANCELLED'),
           allowNull: false,
           defaultValue: 'PENDING',
           comment: 'Estado de la solicitud'

@@ -3009,7 +3009,7 @@ components:
               - series
               - reps
               - order
-          minItems: 3
+          minItems: 2
         days:
           type: array
           items:
@@ -7044,6 +7044,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /api/routines:
+    post:
+      operationId: createRoutineWithExercises
+      tags:
+        - Routines
+      summary: Crear rutina con ejercicios
+      description: Crea una rutina con al menos 2 ejercicios
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoutineRequest'
+      responses:
+        '201':
+          description: Rutina creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RoutineWithDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
   /api/routines/me:
     get:
       operationId: getMyRoutines
@@ -7536,7 +7565,7 @@ paths:
         Registra una nueva métrica corporal para el usuario.
 
         **Restricciones:**
-        - Usuarios PREMIUM: Pueden crear 1 métrica por día
+        - Usuarios PREMIUM: Pueden crear 1 métrica por semana (cada 7 días)
         - Usuarios FREE: Pueden crear 1 métrica por mes
         - Tokens: Se otorgan 5 tokens solo 1 vez por mes (independientemente de la suscripción)
 

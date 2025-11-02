@@ -132,7 +132,7 @@ function toExerciseHistoryResponse(history) {
     muscular_group: item.muscularGroup,
     used_weight: item.usedWeight,
     reps: item.reps,
-    sets: item.sets
+    total_volume: item.totalVolume
   }));
 }
 
@@ -143,7 +143,7 @@ function toPersonalRecordResponse(pr) {
     date: pr.date,
     used_weight: pr.usedWeight,
     reps: pr.reps,
-    sets: pr.sets
+    total_volume: pr.totalVolume
   };
 }
 
@@ -153,7 +153,7 @@ function toExerciseAveragesResponse(averages) {
   return {
     average_weight: averages.averageWeight,
     average_reps: averages.averageReps,
-    average_sets: averages.averageSets,
+    average_volume: averages.averageVolume,
     total_records: averages.totalRecords
   };
 }

@@ -76,13 +76,14 @@ function toGetUserRoutineCountsQuery(idUserProfile) {
 function toUserRoutineResponse(userRoutine) {
   if (!userRoutine) return null;
 
+  // Map DB fields (new) to API fields (old) for backwards compatibility
   const response = {
     id_user_routine: userRoutine.id_user_routine || userRoutine.idUserRoutine,
-    id_user: userRoutine.id_user || userRoutine.idUser,
+    id_user: userRoutine.id_user_profile || userRoutine.idUserProfile, // DB: id_user_profile → API: id_user
     id_routine: userRoutine.id_routine || userRoutine.idRoutine,
-    start_date: userRoutine.start_date || userRoutine.startDate,
-    finish_date: userRoutine.finish_date || userRoutine.finishDate || null,
-    active: userRoutine.active ?? true,
+    start_date: userRoutine.started_at || userRoutine.startedAt, // DB: started_at → API: start_date
+    finish_date: userRoutine.completed_at || userRoutine.completedAt || null, // DB: completed_at → API: finish_date
+    active: userRoutine.is_active ?? true, // DB: is_active → API: active
     created_at: userRoutine.created_at || userRoutine.createdAt,
     updated_at: userRoutine.updated_at || userRoutine.updatedAt
   };
@@ -95,15 +96,16 @@ function toUserRoutineResponse(userRoutine) {
       description: userRoutine.routine.description || null
     };
 
-    // Include exercises if available in routine
-    if (userRoutine.routine.exercises) {
-      response.routine.exercises = userRoutine.routine.exercises.map((exercise) => ({
+    // Include exercises if available in routine (check both 'Exercises' and 'exercises')
+    const exercises = userRoutine.routine.Exercises || userRoutine.routine.exercises;
+    if (exercises) {
+      response.routine.exercises = exercises.map((exercise) => ({
         id_exercise: exercise.id_exercise,
         exercise_name: exercise.exercise_name,
         muscular_group: exercise.muscular_group || null,
-        series: exercise.RoutineExercise?.series || null,
+        series: exercise.RoutineExercise?.sets || null, // DB: sets → API: series
         reps: exercise.RoutineExercise?.reps || null,
-        order: exercise.RoutineExercise?.order || null
+        order: exercise.RoutineExercise?.exercise_order || null // DB: exercise_order → API: order
       }));
     }
   }

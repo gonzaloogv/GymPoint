@@ -1,9 +1,10 @@
-import React, { useCallback, useState } from 'react';
-import { ScrollView, View, Text, Pressable } from 'react-native';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { Screen } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
-import { TimeSelector } from '../components/TimeSelector';
+import { ExercisePRCard, ExerciseAveragesCard, ExerciseHistoryList, ExerciseFilter } from '../components/exerciseprogress';
+import { useExerciseProgress, type ExerciseHistoryItem } from '../../hooks/useExerciseProgress';
 
 type ExerciseProgressScreenProps = {
   navigation: any;
@@ -12,31 +13,117 @@ type ExerciseProgressScreenProps = {
 export function ExerciseProgressScreen({ navigation }: ExerciseProgressScreenProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d' | '12m'>('90d');
+
+  // Filter state
+  const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(null);
+  const [selectedMuscularGroup, setSelectedMuscularGroup] = useState<string | null>(null);
+
+  // Hook for exercise data
+  const { loading, error, getAllExerciseHistory } = useExerciseProgress();
+  const [allHistory, setAllHistory] = useState<ExerciseHistoryItem[]>([]);
+
+  // Load all exercise history
+  const loadAllHistory = useCallback(async () => {
+    const data = await getAllExerciseHistory();
+    setAllHistory(data);
+  }, [getAllExerciseHistory]);
+
+  useEffect(() => {
+    loadAllHistory();
+  }, [loadAllHistory]);
+
+  // Extract unique exercises from history
+  const exercises = useMemo(() => {
+    const exerciseMap = new Map();
+    allHistory.forEach(item => {
+      if (!exerciseMap.has(item.id_exercise)) {
+        exerciseMap.set(item.id_exercise, {
+          id_exercise: item.id_exercise,
+          exercise_name: item.exercise_name,
+          muscular_group: item.muscular_group
+        });
+      }
+    });
+    return Array.from(exerciseMap.values());
+  }, [allHistory]);
+
+  // Filter history based on selected filters
+  const filteredHistory = useMemo(() => {
+    let filtered = allHistory;
+
+    // Filter by muscular group
+    if (selectedMuscularGroup) {
+      filtered = filtered.filter(item => item.muscular_group === selectedMuscularGroup);
+    }
+
+    // Filter by specific exercise
+    if (selectedExerciseId) {
+      filtered = filtered.filter(item => item.id_exercise === selectedExerciseId);
+    }
+
+    return filtered;
+  }, [allHistory, selectedMuscularGroup, selectedExerciseId]);
+
+  // Calculate metrics from filtered history
+  const metrics = useMemo(() => {
+    if (filteredHistory.length === 0) {
+      return {
+        personalRecord: null,
+        averages: null,
+        history: []
+      };
+    }
+
+    // Find personal record (highest total volume)
+    const pr = filteredHistory.reduce((max, item) =>
+      item.total_volume > (max?.total_volume || 0) ? item : max
+    );
+
+    // Calculate averages
+    const totalWeight = filteredHistory.reduce((sum, item) => sum + item.used_weight, 0);
+    const totalReps = filteredHistory.reduce((sum, item) => sum + item.reps, 0);
+    const totalVolume = filteredHistory.reduce((sum, item) => sum + item.total_volume, 0);
+
+    const averages = {
+      average_weight: totalWeight / filteredHistory.length,
+      average_reps: totalReps / filteredHistory.length,
+      average_volume: totalVolume / filteredHistory.length,
+      total_records: filteredHistory.length
+    };
+
+    const personalRecord = {
+      date: pr.date,
+      used_weight: pr.used_weight,
+      reps: pr.reps,
+      total_volume: pr.total_volume
+    };
+
+    return {
+      personalRecord,
+      averages,
+      history: filteredHistory
+    };
+  }, [filteredHistory]);
 
   const handleBackPress = useCallback(() => {
     navigation?.goBack();
   }, [navigation]);
 
-  const periods = [
-    { value: '7d' as const, label: '7d' },
-    { value: '30d' as const, label: '30d' },
-    { value: '90d' as const, label: '90d' },
-    { value: '12m' as const, label: '12m' },
-  ];
-
-  // Mock data simulando métricas de ejercicio al igual que body metrics
-  const latestExerciseMetric = {
-    prRecords: 24,
-    volume: 4250,
-    sets: 156,
-    avgStrength: 87.2,
-    date: new Date().toISOString(),
-  };
+  // Get current exercise name for header
+  const currentExerciseName = useMemo(() => {
+    if (selectedExerciseId) {
+      const exercise = exercises.find(ex => ex.id_exercise === selectedExerciseId);
+      return exercise?.exercise_name || 'Ejercicio';
+    }
+    if (selectedMuscularGroup) {
+      return selectedMuscularGroup;
+    }
+    return 'Todos los ejercicios';
+  }, [selectedExerciseId, selectedMuscularGroup, exercises]);
 
   return (
-    <Screen scroll safeAreaTop safeAreaBottom>
-      <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+    <Screen scroll safeAreaTop>
+      <View className="min-h-full">
         {/* Header */}
         <View className="flex-row items-center justify-between px-4 pt-4 pb-4">
           <Pressable onPress={handleBackPress} className="flex-row items-center">
@@ -46,177 +133,127 @@ export function ExerciseProgressScreen({ navigation }: ExerciseProgressScreenPro
               color={isDark ? '#60A5FA' : '#3B82F6'}
             />
             <Text className={`ml-1 text-base font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
-              Volver al progreso
+              Volver
             </Text>
           </Pressable>
-          <Ionicons
-            name="information-circle"
-            size={24}
-            color={isDark ? '#9CA3AF' : '#6B7280'}
-          />
         </View>
 
-        <Text className={`px-4 text-2xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-          Progreso por Ejercicio
-        </Text>
+        <View className="px-4 mb-4">
+          <Text className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            {currentExerciseName}
+          </Text>
+          <Text className={`text-sm mt-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+            Historial y métricas de progreso
+          </Text>
+        </View>
+          {/* Exercise Filter */}
+          {exercises.length > 0 && (
+            <ExerciseFilter
+              exercises={exercises}
+              selectedExerciseId={selectedExerciseId}
+              selectedMuscularGroup={selectedMuscularGroup}
+              onExerciseSelect={setSelectedExerciseId}
+              onMuscularGroupSelect={setSelectedMuscularGroup}
+            />
+          )}
 
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          {/* Time Selector */}
-          <TimeSelector
-            periods={periods}
-            selected={selectedPeriod}
-            onSelect={setSelectedPeriod}
-          />
+          {/* Loading State */}
+          {loading && allHistory.length === 0 && (
+            <View className="px-4 py-12">
+              <ActivityIndicator size="large" color={isDark ? '#60A5FA' : '#3B82F6'} />
+              <Text className={`text-center mt-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Cargando historial...
+              </Text>
+            </View>
+          )}
 
-          {/* Estadísticas - Mensaje informativo */}
-          <View className="px-4 pb-6">
-            <View
-              className={`p-6 rounded-xl border ${
-                isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-blue-50 border-blue-200'
-              }`}
-            >
+          {/* Error State */}
+          {error && !loading && (
+            <View className="px-4 pb-4">
+              <View
+                className={`p-4 rounded-xl border ${
+                  isDark ? 'bg-red-900/20 border-red-700' : 'bg-red-50 border-red-200'
+                }`}
+              >
+                <View className="flex-row items-center gap-2">
+                  <Ionicons name="alert-circle" size={20} color="#EF4444" />
+                  <Text className={`flex-1 text-sm ${isDark ? 'text-red-400' : 'text-red-700'}`}>
+                    {error}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Empty State */}
+          {!loading && allHistory.length === 0 && (
+            <View className="px-4 py-12">
               <View className="items-center">
                 <Ionicons
-                  name="bar-chart"
-                  size={48}
-                  color={isDark ? '#60A5FA' : '#3B82F6'}
+                  name="barbell-outline"
+                  size={64}
+                  color={isDark ? '#4B5563' : '#D1D5DB'}
                 />
-                <Text className={`mt-4 text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                  Gráficos de progreso próximamente
+                <Text className={`text-center mt-4 text-base font-semibold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  No hay registros de ejercicios
                 </Text>
-                <Text className={`mt-2 text-center ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Los gráficos interactivos de ejercicios estarán disponibles una vez que se integre la funcionalidad
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Latest Metrics Summary */}
-          <View className="px-4 pb-6">
-            <View className="flex-row items-center justify-between mb-3">
-              <View>
-                <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                  Resumen actual
-                </Text>
-                <Text className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                  {new Date(latestExerciseMetric.date).toLocaleDateString('es-ES', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
+                <Text className={`text-center mt-2 text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                  Comienza a registrar tu progreso
                 </Text>
               </View>
             </View>
+          )}
 
-            {/* Grid de métricas */}
-            <View
-              className={`rounded-xl p-4 ${
-                isDark ? 'bg-gray-800 border border-gray-700' : 'bg-gray-50 border border-gray-200'
-              }`}
-            >
-              {/* Fila 1: PRs y Volumen */}
-              <View className="flex-row gap-3 mb-3">
-                <View className="flex-1">
-                  <View className="flex-row items-center mb-1">
-                    <Ionicons name="medal" size={14} color="#FCD34D" />
-                    <Text className={`ml-1 text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                      PRs
-                    </Text>
-                  </View>
-                  <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    {latestExerciseMetric.prRecords}
-                  </Text>
-                </View>
-                <View className="flex-1">
-                  <View className="flex-row items-center mb-1">
-                    <Ionicons name="barbell" size={14} color="#EF4444" />
-                    <Text className={`ml-1 text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                      Volumen
-                    </Text>
-                  </View>
-                  <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    {latestExerciseMetric.volume} kg
-                  </Text>
-                </View>
-              </View>
-
-              {/* Fila 2: Series y Fuerza */}
-              <View className="flex-row gap-3">
-                <View className="flex-1">
-                  <View className="flex-row items-center mb-1">
-                    <Ionicons name="layers" size={14} color="#8B5CF6" />
-                    <Text className={`ml-1 text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                      Series
-                    </Text>
-                  </View>
-                  <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    {latestExerciseMetric.sets}
-                  </Text>
-                </View>
-                <View className="flex-1">
-                  <View className="flex-row items-center mb-1">
-                    <Ionicons name="trending-up" size={14} color="#10B981" />
-                    <Text className={`ml-1 text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                      Fuerza Promedio
-                    </Text>
-                  </View>
-                  <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    {latestExerciseMetric.avgStrength.toFixed(1)}%
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-
-          {/* Top Exercises */}
-          <View className="px-4 pb-6">
-            <Text className={`text-lg font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              Top Ejercicios
-            </Text>
-            <View
-              className={`rounded-xl p-4 ${
-                isDark ? 'bg-gray-800 border border-gray-700' : 'bg-gray-50 border border-gray-200'
-              }`}
-            >
-              <View className="flex-row items-center justify-between mb-3">
-                <View className="flex-row items-center flex-1">
-                  <Ionicons name="barbell" size={16} color="#EF4444" style={{ marginRight: 8 }} />
-                  <Text className={`flex-1 font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    Bench Press
-                  </Text>
-                </View>
-                <Text className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                  120 kg
+          {/* No Results for Filter */}
+          {!loading && allHistory.length > 0 && filteredHistory.length === 0 && (
+            <View className="px-4 py-12">
+              <View className="items-center">
+                <Ionicons
+                  name="filter-outline"
+                  size={64}
+                  color={isDark ? '#4B5563' : '#D1D5DB'}
+                />
+                <Text className={`text-center mt-4 text-base font-semibold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  No hay resultados
                 </Text>
-              </View>
-              <View className="flex-row items-center justify-between mb-3">
-                <View className="flex-row items-center flex-1">
-                  <Ionicons name="barbell" size={16} color="#EF4444" style={{ marginRight: 8 }} />
-                  <Text className={`flex-1 font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    Sentadilla
-                  </Text>
-                </View>
-                <Text className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                  180 kg
-                </Text>
-              </View>
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center flex-1">
-                  <Ionicons name="barbell" size={16} color="#EF4444" style={{ marginRight: 8 }} />
-                  <Text className={`flex-1 font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    Peso Muerto
-                  </Text>
-                </View>
-                <Text className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                  220 kg
+                <Text className={`text-center mt-2 text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                  Prueba con otros filtros
                 </Text>
               </View>
             </View>
-          </View>
+          )}
 
-          <View className="h-4" />
-        </ScrollView>
+          {/* Content */}
+          {!loading && filteredHistory.length > 0 && (
+            <>
+              {/* Personal Record Card */}
+              <View className="px-4 pb-4">
+                <ExercisePRCard
+                  exerciseName={currentExerciseName}
+                  personalRecord={metrics.personalRecord}
+                  loading={false}
+                />
+              </View>
+
+              {/* Averages Card */}
+              <View className="px-4 pb-4">
+                <ExerciseAveragesCard
+                  averages={metrics.averages}
+                  loading={false}
+                />
+              </View>
+
+              {/* History List */}
+              <View className="px-4 pb-6">
+                <ExerciseHistoryList
+                  history={metrics.history}
+                  loading={false}
+                />
+              </View>
+            </>
+          )}
+
+        <View className="h-4" />
       </View>
     </Screen>
   );

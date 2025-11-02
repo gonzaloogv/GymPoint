@@ -38,7 +38,7 @@ async function findUserRoutineById(idUserRoutine, options = {}) {
 
 async function findActiveUserRoutine(idUser, options = {}) {
   const userRoutine = await UserRoutine.findOne({
-    where: { id_user: idUser, active: true },
+    where: { id_user_profile: idUser, is_active: true },
     transaction: options.transaction
   });
 
@@ -47,16 +47,16 @@ async function findActiveUserRoutine(idUser, options = {}) {
 
 async function findActiveRoutineWithExercises(idUser, options = {}) {
   const userRoutine = await UserRoutine.findOne({
-    where: { id_user: idUser, active: true },
+    where: { id_user_profile: idUser, is_active: true },
     include: [
       {
         model: Routine,
         as: 'routine',
         include: {
           model: Exercise,
-          as: 'exercises',
+          as: 'Exercises', // Must match association alias in models/index.js
           through: {
-            attributes: ['series', 'reps', 'order']
+            attributes: ['sets', 'reps', 'exercise_order'] // Correct column names from RoutineExercise model
           }
         }
       }
@@ -68,10 +68,10 @@ async function findActiveRoutineWithExercises(idUser, options = {}) {
 }
 
 async function findUserRoutinesByUser(idUser, options = {}) {
-  const where = { id_user: idUser };
+  const where = { id_user_profile: idUser };
 
   if (options.active !== undefined) {
-    where.active = options.active;
+    where.is_active = options.active;
   }
 
   const queryOptions = {
@@ -113,8 +113,8 @@ async function deactivateUserRoutine(idUserRoutine, options = {}) {
   if (!userRoutine) throw new Error('UserRoutine not found');
 
   await userRoutine.update({
-    active: false,
-    finish_date: new Date()
+    is_active: false,
+    completed_at: new Date()
   }, { transaction: options.transaction });
 
   return toUserRoutine(userRoutine);
@@ -122,15 +122,15 @@ async function deactivateUserRoutine(idUserRoutine, options = {}) {
 
 async function deactivateActiveRoutineForUser(idUser, options = {}) {
   const userRoutine = await UserRoutine.findOne({
-    where: { id_user: idUser, active: true },
+    where: { id_user_profile: idUser, is_active: true },
     transaction: options.transaction
   });
 
   if (!userRoutine) return null;
 
   await userRoutine.update({
-    active: false,
-    finish_date: new Date()
+    is_active: false,
+    completed_at: new Date()
   }, { transaction: options.transaction });
 
   return toUserRoutine(userRoutine);

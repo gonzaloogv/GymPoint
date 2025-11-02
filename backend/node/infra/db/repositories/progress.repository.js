@@ -26,9 +26,9 @@ async function create(data, options = {}) {
     const exerciseRecords = data.exercises.map(ex => ({
       id_progress: progress.id_progress,
       id_exercise: ex.idExercise,
-      used_weight: ex.usedWeight,
-      reps: ex.reps,
-      sets: ex.sets || 1
+      max_weight: ex.usedWeight,
+      max_reps: ex.reps,
+      total_volume: (ex.usedWeight || 0) * (ex.reps || 0) * (ex.sets || 1)
     }));
 
     await ProgressExercise.bulkCreate(exerciseRecords, { transaction });
@@ -146,15 +146,18 @@ async function getExerciseHistory(idUserProfile, options = {}) {
     order: [['id_progress', 'DESC']]
   });
 
-  return exercises.map(e => ({
-    date: dateMap[e.id_progress],
-    idExercise: e.id_exercise,
-    exerciseName: e.exercise?.exercise_name,
-    muscularGroup: e.exercise?.muscular_group,
-    usedWeight: e.used_weight,
-    reps: e.reps,
-    sets: e.sets
-  }));
+  return exercises.map(e => {
+    const data = e.toJSON ? e.toJSON() : e;
+    return {
+      date: dateMap[data.id_progress],
+      idExercise: data.id_exercise,
+      exerciseName: data.exercise?.exercise_name,
+      muscularGroup: data.exercise?.muscular_group,
+      usedWeight: parseFloat(data.max_weight) || 0,
+      reps: data.max_reps || 0,
+      totalVolume: parseFloat(data.total_volume) || 0
+    };
+  });
 }
 
 /**
@@ -182,14 +185,17 @@ async function getPersonalRecord(idUserProfile, idExercise) {
   if (!records.length) return null;
 
   const best = records.reduce((max, current) => {
-    return current.used_weight > max.used_weight ? current : max;
+    const maxWeight = parseFloat(max.max_weight) || 0;
+    const currentWeight = parseFloat(current.max_weight) || 0;
+    return currentWeight > maxWeight ? current : max;
   });
 
+  const bestData = best.toJSON ? best.toJSON() : best;
   return {
-    date: dateMap[best.id_progress],
-    usedWeight: best.used_weight,
-    reps: best.reps,
-    sets: best.sets
+    date: dateMap[bestData.id_progress],
+    usedWeight: parseFloat(bestData.max_weight) || 0,
+    reps: bestData.max_reps || 0,
+    totalVolume: parseFloat(bestData.total_volume) || 0
   };
 }
 
@@ -216,14 +222,14 @@ async function getExerciseAverages(idUserProfile, idExercise) {
   if (!records.length) return null;
 
   const total = records.length;
-  const sumWeight = records.reduce((sum, r) => sum + (r.used_weight || 0), 0);
-  const sumReps = records.reduce((sum, r) => sum + (r.reps || 0), 0);
-  const sumSets = records.reduce((sum, r) => sum + (r.sets || 0), 0);
+  const sumWeight = records.reduce((sum, r) => sum + (parseFloat(r.max_weight) || 0), 0);
+  const sumReps = records.reduce((sum, r) => sum + (r.max_reps || 0), 0);
+  const sumVolume = records.reduce((sum, r) => sum + (parseFloat(r.total_volume) || 0), 0);
 
   return {
     averageWeight: parseFloat((sumWeight / total).toFixed(2)),
     averageReps: parseFloat((sumReps / total).toFixed(2)),
-    averageSets: parseFloat((sumSets / total).toFixed(2)),
+    averageVolume: parseFloat((sumVolume / total).toFixed(2)),
     totalRecords: total
   };
 }

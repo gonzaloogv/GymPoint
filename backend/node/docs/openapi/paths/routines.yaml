@@ -1,4 +1,33 @@
 paths:
+  /api/routines:
+    post:
+      operationId: createRoutineWithExercises
+      tags:
+        - Routines
+      summary: Crear rutina con ejercicios
+      description: Crea una rutina con al menos 2 ejercicios
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/routines.yaml#/components/schemas/CreateRoutineRequest'
+      responses:
+        '201':
+          description: Rutina creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '../components/schemas/routines.yaml#/components/schemas/RoutineWithDetails'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
   /api/routines/me:
     get:
       operationId: getMyRoutines

@@ -25,7 +25,7 @@ const AccountDeletionRequest = sequelize.define('AccountDeletionRequest', {
     comment: 'Razón de la eliminación (opcional)'
   },
   status: {
-    type: DataTypes.ENUM('PENDING', 'APPROVED', 'REJECTED', 'COMPLETED'),
+    type: DataTypes.ENUM('PENDING', 'APPROVED', 'REJECTED', 'COMPLETED', 'CANCELLED'),
     allowNull: false,
     defaultValue: 'PENDING',
     comment: 'Estado de la solicitud'

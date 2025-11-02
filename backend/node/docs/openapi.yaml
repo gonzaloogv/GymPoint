@@ -3009,7 +3009,7 @@ components:
               - series
               - reps
               - order
-          minItems: 3
+          minItems: 2
         days:
           type: array
           items:
@@ -7044,6 +7044,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /api/routines:
+    post:
+      operationId: createRoutineWithExercises
+      tags:
+        - Routines
+      summary: Crear rutina con ejercicios
+      description: Crea una rutina con al menos 2 ejercicios
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoutineRequest'
+      responses:
+        '201':
+          description: Rutina creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/RoutineWithDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
   /api/routines/me:
     get:
       operationId: getMyRoutines
@@ -8298,12 +8327,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /api/user-routines/assign:
+  /api/user-routines:
     post:
       operationId: assignRoutineToUser
       tags:
         - User Routines
-      summary: Asignar rutina a usuario
+      summary: Asignar rutina activa a usuario
       security:
         - BearerAuth: []
       requestBody:
@@ -8311,7 +8340,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AssignRoutineRequest'
+              type: object
+              required:
+                - id_routine
+                - start_date
+              properties:
+                id_routine:
+                  type: integer
+                start_date:
+                  type: string
+                  format: date
       responses:
         '201':
           description: Rutina asignada
@@ -8326,12 +8364,12 @@ paths:
                     $ref: '#/components/schemas/UserRoutine'
         '400':
           $ref: '#/components/responses/BadRequest'
-  /api/user-routines/active:
+  /api/user-routines/me:
     get:
       operationId: getActiveRoutine
       tags:
         - User Routines
-      summary: Obtener rutina activa
+      summary: Obtener rutina activa del usuario
       security:
         - BearerAuth: []
       responses:
@@ -8346,7 +8384,7 @@ paths:
                     $ref: '#/components/schemas/UserRoutine'
         '404':
           $ref: '#/components/responses/NotFound'
-  /api/user-routines/active/details:
+  /api/user-routines/me/active-routine:
     get:
       operationId: getActiveRoutineWithExercises
       tags:
@@ -8368,58 +8406,8 @@ paths:
                     $ref: '#/components/schemas/RoutineWithDetails'
         '404':
           $ref: '#/components/responses/NotFound'
-  /api/user-routines/me:
-    get:
-      operationId: listMyUserRoutines
-      tags:
-        - User Routines
-      summary: Listar mis rutinas asignadas
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
-        - name: active
-          in: query
-          schema:
-            type: boolean
-      responses:
-        '200':
-          description: Lista de rutinas del usuario
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/UserRoutine'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-  /api/user-routines/counts:
-    get:
-      operationId: getUserRoutineCounts
-      tags:
-        - User Routines
-      summary: Obtener contadores de rutinas
-      description: Retorna total, importadas y creadas
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Contadores de rutinas
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/UserRoutineCounts'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-  /api/user-routines/end:
-    post:
+  /api/user-routines/me/end:
+    put:
       operationId: endUserRoutine
       tags:
         - User Routines
@@ -8429,83 +8417,6 @@ paths:
       responses:
         '200':
           description: Rutina finalizada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/UserRoutine'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /api/user-routines/import:
-    post:
-      operationId: importRoutineTemplate
-      tags:
-        - User Routines
-      summary: Importar plantilla de rutina
-      description: Crea una copia de una rutina template para el usuario
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ImportRoutineRequest'
-      responses:
-        '201':
-          description: Rutina importada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Routine'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /api/user-routines/{id}:
-    get:
-      operationId: getUserRoutineById
-      tags:
-        - User Routines
-      summary: Obtener rutina de usuario por ID
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
-      responses:
-        '200':
-          description: Rutina de usuario
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    $ref: '#/components/schemas/UserRoutine'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /api/user-routines/{id}/deactivate:
-    put:
-      operationId: deactivateUserRoutine
-      tags:
-        - User Routines
-      summary: Desactivar rutina de usuario
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/IdPathParam'
-      responses:
-        '200':
-          description: Rutina desactivada
           content:
             application/json:
               schema:

@@ -15,7 +15,9 @@ import { SettingsCard } from '../components/SettingsCard';
 import { MenuOptions } from '../components/MenuOptions';
 import { PremiumBenefitsCard } from '../components/PremiumBenefitsCard';
 import { LegalFooter } from '../components/LegalFooter';
+import { DeleteAccountSection } from '../components/DeleteAccountSection';
 import { useUserProfileStore } from '../../state/userProfile.store';
+import { useAccountDeletion } from '../../hooks/useAccountDeletion';
 import { UserProfile, UserProfileScreenProps } from '../../../types/userTypes';
 
 // Importar el tema
@@ -52,6 +54,17 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
     toggleLocation,
     upgradeToPremium,
   } = useUserProfileStore();
+
+  // ============================================
+  // ACCOUNT DELETION HOOK
+  // ============================================
+  const {
+    loading: deletionLoading,
+    deletionRequest,
+    hasActiveRequest,
+    requestDeletion,
+    cancelDeletion,
+  } = useAccountDeletion();
 
   useEffect(() => {
     fetchUserProfile();
@@ -125,7 +138,18 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
           <LegalFooter theme={theme} />
         </View>
 
-        {/* 8. Logout */}
+        {/* 8. Eliminar cuenta */}
+        <View className="mb-4">
+          <DeleteAccountSection
+            deletionRequest={deletionRequest}
+            hasActiveRequest={hasActiveRequest}
+            onRequestDeletion={requestDeletion}
+            onCancelDeletion={cancelDeletion}
+            loading={deletionLoading}
+          />
+        </View>
+
+        {/* 9. Logout */}
         <Button
           onPress={handleLogoutPress}
           className="mb-4"

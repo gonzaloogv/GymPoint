@@ -9,7 +9,7 @@ const { verificarToken, verificarUsuarioApp } = require('../middlewares/auth');
  * /api/routines:
  *   post:
  *     summary: Crear una nueva rutina con ejercicios
- *     description: Crea una rutina. IMPORTANTE - La rutina debe tener al menos 3 ejercicios para ser válida.
+ *     description: Crea una rutina. IMPORTANTE - La rutina debe tener al menos 2 ejercicios para ser válida.
  *     tags: [Rutinas]
  *     security:
  *       - bearerAuth: []
@@ -31,8 +31,8 @@ const { verificarToken, verificarUsuarioApp } = require('../middlewares/auth');
  *                 example: Enfocada en tren superior
  *               exercises:
  *                 type: array
- *                 minItems: 3
- *                 description: Lista de ejercicios (mínimo 3)
+ *                 minItems: 2
+ *                 description: Lista de ejercicios (mínimo 2)
  *                 items:
  *                   type: object
  *                   required: [id_exercise, series, reps, order]
@@ -63,7 +63,7 @@ const { verificarToken, verificarUsuarioApp } = require('../middlewares/auth');
  *                 data:
  *                   type: object
  *       400:
- *         description: Datos inválidos o menos de 3 ejercicios
+ *         description: Datos inválidos o menos de 2 ejercicios
  *         content:
  *           application/json:
  *             schema:
@@ -77,7 +77,7 @@ const { verificarToken, verificarUsuarioApp } = require('../middlewares/auth');
  *                       example: INVALID_EXERCISES
  *                     message:
  *                       type: string
- *                       example: La rutina debe tener al menos 3 ejercicios
+ *                       example: La rutina debe tener al menos 2 ejercicios
  *       401:
  *         description: No autorizado
  *       403:
