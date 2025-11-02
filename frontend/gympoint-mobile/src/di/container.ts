@@ -19,10 +19,12 @@ import { GetSchedulesForGyms } from '@features/gyms/domain/usecases/GetSchedules
 import { RoutineRepository } from '@features/routines/domain/repositories/RoutineRepository';
 import { RoutineRepositoryImpl } from '@features/routines/data/RoutineRepositoryImpl';
 import { RoutineLocal } from '@features/routines/data/datasources/RoutineLocal';
+import { IncompleteSessionLocalDataSource } from '@features/routines/data/datasources/incompleteSessionLocalDataSource';
 import { GetRoutines } from '@features/routines/domain/usecases/GetRoutines';
 import { GetRoutineById } from '@features/routines/domain/usecases/GetRoutineById';
 import { ExecuteRoutine } from '@features/routines/domain/usecases/ExecuteRoutine';
 import { GetRoutineHistory } from '@features/routines/domain/usecases/GetRoutineHistory';
+import { GetIncompleteSession } from '@features/routines/domain/usecases/GetIncompleteSession';
 
 // ===== Rewards =====
 import { RewardRepository } from '@features/rewards/domain/repositories/RewardRepository';
@@ -81,11 +83,13 @@ class Container {
 
   // Routines
   routineLocal: RoutineLocal;
+  incompleteSessionLocalDataSource: IncompleteSessionLocalDataSource;
   routineRepository: RoutineRepository;
   getRoutines: GetRoutines;
   getRoutineById: GetRoutineById;
   executeRoutine: ExecuteRoutine;
   getRoutineHistory: GetRoutineHistory;
+  getIncompleteSession: GetIncompleteSession;
 
   // Rewards
   rewardLocal: RewardLocal;
@@ -137,11 +141,13 @@ class Container {
 
     // Routines
     this.routineLocal = new RoutineLocal();
+    this.incompleteSessionLocalDataSource = new IncompleteSessionLocalDataSource();
     this.routineRepository = new RoutineRepositoryImpl(this.routineLocal);
     this.getRoutines = new GetRoutines(this.routineRepository);
     this.getRoutineById = new GetRoutineById(this.routineRepository);
     this.executeRoutine = new ExecuteRoutine(this.routineRepository);
     this.getRoutineHistory = new GetRoutineHistory(this.routineRepository);
+    this.getIncompleteSession = new GetIncompleteSession(this.incompleteSessionLocalDataSource);
 
     // Rewards
     this.rewardLocal = new RewardLocal();
