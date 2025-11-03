@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { isValidEmail, isValidPassword } from '@shared/utils/validation';
 
 import dumbbellIcon from '@assets/dumbbell.png';
 import {
@@ -60,9 +61,15 @@ export default function LoginScreen() {
         return;
       }
 
-      // Validación básica
-      if (!email.trim() || !password.trim()) {
-        setError('Por favor, ingresá email y contraseña');
+       // Validación de email
+      if (!isValidEmail(email)) {
+        setError('Por favor, ingresá un email válido');
+        return;
+      }
+
+      // Validación de contraseña - mínimo 8 caracteres
+      if (!isValidPassword(password)) {
+        setError('La contraseña debe tener al menos 8 caracteres');
         return;
       }
 
@@ -70,6 +77,16 @@ export default function LoginScreen() {
       console.log('🌐 Intentando login con backend...');
       console.log('📧 Email:', email);
       const result = await DI.loginUser.execute({ email, password });
+      // agregar alerta de login exitoso
+      Alert.alert(
+        'Bienvenido a GymPoint',
+        'Ahora podés navegar por la app.',
+        [
+          {
+            text: 'Aceptar'
+          },
+        ]
+      );
 
       console.log('✅ Login exitoso:', result.user.name);
       setUser(result.user);

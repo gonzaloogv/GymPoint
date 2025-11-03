@@ -132,21 +132,37 @@ export type AccountDeletionStatusResponseDTO = {
 };
 
 export type NotificationSettingsResponseDTO = {
-  push_enabled: boolean;
-  email_enabled: boolean;
-  challenges_enabled: boolean;
+  id_setting: number;
+  id_user_profile: number;
+  reminders_enabled: boolean;
   achievements_enabled: boolean;
   rewards_enabled: boolean;
-  promotions_enabled: boolean;
+  gym_updates_enabled: boolean;
+  payment_enabled: boolean;
+  social_enabled: boolean;
+  system_enabled: boolean;
+  challenge_enabled: boolean;
+  push_enabled: boolean;
+  email_enabled: boolean;
+  quiet_hours_start: string | null;
+  quiet_hours_end: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
 export type UpdateNotificationSettingsRequestDTO = {
-  push_enabled?: boolean;
-  email_enabled?: boolean;
-  challenges_enabled?: boolean;
+  reminders_enabled?: boolean;
   achievements_enabled?: boolean;
   rewards_enabled?: boolean;
-  promotions_enabled?: boolean;
+  gym_updates_enabled?: boolean;
+  payment_enabled?: boolean;
+  social_enabled?: boolean;
+  system_enabled?: boolean;
+  challenge_enabled?: boolean;
+  push_enabled?: boolean;
+  email_enabled?: boolean;
+  quiet_hours_start?: string | null;
+  quiet_hours_end?: string | null;
 };
 
 // ============================================================================

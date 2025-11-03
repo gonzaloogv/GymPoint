@@ -1,70 +1,100 @@
-import { Routine, Exercise, RoutineSession, SetLog } from '../../domain/entities';
-import { RoutineDTO, ExerciseDTO, RoutineSessionDTO, SetLogDTO } from '../dto/RoutineDTO';
+import { Routine, RoutineExercise, CreateRoutineRequest, UpdateRoutineRequest } from '../../domain/entities/Routine';
+import {
+  RoutineDTO,
+  RoutineExerciseDTO,
+  CreateRoutineRequestDTO,
+  UpdateRoutineRequestDTO,
+} from '../dto/RoutineDTO';
 
-export const mapExerciseDTOToEntity = (dto: ExerciseDTO): Exercise => {
+/**
+ * Routine Mappers
+ * Convierten entre DTO (API) y Entity (Domain)
+ */
+
+/**
+ * Convierte RoutineExerciseDTO a RoutineExercise entity
+ */
+export const routineExerciseDTOToEntity = (dto: RoutineExerciseDTO): RoutineExercise => {
   return {
-    id: dto.id,
-    name: dto.name,
-    sets: dto.sets,
+    id_exercise: dto.id_exercise,
+    exercise_name: dto.exercise_name,
+    muscular_group: dto.muscular_group,
+    difficulty_level: dto.difficulty_level,
+    description: dto.description,
+    series: dto.series,
     reps: dto.reps,
-    rest: dto.rest,
-    muscleGroups: dto.muscleGroups,
+    order: dto.order,
   };
 };
 
-export const mapRoutineDTOToEntity = (dto: RoutineDTO): Routine => {
+/**
+ * Convierte RoutineDTO a Routine entity
+ */
+export const routineDTOToEntity = (dto: RoutineDTO): Routine => {
   return {
-    id: dto.id,
-    name: dto.name,
-    status: dto.status,
-    exercises: dto.exercises.map(mapExerciseDTOToEntity),
-    estimatedDuration: dto.estimatedDuration,
-    lastPerformed: dto.lastPerformed,
-    nextScheduled: dto.nextScheduled,
-    difficulty: dto.difficulty,
-    muscleGroups: dto.muscleGroups,
+    id_routine: dto.id_routine,
+    routine_name: dto.routine_name,
+    description: dto.description,
+    created_by: dto.created_by,
+    is_template: dto.is_template,
+    recommended_for: dto.recommended_for,
+    template_order: dto.template_order,
+    created_at: dto.created_at,
+    updated_at: dto.updated_at,
+    exercises: dto.exercises?.map(routineExerciseDTOToEntity),
   };
 };
 
-export const mapSetLogDTOToEntity = (dto: SetLogDTO): SetLog => {
-  return {
-    exerciseId: dto.exerciseId,
-    setNumber: dto.setNumber,
-    reps: dto.reps,
-    weightKg: dto.weightKg,
-    restTakenSec: dto.restTakenSec,
-  };
+/**
+ * Convierte array de RoutineDTOs a array de Routine entities
+ */
+export const routineDTOsToEntities = (dtos: RoutineDTO[]): Routine[] => {
+  return dtos.map(routineDTOToEntity);
 };
 
-export const mapRoutineSessionDTOToEntity = (dto: RoutineSessionDTO): RoutineSession => {
+/**
+ * Convierte CreateRoutineRequest a CreateRoutineRequestDTO
+ */
+export const createRoutineRequestToDTO = (request: CreateRoutineRequest): CreateRoutineRequestDTO => {
   return {
-    id: dto.id,
-    routineId: dto.routineId,
-    date: dto.date,
-    durationMin: dto.durationMin,
-    completed: dto.completed,
-    notes: dto.notes,
-    logs: dto.logs.map(mapSetLogDTOToEntity),
-  };
-};
-
-// Mappers inversos (Entity → DTO) para cuando se necesiten
-export const mapRoutineSessionEntityToDTO = (
-  session: RoutineSession,
-): RoutineSessionDTO => {
-  return {
-    id: session.id,
-    routineId: session.routineId,
-    date: session.date,
-    durationMin: session.durationMin,
-    completed: session.completed,
-    notes: session.notes,
-    logs: session.logs.map((log) => ({
-      exerciseId: log.exerciseId,
-      setNumber: log.setNumber,
-      reps: log.reps,
-      weightKg: log.weightKg,
-      restTakenSec: log.restTakenSec,
+    routine_name: request.routine_name,
+    description: request.description,
+    exercises: request.exercises.map(ex => ({
+      id_exercise: ex.id_exercise,
+      series: ex.series,
+      reps: ex.reps,
+      order: ex.order,
+      day_number: ex.day_number,
+    })),
+    days: request.days?.map(day => ({
+      day_number: day.day_number,
+      title: day.title,
+      description: day.description,
     })),
   };
+};
+
+/**
+ * Convierte UpdateRoutineRequest a UpdateRoutineRequestDTO
+ */
+export const updateRoutineRequestToDTO = (request: UpdateRoutineRequest): UpdateRoutineRequestDTO => {
+  return {
+    routine_name: request.routine_name,
+    description: request.description,
+    exercises: request.exercises?.map(ex => ({
+      id_exercise: ex.id_exercise,
+      series: ex.series,
+      reps: ex.reps,
+      order: ex.order,
+      day_number: ex.day_number,
+    })),
+  };
+};
+
+export const routineMappers = {
+  routineDTOToEntity,
+  routineDTOsToEntities,
+  routineExerciseDTOToEntity,
+  createRoutineRequestToDTO,
+  updateRoutineRequestToDTO,
 };

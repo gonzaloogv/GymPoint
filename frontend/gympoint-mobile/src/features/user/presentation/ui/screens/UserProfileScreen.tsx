@@ -47,10 +47,12 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   // ============================================
   const {
     profile,
-    notifications,
+    notificationsEnabled,
+    isLoadingNotifications,
     locationEnabled,
     fetchUserProfile,
-    updateNotifications,
+    fetchNotificationSettings,
+    toggleNotifications,
     toggleLocation,
     upgradeToPremium,
   } = useUserProfileStore();
@@ -68,7 +70,8 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
 
   useEffect(() => {
     fetchUserProfile();
-  }, []);
+    fetchNotificationSettings();
+  }, [fetchUserProfile, fetchNotificationSettings]);
 
   // ============================================
   // HANDLERS
@@ -77,11 +80,8 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
     onLogout?.();
   }, [onLogout]);
 
-  const handleNotificationToggle = async (
-    key: keyof typeof notifications,
-    value: boolean,
-  ) => {
-    await updateNotifications(key, value);
+  const handleNotificationToggle = async (value: boolean) => {
+    await toggleNotifications(value);
   };
 
   const handleUpgradeToPremium = async () => {
@@ -114,7 +114,8 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
         {/* 3. Configuraciones */}
         <View className="mb-4">
           <SettingsCard
-            notifications={notifications}
+            notificationsEnabled={notificationsEnabled}
+            isLoadingNotifications={isLoadingNotifications}
             onNotificationToggle={handleNotificationToggle}
             locationEnabled={locationEnabled}
             onLocationToggle={toggleLocation}

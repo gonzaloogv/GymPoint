@@ -5,7 +5,8 @@ import { NotificationSettings } from '../entities/NotificationSettings';
 export interface UserRepository {
   getUserProfile(): Promise<UserProfile>;
   getUserStats(): Promise<UserStats>;
-  updateNotificationSettings(settings: NotificationSettings): Promise<void>;
+  getNotificationSettings(): Promise<NotificationSettings>;
+  updateNotificationSettings(settings: Partial<NotificationSettings>): Promise<NotificationSettings>;
   updateLocationSettings(shareLocation: boolean): Promise<void>;
   upgradeToPremium(): Promise<UserProfile>;
 }

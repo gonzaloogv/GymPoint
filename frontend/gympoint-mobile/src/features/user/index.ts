@@ -3,8 +3,12 @@
  * Barrel export para el módulo de Usuario
  */
 
-// Screen principal
+// Screens
 export { default as UserProfileScreen } from './presentation/ui/screens/UserProfileScreen';
+export { NotificationSettingsScreen } from './presentation/ui/screens/NotificationSettingsScreen';
+
+// Hooks
+export { useNotificationSettings } from './presentation/hooks/useNotificationSettings';
 
 // Componentes individuales (por si necesitas usarlos por separado)
 export { ProfileHeader } from './presentation/ui/components/ProfileHeader';

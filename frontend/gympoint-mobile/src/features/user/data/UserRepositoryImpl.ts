@@ -7,6 +7,11 @@ import {
   mapUserProfileDTOToEntity,
   mapUserStatsDTOToEntity,
 } from './mappers/userProfile.mapper';
+import {
+  mapNotificationSettingsDTOToEntity,
+  mapNotificationSettingsEntityToDTO,
+} from './mappers/notificationSettings.mapper';
+import { UserRemote } from './user.remote';
 
 export class UserRepositoryImpl implements UserRepository {
   private mockProfile: UserProfileDTO = {
@@ -34,9 +39,15 @@ export class UserRepositoryImpl implements UserRepository {
     return mapUserStatsDTOToEntity(this.mockStats);
   }
 
-  async updateNotificationSettings(settings: NotificationSettings): Promise<void> {
-    // Simular guardado
-    console.log('Notification settings updated:', settings);
+  async getNotificationSettings(): Promise<NotificationSettings> {
+    const dto = await UserRemote.getNotificationSettings();
+    return mapNotificationSettingsDTOToEntity(dto);
+  }
+
+  async updateNotificationSettings(settings: Partial<NotificationSettings>): Promise<NotificationSettings> {
+    const dto = mapNotificationSettingsEntityToDTO(settings);
+    const responseDTO = await UserRemote.updateNotificationSettings(dto);
+    return mapNotificationSettingsDTOToEntity(responseDTO);
   }
 
   async updateLocationSettings(shareLocation: boolean): Promise<void> {

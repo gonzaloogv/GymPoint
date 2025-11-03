@@ -212,7 +212,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
   }
 
   return (
-    <Screen scroll safeAreaTop safeAreaBottom>
+    <Screen scroll safeAreaTop>
       <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
         {/* Header */}
         <View className="flex-row items-center justify-between px-4 pt-4 pb-4">

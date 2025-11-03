@@ -2,22 +2,23 @@ import { create } from 'zustand';
 
 import { UserProfile } from '../../domain/entities/UserProfile';
 import { UserStats } from '../../domain/entities/UserStats';
-import { NotificationSettings } from '../../domain/entities/NotificationSettings';
 import { DI } from '@di/container';
 
 interface UserProfileState {
   // State
   profile: UserProfile | null;
   stats: UserStats | null;
-  notifications: NotificationSettings;
+  notificationsEnabled: boolean;
   locationEnabled: boolean;
   showPremiumModal: boolean;
   isLoading: boolean;
+  isLoadingNotifications: boolean;
 
   // Actions
   fetchUserProfile: () => Promise<void>;
   fetchUserStats: () => Promise<void>;
-  updateNotifications: (key: keyof NotificationSettings, value: boolean) => Promise<void>;
+  fetchNotificationSettings: () => Promise<void>;
+  toggleNotifications: (enabled: boolean) => Promise<void>;
   toggleLocation: (enabled: boolean) => Promise<void>;
   upgradeToPremium: () => Promise<void>;
   setShowPremiumModal: (show: boolean) => void;
@@ -27,15 +28,11 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
   // Initial state
   profile: null,
   stats: null,
-  notifications: {
-    checkinReminders: true,
-    streakAlerts: true,
-    rewardUpdates: false,
-    marketing: false,
-  },
+  notificationsEnabled: true,
   locationEnabled: true,
   showPremiumModal: false,
   isLoading: false,
+  isLoadingNotifications: false,
 
   // Actions
   fetchUserProfile: async () => {
@@ -67,18 +64,42 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
     }
   },
 
-  updateNotifications: async (key, value) => {
-    const currentNotifications = get().notifications;
-    const updatedNotifications = { ...currentNotifications, [key]: value };
+  fetchNotificationSettings: async () => {
+    try {
+      set({ isLoadingNotifications: true });
+      const settings = await DI.userRepository.getNotificationSettings();
+      set({ notificationsEnabled: settings.pushEnabled });
+    } catch (error) {
+      console.error('[userProfile.store] Error fetching notification settings:', error);
+    } finally {
+      set({ isLoadingNotifications: false });
+    }
+  },
 
-    set({ notifications: updatedNotifications });
+  toggleNotifications: async (enabled) => {
+    const previousValue = get().notificationsEnabled;
+    set({ notificationsEnabled: enabled, isLoadingNotifications: true });
 
     try {
-      await DI.updateUserSettings.updateNotifications(updatedNotifications);
+      // Actualizar todas las notificaciones en el backend
+      await DI.userRepository.updateNotificationSettings({
+        pushEnabled: enabled,
+        emailEnabled: enabled,
+        remindersEnabled: enabled,
+        achievementsEnabled: enabled,
+        rewardsEnabled: enabled,
+        gymUpdatesEnabled: enabled,
+        paymentEnabled: enabled,
+        socialEnabled: enabled,
+        systemEnabled: enabled,
+        challengeEnabled: enabled,
+      });
     } catch (error) {
-      console.error('Error updating notifications:', error);
+      console.error('[userProfile.store] Error updating notifications:', error);
       // Revert on error
-      set({ notifications: currentNotifications });
+      set({ notificationsEnabled: previousValue });
+    } finally {
+      set({ isLoadingNotifications: false });
     }
   },
 

@@ -43,8 +43,12 @@ export const UserRemote = {
    * DELETE /api/users/me
    * Solicitar eliminación de cuenta
    */
-  requestAccountDeletion: (payload?: RequestAccountDeletionRequestDTO) =>
-    api.delete<AccountDeletionResponseDTO>('/api/users/me', { data: payload }).then((r) => r.data),
+  requestAccountDeletion: (payload?: RequestAccountDeletionRequestDTO) => {
+    const config = payload
+      ? { data: payload, headers: { 'Content-Type': 'application/json' } }
+      : {};
+    return api.delete<AccountDeletionResponseDTO>('/api/users/me', config).then((r) => r.data);
+  },
 
   /**
    * PUT /api/users/me/email
@@ -68,18 +72,18 @@ export const UserRemote = {
     api.delete<AccountDeletionResponseDTO>('/api/users/me/deletion-request').then((r) => r.data),
 
   /**
-   * GET /api/users/me/notification-settings
+   * GET /api/users/me/notifications/settings
    * Obtener configuración de notificaciones
    */
   getNotificationSettings: () =>
-    api.get<NotificationSettingsResponseDTO>('/api/users/me/notification-settings').then((r) => r.data),
+    api.get<NotificationSettingsResponseDTO>('/api/users/me/notifications/settings').then((r) => r.data),
 
   /**
-   * PUT /api/users/me/notification-settings
+   * PUT /api/users/me/notifications/settings
    * Actualizar configuración de notificaciones
    */
   updateNotificationSettings: (payload: UpdateNotificationSettingsRequestDTO) =>
-    api.put<NotificationSettingsResponseDTO>('/api/users/me/notification-settings', payload).then((r) => r.data),
+    api.put<NotificationSettingsResponseDTO>('/api/users/me/notifications/settings', payload).then((r) => r.data),
 
   /**
    * GET /api/users/{userId}

@@ -4,23 +4,24 @@
  */
 
 import React from 'react';
-import { Text, View, TouchableOpacity } from 'react-native';
+import { Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Card, SegmentedControl } from '@shared/components/ui';
 import { useTheme } from '@shared/hooks';
 import { NotificationSettings } from './NotificationSettings';
 import { LocationSettings } from './LocationSettings';
-import { NotificationSettings as NotificationSettingsType } from '@features/user/types/userTypes';
 
 interface SettingsCardProps {
-  notifications: NotificationSettingsType;
-  onNotificationToggle: (key: keyof NotificationSettingsType, value: boolean) => void;
+  notificationsEnabled: boolean;
+  isLoadingNotifications: boolean;
+  onNotificationToggle: (value: boolean) => void;
   locationEnabled: boolean;
   onLocationToggle: (value: boolean) => void;
 }
 
 export const SettingsCard: React.FC<SettingsCardProps> = ({
-  notifications,
+  notificationsEnabled,
+  isLoadingNotifications,
   onNotificationToggle,
   locationEnabled,
   onLocationToggle,
@@ -43,18 +44,19 @@ export const SettingsCard: React.FC<SettingsCardProps> = ({
 
       {/* Configuraciones de notificaciones */}
       <NotificationSettings
-        notifications={notifications}
+        enabled={notificationsEnabled}
+        loading={isLoadingNotifications}
         onToggle={onNotificationToggle}
       />
+
+      {/* Separador */}
+      <View style={{ height: 1, backgroundColor: isDark ? '#374151' : '#e5e7eb', marginVertical: 16 }} />
 
       {/* Configuración de ubicación */}
       <LocationSettings
         locationEnabled={locationEnabled}
         onToggle={onLocationToggle}
       />
-
-      {/* Separador */}
-      <View style={{ height: 1, backgroundColor: isDark ? '#374151' : '#e5e7eb', marginVertical: 16 }} />
 
       {/* Configuración de tema */}
       <View style={{ marginBottom: 16 }}>
