@@ -184,7 +184,8 @@ async function deleteNotification(id, userProfileId, options = {}) {
 // ============================================================================
 
 async function findNotificationSettings(userProfileId, options = {}) {
-  const settings = await UserNotificationSetting.findByPk(userProfileId, {
+  const settings = await UserNotificationSetting.findOne({
+    where: { id_user_profile: userProfileId },
     transaction: options.transaction,
   });
 

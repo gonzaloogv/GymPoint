@@ -292,16 +292,20 @@ async function updateNotificationSettings(command) {
       );
     }
 
-    // Update settings
+    // Update settings (accept snake_case from request body)
     const updates = {};
-    if (command.pushEnabled !== undefined) updates.push_enabled = command.pushEnabled;
-    if (command.emailEnabled !== undefined) updates.email_enabled = command.emailEnabled;
-    if (command.reminderEnabled !== undefined) updates.reminder_enabled = command.reminderEnabled;
-    if (command.achievementEnabled !== undefined) updates.achievement_enabled = command.achievementEnabled;
-    if (command.rewardEnabled !== undefined) updates.reward_enabled = command.rewardEnabled;
-    if (command.gymNewsEnabled !== undefined) updates.gym_news_enabled = command.gymNewsEnabled;
-    if (command.quietHoursStart !== undefined) updates.quiet_hours_start = command.quietHoursStart;
-    if (command.quietHoursEnd !== undefined) updates.quiet_hours_end = command.quietHoursEnd;
+    if (command.reminders_enabled !== undefined) updates.reminders_enabled = command.reminders_enabled;
+    if (command.achievements_enabled !== undefined) updates.achievements_enabled = command.achievements_enabled;
+    if (command.rewards_enabled !== undefined) updates.rewards_enabled = command.rewards_enabled;
+    if (command.gym_updates_enabled !== undefined) updates.gym_updates_enabled = command.gym_updates_enabled;
+    if (command.payment_enabled !== undefined) updates.payment_enabled = command.payment_enabled;
+    if (command.social_enabled !== undefined) updates.social_enabled = command.social_enabled;
+    if (command.system_enabled !== undefined) updates.system_enabled = command.system_enabled;
+    if (command.challenge_enabled !== undefined) updates.challenge_enabled = command.challenge_enabled;
+    if (command.push_enabled !== undefined) updates.push_enabled = command.push_enabled;
+    if (command.email_enabled !== undefined) updates.email_enabled = command.email_enabled;
+    if (command.quiet_hours_start !== undefined) updates.quiet_hours_start = command.quiet_hours_start;
+    if (command.quiet_hours_end !== undefined) updates.quiet_hours_end = command.quiet_hours_end;
 
     const updated = await notificationRepository.updateNotificationSettings(
       command.userProfileId,

@@ -147,7 +147,7 @@ paths:
                 $ref: '../components/common.yaml#/components/schemas/Error'
         '401':
           $ref: '../components/responses.yaml#/components/responses/Unauthorized'
-  /api/users/me/notification-settings:
+  /api/users/me/notifications/settings:
     get:
       operationId: getNotificationSettings
       tags:
