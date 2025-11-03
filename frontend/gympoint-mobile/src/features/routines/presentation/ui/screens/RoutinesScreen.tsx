@@ -35,7 +35,8 @@ export default function RoutinesScreen() {
       <ItemPad>
         <RoutineCard
           routine={item}
-          onPress={() => navigation.navigate('RoutineDetail', { id: item.id })}
+          onPressDetail={() => navigation.navigate('RoutineDetail', { id: item.id })}
+          onPressStart={() => navigation.navigate('RoutineExecution', { id: item.id })}
         />
       </ItemPad>
     ),

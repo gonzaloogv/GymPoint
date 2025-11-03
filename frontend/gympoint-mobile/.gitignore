@@ -52,3 +52,7 @@ yarn-error.*
 # Documentation and logs
 DOCUMENTACION.md
 console/
+
+# Testing and mock files
+fallasRutina/
+mocksRutina/

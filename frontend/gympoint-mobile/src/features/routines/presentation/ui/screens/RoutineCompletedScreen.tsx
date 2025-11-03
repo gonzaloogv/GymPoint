@@ -1,9 +1,11 @@
-import { View, Text, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@shared/hooks';
 import { Card, Button, ButtonText } from '@shared/components/ui';
 import { CompletionStats } from '@features/routines/domain/entities/ExecutionSession';
 import { formatDuration } from '@shared/utils';
 import { useState } from 'react';
+import { useSaveRoutineSession } from '@features/routines/presentation/hooks';
 
 type RoutineCompletedScreenProps = {
   route: {
@@ -32,6 +34,10 @@ export default function RoutineCompletedScreen({
 
   // Estado local para notas
   const [notes, setNotes] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Hook para guardar sesión
+  const { saveSession } = useSaveRoutineSession();
 
   const stats = route?.params;
   if (!stats) {
@@ -42,18 +48,38 @@ export default function RoutineCompletedScreen({
     );
   }
 
-  const handleFinish = () => {
-    // TODO: Guardar la sesión en historial con las notas
-    // await DI.saveRoutineSession.execute({ ...stats, notes })
-    navigation.navigate('RoutinesList');
+  const handleFinish = async () => {
+    try {
+      setIsSaving(true);
+      // Guardar la sesión con las notas
+      await saveSession(stats, notes || undefined);
+      setIsSaving(false);
+      navigation.navigate('RoutinesList');
+    } catch (error) {
+      setIsSaving(false);
+      Alert.alert(
+        'Error',
+        'No se pudo guardar la sesión. Por favor intenta de nuevo.',
+        [{ text: 'OK' }]
+      );
+    }
   };
 
   return (
-    <ScrollView
-      className="flex-1"
-      style={{ backgroundColor }}
-      contentContainerStyle={{ paddingBottom: 24 }}
-    >
+    <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1, backgroundColor }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      >
+        <ScrollView
+          className="flex-1"
+          style={{ backgroundColor }}
+          contentContainerStyle={{
+            paddingBottom: 32,
+            paddingTop: 16,
+          }}
+        >
       {/* Trophy Icon + Title */}
       <View className="items-center py-8 gap-3">
         <Text className="text-6xl">🏆</Text>
@@ -163,11 +189,12 @@ export default function RoutineCompletedScreen({
               Añadir nota (opcional)
             </Text>
             <TextInput
-              className="border rounded-lg p-3 min-h-24"
+              className="border rounded-lg p-3 min-h-32"
               style={{
                 borderColor: borderColor,
                 backgroundColor: cardBgColor,
                 color: textColor,
+                textAlignVertical: 'top',
               }}
               placeholder="¿Cómo te sentiste? ¿Alguna observación?"
               placeholderTextColor={secondaryTextColor}
@@ -212,10 +239,20 @@ export default function RoutineCompletedScreen({
         <Button
           onPress={handleFinish}
           className="w-full mt-4"
+          disabled={isSaving}
         >
-          <ButtonText>Terminar</ButtonText>
+          {isSaving ? (
+            <View className="flex-row items-center gap-2">
+              <ActivityIndicator color="#ffffff" size="small" />
+              <ButtonText>Guardando...</ButtonText>
+            </View>
+          ) : (
+            <ButtonText>Terminar</ButtonText>
+          )}
         </Button>
       </View>
-    </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }

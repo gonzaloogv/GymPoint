@@ -25,6 +25,16 @@ export class RoutineRepositoryImpl implements RoutineRepository {
     return dtos.map(mapRoutineSessionDTOToEntity);
   }
 
+  async getLastSession(routineId: string): Promise<RoutineSession | null> {
+    const dtos = await this.local.fetchHistory(routineId);
+    if (dtos.length === 0) {
+      return null;
+    }
+    // Retornar la más reciente (última en la lista)
+    const lastDto = dtos[dtos.length - 1];
+    return mapRoutineSessionDTOToEntity(lastDto);
+  }
+
   async saveSession(session: RoutineSession): Promise<void> {
     const dto = mapRoutineSessionEntityToDTO(session);
     await this.local.saveSession(dto);

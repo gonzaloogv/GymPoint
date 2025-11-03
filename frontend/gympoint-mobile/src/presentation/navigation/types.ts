@@ -20,6 +20,16 @@ export type RoutinesStackParamList = {
   RoutineDetail: { id: string };
   RoutineHistory: { id: string };
   RoutineExecution: { id: string };
+  RoutineCompleted: {
+    routineId: string;
+    routineName: string;
+    duration: number;
+    totalVolume: number;
+    setsCompleted: number;
+    totalSets: number;
+    tokensEarned?: number;
+    streak?: number;
+  };
 };
 
 export type GymsStackParamList = {

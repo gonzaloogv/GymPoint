@@ -8,7 +8,6 @@ export * from './Input';
 export * from './FormField';
 export * from './Row';
 export * from './Screen';
-// export * from './Text'; // Removed because ErrorText and H1 are duplicated from Heading and FormField
 export * from './Circle';
 
 // Card Variants

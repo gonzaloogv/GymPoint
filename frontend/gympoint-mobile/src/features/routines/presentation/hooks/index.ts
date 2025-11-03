@@ -5,3 +5,5 @@ export { FILTERS } from './useRoutinesFilters';
 export { useRoutineExecution } from './useRoutineExecution';
 export { useRoutineExecutionStats } from './useRoutineExecutionStats';
 export { useIncompleteSession } from './useIncompleteSession';
+export { useIncompleteSessionModal } from './useIncompleteSessionModal';
+export { useSaveRoutineSession } from './useSaveRoutineSession';

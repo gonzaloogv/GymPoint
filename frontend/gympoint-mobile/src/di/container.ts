@@ -24,6 +24,8 @@ import { GetRoutines } from '@features/routines/domain/usecases/GetRoutines';
 import { GetRoutineById } from '@features/routines/domain/usecases/GetRoutineById';
 import { ExecuteRoutine } from '@features/routines/domain/usecases/ExecuteRoutine';
 import { GetRoutineHistory } from '@features/routines/domain/usecases/GetRoutineHistory';
+import { GetLastRoutineSession } from '@features/routines/domain/usecases/GetLastRoutineSession';
+import { SaveRoutineSession } from '@features/routines/domain/usecases/SaveRoutineSession';
 import { GetIncompleteSession } from '@features/routines/domain/usecases/GetIncompleteSession';
 
 // ===== Rewards =====
@@ -89,6 +91,8 @@ class Container {
   getRoutineById: GetRoutineById;
   executeRoutine: ExecuteRoutine;
   getRoutineHistory: GetRoutineHistory;
+  getLastRoutineSession: GetLastRoutineSession;
+  saveRoutineSession: SaveRoutineSession;
   getIncompleteSession: GetIncompleteSession;
 
   // Rewards
@@ -147,6 +151,8 @@ class Container {
     this.getRoutineById = new GetRoutineById(this.routineRepository);
     this.executeRoutine = new ExecuteRoutine(this.routineRepository);
     this.getRoutineHistory = new GetRoutineHistory(this.routineRepository);
+    this.getLastRoutineSession = new GetLastRoutineSession(this.routineRepository);
+    this.saveRoutineSession = new SaveRoutineSession(this.routineRepository);
     this.getIncompleteSession = new GetIncompleteSession(this.incompleteSessionLocalDataSource);
 
     // Rewards

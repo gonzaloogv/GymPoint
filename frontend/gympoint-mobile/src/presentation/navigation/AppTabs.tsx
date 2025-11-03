@@ -19,8 +19,9 @@ import { UserProfileScreen } from '@features/user';
 import {
   RoutineDetailScreen,
   RoutineExecutionScreen,
+  RoutineCompletedScreen,
   RoutineHistoryScreen,
-  RoutinesScreen,
+  RoutinesScreenWrapper,
   CreateRoutineScreen,
   ImportRoutineScreen,
 } from '@features/routines';
@@ -43,7 +44,7 @@ function RoutinesStackNavigator() {
     <RoutinesStack.Navigator>
       <RoutinesStack.Screen
         name="RoutinesList"
-        component={RoutinesScreen}
+        component={RoutinesScreenWrapper}
         options={{ headerShown: false }}
       />
       <RoutinesStack.Screen
@@ -59,17 +60,31 @@ function RoutinesStackNavigator() {
       <RoutinesStack.Screen
         name="RoutineDetail"
         component={RoutineDetailScreen}
-        options={{ title: 'Detalle de rutina' }}
+        options={{
+          headerTitle: '',
+          headerBackTitle: '',
+        }}
       />
       <RoutinesStack.Screen
         name="RoutineHistory"
         component={RoutineHistoryScreen}
-        options={{ title: 'Historial' }}
+        options={{
+          headerTitle: '',
+          headerBackTitle: '',
+        }}
       />
       <RoutinesStack.Screen
         name="RoutineExecution"
         component={RoutineExecutionScreen}
-        options={{ title: 'Ejecución' }}
+        options={{
+          headerTitle: '',
+          headerBackTitle: '',
+        }}
+      />
+      <RoutinesStack.Screen
+        name="RoutineCompleted"
+        component={RoutineCompletedScreen}
+        options={{ headerShown: false }}
       />
     </RoutinesStack.Navigator>
   );
@@ -89,7 +104,10 @@ function GymsStackNavigator() {
       <GymsStack.Screen
         name="GymDetail"
         component={GymDetailScreenWrapper}
-        options={{ title: 'Detalle del gimnasio' }}
+        options={{
+          headerTitle: '',
+          headerBackTitle: '',
+        }}
       />
     </GymsStack.Navigator>
   );

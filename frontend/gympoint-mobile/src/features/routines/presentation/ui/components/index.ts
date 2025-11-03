@@ -7,3 +7,7 @@ export { default as RoutinesHeader } from './RoutinesHeader';
 export { default as RoutinesList } from './RoutinesList';
 export * from './ExerciseDetails';
 export * from './ExerciseCard';
+export * from './ExpandableExerciseCard';
+export * from './ExerciseSelector';
+export * from './FloatingTimer';
+export * from './ExpandableExerciseDetail';

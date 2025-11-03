@@ -1,7 +1,7 @@
-import React from 'react';
-import { Alert } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, View } from 'react-native';
 import { useRoutineExecution } from '@features/routines/presentation/hooks/useRoutineExecution';
-import { ExpandableExerciseCard } from '@features/routines/presentation/ui/components/ExpandableExerciseCard';
+import { ExpandableExerciseCard, ExerciseSelector, FloatingTimer } from '@features/routines/presentation/ui/components';
 import { ExecutionLayout } from '@features/routines/presentation/ui/layouts';
 import { ExecutionHeader } from '@features/routines/presentation/ui/headers';
 import { ExecutionFooter } from '@features/routines/presentation/ui/footers';
@@ -24,6 +24,9 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#111827' : '#f9fafb';
+
+  // Estado del modal de selección de ejercicios
+  const [showExerciseSelector, setShowExerciseSelector] = useState(false);
 
   const id = route?.params?.id;
   const restoreState = route?.params?.restoreState;
@@ -87,8 +90,14 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
    * Manejar agregar ejercicio
    */
   const handleAddExercise = () => {
-    // TODO: Abrir modal/screen para seleccionar ejercicio
-    Alert.alert('Agregar Ejercicio', 'Esta funcionalidad será implementada en breve');
+    setShowExerciseSelector(true);
+  };
+
+  /**
+   * Manejar selección de ejercicio
+   */
+  const handleSelectExercise = (exerciseId: string) => {
+    addExercise(exerciseId);
   };
 
   /**
@@ -118,10 +127,9 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
   /**
    * Renderizar item - ExpandableExerciseCard para cada ejercicio
    */
-  const renderItem = ({ item, index }: { item: any; index: number }) => {
+  const renderItem = ({ item }: { item: any }) => {
     const exerciseState = exerciseStates[item.id];
     const isExpanded = expandedExercises[item.id];
-    const hasTimer = currentTimerExerciseId === item.id;
 
     if (!exerciseState) {
       return null;
@@ -133,31 +141,49 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
         isExpanded={isExpanded}
         onToggleExpand={() => toggleExerciseExpand(item.id)}
         sets={exerciseState.sets}
-        onUpdateSet={(setIndex, data) => updateSet(item.id, setIndex, data)}
+        onUpdateSet={(setIndex: number, data: any) => updateSet(item.id, setIndex, data)}
         onAddSet={() => addSet(item.id)}
-        onMarkSetDone={(setIndex) => markSetDone(item.id, setIndex)}
-        restTimerState={hasTimer ? timerState : undefined}
-        onTimerComplete={() => {
-          // El timer se completó, el usuario puede marcar siguiente serie
-        }}
-        onSkipTimer={skipTimer}
+        onMarkSetDone={(setIndex: number) => markSetDone(item.id, setIndex)}
       />
     );
   };
 
+  // Obtener nombre del ejercicio actual para el timer
+  const currentExerciseId = currentTimerExerciseId;
+  const currentExercise = exercises.find((e) => e.id === currentExerciseId);
+  const currentExerciseName = currentExercise?.name || 'Ejercicio';
+
   return (
-    <ExecutionLayout
-      data={exercises}
-      keyExtractor={(item) => item.id}
-      renderItem={renderItem}
-      ListHeaderComponent={headerComponent}
-      ListFooterComponent={footerComponent}
-      contentContainerStyle={{
-        paddingBottom: 24,
-        backgroundColor: bgColor,
-      }}
-      style={{ backgroundColor: bgColor }}
-    />
+    <View className="flex-1">
+      <ExecutionLayout
+        data={exercises}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        ListHeaderComponent={headerComponent}
+        ListFooterComponent={footerComponent}
+        contentContainerStyle={{
+          paddingBottom: 24,
+          backgroundColor: bgColor,
+        }}
+        style={{ backgroundColor: bgColor }}
+      />
+
+      {/* Floating Timer - Sticky at bottom */}
+      <FloatingTimer
+        timerState={timerState}
+        exerciseName={currentExerciseName}
+        onSkip={skipTimer}
+      />
+
+      {/* Exercise Selector Modal */}
+      <ExerciseSelector
+        visible={showExerciseSelector}
+        allExercises={exercises}
+        addedExerciseIds={Object.keys(exerciseStates)}
+        onSelect={handleSelectExercise}
+        onClose={() => setShowExerciseSelector(false)}
+      />
+    </View>
   );
 };
 

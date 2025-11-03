@@ -2,9 +2,8 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { Card } from '@shared/components/ui';
 import { Exercise } from '@features/routines/domain/entities/Exercise';
-import { SetExecution, TimerState } from '@features/routines/domain/entities/ExecutionSession';
+import { SetExecution } from '@features/routines/domain/entities/ExecutionSession';
 import { ExerciseSetTable } from './ExerciseSetTable';
-import { RestTimer } from './RestTimer';
 
 type Props = {
   exercise: Exercise;
@@ -14,14 +13,12 @@ type Props = {
   onUpdateSet: (setIndex: number, data: Partial<SetExecution>) => void;
   onAddSet: () => void;
   onMarkSetDone: (setIndex: number) => void;
-  restTimerState?: TimerState;
-  onSkipTimer?: () => void;
-  onTimerComplete?: () => void;
 };
 
 /**
  * Card expandible para un ejercicio durante la ejecución
  * Muestra nombre siempre visible, expande para mostrar tabla de series
+ * El timer de descanso ahora se renderiza en FloatingTimer en lugar de aquí
  */
 export function ExpandableExerciseCard({
   exercise,
@@ -31,9 +28,6 @@ export function ExpandableExerciseCard({
   onUpdateSet,
   onAddSet,
   onMarkSetDone,
-  restTimerState,
-  onSkipTimer,
-  onTimerComplete,
 }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -129,18 +123,6 @@ export function ExpandableExerciseCard({
             className="px-4 pb-4 border-t pt-4"
             style={{ borderTopColor: borderColor }}
           >
-            {/* Timer si está activo para este ejercicio */}
-            {restTimerState && (
-              <>
-                <RestTimer
-                  state={restTimerState}
-                  onTimerComplete={onTimerComplete}
-                  onSkip={onSkipTimer}
-                />
-                <View className="h-4" />
-              </>
-            )}
-
             {/* Tabla de series */}
             <ExerciseSetTable
               sets={sets}
