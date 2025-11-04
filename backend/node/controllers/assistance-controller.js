@@ -169,7 +169,7 @@ const autoCheckIn = async (req, res) => {
  */
 const checkOut = async (req, res) => {
   try {
-    const assistanceId = Number.Number.parseInt(req.params.id, 10);
+    const assistanceId = Number.parseInt(req.params.id, 10);
     const id_user_profile = req.user.id_user_profile;
 
     if (!Number.isInteger(assistanceId)) {
