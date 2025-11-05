@@ -53,6 +53,19 @@ async function findById(idProgress) {
 }
 
 /**
+ * Buscar progreso por usuario y fecha
+ */
+async function findByUserAndDate(idUserProfile, date, options = {}) {
+  return await Progress.findOne({
+    where: {
+      id_user_profile: idUserProfile,
+      date: date
+    },
+    transaction: options.transaction
+  });
+}
+
+/**
  * Buscar todo el progreso de un usuario
  */
 async function findByUserProfile(idUserProfile, options = {}) {
@@ -272,6 +285,7 @@ async function deleteById(idProgress, options = {}) {
 module.exports = {
   create,
   findById,
+  findByUserAndDate,
   findByUserProfile,
   getWeightStats,
   getExerciseHistory,

@@ -16,7 +16,7 @@ function toWorkoutSession(instance) {
     id_routine_day: plain.id_routine_day || null,
     status: plain.status, // 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'
     started_at: plain.started_at,
-    finished_at: plain.finished_at || null,
+    ended_at: plain.ended_at || null,
     total_sets: plain.total_sets || 0,
     total_reps: plain.total_reps || 0,
     total_weight: plain.total_weight || 0,
@@ -38,7 +38,7 @@ function toWorkoutSession(instance) {
     result.routineDay = {
       id_routine_day: plain.routineDay.id_routine_day,
       day_number: plain.routineDay.day_number,
-      title: plain.routineDay.title || null
+      day_name: plain.routineDay.day_name || null
     };
   }
 

@@ -21,13 +21,17 @@ import {
   RoutineExecutionScreen,
   RoutineHistoryScreen,
   RoutinesScreen,
+  RoutinesScreenWrapper,
+  RoutineCompletedScreen,
   CreateRoutineScreen,
   ImportRoutineScreen,
 } from '@features/routines';
-import { ProgressScreen } from '@features/progress/presentation/ui/screens/ProgressScreen';
-import { PhysicalProgressScreen } from '@features/progress/presentation/ui/screens/PhysicalProgressScreen';
-import { ExerciseProgressScreen } from '@features/progress/presentation/ui/screens/ExerciseProgressScreen';
-import { AchievementsScreen } from '@features/progress/presentation/ui/screens/AchievementsScreen';
+import {
+  ProgressScreen,
+  PhysicalProgressScreen,
+  ExerciseProgressScreen,
+  AchievementsScreen,
+} from '@features/progress/presentation/ui/screens';
 
 import { TabIcon } from './components/TabIcon';
 import type { RoutinesStackParamList, GymsStackParamList, ProgressStackParamList } from './types';
@@ -42,7 +46,7 @@ function RoutinesStackNavigator() {
     <RoutinesStack.Navigator>
       <RoutinesStack.Screen
         name="RoutinesList"
-        component={RoutinesScreen}
+        component={RoutinesScreenWrapper}
         options={{ headerShown: false }}
       />
       <RoutinesStack.Screen
@@ -58,17 +62,22 @@ function RoutinesStackNavigator() {
       <RoutinesStack.Screen
         name="RoutineDetail"
         component={RoutineDetailScreen}
-        options={{ title: 'Detalle de rutina' }}
+        options={{ headerShown: false }}
       />
       <RoutinesStack.Screen
         name="RoutineHistory"
         component={RoutineHistoryScreen}
-        options={{ title: 'Historial' }}
+        options={{ headerShown: false }}
       />
       <RoutinesStack.Screen
         name="RoutineExecution"
         component={RoutineExecutionScreen}
-        options={{ title: 'Ejecución' }}
+        options={{ headerShown: false }}
+      />
+      <RoutinesStack.Screen
+        name="RoutineCompleted"
+        component={RoutineCompletedScreen}
+        options={{ headerShown: false }}
       />
     </RoutinesStack.Navigator>
   );

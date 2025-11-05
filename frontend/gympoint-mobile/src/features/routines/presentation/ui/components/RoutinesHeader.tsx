@@ -7,8 +7,8 @@ import { Input } from '@shared/components/ui';
 type Props = {
   search: string;
   onSearchChange: (v: string) => void;
-  status: 'All' | RoutineStatus;
-  onStatusChange: (s: 'All' | RoutineStatus) => void;
+  status: 'All' | 'Pending';
+  onStatusChange: (s: 'All' | 'Pending') => void;
 };
 
 export default function RoutinesHeader({

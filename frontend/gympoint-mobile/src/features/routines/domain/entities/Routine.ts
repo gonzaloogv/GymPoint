@@ -27,9 +27,9 @@ export interface RoutineExercise {
   muscular_group: string;
   difficulty_level?: string;
   description?: string | null;
-  series: number; // Número de series (del through table)
-  reps: number; // Número de repeticiones (del through table)
-  order: number; // Orden del ejercicio en la rutina (del through table)
+  series?: number | null; // Número de series (del through table)
+  reps?: number | null; // Número de repeticiones (del through table)
+  order?: number | null; // Orden del ejercicio en la rutina (del through table)
 }
 
 /**

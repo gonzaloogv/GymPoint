@@ -106,6 +106,15 @@ async function findRoutinesByUser(idUser, options = {}) {
 
   const queryOptions = {
     where,
+    include: [
+      {
+        model: Exercise,
+        as: 'Exercises',
+        through: {
+          attributes: ['sets', 'reps', 'exercise_order', 'id_routine_day']
+        }
+      }
+    ],
     transaction: options.transaction
   };
 

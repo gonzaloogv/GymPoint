@@ -36,9 +36,10 @@ const WorkoutSet = sequelize.define('WorkoutSet', {
     type: DataTypes.INTEGER,
     allowNull: true
   },
-  weight_kg: {
+  weight: {
     type: DataTypes.DECIMAL(6, 2),
-    allowNull: true
+    allowNull: true,
+    field: 'weight_kg' // Maps 'weight' in code to 'weight_kg' in database
   },
   duration_seconds: {
     type: DataTypes.INTEGER,

@@ -34,7 +34,10 @@ export function ChipSelector({
           return (
             <TouchableOpacity
               key={option}
-              onPress={() => onToggle(option)}
+              onPress={() => {
+                console.log('🎯 ChipSelector - onToggle called:', option);
+                onToggle(option);
+              }}
               className="px-4 py-2 rounded-md border"
               style={{
                 backgroundColor: active ? '#4A9CF5' : isDark ? '#252B3D' : '#FFFFFF',

@@ -11,7 +11,7 @@ export function Avatar({ userName, size = 40 }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const parts = (userName || '').trim().split(/\s+/);
+  const parts = userName.trim().split(/\s+/);
   const initials = parts.map((part) => part?.[0] ?? '').join('');
 
   return (

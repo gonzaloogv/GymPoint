@@ -1,23 +1,22 @@
 import { useEffect } from 'react';
 import { useRoutinesStore } from '../state';
-import { RoutineStatus } from '@features/routines/domain/entities';
 
 export function useRoutines() {
   const {
     loading,
     error,
     search,
-    status,
+    statusFilter,
     setSearch,
-    setStatus,
-    fetchRoutines,
+    setStatusFilter,
+    fetchMyRoutines,
     getFilteredRoutines,
   } = useRoutinesStore();
 
-  // Fetch routines on mount
+  // Fetch user's routines on mount
   useEffect(() => {
-    fetchRoutines();
-  }, [fetchRoutines]);
+    fetchMyRoutines();
+  }, [fetchMyRoutines]);
 
   const list = getFilteredRoutines();
 
@@ -27,9 +26,9 @@ export function useRoutines() {
       loading,
       error: error ? true : false,
       search,
-      status,
+      status: statusFilter,
     },
     setSearch,
-    setStatus: setStatus as (status: RoutineStatus | 'All') => void,
+    setStatus: setStatusFilter,
   };
 }

@@ -17,9 +17,10 @@ export type RoutinesStackParamList = {
   RoutinesList: undefined;
   CreateRoutine: undefined;
   ImportRoutine: undefined;
-  RoutineDetail: { id: string };
+  RoutineDetail: { id: string }; // string (React Navigation standard)
   RoutineHistory: { id: string };
   RoutineExecution: { id: string };
+  RoutineCompleted: { routineId: string; sessionId: string }; // NEW
 };
 
 export type GymsStackParamList = {

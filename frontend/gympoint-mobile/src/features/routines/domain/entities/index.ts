@@ -4,3 +4,4 @@ export * from './Routine';
 export * from './RoutineHistory';
 export * from './PredesignedRoutine';
 export * from './UserRoutine';
+export * from './WorkoutSession';

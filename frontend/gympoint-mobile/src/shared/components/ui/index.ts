@@ -8,8 +8,15 @@ export * from './Input';
 export * from './FormField';
 export * from './Row';
 export * from './Screen';
-// export * from './Text'; // Removed because ErrorText and H1 are duplicated from Heading and FormField
 export * from './Circle';
+export * from './refactor/MetricCard';
+export * from './refactor/IconButton';
+export * from './refactor/InfoSection';
+export * from './refactor/SelectorModal';
+export * from './refactor/TrendCard'
+export * from './refactor/Badge'
+export * from './refactor/PillSelector'
+
 
 // Card Variants
 export * from './ActionCard';
@@ -28,6 +35,7 @@ export * from './ProgressSection';
 export * from './ProgressBar';
 
 // Badge & Indicator Components
+export * from './refactor/Badge';
 export * from './BadgeDot';
 export * from './IndexBadge';
 export * from './UnifiedBadge';
@@ -41,15 +49,6 @@ export * from './TokenPill';
 export * from './ChipSelector';
 export * from './SegmentedControl';
 export * from './SwitchRow';
-
-// Refactored Components
-export * from './refactor/Badge';
-export * from './refactor/MetricCard';
-export * from './refactor/TrendCard';
-export * from './refactor/IconButton';
-export * from './refactor/InfoSection';
-export * from './refactor/SelectorModal';
-export * from './refactor/PillSelector';
 
 // Header & Navigation
 export * from './SearchHeader';
@@ -74,3 +73,6 @@ export * from './StreakDisplay';
 
 // Input specializations
 export { PasswordInput, InputLogin } from './Input';
+
+// Button specializations
+export { ButtonText } from './Button';

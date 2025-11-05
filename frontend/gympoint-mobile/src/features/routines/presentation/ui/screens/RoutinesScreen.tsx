@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -7,11 +7,12 @@ import { Routine } from '@features/routines/domain/entities';
 import { RoutinesLayout } from '@features/routines/presentation/ui/layouts/RoutinesLayout';
 import { ItemPad, ProgressWrap } from '@shared/components/ui';
 import RoutinesHeader from '@features/routines/presentation/ui/components/RoutinesHeader';
-import RoutineProgress from '@features/routines/presentation/ui/components/RoutineProgress';
+import WeeklyProgressCard from '@features/home/presentation/ui/components/WeeklyProgressCard';
 import { RoutineCard } from '../components/RoutineCard';
 import EmptyState from '@features/routines/presentation/ui/components/EmptyState';
 import ErrorState from '@features/routines/presentation/ui/components/ErrorState';
 import FloatingActions from '@features/routines/presentation/ui/components/FloatingActions';
+import { useHomeStore } from '@features/home/presentation/state/home.store';
 
 // Tipado local del stack de Rutinas (evita depender del RootNavigator)
 type RoutinesStackParamList = {
@@ -27,6 +28,17 @@ type RoutinesNav = NativeStackNavigationProp<RoutinesStackParamList>;
 export default function RoutinesScreen() {
   const { state, setSearch, setStatus } = useRoutines();
   const navigation = useNavigation<RoutinesNav>();
+  const { user, weeklyProgress, fetchHomeData } = useHomeStore();
+
+  // Fetch home data to get weekly progress
+  useEffect(() => {
+    fetchHomeData();
+  }, [fetchHomeData]);
+
+  // Calculate progress percentage
+  const progressPct = weeklyProgress
+    ? (weeklyProgress.current / weeklyProgress.goal) * 100
+    : 0;
 
   if (state.error) return <ErrorState />;
 
@@ -35,14 +47,15 @@ export default function RoutinesScreen() {
       <ItemPad>
         <RoutineCard
           routine={item}
-          onPress={() => navigation.navigate('RoutineDetail', { id: item.id })}
+          onPressDetail={() => navigation.navigate('RoutineDetail', { id: item.id_routine.toString() })}
+          onPressStart={() => navigation.navigate('RoutineExecution', { id: item.id_routine.toString() })}
         />
       </ItemPad>
     ),
     [navigation],
   );
 
-  const keyExtractor = useCallback((item: Routine) => item.id, []);
+  const keyExtractor = useCallback((item: Routine) => item.id_routine.toString(), []);
 
   const headerComponent = (
     <>
@@ -53,7 +66,12 @@ export default function RoutinesScreen() {
         onStatusChange={setStatus}
       />
       <ProgressWrap>
-        <RoutineProgress completed={3} goal={4} />
+        <WeeklyProgressCard
+          current={weeklyProgress?.current || 0}
+          goal={weeklyProgress?.goal || 4}
+          progressPct={progressPct}
+          streak={user?.streak || 0}
+        />
       </ProgressWrap>
     </>
   );

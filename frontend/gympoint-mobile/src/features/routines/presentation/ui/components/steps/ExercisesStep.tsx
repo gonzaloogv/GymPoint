@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { Feather } from '@expo/vector-icons';
@@ -7,11 +8,20 @@ import {
   Button,
   Input,
 } from '@shared/components/ui';
-import { Exercise } from '@features/routines/domain/entities/Exercise';
+import { ExerciseSelectorModal } from './ExerciseSelectorModal';
+import { ExerciseDTO } from '../../../../data/remote/exercise.api';
+
+// ExerciseForm type that matches useCreateRoutine expectations
+type ExerciseForm = {
+  id_exercise: number;
+  name: string;
+  series: number;
+  reps: number;
+};
 
 type Props = {
-  exercises: Exercise[];
-  onChange: (exercises: Exercise[]) => void;
+  exercises: ExerciseForm[];
+  onChange: (exercises: ExerciseForm[]) => void;
 };
 
 export function ExercisesStep({ exercises, onChange }: Props) {
@@ -22,26 +32,30 @@ export function ExercisesStep({ exercises, onChange }: Props) {
   const cardBg = isDark ? '#1f2937' : '#ffffff';
   const borderColor = isDark ? '#374151' : '#e5e7eb';
 
-  const addExercise = () => {
-    const newExercise: Exercise = {
-      id: `temp-${Date.now()}`,
-      name: '',
-      sets: '',
-      reps: '',
-      rest: 60,
-      muscleGroups: [],
+  const [showSelector, setShowSelector] = useState(false);
+
+  const handleSelectExercise = (exercise: ExerciseDTO) => {
+    const newExercise: ExerciseForm = {
+      id_exercise: exercise.id_exercise,
+      name: exercise.exercise_name,
+      series: 3, // default value
+      reps: 10, // default numeric value
     };
+    console.log('➕ Adding exercise from backend:', newExercise);
     onChange([...exercises, newExercise]);
   };
 
-  const updateExercise = (id: string, field: keyof Exercise, value: any) => {
-    onChange(
-      exercises.map((ex) => (ex.id === id ? { ...ex, [field]: value } : ex)),
+  const updateExercise = (id: number, field: keyof ExerciseForm, value: any) => {
+    const updated = exercises.map((ex) =>
+      ex.id_exercise === id ? { ...ex, [field]: value } : ex
     );
+    console.log('✏️ Updated exercises:', updated);
+    onChange(updated);
   };
 
-  const removeExercise = (id: string) => {
-    onChange(exercises.filter((ex) => ex.id !== id));
+  const removeExercise = (id: number) => {
+    console.log('🗑️ Removing exercise:', id);
+    onChange(exercises.filter((ex) => ex.id_exercise !== id));
   };
 
   return (
@@ -57,7 +71,7 @@ export function ExercisesStep({ exercises, onChange }: Props) {
         )}
         {exercises.map((exercise, index) => (
           <View
-            key={exercise.id}
+            key={exercise.id_exercise}
             className="rounded-lg p-5 mb-4 border"
             style={{
               backgroundColor: cardBg,
@@ -69,7 +83,7 @@ export function ExercisesStep({ exercises, onChange }: Props) {
               <Text className="text-base font-semibold flex-1" style={{ color: textColor }}>
                 Ejercicio {index + 1}
               </Text>
-              <TouchableOpacity onPress={() => removeExercise(exercise.id)} className="p-1">
+              <TouchableOpacity onPress={() => removeExercise(exercise.id_exercise)} className="p-1">
                 <Feather name="trash-2" size={18} color="#EF4444" />
               </TouchableOpacity>
             </View>
@@ -77,11 +91,18 @@ export function ExercisesStep({ exercises, onChange }: Props) {
               <Text className="text-xs font-medium mb-1.5" style={{ color: subtextColor }}>
                 Nombre
               </Text>
-              <Input
-                value={exercise.name}
-                onChangeText={(v) => updateExercise(exercise.id, 'name', v)}
-                placeholder="Ej: Press de banca"
-              />
+              <View
+                style={{
+                  backgroundColor: isDark ? '#374151' : '#f3f4f6',
+                  borderRadius: 8,
+                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                }}
+              >
+                <Text style={{ fontSize: 16, color: textColor }}>
+                  {exercise.name}
+                </Text>
+              </View>
             </View>
             <View className="flex-row gap-3">
               <View className="flex-1">
@@ -89,8 +110,8 @@ export function ExercisesStep({ exercises, onChange }: Props) {
                   Series
                 </Text>
                 <Input
-                  value={String(exercise.sets)}
-                  onChangeText={(v) => updateExercise(exercise.id, 'sets', v)}
+                  value={String(exercise.series)}
+                  onChangeText={(v) => updateExercise(exercise.id_exercise, 'series', parseInt(v) || 0)}
                   placeholder="3"
                   keyboardType="numeric"
                 />
@@ -100,19 +121,26 @@ export function ExercisesStep({ exercises, onChange }: Props) {
                   Reps
                 </Text>
                 <Input
-                  value={exercise.reps}
-                  onChangeText={(v) => updateExercise(exercise.id, 'reps', v)}
-                  placeholder="10-12"
+                  value={String(exercise.reps)}
+                  onChangeText={(v) => updateExercise(exercise.id_exercise, 'reps', parseInt(v) || 0)}
+                  placeholder="10"
+                  keyboardType="numeric"
                 />
               </View>
             </View>
           </View>
         ))}
       </StepSection>
-      <Button onPress={addExercise} variant="primary" className="flex-row items-center gap-2 mt-1">
+      <Button onPress={() => setShowSelector(true)} variant="primary" className="flex-row items-center gap-2 mt-1">
         <Feather name="plus" size={20} color="#fff" />
-        <Text className="text-white font-semibold text-sm">Agregar ejercicio</Text>
+        <Text className="text-white font-semibold text-sm">Seleccionar ejercicio</Text>
       </Button>
+
+      <ExerciseSelectorModal
+        visible={showSelector}
+        onClose={() => setShowSelector(false)}
+        onSelect={handleSelectExercise}
+      />
     </StepScrollContainer>
   );
 }

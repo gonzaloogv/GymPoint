@@ -14,6 +14,7 @@ const exerciseRepository = require('../infra/db/repositories/exercise.repository
 const tokenLedgerService = require('./token-ledger-service');
 const achievementService = require('./achievement-service');
 const { processUnlockResults } = require('./achievement-side-effects');
+const progressService = require('./progress-service');
 
 // Ensure functions for flexible parameter acceptance
 const ensureQuery = (input) => input;
@@ -346,21 +347,99 @@ const finishWorkoutSession = async (command) => {
     const updated = await workoutRepository.updateWorkoutSession(cmd.idWorkoutSession, {
       ...totals,
       status: 'COMPLETED',
-      finished_at: finishedAt,
+      ended_at: finishedAt,
       duration_seconds: durationSeconds,
       notes: cmd.notes !== undefined ? cmd.notes : workout.notes
     }, { transaction });
 
-    // Award tokens
+    // Register progress for the day
+    try {
+      console.log('[finishWorkoutSession] 📊 Registrando progreso del día...');
+
+      // Get all sets from this session
+      const sets = await workoutRepository.findWorkoutSetsBySession(cmd.idWorkoutSession, { transaction });
+
+      if (sets && sets.length > 0) {
+        // Group sets by exercise and calculate metrics
+        const exerciseMap = new Map();
+
+        sets.forEach(set => {
+          if (!exerciseMap.has(set.id_exercise)) {
+            exerciseMap.set(set.id_exercise, {
+              idExercise: set.id_exercise,
+              maxWeight: set.weight || 0,
+              maxReps: set.reps || 0,
+              totalVolume: 0,
+              sets: 0
+            });
+          }
+
+          const exerciseData = exerciseMap.get(set.id_exercise);
+          exerciseData.maxWeight = Math.max(exerciseData.maxWeight, set.weight || 0);
+          exerciseData.maxReps = Math.max(exerciseData.maxReps, set.reps || 0);
+          exerciseData.totalVolume += (set.weight || 0) * (set.reps || 0);
+          exerciseData.sets += 1;
+        });
+
+        // Build exercises array for progress
+        const exercises = Array.from(exerciseMap.values()).map(ex => ({
+          idExercise: ex.idExercise,
+          usedWeight: ex.maxWeight,
+          reps: ex.maxReps,
+          sets: ex.sets
+        }));
+
+        const sessionDate = new Date(finishedAt).toISOString().split('T')[0];
+
+        console.log('[finishWorkoutSession] 📈 Progreso calculado:', {
+          date: sessionDate,
+          totalSets: totals.total_sets,
+          totalReps: totals.total_reps,
+          totalWeight: totals.total_weight,
+          exercises: exercises.length
+        });
+
+        // Register progress (this will create or update Progress and ProgressExercise)
+        await progressService.registerProgress({
+          idUserProfile: workout.id_user_profile,
+          date: sessionDate,
+          totalWeightLifted: totals.total_weight,
+          totalReps: totals.total_reps,
+          totalSets: totals.total_sets,
+          exercises
+        });
+
+        console.log('[finishWorkoutSession] ✅ Progreso registrado exitosamente');
+      }
+    } catch (error) {
+      console.error('[finishWorkoutSession] ❌ Error registrando progreso:', error);
+      // No lanzamos el error para no fallar toda la transacción
+    }
+
+    // Award tokens (limited to 1 per day to prevent farming)
     if (TOKENS.WORKOUT_SESSION > 0) {
-      await tokenLedgerService.registrarMovimiento({
-        userId: workout.id_user_profile,
-        delta: TOKENS.WORKOUT_SESSION,
-        reason: TOKEN_REASONS.WORKOUT_COMPLETED,
-        refType: 'workout_session',
-        refId: workout.id_workout_session,
-        transaction
-      });
+      // Check if user already completed a session today (excluding current session)
+      const hasCompletedToday = await workoutRepository.hasCompletedWorkoutToday(
+        workout.id_user_profile,
+        {
+          transaction,
+          excludeSessionId: cmd.idWorkoutSession
+        }
+      );
+
+      if (!hasCompletedToday) {
+        console.log('[finishWorkoutSession] 🪙 Otorgando tokens (primera sesión del día)');
+        await tokenLedgerService.registrarMovimiento({
+          userId: workout.id_user_profile,
+          delta: TOKENS.WORKOUT_SESSION,
+          reason: TOKEN_REASONS.WORKOUT_COMPLETED,
+          refType: 'workout_session',
+          refId: workout.id_workout_session,
+          transaction
+        });
+      } else {
+        console.log('[finishWorkoutSession] ⚠️ Tokens no otorgados (ya completó una sesión hoy)');
+      }
     }
 
     return updated;
@@ -383,13 +462,26 @@ const cancelWorkoutSession = async (command) => {
   const cmd = typeof command === 'object' && command.idWorkoutSession ? command : { idWorkoutSession: command };
 
   const session = await getWorkoutSession({ idWorkoutSession: cmd.idWorkoutSession });
+
+  // If already cancelled or completed, just return the session (idempotent)
+  if (session.status === 'CANCELLED') {
+    console.log('[cancelWorkoutSession] ⚠️ Session already cancelled, returning existing session');
+    return session;
+  }
+
+  if (session.status === 'COMPLETED') {
+    console.log('[cancelWorkoutSession] ⚠️ Cannot cancel completed session, returning as-is');
+    return session;
+  }
+
+  // Only update if IN_PROGRESS
   if (session.status !== 'IN_PROGRESS') {
     throw new ValidationError('Solo se pueden cancelar sesiones activas');
   }
 
   return workoutRepository.updateWorkoutSession(cmd.idWorkoutSession, {
     status: 'CANCELLED',
-    finished_at: new Date(),
+    ended_at: new Date(),
     notes: cmd.reason || session.notes
   });
 };

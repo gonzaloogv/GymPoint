@@ -1,6 +1,6 @@
 /**
  * Progress Service - Refactorizado con CQRS pattern
- * Gestión de progreso físico de usuarios y ejercicios
+ * Gestiï¿½n de progreso fï¿½sico de usuarios y ejercicios
  */
 
 const { progressRepository } = require('../infra/db/repositories');
@@ -46,7 +46,7 @@ const getUserProgress = async (query) => {
 };
 
 /**
- * Obtener estadísticas de peso de un usuario
+ * Obtener estadï¿½sticas de peso de un usuario
  * @param {GetWeightStatsQuery} query
  * @returns {Promise<Array>}
  */
@@ -134,17 +134,44 @@ const registerProgress = async (command) => {
   }
 
   return sequelize.transaction(async (transaction) => {
-    const progress = await progressRepository.create({
-      idUserProfile: cmd.idUserProfile,
-      date: cmd.date,
-      totalWeightLifted: cmd.totalWeightLifted,
-      totalReps: cmd.totalReps,
-      totalSets: cmd.totalSets,
-      notes: cmd.notes,
-      exercises: cmd.exercises || []
-    }, { transaction });
+    // Check if progress already exists for this user and date
+    const existingProgress = await progressRepository.findByUserAndDate(
+      cmd.idUserProfile,
+      cmd.date,
+      { transaction }
+    );
 
-    return progress;
+    if (existingProgress) {
+      // Update existing progress (aggregate the values)
+      console.log('[registerProgress] ðŸ“ Actualizando progreso existente para', cmd.date);
+
+      const updatedProgress = await progressRepository.update(existingProgress.id_progress, {
+        totalWeightLifted: (existingProgress.total_weight_lifted || 0) + (cmd.totalWeightLifted || 0),
+        totalReps: (existingProgress.total_reps || 0) + (cmd.totalReps || 0),
+        totalSets: (existingProgress.total_sets || 0) + (cmd.totalSets || 0),
+        notes: cmd.notes || existingProgress.notes
+      }, { transaction });
+
+      // TODO: TambiÃ©n actualizar ProgressExercise si hay ejercicios
+      // Por ahora solo actualizamos los totales
+
+      return updatedProgress;
+    } else {
+      // Create new progress
+      console.log('[registerProgress] ðŸ†• Creando nuevo registro de progreso para', cmd.date);
+
+      const progress = await progressRepository.create({
+        idUserProfile: cmd.idUserProfile,
+        date: cmd.date,
+        totalWeightLifted: cmd.totalWeightLifted,
+        totalReps: cmd.totalReps,
+        totalSets: cmd.totalSets,
+        notes: cmd.notes,
+        exercises: cmd.exercises || []
+      }, { transaction });
+
+      return progress;
+    }
   });
 };
 
@@ -197,7 +224,7 @@ const deleteProgress = async (command) => {
 };
 
 // ==================== Legacy Aliases ====================
-// Para compatibilidad con código existente
+// Para compatibilidad con cï¿½digo existente
 
 const registrarProgreso = async (data) => {
   return registerProgress({

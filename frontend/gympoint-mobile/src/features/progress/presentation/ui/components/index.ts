@@ -10,3 +10,5 @@ export { UnlockedAchievementCard } from './UnlockedAchievementCard';
 export { LockedAchievementCard } from './LockedAchievementCard';
 export { AchievementProgress } from './AchievementProgress';
 export { AchievementCategoryBadge } from './AchievementCategoryBadge';
+export { AnimatedStatsChart } from './AnimatedStatsChart';
+export * from './exerciseprogress';

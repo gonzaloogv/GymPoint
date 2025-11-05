@@ -33,7 +33,7 @@ async function findWorkoutSessionById(idWorkoutSession, options = {}) {
     includeOptions.push({
       model: RoutineDay,
       as: 'routineDay',
-      attributes: ['id_routine_day', 'day_number', 'title']
+      attributes: ['id_routine_day', 'day_number', 'day_name']
     });
   }
 
@@ -164,7 +164,7 @@ async function finishWorkoutSession(idWorkoutSession, finishedAt, options = {}) 
 
   await session.update({
     status: 'COMPLETED',
-    finished_at: finishedAt
+    ended_at: finishedAt
   }, { transaction: options.transaction });
 
   return toWorkoutSession(session);
@@ -176,7 +176,7 @@ async function cancelWorkoutSession(idWorkoutSession, options = {}) {
 
   await session.update({
     status: 'CANCELLED',
-    finished_at: new Date()
+    ended_at: new Date()
   }, { transaction: options.transaction });
 
   return toWorkoutSession(session);
@@ -271,7 +271,7 @@ async function recalculateSessionTotals(idWorkoutSession, options = {}) {
     attributes: [
       [sequelize.fn('COUNT', sequelize.col('id_workout_set')), 'total_sets'],
       [sequelize.fn('SUM', sequelize.col('reps')), 'total_reps'],
-      [sequelize.fn('SUM', sequelize.literal('COALESCE(weight,0) * COALESCE(reps,0)')), 'total_weight']
+      [sequelize.fn('SUM', sequelize.literal('COALESCE(weight_kg,0) * COALESCE(reps,0)')), 'total_weight']
     ],
     raw: true,
     transaction: options.transaction
@@ -292,15 +292,15 @@ async function getWorkoutStats(idUserProfile, filters = {}, options = {}) {
   const where = { id_user_profile: idUserProfile, status: 'COMPLETED' };
 
   if (filters.startDate && filters.endDate) {
-    where.finished_at = {
+    where.ended_at = {
       [Op.between]: [filters.startDate, filters.endDate]
     };
   } else if (filters.startDate) {
-    where.finished_at = {
+    where.ended_at = {
       [Op.gte]: filters.startDate
     };
   } else if (filters.endDate) {
-    where.finished_at = {
+    where.ended_at = {
       [Op.lte]: filters.endDate
     };
   }
@@ -327,6 +327,47 @@ async function getWorkoutStats(idUserProfile, filters = {}, options = {}) {
   };
 }
 
+/**
+ * Check if user has already completed a workout session today
+ * (Used to prevent token farming by limiting rewards to 1 per day)
+ * @param {number} idUserProfile - User profile ID
+ * @param {object} options - Options object
+ * @param {object} options.transaction - Transaction object
+ * @param {number} options.excludeSessionId - Session ID to exclude from check (usually the current session)
+ * @returns {boolean} - True if user already completed a session today
+ */
+async function hasCompletedWorkoutToday(idUserProfile, options = {}) {
+  // Get start of today (00:00:00) in local timezone
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Get end of today (23:59:59)
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const where = {
+    id_user_profile: idUserProfile,
+    status: 'COMPLETED',
+    ended_at: {
+      [Op.between]: [today, endOfDay]
+    }
+  };
+
+  // Exclude current session if provided
+  if (options.excludeSessionId) {
+    where.id_workout_session = {
+      [Op.ne]: options.excludeSessionId
+    };
+  }
+
+  const completedSession = await WorkoutSession.findOne({
+    where,
+    transaction: options.transaction
+  });
+
+  return !!completedSession;
+}
+
 module.exports = {
   // WorkoutSession
   createWorkoutSession,
@@ -348,5 +389,6 @@ module.exports = {
   recalculateSessionTotals,
 
   // Stats
-  getWorkoutStats
+  getWorkoutStats,
+  hasCompletedWorkoutToday
 };

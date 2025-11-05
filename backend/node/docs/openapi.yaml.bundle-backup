@@ -3465,56 +3465,72 @@ components:
     NotificationSettingsResponse:
       type: object
       required:
-        - id_user_notification_setting
+        - id_setting
         - id_user_profile
         - push_enabled
         - email_enabled
       additionalProperties: false
       properties:
-        id_user_notification_setting:
+        id_setting:
           type: integer
           description: ID único de la configuración
         id_user_profile:
           type: integer
           description: ID del perfil de usuario
+        reminders_enabled:
+          type: boolean
+          description: Recordatorios habilitados
+          example: true
+        achievements_enabled:
+          type: boolean
+          description: Notificaciones de logros habilitadas
+          example: true
+        rewards_enabled:
+          type: boolean
+          description: Notificaciones de recompensas habilitadas
+          example: true
+        gym_updates_enabled:
+          type: boolean
+          description: Novedades de gimnasios habilitadas
+          example: true
+        payment_enabled:
+          type: boolean
+          description: Notificaciones de pagos habilitadas
+          example: true
+        social_enabled:
+          type: boolean
+          description: Notificaciones sociales habilitadas
+          example: true
+        system_enabled:
+          type: boolean
+          description: Notificaciones del sistema habilitadas
+          example: true
+        challenge_enabled:
+          type: boolean
+          description: Notificaciones de desafíos habilitadas
+          example: true
         push_enabled:
           type: boolean
-          description: Notificaciones push habilitadas
+          description: Notificaciones push globales habilitadas
           example: true
         email_enabled:
           type: boolean
           description: Notificaciones por email habilitadas
           example: true
-        reminder_enabled:
-          type: boolean
-          description: Recordatorios habilitados
-          example: true
-        achievement_enabled:
-          type: boolean
-          description: Notificaciones de logros habilitadas
-          example: true
-        reward_enabled:
-          type: boolean
-          description: Notificaciones de recompensas habilitadas
-          example: true
-        gym_news_enabled:
-          type: boolean
-          description: Novedades de gimnasios habilitadas
-          example: false
         quiet_hours_start:
           oneOf:
             - type: string
-              pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9]$
+              pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
             - type: 'null'
-          description: Inicio de horario silencioso (HH:MM)
-          example: '22:00'
+          description: Inicio de horario silencioso (HH:MM:SS)
+          example: '22:00:00'
         quiet_hours_end:
           oneOf:
             - type: string
-              pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9]$
+              pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
             - type: 'null'
-          description: Fin de horario silencioso (HH:MM)
-          example: '08:00'
+          description: Fin de horario silencioso (HH:MM:SS)
+          example: '08:00:00'
         created_at:
           type: string
           format: date-time
@@ -3529,34 +3545,46 @@ components:
       type: object
       additionalProperties: false
       properties:
+        reminders_enabled:
+          type: boolean
+          description: Habilitar/deshabilitar recordatorios
+        achievements_enabled:
+          type: boolean
+          description: Habilitar/deshabilitar notificaciones de logros
+        rewards_enabled:
+          type: boolean
+          description: Habilitar/deshabilitar notificaciones de recompensas
+        gym_updates_enabled:
+          type: boolean
+          description: Habilitar/deshabilitar novedades de gimnasios
+        payment_enabled:
+          type: boolean
+          description: Habilitar/deshabilitar notificaciones de pagos
+        social_enabled:
+          type: boolean
+          description: Habilitar/deshabilitar notificaciones sociales
+        system_enabled:
+          type: boolean
+          description: Habilitar/deshabilitar notificaciones del sistema
+        challenge_enabled:
+          type: boolean
+          description: Habilitar/deshabilitar notificaciones de desafíos
         push_enabled:
           type: boolean
-          description: Habilitar/deshabilitar notificaciones push
+          description: Habilitar/deshabilitar notificaciones push globales
         email_enabled:
           type: boolean
           description: Habilitar/deshabilitar notificaciones por email
-        reminder_enabled:
-          type: boolean
-          description: Habilitar/deshabilitar recordatorios
-        achievement_enabled:
-          type: boolean
-          description: Habilitar/deshabilitar notificaciones de logros
-        reward_enabled:
-          type: boolean
-          description: Habilitar/deshabilitar notificaciones de recompensas
-        gym_news_enabled:
-          type: boolean
-          description: Habilitar/deshabilitar novedades de gimnasios
         quiet_hours_start:
           type: string
-          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9]$
-          description: Inicio de horario silencioso (HH:MM)
-          example: '22:00'
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+          description: Inicio de horario silencioso (HH:MM o HH:MM:SS)
+          example: '22:00:00'
         quiet_hours_end:
           type: string
-          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9]$
-          description: Fin de horario silencioso (HH:MM)
-          example: '08:00'
+          pattern: ^([0-1][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+          description: Fin de horario silencioso (HH:MM o HH:MM:SS)
+          example: '08:00:00'
     UpdateSubscriptionRequest:
       type: object
       required:

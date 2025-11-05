@@ -29,9 +29,9 @@ export interface RoutineExerciseDTO {
   difficulty_level?: string;
   description?: string | null;
   // Datos de la tabla RoutineExercise (through table)
-  series: number; // Número de series
-  reps: number; // Número de repeticiones
-  order: number; // Orden del ejercicio
+  series?: number | null; // Número de series
+  reps?: number | null; // Número de repeticiones
+  order?: number | null; // Orden del ejercicio
 }
 
 /**
@@ -63,7 +63,7 @@ export interface CreateRoutineRequestDTO {
 export interface CreateRoutineExerciseDTO {
   id_exercise: number;
   series: number;
-  reps: string; // Puede ser "10" o "8-12" (string en la API)
+  reps: string; // String numérico (ej: "10"), backend valida string y convierte a INTEGER
   order: number;
   day_number?: number;
 }

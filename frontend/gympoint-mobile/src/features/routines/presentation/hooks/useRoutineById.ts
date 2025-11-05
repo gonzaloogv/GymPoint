@@ -1,16 +1,29 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Routine } from '../../domain/entities';
 import { useRoutinesStore } from '../state';
 
-export function useRoutineById(id?: string) {
-  const { currentRoutine, loadingRoutine, fetchRoutineById, routines } =
-    useRoutinesStore();
+export function useRoutineById(id?: number) {
+  const [routine, setRoutine] = useState<Routine | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { fetchRoutineById } = useRoutinesStore();
 
   useEffect(() => {
-    if (id) {
-      fetchRoutineById(id);
-    }
+    if (!id) return;
+
+    const loadRoutine = async () => {
+      setLoading(true);
+      try {
+        const data = await fetchRoutineById(id);
+        setRoutine(data);
+      } catch (error) {
+        console.error('Error loading routine:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRoutine();
   }, [id, fetchRoutineById]);
 
-  // Return current routine from store, or fallback to first routine if available
-  return currentRoutine ?? routines[0] ?? null;
+  return { routine, loading };
 }

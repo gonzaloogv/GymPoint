@@ -107,156 +107,20 @@ router.use(verificarToken, verificarUsuarioApp);
  *       403:
  *         description: Requiere rol de usuario de la app
  */
-router.get('/', controller.listarSesiones);
-router.post('/', controller.iniciarSesion);
+// Session operations
+router.post('/sessions', controller.iniciarSesion);
+router.get('/sessions/active', controller.getActiveSesion);
+router.get('/sessions/me', controller.listarSesiones);
+router.get('/stats', controller.getStats);
+router.get('/sessions/:id', controller.getSesion);
+router.put('/sessions/:id', controller.updateSesion);
+router.put('/sessions/:id/complete', controller.completarSesion);
+router.put('/sessions/:id/cancel', controller.cancelarSesion);
 
-/**
- * @swagger
- * /api/workouts/{id}/sets:
- *   post:
- *     summary: Registrar una serie en una sesión de entrenamiento
- *     tags: [Workouts]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID de la sesión de entrenamiento
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - id_exercise
- *             properties:
- *               id_exercise:
- *                 type: integer
- *                 description: ID del ejercicio
- *               weight:
- *                 type: number
- *                 format: float
- *                 description: Peso utilizado en kg
- *               reps:
- *                 type: integer
- *                 description: Número de repeticiones
- *               rpe:
- *                 type: number
- *                 format: float
- *                 minimum: 1
- *                 maximum: 10
- *                 description: Rate of Perceived Exertion (1-10)
- *               rest_seconds:
- *                 type: integer
- *                 description: Segundos de descanso después de la serie
- *               is_warmup:
- *                 type: boolean
- *                 default: false
- *                 description: Si es una serie de calentamiento
- *               notes:
- *                 type: string
- *                 description: Notas sobre la serie
- *               performed_at:
- *                 type: string
- *                 format: date-time
- *                 description: Momento en que se realizó la serie
- *     responses:
- *       201:
- *         description: Serie registrada exitosamente
- *       400:
- *         description: Datos inválidos o sesión no está en progreso
- *       401:
- *         description: No autorizado
- *       403:
- *         description: Requiere rol de usuario de la app
- *       404:
- *         description: Sesión o ejercicio no encontrado
- */
-router.post('/:id/sets', controller.registrarSet);
-
-/**
- * @swagger
- * /api/workouts/{id}/complete:
- *   post:
- *     summary: Completar una sesión de entrenamiento
- *     description: Finaliza la sesión, recalcula totales y otorga tokens
- *     tags: [Workouts]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID de la sesión de entrenamiento
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               ended_at:
- *                 type: string
- *                 format: date-time
- *                 description: Fecha y hora de finalización (por defecto ahora)
- *               notes:
- *                 type: string
- *                 description: Notas finales de la sesión
- *     responses:
- *       200:
- *         description: Sesión completada exitosamente
- *       400:
- *         description: La sesión no está en progreso
- *       401:
- *         description: No autorizado
- *       403:
- *         description: Requiere rol de usuario de la app
- *       404:
- *         description: Sesión no encontrada
- */
-router.post('/:id/complete', controller.completarSesion);
-
-/**
- * @swagger
- * /api/workouts/{id}/cancel:
- *   post:
- *     summary: Cancelar una sesión de entrenamiento
- *     tags: [Workouts]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID de la sesión de entrenamiento
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               reason:
- *                 type: string
- *                 description: Motivo de cancelación
- *     responses:
- *       200:
- *         description: Sesión cancelada exitosamente
- *       400:
- *         description: Solo se pueden cancelar sesiones activas
- *       401:
- *         description: No autorizado
- *       403:
- *         description: Requiere rol de usuario de la app
- *       404:
- *         description: Sesión no encontrada
- */
-router.post('/:id/cancel', controller.cancelarSesion);
+// Set operations
+router.get('/sessions/:id/sets', controller.listarSets);
+router.post('/sessions/:id/sets', controller.registrarSet);
+router.put('/sets/:id', controller.updateSet);
+router.delete('/sets/:id', controller.deleteSet);
 
 module.exports = router;

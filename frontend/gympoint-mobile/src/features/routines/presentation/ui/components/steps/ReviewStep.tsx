@@ -1,7 +1,6 @@
 import { View, Text } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { StepScrollContainer, StepSection } from '@shared/components/ui';
-import { Exercise } from '@features/routines/domain/entities/Exercise';
 
 type BasicInfo = {
   name: string;
@@ -9,9 +8,16 @@ type BasicInfo = {
   muscleGroups: string[];
 };
 
+type ExerciseForm = {
+  id_exercise: number;
+  name: string;
+  series: number;
+  reps: number;
+};
+
 type Props = {
   basicInfo: BasicInfo;
-  exercises: Exercise[];
+  exercises: ExerciseForm[];
 };
 
 export function ReviewStep({ basicInfo, exercises }: Props) {
@@ -99,7 +105,7 @@ export function ReviewStep({ basicInfo, exercises }: Props) {
           ) : (
             exercises.map((exercise, index) => (
               <View
-                key={exercise.id}
+                key={exercise.id_exercise}
                 className="p-4 rounded-lg mb-1.5"
                 style={{ backgroundColor: bgColor }}
               >
@@ -107,7 +113,7 @@ export function ReviewStep({ basicInfo, exercises }: Props) {
                   {index + 1}. {exercise.name || 'Sin nombre'}
                 </Text>
                 <Text style={{ color: subtextColor, fontSize: 13 }}>
-                  {exercise.sets} series × {exercise.reps} reps
+                  {exercise.series} series × {exercise.reps} reps
                 </Text>
               </View>
             ))

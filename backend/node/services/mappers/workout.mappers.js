@@ -141,7 +141,7 @@ function toWorkoutSessionResponse(session) {
     id_routine_day: session.id_routine_day || session.idRoutineDay || null,
     status: session.status,
     started_at: session.started_at || session.startedAt,
-    finished_at: session.finished_at || session.finishedAt || null,
+    ended_at: session.ended_at || session.endedAt || null,
     duration_seconds: session.duration_seconds || session.durationSeconds || null,
     total_sets: session.total_sets || session.totalSets || 0,
     total_reps: session.total_reps || session.totalReps || 0,
@@ -164,7 +164,7 @@ function toWorkoutSessionResponse(session) {
     response.routine_day = {
       id_routine_day: session.routineDay.id_routine_day,
       day_number: session.routineDay.day_number,
-      title: session.routineDay.title || null
+      day_name: session.routineDay.day_name || null
     };
   }
 
