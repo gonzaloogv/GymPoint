@@ -97,6 +97,9 @@ interface RoutinesState {
   // History actions (mock for now)
   fetchRoutineHistory: (routineId: number) => Promise<void>;
 
+  // Routine management
+  deleteRoutine: (id: number) => Promise<void>;
+
   // Filters
   setSearch: (search: string) => void;
   setStatusFilter: (status: 'All' | 'Pending') => void;
@@ -522,6 +525,29 @@ export const useRoutinesStore = create<RoutinesState>()(
       // Mock implementation:
       // const history = await routineHistoryMock.filter(s => s.routineId === routineId);
       // set({ history, loadingHistory: false });
+    },
+
+    // Delete routine
+    deleteRoutine: async (id: number) => {
+      try {
+        await routineRepository.delete(id);
+
+        // Remove from local state
+        set((state) => {
+          state.routines = state.routines.filter((r) => r.id_routine !== id);
+        });
+
+        // If it was the current routine, clear it
+        const { currentRoutine } = get();
+        if (currentRoutine?.id_routine === id) {
+          set({ currentRoutine: null });
+        }
+
+        console.log('[deleteRoutine] ✅ Routine deleted successfully');
+      } catch (error) {
+        console.error('[deleteRoutine] ❌ Error deleting routine:', error);
+        throw error;
+      }
     },
 
     // Filters

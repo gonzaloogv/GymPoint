@@ -3,6 +3,7 @@ import FeatherIcon from '@expo/vector-icons/Feather';
 import { useTheme } from '@shared/hooks';
 import { Avatar, TokenPill } from '@shared/components/ui';
 import { palette } from '@shared/styles';
+import StreakIcon from '@assets/icons/streak.svg'
 
 type Props = {
   userName: string;
@@ -41,7 +42,7 @@ export default function HomeHeader({ userName, plan, tokens, streak = 0, onBellP
             backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2'
           }}
         >
-          <Text className="text-lg">🔥</Text>
+          <StreakIcon width={20} height={20} accessibilityLabel="racha" />
           <Text className={`ml-1 font-semibold ${isDark ? 'text-red-400' : 'text-red-700'}`}>
             {streak}
           </Text>

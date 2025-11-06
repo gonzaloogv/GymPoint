@@ -78,8 +78,21 @@ export const useRoutineExecution = ({
 
   // Flag to prevent re-initialization when dependencies change
   const hasInitializedExercisesRef = useRef<boolean>(false);
+  const lastRoutineIdRef = useRef<number | null>(null);
 
   const navigation = useNavigation();
+
+  // Reset initialization flag when routineId changes (prevents stale data from previous routine)
+  useEffect(() => {
+    if (routineId !== lastRoutineIdRef.current) {
+      console.log('[useRoutineExecution] 🔄 Routine ID changed, resetting initialization flag:', {
+        oldId: lastRoutineIdRef.current,
+        newId: routineId
+      });
+      hasInitializedExercisesRef.current = false;
+      lastRoutineIdRef.current = routineId;
+    }
+  }, [routineId]);
 
   // Start execution on mount
   useEffect(() => {
@@ -162,25 +175,56 @@ export const useRoutineExecution = ({
   // Initialize exercise states when routine loads
   // CRITICAL: Only initialize ONCE to prevent overwriting restored state
   useEffect(() => {
+    console.log('[useRoutineExecution] 🔍 Checking initialization:', {
+      routineId,
+      currentRoutineId: currentRoutine?.id_routine,
+      routinesMatch: currentRoutine?.id_routine === routineId,
+      hasRoutine: !!currentRoutine,
+      exerciseCount: currentRoutine?.exercises?.length || 0,
+      hasIncompleteSession: !!incompleteSession,
+      hasExerciseStates: !!incompleteSession?.exerciseStates,
+      exerciseStatesKeys: incompleteSession?.exerciseStates ? Object.keys(incompleteSession.exerciseStates) : [],
+      alreadyInitialized: hasInitializedExercisesRef.current
+    });
+
     if (currentRoutine?.exercises && currentRoutine.exercises.length > 0) {
       // Skip if already initialized
       if (hasInitializedExercisesRef.current) {
+        console.log('[useRoutineExecution] ⏭️ Already initialized, skipping');
         return;
       }
 
-      // Always restore from incomplete session (which now has exercise states initialized by the store)
-      if (incompleteSession?.exerciseStates) {
+      // CRITICAL: Skip if currentRoutine doesn't match routineId (prevents race condition)
+      if (currentRoutine.id_routine !== routineId) {
+        console.log('[useRoutineExecution] ⚠️ Routine ID mismatch - waiting for correct routine to load:', {
+          currentRoutineId: currentRoutine.id_routine,
+          expectedRoutineId: routineId
+        });
+        return;
+      }
+
+      // Initialize states from incomplete session OR from routine
+      let initialStates: { [exerciseId: string]: ExerciseState } = {};
+      let initialExpanded: { [exerciseId: string]: boolean } = {};
+
+      // Try to restore from incomplete session first (but verify routine ID matches)
+      if (incompleteSession?.exerciseStates &&
+          Object.keys(incompleteSession.exerciseStates).length > 0 &&
+          incompleteSession.routineId === routineId) {
         console.log('[useRoutineExecution] ♻️ Restaurando progreso guardado desde incompleteSession');
-        setExerciseStates(incompleteSession.exerciseStates);
-        setExpandedExercises(incompleteSession.expandedExercises || {});
+        initialStates = incompleteSession.exerciseStates;
+        initialExpanded = incompleteSession.expandedExercises || {};
         setDuration(incompleteSession.duration || 0);
         startTimeRef.current = Date.now() - (incompleteSession.duration || 0) * 1000;
       } else {
-        // This should not happen anymore since store initializes exercise states
-        // But keep as fallback
-        console.log('[useRoutineExecution] ⚠️ No exercise states in incompleteSession - this should not happen');
-        const initialStates: { [exerciseId: string]: ExerciseState } = {};
-        const initialExpanded: { [exerciseId: string]: boolean } = {};
+        if (incompleteSession && incompleteSession.routineId !== routineId) {
+          console.log('[useRoutineExecution] ⚠️ incompleteSession routine mismatch, initializing from currentRoutine:', {
+            incompleteSessionRoutineId: incompleteSession.routineId,
+            currentRoutineId: routineId
+          });
+        }
+        // Initialize from routine exercises (happens on first load)
+        console.log('[useRoutineExecution] 🆕 Inicializando estados desde ejercicios de rutina');
 
         currentRoutine.exercises.forEach((exercise) => {
           const exerciseId = exercise.id_exercise.toString();
@@ -201,10 +245,16 @@ export const useRoutineExecution = ({
 
           initialExpanded[exerciseId] = false;
         });
-
-        setExerciseStates(initialStates);
-        setExpandedExercises(initialExpanded);
       }
+
+      // Always set the states
+      setExerciseStates(initialStates);
+      setExpandedExercises(initialExpanded);
+
+      console.log('[useRoutineExecution] ✅ Estados inicializados:', {
+        exerciseCount: Object.keys(initialStates).length,
+        exerciseIds: Object.keys(initialStates)
+      });
 
       // Mark as initialized
       hasInitializedExercisesRef.current = true;

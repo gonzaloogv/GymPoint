@@ -10,6 +10,7 @@ const RoutineDay = require('../../../models/RoutineDay');
 const Exercise = require('../../../models/Exercise');
 const { toWorkoutSession, toWorkoutSessions, toWorkoutSet, toWorkoutSets } = require('../mappers/workout.mapper');
 const { Op } = require('sequelize');
+const { getArgentinaTime, getStartOfDayArgentina, getEndOfDayArgentina } = require('../../../utils/timezone');
 
 // ==================== WorkoutSession Operations ====================
 
@@ -337,13 +338,18 @@ async function getWorkoutStats(idUserProfile, filters = {}, options = {}) {
  * @returns {boolean} - True if user already completed a session today
  */
 async function hasCompletedWorkoutToday(idUserProfile, options = {}) {
-  // Get start of today (00:00:00) in local timezone
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // Use Argentina timezone (UTC-3) for day boundaries
+  const argentinaTime = getArgentinaTime();
+  const today = getStartOfDayArgentina();
+  const endOfDay = getEndOfDayArgentina();
 
-  // Get end of today (23:59:59)
-  const endOfDay = new Date();
-  endOfDay.setHours(23, 59, 59, 999);
+  console.log('[hasCompletedWorkoutToday] 🔍 Checking for completed workouts (Argentina UTC-3):', {
+    userId: idUserProfile,
+    currentTimeARG: argentinaTime.toISOString(),
+    rangeStart: today.toISOString(),
+    rangeEnd: endOfDay.toISOString(),
+    excludeSessionId: options.excludeSessionId
+  });
 
   const where = {
     id_user_profile: idUserProfile,
@@ -365,7 +371,10 @@ async function hasCompletedWorkoutToday(idUserProfile, options = {}) {
     transaction: options.transaction
   });
 
-  return !!completedSession;
+  const hasCompleted = !!completedSession;
+  console.log(`[hasCompletedWorkoutToday] ${hasCompleted ? '✅' : '❌'} Result: ${hasCompleted ? 'Already completed today' : 'No completion today'}`);
+
+  return hasCompleted;
 }
 
 module.exports = {

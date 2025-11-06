@@ -8,6 +8,7 @@ import { useHomeStore } from '@features/home/presentation/state/home.store';
 import { KPICard } from '../components/KPICard';
 import { ProgressSection } from '../components/ProgressSection';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import StreakIcon from '@assets/icons/streak.svg'
 type ProgressScreenProps = {
   navigation: any;
 };
@@ -48,7 +49,7 @@ export function ProgressScreen({ navigation }: ProgressScreenProps) {
           {/* KPI Cards */}
           <View className="flex-row px-4 pb-6 gap-2">
             <KPICard
-              icon={<Text style={{ fontSize: 24 }}>🔥</Text>}
+              icon={<StreakIcon width={24} height={24} accessibilityLabel="racha" />}
               label="Racha actual"
               value={`${currentStreak} días`}
               change={7}

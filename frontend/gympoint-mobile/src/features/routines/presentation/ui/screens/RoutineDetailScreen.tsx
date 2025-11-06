@@ -5,7 +5,8 @@ import { RoutineDetailLayout } from '@features/routines/presentation/ui/layouts/
 import { RoutineDetailHeader } from '@features/routines/presentation/ui/headers/RoutineDetailHeader';
 import { RoutineDetailFooter } from '@features/routines/presentation/ui/footers/RoutineDetailFooter';
 import { ExpandableExerciseDetail } from '@features/routines/presentation/ui/components/ExpandableExerciseDetail';
-import { ActivityIndicator, View, Text } from 'react-native';
+import { ActivityIndicator, View, Text, Alert } from 'react-native';
+import { useRoutinesStore } from '@features/routines/presentation/state/routines.store';
 
 /**
  * Pantalla de detalle de rutina
@@ -16,6 +17,7 @@ export default function RoutineDetailScreen({ route, navigation }: any) {
   const id = route?.params?.id as string | undefined;
   const routineId = id ? parseInt(id, 10) : undefined;
   const { routine, loading } = useRoutineById(routineId);
+  const { deleteRoutine } = useRoutinesStore();
 
   // Estado para manejar qué ejercicios están expandidos
   const [expandedExercises, setExpandedExercises] = useState<{ [key: number]: boolean }>({});

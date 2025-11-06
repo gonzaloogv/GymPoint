@@ -40,11 +40,11 @@ export function EditableSetRow({ set, onUpdate, onMarkDone }: Props) {
   };
 
   const handleCheckbox = () => {
-    // Validar que peso y reps estén completados
-    if (!set.currentWeight || set.currentWeight <= 0 || !set.currentReps || set.currentReps <= 0) {
+    // Validar que peso y reps estén completados (0kg es válido, pero reps debe ser > 0)
+    if (set.currentWeight === null || set.currentWeight === undefined || set.currentWeight < 0 || !set.currentReps || set.currentReps <= 0) {
       Alert.alert(
         'Datos incompletos',
-        'Por favor completa el peso y las repeticiones antes de marcar esta serie como hecha.'
+        'Por favor completa el peso (0kg es válido) y las repeticiones (mayor a 0) antes de marcar esta serie como hecha.'
       );
       return;
     }
