@@ -1,11 +1,11 @@
-import { View } from 'react-native';
-import { useTheme } from '@shared/hooks';
-import { Screen } from '@shared/components/ui';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { SurfaceScreen, Card } from '@shared/components/ui';
 import { StepIndicator } from '../components/StepIndicator';
 import { BasicInfoStep, ExercisesStep, ReviewStep } from '../components/steps';
-import { ScreenHeader } from '../components/ScreenHeader';
 import { CreateRoutineFooter } from '../components/CreateRoutineFooter';
 import { useCreateRoutine } from '../../hooks/useCreateRoutine';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@shared/hooks';
 
 const STEPS = [
   { number: 1, label: 'Básicos', subtitle: 'Info general' },
@@ -16,8 +16,8 @@ const STEPS = [
 export default function CreateRoutineScreen() {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const cardBg = isDark ? '#1f2937' : '#ffffff';
-  const bgColor = isDark ? '#111827' : '#f9fafb';
+  const headerAccent = isDark ? '#F9FAFB' : '#111827';
+  const secondary = isDark ? '#9CA3AF' : '#6B7280';
 
   const {
     currentStep,
@@ -45,24 +45,83 @@ export default function CreateRoutineScreen() {
   };
 
   return (
-    <Screen safeAreaTop={true} safeAreaBottom={false}>
-      <ScreenHeader title="Nueva rutina" onBack={handleBack} />
+    <SurfaceScreen>
+        <View style={styles.container}>
+          <View style={styles.main}>
+          <View style={styles.headerRow}>
+            <TouchableOpacity onPress={handleBack} style={styles.backButton} activeOpacity={0.7}>
+              <Ionicons name="arrow-back" size={20} color={headerAccent} />
+            </TouchableOpacity>
+            <View style={styles.headerText}>
+              <Text style={[styles.title, { color: headerAccent }]}>Nueva rutina</Text>
+              <Text style={[styles.subtitle, { color: secondary }]}>
+                Diseña los pasos para tu siguiente entrenamiento
+              </Text>
+            </View>
+          </View>
 
-      <View className="px-4 py-6" style={{ backgroundColor: cardBg }}>
-        <StepIndicator steps={STEPS} currentStep={currentStep} />
+          <Card style={styles.stepCard}>
+            <StepIndicator steps={STEPS} currentStep={currentStep} />
+          </Card>
+
+          <View style={styles.stepContent}>{renderStep()}</View>
+        </View>
+
+        <CreateRoutineFooter
+          currentStep={currentStep}
+          isStepValid={isStepValid}
+          buttonLabel={getButtonLabel()}
+          onBack={handleBack}
+          onNext={handleNext}
+        />
       </View>
-
-      <View className="flex-1" style={{ backgroundColor: bgColor }}>
-        {renderStep()}
-      </View>
-
-      <CreateRoutineFooter
-        currentStep={currentStep}
-        isStepValid={isStepValid}
-        buttonLabel={getButtonLabel()}
-        onBack={handleBack}
-        onNext={handleNext}
-      />
-    </Screen>
+    </SurfaceScreen>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  main: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 24,
+    gap: 24,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(148, 163, 184, 0.2)',
+  },
+  headerText: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '800',
+    letterSpacing: -0.2,
+  },
+  subtitle: {
+    marginTop: 6,
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  stepCard: {
+    paddingVertical: 18,
+    paddingHorizontal: 12,
+  },
+  stepContent: {
+    flex: 1,
+  },
+});

@@ -1,194 +1,173 @@
-import { View, Text, TouchableOpacity } from 'react-native';
-import { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '@shared/hooks';
-import { TimerState } from '@features/routines/domain/entities/ExecutionSession';
-import { formatTime } from '@shared/utils';
+import { formatDuration } from '@shared/utils';
+import { Ionicons } from '@expo/vector-icons';
+
+type FloatingTimerState = 'idle' | 'running' | 'paused';
 
 type Props = {
-  timerState: TimerState;
+  timerState: FloatingTimerState;
+  restSeconds: number;
   exerciseName?: string;
   onSkip?: () => void;
-  onTimerComplete?: () => void;
 };
 
-/**
- * Componente de timer flotante (sticky)
- * Se renderiza en la parte inferior de la pantalla, siempre visible
- * Permite al usuario interactuar con otros ejercicios mientras mide el tiempo
- */
 export function FloatingTimer({
   timerState,
+  restSeconds,
   exerciseName = 'Descanso',
   onSkip,
-  onTimerComplete,
 }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Colores dinámicos
-  const textColor = isDark ? '#ffffff' : '#000000';
-  const secondaryTextColor = isDark ? '#9ca3af' : '#6b7280';
-  const backgroundColor = isDark ? '#1f2937' : '#ffffff';
-  const borderColor = isDark ? '#374151' : '#e5e7eb';
-  const accentColor = '#3b82f6'; // Azul
-  const warningColor = '#f59e0b'; // Naranja
-  const successColor = '#10b981'; // Verde
+  const palette = useMemo(
+    () => ({
+      background: isDark ? '#111827' : '#ffffff',
+      border: isDark ? 'rgba(55, 65, 81, 0.8)' : '#E5E7EB',
+      secondary: isDark ? '#9CA3AF' : '#6B7280',
+      primary: '#4F46E5',
+      warning: '#F59E0B',
+      success: '#10B981',
+      text: isDark ? '#F9FAFB' : '#111827',
+    }),
+    [isDark],
+  );
 
-  // Estado local para countdown
-  const [secondsLeft, setSecondsLeft] = useState<number>(0);
-
-  // Inicializar segundos cuando state cambia a active
-  useEffect(() => {
-    if (timerState.type === 'active') {
-      setSecondsLeft(timerState.seconds);
-    }
-  }, [timerState]);
-
-  // Countdown timer
-  useEffect(() => {
-    if (timerState.type !== 'active' || secondsLeft <= 0) {
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setSecondsLeft((prev: number) => {
-        const newValue = prev - 1;
-
-        // Cuando llega a 0, disparar callback
-        if (newValue <= 0) {
-          clearInterval(interval);
-          onTimerComplete?.();
-          return 0;
-        }
-
-        return newValue;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [timerState, secondsLeft, onTimerComplete]);
-
-  // No renderizar si el timer está en idle
-  if (timerState.type === 'idle') {
+  if (timerState === 'idle') {
     return null;
   }
 
-  // Estado: INITIAL - Mensaje de calentamiento (menos visible)
-  if (timerState.type === 'initial') {
-    return (
-      <View
-        className="border-t py-3 px-4 flex-row items-center justify-between"
-        style={{
-          backgroundColor,
-          borderTopColor: borderColor,
-        }}
-      >
-        <View className="flex-row items-center gap-3 flex-1">
-          <Text className="text-2xl">🔥</Text>
-          <View className="flex-1">
-            <Text
-              className="text-xs font-semibold uppercase"
-              style={{ color: secondaryTextColor }}
-            >
-              Preparación
-            </Text>
-            <Text
-              className="text-sm font-medium"
-              style={{ color: textColor }}
-            >
-              {timerState.message}
-            </Text>
-          </View>
+  const seconds = Math.max(0, restSeconds);
+  const formatted = formatDuration(seconds);
+  const isWarning = seconds <= 5 && timerState === 'running';
+  const accentColor = isWarning ? palette.warning : palette.primary;
+
+  return (
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: palette.background,
+          borderColor: palette.border,
+        },
+        isDark ? styles.darkShadow : styles.lightShadow,
+      ]}
+    >
+      <View style={styles.iconBubble}>
+        <Ionicons
+          name={timerState === 'paused' ? 'pause-circle' : 'time-outline'}
+          size={18}
+          color={timerState === 'paused' ? palette.secondary : accentColor}
+        />
+      </View>
+
+      <View style={styles.textColumn}>
+        <Text style={[styles.badge, { color: palette.secondary }]}>
+          {timerState === 'paused' ? 'Timer en pausa' : `Descanso — ${exerciseName}`}
+        </Text>
+
+        <View style={styles.timerRow}>
+          <Text
+            style={[
+              styles.timerValue,
+              { color: timerState === 'paused' ? palette.secondary : accentColor },
+            ]}
+          >
+            {formatted}
+          </Text>
+          <Text style={[styles.timerSuffix, { color: palette.secondary }]}>seg</Text>
         </View>
       </View>
-    );
-  }
 
-  // Estado: ACTIVE - Timer contando (principal)
-  if (timerState.type === 'active') {
-    const displayColor = secondsLeft <= 5 ? warningColor : accentColor;
-
-    return (
-      <View
-        className="border-t py-3 px-4 flex-row items-center justify-between"
-        style={{
-          backgroundColor,
-          borderTopColor: borderColor,
-        }}
-      >
-        <View className="flex-1">
-          <Text
-            className="text-xs font-semibold uppercase"
-            style={{ color: secondaryTextColor }}
-          >
-            Descanso - {exerciseName}
-          </Text>
-          <View className="flex-row items-baseline gap-2 mt-1">
-            <Text
-              className="text-5xl font-black"
-              style={{ color: displayColor }}
-            >
-              {formatTime(secondsLeft)}
-            </Text>
-            <Text
-              className="text-xs"
-              style={{ color: secondaryTextColor }}
-            >
-              segundos
-            </Text>
-          </View>
-        </View>
-
-        {/* Botón Omitir */}
+      {timerState === 'running' && onSkip ? (
         <TouchableOpacity
-          className="ml-4 px-4 py-2 rounded-lg border"
-          style={{
-            borderColor: accentColor,
-          }}
           onPress={onSkip}
-          activeOpacity={0.7}
+          activeOpacity={0.75}
+          style={[styles.skipButton, { borderColor: accentColor }]}
         >
-          <Text
-            className="font-semibold text-sm"
-            style={{ color: accentColor }}
-          >
-            Omitir
-          </Text>
+          <Text style={[styles.skipText, { color: accentColor }]}>Omitir</Text>
         </TouchableOpacity>
-      </View>
-    );
-  }
-
-  // Estado: COMPLETED - Mensaje motivacional
-  if (timerState.type === 'completed') {
-    return (
-      <View
-        className="border-t py-3 px-4 flex-row items-center justify-between"
-        style={{
-          backgroundColor,
-          borderTopColor: borderColor,
-        }}
-      >
-        <View className="flex-row items-center gap-3 flex-1">
-          <Text className="text-2xl">✅</Text>
-          <View className="flex-1">
-            <Text
-              className="text-xs font-semibold uppercase"
-              style={{ color: secondaryTextColor }}
-            >
-              Descanso completado
-            </Text>
-            <Text
-              className="text-sm font-medium"
-              style={{ color: successColor }}
-            >
-              {timerState.message}
-            </Text>
-          </View>
-        </View>
-      </View>
-    );
-  }
-
-  return null;
+      ) : null}
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    bottom: 24,
+    borderWidth: 1,
+    borderRadius: 24,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  lightShadow: {
+    shadowColor: '#4338CA',
+    shadowOpacity: 0.16,
+    shadowOffset: { width: 0, height: 18 },
+    shadowRadius: 24,
+    elevation: 10,
+  },
+  darkShadow: {
+    shadowColor: '#000000',
+    shadowOpacity: 0.4,
+    shadowOffset: { width: 0, height: 22 },
+    shadowRadius: 28,
+    elevation: 16,
+  },
+  iconBubble: {
+    width: 40,
+    height: 40,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(99, 102, 241, 0.16)',
+    marginRight: 16,
+  },
+  textColumn: {
+    flex: 1,
+  },
+  badge: {
+    fontSize: 11,
+    textTransform: 'uppercase',
+    fontWeight: '600',
+    letterSpacing: 1.2,
+  },
+  timerRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginTop: 6,
+  },
+  timerValue: {
+    fontSize: 40,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
+  timerSuffix: {
+    fontSize: 14,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 1.4,
+    marginLeft: 8,
+  },
+  skipButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginLeft: 16,
+  },
+  skipText: {
+    fontSize: 13,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1.1,
+  },
+});
+

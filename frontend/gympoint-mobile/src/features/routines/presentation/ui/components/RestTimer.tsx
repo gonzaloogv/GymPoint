@@ -1,8 +1,9 @@
-import { View, Text, TouchableOpacity } from 'react-native';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 import { TimerState } from '@features/routines/domain/entities/ExecutionSession';
-import { formatTime } from '@shared/utils';
+import { formatDuration } from '@shared/utils';
 
 type Props = {
   state: TimerState;
@@ -10,133 +11,219 @@ type Props = {
   onSkip?: () => void;
 };
 
-/**
- * Componente de temporizador de descanso con máquina de 4 estados
- * Estados:
- * 1. initial: "No olvides el calentamiento!"
- * 2. active: Contador regresivo (00:55)
- * 3. completed: Mensaje aleatorio motivacional
- * 4. idle: No mostrar nada
- */
 export function RestTimer({ state, onTimerComplete, onSkip }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Colores dinámicos
-  const textColor = isDark ? '#ffffff' : '#000000';
-  const secondaryTextColor = isDark ? '#9ca3af' : '#6b7280';
-  const accentColor = '#3b82f6'; // Azul
-  const warningColor = '#f59e0b'; // Naranja
+  const palette = useMemo(
+    () => ({
+      card: isDark ? '#111827' : '#ffffff',
+      border: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
+      heading: isDark ? '#F9FAFB' : '#111827',
+      subtext: isDark ? '#9CA3AF' : '#6B7280',
+      accent: '#4F46E5',
+      warning: '#F59E0B',
+      success: '#10B981',
+    }),
+    [isDark],
+  );
 
-  // Estado local para countdown
-  const [secondsLeft, setSecondsLeft] = useState<number>(0);
+  const [secondsLeft, setSecondsLeft] = useState(0);
 
-  // Inicializar segundos cuando state cambia a active
   useEffect(() => {
     if (state.type === 'active') {
       setSecondsLeft(state.seconds);
     }
   }, [state]);
 
-  // Countdown timer
   useEffect(() => {
     if (state.type !== 'active' || secondsLeft <= 0) {
       return;
     }
 
     const interval = setInterval(() => {
-      setSecondsLeft((prev: number) => {
-        const newValue = prev - 1;
-
-        // Cuando llega a 0, disparar callback
-        if (newValue <= 0) {
+      setSecondsLeft((prev) => {
+        const next = prev - 1;
+        if (next <= 0) {
           clearInterval(interval);
           onTimerComplete?.();
           return 0;
         }
-
-        return newValue;
+        return next;
       });
     }, 1000);
 
     return () => clearInterval(interval);
   }, [state, secondsLeft, onTimerComplete]);
 
-  // Estado: IDLE - No mostrar nada
   if (state.type === 'idle') {
     return null;
   }
 
-  // Estado: INITIAL - Mensaje de calentamiento
   if (state.type === 'initial') {
     return (
-      <View className="py-6 items-center justify-center rounded-lg" style={{ backgroundColor: `${warningColor}15` }}>
-        <Text className="text-3xl mb-2">🔥</Text>
-        <Text
-          className="text-center font-semibold text-base"
-          style={{ color: textColor }}
-        >
-          {state.message}
-        </Text>
+      <View
+        style={[
+          styles.container,
+          styles.banner,
+          {
+            backgroundColor: `${palette.warning}1A`,
+            borderColor: palette.border,
+          },
+        ]}
+      >
+        <View style={styles.bannerIcon}>
+          <Ionicons name="flame" size={22} color={palette.warning} />
+        </View>
+        <Text style={[styles.bannerText, { color: palette.heading }]}>{state.message}</Text>
       </View>
     );
   }
 
-  // Estado: ACTIVE - Timer contando
   if (state.type === 'active') {
-    return (
-      <View className="py-6 items-center justify-center rounded-lg" style={{ backgroundColor: `${accentColor}15` }}>
-        <Text
-          className="text-xs font-semibold uppercase mb-2"
-          style={{ color: secondaryTextColor }}
-        >
-          Descanso - {state.exerciseName}
-        </Text>
+    const warning = secondsLeft <= 5;
+    const accentColor = warning ? palette.warning : palette.accent;
 
-        {/* Timer circular display */}
-        <View className="items-center justify-center mb-4">
-          <Text
-            className="text-6xl font-black"
-            style={{ color: accentColor }}
-          >
-            {formatTime(secondsLeft)}
-          </Text>
+    return (
+      <View
+        style={[
+          styles.container,
+          {
+            borderColor: palette.border,
+            backgroundColor: palette.card,
+          },
+        ]}
+      >
+        <View style={[styles.header, { borderBottomColor: palette.border }]}>
+          <View style={styles.row}>
+            <Ionicons name="timer-outline" size={18} color={accentColor} />
+            <Text style={[styles.headerLabel, { color: palette.subtext }]}>
+              Descanso - {state.exerciseName}
+            </Text>
+          </View>
+
+          {onSkip ? (
+            <TouchableOpacity
+              onPress={onSkip}
+              activeOpacity={0.7}
+              style={[styles.skipButton, { borderColor: accentColor }]}
+            >
+              <Text style={[styles.skipText, { color: accentColor }]}>Omitir</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
 
-        {/* Botón Omitir */}
-        <TouchableOpacity
-          className="px-6 py-2 rounded-lg border"
-          style={{
-            borderColor: accentColor,
-          }}
-          onPress={onSkip}
-          activeOpacity={0.7}
-        >
-          <Text
-            className="font-semibold text-sm"
-            style={{ color: accentColor }}
-          >
-            Omitir
+        <View style={styles.timerBlock}>
+          <Text style={[styles.timerValue, { color: accentColor }]}>
+            {formatDuration(Math.max(0, secondsLeft))}
           </Text>
-        </TouchableOpacity>
+          <Text style={[styles.timerSuffix, { color: palette.subtext }]}>segundos</Text>
+        </View>
       </View>
     );
   }
 
-  // Estado: COMPLETED - Mensaje motivacional
   if (state.type === 'completed') {
     return (
-      <View className="py-6 items-center justify-center rounded-lg" style={{ backgroundColor: `#10b98115` }}>
-        <Text className="text-3xl mb-2">✅</Text>
-        <Text
-          className="text-center font-bold text-base"
-          style={{ color: '#10b981' }}
-        >
-          {state.message}
-        </Text>
+      <View
+        style={[
+          styles.container,
+          styles.banner,
+          {
+            backgroundColor: `${palette.success}1A`,
+            borderColor: palette.border,
+          },
+        ]}
+      >
+        <View style={styles.bannerIcon}>
+          <Ionicons name="checkmark-done" size={22} color={palette.success} />
+        </View>
+        <Text style={[styles.bannerText, { color: palette.success }]}>{state.message}</Text>
       </View>
     );
   }
 
   return null;
 }
+
+const styles = StyleSheet.create({
+  container: {
+    borderWidth: 1,
+    borderRadius: 24,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    shadowColor: '#000000',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 12 },
+    shadowRadius: 20,
+    elevation: 4,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  headerLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  },
+  timerBlock: {
+    alignItems: 'center',
+    paddingTop: 18,
+  },
+  timerValue: {
+    fontSize: 42,
+    fontWeight: '800',
+    letterSpacing: -0.8,
+  },
+  timerSuffix: {
+    fontSize: 13,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+    marginTop: 6,
+  },
+  skipButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 14,
+    borderWidth: 1,
+  },
+  skipText: {
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  banner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  bannerIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  bannerText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+    lineHeight: 21,
+  },
+});
+

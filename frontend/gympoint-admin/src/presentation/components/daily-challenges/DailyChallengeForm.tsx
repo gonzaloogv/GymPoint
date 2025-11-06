@@ -35,6 +35,13 @@ export const DailyChallengeForm = ({
 }: DailyChallengeFormProps) => {
   return (
     <Card title={title}>
+      <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+        <p className="text-sm text-text-muted">
+          <strong>📌 Nota:</strong> Los desafíos manuales se crean para una <strong>fecha específica</strong>.
+          Solo puede existir un desafío por día. Si creas uno manualmente, el sistema no generará
+          uno automático para esa fecha.
+        </p>
+      </div>
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Input

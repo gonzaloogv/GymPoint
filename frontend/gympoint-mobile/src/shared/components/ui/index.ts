@@ -8,6 +8,7 @@ export * from './Input';
 export * from './FormField';
 export * from './Row';
 export * from './Screen';
+export * from './SurfaceScreen';
 export * from './Circle';
 export * from './refactor/MetricCard';
 export * from './refactor/IconButton';
@@ -25,6 +26,7 @@ export * from './BannerCard';
 export * from './GradientCard';
 export * from './GeneratedCodeCard';
 export * from './StatsCard';
+export * from './MetricTile';
 
 // Content Components
 export * from './Avatar';

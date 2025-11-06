@@ -1,4 +1,5 @@
-import { View, Text } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { SegmentedControl } from '@shared/components/ui';
 
@@ -24,27 +25,56 @@ export function ImportTabHeader({
 }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const cardBg = isDark ? '#1f2937' : '#ffffff';
-  const borderColor = isDark ? '#374151' : '#e5e7eb';
-  const subtextColor = isDark ? '#9ca3af' : '#6b7280';
+
+  const palette = useMemo(
+    () => ({
+      background: isDark ? '#111827' : '#ffffff',
+      border: isDark ? 'rgba(55, 65, 81, 0.6)' : '#E5E7EB',
+      overline: isDark ? '#9CA3AF' : '#6B7280',
+      description: isDark ? '#9CA3AF' : '#4B5563',
+    }),
+    [isDark],
+  );
 
   return (
     <View
-      className="p-4 border-b"
-      style={{
-        backgroundColor: cardBg,
-        borderBottomColor: borderColor,
-      }}
+      style={[
+        styles.container,
+        {
+          backgroundColor: palette.background,
+          borderBottomColor: palette.border,
+        },
+      ]}
     >
-      <Text className="text-sm font-semibold mb-1.5" style={{ color: subtextColor }}>
-        {title}
-      </Text>
-      <Text className="text-sm mb-4" style={{ color: subtextColor }}>
-        {description}
-      </Text>
-      <View className="items-center">
+      <Text style={[styles.overline, { color: palette.overline }]}>{title}</Text>
+      <Text style={[styles.description, { color: palette.description }]}>{description}</Text>
+      <View style={styles.segmentWrapper}>
         <SegmentedControl options={tabs} value={activeTab} onChange={onTabChange} />
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+  },
+  overline: {
+    fontSize: 13,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: 8,
+  },
+  description: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 18,
+  },
+  segmentWrapper: {
+    alignItems: 'center',
+  },
+});

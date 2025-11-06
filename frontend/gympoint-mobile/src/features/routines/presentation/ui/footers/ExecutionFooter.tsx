@@ -1,32 +1,30 @@
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Alert, StyleSheet } from 'react-native';
 import { useTheme } from '@shared/hooks';
-import { Button, ButtonText } from '@shared/components/ui';
+import { Button } from '@shared/components/ui';
+import { Ionicons } from '@expo/vector-icons';
 
 type Props = {
   onAddExercise?: () => void;
   onDiscardWorkout: () => void;
 };
 
-/**
- * Footer para pantalla de ejecución
- * Muestra botones para agregar ejercicio y descartar entrenamiento
- */
-export function ExecutionFooter({
-  onAddExercise,
-  onDiscardWorkout,
-}: Props) {
+export function ExecutionFooter({ onAddExercise, onDiscardWorkout }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const textColor = isDark ? '#ffffff' : '#000000';
-  const secondaryTextColor = isDark ? '#9ca3af' : '#6b7280';
-  const bgColor = isDark ? '#111827' : '#f9fafb';
-  const borderColor = isDark ? '#374151' : '#e5e7eb';
+  const palette = useMemo(
+    () => ({
+      background: isDark ? '#111827' : '#ffffff',
+      border: isDark ? 'rgba(55, 65, 81, 0.8)' : '#E5E7EB',
+    }),
+    [isDark],
+  );
 
   const handleDiscard = () => {
     Alert.alert(
       'Descartar entrenamiento',
-      '¿Estás seguro que deseas descartar este entrenamiento? Se perderá todo el progreso.',
+      '¿Estás seguro de que deseas descartar este entrenamiento? Perderás el progreso registrado.',
       [
         { text: 'Cancelar', style: 'cancel' },
         {
@@ -34,35 +32,55 @@ export function ExecutionFooter({
           style: 'destructive',
           onPress: onDiscardWorkout,
         },
-      ]
+      ],
     );
   };
 
   return (
-    <View className="p-4 gap-3" style={{ backgroundColor: bgColor }}>
-      {/* Botón Agregar Ejercicio (opcional) */}
-      {onAddExercise && (
-        <Button onPress={onAddExercise} className="w-full">
-          <ButtonText>+ Agregar Ejercicio</ButtonText>
-        </Button>
-      )}
-
-      {/* Botón Descartar Entrenamiento */}
-      <TouchableOpacity
-        onPress={handleDiscard}
-        className="py-3 px-4 rounded-lg border items-center justify-center"
-        style={{
-          borderColor: '#ef4444',
-        }}
-        activeOpacity={0.6}
-      >
-        <Text
-          className="font-semibold"
-          style={{ color: '#ef4444' }}
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: palette.background, borderColor: palette.border },
+      ]}
+    >
+      {onAddExercise ? (
+        <Button
+          onPress={onAddExercise}
+          variant="primary"
+          fullWidth
+          icon={<Ionicons name="add" size={18} color="#FFFFFF" />}
+          style={styles.addButton}
         >
-          Descartar Entrenamiento
-        </Text>
-      </TouchableOpacity>
+          Agregar ejercicio
+        </Button>
+      ) : null}
+
+      <Button
+        onPress={handleDiscard}
+        variant="danger"
+        fullWidth
+        style={styles.discardButton}
+      >
+        Descartar entrenamiento
+      </Button>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    paddingTop: 24,
+    paddingBottom: 48,
+    borderTopWidth: 1,
+  },
+  addButton: {
+    marginBottom: 16,
+  },
+  discardButton: {
+    shadowColor: 'rgba(239, 68, 68, 0.28)',
+    shadowOpacity: 0.18,
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 20,
+    elevation: 5,
+  },
+});

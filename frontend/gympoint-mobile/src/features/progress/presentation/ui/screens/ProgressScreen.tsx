@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect } from 'react';
-import { ScrollView, View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { useTheme } from '@shared/hooks';
-import { Screen } from '@shared/components/ui';
+import { SurfaceScreen } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useProgress } from '@features/progress/presentation/hooks/useProgress';
 import { useHomeStore } from '@features/home/presentation/state/home.store';
 import { KPICard } from '../components/KPICard';
 import { ProgressSection } from '../components/ProgressSection';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import StreakIcon from '@assets/icons/streak.svg'
+import StreakIcon from '@assets/icons/streak.svg';
+
 type ProgressScreenProps = {
   navigation: any;
 };
@@ -19,7 +19,6 @@ export function ProgressScreen({ navigation }: ProgressScreenProps) {
   const { weeklyWorkouts } = useProgress();
   const { user, weeklyProgress, fetchHomeData } = useHomeStore();
 
-  // Obtener datos reales al montar el componente
   useEffect(() => {
     fetchHomeData();
   }, []);
@@ -36,90 +35,84 @@ export function ProgressScreen({ navigation }: ProgressScreenProps) {
   }, [navigation]);
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1" style={{ backgroundColor: isDark ? '#111827' : '#f9fafb' }}>
-      <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
-        {/* Header */}
-        <View className="px-4 pt-4 pb-6">
-          <Text className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            Progreso
+    <SurfaceScreen
+      scroll
+      contentContainerStyle={{
+        paddingHorizontal: 16,
+        paddingBottom: 32,
+        rowGap: 24,
+      }}
+    >
+      <View className="pt-4 pb-2">
+        <Text className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          Progreso
+        </Text>
+      </View>
+
+      <View className="flex-row gap-2">
+        <KPICard
+          icon={<StreakIcon width={24} height={24} accessibilityLabel="racha" />}
+          label="Racha actual"
+          value={`${currentStreak} dias`}
+        />
+        <KPICard
+          icon={<Ionicons name="checkmark-circle" size={24} color="#10B981" />}
+          label="Esta semana"
+          value={`${currentWeeklyWorkouts} entrenos`}
+        />
+      </View>
+
+      <Pressable
+        className={`p-4 rounded-2xl flex-row items-center justify-between ${
+          isDark ? 'bg-purple-900 border border-purple-700' : 'bg-purple-100 border border-purple-300'
+        }`}
+      >
+        <View className="flex-row items-center flex-1">
+          <Ionicons
+            name="help-circle"
+            size={24}
+            color={isDark ? '#D8B4FE' : '#A78BFA'}
+            style={{ marginRight: 12 }}
+          />
+          <Text className={`font-semibold flex-1 ${isDark ? 'text-purple-100' : 'text-purple-900'}`}>
+            Como ganar mas tokens?
           </Text>
         </View>
+        <Ionicons
+          name="chevron-forward"
+          size={20}
+          color={isDark ? '#D8B4FE' : '#A78BFA'}
+        />
+      </Pressable>
 
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          {/* KPI Cards */}
-          <View className="flex-row px-4 pb-6 gap-2">
-            <KPICard
-              icon={<StreakIcon width={24} height={24} accessibilityLabel="racha" />}
-              label="Racha actual"
-              value={`${currentStreak} días`}
-              change={7}
-              changeType="up"
-            />
-            <KPICard
-              icon={<Ionicons name="checkmark-circle" size={24} color="#10B981" />}
-              label="Esta semana"
-              value={`${currentWeeklyWorkouts} entrenos`}
-              change={1}
-              changeType="up"
-            />
-          </View>
+      <ProgressSection
+        icon={<Ionicons name="scale" size={24} color="#9CA3AF" />}
+        title="Progreso fisico"
+        description="Peso, medidas y composicion corporal"
+        onPress={handleNavigateToPhysicalProgress}
+      />
 
-          {/* Info Card - ¿Cómo ganar más tokens? */}
-          <Pressable
-            className={`mx-4 p-4 rounded-xl mb-6 flex-row items-center justify-between ${
-              isDark ? 'bg-purple-900 border border-purple-700' : 'bg-purple-100 border border-purple-300'
-            }`}
-          >
-            <View className="flex-row items-center flex-1">
-              <Ionicons
-                name="help-circle"
-                size={24}
-                color={isDark ? '#D8B4FE' : '#A78BFA'}
-                style={{ marginRight: 12 }}
-              />
-              <Text className={`font-semibold flex-1 ${isDark ? 'text-purple-100' : 'text-purple-900'}`}>
-                ¿Cómo ganar más tokens?
-              </Text>
-            </View>
-            <Ionicons
-              name="chevron-forward"
-              size={20}
-              color={isDark ? '#D8B4FE' : '#A78BFA'}
-            />
-          </Pressable>
+      <ProgressSection
+        icon={<Ionicons name="trending-up" size={24} color="#9CA3AF" />}
+        title="Progreso por ejercicio"
+        description="PRs, volumen y mejoras tecnicas"
+        onPress={() => navigation?.navigate('ExerciseProgress')}
+      />
 
-          {/* Progress Sections */}
-          <ProgressSection
-            icon={<Ionicons name="scale" size={24} color="#9CA3AF" />}
-            title="Progreso Físico"
-            description="Peso, medidas y composición corporal"
-            onPress={handleNavigateToPhysicalProgress}
-          />
+      <ProgressSection
+        icon={<Ionicons name="trophy" size={24} color="#9CA3AF" />}
+        title="Logros"
+        description="6 medallas obtenidas este mes"
+        onPress={handleNavigateToAchievements}
+      />
 
-          <ProgressSection
-            icon={<Ionicons name="trending-up" size={24} color="#9CA3AF" />}
-            title="Progreso por Ejercicio"
-            description="PRs, volumen y mejoras técnicas"
-            onPress={() => navigation?.navigate('ExerciseProgress')}
-          />
+      <ProgressSection
+        icon={<Ionicons name="bar-chart" size={24} color="#9CA3AF" />}
+        title="Tendencias"
+        description="Predicciones y analisis de datos"
+        onPress={() => {}}
+      />
 
-          <ProgressSection
-            icon={<Ionicons name="trophy" size={24} color="#9CA3AF" />}
-            title="Logros"
-            description="6 medallas obtenidas este mes"
-            onPress={handleNavigateToAchievements}
-          />
-
-          <ProgressSection
-            icon={<Ionicons name="bar-chart" size={24} color="#9CA3AF" />}
-            title="Tendencias"
-            description="Predicciones y análisis de datos"
-            onPress={() => {}}
-          />
-
-          <View className="h-8" />
-        </ScrollView>
-      </View>
-    </SafeAreaView>
+    </SurfaceScreen>
   );
 }

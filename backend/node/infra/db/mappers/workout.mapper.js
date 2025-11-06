@@ -17,6 +17,7 @@ function toWorkoutSession(instance) {
     status: plain.status, // 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'
     started_at: plain.started_at,
     ended_at: plain.ended_at || null,
+    duration_seconds: plain.duration_seconds || null,
     total_sets: plain.total_sets || 0,
     total_reps: plain.total_reps || 0,
     total_weight: plain.total_weight || 0,

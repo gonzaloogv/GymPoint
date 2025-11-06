@@ -35,6 +35,12 @@ export const DailyChallengeTemplateForm = ({
 }: DailyChallengeTemplateFormProps) => {
   return (
     <Card title={title}>
+      <div className="mb-4 p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+        <p className="text-sm text-text-muted">
+          <strong>🔄 Info:</strong> Las plantillas NO tienen fecha asignada. Se usan para la <strong>rotación automática</strong>.
+          El <strong>peso</strong> define la probabilidad de selección (peso 3 = triple probabilidad que peso 1).
+        </p>
+      </div>
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Input
@@ -69,7 +75,7 @@ export const DailyChallengeTemplateForm = ({
           />
           <Select
             label="Dificultad"
-            value={form.difficulty ?? 'BEGINNER'}
+            value={form.difficulty ?? 'MEDIUM'}
             onChange={(event) =>
               onChange('difficulty', event.target.value as DailyChallengeDifficulty)
             }

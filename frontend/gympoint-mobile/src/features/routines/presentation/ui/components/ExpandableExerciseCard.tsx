@@ -1,4 +1,6 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 import { Card } from '@shared/components/ui';
 import { Exercise } from '@features/routines/domain/entities/Exercise';
@@ -15,11 +17,6 @@ type Props = {
   onMarkSetDone: (setIndex: number) => void;
 };
 
-/**
- * Card expandible para un ejercicio durante la ejecución
- * Muestra nombre siempre visible, expande para mostrar tabla de series
- * El timer de descanso ahora se renderiza en FloatingTimer en lugar de aquí
- */
 export function ExpandableExerciseCard({
   exercise,
   isExpanded,
@@ -32,107 +29,140 @@ export function ExpandableExerciseCard({
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Colores dinámicos
-  const textColor = isDark ? '#ffffff' : '#000000';
-  const secondaryTextColor = isDark ? '#9ca3af' : '#6b7280';
-  const borderColor = isDark ? '#374151' : '#e5e7eb';
+  const palette = useMemo(
+    () => ({
+      background: isDark ? '#111827' : '#ffffff',
+      border: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
+      title: isDark ? '#F9FAFB' : '#111827',
+      subtitle: isDark ? '#9CA3AF' : '#6B7280',
+      tagBg: isDark ? 'rgba(129, 140, 248, 0.18)' : 'rgba(79, 70, 229, 0.12)',
+      tagText: isDark ? '#C7D2FE' : '#4338CA',
+      divider: isDark ? 'rgba(55, 65, 81, 0.6)' : 'rgba(148, 163, 184, 0.3)',
+      chevron: isDark ? '#9CA3AF' : '#6B7280',
+    }),
+    [isDark],
+  );
 
-  // Contar sets completados
   const completedSets = sets.filter((s) => s.isDone).length;
   const totalSets = sets.length;
-
-  // Calcular volumen del ejercicio
-  const exerciseVolume = sets.reduce((sum, s) => {
-    if (s.isDone) {
-      return sum + s.currentWeight * s.currentReps;
+  const exerciseVolume = sets.reduce((sum, set) => {
+    if (set.isDone) {
+      return sum + set.currentWeight * set.currentReps;
     }
     return sum;
   }, 0);
 
   return (
-    <View className="mx-4 mb-3">
-      <Card>
-        {/* Header - Siempre visible */}
-        <TouchableOpacity
-          onPress={onToggleExpand}
-          activeOpacity={0.6}
-        >
-          <View className="p-4 flex-row items-center justify-between">
-            {/* Nombre y metadata */}
-            <View className="flex-1">
-              <Text
-                className="font-bold text-base mb-1"
-                style={{ color: textColor }}
-              >
-                {exercise.name}
-              </Text>
-
-              {/* Stats inline */}
-              <View className="flex-row gap-2">
-                {totalSets > 0 && (
-                  <Text
-                    className="text-xs"
-                    style={{ color: secondaryTextColor }}
-                  >
+    <Card
+      padding="none"
+      style={[
+        styles.card,
+        {
+          backgroundColor: palette.background,
+          borderColor: palette.border,
+        },
+      ]}
+    >
+      <TouchableOpacity onPress={onToggleExpand} activeOpacity={0.75}>
+        <View style={styles.header}>
+          <View style={styles.titleBlock}>
+            <Text style={[styles.title, { color: palette.title }]} numberOfLines={1}>
+              {exercise.name}
+            </Text>
+            <View style={styles.metaRow}>
+              {totalSets > 0 ? (
+                <View style={[styles.metaPill, { backgroundColor: palette.tagBg }]}>
+                  <Text style={[styles.metaText, { color: palette.tagText }]}>
                     {completedSets}/{totalSets} series
                   </Text>
-                )}
-
-                {exerciseVolume > 0 && (
-                  <>
-                    <Text style={{ color: secondaryTextColor }}>•</Text>
-                    <Text
-                      className="text-xs"
-                      style={{ color: secondaryTextColor }}
-                    >
-                      {exerciseVolume.toFixed(0)} kg
-                    </Text>
-                  </>
-                )}
-
-                {/* Rest time */}
-                {exercise.rest > 0 && (
-                  <>
-                    <Text style={{ color: secondaryTextColor }}>•</Text>
-                    <Text
-                      className="text-xs"
-                      style={{ color: secondaryTextColor }}
-                    >
-                      Descanso: {exercise.rest}s
-                    </Text>
-                  </>
-                )}
-              </View>
-            </View>
-
-            {/* Chevron */}
-            <View className="ml-2">
-              <Text
-                className="text-2xl"
-                style={{ color: secondaryTextColor }}
-              >
-                {isExpanded ? '▼' : '▶'}
-              </Text>
+                </View>
+              ) : null}
+              {exerciseVolume > 0 ? (
+                <View style={[styles.metaPill, { backgroundColor: palette.tagBg }]}>
+                  <Text style={[styles.metaText, { color: palette.tagText }]}>
+                    {exerciseVolume.toFixed(0)} kg
+                  </Text>
+                </View>
+              ) : null}
+              {exercise.rest > 0 ? (
+                <View style={[styles.metaPill, { backgroundColor: palette.tagBg }]}>
+                  <Text style={[styles.metaText, { color: palette.tagText }]}>
+                    Descanso {exercise.rest}s
+                  </Text>
+                </View>
+              ) : null}
             </View>
           </View>
-        </TouchableOpacity>
+          <Ionicons
+            name={isExpanded ? 'chevron-up' : 'chevron-down'}
+            size={20}
+            color={palette.chevron}
+          />
+        </View>
+      </TouchableOpacity>
 
-        {/* Contenido expandible */}
-        {isExpanded && (
-          <View
-            className="px-4 pb-4 border-t pt-4"
-            style={{ borderTopColor: borderColor }}
-          >
-            {/* Tabla de series */}
-            <ExerciseSetTable
-              sets={sets}
-              onUpdateSet={onUpdateSet}
-              onAddSet={onAddSet}
-              onMarkSetDone={onMarkSetDone}
-            />
-          </View>
-        )}
-      </Card>
-    </View>
+      {isExpanded ? (
+        <View
+          style={[
+            styles.body,
+            {
+              borderTopColor: palette.divider,
+            },
+          ]}
+        >
+          <ExerciseSetTable
+            sets={sets}
+            onUpdateSet={onUpdateSet}
+            onAddSet={onAddSet}
+            onMarkSetDone={onMarkSetDone}
+          />
+        </View>
+      ) : null}
+    </Card>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    marginBottom: 16,
+    borderWidth: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  titleBlock: {
+    flex: 1,
+    paddingRight: 12,
+    gap: 6,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  metaPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 999,
+  },
+  metaText: {
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  body: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 16,
+    borderTopWidth: 1,
+  },
+});

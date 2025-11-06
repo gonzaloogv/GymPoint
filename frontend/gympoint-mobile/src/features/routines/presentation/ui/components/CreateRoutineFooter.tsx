@@ -1,6 +1,7 @@
-import { View, Text } from 'react-native';
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { Button, ButtonText } from '@shared/components/ui';
 import { useTheme } from '@shared/hooks';
-import { Button } from '@shared/components/ui';
 
 type Props = {
   currentStep: number;
@@ -19,52 +20,38 @@ export function CreateRoutineFooter({
 }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const borderColor = isDark ? '#374151' : '#e5e7eb';
-  const bgColor = isDark ? '#1f2937' : '#ffffff';
-  const textColor = isDark ? '#ffffff' : '#000000';
-  const buttonBg = isStepValid ? '#3B82F6' : '#d1d5db';
-  const buttonText = isStepValid ? '#ffffff' : '#9ca3af';
+  const borderColor = isDark ? 'rgba(55, 65, 81, 0.6)' : 'rgba(148, 163, 184, 0.2)';
+  const background = isDark ? '#111827' : '#ffffff';
 
   return (
-    <View
-      className="p-6 border-t"
-      style={{
-        backgroundColor: bgColor,
-        borderTopColor: borderColor,
-      }}
-    >
-      <View className="flex-row gap-3">
-        {currentStep > 1 && (
-          <Button
-            variant="outline"
-            onPress={onBack}
-            className="flex-1"
-            style={{
-              backgroundColor: bgColor,
-              borderWidth: 1,
-              borderColor: borderColor,
-            }}
-          >
-            <Text className="font-semibold text-base" style={{ color: textColor }}>
-              Atrás
-            </Text>
+    <View style={[styles.container, { borderTopColor: borderColor, backgroundColor: background }]}>
+      <View style={styles.actions}>
+        {currentStep > 1 ? (
+          <Button variant="secondary" onPress={onBack} className="flex-1">
+            <ButtonText>Volver</ButtonText>
           </Button>
-        )}
+        ) : null}
         <Button
           variant="primary"
           onPress={onNext}
           disabled={!isStepValid}
-          className="flex-[2]"
-          style={{
-            backgroundColor: buttonBg,
-            opacity: isStepValid ? 1 : 0.6,
-          }}
+          className={currentStep > 1 ? 'flex-[2]' : 'flex-1'}
         >
-          <Text className="font-semibold text-base" style={{ color: buttonText }}>
-            {buttonLabel}
-          </Text>
+          <ButtonText>{buttonLabel}</ButtonText>
         </Button>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+    borderTopWidth: 1,
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+});

@@ -1,6 +1,7 @@
-import { View, Text, Modal, TouchableOpacity } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, Modal, StyleSheet } from 'react-native';
 import { useTheme } from '@shared/hooks';
-import { Button, ButtonText } from '@shared/components/ui';
+import { Button } from '@shared/components/ui';
 
 type Props = {
   visible: boolean;
@@ -9,98 +10,91 @@ type Props = {
   onClose: () => void;
 };
 
-/**
- * Modal para sesión de entrenamiento incompleta
- * Muestra opciones para continuar el entrenamiento anterior o cerrar el modal
- */
 export function IncompleteSessionModal({
   visible,
-  routineName = 'Rutina',
+  routineName = 'rutina',
   onContinue,
   onClose,
 }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Colores dinámicos
-  const textColor = isDark ? '#ffffff' : '#000000';
-  const secondaryTextColor = isDark ? '#9ca3af' : '#6b7280';
-  const backgroundColor = isDark ? '#111827' : '#ffffff';
-  const overlayColor = isDark ? '#00000080' : '#00000050';
-  const dividerColor = isDark ? '#374151' : '#e5e7eb';
+  const palette = useMemo(
+    () => ({
+      overlay: isDark ? 'rgba(0, 0, 0, 0.65)' : 'rgba(17, 24, 39, 0.45)',
+      background: isDark ? '#111827' : '#ffffff',
+      border: isDark ? 'rgba(55, 65, 81, 0.6)' : '#E5E7EB',
+      title: isDark ? '#F9FAFB' : '#111827',
+      body: isDark ? '#9CA3AF' : '#4B5563',
+    }),
+    [isDark],
+  );
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-    >
-      {/* Overlay */}
-      <View
-        className="flex-1 justify-end"
-        style={{ backgroundColor: overlayColor }}
-      >
-        {/* Modal Card */}
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <View style={[styles.overlay, { backgroundColor: palette.overlay }]}>
         <View
-          className="rounded-t-3xl p-6"
-          style={{ backgroundColor }}
+          style={[
+            styles.sheet,
+            {
+              backgroundColor: palette.background,
+              borderColor: palette.border,
+            },
+          ]}
         >
-          {/* Header con icono */}
-          <View className="items-center mb-4">
-            <Text
-              className="text-2xl font-black text-center"
-              style={{ color: textColor }}
-            >
-              No terminaste tu sesión
-            </Text>
-          </View>
-
-          {/* Descripción */}
-          <Text
-            className="text-center text-base mb-6"
-            style={{ color: secondaryTextColor }}
-          >
-            Tienes una sesión incompleta de {routineName}. Continúa donde lo dejaste o cierra para empezar otra.
+          <View style={styles.grabber} />
+          <Text style={[styles.title, { color: palette.title }]}>Sesion incompleta</Text>
+          <Text style={[styles.bodyText, { color: palette.body }]}>
+            Tienes una sesion incompleta de {routineName}. Continua donde lo dejaste o cierra
+            para iniciar otra.
           </Text>
-
-          {/* Divider */}
-          <View
-            className="mb-6"
-            style={{
-              height: 1,
-              backgroundColor: dividerColor,
-            }}
-          />
-
-          {/* Botones */}
-          <View className="gap-3">
-            {/* Botón Continuar - Primario */}
-            <Button
-              onPress={onContinue}
-              className="w-full"
-            >
-              <ButtonText>Continuar Entrenamiento</ButtonText>
+          <View style={styles.actions}>
+            <Button fullWidth onPress={onContinue}>
+              Continuar entrenamiento
             </Button>
-
-            {/* Botón Cerrar - Secundario */}
-            <TouchableOpacity
-              onPress={onClose}
-              className="w-full py-3 rounded-lg border items-center justify-center"
-              style={{
-                borderColor: secondaryTextColor,
-              }}
-              activeOpacity={0.6}
-            >
-              <Text
-                className="font-semibold"
-                style={{ color: secondaryTextColor }}
-              >
-                Cerrar
-              </Text>
-            </TouchableOpacity>
+            <Button variant="secondary" fullWidth onPress={onClose}>
+              Cerrar
+            </Button>
           </View>
         </View>
       </View>
     </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  sheet: {
+    paddingHorizontal: 24,
+    paddingTop: 18,
+    paddingBottom: 32,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    borderWidth: 1,
+  },
+  grabber: {
+    alignSelf: 'center',
+    width: 48,
+    height: 5,
+    borderRadius: 999,
+    backgroundColor: 'rgba(148, 163, 184, 0.35)',
+    marginBottom: 18,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  bodyText: {
+    fontSize: 15,
+    lineHeight: 22,
+    marginBottom: 28,
+  },
+  actions: {
+    gap: 12,
+  },
+});
+

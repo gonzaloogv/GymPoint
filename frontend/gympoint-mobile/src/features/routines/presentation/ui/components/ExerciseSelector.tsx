@@ -1,8 +1,16 @@
 import React, { useMemo } from 'react';
-import { View, Text, Modal, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import {
+  View,
+  Text,
+  Modal,
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 import { Exercise } from '@features/routines/domain/entities';
-import { Button, ButtonText } from '@shared/components/ui';
+import { Button, ButtonText, Card } from '@shared/components/ui';
 
 type ExerciseSelectorProps = {
   visible: boolean;
@@ -12,10 +20,6 @@ type ExerciseSelectorProps = {
   onClose: () => void;
 };
 
-/**
- * Modal para seleccionar ejercicios adicionales durante la ejecución
- * Muestra solo los ejercicios que aún no han sido agregados
- */
 export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
   visible,
   allExercises,
@@ -26,18 +30,23 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Colores dinámicos
-  const textColor = isDark ? '#ffffff' : '#000000';
-  const secondaryTextColor = isDark ? '#9ca3af' : '#6b7280';
-  const backgroundColor = isDark ? '#111827' : '#f9fafb';
-  const cardBgColor = isDark ? '#1f2937' : '#ffffff';
-  const borderColor = isDark ? '#374151' : '#e5e7eb';
-  const accentColor = '#3b82f6';
+  const palette = useMemo(
+    () => ({
+      backdrop: 'rgba(15, 23, 42, 0.55)',
+      surface: isDark ? '#0F172A' : '#f8fafc',
+      headerText: isDark ? '#F9FAFB' : '#111827',
+      subtitle: isDark ? '#9CA3AF' : '#6B7280',
+      badgeBg: isDark ? 'rgba(129, 140, 248, 0.18)' : 'rgba(79, 70, 229, 0.14)',
+      badgeText: isDark ? '#C7D2FE' : '#4338CA',
+      divider: isDark ? 'rgba(51, 65, 85, 0.6)' : 'rgba(148, 163, 184, 0.3)',
+    }),
+    [isDark],
+  );
 
-  // Filtrar ejercicios no agregados
-  const availableExercises = useMemo(() => {
-    return allExercises.filter((ex) => !addedExerciseIds.includes(ex.id));
-  }, [allExercises, addedExerciseIds]);
+  const availableExercises = useMemo(
+    () => allExercises.filter((exercise) => !addedExerciseIds.includes(exercise.id)),
+    [allExercises, addedExerciseIds],
+  );
 
   const handleSelectExercise = (exerciseId: string) => {
     onSelect(exerciseId);
@@ -45,142 +54,60 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
   };
 
   const renderExerciseItem = ({ item }: { item: Exercise }) => (
-    <TouchableOpacity
-      onPress={() => handleSelectExercise(item.id)}
-      className="mb-3 p-4 rounded-lg border"
-      style={{
-        backgroundColor: cardBgColor,
-        borderColor: borderColor,
-      }}
-    >
-      <View className="flex-row items-start justify-between mb-2">
-        <View className="flex-1">
-          <Text
-            className="text-base font-bold mb-1"
-            style={{ color: textColor }}
-          >
-            {item.name}
-          </Text>
-          <View className="flex-row gap-4 flex-wrap">
-            <View className="flex-row items-center gap-1">
-              <Text className="text-sm" style={{ color: secondaryTextColor }}>
-                Sets:
-              </Text>
-              <Text
-                className="text-sm font-semibold"
-                style={{ color: textColor }}
-              >
-                {item.sets}
-              </Text>
-            </View>
-            <View className="flex-row items-center gap-1">
-              <Text className="text-sm" style={{ color: secondaryTextColor }}>
-                Reps:
-              </Text>
-              <Text
-                className="text-sm font-semibold"
-                style={{ color: textColor }}
-              >
-                {item.reps}
-              </Text>
-            </View>
-            <View className="flex-row items-center gap-1">
-              <Text className="text-sm" style={{ color: secondaryTextColor }}>
-                Rest:
-              </Text>
-              <Text
-                className="text-sm font-semibold"
-                style={{ color: textColor }}
-              >
-                {item.rest}s
-              </Text>
-            </View>
+    <Card style={styles.card}>
+      <TouchableOpacity onPress={() => handleSelectExercise(item.id)} activeOpacity={0.75}>
+        <View style={styles.cardContent}>
+          <View style={styles.cardHeader}>
+            <Text style={[styles.cardTitle, { color: palette.headerText }]}>{item.name}</Text>
+            <Ionicons name="add-circle" size={20} color={palette.badgeText} />
           </View>
-        </View>
-      </View>
-      {item.muscleGroups && item.muscleGroups.length > 0 && (
-        <View className="flex-row gap-2 flex-wrap mt-3">
-          {item.muscleGroups.map((group) => (
-            <View
-              key={group}
-              className="px-3 py-1 rounded-full"
-              style={{
-                backgroundColor: accentColor + '20',
-              }}
-            >
-              <Text
-                className="text-xs font-semibold"
-                style={{ color: accentColor }}
-              >
-                {group}
-              </Text>
+          <Text style={[styles.cardSubtitle, { color: palette.subtitle }]}>
+            {`Sets: ${item.sets} · Reps: ${item.reps} · Descanso: ${item.rest}s`}
+          </Text>
+
+          {item.muscleGroups?.length ? (
+            <View style={styles.tagRow}>
+              {item.muscleGroups.slice(0, 4).map((group) => (
+                <View key={group} style={[styles.tag, { backgroundColor: palette.badgeBg }]}>
+                  <Text style={[styles.tagText, { color: palette.badgeText }]}>{group}</Text>
+                </View>
+              ))}
             </View>
-          ))}
+          ) : null}
         </View>
-      )}
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </Card>
   );
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <View
-        className="flex-1"
-        style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        }}
-      >
-        <View
-          className="flex-1 rounded-t-3xl mt-20"
-          style={{
-            backgroundColor: backgroundColor,
-          }}
-        >
-          {/* Header */}
-          <View className="flex-row items-center justify-between px-4 py-4 border-b" style={{ borderBottomColor: borderColor }}>
-            <Text
-              className="text-xl font-bold"
-              style={{ color: textColor }}
-            >
-              Agregar Ejercicio
-            </Text>
-            <TouchableOpacity onPress={onClose}>
-              <Text
-                className="text-2xl font-bold"
-                style={{ color: secondaryTextColor }}
-              >
-                ✕
-              </Text>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <View style={[styles.overlay, { backgroundColor: palette.backdrop }]}>
+        <View style={[styles.sheet, { backgroundColor: palette.surface }]}>
+          <View style={[styles.sheetHeader, { borderBottomColor: palette.divider }]}>
+            <Text style={[styles.sheetTitle, { color: palette.headerText }]}>Agregar ejercicio</Text>
+            <TouchableOpacity onPress={onClose} activeOpacity={0.7}>
+              <Ionicons name="close" size={20} color={palette.subtitle} />
             </TouchableOpacity>
           </View>
 
-          {/* Content */}
-          {availableExercises.length > 0 ? (
+          {availableExercises.length ? (
             <FlatList
               data={availableExercises}
               renderItem={renderExerciseItem}
               keyExtractor={(item) => item.id}
-              contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
-              scrollEnabled
+              contentContainerStyle={styles.listContent}
             />
           ) : (
-            <View className="flex-1 items-center justify-center px-4">
-              <Text
-                className="text-lg font-semibold text-center"
-                style={{ color: secondaryTextColor }}
-              >
-                Todos los ejercicios ya han sido agregados
+            <View style={styles.emptyState}>
+              <Ionicons name="checkmark-done-circle" size={24} color={palette.badgeText} />
+              <Text style={[styles.emptyText, { color: palette.subtitle }]}>
+                Todos los ejercicios ya fueron agregados
               </Text>
             </View>
           )}
 
-          {/* Footer Button */}
-          <View className="absolute bottom-0 left-0 right-0 px-4 py-4" style={{ backgroundColor: backgroundColor }}>
-            <Button onPress={onClose} className="w-full">
+          <View style={[styles.footer, { borderTopColor: palette.divider }]}>
+            <Button onPress={onClose} variant="secondary" fullWidth>
               <ButtonText>Cancelar</ButtonText>
             </Button>
           </View>
@@ -189,3 +116,90 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
     </Modal>
   );
 };
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  sheet: {
+    flex: 1,
+    marginTop: 48,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    overflow: 'hidden',
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  sheetTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  listContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    paddingBottom: 120,
+    gap: 12,
+  },
+  card: {
+    borderWidth: 1,
+    borderColor: 'rgba(148, 163, 184, 0.28)',
+  },
+  cardContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    gap: 10,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  cardSubtitle: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  tagRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  tag: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 999,
+  },
+  tagText: {
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  emptyText: {
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+    paddingHorizontal: 32,
+  },
+  footer: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+});

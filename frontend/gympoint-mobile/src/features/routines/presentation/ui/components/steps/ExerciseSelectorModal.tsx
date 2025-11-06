@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -6,10 +6,11 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
-  TextInput,
+  StyleSheet,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
-import { Feather } from '@expo/vector-icons';
+import { Input, Button } from '@shared/components/ui';
 import { exerciseApi, ExerciseDTO } from '../../../../data/remote/exercise.api';
 
 type Props = {
@@ -21,11 +22,21 @@ type Props = {
 export function ExerciseSelectorModal({ visible, onClose, onSelect }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const bgColor = isDark ? '#111827' : '#f9fafb';
-  const cardBg = isDark ? '#1f2937' : '#ffffff';
-  const textColor = isDark ? '#ffffff' : '#000000';
-  const subtextColor = isDark ? '#9ca3af' : '#6b7280';
-  const borderColor = isDark ? '#374151' : '#e5e7eb';
+
+  const palette = useMemo(
+    () => ({
+      screen: isDark ? '#0F172A' : '#F9FAFB',
+      header: isDark ? '#111827' : '#ffffff',
+      border: isDark ? 'rgba(55, 65, 81, 0.7)' : '#E5E7EB',
+      title: isDark ? '#F9FAFB' : '#111827',
+      subtitle: isDark ? '#9CA3AF' : '#6B7280',
+      card: isDark ? '#111827' : '#ffffff',
+      cardBorder: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
+      primary: '#4F46E5',
+      danger: '#EF4444',
+    }),
+    [isDark],
+  );
 
   const [exercises, setExercises] = useState<ExerciseDTO[]>([]);
   const [loading, setLoading] = useState(false);
@@ -44,118 +55,101 @@ export function ExerciseSelectorModal({ visible, onClose, onSelect }: Props) {
     try {
       const data = await exerciseApi.getAll();
       setExercises(data);
-      console.log('✅ Loaded exercises:', data.length);
-    } catch (err: any) {
-      console.error('❌ Error loading exercises:', err);
-      setError('Error al cargar ejercicios');
+    } catch {
+      setError('No pudimos cargar los ejercicios. Intenta nuevamente.');
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredExercises = exercises.filter((ex) =>
-    ex.exercise_name.toLowerCase().includes(search.toLowerCase())
+  const filteredExercises = exercises.filter((exercise) =>
+    exercise.exercise_name.toLowerCase().includes(search.toLowerCase()),
   );
 
   const handleSelect = (exercise: ExerciseDTO) => {
-    console.log('✅ Selected exercise:', exercise);
     onSelect(exercise);
     onClose();
   };
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={{ flex: 1, backgroundColor: bgColor }}>
-        {/* Header */}
+      <View style={[styles.container, { backgroundColor: palette.screen }]}>
         <View
-          style={{
-            backgroundColor: cardBg,
-            borderBottomWidth: 1,
-            borderBottomColor: borderColor,
-            paddingTop: 50,
-            paddingBottom: 16,
-            paddingHorizontal: 16,
-          }}
+          style={[
+            styles.header,
+            {
+              backgroundColor: palette.header,
+              borderBottomColor: palette.border,
+            },
+          ]}
         >
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 20, fontWeight: 'bold', color: textColor }}>
-              Seleccionar Ejercicio
-            </Text>
-            <TouchableOpacity onPress={onClose} style={{ padding: 8 }}>
-              <Feather name="x" size={24} color={textColor} />
+          <View style={styles.headerRow}>
+            <Text style={[styles.title, { color: palette.title }]}>Seleccionar ejercicio</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton} activeOpacity={0.7}>
+              <Ionicons name="close" size={22} color={palette.title} />
             </TouchableOpacity>
           </View>
 
-          {/* Search */}
-          <View style={{ marginTop: 16 }}>
-            <TextInput
-              value={search}
-              onChangeText={setSearch}
-              placeholder="Buscar ejercicio..."
-              placeholderTextColor={subtextColor}
-              style={{
-                backgroundColor: isDark ? '#374151' : '#f3f4f6',
-                borderRadius: 8,
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                fontSize: 16,
-                color: textColor,
-              }}
-            />
-          </View>
+          <Input
+            value={search}
+            onChangeText={setSearch}
+            placeholder="Buscar por nombre o musculo"
+            autoCapitalize="none"
+            className="mt-4"
+          />
         </View>
 
-        {/* Content */}
         {loading ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#3B82F6" />
+          <View style={styles.centered}>
+            <ActivityIndicator size="large" color={palette.primary} />
           </View>
         ) : error ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-            <Text style={{ color: '#EF4444', fontSize: 16, textAlign: 'center' }}>{error}</Text>
-            <TouchableOpacity
-              onPress={loadExercises}
-              style={{
-                marginTop: 16,
-                backgroundColor: '#3B82F6',
-                paddingHorizontal: 24,
-                paddingVertical: 12,
-                borderRadius: 8,
-              }}
-            >
-              <Text style={{ color: '#fff', fontWeight: '600' }}>Reintentar</Text>
-            </TouchableOpacity>
+          <View style={styles.centered}>
+            <Text style={[styles.errorText, { color: palette.danger }]}>{error}</Text>
+            <Button variant="primary" onPress={loadExercises} className="mt-6">
+              Reintentar
+            </Button>
           </View>
         ) : (
           <FlatList
             data={filteredExercises}
             keyExtractor={(item) => item.id_exercise.toString()}
-            contentContainerStyle={{ padding: 16 }}
+            contentContainerStyle={styles.listContent}
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => handleSelect(item)}
-                style={{
-                  backgroundColor: cardBg,
-                  borderRadius: 8,
-                  padding: 16,
-                  marginBottom: 12,
-                  borderWidth: 1,
-                  borderColor: borderColor,
-                }}
+                activeOpacity={0.75}
+                style={[
+                  styles.card,
+                  {
+                    backgroundColor: palette.card,
+                    borderColor: palette.cardBorder,
+                  },
+                ]}
               >
-                <Text style={{ fontSize: 16, fontWeight: '600', color: textColor, marginBottom: 4 }}>
+                <Text style={[styles.cardTitle, { color: palette.title }]}>
                   {item.exercise_name}
                 </Text>
-                <Text style={{ fontSize: 14, color: subtextColor }}>
-                  {item.muscular_group}
-                  {item.difficulty_level && ` • ${item.difficulty_level}`}
-                </Text>
+                <View style={styles.cardMeta}>
+                  <Text style={[styles.metaText, { color: palette.subtitle }]}>
+                    {item.muscular_group || 'Musculo sin definir'}
+                  </Text>
+                  {item.difficulty_level ? (
+                  <Text style={[styles.metaDivider, { color: palette.subtitle }]}>-</Text>
+                  ) : null}
+                  {item.difficulty_level ? (
+                    <Text style={[styles.metaText, { color: palette.subtitle }]}>
+                      {item.difficulty_level}
+                    </Text>
+                  ) : null}
+                </View>
               </TouchableOpacity>
             )}
             ListEmptyComponent={
-              <View style={{ paddingVertical: 40 }}>
-                <Text style={{ textAlign: 'center', color: subtextColor }}>
-                  No se encontraron ejercicios
+              <View style={styles.emptyState}>
+                <Ionicons name="search" size={28} color={palette.subtitle} />
+                <Text style={[styles.emptyText, { color: palette.subtitle }]}>
+                  No encontramos ejercicios con ese criterio.
                 </Text>
               </View>
             }
@@ -165,3 +159,79 @@ export function ExerciseSelectorModal({ visible, onClose, onSelect }: Props) {
     </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  header: {
+    paddingTop: 52,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  closeButton: {
+    padding: 6,
+    borderRadius: 16,
+  },
+  centered: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  errorText: {
+    fontSize: 15,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  listContent: {
+    paddingHorizontal: 20,
+    paddingVertical: 24,
+  },
+  card: {
+    borderWidth: 1,
+    borderRadius: 18,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    marginBottom: 14,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  cardMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  metaText: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  metaDivider: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 48,
+    gap: 12,
+  },
+  emptyText: {
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+});

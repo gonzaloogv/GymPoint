@@ -1,9 +1,8 @@
-import { View, Text, TouchableOpacity } from 'react-native';
-import FeatherIcon from '@expo/vector-icons/Feather';
+import React, { useMemo } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { Avatar, TokenPill } from '@shared/components/ui';
-import { palette } from '@shared/styles';
-import StreakIcon from '@assets/icons/streak.svg'
+import StreakIcon from '@assets/icons/streak.svg';
 
 type Props = {
   userName: string;
@@ -13,23 +12,34 @@ type Props = {
   onBellPress?: () => void;
 };
 
-export default function HomeHeader({ userName, plan, tokens, streak = 0, onBellPress }: Props) {
+export default function HomeHeader({ userName, plan, tokens, streak = 0 }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
   const parts = (userName || '').trim().split(/\s+/);
   const firstName = parts[0] ?? userName ?? 'Usuario';
 
+  const palette = useMemo(
+    () => ({
+      greeting: isDark ? '#F9FAFB' : '#111827',
+      subheading: isDark ? '#9CA3AF' : '#6B7280',
+      streakBg: isDark ? 'rgba(79, 70, 229, 0.18)' : 'rgba(129, 140, 248, 0.18)',
+      streakBorder: isDark ? 'rgba(129, 140, 248, 0.38)' : 'rgba(129, 140, 248, 0.24)',
+      streakText: isDark ? '#C7D2FE' : '#4338CA',
+    }),
+    [isDark],
+  );
+
   return (
     <View className="flex-row justify-between items-center">
       <View className="flex-1 flex-row items-center">
         <Avatar userName={userName} />
         <View className="ml-3">
-          <Text className={`font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>
-            ¡Hola, {firstName}!
+          <Text className="text-3xl font-extrabold tracking-tight" style={{ color: palette.greeting }}>
+            Hola, {firstName}
           </Text>
-          <Text className={`mt-0.5 ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
-            Usuario {plan}
+          <Text className="mt-1 uppercase text-[11px] tracking-[3px]" style={{ color: palette.subheading }}>
+            Plan {plan}
           </Text>
         </View>
       </View>
@@ -37,13 +47,17 @@ export default function HomeHeader({ userName, plan, tokens, streak = 0, onBellP
       <View className="flex-row items-center gap-2 ml-3">
         <TokenPill value={tokens} />
         <View
-          className="flex-row items-center px-3 py-1.5 rounded-full"
-          style={{
-            backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#FEE2E2'
-          }}
+          className="flex-row items-center px-3 py-1.5 rounded-full border"
+          style={[
+            styles.streakBadge,
+            {
+              backgroundColor: palette.streakBg,
+              borderColor: palette.streakBorder,
+            },
+          ]}
         >
           <StreakIcon width={20} height={20} accessibilityLabel="racha" />
-          <Text className={`ml-1 font-semibold ${isDark ? 'text-red-400' : 'text-red-700'}`}>
+          <Text className="ml-1 font-semibold" style={{ color: palette.streakText }}>
             {streak}
           </Text>
         </View>
@@ -51,3 +65,13 @@ export default function HomeHeader({ userName, plan, tokens, streak = 0, onBellP
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  streakBadge: {
+    shadowColor: 'rgba(79, 70, 229, 0.45)',
+    shadowOpacity: 0.16,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 14,
+    elevation: 5,
+  },
+});

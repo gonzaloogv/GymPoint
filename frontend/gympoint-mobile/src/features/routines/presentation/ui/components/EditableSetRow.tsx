@@ -1,4 +1,6 @@
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 import { SetExecution } from '@features/routines/domain/entities/ExecutionSession';
 
@@ -6,26 +8,25 @@ type Props = {
   set: SetExecution;
   onUpdate: (data: Partial<SetExecution>) => void;
   onMarkDone: () => void;
+  borderColor: string;
 };
 
-/**
- * Fila editable de una serie en la tabla de ejercicios
- * Permite editar peso y reps, y marcar como completada
- */
-export function EditableSetRow({ set, onUpdate, onMarkDone }: Props) {
+export function EditableSetRow({ set, onUpdate, onMarkDone, borderColor }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Colores dinámicos basados en tema
-  const textColor = isDark ? '#ffffff' : '#000000';
-  const secondaryTextColor = isDark ? '#9ca3af' : '#6b7280';
-  const borderColor = isDark ? '#374151' : '#e5e7eb';
-  const backgroundColor = isDark ? '#1f2937' : '#f9fafb';
-  const inputBgColor = isDark ? '#111827' : '#ffffff';
+  const palette = useMemo(
+    () => ({
+      text: isDark ? '#F9FAFB' : '#111827',
+      secondary: isDark ? '#9CA3AF' : '#6B7280',
+      inputBg: isDark ? '#0F172A' : '#FFFFFF',
+      success: '#10B981',
+    }),
+    [isDark],
+  );
 
   const handleWeightChange = (text: string) => {
     const value = parseFloat(text);
-    // Permitir solo números positivos con máximo 2 decimales
     if (text === '' || !isNaN(value)) {
       onUpdate({ currentWeight: isNaN(value) ? 0 : value });
     }
@@ -33,18 +34,22 @@ export function EditableSetRow({ set, onUpdate, onMarkDone }: Props) {
 
   const handleRepsChange = (text: string) => {
     const value = parseInt(text, 10);
-    // Permitir solo enteros positivos
     if (text === '' || (!isNaN(value) && value > 0)) {
       onUpdate({ currentReps: isNaN(value) ? 0 : value });
     }
   };
 
   const handleCheckbox = () => {
-    // Validar que peso y reps estén completados (0kg es válido, pero reps debe ser > 0)
-    if (set.currentWeight === null || set.currentWeight === undefined || set.currentWeight < 0 || !set.currentReps || set.currentReps <= 0) {
+    if (
+      set.currentWeight === null ||
+      set.currentWeight === undefined ||
+      set.currentWeight < 0 ||
+      !set.currentReps ||
+      set.currentReps <= 0
+    ) {
       Alert.alert(
         'Datos incompletos',
-        'Por favor completa el peso (0kg es válido) y las repeticiones (mayor a 0) antes de marcar esta serie como hecha.'
+        'Completa peso (0kg valido) y repeticiones (>0) antes de marcar la serie como hecha.',
       );
       return;
     }
@@ -52,47 +57,41 @@ export function EditableSetRow({ set, onUpdate, onMarkDone }: Props) {
     onMarkDone();
   };
 
-  // No permitir editar si ya está marcado como done
   const isEditable = !set.isDone;
 
   return (
     <View
-      className="flex-row items-center py-3 px-2 rounded-lg"
-      style={{
-        backgroundColor: set.isDone ? `${backgroundColor}80` : backgroundColor,
-        borderBottomWidth: 1,
-        borderBottomColor: borderColor,
-      }}
+      style={[
+        styles.row,
+        {
+          backgroundColor: set.isDone ? 'rgba(16, 185, 129, 0.06)' : 'transparent',
+          borderBottomColor: borderColor,
+        },
+      ]}
     >
-      {/* Número de serie */}
-      <View className="w-12 items-center justify-center">
-        <Text className="font-semibold" style={{ color: textColor, fontSize: 14 }}>
-          {set.setNumber}
+      <View style={styles.seriesCell}>
+        <Text style={[styles.seriesLabel, { color: palette.text }]}>{set.setNumber}</Text>
+      </View>
+
+      <View style={styles.previousCell}>
+        <Text style={[styles.previousText, { color: palette.secondary }]}>
+          {set.previousWeight && set.previousReps ? `${set.previousWeight}kg x ${set.previousReps}` : '-'}
         </Text>
       </View>
 
-      {/* Valores previos (no editables) */}
-      <View className="flex-1 items-center justify-center px-2">
-        <Text className="text-xs" style={{ color: secondaryTextColor }}>
-          {set.previousWeight && set.previousReps
-            ? `${set.previousWeight}kg × ${set.previousReps}`
-            : '-'}
-        </Text>
-      </View>
-
-      {/* Input: Peso (KG) */}
-      <View className="flex-1 items-center px-1">
+      <View style={styles.inputCell}>
         <TextInput
-          className="w-full text-center border rounded px-2 py-1.5"
-          style={{
-            borderColor: isEditable ? borderColor : `${borderColor}50`,
-            backgroundColor: inputBgColor,
-            color: textColor,
-            fontSize: 12,
-          }}
+          style={[
+            styles.input,
+            {
+              borderColor: isEditable ? borderColor : 'transparent',
+              backgroundColor: palette.inputBg,
+              color: palette.text,
+            },
+          ]}
           keyboardType="decimal-pad"
           placeholder="0"
-          placeholderTextColor={secondaryTextColor}
+          placeholderTextColor={palette.secondary}
           value={set.currentWeight ? String(set.currentWeight) : ''}
           onChangeText={handleWeightChange}
           editable={isEditable}
@@ -100,19 +99,19 @@ export function EditableSetRow({ set, onUpdate, onMarkDone }: Props) {
         />
       </View>
 
-      {/* Input: Reps */}
-      <View className="flex-1 items-center px-1">
+      <View style={styles.inputCell}>
         <TextInput
-          className="w-full text-center border rounded px-2 py-1.5"
-          style={{
-            borderColor: isEditable ? borderColor : `${borderColor}50`,
-            backgroundColor: inputBgColor,
-            color: textColor,
-            fontSize: 12,
-          }}
+          style={[
+            styles.input,
+            {
+              borderColor: isEditable ? borderColor : 'transparent',
+              backgroundColor: palette.inputBg,
+              color: palette.text,
+            },
+          ]}
           keyboardType="number-pad"
           placeholder="0"
-          placeholderTextColor={secondaryTextColor}
+          placeholderTextColor={palette.secondary}
           value={set.currentReps ? String(set.currentReps) : ''}
           onChangeText={handleRepsChange}
           editable={isEditable}
@@ -120,25 +119,79 @@ export function EditableSetRow({ set, onUpdate, onMarkDone }: Props) {
         />
       </View>
 
-      {/* Checkbox / Checkmark */}
       <TouchableOpacity
-        className="w-10 items-center justify-center"
+        style={styles.toggleCell}
         onPress={handleCheckbox}
         disabled={set.isDone}
         activeOpacity={0.6}
       >
         <View
-          className="w-5 h-5 rounded border-2 items-center justify-center"
-          style={{
-            borderColor: set.isDone ? '#10b981' : borderColor,
-            backgroundColor: set.isDone ? '#10b981' : 'transparent',
-          }}
+          style={[
+            styles.checkbox,
+            {
+              borderColor: set.isDone ? palette.success : palette.secondary,
+              backgroundColor: set.isDone ? palette.success : 'transparent',
+            },
+          ]}
         >
-          {set.isDone && (
-            <Text className="text-white font-bold text-xs">✓</Text>
-          )}
+          {set.isDone ? <Ionicons name="checkmark" size={12} color="#FFFFFF" /> : null}
         </View>
       </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+  },
+  seriesCell: {
+    width: 52,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+  },
+  seriesLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  previousCell: {
+    flex: 1.25,
+    paddingHorizontal: 6,
+    alignItems: 'center',
+  },
+  previousText: {
+    fontSize: 12,
+    fontWeight: '500',
+    lineHeight: 16,
+  },
+  inputCell: {
+    flex: 1,
+    paddingHorizontal: 6,
+  },
+  input: {
+    borderRadius: 10,
+    borderWidth: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    textAlign: 'center',
+    fontSize: 13,
+    fontWeight: '600',
+    lineHeight: 16,
+  },
+  toggleCell: {
+    width: 68,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

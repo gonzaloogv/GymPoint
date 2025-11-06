@@ -79,7 +79,6 @@ export default function MapView({
         <UserLocationPin
           userLocation={userLocation}
           showFallbackPin={showUserFallbackPin}
-          debugUser={debugUser}
           tracksViewChanges={tracksViewChanges}
           onLayout={handleUserMarkerLayout}
         />

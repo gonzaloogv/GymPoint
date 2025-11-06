@@ -1,44 +1,220 @@
-import { View, Text, TouchableOpacity } from 'react-native';
-import { Card } from '@shared/components/ui';
+import React, { useMemo } from 'react';
+import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@shared/hooks';
+import { Ionicons } from '@expo/vector-icons';
+import { DailyChallenge } from '@features/home/domain/entities/DailyChallenge';
 
-export default function DailyChallengeCard() {
+type Props = {
+  challenge: DailyChallenge | null;
+  onPress?: () => void;
+};
+
+export default function DailyChallengeCard({ challenge, onPress }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const completed = 1;
-  const total = 3;
-  const progressPercentage = (completed / total) * 100;
+  const completed = challenge?.progress ?? 0;
+  const total = challenge?.target ?? 0;
+  const progressPercentage = total > 0 ? (completed / total) * 100 : 0;
 
-  return (
-    <TouchableOpacity activeOpacity={0.8} className="flex-1">
-      <Card className={`${isDark ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
-        <View className="flex-row items-start">
-          <View className={`w-12 h-12 rounded-lg items-center justify-center mr-3 flex-shrink-0 ${isDark ? 'bg-amber-500/20' : 'bg-pink-200'}`}>
-            <Text className="text-lg">🏆</Text>
+  const palette = useMemo(
+    () => ({
+      background: isDark ? '#111827' : '#ffffff',
+      border: isDark ? 'rgba(55, 65, 81, 0.8)' : '#E5E7EB',
+      label: isDark ? '#9CA3AF' : '#6B7280',
+      value: isDark ? '#F9FAFB' : '#111827',
+      description: isDark ? '#9CA3AF' : '#6B7280',
+      progressTrack: isDark ? '#1F2937' : '#E5E7EB',
+      progressFill: isDark ? '#8B5CF6' : '#4F46E5',
+      infoText: isDark ? '#9CA3AF' : '#6B7280',
+      iconBg: isDark ? 'rgba(79, 70, 229, 0.22)' : 'rgba(129, 140, 248, 0.18)',
+      iconBorder: isDark ? 'rgba(129, 140, 248, 0.38)' : 'rgba(129, 140, 248, 0.24)',
+      iconColor: isDark ? '#C7D2FE' : '#4338CA',
+    }),
+    [isDark],
+  );
+
+  // Si no hay desafío del día
+  if (!challenge) {
+    return (
+      <TouchableOpacity
+        activeOpacity={0.82}
+        disabled={!onPress}
+        onPress={onPress}
+        style={[
+          styles.card,
+          {
+            backgroundColor: palette.background,
+            borderColor: palette.border,
+          },
+          isDark ? styles.darkShadow : styles.lightShadow,
+        ]}
+      >
+        <View style={styles.header}>
+          <View
+            style={[
+              styles.iconBadge,
+              {
+                backgroundColor: palette.iconBg,
+                borderColor: palette.iconBorder,
+              },
+            ]}
+          >
+            <Ionicons name="calendar-outline" size={22} color={palette.iconColor} />
           </View>
 
-          <View className="flex-1">
-            <Text className={`font-bold text-base ${isDark ? 'text-blue-300' : 'text-blue-700'}`}>
-              Desafío del día
-            </Text>
-            <Text className={`mt-1 ${isDark ? 'text-gray-400' : 'text-textSecondary'}`}>
-              Entrena 3 grupos musculares
-            </Text>
-
-            <View className={`mt-3 h-2 rounded-full overflow-hidden ${isDark ? 'bg-gray-700' : 'bg-gray-300'}`}>
-              <View
-                className="h-full bg-purple-600 rounded-full"
-                style={{ width: `${progressPercentage}%` }}
-              />
-            </View>
-
-            <Text className={`text-xs mt-2 ${isDark ? 'text-gray-400' : 'text-textSecondary'}`}>
-              Progreso: {completed}/{total} completado
+          <View style={styles.headerText}>
+            <Text style={[styles.label, { color: palette.label }]}>Desafío del día</Text>
+            <Text style={[styles.emptyMessage, { color: palette.description }]}>
+              No hay desafío disponible hoy
             </Text>
           </View>
         </View>
-      </Card>
+      </TouchableOpacity>
+    );
+  }
+
+  // Si hay desafío del día
+  return (
+    <TouchableOpacity
+      activeOpacity={0.82}
+      disabled={!onPress}
+      onPress={onPress}
+      style={[
+        styles.card,
+        {
+          backgroundColor: palette.background,
+          borderColor: palette.border,
+        },
+        isDark ? styles.darkShadow : styles.lightShadow,
+      ]}
+    >
+      <View style={styles.header}>
+        <View
+          style={[
+            styles.iconBadge,
+            {
+              backgroundColor: palette.iconBg,
+              borderColor: palette.iconBorder,
+            },
+          ]}
+        >
+          <Ionicons
+            name={challenge.completed ? 'checkmark-circle' : 'sparkles'}
+            size={22}
+            color={palette.iconColor}
+          />
+        </View>
+
+        <View style={styles.headerText}>
+          <Text style={[styles.label, { color: palette.label }]}>Desafío del día</Text>
+          <Text style={[styles.challengeTitle, { color: palette.value }]}>
+            {challenge.title}
+          </Text>
+          <Text style={[styles.description, { color: palette.description }]}>
+            {challenge.description}
+          </Text>
+        </View>
+      </View>
+
+      <View style={[styles.progressTrack, { backgroundColor: palette.progressTrack }]}>
+        <View
+          style={[
+            styles.progressFill,
+            {
+              backgroundColor: palette.progressFill,
+              width: `${progressPercentage}%`,
+            },
+          ]}
+        />
+      </View>
+
+      <Text style={[styles.progressInfo, { color: palette.infoText }]}>
+        {challenge.completed
+          ? `¡Completado! +${challenge.reward} tokens`
+          : `Progreso: ${completed}/${total} ${challenge.unit || ''}`}
+      </Text>
     </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    borderWidth: 1,
+    borderRadius: 28,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    marginTop: 8,
+  },
+  lightShadow: {
+    shadowColor: '#4338CA',
+    shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: 12 },
+    shadowRadius: 18,
+    elevation: 6,
+  },
+  darkShadow: {
+    shadowColor: '#000000',
+    shadowOpacity: 0.35,
+    shadowOffset: { width: 0, height: 18 },
+    shadowRadius: 24,
+    elevation: 12,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconBadge: {
+    width: 56,
+    height: 56,
+    borderRadius: 20,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerText: {
+    marginLeft: 16,
+    flex: 1,
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  challengeTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginTop: 6,
+    lineHeight: 24,
+  },
+  description: {
+    marginTop: 6,
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '500',
+  },
+  emptyMessage: {
+    marginTop: 6,
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '500',
+  },
+  progressTrack: {
+    height: 8,
+    borderRadius: 999,
+    overflow: 'hidden',
+    marginTop: 20,
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 999,
+  },
+  progressInfo: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 12,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  },
+});

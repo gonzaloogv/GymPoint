@@ -40,15 +40,12 @@ function toUserDailyChallenge(instance) {
   if (!plain) return null;
 
   return {
-    id_user_challenge: plain.id_user_challenge,
     id_user_profile: plain.id_user_profile,
     id_challenge: plain.id_challenge,
-    current_value: plain.current_value || 0,
-    status: plain.status,
+    current_value: plain.progress || 0, // Mapea desde 'progress' en la BD
+    status: plain.completed ? 'COMPLETED' : 'IN_PROGRESS', // Mapea desde 'completed' en la BD
     completed_at: plain.completed_at || null,
-    reward_claimed_at: plain.reward_claimed_at || null,
-    created_at: plain.created_at || null,
-    updated_at: plain.updated_at || null
+    tokens_earned: plain.tokens_earned || 0
   };
 }
 

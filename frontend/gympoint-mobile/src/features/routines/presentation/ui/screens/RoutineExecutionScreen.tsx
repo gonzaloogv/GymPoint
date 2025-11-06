@@ -1,31 +1,39 @@
 import React, { useState } from 'react';
-import { Alert, View } from 'react-native';
+import { Alert, View, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import { useRoutineExecution } from '@features/routines/presentation/hooks/useRoutineExecution';
-import { ExpandableExerciseCard, ExerciseSelector, FloatingTimer } from '@features/routines/presentation/ui/components';
+import {
+  ExpandableExerciseCard,
+  ExerciseSelector,
+  FloatingTimer,
+} from '@features/routines/presentation/ui/components';
 import { ExecutionLayout } from '@features/routines/presentation/ui/layouts';
 import { ExecutionHeader } from '@features/routines/presentation/ui/headers';
 import { ExecutionFooter } from '@features/routines/presentation/ui/footers';
 import { useTheme } from '@shared/hooks';
+import { SurfaceScreen } from '@shared/components/ui';
 
 type RoutineExecutionScreenProps = {
   route: { params?: { id?: string; restoreState?: any } };
   navigation: any;
 };
 
-/**
- * Pantalla de ejecución de rutina
- * Muestra todos los ejercicios de forma expandible
- * Soporta restauración desde sesiones incompletas
- */
+// Componente de Loading separado para evitar inconsistencias de hooks
+const LoadingScreen: React.FC<{ isDark: boolean }> = ({ isDark }) => (
+  <SurfaceScreen>
+    <View style={styles.loading}>
+      <ActivityIndicator size="large" color={isDark ? '#ffffff' : '#000000'} />
+      <Text style={{ color: isDark ? '#ffffff' : '#000000', marginTop: 16 }}>Cargando rutina...</Text>
+    </View>
+  </SurfaceScreen>
+);
+
 const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
   route,
   navigation,
 }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const bgColor = isDark ? '#111827' : '#f9fafb';
 
-  // Estado del modal de selección de ejercicios
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
 
   const id = route?.params?.id;
@@ -39,6 +47,7 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
     expandedExercises,
     timerState,
     currentTimerExerciseId,
+    restSeconds,
     duration,
     totalVolume,
     setsCompleted,
@@ -53,14 +62,16 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
     discardRoutine,
   } = useRoutineExecution({ id, restoreState });
 
-  /**
-   * Manejar finalización de la rutina
-   */
+  // Mostrar loading si no hay datos (evita hooks inconsistentes)
+  if (!routineId || exercises.length === 0) {
+    return <LoadingScreen isDark={isDark} />;
+  }
+
   const handleCompleteRoutine = () => {
     if (setsCompleted < totalSets) {
       Alert.alert(
         'Entrenamiento incompleto',
-        `Has completado ${setsCompleted} de ${totalSets} series. ¿Deseas finalizar de todas formas?`,
+        `Has completado ${setsCompleted} de ${totalSets} series. Deseas finalizar de todas formas?`,
         [
           { text: 'Continuar', style: 'cancel' },
           {
@@ -70,7 +81,7 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
               navigation.navigate('RoutineCompleted', stats);
             },
           },
-        ]
+        ],
       );
     } else {
       const stats = completeRoutine();
@@ -78,31 +89,19 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
     }
   };
 
-  /**
-   * Manejar descarte de entrenamiento
-   */
   const handleDiscardRoutine = () => {
     discardRoutine();
     navigation.goBack();
   };
 
-  /**
-   * Manejar agregar ejercicio
-   */
   const handleAddExercise = () => {
     setShowExerciseSelector(true);
   };
 
-  /**
-   * Manejar selección de ejercicio
-   */
   const handleSelectExercise = (exerciseId: string) => {
     addExercise(exerciseId);
   };
 
-  /**
-   * Header component
-   */
   const headerComponent = (
     <ExecutionHeader
       routineName={routineName}
@@ -114,9 +113,6 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
     />
   );
 
-  /**
-   * Footer component
-   */
   const footerComponent = (
     <ExecutionFooter
       onAddExercise={handleAddExercise}
@@ -124,9 +120,6 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
     />
   );
 
-  /**
-   * Renderizar item - ExpandableExerciseCard para cada ejercicio
-   */
   const renderItem = ({ item }: { item: any }) => {
     const exerciseState = exerciseStates[item.id];
     const isExpanded = expandedExercises[item.id];
@@ -148,34 +141,28 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
     );
   };
 
-  // Obtener nombre del ejercicio actual para el timer
   const currentExerciseId = currentTimerExerciseId;
-  const currentExercise = exercises.find((e) => e.id === currentExerciseId);
+  const currentExercise = exercises.find((exercise) => exercise.id === currentExerciseId);
   const currentExerciseName = currentExercise?.name || 'Ejercicio';
 
   return (
-    <View className="flex-1">
+    <SurfaceScreen>
       <ExecutionLayout
         data={exercises}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         ListHeaderComponent={headerComponent}
         ListFooterComponent={footerComponent}
-        contentContainerStyle={{
-          paddingBottom: 24,
-          backgroundColor: bgColor,
-        }}
-        style={{ backgroundColor: bgColor }}
+        contentContainerStyle={styles.listContent}
       />
 
-      {/* Floating Timer - Sticky at bottom */}
       <FloatingTimer
         timerState={timerState}
+        restSeconds={restSeconds}
         exerciseName={currentExerciseName}
         onSkip={skipTimer}
       />
 
-      {/* Exercise Selector Modal */}
       <ExerciseSelector
         visible={showExerciseSelector}
         allExercises={exercises}
@@ -183,8 +170,19 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
         onSelect={handleSelectExercise}
         onClose={() => setShowExerciseSelector(false)}
       />
-    </View>
+    </SurfaceScreen>
   );
 };
 
 export default RoutineExecutionScreen;
+
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  listContent: {
+    paddingBottom: 200,
+  },
+});

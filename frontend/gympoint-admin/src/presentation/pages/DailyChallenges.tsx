@@ -15,7 +15,7 @@ import {
 import {
   Card
 } from '../components';
-import { 
+import {
   DailyChallengeTable,
   DailyChallengeConfigCard,
   DailyChallengeFilters,
@@ -23,6 +23,7 @@ import {
   DailyChallengeForm,
   DailyChallengeTemplateForm,
   DailyChallengeTemplateTable,
+  InstructionsModal,
  } from '../components/daily-challenges';
 import {
   CreateDailyChallengeDTO,
@@ -44,15 +45,9 @@ const TYPE_OPTIONS: ChallengeOption[] = [
 ];
 
 const DIFFICULTY_OPTIONS: DifficultyOption[] = [
-  { value: 'EASY', label: 'Facil' },
+  { value: 'EASY', label: 'Fácil' },
   { value: 'MEDIUM', label: 'Media' },
-  { value: 'HARD', label: 'Dificil' },
-];
-
-const TEMPLATE_DIFFICULTY_OPTIONS: DifficultyOption[] = [
-  { value: 'BEGINNER', label: 'Principiante' },
-  { value: 'INTERMEDIATE', label: 'Intermedio' },
-  { value: 'ADVANCED', label: 'Avanzado' },
+  { value: 'HARD', label: 'Difícil' },
 ];
 
 const createDefaultChallengeForm = (): CreateDailyChallengeDTO => ({
@@ -74,7 +69,7 @@ const createDefaultTemplateForm = (): CreateDailyChallengeTemplateDTO => ({
   target_unit: '',
   tokens_reward: 10,
   rotation_weight: 1,
-  difficulty: 'BEGINNER',
+  difficulty: 'MEDIUM',
 });
 
 const DEFAULT_FILTERS: DailyChallengeFiltersState = {
@@ -105,6 +100,7 @@ export const DailyChallenges = () => {
     autoRotation: true,
     cronTime: '00:01',
   });
+  const [showInstructions, setShowInstructions] = useState(false);
 
   const challengesQuery = useDailyChallenges(filters);
   const templatesQuery = useDailyChallengeTemplates();
@@ -309,14 +305,27 @@ export const DailyChallenges = () => {
   return (
     <div className="space-y-6">
       <header className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold text-text dark:text-text-dark">
-          Gestion de Desafios Diarios
-        </h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-text dark:text-text-dark">
+            🎯 Gestión de Desafíos Diarios
+          </h1>
+          <button
+            onClick={() => setShowInstructions(true)}
+            className="px-4 py-2 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium"
+          >
+            ❓ Cómo funciona
+          </button>
+        </div>
         <p className="text-text-muted">
-          Configura la rotacion automatica, crea desafios manuales y administra las plantillas
-          disponibles.
+          Sistema de desafíos diarios con rotación automática. Los usuarios completan desafíos
+          para ganar tokens y mantener su racha.
         </p>
       </header>
+
+      <InstructionsModal
+        isOpen={showInstructions}
+        onClose={() => setShowInstructions(false)}
+      />
 
       <DailyChallengeConfigCard
         autoRotation={configForm.autoRotation}
@@ -327,6 +336,7 @@ export const DailyChallenges = () => {
         onCronTimeChange={(value) => setConfigForm((prev) => ({ ...prev, cronTime: value }))}
         onSave={saveConfig}
         onRunRotation={runRotation}
+        onShowInstructions={() => setShowInstructions(true)}
         isSaving={updateConfigMutation.isPending}
         isRunning={runRotationMutation.isPending}
         isLoadingConfig={configQuery.isLoading}
@@ -334,7 +344,7 @@ export const DailyChallenges = () => {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <DailyChallengeForm
-          title="Crear desafio manual"
+          title="🎯 Crear desafío manual (con fecha específica)"
           form={challengeForm}
           typeOptions={TYPE_OPTIONS}
           difficultyOptions={DIFFICULTY_OPTIONS}
@@ -344,17 +354,17 @@ export const DailyChallenges = () => {
         />
 
         <DailyChallengeTemplateForm
-          title="Crear plantilla"
+          title="📋 Crear plantilla (para auto-generación)"
           form={templateForm}
           typeOptions={TYPE_OPTIONS}
-          difficultyOptions={TEMPLATE_DIFFICULTY_OPTIONS}
+          difficultyOptions={DIFFICULTY_OPTIONS}
           onSubmit={handleTemplateSubmit}
           onChange={handleTemplateFieldChange}
           isSubmitting={createTemplateMutation.isPending}
         />
       </div>
 
-      <Card title="Desafios programados">
+      <Card title="📅 Desafíos programados">
         <DailyChallengeFilters
           filters={filters}
           onFilterChange={handleFilterChange}
@@ -372,7 +382,13 @@ export const DailyChallenges = () => {
         />
       </Card>
 
-      <Card title="Plantillas">
+      <Card title="📋 Plantillas para rotación automática">
+        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <p className="text-sm text-text-muted">
+            <strong>💡 Info:</strong> Las plantillas se usan para generar desafíos automáticamente cada día.
+            El <strong>peso de rotación</strong> determina la probabilidad de selección (mayor peso = más probable).
+          </p>
+        </div>
         <DailyChallengeTemplateTable
           templates={sortedTemplates}
           isLoading={templatesQuery.isLoading}

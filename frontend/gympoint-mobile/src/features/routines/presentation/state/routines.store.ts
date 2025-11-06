@@ -181,8 +181,37 @@ export const useRoutinesStore = create<RoutinesState>()(
         // Check if there's an incomplete session for a different routine
         const existingIncompleteSession = get().incompleteSession;
         if (existingIncompleteSession && existingIncompleteSession.routineId !== routineId) {
-          console.log('[startExecution] 🚫 Cannot start - pending session exists for different routine');
-          throw new Error('PENDING_SESSION_EXISTS');
+          console.log('[startExecution] 🔍 Found incomplete session for different routine:', existingIncompleteSession.routineId);
+
+          // Verify if the pending routine still exists
+          try {
+            await get().fetchRoutineById(existingIncompleteSession.routineId);
+            // If we get here, routine exists - block starting new routine
+            console.log('[startExecution] 🚫 Cannot start - pending session exists for valid routine');
+            throw new Error('PENDING_SESSION_EXISTS');
+          } catch (error: any) {
+            // If routine doesn't exist (404), clean up orphaned session
+            if (error?.response?.status === 404 || error?.message?.includes('ROUTINE_NOT_FOUND')) {
+              console.log('[startExecution] 🧹 Pending routine no longer exists, cleaning up orphaned session');
+
+              // Cancel backend session if exists
+              if (existingIncompleteSession?.workoutSessionId) {
+                try {
+                  await workoutRepository.cancelSession(existingIncompleteSession.workoutSessionId);
+                  console.log('[startExecution] ✅ Backend session cancelled');
+                } catch (cancelError) {
+                  console.warn('[startExecution] ⚠️ Could not cancel backend session:', cancelError);
+                }
+              }
+
+              await clearIncompleteSession();
+              set({ incompleteSession: null, executionState: null });
+              // Continue with starting the new routine
+            } else {
+              // Other error, re-throw
+              throw error;
+            }
+          }
         }
 
         // Always fetch the routine (needed for exercise info)
@@ -239,10 +268,55 @@ export const useRoutinesStore = create<RoutinesState>()(
             status: workoutSession.status,
           });
 
-          // If active session is for a different routine, throw error
+          // If active session is for a different routine, verify if that routine still exists
           if (workoutSession.id_routine !== routineId) {
-            console.log('[startExecution] 🚫 Cannot start new session - active session exists for different routine');
-            throw new Error('ACTIVE_SESSION_EXISTS');
+            console.log('[startExecution] 🔍 Active session is for different routine, verifying if it still exists...');
+
+            // If session has no routine ID, cancel it
+            if (!workoutSession.id_routine) {
+              console.log('[startExecution] 🧹 Active session has no routine ID, cancelling orphaned session');
+              try {
+                await workoutRepository.cancelSession(workoutSession.id_workout_session);
+                console.log('[startExecution] ✅ Orphaned backend session cancelled');
+                await clearIncompleteSession();
+                set({ incompleteSession: null, executionState: null });
+                workoutSession = null;
+              } catch (cancelError) {
+                console.error('[startExecution] ❌ Error cancelling orphaned session:', cancelError);
+                throw new Error('ACTIVE_SESSION_EXISTS');
+              }
+            } else {
+              // Verify if the session's routine still exists
+              try {
+                await get().fetchRoutineById(workoutSession.id_routine);
+                // Routine exists, can't start new session
+                console.log('[startExecution] 🚫 Cannot start new session - active session exists for valid routine');
+                throw new Error('ACTIVE_SESSION_EXISTS');
+              } catch (error: any) {
+                // If routine doesn't exist (404), cancel the orphaned session
+                if (error?.response?.status === 404 || error?.message?.includes('ROUTINE_NOT_FOUND')) {
+                  console.log('[startExecution] 🧹 Active session routine no longer exists, cancelling orphaned session');
+
+                  try {
+                    await workoutRepository.cancelSession(workoutSession.id_workout_session);
+                    console.log('[startExecution] ✅ Orphaned backend session cancelled');
+
+                    // Clear local state too
+                    await clearIncompleteSession();
+                    set({ incompleteSession: null, executionState: null });
+
+                    // Session cleaned, continue with creating new session
+                    workoutSession = null;
+                  } catch (cancelError) {
+                    console.error('[startExecution] ❌ Error cancelling orphaned session:', cancelError);
+                    throw new Error('ACTIVE_SESSION_EXISTS');
+                  }
+                } else {
+                  // Other error verifying routine, re-throw
+                  throw error;
+                }
+              }
+            }
           } else {
             console.log('[startExecution] ♻️ Active session is for same routine, reusing it');
           }
@@ -462,9 +536,41 @@ export const useRoutinesStore = create<RoutinesState>()(
     loadIncompleteSession: async () => {
       try {
         const session = await getIncompleteSession();
-        set({ incompleteSession: session });
+
+        // Verify if the routine still exists (auto-cleanup orphaned sessions)
+        if (session?.routineId) {
+          try {
+            await get().fetchRoutineById(session.routineId);
+            // Routine exists, load the session
+            set({ incompleteSession: session });
+          } catch (error: any) {
+            // If routine doesn't exist (404), clean up orphaned session
+            if (error?.response?.status === 404 || error?.message?.includes('ROUTINE_NOT_FOUND')) {
+              console.log('[loadIncompleteSession] 🧹 Routine no longer exists, cleaning up orphaned session');
+
+              // Cancel backend session if exists
+              if (session?.workoutSessionId) {
+                try {
+                  await workoutRepository.cancelSession(session.workoutSessionId);
+                  console.log('[loadIncompleteSession] ✅ Backend session cancelled');
+                } catch (cancelError) {
+                  console.warn('[loadIncompleteSession] ⚠️ Could not cancel backend session:', cancelError);
+                }
+              }
+
+              await clearIncompleteSession();
+              set({ incompleteSession: null, executionState: null });
+            } else {
+              // Other error, still load session but log warning
+              console.warn('[loadIncompleteSession] ⚠️ Error verifying routine, loading session anyway:', error);
+              set({ incompleteSession: session });
+            }
+          }
+        } else {
+          set({ incompleteSession: session });
+        }
       } catch (error) {
-        console.error('Error loading incomplete session:', error);
+        console.error('[loadIncompleteSession] ❌ Error loading incomplete session:', error);
       }
     },
 
@@ -514,22 +620,61 @@ export const useRoutinesStore = create<RoutinesState>()(
       console.log('[updateIncompleteSessionProgress] ✅ Guardado en AsyncStorage completado');
     },
 
-    // Fetch routine history (mock for now)
+    // Fetch routine history
     fetchRoutineHistory: async (routineId: number) => {
       set({ loadingHistory: true, error: null });
 
-      // TODO: Implement when backend has sessions endpoint
-      // For now, return empty array
-      set({ history: [], loadingHistory: false });
+      try {
+        // Get all completed sessions
+        const allSessions = await workoutRepository.getMySessions({
+          status: 'COMPLETED',
+        });
 
-      // Mock implementation:
-      // const history = await routineHistoryMock.filter(s => s.routineId === routineId);
-      // set({ history, loadingHistory: false });
+        // Filter by routine ID and map to RoutineSession format
+        const routineSessions: RoutineSession[] = allSessions
+          .filter((session) => session.id_routine === routineId)
+          .map((session) => ({
+            id: session.id_workout_session.toString(),
+            routineId: session.id_routine?.toString() || '',
+            date: session.finished_at || session.started_at,
+            durationMin: session.duration_seconds ? Math.round(session.duration_seconds / 60) : 0,
+            completed: session.status === 'COMPLETED',
+            notes: session.notes || undefined,
+            logs: [], // Sets are not included in session list, would need separate fetch
+          }));
+
+        set({ history: routineSessions, loadingHistory: false });
+      } catch (error) {
+        console.error('[fetchRoutineHistory] ❌ Error fetching history:', error);
+        set({ error: (error as Error).message, history: [], loadingHistory: false });
+      }
     },
 
     // Delete routine
     deleteRoutine: async (id: number) => {
       try {
+        // 🔍 Check if there's an active workout session for this routine
+        const activeSession = await workoutRepository.getActiveSession();
+
+        if (activeSession && activeSession.id_routine === id) {
+          console.log('[deleteRoutine] 🧹 Cancelling active workout session for this routine');
+          try {
+            await workoutRepository.cancelSession(activeSession.id_workout_session);
+            console.log('[deleteRoutine] ✅ Workout session cancelled');
+          } catch (cancelError) {
+            console.error('[deleteRoutine] ⚠️ Error cancelling workout session:', cancelError);
+            // Continue with deletion even if cancel fails
+          }
+
+          // Clear incomplete session if it matches
+          const { incompleteSession } = get();
+          if (incompleteSession?.routineId === id) {
+            await clearIncompleteSession();
+            set({ incompleteSession: null, executionState: null });
+          }
+        }
+
+        // Delete the routine from backend
         await routineRepository.delete(id);
 
         // Remove from local state

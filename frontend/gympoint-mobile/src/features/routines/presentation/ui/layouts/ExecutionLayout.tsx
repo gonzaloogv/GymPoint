@@ -1,7 +1,5 @@
 import React from 'react';
-import { FlatList } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@shared/hooks';
+import { FlatList, View, StyleSheet } from 'react-native';
 
 type Props = {
   data: any[];
@@ -10,7 +8,6 @@ type Props = {
   ListHeaderComponent?: React.ReactElement;
   ListFooterComponent?: React.ReactElement;
   contentContainerStyle?: any;
-  style?: any;
 };
 
 export function ExecutionLayout({
@@ -20,22 +17,34 @@ export function ExecutionLayout({
   ListHeaderComponent,
   ListFooterComponent,
   contentContainerStyle,
-  style,
 }: Props) {
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
-  const bgColor = isDark ? '#111827' : '#f9fafb';
-
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1" style={{ backgroundColor: bgColor, ...style }}>
-      <FlatList
-        data={data}
-        keyExtractor={keyExtractor}
-        renderItem={renderItem}
-        ListHeaderComponent={ListHeaderComponent}
-        ListFooterComponent={ListFooterComponent}
-        contentContainerStyle={contentContainerStyle}
-      />
-    </SafeAreaView>
+    <FlatList
+      data={data}
+      keyExtractor={keyExtractor}
+      renderItem={renderItem}
+      ListHeaderComponent={ListHeaderComponent}
+      ListFooterComponent={ListFooterComponent}
+      ItemSeparatorComponent={() => <View style={styles.separator} />}
+      showsVerticalScrollIndicator={false}
+      style={styles.list}
+      contentContainerStyle={[
+        {
+          paddingHorizontal: 16,
+          paddingTop: 16,
+          paddingBottom: 160,
+        },
+        contentContainerStyle,
+      ]}
+    />
   );
 }
+
+const styles = StyleSheet.create({
+  list: {
+    flex: 1,
+  },
+  separator: {
+    height: 12,
+  },
+});

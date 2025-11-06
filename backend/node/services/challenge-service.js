@@ -149,8 +149,8 @@ const startChallenge = async (command) => {
   return dailyChallengeRepository.createUserProgress({
     id_user_profile: cmd.idUserProfile,
     id_challenge: cmd.idChallenge,
-    current_value: 0,
-    status: 'IN_PROGRESS'
+    progress: 0,
+    completed: false
   });
 };
 
@@ -172,11 +172,11 @@ const updateChallengeProgress = async (command) => {
     progress = await startChallenge({ idUserProfile: cmd.idUserProfile, idChallenge: cmd.idChallenge });
   }
 
-  const payload = { current_value: cmd.currentValue };
+  const payload = { progress: cmd.currentValue };
 
   // Check if completed
   if (cmd.currentValue >= challenge.target_value && progress.status !== 'COMPLETED') {
-    payload.status = 'COMPLETED';
+    payload.completed = true;
     payload.completed_at = new Date();
   }
 
@@ -203,7 +203,7 @@ const claimChallengeReward = async (command) => {
     throw new BusinessError('El desafío no está completado', 'CHALLENGE_NOT_COMPLETED');
   }
 
-  if (progress.reward_claimed_at) {
+  if (progress.tokens_earned > 0) {
     throw new BusinessError('La recompensa ya fue reclamada', 'REWARD_ALREADY_CLAIMED');
   }
 
@@ -213,7 +213,7 @@ const claimChallengeReward = async (command) => {
   await tokenLedgerService.registrarMovimiento({
     userId: cmd.idUserProfile,
     delta: challenge.tokens_reward,
-    reason: TOKEN_REASONS.CHALLENGE_COMPLETED,
+    reason: TOKEN_REASONS.DAILY_CHALLENGE_COMPLETED,
     refType: 'challenge',
     refId: cmd.idChallenge
   });
@@ -222,7 +222,7 @@ const claimChallengeReward = async (command) => {
   await dailyChallengeRepository.updateUserProgress(
     cmd.idUserProfile,
     cmd.idChallenge,
-    { reward_claimed_at: new Date() }
+    { tokens_earned: challenge.tokens_reward }
   );
 
   // Sync achievements
@@ -392,7 +392,7 @@ const updateProgress = async (userId, challengeId, value) => {
 
   // If just completed, auto-claim reward
   let tokensEarned = 0;
-  if (progress.status === 'COMPLETED' && !progress.reward_claimed_at) {
+  if (progress.status === 'COMPLETED' && progress.tokens_earned === 0) {
     const rewardResult = await claimChallengeReward({
       idUserProfile: userId,
       idChallenge: challengeId

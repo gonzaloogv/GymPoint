@@ -1,6 +1,7 @@
-import { View, Text, Alert } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, Alert, StyleSheet } from 'react-native';
 import { useTheme } from '@shared/hooks';
-import { Button } from '@shared/components/ui';
+import { Button, ButtonText } from '@shared/components/ui';
 import type { Routine } from '@features/routines/domain/entities';
 
 type Props = {
@@ -10,20 +11,36 @@ type Props = {
   onDelete?: () => void;
 };
 
-export function RoutineDetailHeader({ routine, showExercisesTitle = true, onEdit, onDelete }: Props) {
+export function RoutineDetailHeader({
+  routine,
+  showExercisesTitle = true,
+  onEdit,
+  onDelete,
+}: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const textColor = isDark ? '#ffffff' : '#000000';
-  const subtextColor = isDark ? '#9ca3af' : '#6b7280';
+
+  const palette = useMemo(
+    () => ({
+      title: isDark ? '#F9FAFB' : '#111827',
+      subtitle: isDark ? '#9CA3AF' : '#6B7280',
+      tagBg: isDark ? 'rgba(129, 140, 248, 0.14)' : 'rgba(79, 70, 229, 0.08)',
+      tagText: isDark ? '#C7D2FE' : '#4338CA',
+      divider: isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(148, 163, 184, 0.32)',
+    }),
+    [isDark],
+  );
 
   const exerciseCount = routine.exercises?.length || 0;
 
   const handleDelete = () => {
-    if (!onDelete) return;
+    if (!onDelete) {
+      return;
+    }
 
     Alert.alert(
-      'Eliminar Rutina',
-      `¿Estás seguro que deseas eliminar "${routine.routine_name}"? Esta acción no se puede deshacer.`,
+      'Eliminar rutina',
+      `¿Eliminar "${routine.routine_name}"? No podrás deshacer esta acción.`,
       [
         { text: 'Cancelar', style: 'cancel' },
         {
@@ -31,55 +48,133 @@ export function RoutineDetailHeader({ routine, showExercisesTitle = true, onEdit
           style: 'destructive',
           onPress: onDelete,
         },
-      ]
+      ],
     );
   };
 
   return (
     <>
-      <View className="p-4 gap-1">
-        <Text className="text-2xl font-black" style={{ color: textColor }}>
-          {routine.routine_name}
-        </Text>
-        {routine.description && (
-          <Text style={{ color: subtextColor, fontSize: 14, marginTop: 4 }}>
-            {routine.description}
+      <View style={styles.wrapper}>
+        <View style={styles.headerRow}>
+          <Text style={[styles.title, { color: palette.title }]} numberOfLines={2}>
+            {routine.routine_name}
           </Text>
-        )}
-        <View className="flex-row flex-wrap gap-1 items-center mt-2">
-          <Text style={{ color: subtextColor, fontSize: 12 }}>
-            {exerciseCount} ejercicio{exerciseCount !== 1 ? 's' : ''}
-          </Text>
+          {(onEdit || onDelete) && (
+            <View style={styles.actions}>
+              {onEdit ? (
+                <Button variant="secondary" size="sm" onPress={onEdit}>
+                  <ButtonText>Editar</ButtonText>
+                </Button>
+              ) : null}
+              {onDelete ? (
+                <Button variant="danger" size="sm" onPress={handleDelete}>
+                  <ButtonText>Eliminar</ButtonText>
+                </Button>
+              ) : null}
+            </View>
+          )}
         </View>
 
-        {/* Edit/Delete Buttons */}
-        {(onEdit || onDelete) && (
-          <View className="flex-row gap-2 mt-4">
-            {onEdit && (
-              <View className="flex-1">
-                <Button variant="outline" size="sm" onPress={onEdit} fullWidth>
-                  Editar
-                </Button>
-              </View>
-            )}
-            {onDelete && (
-              <View className="flex-1">
-                <Button variant="danger" size="sm" onPress={handleDelete} fullWidth>
-                  Eliminar
-                </Button>
-              </View>
-            )}
+        {routine.description ? (
+          <Text style={[styles.description, { color: palette.subtitle }]}>
+            {routine.description}
+          </Text>
+        ) : null}
+
+        <View style={styles.metaRow}>
+          <View
+            style={[
+              styles.metaPill,
+              {
+                backgroundColor: palette.tagBg,
+              },
+            ]}
+          >
+            <Text style={[styles.metaText, { color: palette.tagText }]}>
+              {exerciseCount} ejercicio{exerciseCount !== 1 ? 's' : ''}
+            </Text>
           </View>
-        )}
+          {routine.objective ? (
+            <View
+              style={[
+                styles.metaPill,
+                {
+                  backgroundColor: palette.tagBg,
+                },
+              ]}
+            >
+              <Text style={[styles.metaText, { color: palette.tagText }]}>{routine.objective}</Text>
+            </View>
+          ) : null}
+        </View>
       </View>
-      {showExercisesTitle && (
-        <Text
-          className="font-bold py-1 px-4"
-          style={{ color: textColor, fontSize: 18, marginVertical: 4 }}
-        >
-          Ejercicios
-        </Text>
-      )}
+
+      {showExercisesTitle ? (
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: palette.title }]}>Ejercicios</Text>
+          <View style={[styles.sectionDivider, { backgroundColor: palette.divider }]} />
+        </View>
+      ) : null}
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  wrapper: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 18,
+    gap: 12,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 16,
+  },
+  title: {
+    flex: 1,
+    fontSize: 28,
+    fontWeight: '800',
+    letterSpacing: -0.2,
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  description: {
+    fontSize: 14,
+    fontWeight: '500',
+    lineHeight: 20,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  metaPill: {
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+  },
+  metaText: {
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  sectionHeader: {
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    marginTop: 4,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: 0.4,
+  },
+  sectionDivider: {
+    height: 1,
+    marginTop: 8,
+    borderRadius: 999,
+  },
+});

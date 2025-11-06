@@ -1,4 +1,5 @@
-import { View, Text } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { StepScrollContainer, StepSection } from '@shared/components/ui';
 
@@ -23,97 +24,104 @@ type Props = {
 export function ReviewStep({ basicInfo, exercises }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const textColor = isDark ? '#ffffff' : '#000000';
-  const subtextColor = isDark ? '#9ca3af' : '#6b7280';
-  const cardBg = isDark ? '#1f2937' : '#ffffff';
-  const borderColor = isDark ? '#374151' : '#e5e7eb';
-  const bgColor = isDark ? '#111827' : '#f9fafb';
+
+  const palette = useMemo(
+    () => ({
+      card: isDark ? '#111827' : '#ffffff',
+      border: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
+      label: isDark ? '#F9FAFB' : '#111827',
+      helper: isDark ? '#9CA3AF' : '#6B7280',
+      tagBg: isDark ? 'rgba(79, 70, 229, 0.12)' : 'rgba(79, 70, 229, 0.08)',
+      tagText: isDark ? '#C7D2FE' : '#4338CA',
+      rowBg: isDark ? '#0F172A' : '#F3F4F6',
+    }),
+    [isDark],
+  );
 
   return (
     <StepScrollContainer>
       <StepSection>
-        <Text className="text-sm font-semibold mb-1.5" style={{ color: textColor }}>
-          Información general
-        </Text>
+        <Text style={[styles.sectionTitle, { color: palette.label }]}>Informacion general</Text>
         <View
-          className="rounded-lg p-5 mb-4 border"
-          style={{
-            backgroundColor: cardBg,
-            borderColor: borderColor,
-            borderWidth: 1,
-          }}
+          style={[
+            styles.card,
+            {
+              backgroundColor: palette.card,
+              borderColor: palette.border,
+            },
+          ]}
         >
-          <View className="flex-row justify-between mb-1.5">
-            <Text style={{ color: subtextColor, fontSize: 14, fontWeight: '500' }}>
-              Nombre
-            </Text>
-            <Text className="font-semibold" style={{ color: textColor, fontSize: 14 }}>
+          <View style={styles.summaryRow}>
+            <Text style={[styles.summaryLabel, { color: palette.helper }]}>Nombre</Text>
+            <Text style={[styles.summaryValue, { color: palette.label }]}>
               {basicInfo.name || 'Sin nombre'}
             </Text>
           </View>
-          <View className="flex-row justify-between mb-1.5">
-            <Text style={{ color: subtextColor, fontSize: 14, fontWeight: '500' }}>
-              Objetivo
-            </Text>
-            <Text className="font-semibold" style={{ color: textColor, fontSize: 14 }}>
+          <View style={styles.summaryRow}>
+            <Text style={[styles.summaryLabel, { color: palette.helper }]}>Objetivo</Text>
+            <Text style={[styles.summaryValue, { color: palette.label }]}>
               {basicInfo.objective || 'No definido'}
             </Text>
           </View>
-          <Text style={{ color: subtextColor, fontSize: 14, fontWeight: '500' }}>
-            Grupos musculares
-          </Text>
-          <View className="flex-row flex-wrap gap-2 mt-1">
+
+          <Text style={[styles.summaryLabel, { color: palette.helper }]}>Grupos musculares</Text>
+          <View style={styles.tagRow}>
             {basicInfo.muscleGroups.length > 0 ? (
               basicInfo.muscleGroups.map((group) => (
                 <View
                   key={group}
-                  className="rounded-lg px-3.5 py-2"
-                  style={{ backgroundColor: '#3B82F61A' }}
+                  style={[
+                    styles.tag,
+                    {
+                      backgroundColor: palette.tagBg,
+                    },
+                  ]}
                 >
-                  <Text className="text-xs font-semibold" style={{ color: '#3B82F6' }}>
-                    {group}
-                  </Text>
+                  <Text style={[styles.tagText, { color: palette.tagText }]}>{group}</Text>
                 </View>
               ))
             ) : (
-              <Text className="font-semibold" style={{ color: textColor, fontSize: 14 }}>
-                No seleccionados
-              </Text>
+              <Text style={[styles.summaryValue, { color: palette.label }]}>No seleccionados</Text>
             )}
           </View>
         </View>
       </StepSection>
 
       <StepSection>
-        <Text className="text-sm font-semibold mb-1.5" style={{ color: textColor }}>
+        <Text style={[styles.sectionTitle, { color: palette.label }]}>
           Ejercicios ({exercises.length})
         </Text>
         <View
-          className="rounded-lg border"
-          style={{
-            backgroundColor: cardBg,
-            borderColor: borderColor,
-            borderWidth: 1,
-          }}
+          style={[
+            styles.card,
+            {
+              backgroundColor: palette.card,
+              borderColor: palette.border,
+            },
+          ]}
         >
           {exercises.length === 0 ? (
-            <View className="p-5">
-              <Text className="font-semibold text-center" style={{ color: textColor, fontSize: 14 }}>
-                No hay ejercicios agregados
+            <View style={styles.emptyBlock}>
+              <Text style={[styles.emptyText, { color: palette.helper }]}>
+                Todavia no agregaste ejercicios.
               </Text>
             </View>
           ) : (
             exercises.map((exercise, index) => (
               <View
                 key={exercise.id_exercise}
-                className="p-4 rounded-lg mb-1.5"
-                style={{ backgroundColor: bgColor }}
+                style={[
+                  styles.exerciseRow,
+                  {
+                    backgroundColor: palette.rowBg,
+                  },
+                ]}
               >
-                <Text className="font-semibold mb-1.5" style={{ color: textColor, fontSize: 15 }}>
+                <Text style={[styles.exerciseTitle, { color: palette.label }]}>
                   {index + 1}. {exercise.name || 'Sin nombre'}
                 </Text>
-                <Text style={{ color: subtextColor, fontSize: 13 }}>
-                  {exercise.series} series × {exercise.reps} reps
+                <Text style={[styles.exerciseMeta, { color: palette.helper }]}>
+                  {exercise.series} series - {exercise.reps} repeticiones
                 </Text>
               </View>
             ))
@@ -123,3 +131,72 @@ export function ReviewStep({ basicInfo, exercises }: Props) {
     </StepScrollContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 14,
+  },
+  card: {
+    borderWidth: 1,
+    borderRadius: 22,
+    paddingHorizontal: 18,
+    paddingVertical: 20,
+    gap: 14,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  summaryLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  },
+  summaryValue: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  tagRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  tag: {
+    borderRadius: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  tagText: {
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  },
+  emptyBlock: {
+    paddingVertical: 24,
+  },
+  emptyText: {
+    textAlign: 'center',
+    fontSize: 14,
+  },
+  exerciseRow: {
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    marginBottom: 12,
+    gap: 6,
+  },
+  exerciseTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  exerciseMeta: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
+});
+

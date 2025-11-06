@@ -15,6 +15,7 @@ const tokenLedgerService = require('./token-ledger-service');
 const achievementService = require('./achievement-service');
 const { processUnlockResults } = require('./achievement-side-effects');
 const progressService = require('./progress-service');
+const challengeService = require('./challenge-service');
 
 // Ensure functions for flexible parameter acceptance
 const ensureQuery = (input) => input;
@@ -35,6 +36,68 @@ const syncWorkoutAchievements = async (idUserProfile) => {
     await processUnlockResults(idUserProfile, results);
   } catch (error) {
     console.error('[workout-service] Error sincronizando logros', error);
+  }
+};
+
+/**
+ * Update daily challenge progress based on workout completion
+ */
+const updateDailyChallengeProgress = async (idUserProfile, sessionData) => {
+  try {
+    // Get today's challenge
+    const result = await challengeService.getTodayChallenge(idUserProfile);
+    if (!result || !result.challenge) {
+      return;
+    }
+
+    const { challenge, progress } = result;
+
+    // Calculate new progress value based on challenge type
+    let newValue = progress?.current_value || 0;
+
+    switch (challenge.challenge_type) {
+      case 'MINUTES':
+        const minutesCompleted = Math.floor((sessionData.durationSeconds || 0) / 60);
+        newValue += minutesCompleted;
+        break;
+
+      case 'SETS':
+        newValue += sessionData.totalSets || 0;
+        break;
+
+      case 'REPS':
+        newValue += sessionData.totalReps || 0;
+        break;
+
+      case 'WEIGHT':
+        newValue += sessionData.totalWeight || 0;
+        break;
+
+      case 'WORKOUT_COUNT':
+        newValue += 1;
+        break;
+
+      default:
+        console.warn(`[updateDailyChallengeProgress] Tipo de desafío no reconocido: ${challenge.challenge_type}`);
+        return;
+    }
+
+    // Cap at target value
+    newValue = Math.min(newValue, challenge.target_value);
+
+    // Update progress using challenge service
+    await challengeService.updateProgress(
+      idUserProfile,
+      challenge.id_challenge,
+      newValue
+    );
+
+    if (newValue >= challenge.target_value) {
+      console.log(`[updateDailyChallengeProgress] Desafío completado: "${challenge.title}" +${challenge.tokens_reward} tokens`);
+    }
+  } catch (error) {
+    console.error('[updateDailyChallengeProgress] Error actualizando desafío:', error);
+    // No lanzamos el error para no fallar la transacción del workout
   }
 };
 
@@ -344,13 +407,16 @@ const finishWorkoutSession = async (command) => {
       : null;
 
     // Update session
-    const updated = await workoutRepository.updateWorkoutSession(cmd.idWorkoutSession, {
+    await workoutRepository.updateWorkoutSession(cmd.idWorkoutSession, {
       ...totals,
       status: 'COMPLETED',
       ended_at: finishedAt,
       duration_seconds: durationSeconds,
       notes: cmd.notes !== undefined ? cmd.notes : workout.notes
     }, { transaction });
+
+    // Reload session to get updated values
+    const updated = await workoutRepository.findWorkoutSessionById(cmd.idWorkoutSession, { transaction });
 
     // Register progress for the day
     try {
@@ -450,6 +516,18 @@ const finishWorkoutSession = async (command) => {
     await syncWorkoutAchievements(session.id_user_profile);
   } catch (error) {
     console.error('[workout-service] Error post-completar sesión', error);
+  }
+
+  // Update daily challenge progress
+  try {
+    await updateDailyChallengeProgress(session.id_user_profile, {
+      durationSeconds: session.duration_seconds,
+      totalSets: session.total_sets,
+      totalReps: session.total_reps,
+      totalWeight: session.total_weight
+    });
+  } catch (error) {
+    console.error('[workout-service] Error actualizando desafío del día', error);
   }
 
   return session;

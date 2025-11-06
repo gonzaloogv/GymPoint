@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { Screen } from '@shared/components/ui';
+import { SurfaceScreen } from '@shared/components/ui';
+import { View, StyleSheet } from 'react-native';
 import { formatResultsLabel } from '@shared/utils';
 
 import { MAP_SECTION_HEIGHT } from '@features/gyms/domain/constants/map';
@@ -40,7 +41,6 @@ export default function MapScreen() {
     priceFilter,
     openNow,
     timeFilter,
-    setFilterVisible,
     setSelectedServices,
     setPriceFilter,
     setOpenNow,
@@ -89,46 +89,53 @@ export default function MapScreen() {
     navigation.navigate('GymDetail', { gymId: numericGymId });
   };
 
+  const scroll = !isListView;
+
   return (
-    <Screen
-      scroll={!isListView}
-      safeAreaTop={true}
-      safeAreaBottom={false}
-      contentContainerStyle={!isListView ? { paddingBottom: 24 } : undefined}
+    <SurfaceScreen
+      scroll={scroll}
+      contentContainerStyle={scroll ? styles.scrollContent : styles.staticContent}
+      innerStyle={styles.inner}
+      edges={['top', 'left', 'right']}
     >
-      <MapScreenHeader
-        viewMode={viewMode}
-        onChangeViewMode={setViewMode}
-        onOpenFilters={openFilters}
-        activeFilters={activeFilters}
-        searchText={searchText}
-        onChangeSearch={setSearchText}
-      />
-
-      {!isListView && (
-        <ResultsInfo count={resultsCount} hasUserLocation={hasUserLocation} />
-      )}
-
-      {isListView ? (
-        <GymsList
-          data={filteredGyms}
-          headerText={listHeader}
-          onPressItem={handleGymPress}
+      <View style={[styles.body, isListView && styles.bodyList]}>
+        <MapScreenHeader
+          viewMode={viewMode}
+          onChangeViewMode={setViewMode}
+          onOpenFilters={openFilters}
+          activeFilters={activeFilters}
+          searchText={searchText}
+          onChangeSearch={setSearchText}
         />
-      ) : (
-        <MapSection
-          initialRegion={initialRegion}
-          mapLocations={mapLocations}
-          userLocation={userLatLng}
-          loading={isLoading}
-          error={error}
-          locError={locError}
-          moreList={topNearbyGyms}
-          mapHeight={MAP_SECTION_HEIGHT}
-          showUserFallbackPin
-          onGymPress={handleGymPress}
-        />
-      )}
+
+        {!isListView && (
+          <View style={styles.mapModeContent}>
+            <ResultsInfo count={resultsCount} hasUserLocation={hasUserLocation} />
+            <MapSection
+              initialRegion={initialRegion}
+              mapLocations={mapLocations}
+              userLocation={userLatLng}
+              loading={isLoading}
+              error={error}
+              locError={locError}
+              moreList={topNearbyGyms}
+              mapHeight={MAP_SECTION_HEIGHT}
+              showUserFallbackPin
+              onGymPress={handleGymPress}
+            />
+          </View>
+        )}
+
+        {isListView ? (
+          <View style={styles.listWrapper}>
+            <GymsList
+              data={filteredGyms}
+              headerText={listHeader}
+              onPressItem={handleGymPress}
+            />
+          </View>
+        ) : null}
+      </View>
 
       <FiltersSheet
         visible={filterVisible}
@@ -142,6 +149,31 @@ export default function MapScreen() {
         timeFilter={timeFilter}
         setTimeFilter={setTimeFilter}
       />
-    </Screen>
+    </SurfaceScreen>
   );
 }
+
+const styles = StyleSheet.create({
+  inner: {
+    paddingBottom: 0,
+  },
+  scrollContent: {
+    paddingBottom: 24,
+  },
+  staticContent: {
+    flex: 1,
+    paddingBottom: 0,
+  },
+  body: {
+    flexGrow: 1,
+  },
+  bodyList: {
+    flex: 1,
+  },
+  mapModeContent: {
+    gap: 16,
+  },
+  listWrapper: {
+    flex: 1,
+  },
+});

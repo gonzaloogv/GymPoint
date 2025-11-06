@@ -1,4 +1,6 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 import { Card } from '@shared/components/ui';
 import { RoutineExercise } from '@features/routines/domain/entities/Routine';
@@ -9,116 +11,147 @@ type Props = {
   onToggle: () => void;
 };
 
-/**
- * Card expandible para mostrar detalles de un ejercicio en RoutineDetailScreen
- * Patrón consistente con otras pantallas de listado
- * Header siempre visible: nombre + series/reps
- * Detalles expandibles: peso, tiempo de descanso, grupos musculares
- */
-export function ExpandableExerciseDetail({
-  exercise,
-  isExpanded,
-  onToggle,
-}: Props) {
+export function ExpandableExerciseDetail({ exercise, isExpanded, onToggle }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Colores dinámicos
-  const textColor = isDark ? '#ffffff' : '#000000';
-  const secondaryTextColor = isDark ? '#9ca3af' : '#6b7280';
-  const borderColor = isDark ? '#374151' : '#e5e7eb';
-  const backgroundColor = isDark ? '#1f2937' : '#ffffff';
+  const palette = useMemo(
+    () => ({
+      background: isDark ? '#111827' : '#ffffff',
+      border: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
+      title: isDark ? '#F9FAFB' : '#111827',
+      subtitle: isDark ? '#9CA3AF' : '#6B7280',
+      pillBg: isDark ? 'rgba(79, 70, 229, 0.22)' : 'rgba(129, 140, 248, 0.16)',
+      pillText: isDark ? '#C7D2FE' : '#4338CA',
+      divider: isDark ? 'rgba(55, 65, 81, 0.6)' : 'rgba(148, 163, 184, 0.35)',
+    }),
+    [isDark],
+  );
 
-  // Valores por defecto para campos opcionales
   const series = exercise.series ?? 3;
   const reps = exercise.reps ?? 10;
 
   return (
-    <View className="mx-4 mb-3">
-      <Card>
-        {/* Header - Siempre visible */}
-        <TouchableOpacity
-          onPress={onToggle}
-          activeOpacity={0.6}
-        >
-          <View className="p-4 flex-row items-center justify-between">
-            {/* Nombre y metadata */}
-            <View className="flex-1">
-              <Text
-                className="font-bold text-lg mb-2"
-                style={{ color: textColor }}
-              >
-                {exercise.exercise_name}
-              </Text>
-
-              {/* Stats inline */}
-              <View className="flex-row items-center gap-2">
-                <Text
-                  className="text-sm font-semibold"
-                  style={{ color: '#3b82f6' }}
-                >
-                  {series} × {reps} reps
-                </Text>
-              </View>
-            </View>
-
-            {/* Chevron */}
-            <View className="ml-3">
-              <Text
-                className="text-2xl font-bold"
-                style={{ color: '#3b82f6' }}
-              >
-                {isExpanded ? '▼' : '▶'}
-              </Text>
-            </View>
+    <Card
+      padding="none"
+      style={[
+        styles.card,
+        {
+          backgroundColor: palette.background,
+          borderColor: palette.border,
+        },
+      ]}
+    >
+      <TouchableOpacity onPress={onToggle} activeOpacity={0.75} style={styles.header}>
+        <View style={styles.titleStack}>
+          <Text style={[styles.title, { color: palette.title }]} numberOfLines={1}>
+            {exercise.exercise_name}
+          </Text>
+          <View style={[styles.metaPill, { backgroundColor: palette.pillBg }]}>
+            <Text style={[styles.metaText, { color: palette.pillText }]}>
+              {series} x {reps} reps
+            </Text>
           </View>
-        </TouchableOpacity>
+        </View>
+        <Ionicons
+          name={isExpanded ? 'chevron-up' : 'chevron-down'}
+          size={20}
+          color={palette.subtitle}
+        />
+      </TouchableOpacity>
 
-        {/* Contenido expandible - Detalles adicionales */}
-        {isExpanded && (
-          <View
-            className="px-4 pb-4 border-t pt-4"
-            style={{ borderTopColor: borderColor }}
-          >
-            {/* Fila: Grupo muscular */}
-            <View className="flex-row items-center justify-between mb-3">
-              <View className="flex-row items-center gap-2">
-                <Text className="text-lg">💪</Text>
-                <Text
-                  className="text-sm font-medium"
-                  style={{ color: secondaryTextColor }}
-                >
-                  Grupo muscular
-                </Text>
-              </View>
-              <Text
-                className="text-sm font-semibold"
-                style={{ color: textColor }}
-              >
-                {exercise.muscular_group || 'No especificado'}
+      {isExpanded ? (
+        <View style={[styles.body, { borderTopColor: palette.divider }]}>
+          <View style={styles.row}>
+            <View style={styles.rowLabel}>
+              <Ionicons name="barbell-outline" size={18} color={palette.subtitle} />
+              <Text style={[styles.rowLabelText, { color: palette.subtitle }]}>Grupo muscular</Text>
+            </View>
+            <Text style={[styles.rowValue, { color: palette.title }]}>
+              {exercise.muscular_group || 'No especificado'}
+            </Text>
+          </View>
+
+          {exercise.description ? (
+            <View style={styles.descriptionBlock}>
+              <Text style={[styles.rowLabelText, { color: palette.subtitle }]}>Descripcion</Text>
+              <Text style={[styles.descriptionText, { color: palette.title }]}>
+                {exercise.description}
               </Text>
             </View>
-
-            {/* Fila: Descripción (si existe) */}
-            {exercise.description && (
-              <View className="mb-3">
-                <Text
-                  className="text-sm font-medium mb-1"
-                  style={{ color: secondaryTextColor }}
-                >
-                  Descripción
-                </Text>
-                <Text
-                  className="text-sm"
-                  style={{ color: textColor }}
-                >
-                  {exercise.description}
-                </Text>
-              </View>
-            )}
-          </View>
-        )}
-      </Card>
-    </View>
+          ) : null}
+        </View>
+      ) : null}
+    </Card>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    borderWidth: 1,
+    borderRadius: 24,
+    marginBottom: 16,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+  },
+  titleStack: {
+    flex: 1,
+    paddingRight: 12,
+    gap: 8,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  metaPill: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+  },
+  metaText: {
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  body: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    gap: 16,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  rowLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  rowLabelText: {
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.3,
+    textTransform: 'uppercase',
+  },
+  rowValue: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  descriptionBlock: {
+    gap: 8,
+  },
+  descriptionText: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+});
+

@@ -26,6 +26,7 @@ type UseRoutineExecutionResult = {
   expandedExercises: { [exerciseId: string]: boolean };
   timerState: TimerState;
   currentTimerExerciseId: string | null;
+  restSeconds: number;
   duration: number; // seconds since start
   totalVolume: number;
   setsCompleted: number;
@@ -81,6 +82,14 @@ export const useRoutineExecution = ({
   const lastRoutineIdRef = useRef<number | null>(null);
 
   const navigation = useNavigation();
+  const isMountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Reset initialization flag when routineId changes (prevents stale data from previous routine)
   useEffect(() => {
@@ -98,6 +107,11 @@ export const useRoutineExecution = ({
   useEffect(() => {
     if (routineId) {
       startExecution(routineId).catch((error) => {
+        // Don't show alerts if component is unmounted
+        if (!isMountedRef.current) {
+          console.log('[useRoutineExecution] ⚠️ Component unmounted, skipping error handling');
+          return;
+        }
         if (error.message === 'PENDING_SESSION_EXISTS') {
           Alert.alert(
             'Entrenamiento pendiente',
@@ -596,6 +610,7 @@ export const useRoutineExecution = ({
     expandedExercises,
     timerState,
     currentTimerExerciseId,
+    restSeconds,
     duration,
     totalVolume,
     setsCompleted,

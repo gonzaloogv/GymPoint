@@ -1,22 +1,58 @@
-import { View, Text } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useTheme } from '@shared/hooks';
-import { H1 } from '@shared/components/ui';
 
 type Props = {
   routineName: string;
   sessionsCount: number;
+  loading?: boolean;
 };
 
-export function HistoryHeader({ routineName, sessionsCount }: Props) {
+export function HistoryHeader({ routineName, sessionsCount, loading = false }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const subtextColor = isDark ? '#9ca3af' : '#6b7280';
+  const primary = isDark ? '#F9FAFB' : '#111827';
+  const secondary = isDark ? '#9CA3AF' : '#6B7280';
 
   return (
-    <View className="p-4 gap-0.5">
-      <H1>Historial</H1>
-      <Text style={{ color: subtextColor }}>{routineName}</Text>
-      <Text style={{ color: subtextColor }}>{sessionsCount} sesiones registradas</Text>
+    <View style={styles.container}>
+      <Text style={[styles.title, { color: primary }]}>Historial</Text>
+      <Text style={[styles.subtitle, { color: secondary }]}>{routineName}</Text>
+      {loading ? (
+        <View style={styles.sessionRow}>
+          <ActivityIndicator size="small" color={secondary} />
+        </View>
+      ) : (
+        <Text style={[styles.meta, { color: secondary }]}>
+          {sessionsCount} sesiones registradas
+        </Text>
+      )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    gap: 6,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '800',
+    letterSpacing: -0.4,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  meta: {
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  sessionRow: {
+    paddingVertical: 4,
+  },
+});

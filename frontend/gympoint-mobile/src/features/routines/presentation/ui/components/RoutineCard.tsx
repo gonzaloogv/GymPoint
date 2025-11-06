@@ -1,5 +1,6 @@
-import { TouchableOpacity, View, Text } from 'react-native';
-import { Card, StatusPill, MetaChip } from '@shared/components/ui';
+import React, { useMemo } from 'react';
+import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import { StatusPill, MetaChip } from '@shared/components/ui';
 import { useTheme } from '@shared/hooks';
 import { Routine } from '../../../domain/entities';
 
@@ -19,110 +20,208 @@ function minutesToLabel(mins: number) {
 export function RoutineCard({ routine, onPress, onPressDetail, onPressStart }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const metaColor = isDark ? '#9ca3af' : '#6b7280';
-  const borderColor = isDark ? '#374151' : '#e5e7eb';
-  const textColor = isDark ? '#ffffff' : '#000000';
-  const buttonBgColor = isDark ? '#1f2937' : '#f3f4f6';
-  const primaryColor = '#3b82f6';
 
-  // Adapt backend data to UI
-  const exercises = routine.exercises || [];
-  const exerciseCount = exercises.length;
-
-  // Extract unique muscle groups from exercises
-  const muscleGroups = Array.from(
-    new Set(exercises.map(ex => ex.muscular_group).filter(Boolean))
+  const palette = useMemo(
+    () => ({
+      background: isDark ? '#111827' : '#ffffff',
+      border: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
+      heading: isDark ? '#F9FAFB' : '#111827',
+      meta: isDark ? '#9CA3AF' : '#6B7280',
+      divider: isDark ? 'rgba(55, 65, 81, 0.9)' : '#E5E7EB',
+      outlineBg: isDark ? 'rgba(79, 70, 229, 0.22)' : 'rgba(129, 140, 248, 0.16)',
+      outlineBorder: isDark ? 'rgba(129, 140, 248, 0.38)' : 'rgba(129, 140, 248, 0.28)',
+      outlineText: isDark ? '#C7D2FE' : '#4338CA',
+      primaryBg: isDark ? '#4C51BF' : '#4338CA',
+    }),
+    [isDark],
   );
 
-  // Calculate estimated duration (3 min per set average)
+  const exercises = routine.exercises || [];
+  const exerciseCount = exercises.length;
+  const muscleGroups = Array.from(new Set(exercises.map((ex) => ex.muscular_group).filter(Boolean)));
   const totalSets = exercises.reduce((sum, ex) => sum + (ex.series || 3), 0);
-  const estimatedDuration = totalSets * 3; // minutes
+  const estimatedDuration = totalSets * 3;
 
-  // Mock status until backend implements it
   const status: 'Active' | 'Scheduled' | 'Completed' = 'Active';
-
-  // Mock difficulty until backend implements it
   const difficulty = 'Intermedio';
+
+  const handlePress = () => {
+    if (onPress) {
+      onPress(routine);
+      return;
+    }
+    onPressDetail?.(routine);
+  };
 
   return (
     <TouchableOpacity
-      onPress={() => onPress?.(routine) || onPressDetail?.(routine)}
-      activeOpacity={0.7}
+      onPress={handlePress}
+      activeOpacity={0.72}
+      style={[
+        styles.card,
+        {
+          backgroundColor: palette.background,
+          borderColor: palette.border,
+        },
+        isDark ? styles.darkShadow : styles.lightShadow,
+      ]}
     >
-      <Card>
-        <View className="p-4 gap-3">
-          {/* Header */}
-          <View className="gap-1">
-            <View className="flex-row items-center justify-between">
-              <Text numberOfLines={2} className="flex-1 mr-1 text-lg font-bold" style={{ color: textColor }}>
-                {routine.routine_name}
-              </Text>
-              <StatusPill status={status} />
-            </View>
-
-            <View className="flex-row flex-wrap gap-1">
-              <Text style={{ color: metaColor, fontSize: 12 }}>
-                {minutesToLabel(estimatedDuration)}
-              </Text>
-              <Text style={{ color: metaColor, fontSize: 12 }}>• {difficulty}</Text>
-            </View>
-
-            <View style={{ height: 1, backgroundColor: borderColor, marginVertical: 8 }} />
-
-            <Text numberOfLines={2} style={{ color: metaColor, fontSize: 12 }}>
-              {exerciseCount} ejercicios •{' '}
-              {exercises
-                .slice(0, 3)
-                .map((e) => e.exercise_name)
-                .join(', ')}
-              {exerciseCount > 3 ? '…' : ''}
-            </Text>
-
-            <View className="flex-row flex-wrap gap-1">
-              {muscleGroups.slice(0, 4).map((mg) => (
-                <MetaChip key={mg}>{mg}</MetaChip>
-              ))}
-            </View>
-          </View>
-
-          {/* Botones */}
-          <View className="flex-row gap-2 pt-2 border-t" style={{ borderTopColor: borderColor }}>
-            {/* Botón Detalle */}
-            <TouchableOpacity
-              onPress={() => onPressDetail?.(routine)}
-              className="flex-1 py-2.5 rounded-lg border items-center justify-center"
-              style={{
-                borderColor: primaryColor,
-                backgroundColor: buttonBgColor,
-              }}
-              activeOpacity={0.6}
-            >
-              <Text
-                className="font-semibold text-sm"
-                style={{ color: primaryColor }}
-              >
-                Detalle
-              </Text>
-            </TouchableOpacity>
-
-            {/* Botón Empezar Rutina */}
-            <TouchableOpacity
-              onPress={() => onPressStart?.(routine)}
-              className="flex-1 py-2.5 rounded-lg items-center justify-center"
-              style={{
-                backgroundColor: primaryColor,
-              }}
-              activeOpacity={0.7}
-            >
-              <Text
-                className="font-semibold text-sm text-white"
-              >
-                Empezar
-              </Text>
-            </TouchableOpacity>
-          </View>
+      <View style={styles.header}>
+        <Text numberOfLines={2} style={[styles.title, { color: palette.heading }]}>
+          {routine.routine_name}
+        </Text>
+        <View style={styles.statusWrapper}>
+          <StatusPill status={status} />
         </View>
-      </Card>
+      </View>
+
+      <View style={styles.metaRow}>
+        <Text style={[styles.metaText, { color: palette.meta }]}>{minutesToLabel(estimatedDuration)}</Text>
+        <Text style={[styles.metaDivider, { color: palette.meta }]}>-</Text>
+        <Text style={[styles.metaText, { color: palette.meta }]}>{difficulty}</Text>
+      </View>
+
+      <View style={[styles.divider, { backgroundColor: palette.divider }]} />
+
+      <Text numberOfLines={2} style={[styles.description, { color: palette.meta }]}>
+        {exerciseCount} ejercicios -{' '}
+        {exercises
+          .slice(0, 3)
+          .map((exercise) => exercise.exercise_name)
+          .join(', ')}
+        {exerciseCount > 3 ? '...' : ''}
+      </Text>
+
+      <View style={styles.chipRow}>
+        {muscleGroups.slice(0, 4).map((group) => (
+          <View key={group} style={styles.chipWrapper}>
+            <MetaChip>{group}</MetaChip>
+          </View>
+        ))}
+      </View>
+
+      <View style={[styles.buttonRow, { borderTopColor: palette.divider }]}>
+        <TouchableOpacity
+          onPress={() => onPressDetail?.(routine)}
+          activeOpacity={0.7}
+          style={[
+            styles.outlineButton,
+            {
+              backgroundColor: palette.outlineBg,
+              borderColor: palette.outlineBorder,
+            },
+          ]}
+        >
+          <Text style={[styles.outlineText, { color: palette.outlineText }]}>Detalle</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => onPressStart?.(routine)}
+          activeOpacity={0.78}
+          style={[styles.primaryButton, { backgroundColor: palette.primaryBg }]}
+        >
+          <Text style={styles.primaryText}>Empezar</Text>
+        </TouchableOpacity>
+      </View>
     </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    borderWidth: 1,
+    borderRadius: 28,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+  },
+  lightShadow: {
+    shadowColor: '#4338CA',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 14 },
+    shadowRadius: 22,
+    elevation: 6,
+  },
+  darkShadow: {
+    shadowColor: '#000000',
+    shadowOpacity: 0.35,
+    shadowOffset: { width: 0, height: 18 },
+    shadowRadius: 26,
+    elevation: 12,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  statusWrapper: {
+    marginLeft: 12,
+  },
+  title: {
+    flex: 1,
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  metaText: {
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.2,
+  },
+  metaDivider: {
+    fontSize: 14,
+    marginHorizontal: 8,
+  },
+  divider: {
+    height: 1,
+    marginTop: 18,
+    marginBottom: 16,
+  },
+  description: {
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 14,
+  },
+  chipWrapper: {
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    marginTop: 24,
+    paddingTop: 16,
+    borderTopWidth: 1,
+  },
+  outlineButton: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  outlineText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  primaryButton: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  primaryText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+});

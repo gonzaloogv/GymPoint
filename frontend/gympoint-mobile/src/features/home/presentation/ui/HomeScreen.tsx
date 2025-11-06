@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { Screen } from '@shared/components/ui';
+import { SurfaceScreen } from '@shared/components/ui';
 import { useHome } from '../hooks/useHome';
 import {
   HomeHeader,
@@ -26,7 +26,7 @@ export default function HomeScreen() {
   const { bottom } = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
 
-  const { user, weeklyGoal, currentProgress, progressPct, perm, requestLocation } =
+  const { user, weeklyGoal, currentProgress, progressPct, dailyChallenge, perm, requestLocation } =
     useHome();
 
   const goToGyms = () => navigation.navigate('Mapa');
@@ -40,12 +40,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <Screen
-      scroll
-      safeAreaTop={true}
-      safeAreaBottom={false}
-      contentContainerStyle={contentSpacing}
-    >
+    <SurfaceScreen scroll contentContainerStyle={contentSpacing}>
       <HomeHeader userName={user.name} plan={user.plan} tokens={user.tokens} streak={user.streak} />
 
       <WeeklyProgressCard
@@ -62,7 +57,7 @@ export default function HomeScreen() {
       />
 
       <LocationBanner visible={perm !== 'granted'} onEnable={requestLocation} />
-      <DailyChallengeCard />
-    </Screen>
+      <DailyChallengeCard challenge={dailyChallenge} />
+    </SurfaceScreen>
   );
 }

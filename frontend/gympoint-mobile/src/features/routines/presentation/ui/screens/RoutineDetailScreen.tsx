@@ -29,6 +29,36 @@ export default function RoutineDetailScreen({ route, navigation }: any) {
     }));
   };
 
+  const handleEdit = () => {
+    // TODO: Navigate to edit screen when it's created
+    Alert.alert(
+      'Editar Rutina',
+      'La funcionalidad de edición estará disponible próximamente.',
+      [{ text: 'OK' }]
+    );
+  };
+
+  const handleDelete = async () => {
+    if (!routineId) return;
+
+    try {
+      await deleteRoutine(routineId);
+      Alert.alert('Éxito', 'Rutina eliminada correctamente', [
+        {
+          text: 'OK',
+          onPress: () => navigation?.goBack?.(),
+        },
+      ]);
+    } catch (error) {
+      console.error('Error deleting routine:', error);
+      Alert.alert(
+        'Error',
+        'No se pudo eliminar la rutina. Por favor intenta de nuevo.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
   if (loading || !routine) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -38,7 +68,13 @@ export default function RoutineDetailScreen({ route, navigation }: any) {
     );
   }
 
-  const headerComponent = <RoutineDetailHeader routine={routine} />;
+  const headerComponent = (
+    <RoutineDetailHeader
+      routine={routine}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+    />
+  );
 
   const footerComponent = (
     <RoutineDetailFooter
@@ -64,7 +100,6 @@ export default function RoutineDetailScreen({ route, navigation }: any) {
       renderItem={renderItem}
       ListHeaderComponent={headerComponent}
       ListFooterComponent={footerComponent}
-      contentContainerStyle={{ paddingBottom: 96, paddingTop: 16 }}
     />
   );
 }

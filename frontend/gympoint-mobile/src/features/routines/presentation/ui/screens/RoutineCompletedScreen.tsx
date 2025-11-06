@@ -1,10 +1,19 @@
-import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+} from 'react-native';
 import { useTheme } from '@shared/hooks';
-import { Card, Button, ButtonText } from '@shared/components/ui';
+import { SurfaceScreen, MetricTile, Button, ButtonText, Card } from '@shared/components/ui';
 import { CompletionStats } from '@features/routines/domain/entities/ExecutionSession';
 import { formatDuration } from '@shared/utils';
-import { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { useSaveRoutineSession } from '@features/routines/presentation/hooks';
 
 type RoutineCompletedScreenProps = {
@@ -14,235 +23,147 @@ type RoutineCompletedScreenProps = {
   navigation: any;
 };
 
-/**
- * Pantalla de finalización de rutina
- * Muestra resumen de la sesión, estadísticas y permite agregar notas
- */
-export default function RoutineCompletedScreen({
-  route,
-  navigation,
-}: RoutineCompletedScreenProps) {
+const RoutineCompletedScreen = ({ route, navigation }: RoutineCompletedScreenProps) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Colores dinámicos
-  const textColor = isDark ? '#ffffff' : '#000000';
-  const secondaryTextColor = isDark ? '#9ca3af' : '#6b7280';
-  const backgroundColor = isDark ? '#111827' : '#f9fafb';
-  const cardBgColor = isDark ? '#1f2937' : '#ffffff';
-  const borderColor = isDark ? '#374151' : '#e5e7eb';
-
-  // Estado local para notas
   const [notes, setNotes] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-
-  // Hook para guardar sesión
   const { saveSession } = useSaveRoutineSession();
 
   const stats = route?.params;
+
   if (!stats) {
     return (
-      <View className="flex-1 items-center justify-center" style={{ backgroundColor }}>
-        <Text style={{ color: textColor }}>Error: No hay datos de la sesión</Text>
-      </View>
+      <SurfaceScreen>
+        <View style={styles.loading}>
+          <Text style={{ color: isDark ? '#ffffff' : '#111827' }}>No hay datos de la sesion</Text>
+        </View>
+      </SurfaceScreen>
     );
   }
+
+  const tokensEarned = stats.tokensEarned ?? 0;
 
   const handleFinish = async () => {
     try {
       setIsSaving(true);
-      // Guardar la sesión con las notas
       await saveSession(stats, notes || undefined);
-      setIsSaving(false);
       navigation.navigate('RoutinesList');
     } catch (error) {
+      Alert.alert('Error', 'No se pudo guardar la sesion. Intenta nuevamente.');
+    } finally {
       setIsSaving(false);
-      Alert.alert(
-        'Error',
-        'No se pudo guardar la sesión. Por favor intenta de nuevo.',
-        [{ text: 'OK' }]
-      );
     }
   };
 
+  const headerAccent = isDark ? '#FACC15' : '#CA8A04';
+  const cardBorder = isDark ? '#374151' : '#E5E7EB';
+  const secondaryText = isDark ? '#9CA3AF' : '#6B7280';
+  const primaryText = isDark ? '#F9FAFB' : '#111827';
+
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1, backgroundColor }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <SurfaceScreen
+        scroll
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingTop: 20,
+          paddingBottom: 36,
+          rowGap: 24,
+        }}
+        scrollProps={{ keyboardShouldPersistTaps: 'handled' }}
       >
-        <ScrollView
-          className="flex-1"
-          style={{ backgroundColor }}
-          contentContainerStyle={{
-            paddingBottom: 32,
-            paddingTop: 16,
-          }}
-        >
-      {/* Trophy Icon + Title */}
-      <View className="items-center py-8 gap-3">
-        <Text className="text-6xl">🏆</Text>
-        <Text
-          className="text-3xl font-black text-center"
-          style={{ color: textColor }}
-        >
-          ¡Entrenamiento Completado!
-        </Text>
-        <Text
-          className="text-base text-center mt-2"
-          style={{ color: secondaryTextColor }}
-        >
-          Eres una máquina, ¡sigue así!
-        </Text>
-      </View>
+        <View style={styles.header}>
+          <Ionicons name="trophy" size={52} color={headerAccent} />
+          <Text style={[styles.title, { color: primaryText }]}>Entrenamiento completado</Text>
+          <Text style={[styles.subtitle, { color: secondaryText }]}>
+            Gran trabajo. Sigue asi!
+          </Text>
+        </View>
 
-      {/* Contenido */}
-      <View className="px-4 gap-4">
-        {/* Card 1: Nombre de la rutina */}
-        <Card>
-          <View className="p-4">
-            <Text
-              className="text-xs font-semibold uppercase mb-2"
-              style={{ color: secondaryTextColor }}
-            >
-              Rutina completada
-            </Text>
-            <TouchableOpacity activeOpacity={0.6}>
-              <Text
-                className="text-lg font-bold"
-                style={{ color: '#3b82f6' }}
-              >
-                {stats.routineName}
-              </Text>
-            </TouchableOpacity>
+        <Card style={{ borderColor: cardBorder }}>
+          <View style={styles.routineInfo}>
+            <Text style={[styles.sectionLabel, { color: secondaryText }]}>Rutina</Text>
+            <Text style={styles.routineName}>{stats.routineName || 'Rutina sin nombre'}</Text>
           </View>
         </Card>
 
-        {/* Card 2: Streak Info */}
-        <Card>
-          <View className="p-4 flex-row items-center gap-3">
-            <Text className="text-3xl">🔥</Text>
-            <View className="flex-1">
-              <Text
-                className="text-base font-bold"
-                style={{ color: textColor }}
-              >
-                Tu racha aumentó a {stats.streak || '1'} días
-              </Text>
-            </View>
+        <View style={styles.metricsRow}>
+          <View style={styles.metricTile}>
+            <MetricTile
+              tone="primary"
+              label="Duracion"
+              value={formatDuration(stats.duration)}
+              icon={<Ionicons name="time-outline" size={20} color="#6366F1" />}
+              size="compact"
+            />
           </View>
-        </Card>
-
-        {/* Card 3: Estadísticas */}
-        <Card>
-          <View className="p-4">
-            <Text
-              className="text-base font-bold mb-4"
-              style={{ color: textColor }}
-            >
-              Estadísticas
-            </Text>
-
-            {/* Duración */}
-            <View className="flex-row items-center justify-between py-2 border-b" style={{ borderBottomColor: borderColor }}>
-              <View className="flex-row items-center gap-2">
-                <Text className="text-lg">⏱️</Text>
-                <Text style={{ color: secondaryTextColor }}>Duración</Text>
-              </View>
-              <Text className="font-semibold" style={{ color: textColor }}>
-                {formatDuration(stats.duration)}
-              </Text>
-            </View>
-
-            {/* Volumen */}
-            <View className="flex-row items-center justify-between py-2 border-b" style={{ borderBottomColor: borderColor }}>
-              <View className="flex-row items-center gap-2">
-                <Text className="text-lg">💪</Text>
-                <Text style={{ color: secondaryTextColor }}>Volumen total</Text>
-              </View>
-              <Text className="font-semibold" style={{ color: textColor }}>
-                {stats.totalVolume.toFixed(0)} kg
-              </Text>
-            </View>
-
-            {/* Series */}
-            <View className="flex-row items-center justify-between py-2">
-              <View className="flex-row items-center gap-2">
-                <Text className="text-lg">📊</Text>
-                <Text style={{ color: secondaryTextColor }}>Series completadas</Text>
-              </View>
-              <Text className="font-semibold" style={{ color: textColor }}>
-                {stats.setsCompleted}/{stats.totalSets}
-              </Text>
-            </View>
+          <View style={[styles.metricTile, styles.metricTileSpacing]}>
+            <MetricTile
+              tone="primary"
+              label="Volumen total"
+              value={`${stats.totalVolume.toFixed(0)} kg`}
+              icon={<Ionicons name="barbell-outline" size={20} color="#6366F1" />}
+              size="compact"
+            />
           </View>
-        </Card>
+        </View>
 
-        {/* Card 4: Notas */}
-        <Card>
-          <View className="p-4">
-            <Text
-              className="text-base font-bold mb-3"
-              style={{ color: textColor }}
-            >
-              Añadir nota (opcional)
-            </Text>
+        <MetricTile
+          label="Series completadas"
+          tone="neutral"
+          icon={<Ionicons name="checkmark-done-outline" size={20} color={isDark ? '#6EE7B7' : '#047857'} />}
+          size="compact"
+          valueContent={
+            <View style={styles.setsValue}>
+              <Text style={[styles.setsPrimary, { color: primaryText }]}>{stats.setsCompleted}</Text>
+              <Text style={[styles.setsSecondary, { color: secondaryText }]}> / {stats.totalSets}</Text>
+            </View>
+          }
+        />
+
+        <Card style={{ borderColor: cardBorder }}>
+          <View style={styles.notesCard}>
+            <Text style={[styles.notesTitle, { color: primaryText }]}>Agregar nota (opcional)</Text>
             <TextInput
-              className="border rounded-lg p-3 min-h-32"
+              className="border rounded-xl p-3 min-h-32"
               style={{
-                borderColor: borderColor,
-                backgroundColor: cardBgColor,
-                color: textColor,
+                borderColor: cardBorder,
+                color: primaryText,
+                backgroundColor: isDark ? '#1F2937' : '#ffffff',
                 textAlignVertical: 'top',
               }}
-              placeholder="¿Cómo te sentiste? ¿Alguna observación?"
-              placeholderTextColor={secondaryTextColor}
+              placeholder="Como te sentiste? Alguna observacion?"
+              placeholderTextColor={secondaryText}
               value={notes}
               onChangeText={setNotes}
               multiline
               maxLength={500}
             />
-            <Text
-              className="text-xs mt-2"
-              style={{ color: secondaryTextColor }}
-            >
+            <Text style={[styles.notesCounter, { color: secondaryText }]}>
               {notes.length}/500
             </Text>
           </View>
         </Card>
 
-        {/* Card 5: Tokens Earned */}
-        {stats.tokensEarned && stats.tokensEarned > 0 && (
-          <Card>
-            <View className="p-4 flex-row items-center justify-between">
-              <View className="flex-row items-center gap-2">
-                <Text className="text-3xl">🪙</Text>
-                <Text
-                  className="font-semibold"
-                  style={{ color: textColor }}
-                >
-                  Tokens ganados
-                </Text>
-              </View>
-              <Text
-                className="text-2xl font-black"
-                style={{ color: '#f59e0b' }}
-              >
-                +{stats.tokensEarned}
-              </Text>
-            </View>
-          </Card>
-        )}
+        {tokensEarned > 0 ? (
+          <MetricTile
+            label="Tokens ganados"
+            value={`+${tokensEarned}`}
+            tone="success"
+            highlight
+            size="compact"
+            icon={<Ionicons name="sparkles" size={20} color="#F59E0B" />}
+          />
+        ) : null}
 
-        {/* Button Terminar */}
-        <Button
-          onPress={handleFinish}
-          className="w-full mt-4"
-          disabled={isSaving}
-        >
+        <Button onPress={handleFinish} className="w-full mt-2" disabled={isSaving}>
           {isSaving ? (
-            <View className="flex-row items-center gap-2">
+            <View style={styles.buttonContent}>
               <ActivityIndicator color="#ffffff" size="small" />
               <ButtonText>Guardando...</ButtonText>
             </View>
@@ -250,9 +171,84 @@ export default function RoutineCompletedScreen({
             <ButtonText>Terminar</ButtonText>
           )}
         </Button>
-      </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      </SurfaceScreen>
+    </KeyboardAvoidingView>
   );
-}
+};
+
+export default RoutineCompletedScreen;
+
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  header: {
+    alignItems: 'center',
+    gap: 12,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  routineInfo: {
+    padding: 16,
+    gap: 8,
+  },
+  sectionLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  routineName: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#4F46E5',
+  },
+  metricsRow: {
+    flexDirection: 'row',
+  },
+  metricTile: {
+    flex: 1,
+  },
+  metricTileSpacing: {
+    marginLeft: 12,
+  },
+  setsValue: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  setsPrimary: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  setsSecondary: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  notesCard: {
+    padding: 16,
+    gap: 12,
+  },
+  notesTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  notesCounter: {
+    fontSize: 12,
+    textAlign: 'right',
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+});

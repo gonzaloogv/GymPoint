@@ -50,7 +50,7 @@ export default function QuickActions({ onFindGyms, onMyRoutines }: Props) {
     {
       key: 'progress',
       label: 'Progreso',
-      description: 'Ver estadísticas',
+      description: 'Ver estadisticas',
       icon: 'trending-up',
       color: '#059669',
       colorDark: '#4ade80',
@@ -72,7 +72,7 @@ export default function QuickActions({ onFindGyms, onMyRoutines }: Props) {
   ];
 
   return (
-    <View className="w-full flex-wrap flex-row gap-2 justify-between">
+    <View className="w-full flex-wrap flex-row gap-3 justify-between">
       {actions.map(
         ({ key, label, description, icon, color, colorDark, background, backgroundDark, onPress }) => (
           <View key={key} className="w-[48%]">
@@ -83,6 +83,7 @@ export default function QuickActions({ onFindGyms, onMyRoutines }: Props) {
               iconColor={isDark ? colorDark : color}
               iconBackground={isDark ? backgroundDark : background}
               onPress={onPress}
+              layout="vertical"
             />
           </View>
         ),

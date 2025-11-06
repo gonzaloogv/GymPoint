@@ -35,7 +35,14 @@ export function RoutineDetailLayout({
         ListHeaderComponent={ListHeaderComponent}
         ListFooterComponent={ListFooterComponent}
         ItemSeparatorComponent={ItemSeparatorComponent}
-        contentContainerStyle={contentContainerStyle}
+        contentContainerStyle={[
+          {
+            paddingHorizontal: 16,
+            paddingBottom: 120,
+            paddingTop: 16,
+          },
+          contentContainerStyle,
+        ]}
       />
     </SafeAreaView>
   );

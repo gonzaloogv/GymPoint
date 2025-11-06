@@ -35,8 +35,6 @@ export function BasicInfoStep({ data, onChange }: Props) {
   const textColor = isDark ? '#ffffff' : '#000000';
   const subtextColor = isDark ? '#9ca3af' : '#6b7280';
 
-  console.log('📝 BasicInfoStep - Current data:', data);
-
   return (
     <StepScrollContainer>
       <StepSection>

@@ -1,7 +1,5 @@
 import React from 'react';
-import { FlatList, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@shared/hooks';
+import { FlatList, View, StyleSheet } from 'react-native';
 
 type Props = {
   data: any[];
@@ -22,22 +20,34 @@ export function RoutinesLayout({
   ListFooterComponent,
   contentContainerStyle,
 }: Props) {
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
-  const bgColor = isDark ? '#111827' : '#f9fafb';
-
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1" style={{ backgroundColor: bgColor }}>
-      <FlatList
-        data={data}
-        keyExtractor={keyExtractor}
-        renderItem={renderItem}
-        ItemSeparatorComponent={() => <View className="h-3" />}
-        ListHeaderComponent={ListHeaderComponent}
-        ListEmptyComponent={ListEmptyComponent}
-        ListFooterComponent={ListFooterComponent}
-        contentContainerStyle={contentContainerStyle}
-      />
-    </SafeAreaView>
+    <FlatList
+      data={data}
+      keyExtractor={keyExtractor}
+      renderItem={renderItem}
+      ItemSeparatorComponent={() => <View style={styles.separator} />}
+      ListHeaderComponent={ListHeaderComponent}
+      ListEmptyComponent={ListEmptyComponent}
+      ListFooterComponent={ListFooterComponent}
+      showsVerticalScrollIndicator={false}
+      style={styles.list}
+      contentContainerStyle={[
+        {
+          paddingHorizontal: 16,
+          paddingTop: 16,
+          paddingBottom: 120,
+        },
+        contentContainerStyle,
+      ]}
+    />
   );
 }
+
+const styles = StyleSheet.create({
+  list: {
+    flex: 1,
+  },
+  separator: {
+    height: 16,
+  },
+});

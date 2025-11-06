@@ -1,7 +1,7 @@
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { FILTERS } from '../../hooks/useRoutinesFilters';
-import { RoutineStatus } from '@features/routines/domain/entities';
 import { Input } from '@shared/components/ui';
 
 type Props = {
@@ -19,25 +19,39 @@ export default function RoutinesHeader({
 }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const primaryColor = '#3B82F6';
-  const cardBg = isDark ? '#1f2937' : '#ffffff';
-  const borderColor = isDark ? '#374151' : '#e5e7eb';
-  const textColor = isDark ? '#ffffff' : '#000000';
+
+  const palette = useMemo(
+    () => ({
+      title: isDark ? '#F9FAFB' : '#111827',
+      subtitle: isDark ? '#9CA3AF' : '#6B7280',
+      activeBg: isDark ? 'rgba(79, 70, 229, 0.24)' : 'rgba(129, 140, 248, 0.2)',
+      activeBorder: isDark ? 'rgba(129, 140, 248, 0.4)' : 'rgba(129, 140, 248, 0.28)',
+      activeText: isDark ? '#C7D2FE' : '#4338CA',
+      pillBg: isDark ? 'rgba(31, 41, 55, 0.9)' : '#F3F4F6',
+      pillBorder: isDark ? 'rgba(55, 65, 81, 0.8)' : '#E5E7EB',
+      pillText: isDark ? '#E5E7EB' : '#374151',
+    }),
+    [isDark],
+  );
 
   return (
-    <View className="p-4 gap-1">
-      <Text className="text-2xl font-bold" style={{ color: textColor }}>
-        Mis rutinas
+    <View style={styles.container}>
+      <Text style={[styles.title, { color: palette.title }]}>Mis rutinas</Text>
+      <Text style={[styles.subtitle, { color: palette.subtitle }]}>
+        Organiza, crea y sigue tus entrenamientos
       </Text>
+
       <Input
-        placeholder="Buscar por nombre o músculo…"
+        placeholder="Buscar por nombre o musculo"
         value={search}
         onChangeText={onSearchChange}
+        className="mt-5"
       />
+
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        className="mt-1"
+        contentContainerStyle={styles.filterRow}
       >
         {FILTERS.map(({ key, label }) => {
           const active = key === status;
@@ -45,18 +59,21 @@ export default function RoutinesHeader({
             <TouchableOpacity
               key={key}
               onPress={() => onStatusChange(key)}
-              className="px-3 py-1.5 rounded-lg mr-1 border"
-              style={{
-                backgroundColor: active ? primaryColor : cardBg,
-                borderColor: active ? primaryColor : borderColor,
-                borderWidth: 1,
-              }}
+              activeOpacity={0.75}
+              style={[
+                styles.filterPill,
+                styles.filterPillSpacing,
+                {
+                  backgroundColor: active ? palette.activeBg : palette.pillBg,
+                  borderColor: active ? palette.activeBorder : palette.pillBorder,
+                },
+              ]}
             >
               <Text
-                className="text-xs font-semibold"
-                style={{
-                  color: active ? '#ffffff' : textColor,
-                }}
+                style={[
+                  styles.filterLabel,
+                  { color: active ? palette.activeText : palette.pillText },
+                ]}
               >
                 {label}
               </Text>
@@ -67,3 +84,41 @@ export default function RoutinesHeader({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '800',
+    letterSpacing: -0.4,
+  },
+  subtitle: {
+    marginTop: 6,
+    fontSize: 14,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+    fontWeight: '600',
+  },
+  filterRow: {
+    paddingTop: 20,
+    paddingBottom: 4,
+  },
+  filterPill: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 18,
+    borderWidth: 1,
+  },
+  filterPillSpacing: {
+    marginRight: 12,
+  },
+  filterLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+});

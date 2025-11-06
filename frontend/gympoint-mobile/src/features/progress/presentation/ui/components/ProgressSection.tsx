@@ -17,7 +17,7 @@ export function ProgressSection({ icon, title, description, onPress }: ProgressS
   return (
     <Pressable
       onPress={onPress}
-      className={`mx-4 p-4 rounded-xl mb-3 flex-row items-center justify-between ${
+      className={`p-4 rounded-xl flex-row items-center justify-between ${
         isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
       }`}
     >

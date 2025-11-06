@@ -4,8 +4,28 @@ const challengeService = require('../services/challenge-service');
 const getToday = async (req, res) => {
   try {
     const idUser = req.user.id_user_profile;
-    const challenge = await challengeService.getTodayChallenge(idUser);
-    res.json({ challenge });
+    const result = await challengeService.getTodayChallenge(idUser);
+
+    if (!result) {
+      return res.json({ challenge: null });
+    }
+
+    // Combinar challenge y progress en un solo objeto
+    const challengeData = {
+      id_challenge: result.challenge.id_challenge,
+      challenge_date: result.challenge.challenge_date,
+      title: result.challenge.title,
+      description: result.challenge.description,
+      challenge_type: result.challenge.challenge_type,
+      target_value: result.challenge.target_value,
+      target_unit: result.challenge.target_unit,
+      tokens_reward: result.challenge.tokens_reward,
+      difficulty: result.challenge.difficulty,
+      progress: result.progress?.current_value || 0,
+      completed: result.progress?.status === 'COMPLETED'
+    };
+
+    res.json({ challenge: challengeData });
   } catch (err) {
     res.status(400).json({ error: { code: 'GET_TODAY_CHALLENGE_FAILED', message: err.message } });
   }

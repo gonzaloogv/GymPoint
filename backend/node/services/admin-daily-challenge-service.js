@@ -220,26 +220,99 @@ const deleteTemplate = async (id) => {
 };
 
 const getConfig = async () => {
-  return challengeService.getSettings();
+  return DailyChallengeSettings.getSingleton();
 };
 
 const updateConfig = async (payload) => {
-  const config = await challengeService.getSettings();
+  const config = await DailyChallengeSettings.getSingleton();
 
+  const updateData = {};
   if (payload.auto_rotation_enabled != null) {
-    config.auto_rotation_enabled = !!payload.auto_rotation_enabled;
+    updateData.auto_rotation_enabled = !!payload.auto_rotation_enabled;
   }
 
   if (payload.rotation_cron) {
-    config.rotation_cron = payload.rotation_cron;
+    updateData.rotation_cron = payload.rotation_cron;
   }
 
-  await config.save();
+  await config.update(updateData);
   return config;
 };
 
 const runAutoGeneration = async () => {
-  return challengeService.ensureTodayChallenge();
+  // Verificar si ya existe un desafío para hoy
+  const today = new Date().toISOString().slice(0, 10);
+  const existing = await DailyChallenge.findOne({
+    where: { challenge_date: today, is_active: true }
+  });
+
+  if (existing) {
+    console.log('[runAutoGeneration] Ya existe un desafío para hoy:', existing.title);
+    return existing;
+  }
+
+  // Verificar si la rotación automática está habilitada
+  const config = await DailyChallengeSettings.getSingleton();
+  if (!config.auto_rotation_enabled) {
+    console.log('[runAutoGeneration] Rotación automática deshabilitada');
+    return null;
+  }
+
+  // Obtener plantillas activas
+  const templates = await DailyChallengeTemplate.findAll({
+    where: { is_active: true },
+    order: [['rotation_weight', 'DESC']]
+  });
+
+  if (templates.length === 0) {
+    console.log('[runAutoGeneration] No hay plantillas activas');
+    return null;
+  }
+
+  // Seleccionar plantilla usando peso de rotación
+  const totalWeight = templates.reduce((sum, t) => sum + t.rotation_weight, 0);
+  let random = Math.random() * totalWeight;
+  let selectedTemplate = templates[0];
+
+  for (const template of templates) {
+    random -= template.rotation_weight;
+    if (random <= 0) {
+      selectedTemplate = template;
+      break;
+    }
+  }
+
+  console.log('[runAutoGeneration] Plantilla seleccionada:', selectedTemplate.title);
+
+  // Normalizar difficulty (por si hay valores antiguos en la BD)
+  const normalizeDifficultyValue = (value) => {
+    const upper = String(value || 'MEDIUM').toUpperCase();
+    // Mapear valores antiguos a nuevos
+    if (upper === 'BEGINNER') return 'EASY';
+    if (upper === 'INTERMEDIATE') return 'MEDIUM';
+    if (upper === 'ADVANCED') return 'HARD';
+    // Valores válidos
+    if (['EASY', 'MEDIUM', 'HARD'].includes(upper)) return upper;
+    return 'MEDIUM'; // Default
+  };
+
+  // Crear desafío desde plantilla
+  const challenge = await DailyChallenge.create({
+    challenge_date: today,
+    title: selectedTemplate.title,
+    description: selectedTemplate.description,
+    challenge_type: selectedTemplate.challenge_type,
+    target_value: selectedTemplate.target_value,
+    target_unit: selectedTemplate.target_unit,
+    tokens_reward: selectedTemplate.tokens_reward,
+    difficulty: normalizeDifficultyValue(selectedTemplate.difficulty),
+    id_template: selectedTemplate.id_template,
+    auto_generated: true,
+    is_active: true
+  });
+
+  console.log('[runAutoGeneration] ✅ Desafío generado:', challenge.title);
+  return challenge;
 };
 
 module.exports = {
