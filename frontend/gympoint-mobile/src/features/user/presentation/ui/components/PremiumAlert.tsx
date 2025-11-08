@@ -18,7 +18,7 @@ export const PremiumAlert: React.FC<PremiumAlertProps> = ({ onUpgrade }) => {
 
   return (
     <View
-      className="rounded-2xl p-5 mb-4 border"
+      className="rounded-[24px] p-5 mb-4 border"
       style={{
         backgroundColor: isDark ? '#2D1B4E' : '#F3E8FF',
         borderColor: isDark ? '#7C3AED' : '#C084FC',
@@ -52,7 +52,7 @@ export const PremiumAlert: React.FC<PremiumAlertProps> = ({ onUpgrade }) => {
 
           {/* Botón de acción */}
           <TouchableOpacity
-            className="rounded px-4 py-2 items-center justify-center"
+            className="rounded-2xl px-4 py-2 items-center justify-center"
             style={{
               backgroundColor: '#9333EA',
               opacity: 0.5,
@@ -60,7 +60,7 @@ export const PremiumAlert: React.FC<PremiumAlertProps> = ({ onUpgrade }) => {
             // onPress={onUpgrade} // DESACTIVADO: Trae datos mock que sobrescriben datos reales
             disabled
           >
-            <Text className="font-semibold text-xs" style={{ color: '#FFFFFF' }}>
+            <Text className="font-semibold text-xs" style={{ color: '#F9FAFB' }}>
               Próximamente
             </Text>
           </TouchableOpacity>

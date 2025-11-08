@@ -9,7 +9,7 @@ type PremiumUpsellProps = {
 
 export const PremiumUpsell: React.FC<PremiumUpsellProps> = ({ onPress }) => (
   <View
-    className="flex-row items-start gap-3 rounded-lg p-4 mb-4 border"
+    className="flex-row items-start gap-3 rounded-[24px] p-4 mb-4 border"
     style={{
       backgroundColor: palette.premiumSurface,
       borderColor: palette.premiumBorder,
@@ -26,10 +26,12 @@ export const PremiumUpsell: React.FC<PremiumUpsellProps> = ({ onPress }) => (
       </Text>
       <TouchableOpacity
         onPress={onPress}
-        className="px-4 py-3 rounded-lg self-start"
+        className="px-4 py-3 rounded-2xl self-start"
         style={{ backgroundColor: palette.premiumPrimary }}
       >
-        <Text className="text-white font-semibold text-sm">Ver Premium →</Text>
+        <Text className="font-semibold text-sm" style={{ color: '#F9FAFB' }}>
+          Ver Premium →
+        </Text>
       </TouchableOpacity>
     </View>
   </View>

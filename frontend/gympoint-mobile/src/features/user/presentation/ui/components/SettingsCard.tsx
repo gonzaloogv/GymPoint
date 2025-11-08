@@ -28,7 +28,6 @@ export const SettingsCard: React.FC<SettingsCardProps> = ({
 }) => {
   const { theme, themeMode, setThemeMode } = useTheme();
   const isDark = theme === 'dark';
-  const textColor = isDark ? '#ffffff' : '#1a1a1a';
 
   return (
     <Card>
@@ -36,8 +35,8 @@ export const SettingsCard: React.FC<SettingsCardProps> = ({
       <View
         style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}
       >
-        <Feather name="settings" size={20} color={textColor} />
-        <Text style={{ fontSize: 18, fontWeight: '700', color: textColor }}>
+        <Feather name="settings" size={20} color={isDark ? '#F9FAFB' : '#111827'} />
+        <Text style={{ fontSize: 18, fontWeight: '700', color: isDark ? '#F9FAFB' : '#111827' }}>
           Configuración
         </Text>
       </View>
@@ -61,8 +60,8 @@ export const SettingsCard: React.FC<SettingsCardProps> = ({
       {/* Configuración de tema */}
       <View style={{ marginBottom: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-          <Feather name="moon" size={16} color={textColor} />
-          <Text style={{ fontSize: 14, fontWeight: '600', color: textColor }}>
+          <Feather name="moon" size={16} color={isDark ? '#F9FAFB' : '#111827'} />
+          <Text style={{ fontSize: 14, fontWeight: '600', color: isDark ? '#F9FAFB' : '#111827' }}>
             Tema
           </Text>
         </View>

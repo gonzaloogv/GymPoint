@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 import { MetricTile } from '@shared/components/ui';
@@ -21,24 +21,6 @@ export default function WeeklyProgressCard({
 }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-
-  const palette = useMemo(
-    () => ({
-      iconColor: isDark ? '#C7D2FE' : '#4338CA',
-      label: isDark ? '#9CA3AF' : '#6B7280',
-      chipBg: isDark ? 'rgba(37, 99, 235, 0.16)' : 'rgba(59, 130, 246, 0.14)',
-      chipBorder: isDark ? 'rgba(96, 165, 250, 0.32)' : 'rgba(59, 130, 246, 0.22)',
-      chipText: isDark ? '#93C5FD' : '#1D4ED8',
-      successBg: isDark ? 'rgba(16, 185, 129, 0.18)' : 'rgba(16, 185, 129, 0.16)',
-      successBorder: isDark ? 'rgba(16, 185, 129, 0.28)' : 'rgba(16, 185, 129, 0.2)',
-      successText: isDark ? '#6EE7B7' : '#047857',
-      valuePrimary: isDark ? '#F9FAFB' : '#111827',
-      valueSecondary: isDark ? '#C7D2FE' : '#4338CA',
-      valueTertiary: isDark ? '#9CA3AF' : '#6B7280',
-    }),
-    [isDark],
-  );
-
   const roundedProgress = Math.round(progressPct);
 
   return (
@@ -46,16 +28,32 @@ export default function WeeklyProgressCard({
       tone="primary"
       highlight
       valueContent={
-        <View style={styles.inlineRow}>
-          <View style={styles.inlineIcon}>
-            <Ionicons name="target" size={24} color={palette.iconColor} />
+        <View className="flex-row items-center">
+          {/* Icon Badge */}
+          <View
+            className="w-14 h-14 rounded-[20px] border items-center justify-center"
+            style={{
+              borderColor: 'rgba(99, 102, 241, 0.25)',
+              backgroundColor: 'rgba(129, 140, 248, 0.18)',
+            }}
+          >
+            <Ionicons name="target" size={24} color={isDark ? '#C7D2FE' : '#4338CA'} />
           </View>
-          <View style={styles.inlineContent}>
-            <Text style={[styles.inlineLabel, { color: palette.label }]}>Meta semanal</Text>
-            <Text style={[styles.inlineValue, { color: palette.valuePrimary }]}>
+
+          {/* Content */}
+          <View className="ml-4 flex-1">
+            <Text
+              className="text-xs font-semibold uppercase tracking-wider"
+              style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+            >
+              Meta semanal
+            </Text>
+            <Text className="mt-2 text-[22px] font-bold" style={{ color: isDark ? '#F9FAFB' : '#111827' }}>
               {current}
-              <Text style={[styles.inlineValueSecondary, { color: palette.valueSecondary }]}>{` de ${goal}`}</Text>
-              <Text style={[styles.inlineValueTertiary, { color: palette.valueTertiary }]}>
+              <Text className="text-base font-bold" style={{ color: isDark ? '#C7D2FE' : '#4338CA' }}>
+                {` de ${goal}`}
+              </Text>
+              <Text className="text-base font-semibold" style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}>
                 {' entrenamientos'}
               </Text>
             </Text>
@@ -63,92 +61,36 @@ export default function WeeklyProgressCard({
         </View>
       }
     >
-      <View style={styles.chipsRow}>
+      {/* Chips Row */}
+      <View className="flex-row mt-4 -mb-2">
+        {/* Streak Chip */}
         <View
-          style={[
-            styles.chip,
-            {
-              backgroundColor: palette.successBg,
-              borderColor: palette.successBorder,
-            },
-          ]}
+          className="flex-row items-center py-2.5 px-[14px] rounded-full border mr-3 mb-2"
+          style={{
+            backgroundColor: isDark ? 'rgba(16, 185, 129, 0.18)' : 'rgba(16, 185, 129, 0.16)',
+            borderColor: isDark ? 'rgba(16, 185, 129, 0.28)' : 'rgba(16, 185, 129, 0.2)',
+          }}
         >
-          <Ionicons name="flame" size={16} color={palette.successText} />
-          <Text style={[styles.chipText, { color: palette.successText }]}>Racha {streak}</Text>
+          <Ionicons name="flame" size={16} color={isDark ? '#6EE7B7' : '#047857'} />
+          <Text className="ml-2 text-[13px] font-semibold" style={{ color: isDark ? '#6EE7B7' : '#047857' }}>
+            Racha {streak}
+          </Text>
         </View>
+
+        {/* Progress Chip */}
         <View
-          style={[
-            styles.chip,
-            {
-              backgroundColor: palette.chipBg,
-              borderColor: palette.chipBorder,
-            },
-          ]}
+          className="flex-row items-center py-2.5 px-[14px] rounded-full border mr-3 mb-2"
+          style={{
+            backgroundColor: isDark ? 'rgba(37, 99, 235, 0.16)' : 'rgba(59, 130, 246, 0.14)',
+            borderColor: isDark ? 'rgba(96, 165, 250, 0.32)' : 'rgba(59, 130, 246, 0.22)',
+          }}
         >
-          <Ionicons name="trending-up" size={16} color={palette.chipText} />
-          <Text style={[styles.chipText, { color: palette.chipText }]}>{roundedProgress}% logrado</Text>
+          <Ionicons name="trending-up" size={16} color={isDark ? '#93C5FD' : '#1D4ED8'} />
+          <Text className="ml-2 text-[13px] font-semibold" style={{ color: isDark ? '#93C5FD' : '#1D4ED8' }}>
+            {roundedProgress}% logrado
+          </Text>
         </View>
       </View>
     </MetricTile>
   );
 }
-
-const styles = StyleSheet.create({
-  inlineRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  inlineIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(99, 102, 241, 0.25)',
-    backgroundColor: 'rgba(129, 140, 248, 0.18)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  inlineContent: {
-    marginLeft: 16,
-    flex: 1,
-  },
-  inlineLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-  },
-  inlineValue: {
-    marginTop: 8,
-    fontSize: 22,
-    fontWeight: '700',
-  },
-  inlineValueSecondary: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  inlineValueTertiary: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  chipsRow: {
-    flexDirection: 'row',
-    marginTop: 16,
-    marginBottom: -8,
-  },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 999,
-    borderWidth: 1,
-    marginRight: 12,
-    marginBottom: 8,
-  },
-  chipText: {
-    marginLeft: 8,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-});

@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 import { SetExecution } from '@features/routines/domain/entities/ExecutionSession';
@@ -15,15 +15,10 @@ export function EditableSetRow({ set, onUpdate, onMarkDone, borderColor }: Props
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const palette = useMemo(
-    () => ({
-      text: isDark ? '#F9FAFB' : '#111827',
-      secondary: isDark ? '#9CA3AF' : '#6B7280',
-      inputBg: isDark ? '#0F172A' : '#FFFFFF',
-      success: '#10B981',
-    }),
-    [isDark],
-  );
+  const textColor = isDark ? '#F9FAFB' : '#111827';
+  const secondaryColor = isDark ? '#9CA3AF' : '#6B7280';
+  const inputBg = isDark ? '#0F172A' : '#FFFFFF';
+  const successColor = '#10B981';
 
   const handleWeightChange = (text: string) => {
     const value = parseFloat(text);
@@ -61,37 +56,35 @@ export function EditableSetRow({ set, onUpdate, onMarkDone, borderColor }: Props
 
   return (
     <View
-      style={[
-        styles.row,
-        {
-          backgroundColor: set.isDone ? 'rgba(16, 185, 129, 0.06)' : 'transparent',
-          borderBottomColor: borderColor,
-        },
-      ]}
+      className="flex-row items-center border-b"
+      style={{
+        backgroundColor: set.isDone ? 'rgba(16, 185, 129, 0.06)' : 'transparent',
+        borderBottomColor: borderColor,
+      }}
     >
-      <View style={styles.seriesCell}>
-        <Text style={[styles.seriesLabel, { color: palette.text }]}>{set.setNumber}</Text>
+      <View className="w-[52px] items-center justify-center py-3">
+        <Text className="text-sm font-bold" style={{ color: textColor }}>
+          {set.setNumber}
+        </Text>
       </View>
 
-      <View style={styles.previousCell}>
-        <Text style={[styles.previousText, { color: palette.secondary }]}>
+      <View className="flex-[1.25] px-1.5 items-center">
+        <Text className="text-xs font-medium leading-4" style={{ color: secondaryColor }}>
           {set.previousWeight && set.previousReps ? `${set.previousWeight}kg x ${set.previousReps}` : '-'}
         </Text>
       </View>
 
-      <View style={styles.inputCell}>
+      <View className="flex-1 px-1.5">
         <TextInput
-          style={[
-            styles.input,
-            {
-              borderColor: isEditable ? borderColor : 'transparent',
-              backgroundColor: palette.inputBg,
-              color: palette.text,
-            },
-          ]}
+          className="rounded-[10px] border py-2 px-2.5 text-center text-[13px] font-semibold leading-4"
+          style={{
+            borderColor: isEditable ? borderColor : 'transparent',
+            backgroundColor: inputBg,
+            color: textColor,
+          }}
           keyboardType="decimal-pad"
           placeholder="0"
-          placeholderTextColor={palette.secondary}
+          placeholderTextColor={secondaryColor}
           value={set.currentWeight ? String(set.currentWeight) : ''}
           onChangeText={handleWeightChange}
           editable={isEditable}
@@ -99,19 +92,17 @@ export function EditableSetRow({ set, onUpdate, onMarkDone, borderColor }: Props
         />
       </View>
 
-      <View style={styles.inputCell}>
+      <View className="flex-1 px-1.5">
         <TextInput
-          style={[
-            styles.input,
-            {
-              borderColor: isEditable ? borderColor : 'transparent',
-              backgroundColor: palette.inputBg,
-              color: palette.text,
-            },
-          ]}
+          className="rounded-[10px] border py-2 px-2.5 text-center text-[13px] font-semibold leading-4"
+          style={{
+            borderColor: isEditable ? borderColor : 'transparent',
+            backgroundColor: inputBg,
+            color: textColor,
+          }}
           keyboardType="number-pad"
           placeholder="0"
-          placeholderTextColor={palette.secondary}
+          placeholderTextColor={secondaryColor}
           value={set.currentReps ? String(set.currentReps) : ''}
           onChangeText={handleRepsChange}
           editable={isEditable}
@@ -120,19 +111,17 @@ export function EditableSetRow({ set, onUpdate, onMarkDone, borderColor }: Props
       </View>
 
       <TouchableOpacity
-        style={styles.toggleCell}
+        className="w-[68px] items-center justify-center"
         onPress={handleCheckbox}
         disabled={set.isDone}
         activeOpacity={0.6}
       >
         <View
-          style={[
-            styles.checkbox,
-            {
-              borderColor: set.isDone ? palette.success : palette.secondary,
-              backgroundColor: set.isDone ? palette.success : 'transparent',
-            },
-          ]}
+          className="w-5 h-5 rounded-[10px] border-2 items-center justify-center"
+          style={{
+            borderColor: set.isDone ? successColor : secondaryColor,
+            backgroundColor: set.isDone ? successColor : 'transparent',
+          }}
         >
           {set.isDone ? <Ionicons name="checkmark" size={12} color="#FFFFFF" /> : null}
         </View>
@@ -140,58 +129,3 @@ export function EditableSetRow({ set, onUpdate, onMarkDone, borderColor }: Props
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-  },
-  seriesCell: {
-    width: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-  },
-  seriesLabel: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  previousCell: {
-    flex: 1.25,
-    paddingHorizontal: 6,
-    alignItems: 'center',
-  },
-  previousText: {
-    fontSize: 12,
-    fontWeight: '500',
-    lineHeight: 16,
-  },
-  inputCell: {
-    flex: 1,
-    paddingHorizontal: 6,
-  },
-  input: {
-    borderRadius: 10,
-    borderWidth: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    textAlign: 'center',
-    fontSize: 13,
-    fontWeight: '600',
-    lineHeight: 16,
-  },
-  toggleCell: {
-    width: 68,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

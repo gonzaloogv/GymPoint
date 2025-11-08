@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 
 import { useRoutines } from '@features/routines/presentation/hooks/useRoutine';
 import { Routine } from '@features/routines/domain/entities';
@@ -69,7 +69,7 @@ export default function RoutinesScreen() {
           status={state.status}
           onStatusChange={setStatus}
         />
-        <View style={styles.weeklyCardWrapper}>
+        <View className="mt-7 mb-8">
           <WeeklyProgressCard
             current={weeklyCurrent}
             goal={weeklyGoal}
@@ -98,7 +98,7 @@ export default function RoutinesScreen() {
         renderItem={renderItem}
         ListHeaderComponent={headerComponent}
         ListEmptyComponent={<EmptyState />}
-        contentContainerStyle={styles.contentSpacing}
+        contentContainerStyle={{ paddingBottom: 140 }}
       />
       <FloatingActions
         onCreate={() => navigation.navigate('CreateRoutine')}
@@ -107,13 +107,3 @@ export default function RoutinesScreen() {
     </SurfaceScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  weeklyCardWrapper: {
-    marginTop: 28,
-    marginBottom: 32,
-  },
-  contentSpacing: {
-    paddingBottom: 140,
-  },
-});

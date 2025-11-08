@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import React from 'react';
+import { TouchableOpacity, View, Text } from 'react-native';
 import { StatusPill, MetaChip } from '@shared/components/ui';
 import { useTheme } from '@shared/hooks';
 import { Routine } from '../../../domain/entities';
@@ -21,21 +21,6 @@ export function RoutineCard({ routine, onPress, onPressDetail, onPressStart }: P
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const palette = useMemo(
-    () => ({
-      background: isDark ? '#111827' : '#ffffff',
-      border: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
-      heading: isDark ? '#F9FAFB' : '#111827',
-      meta: isDark ? '#9CA3AF' : '#6B7280',
-      divider: isDark ? 'rgba(55, 65, 81, 0.9)' : '#E5E7EB',
-      outlineBg: isDark ? 'rgba(79, 70, 229, 0.22)' : 'rgba(129, 140, 248, 0.16)',
-      outlineBorder: isDark ? 'rgba(129, 140, 248, 0.38)' : 'rgba(129, 140, 248, 0.28)',
-      outlineText: isDark ? '#C7D2FE' : '#4338CA',
-      primaryBg: isDark ? '#4C51BF' : '#4338CA',
-    }),
-    [isDark],
-  );
-
   const exercises = routine.exercises || [];
   const exerciseCount = exercises.length;
   const muscleGroups = Array.from(new Set(exercises.map((ex) => ex.muscular_group).filter(Boolean)));
@@ -53,37 +38,77 @@ export function RoutineCard({ routine, onPress, onPressDetail, onPressStart }: P
     onPressDetail?.(routine);
   };
 
+  const shadowStyle = isDark
+    ? {
+        shadowColor: '#000000',
+        shadowOpacity: 0.35,
+        shadowOffset: { width: 0, height: 18 },
+        shadowRadius: 26,
+        elevation: 12,
+      }
+    : {
+        shadowColor: '#4338CA',
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 14 },
+        shadowRadius: 22,
+        elevation: 6,
+      };
+
   return (
     <TouchableOpacity
       onPress={handlePress}
       activeOpacity={0.72}
+      className={`border rounded-[28px] px-5 py-[18px] ${
+        isDark ? 'bg-gray-900' : 'bg-white'
+      }`}
       style={[
-        styles.card,
         {
-          backgroundColor: palette.background,
-          borderColor: palette.border,
+          borderColor: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
         },
-        isDark ? styles.darkShadow : styles.lightShadow,
+        shadowStyle,
       ]}
     >
-      <View style={styles.header}>
-        <Text numberOfLines={2} style={[styles.title, { color: palette.heading }]}>
+      <View className="flex-row items-start justify-between">
+        <Text
+          numberOfLines={2}
+          className="flex-1 text-xl font-bold"
+          style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+        >
           {routine.routine_name}
         </Text>
-        <View style={styles.statusWrapper}>
+        <View className="ml-3">
           <StatusPill status={status} />
         </View>
       </View>
 
-      <View style={styles.metaRow}>
-        <Text style={[styles.metaText, { color: palette.meta }]}>{minutesToLabel(estimatedDuration)}</Text>
-        <Text style={[styles.metaDivider, { color: palette.meta }]}>-</Text>
-        <Text style={[styles.metaText, { color: palette.meta }]}>{difficulty}</Text>
+      <View className="flex-row items-center mt-3">
+        <Text
+          className="text-[13px] font-semibold"
+          style={{ color: isDark ? '#9CA3AF' : '#6B7280', letterSpacing: 0.2 }}
+        >
+          {minutesToLabel(estimatedDuration)}
+        </Text>
+        <Text className="text-sm mx-2" style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}>
+          -
+        </Text>
+        <Text
+          className="text-[13px] font-semibold"
+          style={{ color: isDark ? '#9CA3AF' : '#6B7280', letterSpacing: 0.2 }}
+        >
+          {difficulty}
+        </Text>
       </View>
 
-      <View style={[styles.divider, { backgroundColor: palette.divider }]} />
+      <View
+        className="h-px mt-[18px] mb-4"
+        style={{ backgroundColor: isDark ? 'rgba(55, 65, 81, 0.9)' : '#E5E7EB' }}
+      />
 
-      <Text numberOfLines={2} style={[styles.description, { color: palette.meta }]}>
+      <Text
+        numberOfLines={2}
+        className="text-[13px] leading-[18px]"
+        style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+      >
         {exerciseCount} ejercicios -{' '}
         {exercises
           .slice(0, 3)
@@ -92,136 +117,49 @@ export function RoutineCard({ routine, onPress, onPressDetail, onPressStart }: P
         {exerciseCount > 3 ? '...' : ''}
       </Text>
 
-      <View style={styles.chipRow}>
+      <View className="flex-row flex-wrap mt-3.5">
         {muscleGroups.slice(0, 4).map((group) => (
-          <View key={group} style={styles.chipWrapper}>
+          <View key={group} className="mr-2 mb-2">
             <MetaChip>{group}</MetaChip>
           </View>
         ))}
       </View>
 
-      <View style={[styles.buttonRow, { borderTopColor: palette.divider }]}>
+      <View
+        className="flex-row mt-6 pt-4 border-t"
+        style={{ borderTopColor: isDark ? 'rgba(55, 65, 81, 0.9)' : '#E5E7EB' }}
+      >
         <TouchableOpacity
           onPress={() => onPressDetail?.(routine)}
           activeOpacity={0.7}
-          style={[
-            styles.outlineButton,
-            {
-              backgroundColor: palette.outlineBg,
-              borderColor: palette.outlineBorder,
-            },
-          ]}
+          className="flex-1 py-3.5 rounded-2xl border items-center mr-3"
+          style={{
+            backgroundColor: isDark ? 'rgba(79, 70, 229, 0.22)' : 'rgba(129, 140, 248, 0.16)',
+            borderColor: isDark ? 'rgba(129, 140, 248, 0.38)' : 'rgba(129, 140, 248, 0.28)',
+          }}
         >
-          <Text style={[styles.outlineText, { color: palette.outlineText }]}>Detalle</Text>
+          <Text
+            className="text-sm font-semibold"
+            style={{ color: isDark ? '#C7D2FE' : '#4338CA' }}
+          >
+            Detalle
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => onPressStart?.(routine)}
           activeOpacity={0.78}
-          style={[styles.primaryButton, { backgroundColor: palette.primaryBg }]}
+          className="flex-1 py-3.5 rounded-2xl items-center"
+          style={{ backgroundColor: isDark ? '#4C51BF' : '#4338CA' }}
         >
-          <Text style={styles.primaryText}>Empezar</Text>
+          <Text
+            className="text-sm font-bold text-white uppercase"
+            style={{ letterSpacing: 0.6 }}
+          >
+            Empezar
+          </Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-    borderRadius: 28,
-    paddingHorizontal: 20,
-    paddingVertical: 18,
-  },
-  lightShadow: {
-    shadowColor: '#4338CA',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 14 },
-    shadowRadius: 22,
-    elevation: 6,
-  },
-  darkShadow: {
-    shadowColor: '#000000',
-    shadowOpacity: 0.35,
-    shadowOffset: { width: 0, height: 18 },
-    shadowRadius: 26,
-    elevation: 12,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-  },
-  statusWrapper: {
-    marginLeft: 12,
-  },
-  title: {
-    flex: 1,
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  metaText: {
-    fontSize: 13,
-    fontWeight: '600',
-    letterSpacing: 0.2,
-  },
-  metaDivider: {
-    fontSize: 14,
-    marginHorizontal: 8,
-  },
-  divider: {
-    height: 1,
-    marginTop: 18,
-    marginBottom: 16,
-  },
-  description: {
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  chipRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 14,
-  },
-  chipWrapper: {
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    marginTop: 24,
-    paddingTop: 16,
-    borderTopWidth: 1,
-  },
-  outlineButton: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  outlineText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  primaryButton: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 16,
-    alignItems: 'center',
-  },
-  primaryText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-  },
-});

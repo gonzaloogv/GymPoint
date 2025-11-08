@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { Avatar, TokenPill } from '@shared/components/ui';
 import StreakIcon from '@assets/icons/streak.svg';
@@ -19,26 +19,21 @@ export default function HomeHeader({ userName, plan, tokens, streak = 0 }: Props
   const parts = (userName || '').trim().split(/\s+/);
   const firstName = parts[0] ?? userName ?? 'Usuario';
 
-  const palette = useMemo(
-    () => ({
-      greeting: isDark ? '#F9FAFB' : '#111827',
-      subheading: isDark ? '#9CA3AF' : '#6B7280',
-      streakBg: isDark ? 'rgba(79, 70, 229, 0.18)' : 'rgba(129, 140, 248, 0.18)',
-      streakBorder: isDark ? 'rgba(129, 140, 248, 0.38)' : 'rgba(129, 140, 248, 0.24)',
-      streakText: isDark ? '#C7D2FE' : '#4338CA',
-    }),
-    [isDark],
-  );
-
   return (
     <View className="flex-row justify-between items-center">
       <View className="flex-1 flex-row items-center">
         <Avatar userName={userName} />
         <View className="ml-3">
-          <Text className="text-3xl font-extrabold tracking-tight" style={{ color: palette.greeting }}>
+          <Text
+            className="text-3xl font-extrabold tracking-tight"
+            style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+          >
             Hola, {firstName}
           </Text>
-          <Text className="mt-1 uppercase text-[11px] tracking-[3px]" style={{ color: palette.subheading }}>
+          <Text
+            className="mt-1 uppercase text-[11px] tracking-[3px]"
+            style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+          >
             Plan {plan}
           </Text>
         </View>
@@ -48,16 +43,18 @@ export default function HomeHeader({ userName, plan, tokens, streak = 0 }: Props
         <TokenPill value={tokens} />
         <View
           className="flex-row items-center px-3 py-1.5 rounded-full border"
-          style={[
-            styles.streakBadge,
-            {
-              backgroundColor: palette.streakBg,
-              borderColor: palette.streakBorder,
-            },
-          ]}
+          style={{
+            backgroundColor: isDark ? 'rgba(79, 70, 229, 0.18)' : 'rgba(129, 140, 248, 0.18)',
+            borderColor: isDark ? 'rgba(129, 140, 248, 0.38)' : 'rgba(129, 140, 248, 0.24)',
+            shadowColor: 'rgba(79, 70, 229, 0.45)',
+            shadowOpacity: 0.16,
+            shadowOffset: { width: 0, height: 8 },
+            shadowRadius: 14,
+            elevation: 5,
+          }}
         >
           <StreakIcon width={20} height={20} accessibilityLabel="racha" />
-          <Text className="ml-1 font-semibold" style={{ color: palette.streakText }}>
+          <Text className="ml-1 font-semibold" style={{ color: isDark ? '#C7D2FE' : '#4338CA' }}>
             {streak}
           </Text>
         </View>
@@ -65,13 +62,3 @@ export default function HomeHeader({ userName, plan, tokens, streak = 0 }: Props
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  streakBadge: {
-    shadowColor: 'rgba(79, 70, 229, 0.45)',
-    shadowOpacity: 0.16,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 14,
-    elevation: 5,
-  },
-});

@@ -2,56 +2,50 @@
 import { useEffect, useState } from 'react';
 import type { Gym } from '../../domain/entities/Gym';
 import { DI } from '@di/container';
-import { MOCK_UI } from '../../data/datasources/GymMocks';
 
 export function useNearbyGyms(lat?: number, lng?: number, radius = 10000) {
-  const [data, setData] = useState<Gym[] | null>(null);
+  const [data, setData] = useState<Gym[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<unknown>(null);
-  const [dataSource, setDataSource] = useState<'api' | 'mocks' | null>(null);
+  const [hasRequested, setHasRequested] = useState(false);
 
   useEffect(() => {
     let mounted = true;
-    setLoading(true);
 
-    // Si no hay coordenadas, usar mocks directamente
-    if (typeof lat !== 'number' || typeof lng !== 'number') {
-      setTimeout(() => {
+    const fetchGyms = async () => {
+      setLoading(true);
+      try {
+        // Si todavía no contamos con coordenadas, retornamos sin solicitar datos.
+        if (typeof lat !== 'number' || typeof lng !== 'number') {
+          setData([]);
+          setHasRequested(false);
+          return;
+        }
+
+        setHasRequested(true);
+        const result = await DI.listNearbyGyms.execute({ lat, lng, radius });
         if (mounted) {
-          setData(MOCK_UI);
-          setDataSource('mocks');
+          setData(result);
+        }
+      } catch (err) {
+        if (mounted) {
+          setError(err);
+          setData([]);
+        }
+      } finally {
+        if (mounted) {
           setLoading(false);
         }
-      }, 500); // Simular un pequeño delay
+      }
+    };
 
-      return () => {
-        mounted = false;
-      };
-    }
-
-    DI.listNearbyGyms
-      .execute({ lat, lng, radius })
-      .then((d) => {
-        if (mounted) {
-          setData(d);
-          // Los mocks ya vienen con distancia calculada desde el repositorio
-          setDataSource('api'); // Si llegamos aquí, los datos vienen del repositorio (que puede usar mocks internamente)
-        }
-      })
-      .catch((e) => {
-        if (mounted) {
-          setError(e);
-          setDataSource(null);
-        }
-      })
-      .finally(() => {
-        if (mounted) setLoading(false);
-      });
+    fetchGyms();
 
     return () => {
       mounted = false;
     };
   }, [lat, lng, radius]);
 
-  return { data, loading, error, dataSource };
+  return { data, loading, error, hasRequested };
 }
+

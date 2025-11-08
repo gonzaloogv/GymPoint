@@ -4,16 +4,14 @@
  */
 
 import React from 'react';
-import { ScrollView, View, Text, ActivityIndicator, Switch, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, ActivityIndicator, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNotificationSettings } from '../../hooks/useNotificationSettings';
 import { useTheme } from '@shared/hooks';
-import { lightTheme } from '@presentation/theme';
 
 export const NotificationSettingsScreen: React.FC = () => {
   const { theme: themeMode } = useTheme();
   const isDark = themeMode === 'dark';
-  const theme = lightTheme;
 
   const {
     loading,
@@ -27,10 +25,18 @@ export const NotificationSettingsScreen: React.FC = () => {
   // Loading state
   if (loading && !settings) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-          <Text style={styles.loadingText}>Cargando configuración...</Text>
+      <SafeAreaView
+        className="flex-1"
+        style={{ backgroundColor: isDark ? '#111827' : '#F9FAFB' }}
+      >
+        <View className="flex-1 justify-center items-center p-5">
+          <ActivityIndicator size="large" color="#3B82F6" />
+          <Text
+            className="mt-3 text-base"
+            style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+          >
+            Cargando configuración...
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -39,28 +45,61 @@ export const NotificationSettingsScreen: React.FC = () => {
   // Error state
   if (error && !settings) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
+      <SafeAreaView
+        className="flex-1"
+        style={{ backgroundColor: isDark ? '#111827' : '#F9FAFB' }}
+      >
+        <View className="flex-1 justify-center items-center p-5">
+          <Text className="text-base text-center" style={{ color: '#EF4444' }}>
+            {error}
+          </Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
+    <SafeAreaView
+      className="flex-1"
+      style={{ backgroundColor: isDark ? '#111827' : '#F9FAFB' }}
+    >
+      <ScrollView className="flex-1">
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Configuración de Notificaciones</Text>
-          <Text style={styles.subtitle}>
+        <View
+          className="p-5 border-b"
+          style={{
+            backgroundColor: isDark ? '#1F2937' : '#FFFFFF',
+            borderBottomColor: isDark ? 'rgba(55, 65, 81, 0.8)' : '#E5E7EB',
+          }}
+        >
+          <Text
+            className="text-2xl font-bold mb-2"
+            style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+          >
+            Configuración de Notificaciones
+          </Text>
+          <Text
+            className="text-sm"
+            style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+          >
             Personaliza qué notificaciones deseas recibir
           </Text>
         </View>
 
         {/* Sección: Canales Globales */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Canales de Notificación</Text>
+        <View
+          className="mt-5 py-3 border-t border-b"
+          style={{
+            backgroundColor: isDark ? '#1F2937' : '#FFFFFF',
+            borderColor: isDark ? 'rgba(55, 65, 81, 0.8)' : '#E5E7EB',
+          }}
+        >
+          <Text
+            className="text-sm font-semibold uppercase px-5 mb-2"
+            style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+          >
+            Canales de Notificación
+          </Text>
 
           <SettingRow
             label="Notificaciones Push"
@@ -68,6 +107,7 @@ export const NotificationSettingsScreen: React.FC = () => {
             value={settings?.pushEnabled ?? false}
             onToggle={togglePushNotifications}
             disabled={loading}
+            isDark={isDark}
           />
 
           <SettingRow
@@ -76,12 +116,24 @@ export const NotificationSettingsScreen: React.FC = () => {
             value={settings?.emailEnabled ?? false}
             onToggle={toggleEmailNotifications}
             disabled={loading}
+            isDark={isDark}
           />
         </View>
 
         {/* Sección: Tipos de Notificaciones */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Tipos de Notificaciones</Text>
+        <View
+          className="mt-5 py-3 border-t border-b"
+          style={{
+            backgroundColor: isDark ? '#1F2937' : '#FFFFFF',
+            borderColor: isDark ? 'rgba(55, 65, 81, 0.8)' : '#E5E7EB',
+          }}
+        >
+          <Text
+            className="text-sm font-semibold uppercase px-5 mb-2"
+            style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+          >
+            Tipos de Notificaciones
+          </Text>
 
           <SettingRow
             label="Recordatorios"
@@ -89,6 +141,7 @@ export const NotificationSettingsScreen: React.FC = () => {
             value={settings?.remindersEnabled ?? false}
             onToggle={() => toggleNotificationType('remindersEnabled')}
             disabled={loading}
+            isDark={isDark}
           />
 
           <SettingRow
@@ -97,6 +150,7 @@ export const NotificationSettingsScreen: React.FC = () => {
             value={settings?.achievementsEnabled ?? false}
             onToggle={() => toggleNotificationType('achievementsEnabled')}
             disabled={loading}
+            isDark={isDark}
           />
 
           <SettingRow
@@ -105,6 +159,7 @@ export const NotificationSettingsScreen: React.FC = () => {
             value={settings?.rewardsEnabled ?? false}
             onToggle={() => toggleNotificationType('rewardsEnabled')}
             disabled={loading}
+            isDark={isDark}
           />
 
           <SettingRow
@@ -113,6 +168,7 @@ export const NotificationSettingsScreen: React.FC = () => {
             value={settings?.gymUpdatesEnabled ?? false}
             onToggle={() => toggleNotificationType('gymUpdatesEnabled')}
             disabled={loading}
+            isDark={isDark}
           />
 
           <SettingRow
@@ -121,6 +177,7 @@ export const NotificationSettingsScreen: React.FC = () => {
             value={settings?.paymentEnabled ?? false}
             onToggle={() => toggleNotificationType('paymentEnabled')}
             disabled={loading}
+            isDark={isDark}
           />
 
           <SettingRow
@@ -129,6 +186,7 @@ export const NotificationSettingsScreen: React.FC = () => {
             value={settings?.socialEnabled ?? false}
             onToggle={() => toggleNotificationType('socialEnabled')}
             disabled={loading}
+            isDark={isDark}
           />
 
           <SettingRow
@@ -137,6 +195,7 @@ export const NotificationSettingsScreen: React.FC = () => {
             value={settings?.systemEnabled ?? false}
             onToggle={() => toggleNotificationType('systemEnabled')}
             disabled={loading}
+            isDark={isDark}
           />
 
           <SettingRow
@@ -145,24 +204,45 @@ export const NotificationSettingsScreen: React.FC = () => {
             value={settings?.challengeEnabled ?? false}
             onToggle={() => toggleNotificationType('challengeEnabled')}
             disabled={loading}
+            isDark={isDark}
           />
         </View>
 
         {/* Sección: Horario Silencioso */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Horario Silencioso</Text>
-          <Text style={styles.sectionDescription}>
+        <View
+          className="mt-5 py-3 border-t border-b"
+          style={{
+            backgroundColor: isDark ? '#1F2937' : '#FFFFFF',
+            borderColor: isDark ? 'rgba(55, 65, 81, 0.8)' : '#E5E7EB',
+          }}
+        >
+          <Text
+            className="text-sm font-semibold uppercase px-5 mb-2"
+            style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+          >
+            Horario Silencioso
+          </Text>
+          <Text
+            className="text-xs px-5 mb-3"
+            style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+          >
             No recibirás notificaciones durante este período
           </Text>
 
           {settings?.quietHoursStart && settings?.quietHoursEnd ? (
-            <View style={styles.quietHoursDisplay}>
-              <Text style={styles.quietHoursText}>
+            <View className="px-5 py-3">
+              <Text
+                className="text-base font-medium"
+                style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+              >
                 {settings.quietHoursStart} - {settings.quietHoursEnd}
               </Text>
             </View>
           ) : (
-            <Text style={styles.noQuietHours}>
+            <Text
+              className="text-sm px-5 py-3"
+              style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+            >
               No configurado
             </Text>
           )}
@@ -170,8 +250,15 @@ export const NotificationSettingsScreen: React.FC = () => {
 
         {/* Loading overlay */}
         {loading && settings && (
-          <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="small" color={theme.colors.primary} />
+          <View
+            className="absolute inset-0 justify-center items-center"
+            style={{
+              backgroundColor: isDark
+                ? 'rgba(17, 24, 39, 0.7)'
+                : 'rgba(255, 255, 255, 0.7)',
+            }}
+          >
+            <ActivityIndicator size="small" color="#3B82F6" />
           </View>
         )}
       </ScrollView>
@@ -188,6 +275,7 @@ interface SettingRowProps {
   value: boolean;
   onToggle: () => void;
   disabled?: boolean;
+  isDark: boolean;
 }
 
 const SettingRow: React.FC<SettingRowProps> = ({
@@ -196,136 +284,34 @@ const SettingRow: React.FC<SettingRowProps> = ({
   value,
   onToggle,
   disabled = false,
+  isDark,
 }) => (
-  <View style={styles.settingRow}>
-    <View style={styles.settingTextContainer}>
-      <Text style={styles.settingLabel}>{label}</Text>
-      <Text style={styles.settingDescription}>{description}</Text>
+  <View
+    className="flex-row justify-between items-center py-3 px-5 border-b"
+    style={{
+      borderBottomColor: isDark ? 'rgba(55, 65, 81, 0.5)' : '#F3F4F6',
+    }}
+  >
+    <View className="flex-1 mr-4">
+      <Text
+        className="text-base font-medium mb-1"
+        style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+      >
+        {label}
+      </Text>
+      <Text
+        className="text-xs"
+        style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+      >
+        {description}
+      </Text>
     </View>
     <Switch
       value={value}
       onValueChange={onToggle}
       disabled={disabled}
-      trackColor={{ false: '#E0E0E0', true: '#4CAF50' }}
-      thumbColor={value ? '#FFFFFF' : '#FFFFFF'}
+      trackColor={{ false: isDark ? '#374151' : '#E5E7EB', true: '#10B981' }}
+      thumbColor={value ? '#F9FAFB' : '#F9FAFB'}
     />
   </View>
 );
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#666',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#F44336',
-    textAlign: 'center',
-  },
-  header: {
-    padding: 20,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#212121',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#757575',
-  },
-  section: {
-    marginTop: 20,
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#9E9E9E',
-    textTransform: 'uppercase',
-    paddingHorizontal: 20,
-    marginBottom: 8,
-  },
-  sectionDescription: {
-    fontSize: 13,
-    color: '#757575',
-    paddingHorizontal: 20,
-    marginBottom: 12,
-  },
-  settingRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
-  },
-  settingTextContainer: {
-    flex: 1,
-    marginRight: 16,
-  },
-  settingLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#212121',
-    marginBottom: 4,
-  },
-  settingDescription: {
-    fontSize: 13,
-    color: '#757575',
-  },
-  quietHoursDisplay: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  quietHoursText: {
-    fontSize: 16,
-    color: '#212121',
-    fontWeight: '500',
-  },
-  noQuietHours: {
-    fontSize: 14,
-    color: '#9E9E9E',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

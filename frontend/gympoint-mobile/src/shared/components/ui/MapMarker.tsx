@@ -1,6 +1,7 @@
 import React from 'react';
 import { Platform } from 'react-native';
 import type { MapLocation } from '@features/gyms/presentation/types';
+import { GymPin } from './GymPin';
 
 type Props = {
   location: MapLocation;
@@ -22,6 +23,14 @@ export function MapMarker({ location }: Props) {
   }
 
   return (
-    <Marker key={location.id} coordinate={location.coordinate} title={location.title} />
+    <Marker
+      key={location.id}
+      coordinate={location.coordinate}
+      title={location.title}
+      anchor={{ x: 0.5, y: 1 }}
+      centerOffset={{ x: 0, y: -24 }}
+    >
+      <GymPin size={48} />
+    </Marker>
   );
 }

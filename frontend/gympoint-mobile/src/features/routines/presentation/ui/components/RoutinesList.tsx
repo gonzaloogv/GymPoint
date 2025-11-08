@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, View, StyleSheet } from 'react-native';
+import { FlatList, View } from 'react-native';
 import type { Routine } from '@features/routines/domain/entities';
 import { RoutineCard } from './RoutineCard';
 
@@ -13,20 +13,10 @@ export default function RoutinesList({ routines }: Props) {
       data={routines}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => <RoutineCard routine={item} />}
-      contentContainerStyle={styles.content}
-      ItemSeparatorComponent={() => <View style={styles.separator} />}
+      contentContainerClassName="px-4 pb-6"
+      ItemSeparatorComponent={() => <View className="h-4" />}
       showsVerticalScrollIndicator={false}
     />
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-  },
-  separator: {
-    height: 16,
-  },
-});
 

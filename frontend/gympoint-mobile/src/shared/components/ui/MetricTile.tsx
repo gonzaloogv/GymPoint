@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import React from 'react';
+import { View, Text, StyleProp, ViewStyle } from 'react-native';
 import { useTheme } from '@shared/hooks';
 
 type MetricTone = 'neutral' | 'primary' | 'success';
@@ -37,235 +37,175 @@ export const MetricTile: React.FC<MetricTileProps> = ({
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const palette = useMemo(() => {
-    const base = {
-      background: isDark ? '#111827' : '#ffffff',
-      border: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
-      label: isDark ? '#9CA3AF' : '#6B7280',
-      value: isDark ? '#F9FAFB' : '#111827',
-      unit: isDark ? '#6B7280' : '#4B5563',
-      iconBackground: isDark ? 'rgba(79, 70, 229, 0.22)' : 'rgba(129, 140, 248, 0.18)',
-      iconBorder: isDark ? 'rgba(129, 140, 248, 0.38)' : 'rgba(129, 140, 248, 0.24)',
-      iconColor: isDark ? '#C7D2FE' : '#4338CA',
-      glow: isDark ? 'rgba(99, 102, 241, 0.28)' : 'rgba(79, 70, 229, 0.14)',
-      sheen: isDark ? 'rgba(79, 70, 229, 0.12)' : 'rgba(129, 140, 248, 0.12)',
-    };
+  // Colores base
+  const baseColors = {
+    background: isDark ? '#111827' : '#ffffff',
+    border: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
+    label: isDark ? '#9CA3AF' : '#6B7280',
+    value: isDark ? '#F9FAFB' : '#111827',
+    unit: isDark ? '#6B7280' : '#4B5563',
+    iconBackground: isDark ? 'rgba(79, 70, 229, 0.22)' : 'rgba(129, 140, 248, 0.18)',
+    iconBorder: isDark ? 'rgba(129, 140, 248, 0.38)' : 'rgba(129, 140, 248, 0.24)',
+    iconColor: isDark ? '#C7D2FE' : '#4338CA',
+    glow: isDark ? 'rgba(99, 102, 241, 0.28)' : 'rgba(79, 70, 229, 0.14)',
+    sheen: isDark ? 'rgba(79, 70, 229, 0.12)' : 'rgba(129, 140, 248, 0.12)',
+  };
 
-    switch (tone) {
-      case 'primary':
-        return {
-          ...base,
+  // Colores según tone
+  const toneColors =
+    tone === 'primary'
+      ? {
           value: isDark ? '#C7D2FE' : '#4338CA',
           unit: isDark ? '#8B95F9' : '#4C51BF',
           iconColor: isDark ? '#C7D2FE' : '#4338CA',
-        };
-      case 'success':
-        return {
-          ...base,
+        }
+      : tone === 'success'
+      ? {
           value: isDark ? '#6EE7B7' : '#047857',
           unit: isDark ? '#34D399' : '#047857',
           iconBackground: isDark ? 'rgba(16, 185, 129, 0.18)' : 'rgba(16, 185, 129, 0.16)',
           iconBorder: isDark ? 'rgba(16, 185, 129, 0.28)' : 'rgba(16, 185, 129, 0.2)',
           iconColor: isDark ? '#6EE7B7' : '#047857',
-        };
-      default:
-        return base;
-    }
-  }, [isDark, tone]);
+        }
+      : {};
 
-  const radius = size === 'compact' ? 20 : 28;
-  const paddingHorizontal = size === 'compact' ? 16 : 20;
-  const paddingVertical = size === 'compact' ? 14 : 18;
-  const badgeSize = size === 'compact' ? 44 : 56;
-  const badgeRadius = size === 'compact' ? 16 : 20;
+  const colors = { ...baseColors, ...toneColors };
 
-  const containerStyle = [
-    styles.card,
-    {
-      borderColor: palette.border,
-      backgroundColor: palette.background,
-      borderRadius: radius,
-      paddingHorizontal,
-      paddingVertical,
-    },
-    highlight
-      ? isDark
-        ? styles.highlightDarkShadow
-        : styles.highlightLightShadow
-      : isDark
-      ? styles.darkShadow
-      : styles.lightShadow,
-    style,
-  ];
+  // Tamaños según size
+  const isCompact = size === 'compact';
+  const borderRadius = isCompact ? 20 : 28;
+  const padding = isCompact ? 'px-4 py-[14px]' : 'px-5 py-[18px]';
+  const badgeSize = isCompact ? 44 : 56;
+  const badgeRadius = isCompact ? 16 : 20;
+  const labelFontSize = isCompact ? 11 : 12;
+  const labelMargin = isCompact ? 6 : 8;
+  const valueFontSize = isCompact ? 20 : 24;
+  const unitFontSize = isCompact ? 13 : 16;
 
-  const labelStyle = [
-    styles.label,
-    {
-      color: palette.label,
-      fontSize: size === 'compact' ? 11 : 12,
-      marginBottom: size === 'compact' ? 6 : 8,
-    },
-  ];
-
-  const valueStyle = [
-    styles.value,
-    {
-      color: palette.value,
-      fontSize: size === 'compact' ? 20 : 24,
-    },
-  ];
-
-  const unitStyle = [
-    styles.unit,
-    {
-      color: palette.unit,
-      fontSize: size === 'compact' ? 13 : 16,
-    },
-  ];
+  // Sombras exactas preservadas
+  const shadowStyle = highlight
+    ? isDark
+      ? {
+          shadowColor: '#1F2937',
+          shadowOpacity: 0.42,
+          shadowOffset: { width: 0, height: 22 },
+          shadowRadius: 30,
+          elevation: 14,
+        }
+      : {
+          shadowColor: '#4338CA',
+          shadowOpacity: 0.18,
+          shadowOffset: { width: 0, height: 16 },
+          shadowRadius: 24,
+          elevation: 8,
+        }
+    : isDark
+    ? {
+        shadowColor: '#000000',
+        shadowOpacity: 0.35,
+        shadowOffset: { width: 0, height: 18 },
+        shadowRadius: 24,
+        elevation: 10,
+      }
+    : {
+        shadowColor: '#4F46E5',
+        shadowOpacity: 0.12,
+        shadowOffset: { width: 0, height: 12 },
+        shadowRadius: 22,
+        elevation: 5,
+      };
 
   return (
-    <View style={containerStyle}>
-      {highlight ? (
+    <View
+      className={`border relative overflow-hidden ${padding}`}
+      style={[
+        {
+          borderColor: colors.border,
+          backgroundColor: colors.background,
+          borderRadius,
+        },
+        shadowStyle,
+        style,
+      ]}
+    >
+      {highlight && (
         <>
-          <View pointerEvents="none" style={[styles.highlightGlow, { backgroundColor: palette.glow }]} />
-          <View pointerEvents="none" style={[styles.highlightSheen, { backgroundColor: palette.sheen }]} />
+          <View
+            pointerEvents="none"
+            className="absolute -top-14 -right-6 w-[164px] h-[164px] rounded-full opacity-50"
+            style={{ backgroundColor: colors.glow }}
+          />
+          <View
+            pointerEvents="none"
+            className="absolute -top-9 -left-12 h-[120px] opacity-30"
+            style={{
+              backgroundColor: colors.sheen,
+              width: '160%',
+              transform: [{ rotate: '-12deg' }]
+            }}
+          />
         </>
-      ) : null}
+      )}
 
       {(icon || trailingDecoration) && (
-        <View style={styles.header}>
+        <View className="flex-row items-center justify-between mb-3">
           {icon ? (
             wrapIcon ? (
               <View
-                style={[
-                  styles.iconBadge,
-                  {
-                    borderColor: palette.iconBorder,
-                    backgroundColor: palette.iconBackground,
-                    width: badgeSize,
-                    height: badgeSize,
-                    borderRadius: badgeRadius,
-                  },
-                ]}
+                className="items-center justify-center border"
+                style={{
+                  borderColor: colors.iconBorder,
+                  backgroundColor: colors.iconBackground,
+                  width: badgeSize,
+                  height: badgeSize,
+                  borderRadius: badgeRadius,
+                }}
               >
                 {icon}
               </View>
             ) : (
-              <View style={{ width: badgeSize, height: badgeSize, alignItems: 'center', justifyContent: 'center' }}>
+              <View className="items-center justify-center" style={{ width: badgeSize, height: badgeSize }}>
                 {icon}
               </View>
             )
           ) : (
             <View style={{ width: badgeSize }} />
           )}
-          {trailingDecoration ? trailingDecoration : null}
+          {trailingDecoration}
         </View>
       )}
 
-      {label ? <Text style={labelStyle}>{label}</Text> : null}
+      {label && (
+        <Text
+          className="font-semibold tracking-wider uppercase"
+          style={{
+            color: colors.label,
+            fontSize: labelFontSize,
+            marginBottom: labelMargin,
+          }}
+        >
+          {label}
+        </Text>
+      )}
 
       {valueContent ? (
-        <View style={[styles.customValue, !children && styles.customValueTight]}>
+        <View className={children ? 'mb-[6px]' : ''}>
           {valueContent}
         </View>
       ) : (
-        <View style={styles.valueRow}>
-          <Text style={valueStyle}>{value}</Text>
-          {unit ? <Text style={unitStyle}>{unit}</Text> : null}
+        <View className="flex-row items-baseline gap-2">
+          <Text className="font-bold" style={{ color: colors.value, fontSize: valueFontSize }}>
+            {value}
+          </Text>
+          {unit && (
+            <Text className="font-medium" style={{ color: colors.unit, fontSize: unitFontSize }}>
+              {unit}
+            </Text>
+          )}
         </View>
       )}
 
-      {children ? <View style={styles.footer}>{children}</View> : null}
+      {children && <View className="mt-[18px]">{children}</View>}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  iconBadge: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-  },
-  label: {
-    fontWeight: '600',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-  },
-  valueRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 8,
-  },
-  value: {
-    fontWeight: '700',
-  },
-  unit: {
-    fontWeight: '500',
-  },
-  footer: {
-    marginTop: 18,
-  },
-  customValue: {
-    marginBottom: 6,
-  },
-  customValueTight: {
-    marginBottom: 0,
-  },
-  highlightGlow: {
-    position: 'absolute',
-    top: -56,
-    right: -24,
-    width: 164,
-    height: 164,
-    borderRadius: 82,
-    opacity: 0.5,
-  },
-  highlightSheen: {
-    position: 'absolute',
-    top: -36,
-    left: -48,
-    width: '160%',
-    height: 120,
-    opacity: 0.3,
-    transform: [{ rotate: '-12deg' }],
-  },
-  lightShadow: {
-    shadowColor: '#4F46E5',
-    shadowOpacity: 0.12,
-    shadowOffset: { width: 0, height: 12 },
-    shadowRadius: 22,
-    elevation: 5,
-  },
-  darkShadow: {
-    shadowColor: '#000000',
-    shadowOpacity: 0.35,
-    shadowOffset: { width: 0, height: 18 },
-    shadowRadius: 24,
-    elevation: 10,
-  },
-  highlightLightShadow: {
-    shadowColor: '#4338CA',
-    shadowOpacity: 0.18,
-    shadowOffset: { width: 0, height: 16 },
-    shadowRadius: 24,
-    elevation: 8,
-  },
-  highlightDarkShadow: {
-    shadowColor: '#1F2937',
-    shadowOpacity: 0.42,
-    shadowOffset: { width: 0, height: 22 },
-    shadowRadius: 30,
-    elevation: 14,
-  },
-});

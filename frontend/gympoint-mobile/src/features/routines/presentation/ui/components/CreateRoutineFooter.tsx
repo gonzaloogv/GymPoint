@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { Button, ButtonText } from '@shared/components/ui';
 import { useTheme } from '@shared/hooks';
 
@@ -24,8 +24,11 @@ export function CreateRoutineFooter({
   const background = isDark ? '#111827' : '#ffffff';
 
   return (
-    <View style={[styles.container, { borderTopColor: borderColor, backgroundColor: background }]}>
-      <View style={styles.actions}>
+    <View
+      className="px-4 py-6 border-t"
+      style={{ borderTopColor: borderColor, backgroundColor: background }}
+    >
+      <View className="flex-row gap-3">
         {currentStep > 1 ? (
           <Button variant="secondary" onPress={onBack} className="flex-1">
             <ButtonText>Volver</ButtonText>
@@ -43,15 +46,3 @@ export function CreateRoutineFooter({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    paddingVertical: 24,
-    borderTopWidth: 1,
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-});

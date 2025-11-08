@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, TouchableOpacity, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 import { StepScrollContainer, StepSection, Button, Input } from '@shared/components/ui';
@@ -23,17 +23,12 @@ export function ExercisesStep({ exercises, onChange }: Props) {
   const isDark = theme === 'dark';
   const [showSelector, setShowSelector] = useState(false);
 
-  const palette = useMemo(
-    () => ({
-      card: isDark ? '#111827' : '#ffffff',
-      border: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
-      label: isDark ? '#F9FAFB' : '#111827',
-      helper: isDark ? '#9CA3AF' : '#6B7280',
-      muted: isDark ? '#374151' : '#F3F4F6',
-      delete: '#EF4444',
-    }),
-    [isDark],
-  );
+  const card = isDark ? '#111827' : '#ffffff';
+  const border = isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB';
+  const label = isDark ? '#F9FAFB' : '#111827';
+  const helper = isDark ? '#9CA3AF' : '#6B7280';
+  const muted = isDark ? '#374151' : '#F3F4F6';
+  const deleteColor = '#EF4444';
 
   const handleSelectExercise = (exercise: ExerciseDTO) => {
     const form: ExerciseForm = {
@@ -59,9 +54,14 @@ export function ExercisesStep({ exercises, onChange }: Props) {
   return (
     <StepScrollContainer>
       <StepSection>
-        <Text style={[styles.sectionTitle, { color: palette.label }]}>Ejercicios de la rutina</Text>
+        <Text className="text-base font-bold mb-3" style={{ color: label }}>
+          Ejercicios de la rutina
+        </Text>
         {exercises.length === 0 ? (
-          <Text style={[styles.emptyHint, { color: palette.helper }]}>
+          <Text
+            className="text-center text-[13px] mb-6 leading-[18px]"
+            style={{ color: helper }}
+          >
             No hay ejercicios agregados. Usa el boton para sumar tu primer ejercicio.
           </Text>
         ) : null}
@@ -69,46 +69,51 @@ export function ExercisesStep({ exercises, onChange }: Props) {
         {exercises.map((exercise, index) => (
           <View
             key={exercise.id_exercise}
-            style={[
-              styles.exerciseCard,
-              {
-                backgroundColor: palette.card,
-                borderColor: palette.border,
-              },
-            ]}
+            className="border rounded-[20px] px-[18px] py-5 mb-4 gap-4"
+            style={{ backgroundColor: card, borderColor: border }}
           >
-            <View style={styles.cardHeader}>
-              <Text style={[styles.exerciseTitle, { color: palette.label }]}>
+            <View className="flex-row items-center justify-between">
+              <Text className="text-[15px] font-bold" style={{ color: label }}>
                 Ejercicio {index + 1}
               </Text>
               <TouchableOpacity
                 onPress={() => removeExercise(exercise.id_exercise)}
                 activeOpacity={0.72}
-                style={styles.deleteButton}
+                className="p-1 rounded-xl"
               >
-                <Feather name="trash-2" size={18} color={palette.delete} />
+                <Feather name="trash-2" size={18} color={deleteColor} />
               </TouchableOpacity>
             </View>
 
-            <View style={styles.fieldBlock}>
-              <Text style={[styles.fieldLabel, { color: palette.helper }]}>Nombre</Text>
-              <View
-                style={[
-                  styles.nameBox,
-                  {
-                    backgroundColor: palette.muted,
-                  },
-                ]}
+            <View className="gap-2">
+              <Text
+                className="text-xs font-semibold uppercase"
+                style={{ color: helper, letterSpacing: 0.3 }}
               >
-                <Text style={[styles.nameText, { color: palette.label }]} numberOfLines={1}>
+                Nombre
+              </Text>
+              <View
+                className="rounded-[14px] px-4 py-3 justify-center"
+                style={{ backgroundColor: muted }}
+              >
+                <Text
+                  numberOfLines={1}
+                  className="text-base font-semibold"
+                  style={{ color: label }}
+                >
                   {exercise.name}
                 </Text>
               </View>
             </View>
 
-            <View style={styles.inlineFields}>
-              <View style={styles.inlineField}>
-                <Text style={[styles.fieldLabel, { color: palette.helper }]}>Series</Text>
+            <View className="flex-row gap-3.5">
+              <View className="flex-1 gap-2">
+                <Text
+                  className="text-xs font-semibold uppercase"
+                  style={{ color: helper, letterSpacing: 0.3 }}
+                >
+                  Series
+                </Text>
                 <Input
                   value={String(exercise.series)}
                   onChangeText={(value) =>
@@ -118,8 +123,13 @@ export function ExercisesStep({ exercises, onChange }: Props) {
                   keyboardType="numeric"
                 />
               </View>
-              <View style={styles.inlineField}>
-                <Text style={[styles.fieldLabel, { color: palette.helper }]}>Repeticiones</Text>
+              <View className="flex-1 gap-2">
+                <Text
+                  className="text-xs font-semibold uppercase"
+                  style={{ color: helper, letterSpacing: 0.3 }}
+                >
+                  Repeticiones
+                </Text>
                 <Input
                   value={String(exercise.reps)}
                   onChangeText={(value) =>
@@ -151,65 +161,3 @@ export function ExercisesStep({ exercises, onChange }: Props) {
     </StepScrollContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 12,
-  },
-  emptyHint: {
-    textAlign: 'center',
-    fontSize: 13,
-    marginBottom: 24,
-    lineHeight: 18,
-  },
-  exerciseCard: {
-    borderWidth: 1,
-    borderRadius: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 20,
-    marginBottom: 16,
-    gap: 16,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  exerciseTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  deleteButton: {
-    padding: 4,
-    borderRadius: 12,
-  },
-  fieldBlock: {
-    gap: 8,
-  },
-  fieldLabel: {
-    fontSize: 12,
-    letterSpacing: 0.3,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-  },
-  nameBox: {
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    justifyContent: 'center',
-  },
-  nameText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  inlineFields: {
-    flexDirection: 'row',
-    gap: 14,
-  },
-  inlineField: {
-    flex: 1,
-    gap: 8,
-  },
-});

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
+import { InfoCard } from '@shared/components/ui';
 import type { ExerciseHistoryItem } from '../../hooks/useExerciseProgress';
 
 interface ExerciseHistoryListProps {
@@ -26,25 +27,17 @@ export function ExerciseHistoryList({ history, loading = false }: ExerciseHistor
 
   if (loading) {
     return (
-      <View
-        className={`p-4 rounded-xl border ${
-          isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'
-        }`}
-      >
+      <InfoCard variant="compact">
         <Text className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
           Cargando historial...
         </Text>
-      </View>
+      </InfoCard>
     );
   }
 
   if (!history || history.length === 0) {
     return (
-      <View
-        className={`p-4 rounded-xl border ${
-          isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-200'
-        }`}
-      >
+      <InfoCard variant="compact">
         <View className="items-center py-4">
           <Ionicons
             name="bar-chart-outline"
@@ -55,16 +48,12 @@ export function ExerciseHistoryList({ history, loading = false }: ExerciseHistor
             No hay registros disponibles
           </Text>
         </View>
-      </View>
+      </InfoCard>
     );
   }
 
   return (
-    <View
-      className={`rounded-xl border ${
-        isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-      }`}
-    >
+    <InfoCard variant="compact" className="p-0">
       {/* Header - Clickable */}
       <Pressable
         onPress={() => setIsExpanded(!isExpanded)}
@@ -78,7 +67,10 @@ export function ExerciseHistoryList({ history, loading = false }: ExerciseHistor
               size={18}
               color={isDark ? '#60A5FA' : '#3B82F6'}
             />
-            <Text className={`text-base font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <Text
+              className="text-base font-bold"
+              style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+            >
               Historial de entrenamientos
             </Text>
             <Text className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -145,7 +137,10 @@ export function ExerciseHistoryList({ history, loading = false }: ExerciseHistor
                       Peso
                     </Text>
                   </View>
-                  <Text className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  <Text
+                    className="text-sm font-bold"
+                    style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+                  >
                     {item.used_weight} kg
                   </Text>
                 </View>
@@ -158,7 +153,10 @@ export function ExerciseHistoryList({ history, loading = false }: ExerciseHistor
                       Reps
                     </Text>
                   </View>
-                  <Text className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  <Text
+                    className="text-sm font-bold"
+                    style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+                  >
                     {item.reps}
                   </Text>
                 </View>
@@ -171,7 +169,10 @@ export function ExerciseHistoryList({ history, loading = false }: ExerciseHistor
                       Volumen
                     </Text>
                   </View>
-                  <Text className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  <Text
+                    className="text-sm font-bold"
+                    style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+                  >
                     {item.total_volume} kg
                   </Text>
                 </View>
@@ -201,6 +202,6 @@ export function ExerciseHistoryList({ history, loading = false }: ExerciseHistor
           )}
         </View>
       )}
-    </View>
+    </InfoCard>
   );
 }

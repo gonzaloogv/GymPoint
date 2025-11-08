@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 import { SetExecution } from '@features/routines/domain/entities/ExecutionSession';
@@ -21,40 +21,48 @@ export function ExerciseSetTable({
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const palette = useMemo(
-    () => ({
-      headerBg: isDark ? 'rgba(17, 24, 39, 0.9)' : 'rgba(248, 250, 252, 0.9)',
-      headerText: isDark ? '#9CA3AF' : '#6B7280',
-      divider: isDark ? 'rgba(55, 65, 81, 0.6)' : 'rgba(148, 163, 184, 0.35)',
-      accent: isDark ? '#6366F1' : '#4F46E5',
-    }),
-    [isDark],
-  );
+  const headerBg = isDark ? 'rgba(17, 24, 39, 0.9)' : 'rgba(248, 250, 252, 0.9)';
+  const headerText = isDark ? '#9CA3AF' : '#6B7280';
+  const dividerColor = isDark ? 'rgba(55, 65, 81, 0.6)' : 'rgba(148, 163, 184, 0.35)';
+  const accentColor = isDark ? '#6366F1' : '#4F46E5';
 
   return (
-    <View style={[styles.wrapper, { borderColor: palette.divider }]}>
+    <View className="rounded-2xl overflow-hidden border" style={{ borderColor: dividerColor }}>
       <View
-        style={[
-          styles.header,
-          {
-            backgroundColor: palette.headerBg,
-            borderBottomColor: palette.divider,
-          },
-        ]}
+        className="flex-row items-center py-3.5 px-3 border-b"
+        style={{
+          backgroundColor: headerBg,
+          borderBottomColor: dividerColor,
+        }}
       >
-        <Text style={[styles.headerCell, styles.seriesHeader, { color: palette.headerText }]}>
+        <Text
+          className="w-[52px] text-[11px] font-bold uppercase text-center leading-4"
+          style={{ color: headerText, letterSpacing: 0.5 }}
+        >
           Serie
         </Text>
-        <Text style={[styles.headerCell, styles.previousHeader, { color: palette.headerText }]}>
+        <Text
+          className="flex-[1.25] px-1 text-[11px] font-bold uppercase text-center leading-4"
+          style={{ color: headerText, letterSpacing: 0.5 }}
+        >
           Anterior
         </Text>
-        <Text style={[styles.headerCell, styles.inputHeader, { color: palette.headerText }]}>
+        <Text
+          className="flex-1 text-[11px] font-bold uppercase text-center leading-4"
+          style={{ color: headerText, letterSpacing: 0.5 }}
+        >
           Kg
         </Text>
-        <Text style={[styles.headerCell, styles.inputHeader, { color: palette.headerText }]}>
+        <Text
+          className="flex-1 text-[11px] font-bold uppercase text-center leading-4"
+          style={{ color: headerText, letterSpacing: 0.5 }}
+        >
           Reps
         </Text>
-        <Text style={[styles.headerToggle, { color: palette.headerText }]}>
+        <Text
+          className="w-[68px] text-[11px] font-bold uppercase text-center leading-4"
+          style={{ color: headerText, letterSpacing: 0.5 }}
+        >
           Hecha
         </Text>
       </View>
@@ -66,92 +74,29 @@ export function ExerciseSetTable({
             set={set}
             onUpdate={(data) => onUpdateSet(index, data)}
             onMarkDone={() => onMarkSetDone(index)}
-            borderColor={palette.divider}
+            borderColor={dividerColor}
           />
         ))
       ) : (
-        <View style={styles.empty}>
-          <Ionicons name="cube-outline" size={20} color={palette.headerText} />
-          <Text style={[styles.emptyText, { color: palette.headerText }]}>
+        <View className="py-6 items-center gap-2">
+          <Ionicons name="cube-outline" size={20} color={headerText} />
+          <Text className="text-[13px] font-medium" style={{ color: headerText }}>
             No hay series agregadas
           </Text>
         </View>
       )}
 
       <TouchableOpacity
-        style={[styles.addButton, { borderTopColor: palette.divider }]}
+        className="flex-row items-center justify-center gap-2.5 py-3.5 border-t"
+        style={{ borderTopColor: dividerColor }}
         onPress={onAddSet}
         activeOpacity={0.7}
       >
-        <Ionicons name="add-circle" size={18} color={palette.accent} />
-        <Text style={[styles.addLabel, { color: palette.accent }]}>Agregar serie</Text>
+        <Ionicons name="add-circle" size={18} color={accentColor} />
+        <Text className="text-sm font-bold" style={{ color: accentColor, letterSpacing: 0.5 }}>
+          Agregar serie
+        </Text>
       </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrapper: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(148, 163, 184, 0.3)',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-  },
-  headerCell: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-    textAlign: 'center',
-    lineHeight: 16,
-  },
-  seriesHeader: {
-    width: 52,
-  },
-  previousHeader: {
-    flex: 1.25,
-    paddingHorizontal: 4,
-  },
-  inputHeader: {
-    flex: 1,
-  },
-  headerToggle: {
-    width: 68,
-    textAlign: 'center',
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-    lineHeight: 16,
-  },
-  empty: {
-    paddingVertical: 24,
-    alignItems: 'center',
-    gap: 8,
-  },
-  emptyText: {
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    paddingVertical: 14,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(148, 163, 184, 0.25)',
-  },
-  addLabel: {
-    fontSize: 14,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-});

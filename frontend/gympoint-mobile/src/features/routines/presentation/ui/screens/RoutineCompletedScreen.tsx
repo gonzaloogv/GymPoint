@@ -7,7 +7,6 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
 } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { SurfaceScreen, MetricTile, Button, ButtonText, Card } from '@shared/components/ui';
@@ -36,7 +35,7 @@ const RoutineCompletedScreen = ({ route, navigation }: RoutineCompletedScreenPro
   if (!stats) {
     return (
       <SurfaceScreen>
-        <View style={styles.loading}>
+        <View className="flex-1 justify-center items-center">
           <Text style={{ color: isDark ? '#ffffff' : '#111827' }}>No hay datos de la sesion</Text>
         </View>
       </SurfaceScreen>
@@ -77,23 +76,35 @@ const RoutineCompletedScreen = ({ route, navigation }: RoutineCompletedScreenPro
         }}
         scrollProps={{ keyboardShouldPersistTaps: 'handled' }}
       >
-        <View style={styles.header}>
+        <View className="items-center gap-3">
           <Ionicons name="trophy" size={52} color={headerAccent} />
-          <Text style={[styles.title, { color: primaryText }]}>Entrenamiento completado</Text>
-          <Text style={[styles.subtitle, { color: secondaryText }]}>
+          <Text
+            className="text-[28px] font-extrabold text-center"
+            style={{ color: primaryText }}
+          >
+            Entrenamiento completado
+          </Text>
+          <Text className="text-sm text-center" style={{ color: secondaryText }}>
             Gran trabajo. Sigue asi!
           </Text>
         </View>
 
         <Card style={{ borderColor: cardBorder }}>
-          <View style={styles.routineInfo}>
-            <Text style={[styles.sectionLabel, { color: secondaryText }]}>Rutina</Text>
-            <Text style={styles.routineName}>{stats.routineName || 'Rutina sin nombre'}</Text>
+          <View className="p-4 gap-2">
+            <Text
+              className="text-xs font-semibold uppercase"
+              style={{ color: secondaryText, letterSpacing: 1 }}
+            >
+              Rutina
+            </Text>
+            <Text className="text-lg font-bold" style={{ color: '#4F46E5' }}>
+              {stats.routineName || 'Rutina sin nombre'}
+            </Text>
           </View>
         </Card>
 
-        <View style={styles.metricsRow}>
-          <View style={styles.metricTile}>
+        <View className="flex-row">
+          <View className="flex-1">
             <MetricTile
               tone="primary"
               label="Duracion"
@@ -102,7 +113,7 @@ const RoutineCompletedScreen = ({ route, navigation }: RoutineCompletedScreenPro
               size="compact"
             />
           </View>
-          <View style={[styles.metricTile, styles.metricTileSpacing]}>
+          <View className="flex-1 ml-3">
             <MetricTile
               tone="primary"
               label="Volumen total"
@@ -119,16 +130,25 @@ const RoutineCompletedScreen = ({ route, navigation }: RoutineCompletedScreenPro
           icon={<Ionicons name="checkmark-done-outline" size={20} color={isDark ? '#6EE7B7' : '#047857'} />}
           size="compact"
           valueContent={
-            <View style={styles.setsValue}>
-              <Text style={[styles.setsPrimary, { color: primaryText }]}>{stats.setsCompleted}</Text>
-              <Text style={[styles.setsSecondary, { color: secondaryText }]}> / {stats.totalSets}</Text>
+            <View className="flex-row items-baseline">
+              <Text className="text-xl font-bold" style={{ color: primaryText }}>
+                {stats.setsCompleted}
+              </Text>
+              <Text
+                className="text-sm font-semibold ml-1"
+                style={{ color: secondaryText }}
+              >
+                / {stats.totalSets}
+              </Text>
             </View>
           }
         />
 
         <Card style={{ borderColor: cardBorder }}>
-          <View style={styles.notesCard}>
-            <Text style={[styles.notesTitle, { color: primaryText }]}>Agregar nota (opcional)</Text>
+          <View className="p-4 gap-3">
+            <Text className="text-base font-bold" style={{ color: primaryText }}>
+              Agregar nota (opcional)
+            </Text>
             <TextInput
               className="border rounded-xl p-3 min-h-32"
               style={{
@@ -144,7 +164,7 @@ const RoutineCompletedScreen = ({ route, navigation }: RoutineCompletedScreenPro
               multiline
               maxLength={500}
             />
-            <Text style={[styles.notesCounter, { color: secondaryText }]}>
+            <Text className="text-xs text-right" style={{ color: secondaryText }}>
               {notes.length}/500
             </Text>
           </View>
@@ -163,7 +183,7 @@ const RoutineCompletedScreen = ({ route, navigation }: RoutineCompletedScreenPro
 
         <Button onPress={handleFinish} className="w-full mt-2" disabled={isSaving}>
           {isSaving ? (
-            <View style={styles.buttonContent}>
+            <View className="flex-row items-center gap-2">
               <ActivityIndicator color="#ffffff" size="small" />
               <ButtonText>Guardando...</ButtonText>
             </View>
@@ -177,78 +197,3 @@ const RoutineCompletedScreen = ({ route, navigation }: RoutineCompletedScreenPro
 };
 
 export default RoutineCompletedScreen;
-
-const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  header: {
-    alignItems: 'center',
-    gap: 12,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '800',
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  routineInfo: {
-    padding: 16,
-    gap: 8,
-  },
-  sectionLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  routineName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#4F46E5',
-  },
-  metricsRow: {
-    flexDirection: 'row',
-  },
-  metricTile: {
-    flex: 1,
-  },
-  metricTileSpacing: {
-    marginLeft: 12,
-  },
-  setsValue: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  },
-  setsPrimary: {
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  setsSecondary: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 4,
-  },
-  notesCard: {
-    padding: 16,
-    gap: 12,
-  },
-  notesTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  notesCounter: {
-    fontSize: 12,
-    textAlign: 'right',
-  },
-  buttonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-});

@@ -17,17 +17,24 @@ type UseGymsDataProps = {
     mockData: any[],
     searchText: string,
     selectedServices: string[],
+    selectedAmenities: string[],
+    selectedFeatures: string[],
     priceFilter: string,
+    ratingFilter: string,
     openNow: boolean,
     timeFilter: string,
     schedulesMap: any,
+    ratingsByGym?: Record<number, { averageRating: number; totalReviews: number }>,
   ) => any[];
   useMapInitialRegion: (lat?: number, lng?: number) => any;
   useMapLocations: (gyms: any[]) => any[];
   mockData: any[];
   searchText: string;
   selectedServices: string[];
+  selectedAmenities: string[];
+  selectedFeatures: string[];
   priceFilter: string;
+  ratingFilter: string;
   openNow: boolean;
   timeFilter: string;
 };
@@ -41,7 +48,10 @@ export function useGymsData({
   mockData,
   searchText,
   selectedServices,
+  selectedAmenities,
+  selectedFeatures,
   priceFilter,
+  ratingFilter,
   openNow,
   timeFilter,
 }: UseGymsDataProps) {
@@ -66,10 +76,14 @@ export function useGymsData({
     mockData,
     searchText,
     selectedServices,
+    selectedAmenities,
+    selectedFeatures,
     priceFilter,
+    ratingFilter,
     openNow,
     timeFilter,
     schedulesMap,
+    undefined, // ratingsByGym - será implementado después
   );
 
   const resultsCount = filteredGyms.length;

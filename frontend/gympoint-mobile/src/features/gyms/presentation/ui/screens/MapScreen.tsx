@@ -38,11 +38,17 @@ export default function MapScreen() {
   const {
     filterVisible,
     selectedServices,
+    selectedAmenities,
+    selectedFeatures,
     priceFilter,
+    ratingFilter,
     openNow,
     timeFilter,
     setSelectedServices,
+    setSelectedAmenities,
+    setSelectedFeatures,
     setPriceFilter,
+    setRatingFilter,
     setOpenNow,
     setTimeFilter,
     openFilters,
@@ -70,14 +76,20 @@ export default function MapScreen() {
     mockData: MOCK_UI,
     searchText,
     selectedServices,
+    selectedAmenities,
+    selectedFeatures,
     priceFilter,
+    ratingFilter,
     openNow,
     timeFilter,
   });
 
   const activeFilters = useActiveFiltersCount(
     selectedServices,
+    selectedAmenities,
+    selectedFeatures,
     priceFilter,
+    ratingFilter,
     timeFilter,
     openNow,
   );
@@ -142,8 +154,14 @@ export default function MapScreen() {
         onClose={closeFilters}
         selectedServices={selectedServices}
         setSelectedServices={setSelectedServices}
+        selectedAmenities={selectedAmenities}
+        setSelectedAmenities={setSelectedAmenities}
+        selectedFeatures={selectedFeatures}
+        setSelectedFeatures={setSelectedFeatures}
         priceFilter={priceFilter}
         setPriceFilter={setPriceFilter}
+        ratingFilter={ratingFilter}
+        setRatingFilter={setRatingFilter}
         openNow={openNow}
         setOpenNow={setOpenNow}
         timeFilter={timeFilter}

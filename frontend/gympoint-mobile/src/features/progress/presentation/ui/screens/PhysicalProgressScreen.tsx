@@ -203,27 +203,48 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
     <Screen scroll safeAreaTop>
       <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 pt-4 pb-4">
-          <Pressable onPress={handleBackPress} className="flex-row items-center">
+        <View className="px-4 pt-4 pb-[18px] gap-3">
+          <View className="flex-row items-center justify-between">
+            <Pressable onPress={handleBackPress} className="flex-row items-center -ml-2">
+              <Ionicons
+                name="chevron-back"
+                size={24}
+                color={isDark ? '#60A5FA' : '#3B82F6'}
+              />
+              <Text
+                className="text-sm font-semibold"
+                style={{ color: isDark ? '#60A5FA' : '#3B82F6' }}
+              >
+                Volver
+              </Text>
+            </Pressable>
             <Ionicons
-              name="chevron-back"
-              size={28}
-              color={isDark ? '#60A5FA' : '#3B82F6'}
+              name="information-circle"
+              size={24}
+              color={isDark ? '#9CA3AF' : '#6B7280'}
             />
-            <Text className={`ml-1 text-base font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
-              Volver al progreso
+          </View>
+
+          <View>
+            <Text
+              className="text-[28px] font-extrabold"
+              style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
+            >
+              Progreso Físico
             </Text>
-          </Pressable>
-          <Ionicons
-            name="information-circle"
-            size={24}
-            color={isDark ? '#9CA3AF' : '#6B7280'}
+            <Text
+              className="mt-2 text-xs font-semibold uppercase"
+              style={{ color: isDark ? '#9CA3AF' : '#6B7280', letterSpacing: 1.2 }}
+            >
+              Peso, medidas y composición corporal
+            </Text>
+          </View>
+
+          <View
+            className="h-px rounded-full"
+            style={{ backgroundColor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(148, 163, 184, 0.32)' }}
           />
         </View>
-
-        <Text className={`px-4 text-2xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-          Progreso Físico
-        </Text>
 
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           {/* Time Selector */}
@@ -256,7 +277,10 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
                         size={48}
                         color={isDark ? '#60A5FA' : '#3B82F6'}
                       />
-                      <Text className={`mt-4 text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      <Text
+                        className="mt-4 text-lg font-semibold"
+                        style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+                      >
                         Sin métricas registradas
                       </Text>
                       <Text className={`mt-2 text-center ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -288,7 +312,10 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
                           }`}
                         >
                           <View className="flex-1">
-                            <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                            <Text
+                              className="text-lg font-bold"
+                              style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+                            >
                               {selectedMetricIndex === 0
                                 ? 'Última medición'
                                 : (() => {
@@ -320,7 +347,10 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
                         </Pressable>
                       ) : (
                         <View>
-                          <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                          <Text
+                            className="text-lg font-bold"
+                            style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+                          >
                             Última medición
                           </Text>
                           <Text className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>

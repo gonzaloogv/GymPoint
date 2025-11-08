@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Alert, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Alert } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { Button } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,14 +12,6 @@ type Props = {
 export function ExecutionFooter({ onAddExercise, onDiscardWorkout }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-
-  const palette = useMemo(
-    () => ({
-      background: isDark ? '#111827' : '#ffffff',
-      border: isDark ? 'rgba(55, 65, 81, 0.8)' : '#E5E7EB',
-    }),
-    [isDark],
-  );
 
   const handleDiscard = () => {
     Alert.alert(
@@ -38,10 +30,10 @@ export function ExecutionFooter({ onAddExercise, onDiscardWorkout }: Props) {
 
   return (
     <View
-      style={[
-        styles.container,
-        { backgroundColor: palette.background, borderColor: palette.border },
-      ]}
+      className={`pt-6 pb-12 border-t ${isDark ? 'bg-gray-900' : 'bg-white'}`}
+      style={{
+        borderColor: isDark ? 'rgba(55, 65, 81, 0.8)' : '#E5E7EB',
+      }}
     >
       {onAddExercise ? (
         <Button
@@ -49,7 +41,7 @@ export function ExecutionFooter({ onAddExercise, onDiscardWorkout }: Props) {
           variant="primary"
           fullWidth
           icon={<Ionicons name="add" size={18} color="#FFFFFF" />}
-          style={styles.addButton}
+          className="mb-4"
         >
           Agregar ejercicio
         </Button>
@@ -59,28 +51,16 @@ export function ExecutionFooter({ onAddExercise, onDiscardWorkout }: Props) {
         onPress={handleDiscard}
         variant="danger"
         fullWidth
-        style={styles.discardButton}
+        style={{
+          shadowColor: 'rgba(239, 68, 68, 0.28)',
+          shadowOpacity: 0.18,
+          shadowOffset: { width: 0, height: 10 },
+          shadowRadius: 20,
+          elevation: 5,
+        }}
       >
         Descartar entrenamiento
       </Button>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingTop: 24,
-    paddingBottom: 48,
-    borderTopWidth: 1,
-  },
-  addButton: {
-    marginBottom: 16,
-  },
-  discardButton: {
-    shadowColor: 'rgba(239, 68, 68, 0.28)',
-    shadowOpacity: 0.18,
-    shadowOffset: { width: 0, height: 10 },
-    shadowRadius: 20,
-    elevation: 5,
-  },
-});

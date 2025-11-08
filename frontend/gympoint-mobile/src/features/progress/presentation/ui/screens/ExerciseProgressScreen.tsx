@@ -125,26 +125,41 @@ export function ExerciseProgressScreen({ navigation }: ExerciseProgressScreenPro
     <Screen scroll safeAreaTop>
       <View className="min-h-full">
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 pt-4 pb-4">
-          <Pressable onPress={handleBackPress} className="flex-row items-center">
+        <View className="px-4 pt-4 pb-[18px] gap-3">
+          <Pressable onPress={handleBackPress} className="flex-row items-center -ml-2">
             <Ionicons
               name="chevron-back"
-              size={28}
+              size={24}
               color={isDark ? '#60A5FA' : '#3B82F6'}
             />
-            <Text className={`ml-1 text-base font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+            <Text
+              className="text-sm font-semibold"
+              style={{ color: isDark ? '#60A5FA' : '#3B82F6' }}
+            >
               Volver
             </Text>
           </Pressable>
-        </View>
 
-        <View className="px-4 mb-4">
-          <Text className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            {currentExerciseName}
-          </Text>
-          <Text className={`text-sm mt-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-            Historial y métricas de progreso
-          </Text>
+          <View>
+            <Text
+              numberOfLines={2}
+              className="text-[28px] font-extrabold"
+              style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
+            >
+              {currentExerciseName}
+            </Text>
+            <Text
+              className="mt-2 text-xs font-semibold uppercase"
+              style={{ color: isDark ? '#9CA3AF' : '#6B7280', letterSpacing: 1.2 }}
+            >
+              Historial y métricas de progreso
+            </Text>
+          </View>
+
+          <View
+            className="h-px rounded-full"
+            style={{ backgroundColor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(148, 163, 184, 0.32)' }}
+          />
         </View>
           {/* Exercise Filter */}
           {exercises.length > 0 && (

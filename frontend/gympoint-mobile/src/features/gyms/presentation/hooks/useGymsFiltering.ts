@@ -31,10 +31,14 @@ export function useGymsFiltering(
   fallback: Gym[],
   search: string,
   services: string[] = [],
+  amenities: string[] = [],
+  features: string[] = [],
   priceFilter?: string,
+  ratingFilter?: string,
   openNow?: boolean,
   timeFilter?: string,
   schedulesByGym?: Record<number, Schedule[]>,
+  ratingsByGym?: Record<number, { averageRating: number; totalReviews: number }>,
 ) {
   return useMemo<Gym[]>(() => {
     const base = dataFromApi && dataFromApi.length ? dataFromApi : fallback;
@@ -108,16 +112,63 @@ export function useGymsFiltering(
           })
         : byPrice;
 
-    // 5) Ordenar por distancia
-    return [...byTime].sort((a, b) => (a.distancia ?? 1e12) - (b.distancia ?? 1e12));
+    // 5) Amenidades
+    const selectedAmenitiesLower = Array.isArray(amenities)
+      ? amenities.map((a) => (a ?? '').toString().trim().toLowerCase())
+      : [];
+    const byAmenities = selectedAmenitiesLower.length
+      ? byTime.filter((g) => {
+          const gymAmenities = Array.isArray(g.amenities)
+            ? g.amenities.map((a) => (a.name ?? '').toString().trim().toLowerCase())
+            : [];
+          return selectedAmenitiesLower.some((sel) => gymAmenities.includes(sel));
+        })
+      : byTime;
+
+    // 6) Calificación (rating)
+    const byRating = ratingFilter
+      ? byAmenities.filter((g) => {
+          const id = Number(g.id);
+          const ratingData = ratingsByGym?.[id];
+          if (!ratingData || ratingData.totalReviews === 0) {
+            // Si no hay reviews, solo pasa si el filtro es "Cualquiera"
+            return ratingFilter === 'Cualquiera';
+          }
+          const avgRating = ratingData.averageRating;
+          if (ratingFilter === '4+ estrellas') return avgRating >= 4;
+          if (ratingFilter === '3+ estrellas') return avgRating >= 3;
+          if (ratingFilter === '2+ estrellas') return avgRating >= 2;
+          return true; // "Cualquiera"
+        })
+      : byAmenities;
+
+    // 7) Características especiales
+    const byFeatures = features.length
+      ? byRating.filter((g) => {
+          return features.every((feat) => {
+            if (feat === 'Auto check-in') return g.auto_checkin_enabled === true;
+            if (feat === 'Pase de día gratis') return Number(g.weekPrice) === 0;
+            if (feat === 'Verificado') return g.verified === true;
+            if (feat === 'Destacado') return g.featured === true;
+            return true;
+          });
+        })
+      : byRating;
+
+    // 8) Ordenar por distancia
+    return [...byFeatures].sort((a, b) => (a.distancia ?? 1e12) - (b.distancia ?? 1e12));
   }, [
     dataFromApi,
     fallback,
     search,
     services,
+    amenities,
+    features,
     priceFilter,
+    ratingFilter,
     openNow,
     timeFilter,
     schedulesByGym,
+    ratingsByGym,
   ]);
 }

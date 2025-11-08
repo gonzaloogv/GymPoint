@@ -27,6 +27,7 @@ export * from './GradientCard';
 export * from './GeneratedCodeCard';
 export * from './StatsCard';
 export * from './MetricTile';
+export * from './InfoCard';
 
 // Content Components
 export * from './Avatar';
@@ -51,6 +52,9 @@ export * from './TokenPill';
 export * from './ChipSelector';
 export * from './SegmentedControl';
 export * from './SwitchRow';
+export * from './StarRatingSelector';
+export * from './PriceRangeSelector';
+export * from './FilterSection';
 
 // Header & Navigation
 export * from './SearchHeader';
@@ -60,6 +64,7 @@ export * from './FilterSheet';
 export * from './MapBox';
 export * from './MapFallback';
 export * from './MapMarker';
+export * from './GymPin';
 export * from './UserLocationPin';
 export * from './ResultsInfo';
 

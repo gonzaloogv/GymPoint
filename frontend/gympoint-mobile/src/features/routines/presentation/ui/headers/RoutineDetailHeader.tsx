@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, Alert, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, Alert } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { Button, ButtonText } from '@shared/components/ui';
 import type { Routine } from '@features/routines/domain/entities';
@@ -19,17 +19,6 @@ export function RoutineDetailHeader({
 }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-
-  const palette = useMemo(
-    () => ({
-      title: isDark ? '#F9FAFB' : '#111827',
-      subtitle: isDark ? '#9CA3AF' : '#6B7280',
-      tagBg: isDark ? 'rgba(129, 140, 248, 0.14)' : 'rgba(79, 70, 229, 0.08)',
-      tagText: isDark ? '#C7D2FE' : '#4338CA',
-      divider: isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(148, 163, 184, 0.32)',
-    }),
-    [isDark],
-  );
 
   const exerciseCount = routine.exercises?.length || 0;
 
@@ -54,13 +43,17 @@ export function RoutineDetailHeader({
 
   return (
     <>
-      <View style={styles.wrapper}>
-        <View style={styles.headerRow}>
-          <Text style={[styles.title, { color: palette.title }]} numberOfLines={2}>
+      <View className="px-4 pt-4 pb-[18px] gap-3">
+        <View className="flex-row items-start gap-4">
+          <Text
+            numberOfLines={2}
+            className="flex-1 text-[28px] font-extrabold"
+            style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
+          >
             {routine.routine_name}
           </Text>
           {(onEdit || onDelete) && (
-            <View style={styles.actions}>
+            <View className="flex-row gap-3">
               {onEdit ? (
                 <Button variant="secondary" size="sm" onPress={onEdit}>
                   <ButtonText>Editar</ButtonText>
@@ -76,105 +69,60 @@ export function RoutineDetailHeader({
         </View>
 
         {routine.description ? (
-          <Text style={[styles.description, { color: palette.subtitle }]}>
+          <Text
+            className="text-sm font-medium leading-5"
+            style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+          >
             {routine.description}
           </Text>
         ) : null}
 
-        <View style={styles.metaRow}>
+        <View className="flex-row flex-wrap gap-2">
           <View
-            style={[
-              styles.metaPill,
-              {
-                backgroundColor: palette.tagBg,
-              },
-            ]}
+            className="rounded-full px-3.5 py-1.5"
+            style={{
+              backgroundColor: isDark ? 'rgba(129, 140, 248, 0.14)' : 'rgba(79, 70, 229, 0.08)',
+            }}
           >
-            <Text style={[styles.metaText, { color: palette.tagText }]}>
+            <Text
+              className="text-xs font-semibold uppercase"
+              style={{ color: isDark ? '#C7D2FE' : '#4338CA', letterSpacing: 0.8 }}
+            >
               {exerciseCount} ejercicio{exerciseCount !== 1 ? 's' : ''}
             </Text>
           </View>
           {routine.objective ? (
             <View
-              style={[
-                styles.metaPill,
-                {
-                  backgroundColor: palette.tagBg,
-                },
-              ]}
+              className="rounded-full px-3.5 py-1.5"
+              style={{
+                backgroundColor: isDark ? 'rgba(129, 140, 248, 0.14)' : 'rgba(79, 70, 229, 0.08)',
+              }}
             >
-              <Text style={[styles.metaText, { color: palette.tagText }]}>{routine.objective}</Text>
+              <Text
+                className="text-xs font-semibold uppercase"
+                style={{ color: isDark ? '#C7D2FE' : '#4338CA', letterSpacing: 0.8 }}
+              >
+                {routine.objective}
+              </Text>
             </View>
           ) : null}
         </View>
       </View>
 
       {showExercisesTitle ? (
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: palette.title }]}>Ejercicios</Text>
-          <View style={[styles.sectionDivider, { backgroundColor: palette.divider }]} />
+        <View className="px-4 pb-3 mt-1">
+          <Text
+            className="text-lg font-bold"
+            style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: 0.4 }}
+          >
+            Ejercicios
+          </Text>
+          <View
+            className="h-px mt-2 rounded-full"
+            style={{ backgroundColor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(148, 163, 184, 0.32)' }}
+          />
         </View>
       ) : null}
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  wrapper: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 18,
-    gap: 12,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 16,
-  },
-  title: {
-    flex: 1,
-    fontSize: 28,
-    fontWeight: '800',
-    letterSpacing: -0.2,
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  description: {
-    fontSize: 14,
-    fontWeight: '500',
-    lineHeight: 20,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  metaPill: {
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-  },
-  metaText: {
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  sectionHeader: {
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    marginTop: 4,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 0.4,
-  },
-  sectionDivider: {
-    height: 1,
-    marginTop: 8,
-    borderRadius: 999,
-  },
-});

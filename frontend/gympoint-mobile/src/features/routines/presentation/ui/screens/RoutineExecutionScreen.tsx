@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, View, StyleSheet, Text, ActivityIndicator } from 'react-native';
+import { Alert, View, Text, ActivityIndicator } from 'react-native';
 import { useRoutineExecution } from '@features/routines/presentation/hooks/useRoutineExecution';
 import {
   ExpandableExerciseCard,
@@ -20,9 +20,11 @@ type RoutineExecutionScreenProps = {
 // Componente de Loading separado para evitar inconsistencias de hooks
 const LoadingScreen: React.FC<{ isDark: boolean }> = ({ isDark }) => (
   <SurfaceScreen>
-    <View style={styles.loading}>
+    <View className="flex-1 justify-center items-center">
       <ActivityIndicator size="large" color={isDark ? '#ffffff' : '#000000'} />
-      <Text style={{ color: isDark ? '#ffffff' : '#000000', marginTop: 16 }}>Cargando rutina...</Text>
+      <Text style={{ color: isDark ? '#ffffff' : '#000000' }} className="mt-4">
+        Cargando rutina...
+      </Text>
     </View>
   </SurfaceScreen>
 );
@@ -153,7 +155,7 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
         renderItem={renderItem}
         ListHeaderComponent={headerComponent}
         ListFooterComponent={footerComponent}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={{ paddingBottom: 200 }}
       />
 
       <FloatingTimer
@@ -175,14 +177,3 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
 };
 
 export default RoutineExecutionScreen;
-
-const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  listContent: {
-    paddingBottom: 200,
-  },
-});

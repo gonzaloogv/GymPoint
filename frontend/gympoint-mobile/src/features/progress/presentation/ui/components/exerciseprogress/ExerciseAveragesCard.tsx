@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
+import { InfoCard } from '@shared/components/ui';
 import type { ExerciseAverages } from '../../hooks/useExerciseProgress';
 
 interface ExerciseAveragesCardProps {
@@ -15,15 +16,11 @@ export function ExerciseAveragesCard({ averages, loading = false }: ExerciseAver
 
   if (loading) {
     return (
-      <View
-        className={`p-4 rounded-xl border ${
-          isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'
-        }`}
-      >
+      <InfoCard variant="compact">
         <Text className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
           Cargando promedios...
         </Text>
-      </View>
+      </InfoCard>
     );
   }
 
@@ -32,11 +29,7 @@ export function ExerciseAveragesCard({ averages, loading = false }: ExerciseAver
   }
 
   return (
-    <View
-      className={`p-4 rounded-xl border ${
-        isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-      }`}
-    >
+    <InfoCard variant="compact">
       {/* Header */}
       <View className="flex-row items-center justify-between mb-3">
         <View className="flex-row items-center gap-2">
@@ -45,7 +38,10 @@ export function ExerciseAveragesCard({ averages, loading = false }: ExerciseAver
             size={18}
             color={isDark ? '#60A5FA' : '#3B82F6'}
           />
-          <Text className={`text-base font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          <Text
+            className="text-base font-bold"
+            style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+          >
             Promedios
           </Text>
         </View>
@@ -65,7 +61,10 @@ export function ExerciseAveragesCard({ averages, loading = false }: ExerciseAver
             </Text>
           </View>
           <View className="flex-row items-baseline gap-1">
-            <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <Text
+              className="text-lg font-bold"
+              style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+            >
               {averages.average_weight.toFixed(1)}
             </Text>
             <Text className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -82,7 +81,10 @@ export function ExerciseAveragesCard({ averages, loading = false }: ExerciseAver
               Reps
             </Text>
           </View>
-          <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          <Text
+            className="text-lg font-bold"
+            style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+          >
             {averages.average_reps.toFixed(1)}
           </Text>
         </View>
@@ -96,7 +98,10 @@ export function ExerciseAveragesCard({ averages, loading = false }: ExerciseAver
             </Text>
           </View>
           <View className="flex-row items-baseline gap-1">
-            <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <Text
+              className="text-lg font-bold"
+              style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+            >
               {averages.average_volume.toFixed(0)}
             </Text>
             <Text className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -105,6 +110,6 @@ export function ExerciseAveragesCard({ averages, loading = false }: ExerciseAver
           </View>
         </View>
       </View>
-    </View>
+    </InfoCard>
   );
 }

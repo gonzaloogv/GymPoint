@@ -28,38 +28,20 @@ export function GymDetailScreenWrapper() {
   const { coords } = useCurrentLocation();
 
   // Obtener la lista de gimnasios para encontrar el seleccionado
-  const {
-    data: gymsData,
-    loading: gymsLoading,
-    error: gymsError,
-    dataSource,
-  } = useNearbyGyms(coords?.latitude, coords?.longitude);
+  const { data: gymsData, loading: gymsLoading, error: gymsError, hasRequested } = useNearbyGyms(
+    coords?.latitude,
+    coords?.longitude,
+  );
 
   const gym = useMemo(() => {
     if (!gymsData || !gymId) {
       return null;
     }
 
-    const foundGym = gymsData.find((g: GymEntity) => g.id === gymId);
+    const numericGymId = Number(gymId);
+    const foundGym = gymsData.find((g: GymEntity) => Number(g.id) === numericGymId);
 
     if (!foundGym) {
-      const foundGymFlexible = gymsData.find((g: GymEntity) => g.id == gymId);
-      if (foundGymFlexible) {
-        // Usar foundGymFlexible para mapear
-        return {
-          id: foundGymFlexible.id,
-          name: foundGymFlexible.name,
-          distance: foundGymFlexible.distancia ? foundGymFlexible.distancia / 1000 : 0,
-          services: foundGymFlexible.equipment || [],
-          hours: undefined,
-          rating: undefined,
-          address: foundGymFlexible.address || 'Dirección no disponible',
-          city: foundGymFlexible.city || 'Ciudad no disponible',
-          coordinates: [foundGymFlexible.lat, foundGymFlexible.lng] as [number, number],
-          price: foundGymFlexible.monthPrice,
-          equipment: [],
-        };
-      }
       return null;
     }
 
@@ -197,8 +179,8 @@ export function GymDetailScreenWrapper() {
   if (gymsLoading) {
     return (
       <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color={isDark ? '#fff' : '#000'} />
-        <Text className={`mt-4 ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+        <ActivityIndicator size="large" color={isDark ? '#ffffff' : '#111827'} />
+        <Text className="mt-4" style={{ color: isDark ? '#ffffff' : '#111827' }}>
           Cargando gimnasio...
         </Text>
       </View>
@@ -207,8 +189,8 @@ export function GymDetailScreenWrapper() {
 
   if (gymsError) {
     return (
-      <View className="flex-1 justify-center items-center p-5">
-        <Text className={`text-base text-center text-red-500 ${isDark ? 'text-red-400' : 'text-red-500'}`}>
+      <View className="flex-1 justify-center items-center px-5">
+        <Text className="text-base text-center" style={{ color: isDark ? '#F87171' : '#DC2626' }}>
           Error al cargar el gimnasio: {String(gymsError)}
         </Text>
       </View>
@@ -217,20 +199,12 @@ export function GymDetailScreenWrapper() {
 
   if (!gym) {
     return (
-      <View className="flex-1 justify-center items-center p-5">
-        <Text className={`text-base text-center ${isDark ? 'text-textPrimary-dark' : 'text-textPrimary'}`}>
+      <View className="flex-1 justify-center items-center px-5">
+        <Text className="text-base text-center" style={{ color: isDark ? '#ffffff' : '#111827' }}>
           Gimnasio no encontrado (ID: {gymId})
         </Text>
-        <Text className={`text-sm text-center mt-2 ${isDark ? 'text-textMuted-dark' : 'text-textMuted'}`}>
+        <Text className="text-sm text-center mt-2" style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}>
           Datos disponibles: {gymsData?.length || 0} gimnasios
-        </Text>
-        <Text className={`text-xs text-center mt-1 ${isDark ? 'text-blue-400' : 'text-blue-500'}`}>
-          Origen:{' '}
-          {dataSource === 'api'
-            ? '🌐 API'
-            : dataSource === 'mocks'
-              ? '📦 Mocks'
-              : '❓ Desconocido'}
         </Text>
       </View>
     );
@@ -238,3 +212,4 @@ export function GymDetailScreenWrapper() {
 
   return <GymDetailScreen gym={gym} onBack={handleBack} onCheckIn={handleCheckIn} />;
 }
+

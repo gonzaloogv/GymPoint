@@ -33,7 +33,10 @@ export const LockedAchievementCard: React.FC<LockedAchievementCardProps> = ({ ac
           <Text style={{ fontSize: 48 }}>{achievement.icon}</Text>
         </View>
         <View className="flex-1">
-          <Text className={`font-bold text-lg mb-1 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
+          <Text
+            className="font-bold text-lg mb-1"
+            style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+          >
             {achievement.title}
           </Text>
 

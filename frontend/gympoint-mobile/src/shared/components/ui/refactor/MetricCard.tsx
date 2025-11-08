@@ -34,7 +34,10 @@ export function MetricCard({ label, value, unit, icon, iconColor }: MetricCardPr
           {label}
         </Text>
       )}
-      <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+      <Text
+        className="text-lg font-bold"
+        style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+      >
         {value}
         {unit && <Text className={`text-sm font-normal ${isDark ? 'text-gray-400' : 'text-gray-600'}`}> {unit}</Text>}
       </Text>

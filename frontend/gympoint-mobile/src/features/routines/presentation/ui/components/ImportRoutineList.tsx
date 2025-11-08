@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, View, StyleSheet } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { ImportRoutineCard } from './ImportRoutineCard';
 import { PredesignedRoutine } from '@features/routines/domain/entities/PredesignedRoutine';
 import { EmptyState } from '@shared/components/ui';
@@ -19,7 +19,7 @@ export function ImportRoutineList({
 }: Props) {
   if (routines.length === 0) {
     return (
-      <View style={styles.emptyWrapper}>
+      <View className="flex-1 px-6 py-12">
         <EmptyState title={emptyTitle} description={emptyDescription} />
       </View>
     );
@@ -30,25 +30,9 @@ export function ImportRoutineList({
       data={routines}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => <ImportRoutineCard routine={item} onImport={onImport} />}
-      contentContainerStyle={styles.listContent}
+      contentContainerClassName="px-4 pt-4 pb-8"
       showsVerticalScrollIndicator={false}
-      ListFooterComponent={<View style={styles.footerSpacing} />}
+      ListFooterComponent={<View className="h-2" />}
     />
   );
 }
-
-const styles = StyleSheet.create({
-  emptyWrapper: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 48,
-  },
-  listContent: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 32,
-  },
-  footerSpacing: {
-    height: 8,
-  },
-});

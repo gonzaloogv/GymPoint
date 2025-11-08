@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Card } from '@shared/components/ui';
+import { InfoCard } from '@shared/components/ui';
 import { useTheme } from '@shared/hooks';
 
 interface EquipmentCategory {
@@ -19,77 +19,125 @@ export function GymEquipmentCard({ equipment }: GymEquipmentCardProps) {
   const isDark = theme === 'dark';
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
 
+  if (!equipment || equipment.length === 0) {
+    return null;
+  }
+
   const toggleCategory = (category: string) => {
     setExpandedCategories((prev) =>
       prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category],
     );
   };
 
-  const getTotalQuantity = (items: { name: string; quantity: number }[]) => {
-    return items.reduce((sum, item) => sum + item.quantity, 0);
-  };
-
-  if (!equipment || equipment.length === 0) {
-    return null;
-  }
+  const getTotalQuantity = (items: { name: string; quantity: number }[]) =>
+    items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <Card className="mx-4 mt-4">
-      <View className="flex-row items-center mb-3">
-        <View className={`w-10 h-10 rounded-lg justify-center items-center mr-3 ${isDark ? 'bg-orange-500/30' : 'bg-orange-100'}`}>
-          <Feather name="activity" size={20} color={isDark ? '#fb923c' : '#f97316'} />
+    <InfoCard variant="default" className="mx-4 mt-4">
+      {/* Header */}
+      <View className="flex-row items-center mb-4">
+        <View
+          className="w-14 h-14 rounded-[20px] border items-center justify-center mr-[14px]"
+          style={{
+            backgroundColor: isDark ? 'rgba(251, 146, 60, 0.2)' : 'rgba(251, 146, 60, 0.14)',
+            borderColor: isDark ? 'rgba(251, 146, 60, 0.38)' : 'rgba(251, 146, 60, 0.24)',
+          }}
+        >
+          <Feather name="activity" size={20} color={isDark ? '#FDBA74' : '#EA580C'} />
         </View>
-        <Text className={`text-lg font-semibold ${isDark ? 'text-text-dark' : 'text-text'}`}>
+        <Text
+          className="text-lg font-bold"
+          style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
+        >
           Equipamiento disponible
         </Text>
       </View>
 
-      <View className="gap-2">
-        {equipment.map(({ category, icon, items }) => (
-          <View key={category}>
-            <TouchableOpacity
-              className={`flex-row items-center justify-between p-3 rounded-lg ${
-                isDark ? 'bg-surfaceVariant-dark' : 'bg-surfaceVariant'
-              }`}
-              onPress={() => toggleCategory(category)}
-            >
-              <View className="flex-row items-center flex-1">
-                <Text style={{ fontSize: 20, marginRight: 8 }}>{icon}</Text>
-                <Text className={`font-semibold ${isDark ? 'text-text-dark' : 'text-text'}`}>
-                  {category}
-                </Text>
-              </View>
-              <View className="flex-row items-center">
-                <View className={`px-2 py-1 rounded-full mr-2 ${isDark ? 'bg-primary/30' : 'bg-primary/20'}`}>
-                  <Text className={`text-xs font-bold ${isDark ? 'text-primary-light' : 'text-primary'}`}>
-                    {getTotalQuantity(items)}
+      {/* Category List */}
+      <View className="gap-3">
+        {equipment.map(({ category, icon, items }) => {
+          const expanded = expandedCategories.includes(category);
+          const totalItems = getTotalQuantity(items);
+
+          return (
+            <View key={category} className="gap-2.5">
+              <TouchableOpacity
+                className="flex-row items-center justify-between border rounded-2xl px-4 py-[14px]"
+                style={{
+                  backgroundColor: isDark ? 'rgba(17, 24, 39, 0.6)' : '#F9FAFB',
+                  borderColor: isDark ? 'rgba(55, 65, 81, 0.8)' : '#E5E7EB',
+                }}
+                onPress={() => toggleCategory(category)}
+                activeOpacity={0.75}
+              >
+                {/* Left Side */}
+                <View className="flex-row items-center flex-1 gap-2.5">
+                  <Text className="text-[22px]">{icon}</Text>
+                  <Text
+                    className="text-[15px] font-semibold"
+                    style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+                  >
+                    {category}
                   </Text>
                 </View>
-                <Feather
-                  name={expandedCategories.includes(category) ? 'chevron-up' : 'chevron-down'}
-                  size={20}
-                  color={isDark ? '#B0B8C8' : '#666666'}
-                />
-              </View>
-            </TouchableOpacity>
 
-            {expandedCategories.includes(category) && (
-              <View className={`mt-2 ml-4 gap-2 ${isDark ? 'border-l-2 border-border-dark' : 'border-l-2 border-border'} pl-4`}>
-                {items.map((item, index) => (
-                  <View key={index} className="flex-row items-center justify-between py-1">
-                    <Text className={`flex-1 ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
-                      {item.name}
-                    </Text>
-                    <Text className={`font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>
-                      ×{item.quantity}
+                {/* Right Side */}
+                <View className="flex-row items-center gap-2.5">
+                  <View
+                    className="rounded-full px-2.5 py-1"
+                    style={{
+                      backgroundColor: isDark ? 'rgba(99, 102, 241, 0.25)' : 'rgba(79, 70, 229, 0.12)',
+                    }}
+                  >
+                    <Text
+                      className="text-xs font-bold uppercase"
+                      style={{
+                        color: isDark ? '#C7D2FE' : '#4338CA',
+                        letterSpacing: 0.4,
+                      }}
+                    >
+                      {totalItems}
                     </Text>
                   </View>
-                ))}
-              </View>
-            )}
-          </View>
-        ))}
+                  <Feather
+                    name={expanded ? 'chevron-up' : 'chevron-down'}
+                    size={18}
+                    color={isDark ? '#9CA3AF' : '#6B7280'}
+                  />
+                </View>
+              </TouchableOpacity>
+
+              {/* Expanded Items */}
+              {expanded && (
+                <View
+                  className="border-l-2 ml-4 pl-4 gap-2.5"
+                  style={{
+                    borderLeftColor: isDark ? 'rgba(55, 65, 81, 0.8)' : '#E5E7EB',
+                  }}
+                >
+                  {items.map((item) => (
+                    <View key={`${category}-${item.name}`} className="flex-row items-center justify-between">
+                      <Text
+                        className="flex-1 text-sm"
+                        style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+                      >
+                        {item.name}
+                      </Text>
+                      <Text
+                        className="text-sm font-bold"
+                        style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+                      >
+                        ×{item.quantity}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+          );
+        })}
       </View>
-    </Card>
+    </InfoCard>
   );
 }
+

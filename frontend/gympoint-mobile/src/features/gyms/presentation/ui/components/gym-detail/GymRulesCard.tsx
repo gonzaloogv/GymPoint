@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Card } from '@shared/components/ui';
+import { InfoCard } from '@shared/components/ui';
 import { useTheme } from '@shared/hooks';
 
 interface GymRulesCardProps {
@@ -11,42 +11,62 @@ interface GymRulesCardProps {
 export function GymRulesCard({ rules }: GymRulesCardProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  const showEmpty = !rules || rules.length === 0;
 
   return (
-    <Card className="mx-4 mt-4">
-      <View className="flex-row items-center mb-3">
-        <View className={`w-10 h-10 rounded-lg justify-center items-center mr-3 ${isDark ? 'bg-red-500/30' : 'bg-red-100'}`}>
-          <Feather name="alert-triangle" size={20} color={isDark ? '#f87171' : '#dc2626'} />
+    <InfoCard variant="default" className="mx-4 mt-4">
+      {/* Header */}
+      <View className="flex-row items-center mb-[14px]">
+        <View
+          className="w-14 h-14 rounded-[20px] border items-center justify-center mr-[14px]"
+          style={{
+            backgroundColor: isDark ? 'rgba(248, 113, 113, 0.18)' : 'rgba(248, 113, 113, 0.12)',
+            borderColor: isDark ? 'rgba(248, 113, 113, 0.38)' : 'rgba(248, 113, 113, 0.24)',
+          }}
+        >
+          <Feather name="alert-triangle" size={20} color={isDark ? '#FCA5A5' : '#DC2626'} />
         </View>
-        <Text className={`text-lg font-semibold ${isDark ? 'text-text-dark' : 'text-text'}`}>
+        <Text
+          className="text-lg font-bold"
+          style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
+        >
           Normas del gimnasio
         </Text>
       </View>
 
-      {rules && rules.length > 0 ? (
-        <View className="gap-3">
+      {/* Content */}
+      {showEmpty ? (
+        <Text
+          className="text-sm"
+          style={{ color: isDark ? '#9CA3AF' : '#6B7280', lineHeight: 20 }}
+        >
+          El gimnasio no tiene reglas registradas.
+        </Text>
+      ) : (
+        <View className="gap-[14px]">
           {rules.map((rule, index) => (
-            <View key={index} className="flex-row items-start">
+            <View key={`${rule}-${index}`} className="flex-row items-start">
               <View
-                className={`w-6 h-6 rounded-full items-center justify-center mr-3 mt-0.5 ${
-                  isDark ? 'bg-red-500/20' : 'bg-red-50'
-                }`}
+                className="w-7 h-7 rounded-full items-center justify-center mr-3 mt-0.5"
+                style={{
+                  backgroundColor: isDark ? 'rgba(248, 113, 113, 0.18)' : 'rgba(248, 113, 113, 0.14)',
+                }}
               >
-                <Text className={`text-xs font-bold ${isDark ? 'text-red-400' : 'text-red-600'}`}>
+                <Text className="text-xs font-bold" style={{ color: isDark ? '#F87171' : '#DC2626' }}>
                   {index + 1}
                 </Text>
               </View>
-              <Text className={`flex-1 ${isDark ? 'text-text-dark' : 'text-text'}`}>
+              <Text
+                className="flex-1 text-sm"
+                style={{ color: isDark ? '#F9FAFB' : '#111827', lineHeight: 20 }}
+              >
                 {rule}
               </Text>
             </View>
           ))}
         </View>
-      ) : (
-        <Text className={`text-sm ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
-          El gimnasio no tiene reglas registradas
-        </Text>
       )}
-    </Card>
+    </InfoCard>
   );
 }
+

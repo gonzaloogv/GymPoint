@@ -43,24 +43,43 @@ export function AchievementsScreen({ navigation }: AchievementsScreenProps) {
     <Screen scroll safeAreaTop safeAreaBottom>
       <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 pt-4 pb-4">
-          <View className="flex-row items-center flex-1">
-            <Pressable onPress={handleBackPress}>
-              <Ionicons name="chevron-back" size={28} color={isDark ? '#60A5FA' : '#3B82F6'} />
-            </Pressable>
-            <Text className={`ml-3 text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+        <View className="px-4 pt-4 pb-[18px] gap-3">
+          <Pressable onPress={handleBackPress} className="flex-row items-center -ml-2">
+            <Ionicons
+              name="chevron-back"
+              size={24}
+              color={isDark ? '#60A5FA' : '#3B82F6'}
+            />
+            <Text
+              className="text-sm font-semibold"
+              style={{ color: isDark ? '#60A5FA' : '#3B82F6' }}
+            >
+              Volver
+            </Text>
+          </Pressable>
+
+          <View>
+            <Text
+              className="text-[28px] font-extrabold"
+              style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
+            >
               Logros
             </Text>
-          </View>
-        </View>
-
-        <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
-          {/* Stats */}
-          <View className="mb-6">
-            <Text className={`text-base ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+            <Text
+              className="mt-2 text-xs font-semibold uppercase"
+              style={{ color: isDark ? '#9CA3AF' : '#6B7280', letterSpacing: 1.2 }}
+            >
               {unlockedAchievements.length} desbloqueados • {lockedAchievements.length} disponibles
             </Text>
           </View>
+
+          <View
+            className="h-px rounded-full"
+            style={{ backgroundColor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(148, 163, 184, 0.32)' }}
+          />
+        </View>
+
+        <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
 
           {/* Empty State */}
           {achievements.length === 0 && (
@@ -70,7 +89,10 @@ export function AchievementsScreen({ navigation }: AchievementsScreenProps) {
               }`}
             >
               <Ionicons name="trophy-outline" size={64} color={isDark ? '#9CA3AF' : '#6B7280'} />
-              <Text className={`mt-4 text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <Text
+                className="mt-4 text-lg font-semibold"
+                style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+              >
                 No hay logros todavía
               </Text>
               <Text className={`mt-2 text-center ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -82,7 +104,10 @@ export function AchievementsScreen({ navigation }: AchievementsScreenProps) {
           {/* Logros Desbloqueados */}
           {unlockedAchievements.length > 0 && (
             <View className="mb-6">
-              <Text className={`text-lg font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <Text
+                className="text-lg font-bold mb-3"
+                style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+              >
                 Desbloqueados
               </Text>
               {unlockedAchievements.map((achievement) => (
@@ -94,7 +119,10 @@ export function AchievementsScreen({ navigation }: AchievementsScreenProps) {
           {/* Logros Por Desbloquear */}
           {lockedAchievements.length > 0 && (
             <View className="mb-8">
-              <Text className={`text-lg font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <Text
+                className="text-lg font-bold mb-3"
+                style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+              >
                 Por desbloquear
               </Text>
               {lockedAchievements.map((achievement) => (

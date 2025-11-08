@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React from 'react';
+import { View } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { Button, ButtonText } from '@shared/components/ui';
 
@@ -12,23 +12,12 @@ export function RoutineDetailFooter({ onStartRoutine, onViewHistory }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const palette = useMemo(
-    () => ({
-      background: isDark ? '#111827' : '#F9FAFB',
-      border: isDark ? 'rgba(55, 65, 81, 0.6)' : '#E5E7EB',
-    }),
-    [isDark],
-  );
-
   return (
     <View
-      style={[
-        styles.container,
-        {
-          backgroundColor: palette.background,
-          borderTopColor: palette.border,
-        },
-      ]}
+      className={`px-4 pt-5 pb-8 gap-3 border-t ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}
+      style={{
+        borderTopColor: isDark ? 'rgba(55, 65, 81, 0.6)' : '#E5E7EB',
+      }}
     >
       <Button fullWidth onPress={onStartRoutine}>
         <ButtonText>Empezar rutina</ButtonText>
@@ -39,13 +28,3 @@ export function RoutineDetailFooter({ onStartRoutine, onViewHistory }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 32,
-    gap: 12,
-    borderTopWidth: 1,
-  },
-});

@@ -3,7 +3,7 @@
  * Gestión de frecuencia semanal y metas siguiendo arquitectura limpia
  */
 
-const { frequencyRepository } = require('../infra/db/repositories');
+const { frequencyRepository, streakRepository } = require('../infra/db/repositories');
 const tokenLedgerService = require('./token-ledger-service');
 const { NotFoundError, BusinessError } = require('../utils/errors');
 const { TOKENS, TOKEN_REASONS } = require('../config/constants');
@@ -298,6 +298,25 @@ const resetWeek = async (command = {}) => {
       // Determinar si alcanzó la meta
       const goalMet = frequency.assist >= frequency.goal;
       const tokensEarned = goalMet && Number.isFinite(TOKENS.WEEKLY_BONUS) ? TOKENS.WEEKLY_BONUS : 0;
+
+      // Si NO cumplió la meta, resetear streak
+      if (!goalMet) {
+        const streak = await streakRepository.findByUserProfileId(
+          frequency.id_user_profile || frequency.id_user,
+          { transaction }
+        );
+
+        if (streak && streak.value > 0) {
+          // Resetear streak: guardar en last_value, actualizar max_value si aplica, value = 0
+          const newMaxValue = Math.max(streak.max_value || 0, streak.value);
+          await streakRepository.updateStreak(streak.id_streak, {
+            last_value: streak.value,
+            value: 0,
+            max_value: newMaxValue
+          }, { transaction });
+          console.log(`[frequency-service] Streak reseteado para usuario ${frequency.id_user_profile || frequency.id_user}: ${streak.value} -> 0 (meta no cumplida: ${frequency.assist}/${frequency.goal})`);
+        }
+      }
 
       // Crear registro histórico
       const history = await frequencyRepository.createHistory({

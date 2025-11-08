@@ -61,7 +61,7 @@ export default function RoutineDetailScreen({ route, navigation }: any) {
 
   if (loading || !routine) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" />
         {!routine && !loading && <Text>Rutina no encontrada</Text>}
       </View>

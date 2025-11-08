@@ -75,13 +75,40 @@ export function TokenHistoryScreen({ navigation }: TokenHistoryScreenProps) {
     <Screen scroll safeAreaTop safeAreaBottom>
       <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
         {/* Header */}
-        <View className="flex-row items-center px-4 pt-4 pb-4">
-          <Pressable onPress={handleBackPress}>
-            <Ionicons name="chevron-back" size={28} color={isDark ? '#60A5FA' : '#3B82F6'} />
+        <View className="px-4 pt-4 pb-[18px] gap-3">
+          <Pressable onPress={handleBackPress} className="flex-row items-center -ml-2">
+            <Ionicons
+              name="chevron-back"
+              size={24}
+              color={isDark ? '#60A5FA' : '#3B82F6'}
+            />
+            <Text
+              className="text-sm font-semibold"
+              style={{ color: isDark ? '#60A5FA' : '#3B82F6' }}
+            >
+              Volver
+            </Text>
           </Pressable>
-          <Text className={`ml-3 text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            Historial de tokens
-          </Text>
+
+          <View>
+            <Text
+              className="text-[28px] font-extrabold"
+              style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
+            >
+              Historial de tokens
+            </Text>
+            <Text
+              className="mt-2 text-xs font-semibold uppercase"
+              style={{ color: isDark ? '#9CA3AF' : '#6B7280', letterSpacing: 1.2 }}
+            >
+              {tokenData.available} tokens disponibles
+            </Text>
+          </View>
+
+          <View
+            className="h-px rounded-full"
+            style={{ backgroundColor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(148, 163, 184, 0.32)' }}
+          />
         </View>
 
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -209,7 +236,7 @@ export function TokenHistoryScreen({ navigation }: TokenHistoryScreenProps) {
                   <View className="flex-1">
                     <Text
                       className="font-semibold text-sm"
-                      style={{ color: isDark ? '#FFFFFF' : '#111827' }}
+                      style={{ color: isDark ? '#F9FAFB' : '#111827' }}
                     >
                       {tx.title}
                     </Text>

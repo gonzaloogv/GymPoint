@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Card } from '@shared/components/ui';
+import { InfoCard } from '@shared/components/ui';
 import { useTheme } from '@shared/hooks';
 
 interface GymPriceCardProps {
@@ -13,23 +13,54 @@ export function GymPriceCard({ price }: GymPriceCardProps) {
   const isDark = theme === 'dark';
 
   return (
-    <Card className="mx-4 mt-4 flex-row items-center justify-between">
-      <View className="flex-row items-center flex-1">
-        <View className={`w-12 h-12 rounded-lg justify-center items-center mr-4 ${isDark ? 'bg-blue-500/30' : 'bg-blue-100'}`}>
-          <Feather name="dollar-sign" size={24} color={isDark ? '#60a5fa' : '#3b82f6'} />
+    <InfoCard variant="default" className="mx-4 mt-4">
+      <View className="flex-row items-center justify-between">
+        {/* Left Column */}
+        <View className="flex-row items-center flex-1">
+          <View
+            className="w-14 h-14 rounded-[20px] border items-center justify-center mr-4"
+            style={{
+              backgroundColor: isDark ? 'rgba(79, 70, 229, 0.22)' : 'rgba(129, 140, 248, 0.16)',
+              borderColor: isDark ? 'rgba(129, 140, 248, 0.38)' : 'rgba(129, 140, 248, 0.24)',
+            }}
+          >
+            <Feather name="dollar-sign" size={22} color={isDark ? '#C7D2FE' : '#4338CA'} />
+          </View>
+          <View className="flex-1">
+            <Text
+              className="text-[13px] font-semibold uppercase mb-1.5"
+              style={{ color: isDark ? '#9CA3AF' : '#6B7280', letterSpacing: 0.3 }}
+            >
+              Precio mensual
+            </Text>
+            <Text
+              className="text-[26px] font-bold"
+              style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
+            >
+              ${price.toLocaleString('es-AR')}
+            </Text>
+          </View>
         </View>
-        <View>
-          <Text className={`text-sm ${isDark ? 'text-textSecondary-dark' : 'text-textSecondary'}`}>
-            Precio mensual
-          </Text>
-          <Text className={`text-2xl font-bold ${isDark ? 'text-text-dark' : 'text-text'}`}>
-            ${price.toLocaleString('es-AR')}
+
+        {/* Badge */}
+        <View
+          className="px-4 py-2 rounded-[18px] border"
+          style={{
+            backgroundColor: isDark ? 'rgba(16, 185, 129, 0.18)' : 'rgba(16, 185, 129, 0.16)',
+            borderColor: isDark ? 'rgba(16, 185, 129, 0.4)' : 'rgba(16, 185, 129, 0.32)',
+          }}
+        >
+          <Text
+            className="text-xs font-bold uppercase"
+            style={{
+              color: isDark ? '#6EE7B7' : '#047857',
+              letterSpacing: 0.5,
+            }}
+          >
+            Por mes
           </Text>
         </View>
       </View>
-      <View className="bg-green-500/20 border border-green-500/40 rounded-2xl px-3 py-1">
-        <Text className="text-xs font-semibold text-green-600">Por mes</Text>
-      </View>
-    </Card>
+    </InfoCard>
   );
 }

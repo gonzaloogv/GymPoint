@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, View, StyleSheet } from 'react-native';
+import { FlatList, View } from 'react-native';
 
 type Props = {
   data: any[];
@@ -21,10 +21,10 @@ export function HistoryLayout({
       data={data}
       keyExtractor={keyExtractor}
       renderItem={renderItem}
-      ItemSeparatorComponent={() => <View style={styles.separator} />}
+      ItemSeparatorComponent={() => <View className="h-3" />}
       ListHeaderComponent={ListHeaderComponent}
       showsVerticalScrollIndicator={false}
-      style={styles.list}
+      className="flex-1"
       contentContainerStyle={[
         {
           paddingHorizontal: 16,
@@ -36,12 +36,3 @@ export function HistoryLayout({
     />
   );
 }
-
-const styles = StyleSheet.create({
-  list: {
-    flex: 1,
-  },
-  separator: {
-    height: 12,
-  },
-});

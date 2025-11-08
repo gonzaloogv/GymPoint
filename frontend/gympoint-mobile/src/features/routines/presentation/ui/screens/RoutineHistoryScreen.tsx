@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { SurfaceScreen } from '@shared/components/ui';
 import { useRoutineById } from '@features/routines/presentation/hooks/useRoutineById';
 import { useRoutineHistory } from '@features/routines/presentation/hooks/useRoutineHistory';
@@ -25,10 +25,10 @@ export default function RoutineHistoryScreen({ route }: RoutineHistoryScreenProp
   if (loadingRoutine || (!routine && !loadingRoutine)) {
     return (
       <SurfaceScreen>
-        <View style={styles.loading}>
+        <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color={isDark ? '#ffffff' : '#111827'} />
           {!loadingRoutine && !routine ? (
-            <Text style={{ marginTop: 16, color: isDark ? '#ffffff' : '#111827' }}>
+            <Text className="mt-4" style={{ color: isDark ? '#ffffff' : '#111827' }}>
               Rutina no encontrada
             </Text>
           ) : null}
@@ -57,11 +57,3 @@ export default function RoutineHistoryScreen({ route }: RoutineHistoryScreenProp
     </SurfaceScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

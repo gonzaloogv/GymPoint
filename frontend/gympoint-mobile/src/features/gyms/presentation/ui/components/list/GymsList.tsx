@@ -27,11 +27,8 @@ export default function GymsList({ data, headerText, onPressItem }: Props) {
       ListHeaderComponent={
         headerText ? (
           <Text
-            className={
-              isDark
-                ? 'text-textSecondary-dark px-4 mb-2'
-                : 'text-textSecondary px-4 mb-2'
-            }
+            className="text-sm font-medium px-4 mb-2"
+            style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
           >
             {headerText}
           </Text>

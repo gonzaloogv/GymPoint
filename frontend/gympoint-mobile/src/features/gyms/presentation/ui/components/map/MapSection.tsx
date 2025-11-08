@@ -1,6 +1,6 @@
 import { ActivityIndicator, View, Text } from 'react-native';
 
-import { Card as BaseCard } from '@shared/components/ui';
+import { InfoCard } from '@shared/components/ui';
 import { GymListItem } from '../list/GymListItem';
 import { useTheme } from '@shared/hooks';
 
@@ -82,9 +82,12 @@ export default function MapSection({
       </MapBox>
 
       {hasMoreGyms && (
-        <BaseCard padding="none" className={`mx-4 mt-4 overflow-hidden ${isDark ? 'bg-gray-900/50' : 'bg-white'}`}>
-          <View className="px-4 pt-4">
-            <Text className={isDark ? 'text-white font-semibold' : 'text-gray-900 font-semibold'}>
+        <InfoCard variant="default" className="mx-4 mt-4 p-0">
+          <View className="px-5 pt-[18px] pb-2">
+            <Text
+              className="text-lg font-bold mb-2"
+              style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
+            >
               Más cercanos
             </Text>
           </View>
@@ -101,7 +104,7 @@ export default function MapSection({
               onPress={onGymPress || noop}
             />
           ))}
-        </BaseCard>
+        </InfoCard>
       )}
     </>
   );

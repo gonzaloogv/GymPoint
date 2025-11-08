@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, Modal, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, Modal } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import { Button } from '@shared/components/ui';
 
@@ -19,36 +19,31 @@ export function IncompleteSessionModal({
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const palette = useMemo(
-    () => ({
-      overlay: isDark ? 'rgba(0, 0, 0, 0.65)' : 'rgba(17, 24, 39, 0.45)',
-      background: isDark ? '#111827' : '#ffffff',
-      border: isDark ? 'rgba(55, 65, 81, 0.6)' : '#E5E7EB',
-      title: isDark ? '#F9FAFB' : '#111827',
-      body: isDark ? '#9CA3AF' : '#4B5563',
-    }),
-    [isDark],
-  );
+  const overlay = isDark ? 'rgba(0, 0, 0, 0.65)' : 'rgba(17, 24, 39, 0.45)';
+  const background = isDark ? '#111827' : '#ffffff';
+  const border = isDark ? 'rgba(55, 65, 81, 0.6)' : '#E5E7EB';
+  const title = isDark ? '#F9FAFB' : '#111827';
+  const body = isDark ? '#9CA3AF' : '#4B5563';
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={[styles.overlay, { backgroundColor: palette.overlay }]}>
+      <View className="flex-1 justify-end" style={{ backgroundColor: overlay }}>
         <View
-          style={[
-            styles.sheet,
-            {
-              backgroundColor: palette.background,
-              borderColor: palette.border,
-            },
-          ]}
+          className="px-6 pt-[18px] pb-8 rounded-t-[28px] border"
+          style={{ backgroundColor: background, borderColor: border }}
         >
-          <View style={styles.grabber} />
-          <Text style={[styles.title, { color: palette.title }]}>Sesion incompleta</Text>
-          <Text style={[styles.bodyText, { color: palette.body }]}>
+          <View
+            className="self-center w-12 h-[5px] rounded-full mb-[18px]"
+            style={{ backgroundColor: 'rgba(148, 163, 184, 0.35)' }}
+          />
+          <Text className="text-xl font-bold mb-3" style={{ color: title }}>
+            Sesion incompleta
+          </Text>
+          <Text className="text-[15px] leading-[22px] mb-7" style={{ color: body }}>
             Tienes una sesion incompleta de {routineName}. Continua donde lo dejaste o cierra
             para iniciar otra.
           </Text>
-          <View style={styles.actions}>
+          <View className="gap-3">
             <Button fullWidth onPress={onContinue}>
               Continuar entrenamiento
             </Button>
@@ -61,40 +56,4 @@ export function IncompleteSessionModal({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  sheet: {
-    paddingHorizontal: 24,
-    paddingTop: 18,
-    paddingBottom: 32,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    borderWidth: 1,
-  },
-  grabber: {
-    alignSelf: 'center',
-    width: 48,
-    height: 5,
-    borderRadius: 999,
-    backgroundColor: 'rgba(148, 163, 184, 0.35)',
-    marginBottom: 18,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 12,
-  },
-  bodyText: {
-    fontSize: 15,
-    lineHeight: 22,
-    marginBottom: 28,
-  },
-  actions: {
-    gap: 12,
-  },
-});
 

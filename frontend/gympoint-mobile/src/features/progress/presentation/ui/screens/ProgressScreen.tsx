@@ -43,9 +43,18 @@ export function ProgressScreen({ navigation }: ProgressScreenProps) {
         rowGap: 24,
       }}
     >
-      <View className="pt-4 pb-2">
-        <Text className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+      <View className="pt-4 pb-[18px]">
+        <Text
+          className="text-[28px] font-extrabold"
+          style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
+        >
           Progreso
+        </Text>
+        <Text
+          className="mt-2 text-xs font-semibold uppercase"
+          style={{ color: isDark ? '#9CA3AF' : '#6B7280', letterSpacing: 1.2 }}
+        >
+          Tu rendimiento y metas
         </Text>
       </View>
 

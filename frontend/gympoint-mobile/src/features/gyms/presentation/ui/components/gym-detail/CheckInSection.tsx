@@ -3,13 +3,13 @@ import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-na
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 import { useCheckIn, useTodayCheckInStatus } from '@features/assistance';
-import { SubscriptionStatus } from '@features/subscriptions';
+import { UseGymSubscriptionStatusResult } from '@features/subscriptions';
 
 interface CheckInSectionProps {
   gymId: number;
   gymName: string;
   distance: number;
-  subscriptionStatus: SubscriptionStatus;
+  subscriptionStatus: UseGymSubscriptionStatusResult;
   onCheckIn?: () => void;
 }
 
@@ -57,7 +57,7 @@ export function CheckInSection({
     <>
       {/* Distance Alert */}
       {!isInRange && (
-        <View className="bg-yellow-100 border border-yellow-300 rounded-2xl p-4 mx-4 mt-4 flex-row items-start">
+        <View className="bg-yellow-100 border border-yellow-300 rounded-[24px] px-4 py-4 mx-4 mt-4 flex-row items-start">
           <Feather name="alert-triangle" size={16} color="#856404" />
           <Text className="text-sm text-yellow-800 ml-2 flex-1">
             Estás a {(distance * 1000).toFixed(0)}m del gimnasio. Necesitás estar dentro de los 150m para hacer
@@ -68,7 +68,7 @@ export function CheckInSection({
 
       {/* Subscription Required Alert */}
       {isInRange && !subscriptionStatus.hasActiveSubscription && !subscriptionStatus.canUseTrial && (
-        <View className="bg-red-100 border border-red-300 rounded-2xl p-4 mx-4 mt-4 flex-row items-start">
+        <View className="bg-red-100 border border-red-300 rounded-[24px] px-4 py-4 mx-4 mt-4 flex-row items-start">
           <Feather name="alert-circle" size={16} color="#dc2626" />
           <Text className="text-sm text-red-800 ml-2 flex-1">
             {subscriptionStatus.trialUsed
@@ -80,7 +80,7 @@ export function CheckInSection({
 
       {/* Trial Available Alert */}
       {isInRange && !subscriptionStatus.hasActiveSubscription && subscriptionStatus.canUseTrial && (
-        <View className="bg-blue-100 border border-blue-300 rounded-2xl p-4 mx-4 mt-4 flex-row items-start">
+        <View className="bg-blue-100 border border-blue-300 rounded-[24px] px-4 py-4 mx-4 mt-4 flex-row items-start">
           <Feather name="info" size={16} color="#2563eb" />
           <Text className="text-sm text-blue-800 ml-2 flex-1">
             Podés hacer check-in con tu visita de prueba. Se marcará como usada automáticamente.
@@ -91,7 +91,7 @@ export function CheckInSection({
       {/* Check-in Already Done or Button */}
       {todayCheckInStatus.hasCheckedIn ? (
         <>
-          <View className={`${isDark ? 'bg-green-900/30' : 'bg-green-50'} rounded-2xl p-5 mx-4 mt-4`}>
+          <View className={`${isDark ? 'bg-green-900/30' : 'bg-green-50'} rounded-[24px] px-5 py-[18px] mx-4 mt-4`}>
             <View className="flex-row items-center mb-3">
               <View
                 className={`w-14 h-14 ${
@@ -113,7 +113,7 @@ export function CheckInSection({
               <>
                 {/* Gimnasio */}
                 {todayCheckInStatus.assistanceDetails.gym_name && (
-                  <View className={`${isDark ? 'bg-surface-dark/60' : 'bg-white/70'} rounded-lg p-3 mb-2`}>
+                  <View className={`${isDark ? 'bg-surface-dark/60' : 'bg-white/70'} rounded-[16px] p-3 mb-2`}>
                     <Text className={`text-xs font-medium mb-1 ${isDark ? 'text-green-300' : 'text-green-800'}`}>
                       Gimnasio
                     </Text>
@@ -123,7 +123,7 @@ export function CheckInSection({
                   </View>
                 )}
                 {/* Hora de entrada */}
-                <View className={`${isDark ? 'bg-surface-dark/60' : 'bg-white/70'} rounded-lg p-3`}>
+                <View className={`${isDark ? 'bg-surface-dark/60' : 'bg-white/70'} rounded-[16px] p-3`}>
                   <Text className={`text-xs font-medium mb-1 ${isDark ? 'text-green-300' : 'text-green-800'}`}>
                     Hora de entrada
                   </Text>
@@ -142,11 +142,7 @@ export function CheckInSection({
               </>
             )}
           </View>
-          <Text
-            className={`text-xs text-center mx-4 mt-2 mb-8 ${
-              isDark ? 'text-textSecondary-dark' : 'text-textSecondary'
-            }`}
-          >
+          <Text className="text-xs text-center mx-4 mt-2 mb-8" style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}>
             ¡Que tengas un excelente entrenamiento!
           </Text>
         </>
@@ -160,7 +156,7 @@ export function CheckInSection({
               isCheckingIn
                 ? 'bg-gray-400'
                 : 'bg-primary'
-            } rounded-2xl p-4 mx-4 mt-4 items-center`}
+            } rounded-[24px] px-4 py-4 mx-4 mt-4 items-center`}
             disabled={
               !isInRange || (!subscriptionStatus.hasActiveSubscription && !subscriptionStatus.canUseTrial) || isCheckingIn
             }
@@ -187,11 +183,7 @@ export function CheckInSection({
             )}
           </TouchableOpacity>
 
-          <Text
-            className={`text-xs text-center mx-4 mt-2 mb-8 ${
-              isDark ? 'text-textSecondary-dark' : 'text-textSecondary'
-            }`}
-          >
+          <Text className="text-xs text-center mx-4 mt-2 mb-8" style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}>
             {(subscriptionStatus.hasActiveSubscription || subscriptionStatus.canUseTrial) &&
               'Al hacer check-in ganarás +10 tokens y extenderás tu racha'}
           </Text>

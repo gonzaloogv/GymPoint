@@ -43,7 +43,10 @@ export const UnlockedAchievementCard: React.FC<UnlockedAchievementCardProps> = (
           </View>
         </View>
         <View className="flex-1">
-          <Text className={`font-bold text-lg mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          <Text
+            className="font-bold text-lg mb-1"
+            style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+          >
             {achievement.title}
           </Text>
 

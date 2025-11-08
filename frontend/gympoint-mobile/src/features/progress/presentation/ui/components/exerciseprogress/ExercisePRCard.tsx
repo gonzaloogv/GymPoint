@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
+import { InfoCard } from '@shared/components/ui';
 import type { PersonalRecord } from '../../hooks/useExerciseProgress';
 
 interface ExercisePRCardProps {
@@ -16,25 +17,17 @@ export function ExercisePRCard({ exerciseName, personalRecord, loading = false }
 
   if (loading) {
     return (
-      <View
-        className={`p-4 rounded-xl border ${
-          isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'
-        }`}
-      >
+      <InfoCard variant="compact">
         <Text className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
           Cargando récord personal...
         </Text>
-      </View>
+      </InfoCard>
     );
   }
 
   if (!personalRecord) {
     return (
-      <View
-        className={`p-4 rounded-xl border ${
-          isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-blue-50 border-blue-200'
-        }`}
-      >
+      <InfoCard variant="compact">
         <View className="flex-row items-center gap-2">
           <Ionicons
             name="information-circle"
@@ -45,15 +38,17 @@ export function ExercisePRCard({ exerciseName, personalRecord, loading = false }
             Aún no tienes registros de {exerciseName}
           </Text>
         </View>
-      </View>
+      </InfoCard>
     );
   }
 
   return (
-    <View
-      className={`p-4 rounded-xl border ${
-        isDark ? 'bg-gradient-to-br from-yellow-900/20 to-orange-900/20 border-yellow-700/30' : 'bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200'
-      }`}
+    <InfoCard
+      variant="compact"
+      style={{
+        backgroundColor: isDark ? 'rgba(217, 119, 6, 0.1)' : 'rgba(254, 243, 199, 0.5)',
+        borderColor: isDark ? 'rgba(251, 191, 36, 0.3)' : 'rgba(251, 191, 36, 0.5)',
+      }}
     >
       {/* Header */}
       <View className="flex-row items-center justify-between mb-3">
@@ -61,7 +56,10 @@ export function ExercisePRCard({ exerciseName, personalRecord, loading = false }
           <View className="bg-yellow-500/20 p-2 rounded-full">
             <Ionicons name="trophy" size={20} color="#EAB308" />
           </View>
-          <Text className={`text-base font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          <Text
+            className="text-base font-bold"
+            style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+          >
             Récord Personal
           </Text>
         </View>
@@ -92,7 +90,10 @@ export function ExercisePRCard({ exerciseName, personalRecord, loading = false }
           <Text className={`text-xs mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
             Repeticiones
           </Text>
-          <Text className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          <Text
+            className="text-2xl font-bold"
+            style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+          >
             {personalRecord.reps}
           </Text>
         </View>
@@ -103,7 +104,10 @@ export function ExercisePRCard({ exerciseName, personalRecord, loading = false }
             Volumen
           </Text>
           <View className="flex-row items-baseline gap-1">
-            <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <Text
+              className="text-lg font-bold"
+              style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+            >
               {personalRecord.total_volume}
             </Text>
             <Text className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -112,6 +116,6 @@ export function ExercisePRCard({ exerciseName, personalRecord, loading = false }
           </View>
         </View>
       </View>
-    </View>
+    </InfoCard>
   );
 }

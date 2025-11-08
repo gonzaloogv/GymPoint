@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet, ViewStyle, StyleProp, ScrollViewProps } from 'react-native';
+import { View, ScrollView, ViewStyle, StyleProp, ScrollViewProps } from 'react-native';
 import { SafeAreaView, Edge } from 'react-native-safe-area-context';
 import { useTheme } from '@shared/hooks';
 
@@ -50,7 +50,7 @@ export const SurfaceScreen: React.FC<SurfaceScreenProps> = ({
   const isDark = theme === 'dark';
 
   const outerBackground = isDark ? '#111827' : '#f9fafb';
-  const innerClass = `${innerClassName} flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`.trim();
+  const innerClass = `${innerClassName} flex-1 relative ${isDark ? 'bg-gray-900' : 'bg-white'}`.trim();
 
   return (
     <SafeAreaView
@@ -58,7 +58,7 @@ export const SurfaceScreen: React.FC<SurfaceScreenProps> = ({
       className="flex-1"
       style={[{ backgroundColor: outerBackground }, style]}
     >
-      <View className={innerClass} style={[styles.inner, innerStyle]}>
+      <View className={innerClass} style={innerStyle}>
         {scroll ? (
           <ScrollView
             className="flex-1"
@@ -77,9 +77,3 @@ export const SurfaceScreen: React.FC<SurfaceScreenProps> = ({
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  inner: {
-    position: 'relative',
-  },
-});

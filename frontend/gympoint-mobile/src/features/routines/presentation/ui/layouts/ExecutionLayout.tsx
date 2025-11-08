@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, View, StyleSheet } from 'react-native';
+import { FlatList, View } from 'react-native';
 
 type Props = {
   data: any[];
@@ -25,9 +25,9 @@ export function ExecutionLayout({
       renderItem={renderItem}
       ListHeaderComponent={ListHeaderComponent}
       ListFooterComponent={ListFooterComponent}
-      ItemSeparatorComponent={() => <View style={styles.separator} />}
+      ItemSeparatorComponent={() => <View className="h-3" />}
       showsVerticalScrollIndicator={false}
-      style={styles.list}
+      className="flex-1"
       contentContainerStyle={[
         {
           paddingHorizontal: 16,
@@ -39,12 +39,3 @@ export function ExecutionLayout({
     />
   );
 }
-
-const styles = StyleSheet.create({
-  list: {
-    flex: 1,
-  },
-  separator: {
-    height: 12,
-  },
-});

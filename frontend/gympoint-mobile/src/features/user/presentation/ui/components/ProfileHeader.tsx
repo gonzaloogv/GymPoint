@@ -34,11 +34,11 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, theme }) => 
         <View style={{ flex: 1 }}>
           <View style={{ marginBottom: 8 }}>
             <Text
-              style={{ fontSize: 22, fontWeight: '700', color: isDark ? '#FFFFFF' : '#000000', marginBottom: 4 }}
+              style={{ fontSize: 22, fontWeight: '700', color: isDark ? '#F9FAFB' : '#111827', marginBottom: 4 }}
             >
               {user.name}
             </Text>
-            <Text style={{ fontSize: 16, color: isDark ? '#9CA3AF' : '#666666' }}>{user.email}</Text>
+            <Text style={{ fontSize: 16, color: isDark ? '#9CA3AF' : '#6B7280' }}>{user.email}</Text>
           </View>
 
           {/* Badges de plan y racha */}

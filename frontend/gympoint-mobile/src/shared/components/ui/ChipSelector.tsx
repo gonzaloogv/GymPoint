@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '@shared/hooks';
 
 type Props = {
@@ -23,7 +23,12 @@ export function ChipSelector({
     <>
       {title && (
         <Text
-          className={`font-semibold ${spaced ? 'mt-4 mb-2' : 'mb-2'} ${isDark ? 'text-text-dark' : 'text-text'}`}
+          className="font-semibold text-base mb-3"
+          style={{
+            color: isDark ? '#F9FAFB' : '#111827',
+            letterSpacing: -0.2,
+            marginTop: spaced ? 16 : 0,
+          }}
         >
           {title}
         </Text>
@@ -31,6 +36,37 @@ export function ChipSelector({
       <View className="flex-row flex-wrap gap-2">
         {options.map((option) => {
           const active = isActive(option);
+
+          const shadowStyle = active
+            ? isDark
+              ? {
+                  shadowColor: '#4A9CF5',
+                  shadowOpacity: 0.3,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowRadius: 4,
+                  elevation: 3,
+                }
+              : {
+                  shadowColor: '#4A9CF5',
+                  shadowOpacity: 0.2,
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowRadius: 4,
+                  elevation: 3,
+                }
+            : {};
+
+          const chipStyle = StyleSheet.flatten([
+            {
+              paddingHorizontal: 16,
+              paddingVertical: 10,
+              borderRadius: 12,
+              borderWidth: 1,
+              backgroundColor: active ? '#4A9CF5' : isDark ? '#1F2937' : '#ffffff',
+              borderColor: active ? '#4A9CF5' : isDark ? 'rgba(55, 65, 81, 0.8)' : '#E5E7EB',
+            },
+            shadowStyle,
+          ]);
+
           return (
             <TouchableOpacity
               key={option}
@@ -38,16 +74,12 @@ export function ChipSelector({
                 console.log('🎯 ChipSelector - onToggle called:', option);
                 onToggle(option);
               }}
-              className="px-4 py-2 rounded-md border"
-              style={{
-                backgroundColor: active ? '#4A9CF5' : isDark ? '#252B3D' : '#FFFFFF',
-                borderColor: active ? '#4A9CF5' : isDark ? '#2C3444' : '#DDDDDD',
-              }}
+              style={chipStyle}
             >
               <Text
                 className="font-semibold text-sm"
                 style={{
-                  color: active ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A',
+                  color: active ? '#FFFFFF' : isDark ? '#F9FAFB' : '#111827',
                 }}
               >
                 {option}

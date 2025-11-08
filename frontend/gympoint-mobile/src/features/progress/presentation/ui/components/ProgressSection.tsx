@@ -24,7 +24,10 @@ export function ProgressSection({ icon, title, description, onPress }: ProgressS
       <View className="flex-row items-center flex-1">
         <View className="mr-4">{icon}</View>
         <View className="flex-1">
-          <Text className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          <Text
+            className="font-semibold"
+            style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+          >
             {title}
           </Text>
           <Text className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>

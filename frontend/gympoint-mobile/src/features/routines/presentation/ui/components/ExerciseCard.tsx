@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Card, SetPill } from '@shared/components/ui';
+import React from 'react';
+import { View, Text } from 'react-native';
+import { InfoCard, SetPill } from '@shared/components/ui';
 import { useTheme } from '@shared/hooks';
 
 type Exercise = {
@@ -23,39 +23,25 @@ export function ExerciseCard({ exercise, totalSets, currentSet, restSeconds }: P
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const palette = useMemo(
-    () => ({
-      background: isDark ? '#11171f' : '#ffffff',
-      title: isDark ? '#F9FAFB' : '#111827',
-      meta: isDark ? '#9CA3AF' : '#6B7280',
-      badge: isDark ? 'rgba(79, 70, 229, 0.22)' : 'rgba(129, 140, 248, 0.15)',
-      badgeText: isDark ? '#C7D2FE' : '#4338CA',
-    }),
-    [isDark],
-  );
-
   const infoLine = `Series: ${totalSets} · Reps objetivo: ${exercise.reps} · Descanso: ${exercise.rest}s`;
 
   return (
-    <Card
-      style={[
-        styles.card,
-        {
-          backgroundColor: palette.background,
-        },
-      ]}
-    >
-      <View style={styles.content}>
-        <Text style={[styles.title, { color: palette.title }]}>{exercise.name}</Text>
-        <Text style={[styles.meta, { color: palette.meta }]}>{infoLine}</Text>
+    <InfoCard variant="compact" className="mx-4 mb-4">
+      <View className="gap-3">
+        <Text className="text-lg font-bold" style={{ color: isDark ? '#F9FAFB' : '#111827' }}>
+          {exercise.name}
+        </Text>
+        <Text className="text-[13px] font-medium" style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}>
+          {infoLine}
+        </Text>
 
-        <View style={styles.setRow}>
+        <View className="flex-row flex-wrap gap-2">
           {Array.from({ length: totalSets }).map((_, index) => {
             const setNumber = index + 1;
             const done = setNumber < currentSet;
             const isCurrent = setNumber === currentSet;
             return (
-              <View key={setNumber} style={styles.setPill}>
+              <View key={setNumber} className="mr-1">
                 <SetPill setNumber={setNumber} done={done} current={isCurrent} />
               </View>
             );
@@ -63,63 +49,32 @@ export function ExerciseCard({ exercise, totalSets, currentSet, restSeconds }: P
         </View>
 
         {restSeconds > 0 ? (
-          <Text style={[styles.meta, { color: palette.meta }]}>Descanso restante: {restSeconds}s</Text>
+          <Text className="text-[13px] font-medium" style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}>
+            Descanso restante: {restSeconds}s
+          </Text>
         ) : null}
 
         {exercise.muscleGroups?.length ? (
-          <View style={styles.tags}>
+          <View className="flex-row flex-wrap gap-2">
             {exercise.muscleGroups.slice(0, 4).map((group) => (
-              <View key={group} style={[styles.tag, { backgroundColor: palette.badge }]}>
-                <Text style={[styles.tagText, { color: palette.badgeText }]}>{group}</Text>
+              <View
+                key={group}
+                className="px-3 py-1 rounded-full"
+                style={{
+                  backgroundColor: isDark ? 'rgba(79, 70, 229, 0.22)' : 'rgba(129, 140, 248, 0.15)',
+                }}
+              >
+                <Text
+                  className="text-[11px] font-semibold uppercase"
+                  style={{ color: isDark ? '#C7D2FE' : '#4338CA', letterSpacing: 0.6 }}
+                >
+                  {group}
+                </Text>
               </View>
             ))}
           </View>
         ) : null}
       </View>
-    </Card>
+    </InfoCard>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-  },
-  content: {
-    paddingHorizontal: 18,
-    paddingVertical: 18,
-    gap: 12,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  meta: {
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  setRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  setPill: {
-    marginRight: 4,
-  },
-  tags: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  tag: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-  tagText: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-  },
-});

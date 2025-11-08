@@ -30,18 +30,13 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const palette = useMemo(
-    () => ({
-      backdrop: 'rgba(15, 23, 42, 0.55)',
-      surface: isDark ? '#0F172A' : '#f8fafc',
-      headerText: isDark ? '#F9FAFB' : '#111827',
-      subtitle: isDark ? '#9CA3AF' : '#6B7280',
-      badgeBg: isDark ? 'rgba(129, 140, 248, 0.18)' : 'rgba(79, 70, 229, 0.14)',
-      badgeText: isDark ? '#C7D2FE' : '#4338CA',
-      divider: isDark ? 'rgba(51, 65, 85, 0.6)' : 'rgba(148, 163, 184, 0.3)',
-    }),
-    [isDark],
-  );
+  const backdrop = 'rgba(15, 23, 42, 0.55)';
+  const surface = isDark ? '#0F172A' : '#f8fafc';
+  const headerText = isDark ? '#F9FAFB' : '#111827';
+  const subtitle = isDark ? '#9CA3AF' : '#6B7280';
+  const badgeBg = isDark ? 'rgba(129, 140, 248, 0.18)' : 'rgba(79, 70, 229, 0.14)';
+  const badgeText = isDark ? '#C7D2FE' : '#4338CA';
+  const divider = isDark ? 'rgba(51, 65, 85, 0.6)' : 'rgba(148, 163, 184, 0.3)';
 
   const availableExercises = useMemo(
     () => allExercises.filter((exercise) => !addedExerciseIds.includes(exercise.id)),
@@ -54,22 +49,33 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
   };
 
   const renderExerciseItem = ({ item }: { item: Exercise }) => (
-    <Card style={styles.card}>
+    <Card className="border" style={{ borderColor: 'rgba(148, 163, 184, 0.28)' }}>
       <TouchableOpacity onPress={() => handleSelectExercise(item.id)} activeOpacity={0.75}>
-        <View style={styles.cardContent}>
-          <View style={styles.cardHeader}>
-            <Text style={[styles.cardTitle, { color: palette.headerText }]}>{item.name}</Text>
-            <Ionicons name="add-circle" size={20} color={palette.badgeText} />
+        <View className="px-4 py-4 gap-2.5">
+          <View className="flex-row items-center justify-between">
+            <Text className="text-base font-bold" style={{ color: headerText }}>
+              {item.name}
+            </Text>
+            <Ionicons name="add-circle" size={20} color={badgeText} />
           </View>
-          <Text style={[styles.cardSubtitle, { color: palette.subtitle }]}>
+          <Text className="text-[13px] font-medium" style={{ color: subtitle }}>
             {`Sets: ${item.sets} · Reps: ${item.reps} · Descanso: ${item.rest}s`}
           </Text>
 
           {item.muscleGroups?.length ? (
-            <View style={styles.tagRow}>
+            <View className="flex-row flex-wrap gap-2">
               {item.muscleGroups.slice(0, 4).map((group) => (
-                <View key={group} style={[styles.tag, { backgroundColor: palette.badgeBg }]}>
-                  <Text style={[styles.tagText, { color: palette.badgeText }]}>{group}</Text>
+                <View
+                  key={group}
+                  className="px-3 py-1 rounded-full"
+                  style={{ backgroundColor: badgeBg }}
+                >
+                  <Text
+                    className="text-[11px] font-semibold uppercase"
+                    style={{ color: badgeText, letterSpacing: 0.6 }}
+                  >
+                    {group}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -81,12 +87,20 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={[styles.overlay, { backgroundColor: palette.backdrop }]}>
-        <View style={[styles.sheet, { backgroundColor: palette.surface }]}>
-          <View style={[styles.sheetHeader, { borderBottomColor: palette.divider }]}>
-            <Text style={[styles.sheetTitle, { color: palette.headerText }]}>Agregar ejercicio</Text>
+      <View className="flex-1 justify-end" style={{ backgroundColor: backdrop }}>
+        <View
+          className="flex-1 mt-12 rounded-t-[28px] overflow-hidden"
+          style={{ backgroundColor: surface }}
+        >
+          <View
+            className="flex-row items-center justify-between px-5 py-[18px] border-b"
+            style={{ borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: divider }}
+          >
+            <Text className="text-xl font-bold" style={{ color: headerText }}>
+              Agregar ejercicio
+            </Text>
             <TouchableOpacity onPress={onClose} activeOpacity={0.7}>
-              <Ionicons name="close" size={20} color={palette.subtitle} />
+              <Ionicons name="close" size={20} color={subtitle} />
             </TouchableOpacity>
           </View>
 
@@ -95,18 +109,21 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
               data={availableExercises}
               renderItem={renderExerciseItem}
               keyExtractor={(item) => item.id}
-              contentContainerStyle={styles.listContent}
+              contentContainerClassName="px-4 py-4 pb-[120px] gap-3"
             />
           ) : (
-            <View style={styles.emptyState}>
-              <Ionicons name="checkmark-done-circle" size={24} color={palette.badgeText} />
-              <Text style={[styles.emptyText, { color: palette.subtitle }]}>
+            <View className="flex-1 items-center justify-center gap-3">
+              <Ionicons name="checkmark-done-circle" size={24} color={badgeText} />
+              <Text className="text-sm font-semibold text-center px-8" style={{ color: subtitle }}>
                 Todos los ejercicios ya fueron agregados
               </Text>
             </View>
           )}
 
-          <View style={[styles.footer, { borderTopColor: palette.divider }]}>
+          <View
+            className="px-4 py-4 border-t"
+            style={{ borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: divider }}
+          >
             <Button onPress={onClose} variant="secondary" fullWidth>
               <ButtonText>Cancelar</ButtonText>
             </Button>
@@ -116,90 +133,3 @@ export const ExerciseSelector: React.FC<ExerciseSelectorProps> = ({
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  sheet: {
-    flex: 1,
-    marginTop: 48,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    overflow: 'hidden',
-  },
-  sheetHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 18,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  sheetTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  listContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    paddingBottom: 120,
-    gap: 12,
-  },
-  card: {
-    borderWidth: 1,
-    borderColor: 'rgba(148, 163, 184, 0.28)',
-  },
-  cardContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    gap: 10,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  cardSubtitle: {
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  tagRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  tag: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-  tagText: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-  },
-  emptyState: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-  },
-  emptyText: {
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-    paddingHorizontal: 32,
-  },
-  footer: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-});

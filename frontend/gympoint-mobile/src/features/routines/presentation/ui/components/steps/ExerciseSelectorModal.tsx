@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
-  StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
@@ -23,20 +22,15 @@ export function ExerciseSelectorModal({ visible, onClose, onSelect }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const palette = useMemo(
-    () => ({
-      screen: isDark ? '#0F172A' : '#F9FAFB',
-      header: isDark ? '#111827' : '#ffffff',
-      border: isDark ? 'rgba(55, 65, 81, 0.7)' : '#E5E7EB',
-      title: isDark ? '#F9FAFB' : '#111827',
-      subtitle: isDark ? '#9CA3AF' : '#6B7280',
-      card: isDark ? '#111827' : '#ffffff',
-      cardBorder: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
-      primary: '#4F46E5',
-      danger: '#EF4444',
-    }),
-    [isDark],
-  );
+  const screen = isDark ? '#0F172A' : '#F9FAFB';
+  const header = isDark ? '#111827' : '#ffffff';
+  const border = isDark ? 'rgba(55, 65, 81, 0.7)' : '#E5E7EB';
+  const title = isDark ? '#F9FAFB' : '#111827';
+  const subtitle = isDark ? '#9CA3AF' : '#6B7280';
+  const card = isDark ? '#111827' : '#ffffff';
+  const cardBorder = isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB';
+  const primary = '#4F46E5';
+  const danger = '#EF4444';
 
   const [exercises, setExercises] = useState<ExerciseDTO[]>([]);
   const [loading, setLoading] = useState(false);
@@ -73,20 +67,21 @@ export function ExerciseSelectorModal({ visible, onClose, onSelect }: Props) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={[styles.container, { backgroundColor: palette.screen }]}>
+      <View className="flex-1" style={{ backgroundColor: screen }}>
         <View
-          style={[
-            styles.header,
-            {
-              backgroundColor: palette.header,
-              borderBottomColor: palette.border,
-            },
-          ]}
+          className="pt-[52px] px-5 pb-5 border-b"
+          style={{ backgroundColor: header, borderBottomColor: border }}
         >
-          <View style={styles.headerRow}>
-            <Text style={[styles.title, { color: palette.title }]}>Seleccionar ejercicio</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton} activeOpacity={0.7}>
-              <Ionicons name="close" size={22} color={palette.title} />
+          <View className="flex-row items-center justify-between">
+            <Text className="text-xl font-bold" style={{ color: title }}>
+              Seleccionar ejercicio
+            </Text>
+            <TouchableOpacity
+              onPress={onClose}
+              className="p-1.5 rounded-2xl"
+              activeOpacity={0.7}
+            >
+              <Ionicons name="close" size={22} color={title} />
             </TouchableOpacity>
           </View>
 
@@ -100,12 +95,17 @@ export function ExerciseSelectorModal({ visible, onClose, onSelect }: Props) {
         </View>
 
         {loading ? (
-          <View style={styles.centered}>
-            <ActivityIndicator size="large" color={palette.primary} />
+          <View className="flex-1 items-center justify-center px-6">
+            <ActivityIndicator size="large" color={primary} />
           </View>
         ) : error ? (
-          <View style={styles.centered}>
-            <Text style={[styles.errorText, { color: palette.danger }]}>{error}</Text>
+          <View className="flex-1 items-center justify-center px-6">
+            <Text
+              className="text-[15px] text-center leading-[22px]"
+              style={{ color: danger }}
+            >
+              {error}
+            </Text>
             <Button variant="primary" onPress={loadExercises} className="mt-6">
               Reintentar
             </Button>
@@ -114,31 +114,28 @@ export function ExerciseSelectorModal({ visible, onClose, onSelect }: Props) {
           <FlatList
             data={filteredExercises}
             keyExtractor={(item) => item.id_exercise.toString()}
-            contentContainerStyle={styles.listContent}
+            contentContainerClassName="px-5 py-6"
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => handleSelect(item)}
                 activeOpacity={0.75}
-                style={[
-                  styles.card,
-                  {
-                    backgroundColor: palette.card,
-                    borderColor: palette.cardBorder,
-                  },
-                ]}
+                className="border rounded-[18px] px-[18px] py-4 mb-3.5"
+                style={{ backgroundColor: card, borderColor: cardBorder }}
               >
-                <Text style={[styles.cardTitle, { color: palette.title }]}>
+                <Text className="text-base font-bold" style={{ color: title }}>
                   {item.exercise_name}
                 </Text>
-                <View style={styles.cardMeta}>
-                  <Text style={[styles.metaText, { color: palette.subtitle }]}>
+                <View className="flex-row items-center flex-wrap gap-1.5">
+                  <Text className="text-[13px] font-medium" style={{ color: subtitle }}>
                     {item.muscular_group || 'Musculo sin definir'}
                   </Text>
                   {item.difficulty_level ? (
-                  <Text style={[styles.metaDivider, { color: palette.subtitle }]}>-</Text>
+                    <Text className="text-xs font-bold" style={{ color: subtitle }}>
+                      -
+                    </Text>
                   ) : null}
                   {item.difficulty_level ? (
-                    <Text style={[styles.metaText, { color: palette.subtitle }]}>
+                    <Text className="text-[13px] font-medium" style={{ color: subtitle }}>
                       {item.difficulty_level}
                     </Text>
                   ) : null}
@@ -146,9 +143,12 @@ export function ExerciseSelectorModal({ visible, onClose, onSelect }: Props) {
               </TouchableOpacity>
             )}
             ListEmptyComponent={
-              <View style={styles.emptyState}>
-                <Ionicons name="search" size={28} color={palette.subtitle} />
-                <Text style={[styles.emptyText, { color: palette.subtitle }]}>
+              <View className="items-center justify-center py-12 gap-3">
+                <Ionicons name="search" size={28} color={subtitle} />
+                <Text
+                  className="text-sm text-center leading-5"
+                  style={{ color: subtitle }}
+                >
                   No encontramos ejercicios con ese criterio.
                 </Text>
               </View>
@@ -159,79 +159,3 @@ export function ExerciseSelectorModal({ visible, onClose, onSelect }: Props) {
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    paddingTop: 52,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  closeButton: {
-    padding: 6,
-    borderRadius: 16,
-  },
-  centered: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  errorText: {
-    fontSize: 15,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  listContent: {
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-  },
-  card: {
-    borderWidth: 1,
-    borderRadius: 18,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    marginBottom: 14,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  cardMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-  metaText: {
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  metaDivider: {
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 48,
-    gap: 12,
-  },
-  emptyText: {
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-});

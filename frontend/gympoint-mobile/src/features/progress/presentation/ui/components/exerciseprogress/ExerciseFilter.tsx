@@ -118,7 +118,10 @@ export function ExerciseFilter({
             <Text className={`text-xs mb-0.5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               Ejercicio
             </Text>
-            <Text className={`text-base font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <Text
+              className="text-base font-semibold"
+              style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+            >
               {selectedExercise?.exercise_name || 'Todos'}
             </Text>
             {selectedExercise && (
