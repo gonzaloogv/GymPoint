@@ -25,46 +25,63 @@ export function ExerciseSetTable({
   const headerText = isDark ? '#9CA3AF' : '#6B7280';
   const dividerColor = isDark ? 'rgba(55, 65, 81, 0.6)' : 'rgba(148, 163, 184, 0.35)';
   const accentColor = isDark ? '#6366F1' : '#4F46E5';
+  const columnWidths = {
+    set: 35,
+    previous: 50,
+    weight: 70,
+    reps: 70,
+    done: 50,
+  };
 
   return (
     <View className="rounded-2xl overflow-hidden border" style={{ borderColor: dividerColor }}>
       <View
-        className="flex-row items-center py-3.5 px-3 border-b"
+        className="flex-row items-center py-2 px-2 border-b"
         style={{
           backgroundColor: headerBg,
           borderBottomColor: dividerColor,
         }}
       >
-        <Text
-          className="w-[52px] text-[11px] font-bold uppercase text-center leading-4"
-          style={{ color: headerText, letterSpacing: 0.5 }}
-        >
-          Serie
-        </Text>
-        <Text
-          className="flex-[1.25] px-1 text-[11px] font-bold uppercase text-center leading-4"
-          style={{ color: headerText, letterSpacing: 0.5 }}
-        >
-          Anterior
-        </Text>
-        <Text
-          className="flex-1 text-[11px] font-bold uppercase text-center leading-4"
-          style={{ color: headerText, letterSpacing: 0.5 }}
-        >
-          Kg
-        </Text>
-        <Text
-          className="flex-1 text-[11px] font-bold uppercase text-center leading-4"
-          style={{ color: headerText, letterSpacing: 0.5 }}
-        >
-          Reps
-        </Text>
-        <Text
-          className="w-[68px] text-[11px] font-bold uppercase text-center leading-4"
-          style={{ color: headerText, letterSpacing: 0.5 }}
-        >
-          Hecha
-        </Text>
+        <View style={{ width: columnWidths.set }} className="items-center justify-center">
+          <Text
+            className="text-[9px] font-bold uppercase leading-3 text-center"
+            style={{ color: headerText, letterSpacing: 0.5 }}
+          >
+            #
+          </Text>
+        </View>
+        <View style={{ width: columnWidths.previous }} className="items-center justify-center">
+          <Text
+            className="text-[9px] font-bold uppercase leading-3 text-center"
+            style={{ color: headerText, letterSpacing: 0.5 }}
+          >
+            PREV
+          </Text>
+        </View>
+        <View style={{ width: columnWidths.weight }} className="items-center justify-center">
+          <Text
+            className="text-[9px] font-bold uppercase leading-3 text-center"
+            style={{ color: headerText, letterSpacing: 0.5 }}
+          >
+            KG
+          </Text>
+        </View>
+        <View style={{ width: columnWidths.reps }} className="items-center justify-center">
+          <Text
+            className="text-[9px] font-bold uppercase leading-3 text-center"
+            style={{ color: headerText, letterSpacing: 0.5 }}
+          >
+            REPS
+          </Text>
+        </View>
+        <View style={{ width: columnWidths.done }} className="items-center justify-center">
+          <View
+            className="w-6 h-6 rounded-full border-2 items-center justify-center"
+            style={{ borderColor: headerText }}
+          >
+            <Ionicons name="checkmark" size={14} color={headerText} />
+          </View>
+        </View>
       </View>
 
       {sets.length ? (
@@ -75,6 +92,7 @@ export function ExerciseSetTable({
             onUpdate={(data) => onUpdateSet(index, data)}
             onMarkDone={() => onMarkSetDone(index)}
             borderColor={dividerColor}
+            columnWidths={columnWidths}
           />
         ))
       ) : (
@@ -87,13 +105,13 @@ export function ExerciseSetTable({
       )}
 
       <TouchableOpacity
-        className="flex-row items-center justify-center gap-2.5 py-3.5 border-t"
+        className="flex-row items-center justify-center gap-2 py-3 border-t"
         style={{ borderTopColor: dividerColor }}
         onPress={onAddSet}
         activeOpacity={0.7}
       >
-        <Ionicons name="add-circle" size={18} color={accentColor} />
-        <Text className="text-sm font-bold" style={{ color: accentColor, letterSpacing: 0.5 }}>
+        <Ionicons name="add-circle" size={16} color={accentColor} />
+        <Text className="text-[13px] font-bold" style={{ color: accentColor, letterSpacing: 0.3 }}>
           Agregar serie
         </Text>
       </TouchableOpacity>

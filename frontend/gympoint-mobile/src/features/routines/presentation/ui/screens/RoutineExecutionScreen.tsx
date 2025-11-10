@@ -64,11 +64,6 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
     discardRoutine,
   } = useRoutineExecution({ id, restoreState });
 
-  // Mostrar loading si no hay datos (evita hooks inconsistentes)
-  if (!routineId || exercises.length === 0) {
-    return <LoadingScreen isDark={isDark} />;
-  }
-
   const handleCompleteRoutine = () => {
     if (setsCompleted < totalSets) {
       Alert.alert(
@@ -146,6 +141,11 @@ const RoutineExecutionScreen: React.FC<RoutineExecutionScreenProps> = ({
   const currentExerciseId = currentTimerExerciseId;
   const currentExercise = exercises.find((exercise) => exercise.id === currentExerciseId);
   const currentExerciseName = currentExercise?.name || 'Ejercicio';
+
+  // Mostrar loading si no hay datos (renderizado condicional para evitar hooks inconsistentes)
+  if (!routineId || exercises.length === 0) {
+    return <LoadingScreen isDark={isDark} />;
+  }
 
   return (
     <SurfaceScreen>

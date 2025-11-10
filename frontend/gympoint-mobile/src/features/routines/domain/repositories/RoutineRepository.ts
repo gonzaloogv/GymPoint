@@ -1,4 +1,4 @@
-import { Routine, CreateRoutineRequest, UpdateRoutineRequest } from '../entities/Routine';
+import { Routine, CreateRoutineRequest, UpdateRoutineRequest, ImportTemplateResponse } from '../entities/Routine';
 
 /**
  * Routine Repository Interface
@@ -43,10 +43,11 @@ export interface RoutineRepository {
   delete(id: number): Promise<void>;
 
   /**
-   * Clonar una rutina
-   * POST /api/routines/:id/clone
+   * Importar una plantilla de rutina
+   * POST /api/routines/:id/import
+   * Crea una copia de la plantilla para el usuario
    */
-  clone(id: number): Promise<Routine>;
+  importTemplate(id: number): Promise<ImportTemplateResponse>;
 
   /**
    * Obtener contadores de rutinas del usuario

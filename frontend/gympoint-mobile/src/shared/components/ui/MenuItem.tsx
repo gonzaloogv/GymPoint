@@ -1,10 +1,10 @@
 import React from 'react';
 import { TouchableOpacity, View, Text } from 'react-native';
 import { useTheme } from '@shared/hooks';
-import { Feather } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 type Props = {
-  icon: string;
+  icon: keyof typeof Ionicons.glyphMap;
   title: string;
   subtitle?: string;
   onPress?: () => void;
@@ -32,7 +32,7 @@ export function MenuItem({
       }}
     >
       <View className="flex-row items-center gap-3 flex-1">
-        <Feather name={icon as any} size={18} color={isDark ? '#B0B8C8' : '#666'} />
+        <Ionicons name={icon} size={18} color={isDark ? '#B0B8C8' : '#666'} />
         <Text className={`text-base font-medium ${isDark ? 'text-text-dark' : 'text-text'}`}>
           {title}
         </Text>
@@ -45,7 +45,7 @@ export function MenuItem({
         )}
         {rightComponent}
         {showChevron && (
-          <Feather name="chevron-right" size={16} color={isDark ? '#B0B8C8' : '#666'} />
+          <Ionicons name="chevron-forward" size={16} color={isDark ? '#B0B8C8' : '#666'} />
         )}
       </View>
     </TouchableOpacity>

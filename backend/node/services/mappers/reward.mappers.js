@@ -46,6 +46,7 @@ function toCreateRewardCommand(dto, createdBy, gymId = null) {
     name: dto.name,
     description: dto.description,
     reward_type: dto.reward_type || null,
+    effect_value: dto.effect_value || null,
     token_cost: dto.token_cost,
     discount_percentage: dto.discount_percentage || null,
     discount_amount: dto.discount_amount || null,
@@ -68,6 +69,7 @@ function toUpdateRewardCommand(dto, rewardId, updatedBy) {
     name: dto.name,
     description: dto.description,
     reward_type: dto.reward_type,
+    effect_value: dto.effect_value,
     token_cost: dto.token_cost,
     discount_percentage: dto.discount_percentage,
     discount_amount: dto.discount_amount,
@@ -284,6 +286,16 @@ function formatDateToString(date) {
 }
 
 /**
+ * Helper: Formatea fecha/hora a ISO string
+ */
+function formatDateTimeToISO(date) {
+  if (!date) return null;
+  if (typeof date === 'string') return date;
+  if (date instanceof Date) return date.toISOString();
+  return null;
+}
+
+/**
  * Mapea entidad Reward a RewardResponseDTO
  */
 function toRewardDTO(reward) {
@@ -293,6 +305,7 @@ function toRewardDTO(reward) {
     name: reward.name,
     description: reward.description || null,
     reward_type: reward.reward_type,
+    effect_value: reward.effect_value || null,
     token_cost: reward.token_cost,
     discount_percentage: reward.discount_percentage || null,
     discount_amount: reward.discount_amount || null,
@@ -343,13 +356,13 @@ function toClaimedRewardDTO(claimedReward) {
     id_user_profile: claimedReward.id_user_profile,
     id_reward: claimedReward.id_reward,
     id_code: claimedReward.id_code,
-    claimed_date: claimedReward.claimed_date ? claimedReward.claimed_date.toISOString() : null,
+    claimed_date: formatDateTimeToISO(claimedReward.claimed_date),
     status: claimedReward.status,
     tokens_spent: claimedReward.tokens_spent,
-    used_at: claimedReward.used_at ? claimedReward.used_at.toISOString() : null,
-    expires_at: claimedReward.expires_at ? claimedReward.expires_at.toISOString() : null,
-    reward: claimedReward.Reward ? toRewardDTO(claimedReward.Reward) : null,
-    code: claimedReward.RewardCode ? toRewardCodeDTO(claimedReward.RewardCode) : null,
+    used_at: formatDateTimeToISO(claimedReward.used_at),
+    expires_at: formatDateTimeToISO(claimedReward.expires_at),
+    reward: claimedReward.reward ? toRewardDTO(claimedReward.reward) : null,
+    code: claimedReward.code ? toRewardCodeDTO(claimedReward.code) : null,
   };
 }
 

@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, Text, Switch } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 
 interface LocationSettingsProps {
@@ -26,7 +26,7 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
     <View className="mb-6">
       {/* Título de la sección */}
       <View className="flex-row items-center gap-1.5 mb-3">
-        <Feather name="map-pin" size={16} color={textColor} />
+        <Ionicons name="location-outline" size={16} color={textColor} />
         <Text className="font-semibold text-base" style={{ color: textColor }}>
           Ubicación
         </Text>

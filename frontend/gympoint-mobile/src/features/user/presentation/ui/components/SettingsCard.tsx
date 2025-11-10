@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Text, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { Card, SegmentedControl } from '@shared/components/ui';
 import { useTheme } from '@shared/hooks';
 import { NotificationSettings } from './NotificationSettings';
@@ -35,7 +35,7 @@ export const SettingsCard: React.FC<SettingsCardProps> = ({
       <View
         style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}
       >
-        <Feather name="settings" size={20} color={isDark ? '#F9FAFB' : '#111827'} />
+        <Ionicons name="settings-outline" size={20} color={isDark ? '#F9FAFB' : '#111827'} />
         <Text style={{ fontSize: 18, fontWeight: '700', color: isDark ? '#F9FAFB' : '#111827' }}>
           Configuración
         </Text>
@@ -60,16 +60,16 @@ export const SettingsCard: React.FC<SettingsCardProps> = ({
       {/* Configuración de tema */}
       <View style={{ marginBottom: 16 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-          <Feather name="moon" size={16} color={isDark ? '#F9FAFB' : '#111827'} />
+          <Ionicons name="color-palette-outline" size={16} color={isDark ? '#F9FAFB' : '#111827'} />
           <Text style={{ fontSize: 14, fontWeight: '600', color: isDark ? '#F9FAFB' : '#111827' }}>
             Tema
           </Text>
         </View>
         <SegmentedControl
           options={[
-            { value: 'light', label: '☀️ Claro' },
-            { value: 'dark', label: '🌙 Oscuro' },
-            { value: 'auto', label: '⚙️ Auto' },
+            { value: 'light', label: 'Claro', icon: 'sunny' },
+            { value: 'dark', label: 'Oscuro', icon: 'moon' },
+            { value: 'auto', label: 'Auto', icon: 'phone-portrait' },
           ]}
           value={themeMode}
           onChange={(value) => setThemeMode(value as 'light' | 'dark' | 'auto')}

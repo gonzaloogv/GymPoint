@@ -287,6 +287,29 @@ const updateSesion = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * GET /api/workouts/exercises/last-sets
+ * Obtener últimos sets de ejercicios específicos
+ */
+const getLastSetsForExercises = asyncHandler(async (req, res) => {
+  const profile = req.account?.userProfile || req.user;
+  if (!profile || !profile.id_user_profile) {
+    return res.status(403).json({
+      error: {
+        code: 'USER_PROFILE_REQUIRED',
+        message: 'Perfil de usuario requerido'
+      }
+    });
+  }
+
+  const query = workoutMappers.toGetLastSetsForExercisesQuery(req.body, profile.id_user_profile);
+  const lastSets = await workoutService.getLastSetsForExercises(query);
+
+  res.json({
+    data: workoutMappers.toLastSetsForExercisesResponse(lastSets)
+  });
+});
+
 module.exports = {
   // Session operations
   iniciarSesion,
@@ -302,5 +325,6 @@ module.exports = {
   registrarSet,
   listarSets,
   updateSet,
-  deleteSet
+  deleteSet,
+  getLastSetsForExercises
 };

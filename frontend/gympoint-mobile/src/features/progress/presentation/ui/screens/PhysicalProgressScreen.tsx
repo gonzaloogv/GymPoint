@@ -1,14 +1,16 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { ScrollView, View, Text, Pressable, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useTheme } from '@shared/hooks';
 import {
-  Screen,
+  SurfaceScreen,
   MetricCard,
   IconButton,
   Badge,
   InfoSection,
+  InfoCard,
   SelectorModal,
-  type SelectorItem
+  type SelectorItem,
+  ScreenHeader
 } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useProgress } from '@features/progress/presentation/hooks/useProgress';
@@ -200,44 +202,31 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
   }, [allMetrics]);
 
   return (
-    <Screen scroll safeAreaTop>
+    <SurfaceScreen
+      scroll
+      contentContainerStyle={{
+        paddingBottom: 48,
+      }}
+    >
       <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
-        {/* Header */}
-        <View className="px-4 pt-4 pb-[18px] gap-3">
-          <View className="flex-row items-center justify-between">
-            <Pressable onPress={handleBackPress} className="flex-row items-center -ml-2">
-              <Ionicons
-                name="chevron-back"
-                size={24}
-                color={isDark ? '#60A5FA' : '#3B82F6'}
-              />
+        <ScreenHeader title="Mediciones" onBack={handleBackPress} />
+        <View className="px-4 pt-4 pb-6 gap-3">
+          <View className="flex-row items-start justify-between">
+            <View className="flex-1">
               <Text
-                className="text-sm font-semibold"
-                style={{ color: isDark ? '#60A5FA' : '#3B82F6' }}
+                className="text-[28px] font-extrabold"
+                style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
               >
-                Volver
+                Progreso físico
               </Text>
-            </Pressable>
-            <Ionicons
-              name="information-circle"
-              size={24}
-              color={isDark ? '#9CA3AF' : '#6B7280'}
-            />
-          </View>
-
-          <View>
-            <Text
-              className="text-[28px] font-extrabold"
-              style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
-            >
-              Progreso Físico
-            </Text>
-            <Text
-              className="mt-2 text-xs font-semibold uppercase"
-              style={{ color: isDark ? '#9CA3AF' : '#6B7280', letterSpacing: 1.2 }}
-            >
-              Peso, medidas y composición corporal
-            </Text>
+              <Text
+                className="mt-2 text-xs font-semibold uppercase"
+                style={{ color: isDark ? '#9CA3AF' : '#6B7280', letterSpacing: 1.2 }}
+              >
+                Peso, medidas y composición corporal
+              </Text>
+            </View>
+            <Ionicons name="information-circle" size={24} color={isDark ? '#9CA3AF' : '#6B7280'} />
           </View>
 
           <View
@@ -246,13 +235,15 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
           />
         </View>
 
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="flex-1">
           {/* Time Selector */}
-          <TimeSelector
-            periods={periods}
-            selected={selectedPeriod}
-            onSelect={setSelectedPeriod}
-          />
+          <View className="px-4 pb-6">
+            <TimeSelector
+              periods={periods}
+              selected={selectedPeriod}
+              onSelect={setSelectedPeriod}
+            />
+          </View>
 
           {isLoading ? (
             <View className="py-12 items-center justify-center">
@@ -266,28 +257,24 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
               {/* Si no hay métricas, mostrar mensaje */}
               {!latestMetric && (
                 <View className="px-4 pb-6">
-                  <View
-                    className={`p-6 rounded-xl border ${
-                      isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-blue-50 border-blue-200'
-                    }`}
-                  >
-                    <View className="items-center">
+                  <InfoCard>
+                    <View className="items-center gap-3">
                       <Ionicons
                         name="fitness"
                         size={48}
                         color={isDark ? '#60A5FA' : '#3B82F6'}
                       />
                       <Text
-                        className="mt-4 text-lg font-semibold"
+                        className="text-lg font-semibold"
                         style={{ color: isDark ? '#F9FAFB' : '#111827' }}
                       >
                         Sin métricas registradas
                       </Text>
-                      <Text className={`mt-2 text-center ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <Text className={`text-center ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                         Comienza a registrar tus métricas corporales para ver tu progreso
                       </Text>
                     </View>
-                  </View>
+                  </InfoCard>
                 </View>
               )}
 
@@ -494,7 +481,7 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
           </Pressable>
 
           <View className="h-4" />
-        </ScrollView>
+        </View>
 
         {/* Measurement Modal */}
         <MeasurementModal
@@ -542,6 +529,6 @@ export function PhysicalProgressScreen({ navigation }: PhysicalProgressScreenPro
           }}
         />
       </View>
-    </Screen>
+    </SurfaceScreen>
   );
 }

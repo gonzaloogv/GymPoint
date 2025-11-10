@@ -6,6 +6,7 @@ export interface Reward {
   name: string;
   description: string;
   reward_type: string;
+  effect_value?: number | null; // Valor del efecto (ej: días de premium, % descuento)
   cost_tokens: number;
   available: boolean;
   stock: number;
@@ -24,6 +25,7 @@ export interface CreateRewardDTO {
   name: string;
   description: string;
   reward_type: string;
+  effect_value?: number | null; // Valor del efecto según reward_type
   cost_tokens: number;
   stock: number;
   start_date: string; // Format: YYYY-MM-DD

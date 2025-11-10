@@ -185,7 +185,7 @@ async function findRewardCodes(rewardId, filters = {}, options = {}) {
     include: [
       {
         model: Reward,
-        as: 'Reward',
+        as: 'reward',
         attributes: ['id_reward', 'name', 'token_cost'],
         required: false,
       },
@@ -206,7 +206,7 @@ async function findRewardCodeByString(code, options = {}) {
     include: [
       {
         model: Reward,
-        as: 'Reward',
+        as: 'reward',
         required: false,
       },
     ],
@@ -223,7 +223,7 @@ async function findRewardCodeById(codeId, options = {}) {
     include: [
       {
         model: Reward,
-        as: 'Reward',
+        as: 'reward',
         required: false,
       },
     ],
@@ -300,7 +300,7 @@ async function findClaimedRewards(filters = {}, options = {}) {
   const include = [
     {
       model: Reward,
-      as: 'Reward',
+      as: 'reward',
       include: [
         {
           model: Gym,
@@ -313,7 +313,7 @@ async function findClaimedRewards(filters = {}, options = {}) {
     },
     {
       model: RewardCode,
-      as: 'RewardCode',
+      as: 'code',
       required: false,
     },
   ];
@@ -344,7 +344,7 @@ async function findClaimedRewardById(claimedRewardId, options = {}) {
     include: [
       {
         model: Reward,
-        as: 'Reward',
+        as: 'reward',
         include: [
           {
             model: Gym,
@@ -357,7 +357,7 @@ async function findClaimedRewardById(claimedRewardId, options = {}) {
       },
       {
         model: RewardCode,
-        as: 'RewardCode',
+        as: 'code',
         required: false,
       },
     ],

@@ -63,17 +63,72 @@ paths:
         - Routines
       summary: Listar plantillas de rutinas
       parameters:
-        - $ref: '../components/parameters.yaml#/components/parameters/PageParam'
-        - $ref: '../components/parameters.yaml#/components/parameters/LimitParam'
+        - name: difficulty
+          in: query
+          description: Filtrar por nivel de dificultad
+          schema:
+            type: string
+            enum:
+              - BEGINNER
+              - INTERMEDIATE
+              - ADVANCED
+        - name: limit
+          in: query
+          description: Límite de resultados
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 5
       responses:
         '200':
-          description: Lista paginada de templates
+          description: Lista de plantillas de rutinas
           content:
             application/json:
               schema:
-                $ref: '../components/schemas/routines.yaml#/components/schemas/PaginatedRoutinesResponse'
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '../components/schemas/routines.yaml#/components/schemas/Routine'
         '400':
           $ref: '../components/responses.yaml#/components/responses/BadRequest'
+  /api/routines/{id}/import:
+    post:
+      operationId: importRoutineTemplate
+      tags:
+        - Routines
+      summary: Importar una plantilla de rutina
+      description: Crea una copia de la plantilla para el usuario autenticado
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la plantilla a importar
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Rutina importada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_routine_copy:
+                    type: integer
+                    description: ID de la rutina copiada
+                  routine:
+                    $ref: '../components/schemas/routines.yaml#/components/schemas/Routine'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'
   /api/routines/{id}:
     get:
       operationId: getRoutineById

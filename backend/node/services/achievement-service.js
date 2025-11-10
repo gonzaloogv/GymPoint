@@ -334,37 +334,39 @@ const syncAchievementForUser = async ({
       shouldPersist = true;
     }
 
-    if (unlocked && !prevUnlocked) {
-      userAchievement.unlocked = true;
-      userAchievement.unlocked_at = new Date();
-      shouldPersist = true;
+    // COMENTADO: Desbloqueo automático deshabilitado
+    // Los logros se desbloquean manualmente mediante POST /api/achievements/:id/unlock
+    // if (unlocked && !prevUnlocked) {
+    //   userAchievement.unlocked = true;
+    //   userAchievement.unlocked_at = new Date();
+    //   shouldPersist = true;
 
-      await recordEvent({
-        transaction: t,
-        userAchievement,
-        eventType: 'UNLOCKED',
-        delta: progressDelta > 0 ? progressDelta : value,
-        snapshotValue: value,
-        sourceType: computedSourceType || sourceType || null,
-        sourceId: computedSourceId || sourceId || null,
-        metadata
-      });
-    } else if (!unlocked && prevUnlocked) {
-      userAchievement.unlocked = false;
-      userAchievement.unlocked_at = null;
-      shouldPersist = true;
+    //   await recordEvent({
+    //     transaction: t,
+    //     userAchievement,
+    //     eventType: 'UNLOCKED',
+    //     delta: progressDelta > 0 ? progressDelta : value,
+    //     snapshotValue: value,
+    //     sourceType: computedSourceType || sourceType || null,
+    //     sourceId: computedSourceId || sourceId || null,
+    //     metadata
+    //   });
+    // } else if (!unlocked && prevUnlocked) {
+    //   userAchievement.unlocked = false;
+    //   userAchievement.unlocked_at = null;
+    //   shouldPersist = true;
 
-      await recordEvent({
-        transaction: t,
-        userAchievement,
-        eventType: 'RESET',
-        delta: progressDelta,
-        snapshotValue: value,
-        sourceType: computedSourceType || sourceType || null,
-        sourceId: computedSourceId || sourceId || null,
-        metadata
-      });
-    }
+    //   await recordEvent({
+    //     transaction: t,
+    //     userAchievement,
+    //     eventType: 'RESET',
+    //     delta: progressDelta,
+    //     snapshotValue: value,
+    //     sourceType: computedSourceType || sourceType || null,
+    //     sourceId: computedSourceId || sourceId || null,
+    //     metadata
+    //   });
+    // }
 
     if (shouldPersist) {
       await userAchievement.save({ transaction: t });
@@ -617,6 +619,70 @@ const updateDefinition = async (id, payload) => {
   return definition;
 };
 
+const unlockAchievement = async (userAchievementId, idUserProfile) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const userAchievement = await UserAchievement.findOne({
+      where: {
+        id_user_achievement: userAchievementId,
+        id_user_profile: idUserProfile
+      },
+      include: [
+        {
+          model: AchievementDefinition,
+          as: 'achievement',
+          attributes: ['id_achievement_definition', 'name', 'target_value']
+        }
+      ],
+      transaction
+    });
+
+    if (!userAchievement) {
+      throw new NotFoundError('Logro no encontrado o no pertenece al usuario');
+    }
+
+    if (userAchievement.unlocked) {
+      throw new ConflictError('El logro ya está desbloqueado');
+    }
+
+    // Verificar que el progreso haya alcanzado el objetivo
+    const targetValue = userAchievement.progress_denominator || userAchievement.achievement?.target_value || 0;
+    if (userAchievement.progress_value < targetValue) {
+      throw new ValidationError(`Progreso insuficiente. Necesitas alcanzar ${targetValue}, tienes ${userAchievement.progress_value}`);
+    }
+
+    // Desbloquear el logro
+    userAchievement.unlocked = true;
+    userAchievement.unlocked_at = new Date();
+    await userAchievement.save({ transaction });
+
+    // Registrar evento de desbloqueo
+    await recordEvent({
+      transaction,
+      userAchievement,
+      eventType: 'UNLOCKED',
+      delta: 0,
+      snapshotValue: userAchievement.progress_value,
+      sourceType: 'manual_unlock',
+      sourceId: null,
+      metadata: { unlockedManually: true }
+    });
+
+    await transaction.commit();
+
+    return {
+      id_user_achievement: userAchievement.id_user_achievement,
+      unlocked: true,
+      unlocked_at: userAchievement.unlocked_at,
+      progress_value: userAchievement.progress_value,
+      progress_denominator: targetValue
+    };
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+};
+
 const deleteDefinition = async (id) => {
   const definition = await AchievementDefinition.findByPk(id);
   if (!definition) {
@@ -632,6 +698,7 @@ module.exports = {
   syncAchievementForUser,
   syncAllAchievementsForUser,
   getUserAchievements,
+  unlockAchievement,
   createDefinition,
   updateDefinition,
   deleteDefinition

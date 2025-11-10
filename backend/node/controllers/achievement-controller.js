@@ -129,6 +129,27 @@ const updateDefinition = async (req, res, next) => {
   }
 };
 
+const unlockMyAchievement = async (req, res, next) => {
+  try {
+    const idUserProfile = req.user.id_user_profile;
+    const { id } = req.params;
+    const userAchievementId = Number(id);
+
+    if (Number.isNaN(userAchievementId)) {
+      throw new ValidationError('ID inválido');
+    }
+
+    const result = await achievementService.unlockAchievement(userAchievementId, idUserProfile);
+
+    res.json({
+      message: '¡Logro desbloqueado con éxito!',
+      data: result
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const deleteDefinition = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -148,6 +169,7 @@ const deleteDefinition = async (req, res, next) => {
 module.exports = {
   getMyAchievements,
   syncMyAchievements,
+  unlockMyAchievement,
   listDefinitions,
   getDefinitionById,
   createDefinition,

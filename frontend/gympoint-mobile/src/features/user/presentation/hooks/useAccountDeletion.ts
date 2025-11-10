@@ -55,13 +55,11 @@ export function useAccountDeletion() {
       setLoading(true);
       setError(null);
 
-      const payload = reason ? { reason } : undefined;
-      const config = payload
-        ? {
-            data: payload,
-            headers: { 'Content-Type': 'application/json' }
-          }
-        : {}; // Sin data ni headers cuando no hay razón
+      const payload = reason ? { reason } : {};
+      const config = {
+        data: payload,
+        headers: { 'Content-Type': 'application/json' }
+      };
 
       const response = await api.delete<DeletionResponse>('/api/users/me', config);
 

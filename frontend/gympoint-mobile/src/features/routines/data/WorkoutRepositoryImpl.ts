@@ -43,6 +43,9 @@ export class WorkoutRepositoryImpl implements WorkoutRepository {
 
   async getMySessions(params?: {
     status?: 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+    id_routine?: number;
+    start_date?: string;
+    end_date?: string;
     page?: number;
     limit?: number;
   }): Promise<WorkoutSession[]> {
@@ -116,6 +119,21 @@ export class WorkoutRepositoryImpl implements WorkoutRepository {
 
   async deleteSet(setId: number): Promise<void> {
     await workoutApi.deleteSet(setId);
+  }
+
+  async getLastSetsForExercises(exerciseIds: number[]): Promise<Array<{
+    id_exercise: number;
+    last_weight: number;
+    last_reps: number;
+    has_history: boolean;
+  }>> {
+    try {
+      const response = await workoutApi.getLastSetsForExercises(exerciseIds);
+      return response.data;
+    } catch (error: any) {
+      console.error('[WorkoutRepo] ❌ Error obteniendo últimos sets:', error?.message);
+      return [];
+    }
   }
 }
 

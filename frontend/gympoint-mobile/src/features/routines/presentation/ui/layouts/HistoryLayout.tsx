@@ -6,6 +6,7 @@ type Props = {
   keyExtractor: (item: any) => string;
   renderItem: ({ item }: { item: any }) => React.ReactElement;
   ListHeaderComponent?: React.ReactElement;
+  ListFooterComponent?: React.ReactElement;
   contentContainerStyle?: any;
 };
 
@@ -14,6 +15,7 @@ export function HistoryLayout({
   keyExtractor,
   renderItem,
   ListHeaderComponent,
+  ListFooterComponent,
   contentContainerStyle,
 }: Props) {
   return (
@@ -23,6 +25,7 @@ export function HistoryLayout({
       renderItem={renderItem}
       ItemSeparatorComponent={() => <View className="h-3" />}
       ListHeaderComponent={ListHeaderComponent}
+      ListFooterComponent={ListFooterComponent}
       showsVerticalScrollIndicator={false}
       className="flex-1"
       contentContainerStyle={[

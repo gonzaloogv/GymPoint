@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect, useMemo } from 'react';
-import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { useTheme } from '@shared/hooks';
-import { Screen } from '@shared/components/ui';
+import { SurfaceScreen, InfoCard, EmptyState, ScreenHeader } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { ExercisePRCard, ExerciseAveragesCard, ExerciseHistoryList, ExerciseFilter } from '../components/exerciseprogress';
 import { useExerciseProgress, type ExerciseHistoryItem } from '../../hooks/useExerciseProgress';
@@ -14,15 +14,12 @@ export function ExerciseProgressScreen({ navigation }: ExerciseProgressScreenPro
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Filter state
   const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(null);
   const [selectedMuscularGroup, setSelectedMuscularGroup] = useState<string | null>(null);
 
-  // Hook for exercise data
   const { loading, error, getAllExerciseHistory } = useExerciseProgress();
   const [allHistory, setAllHistory] = useState<ExerciseHistoryItem[]>([]);
 
-  // Load all exercise history
   const loadAllHistory = useCallback(async () => {
     const data = await getAllExerciseHistory();
     setAllHistory(data);
@@ -32,54 +29,47 @@ export function ExerciseProgressScreen({ navigation }: ExerciseProgressScreenPro
     loadAllHistory();
   }, [loadAllHistory]);
 
-  // Extract unique exercises from history
   const exercises = useMemo(() => {
-    const exerciseMap = new Map();
-    allHistory.forEach(item => {
+    const exerciseMap = new Map<number, { id_exercise: number; exercise_name: string; muscular_group: string }>();
+    allHistory.forEach((item) => {
       if (!exerciseMap.has(item.id_exercise)) {
         exerciseMap.set(item.id_exercise, {
           id_exercise: item.id_exercise,
           exercise_name: item.exercise_name,
-          muscular_group: item.muscular_group
+          muscular_group: item.muscular_group,
         });
       }
     });
     return Array.from(exerciseMap.values());
   }, [allHistory]);
 
-  // Filter history based on selected filters
   const filteredHistory = useMemo(() => {
     let filtered = allHistory;
 
-    // Filter by muscular group
     if (selectedMuscularGroup) {
-      filtered = filtered.filter(item => item.muscular_group === selectedMuscularGroup);
+      filtered = filtered.filter((item) => item.muscular_group === selectedMuscularGroup);
     }
 
-    // Filter by specific exercise
     if (selectedExerciseId) {
-      filtered = filtered.filter(item => item.id_exercise === selectedExerciseId);
+      filtered = filtered.filter((item) => item.id_exercise === selectedExerciseId);
     }
 
     return filtered;
   }, [allHistory, selectedMuscularGroup, selectedExerciseId]);
 
-  // Calculate metrics from filtered history
   const metrics = useMemo(() => {
     if (filteredHistory.length === 0) {
       return {
         personalRecord: null,
         averages: null,
-        history: []
+        history: [],
       };
     }
 
-    // Find personal record (highest total volume)
     const pr = filteredHistory.reduce((max, item) =>
-      item.total_volume > (max?.total_volume || 0) ? item : max
+      item.total_volume > (max?.total_volume || 0) ? item : max,
     );
 
-    // Calculate averages
     const totalWeight = filteredHistory.reduce((sum, item) => sum + item.used_weight, 0);
     const totalReps = filteredHistory.reduce((sum, item) => sum + item.reps, 0);
     const totalVolume = filteredHistory.reduce((sum, item) => sum + item.total_volume, 0);
@@ -88,20 +78,20 @@ export function ExerciseProgressScreen({ navigation }: ExerciseProgressScreenPro
       average_weight: totalWeight / filteredHistory.length,
       average_reps: totalReps / filteredHistory.length,
       average_volume: totalVolume / filteredHistory.length,
-      total_records: filteredHistory.length
+      total_records: filteredHistory.length,
     };
 
     const personalRecord = {
       date: pr.date,
       used_weight: pr.used_weight,
       reps: pr.reps,
-      total_volume: pr.total_volume
+      total_volume: pr.total_volume,
     };
 
     return {
       personalRecord,
       averages,
-      history: filteredHistory
+      history: filteredHistory,
     };
   }, [filteredHistory]);
 
@@ -109,10 +99,9 @@ export function ExerciseProgressScreen({ navigation }: ExerciseProgressScreenPro
     navigation?.goBack();
   }, [navigation]);
 
-  // Get current exercise name for header
   const currentExerciseName = useMemo(() => {
     if (selectedExerciseId) {
-      const exercise = exercises.find(ex => ex.id_exercise === selectedExerciseId);
+      const exercise = exercises.find((ex) => ex.id_exercise === selectedExerciseId);
       return exercise?.exercise_name || 'Ejercicio';
     }
     if (selectedMuscularGroup) {
@@ -122,154 +111,120 @@ export function ExerciseProgressScreen({ navigation }: ExerciseProgressScreenPro
   }, [selectedExerciseId, selectedMuscularGroup, exercises]);
 
   return (
-    <Screen scroll safeAreaTop>
-      <View className="min-h-full">
-        {/* Header */}
-        <View className="px-4 pt-4 pb-[18px] gap-3">
-          <Pressable onPress={handleBackPress} className="flex-row items-center -ml-2">
-            <Ionicons
-              name="chevron-back"
-              size={24}
-              color={isDark ? '#60A5FA' : '#3B82F6'}
-            />
-            <Text
-              className="text-sm font-semibold"
-              style={{ color: isDark ? '#60A5FA' : '#3B82F6' }}
-            >
-              Volver
-            </Text>
-          </Pressable>
+    <SurfaceScreen
+      scroll
+      contentContainerStyle={{
+        paddingBottom: 48,
+      }}
+    >
+      <ScreenHeader title={currentExerciseName} onBack={handleBackPress} />
 
-          <View>
+      <View className="px-4 pt-4 pb-6 gap-3">
+        <View className="flex-row items-start justify-between">
+          <View className="flex-1">
             <Text
-              numberOfLines={2}
               className="text-[28px] font-extrabold"
               style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
             >
-              {currentExerciseName}
+              Progreso por ejercicio
             </Text>
             <Text
               className="mt-2 text-xs font-semibold uppercase"
               style={{ color: isDark ? '#9CA3AF' : '#6B7280', letterSpacing: 1.2 }}
             >
-              Historial y métricas de progreso
+              PRs, volumen y mejoras técnicas
             </Text>
           </View>
-
-          <View
-            className="h-px rounded-full"
-            style={{ backgroundColor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(148, 163, 184, 0.32)' }}
-          />
+          <Ionicons name="trending-up" size={24} color={isDark ? '#60A5FA' : '#3B82F6'} />
         </View>
-          {/* Exercise Filter */}
-          {exercises.length > 0 && (
-            <ExerciseFilter
-              exercises={exercises}
-              selectedExerciseId={selectedExerciseId}
-              selectedMuscularGroup={selectedMuscularGroup}
-              onExerciseSelect={setSelectedExerciseId}
-              onMuscularGroupSelect={setSelectedMuscularGroup}
-            />
-          )}
 
-          {/* Loading State */}
-          {loading && allHistory.length === 0 && (
-            <View className="px-4 py-12">
-              <ActivityIndicator size="large" color={isDark ? '#60A5FA' : '#3B82F6'} />
-              <Text className={`text-center mt-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                Cargando historial...
+        <View
+          className="h-px rounded-full"
+          style={{ backgroundColor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(148, 163, 184, 0.32)' }}
+        />
+      </View>
+
+      {exercises.length > 0 && (
+        <ExerciseFilter
+          exercises={exercises}
+          selectedExerciseId={selectedExerciseId}
+          selectedMuscularGroup={selectedMuscularGroup}
+          onExerciseSelect={setSelectedExerciseId}
+          onMuscularGroupSelect={setSelectedMuscularGroup}
+        />
+      )}
+
+      {loading && allHistory.length === 0 && (
+        <View className="px-4 pb-4">
+          <InfoCard variant="compact" className="flex-row items-center gap-3">
+            <ActivityIndicator size="small" color={isDark ? '#F9FAFB' : '#111827'} />
+            <Text className={isDark ? 'text-gray-300' : 'text-gray-600'}>Cargando historial...</Text>
+          </InfoCard>
+        </View>
+      )}
+
+      {error && !loading && (
+        <View className="px-4 pb-4">
+          <InfoCard
+            variant="compact"
+            style={{
+              borderColor: isDark ? 'rgba(248, 113, 113, 0.45)' : '#FECACA',
+              backgroundColor: isDark ? 'rgba(127, 29, 29, 0.35)' : '#FEF2F2',
+            }}
+          >
+            <View className="flex-row items-center gap-2">
+              <Ionicons name="alert-circle" size={20} color="#EF4444" />
+              <Text className={`flex-1 text-sm ${isDark ? 'text-red-200' : 'text-red-700'}`}>
+                {error}
               </Text>
             </View>
-          )}
+          </InfoCard>
+        </View>
+      )}
 
-          {/* Error State */}
-          {error && !loading && (
-            <View className="px-4 pb-4">
-              <View
-                className={`p-4 rounded-xl border ${
-                  isDark ? 'bg-red-900/20 border-red-700' : 'bg-red-50 border-red-200'
-                }`}
-              >
-                <View className="flex-row items-center gap-2">
-                  <Ionicons name="alert-circle" size={20} color="#EF4444" />
-                  <Text className={`flex-1 text-sm ${isDark ? 'text-red-400' : 'text-red-700'}`}>
-                    {error}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          )}
+      {!loading && allHistory.length === 0 && (
+        <View className="px-4 pb-6">
+          <EmptyState
+            title="No hay registros de ejercicios"
+            description="Comienza a registrar tu progreso para ver tus métricas."
+          />
+        </View>
+      )}
 
-          {/* Empty State */}
-          {!loading && allHistory.length === 0 && (
-            <View className="px-4 py-12">
-              <View className="items-center">
-                <Ionicons
-                  name="barbell-outline"
-                  size={64}
-                  color={isDark ? '#4B5563' : '#D1D5DB'}
-                />
-                <Text className={`text-center mt-4 text-base font-semibold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                  No hay registros de ejercicios
-                </Text>
-                <Text className={`text-center mt-2 text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                  Comienza a registrar tu progreso
-                </Text>
-              </View>
-            </View>
-          )}
-
-          {/* No Results for Filter */}
-          {!loading && allHistory.length > 0 && filteredHistory.length === 0 && (
-            <View className="px-4 py-12">
-              <View className="items-center">
-                <Ionicons
-                  name="filter-outline"
-                  size={64}
-                  color={isDark ? '#4B5563' : '#D1D5DB'}
-                />
-                <Text className={`text-center mt-4 text-base font-semibold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+      {!loading && allHistory.length > 0 && filteredHistory.length === 0 && (
+        <View className="px-4 pb-4">
+          <InfoCard variant="compact">
+            <View className="flex-row items-center gap-3">
+              <Ionicons name="filter-outline" size={24} color={isDark ? '#60A5FA' : '#3B82F6'} />
+              <View className="flex-1">
+                <Text
+                  className="text-sm font-semibold"
+                  style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+                >
                   No hay resultados
                 </Text>
-                <Text className={`text-center mt-2 text-sm ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                  Prueba con otros filtros
+                <Text className={isDark ? 'text-gray-400' : 'text-gray-600'}>
+                  Prueba con otros filtros para ver diferentes ejercicios.
                 </Text>
               </View>
             </View>
-          )}
+          </InfoCard>
+        </View>
+      )}
 
-          {/* Content */}
-          {!loading && filteredHistory.length > 0 && (
-            <>
-              {/* Personal Record Card */}
-              <View className="px-4 pb-4">
-                <ExercisePRCard
-                  exerciseName={currentExerciseName}
-                  personalRecord={metrics.personalRecord}
-                  loading={false}
-                />
-              </View>
+      {!loading && filteredHistory.length > 0 && (
+        <View className="gap-4 px-4">
+          <ExercisePRCard
+            exerciseName={currentExerciseName}
+            personalRecord={metrics.personalRecord}
+            loading={false}
+          />
+          <ExerciseAveragesCard averages={metrics.averages} loading={false} />
+          <ExerciseHistoryList history={metrics.history} loading={false} />
+        </View>
+      )}
 
-              {/* Averages Card */}
-              <View className="px-4 pb-4">
-                <ExerciseAveragesCard
-                  averages={metrics.averages}
-                  loading={false}
-                />
-              </View>
-
-              {/* History List */}
-              <View className="px-4 pb-6">
-                <ExerciseHistoryList
-                  history={metrics.history}
-                  loading={false}
-                />
-              </View>
-            </>
-          )}
-
-        <View className="h-4" />
-      </View>
-    </Screen>
+      <View className="h-6" />
+    </SurfaceScreen>
   );
 }

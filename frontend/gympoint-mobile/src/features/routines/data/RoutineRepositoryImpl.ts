@@ -1,5 +1,5 @@
 import { RoutineRepository } from '../domain/repositories/RoutineRepository';
-import { Routine, CreateRoutineRequest, UpdateRoutineRequest } from '../domain/entities/Routine';
+import { Routine, CreateRoutineRequest, UpdateRoutineRequest, ImportTemplateResponse } from '../domain/entities/Routine';
 import { routineApi } from './remote/routine.api';
 import {
   routineMappers,
@@ -43,9 +43,9 @@ export class RoutineRepositoryImpl implements RoutineRepository {
     await routineApi.delete(id);
   }
 
-  async clone(id: number): Promise<Routine> {
-    const response = await routineApi.clone(id);
-    return routineMappers.routineDTOToEntity(response.data);
+  async importTemplate(id: number): Promise<ImportTemplateResponse> {
+    const response = await routineApi.importTemplate(id);
+    return routineMappers.importTemplateResponseDTOToEntity(response);
   }
 
   async getMyRoutinesCounts(): Promise<{

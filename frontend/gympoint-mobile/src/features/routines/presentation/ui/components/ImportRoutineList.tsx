@@ -7,6 +7,7 @@ import { EmptyState } from '@shared/components/ui';
 type Props = {
   routines: PredesignedRoutine[];
   onImport: (routine: PredesignedRoutine) => void;
+  onViewDetails: (routine: PredesignedRoutine) => void;
   emptyTitle: string;
   emptyDescription: string;
 };
@@ -14,6 +15,7 @@ type Props = {
 export function ImportRoutineList({
   routines,
   onImport,
+  onViewDetails,
   emptyTitle,
   emptyDescription,
 }: Props) {
@@ -29,7 +31,13 @@ export function ImportRoutineList({
     <FlatList
       data={routines}
       keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <ImportRoutineCard routine={item} onImport={onImport} />}
+      renderItem={({ item }) => (
+        <ImportRoutineCard
+          routine={item}
+          onImport={onImport}
+          onViewDetails={onViewDetails}
+        />
+      )}
       contentContainerClassName="px-4 pt-4 pb-8"
       showsVerticalScrollIndicator={false}
       ListFooterComponent={<View className="h-2" />}

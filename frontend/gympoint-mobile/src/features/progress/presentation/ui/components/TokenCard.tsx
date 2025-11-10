@@ -65,14 +65,33 @@ export function TokenCard({ type, value, label }: TokenCardProps) {
 
   const colors = isDark ? DARK_MODE_COLORS[type] : LIGHT_MODE_COLORS[type];
 
+  const shadowStyle = isDark
+    ? {
+        shadowColor: '#000000',
+        shadowOpacity: 0.35,
+        shadowOffset: { width: 0, height: 18 },
+        shadowRadius: 24,
+        elevation: 10,
+      }
+    : {
+        shadowColor: '#4338CA',
+        shadowOpacity: 0.12,
+        shadowOffset: { width: 0, height: 12 },
+        shadowRadius: 22,
+        elevation: 5,
+      };
+
   return (
     <View
-      className="flex-1 p-3 rounded-xl border"
-      style={{
-        backgroundColor: colors.bg,
-        borderColor: colors.border,
-        borderWidth: 1,
-      }}
+      className="flex-1 p-3 rounded-[24px] border"
+      style={[
+        {
+          backgroundColor: colors.bg,
+          borderColor: colors.border,
+          borderWidth: 1,
+        },
+        shadowStyle,
+      ]}
     >
       {/* Icon */}
       <View className="mb-2">

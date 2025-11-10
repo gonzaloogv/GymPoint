@@ -61,36 +61,48 @@ export function ExerciseFilter({
   return (
     <View className="px-4 pb-4">
       {/* Filtro de grupos musculares */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        className="mb-3"
-      >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-3">
         <View className="flex-row gap-2">
           {MUSCULAR_GROUPS.map((group) => {
             const isSelected = group.value === selectedMuscularGroup;
+            const activeColors = isDark
+              ? {
+                  border: 'border-blue-300/60',
+                  background: 'bg-blue-500/10',
+                  text: 'text-blue-100',
+                  icon: '#BFDBFE',
+                }
+              : {
+                  border: 'border-blue-500/30',
+                  background: 'bg-blue-50',
+                  text: 'text-blue-700',
+                  icon: '#1D4ED8',
+                };
+
+            const inactiveColors = isDark
+              ? {
+                  border: 'border-gray-700/80',
+                  background: 'bg-gray-800',
+                  text: 'text-gray-300',
+                  icon: '#9CA3AF',
+                }
+              : {
+                  border: 'border-gray-200',
+                  background: 'bg-white',
+                  text: 'text-gray-600',
+                  icon: '#6B7280',
+                };
+
+            const palette = isSelected ? activeColors : inactiveColors;
+
             return (
               <Pressable
                 key={group.label}
                 onPress={() => onMuscularGroupSelect(group.value)}
-                className={`px-4 py-2 rounded-full flex-row items-center gap-2 ${
-                  isSelected
-                    ? 'bg-blue-500'
-                    : isDark ? 'bg-gray-700' : 'bg-gray-200'
-                }`}
+                className={`rounded-full border px-4 py-2 flex-row items-center gap-2 ${palette.background} ${palette.border}`}
               >
-                <Ionicons
-                  name={group.icon}
-                  size={16}
-                  color={isSelected ? '#FFFFFF' : isDark ? '#9CA3AF' : '#6B7280'}
-                />
-                <Text
-                  className={`text-sm font-semibold ${
-                    isSelected
-                      ? 'text-white'
-                      : isDark ? 'text-gray-300' : 'text-gray-700'
-                  }`}
-                >
+                <Ionicons name={group.icon} size={16} color={palette.icon} />
+                <Text className={`text-sm font-semibold uppercase tracking-wide ${palette.text}`}>
                   {group.label}
                 </Text>
               </Pressable>

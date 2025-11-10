@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 
 interface PremiumAlertProps {
@@ -16,25 +16,56 @@ export const PremiumAlert: React.FC<PremiumAlertProps> = ({ onUpgrade }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
+  const shadowStyle = isDark
+    ? {
+        shadowColor: '#000000',
+        shadowOpacity: 0.35,
+        shadowOffset: { width: 0, height: 18 },
+        shadowRadius: 26,
+        elevation: 12,
+      }
+    : {
+        shadowColor: '#9333EA',
+        shadowOpacity: 0.15,
+        shadowOffset: { width: 0, height: 14 },
+        shadowRadius: 22,
+        elevation: 6,
+      };
+
   return (
     <View
-      className="rounded-[24px] p-5 mb-4 border"
-      style={{
-        backgroundColor: isDark ? '#2D1B4E' : '#F3E8FF',
-        borderColor: isDark ? '#7C3AED' : '#C084FC',
-      }}
+      className="rounded-[28px] px-5 py-[18px] border"
+      style={[
+        {
+          backgroundColor: isDark ? 'rgba(147, 51, 234, 0.15)' : 'rgba(196, 181, 253, 0.2)',
+          borderColor: isDark ? 'rgba(147, 51, 234, 0.4)' : 'rgba(147, 51, 234, 0.3)',
+        },
+        shadowStyle,
+      ]}
     >
-      <View className="flex-row items-start gap-3">
-        {/* Icono de corona */}
-        <Feather name="award" size={16} color="#9333EA" />
+      <View className="flex-row items-start gap-4">
+        {/* Icono */}
+        <View
+          className="w-14 h-14 rounded-[20px] border items-center justify-center"
+          style={{
+            backgroundColor: isDark ? 'rgba(147, 51, 234, 0.25)' : 'rgba(147, 51, 234, 0.2)',
+            borderColor: isDark ? 'rgba(196, 181, 253, 0.4)' : 'rgba(147, 51, 234, 0.25)',
+          }}
+        >
+          <Ionicons
+            name="star"
+            size={22}
+            color={isDark ? '#E9D5FF' : '#9333EA'}
+          />
+        </View>
 
         {/* Contenido del alert */}
         <View className="flex-1">
           {/* Título */}
           <Text
-            className="font-semibold mb-1"
+            className="text-lg font-bold mb-1.5"
             style={{
-              color: isDark ? '#E9D5FF' : '#7C3AED',
+              color: isDark ? '#F9FAFB' : '#111827',
             }}
           >
             ¡Actualizá a Premium!
@@ -42,9 +73,9 @@ export const PremiumAlert: React.FC<PremiumAlertProps> = ({ onUpgrade }) => {
 
           {/* Descripción */}
           <Text
-            className="text-xs mb-3"
+            className="text-[13px] font-medium leading-[18px] mb-4"
             style={{
-              color: isDark ? '#D8B4FE' : '#7C3AED',
+              color: isDark ? '#C4B5FD' : '#7C3AED',
             }}
           >
             Desbloqueá estadísticas avanzadas, recompensas exclusivas y más.
@@ -52,15 +83,19 @@ export const PremiumAlert: React.FC<PremiumAlertProps> = ({ onUpgrade }) => {
 
           {/* Botón de acción */}
           <TouchableOpacity
-            className="rounded-2xl px-4 py-2 items-center justify-center"
+            className="py-3.5 rounded-2xl items-center self-start px-6"
             style={{
-              backgroundColor: '#9333EA',
+              backgroundColor: isDark ? '#7C3AED' : '#9333EA',
               opacity: 0.5,
             }}
             // onPress={onUpgrade} // DESACTIVADO: Trae datos mock que sobrescriben datos reales
             disabled
+            activeOpacity={0.78}
           >
-            <Text className="font-semibold text-xs" style={{ color: '#F9FAFB' }}>
+            <Text
+              className="text-sm font-bold text-white uppercase"
+              style={{ letterSpacing: 0.6 }}
+            >
               Próximamente
             </Text>
           </TouchableOpacity>

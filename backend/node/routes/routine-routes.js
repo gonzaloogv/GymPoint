@@ -137,6 +137,26 @@ router.get('/me', verificarToken, verificarUsuarioApp, routineController.getRout
 
 /**
  * @swagger
+ * /api/routines/{id}/import:
+ *   post:
+ *     summary: Importar una rutina plantilla al usuario autenticado
+ *     tags: [Rutinas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       201:
+ *         description: Rutina importada correctamente
+ */
+router.post('/:id/import', verificarToken, verificarUsuarioApp, templateController.importTemplate);
+
+/**
+ * @swagger
  * /api/routines/{id}:
  *   get:
  *     summary: Obtener una rutina con sus ejercicios
@@ -358,25 +378,5 @@ router.delete('/:id', verificarToken, verificarUsuarioApp, routineController.del
  *         description: Requiere rol de usuario de la app
  */
 router.delete('/:id/exercises/:id_exercise', verificarToken, verificarUsuarioApp, routineController.deleteRoutineExercise);
-
-/**
- * @swagger
- * /api/routines/{id}/import:
- *   post:
- *     summary: Importar una rutina plantilla al usuario autenticado
- *     tags: [Rutinas]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       201:
- *         description: Rutina importada correctamente
- */
-router.post('/:id/import', verificarToken, verificarUsuarioApp, templateController.importTemplate);
 
 module.exports = router;

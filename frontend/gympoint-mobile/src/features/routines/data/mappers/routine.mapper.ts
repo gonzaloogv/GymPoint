@@ -1,9 +1,20 @@
-import { Routine, RoutineExercise, CreateRoutineRequest, UpdateRoutineRequest } from '../../domain/entities/Routine';
+import {
+  Routine,
+  RoutineExercise,
+  RoutineDay,
+  CreateRoutineRequest,
+  UpdateRoutineRequest,
+  UserImportedRoutine,
+  ImportTemplateResponse,
+} from '../../domain/entities/Routine';
 import {
   RoutineDTO,
   RoutineExerciseDTO,
+  RoutineDayDTO,
   CreateRoutineRequestDTO,
   UpdateRoutineRequestDTO,
+  UserImportedRoutineDTO,
+  ImportTemplateResponseDTO,
 } from '../dto/RoutineDTO';
 
 /**
@@ -28,6 +39,22 @@ export const routineExerciseDTOToEntity = (dto: RoutineExerciseDTO): RoutineExer
 };
 
 /**
+ * Convierte RoutineDayDTO a RoutineDay entity
+ */
+export const routineDayDTOToEntity = (dto: RoutineDayDTO): RoutineDay => {
+  return {
+    id_routine_day: dto.id_routine_day,
+    id_routine: dto.id_routine,
+    day_number: dto.day_number,
+    title: dto.title,
+    description: dto.description,
+    created_at: dto.created_at,
+    updated_at: dto.updated_at,
+    exercises: dto.exercises?.map(routineExerciseDTOToEntity),
+  };
+};
+
+/**
  * Convierte RoutineDTO a Routine entity
  */
 export const routineDTOToEntity = (dto: RoutineDTO): Routine => {
@@ -41,6 +68,7 @@ export const routineDTOToEntity = (dto: RoutineDTO): Routine => {
     template_order: dto.template_order,
     created_at: dto.created_at,
     updated_at: dto.updated_at,
+    days: dto.days?.map(routineDayDTOToEntity),
     exercises: dto.exercises?.map(routineExerciseDTOToEntity),
   };
 };
@@ -91,10 +119,38 @@ export const updateRoutineRequestToDTO = (request: UpdateRoutineRequest): Update
   };
 };
 
+/**
+ * Convierte UserImportedRoutineDTO a UserImportedRoutine entity
+ */
+export const userImportedRoutineDTOToEntity = (dto: UserImportedRoutineDTO): UserImportedRoutine => {
+  return {
+    id_import: dto.id_import,
+    id_user_profile: dto.id_user_profile,
+    id_template_routine: dto.id_template_routine,
+    id_user_routine: dto.id_user_routine,
+    imported_at: dto.imported_at,
+    templateRoutine: dto.templateRoutine ? routineDTOToEntity(dto.templateRoutine) : undefined,
+    userRoutine: dto.userRoutine ? routineDTOToEntity(dto.userRoutine) : undefined,
+  };
+};
+
+/**
+ * Convierte ImportTemplateResponseDTO a ImportTemplateResponse entity
+ */
+export const importTemplateResponseDTOToEntity = (dto: ImportTemplateResponseDTO): ImportTemplateResponse => {
+  return {
+    id_routine_copy: dto.id_routine_copy,
+    routine: routineDTOToEntity(dto.routine),
+  };
+};
+
 export const routineMappers = {
   routineDTOToEntity,
   routineDTOsToEntities,
   routineExerciseDTOToEntity,
+  routineDayDTOToEntity,
   createRoutineRequestToDTO,
   updateRoutineRequestToDTO,
+  userImportedRoutineDTOToEntity,
+  importTemplateResponseDTOToEntity,
 };

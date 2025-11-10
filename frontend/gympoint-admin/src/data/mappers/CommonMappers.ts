@@ -79,6 +79,7 @@ export function mapRewardResponseToReward(dto: RewardResponse): Reward {
     name: dto.name,
     description: dto.description,
     reward_type: dto.reward_type as any,
+    effect_value: dto.effect_value || null,
     cost_tokens: dto.token_cost,
     available: dto.is_active ?? true,
     stock: dto.stock || 0,
@@ -107,6 +108,7 @@ export function mapCreateRewardDTOToRequest(domainDTO: DomainCreateRewardDTO): C
   };
 
   // Solo agregar campos opcionales si tienen valor
+  if (domainDTO.effect_value) request.effect_value = domainDTO.effect_value;
   if (domainDTO.image_url) request.image_url = domainDTO.image_url;
   if (domainDTO.terms) request.terms = domainDTO.terms;
 
@@ -122,6 +124,7 @@ export function mapUpdateRewardDTOToRequest(domainDTO: DomainUpdateRewardDTO): U
   if (domainDTO.name !== undefined) request.name = domainDTO.name;
   if (domainDTO.description !== undefined) request.description = domainDTO.description;
   if (domainDTO.reward_type !== undefined) request.reward_type = domainDTO.reward_type as any;
+  if (domainDTO.effect_value !== undefined) request.effect_value = domainDTO.effect_value || undefined;
   if (domainDTO.cost_tokens !== undefined) request.token_cost = domainDTO.cost_tokens;
   if (domainDTO.stock !== undefined) request.stock = domainDTO.stock;
   if (domainDTO.start_date !== undefined) request.valid_from = domainDTO.start_date;

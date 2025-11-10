@@ -6,7 +6,10 @@ const getTemplates = async (req, res) => {
     const { difficulty = 'BEGINNER', limit } = req.query;
     const lim = limit ? Number.parseInt(limit, 10) : 5;
     const routines = await templateService.getRecommendedRoutines(difficulty, lim);
-    res.json({ routines });
+    res.json({
+      message: 'Plantillas obtenidas con éxito',
+      data: routines
+    });
   } catch (err) {
     res.status(400).json({ error: { code: 'GET_TEMPLATES_FAILED', message: err.message } });
   }

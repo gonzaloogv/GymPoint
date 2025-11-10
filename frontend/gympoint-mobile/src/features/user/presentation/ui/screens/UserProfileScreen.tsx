@@ -3,10 +3,9 @@
  */
 
 import React, { useCallback, useEffect } from 'react';
-import { ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, TouchableOpacity, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Button, ButtonText } from '@shared/components/ui';
+import { SurfaceScreen } from '@shared/components/ui';
 import { useTheme } from '@shared/hooks';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { PremiumAlert } from '../components/PremiumAlert';
@@ -95,81 +94,79 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   // RENDER
   // ============================================
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className="flex-1" style={{ backgroundColor: isDark ? '#111827' : '#f9fafb' }}>
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 p-4" style={{ backgroundColor: isDark ? '#111827' : '#f9fafb' }}>
-        {/* 1. Header */}
-        <View className="mb-4">
-          <ProfileHeader user={resolvedUser} theme={theme} />
-        </View>
+    <SurfaceScreen
+      scroll
+      contentContainerStyle={{
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        paddingBottom: 140,
+        gap: 24,
+      }}
+    >
+      {/* 1. Header */}
+      <ProfileHeader user={resolvedUser} theme={theme} />
 
-        {/* 2. Plan */}
-        <View className="mb-4">
-          {resolvedUser.plan === 'Free' ? (
-            <PremiumAlert onUpgrade={handleUpgradeToPremium} />
-          ) : (
-            <PremiumBadge />
-          )}
-        </View>
+      {/* 2. Plan */}
+      {resolvedUser.plan === 'Free' ? (
+        <PremiumAlert onUpgrade={handleUpgradeToPremium} />
+      ) : (
+        <PremiumBadge />
+      )}
 
-        {/* 3. Configuraciones */}
-        <View className="mb-4">
-          <SettingsCard
-            notificationsEnabled={notificationsEnabled}
-            isLoadingNotifications={isLoadingNotifications}
-            onNotificationToggle={handleNotificationToggle}
-            locationEnabled={locationEnabled}
-            onLocationToggle={toggleLocation}
-          />
-        </View>
+      {/* 3. Configuraciones */}
+      <SettingsCard
+        notificationsEnabled={notificationsEnabled}
+        isLoadingNotifications={isLoadingNotifications}
+        onNotificationToggle={handleNotificationToggle}
+        locationEnabled={locationEnabled}
+        onLocationToggle={toggleLocation}
+      />
 
-        {/* 5. Menú */}
-        <View className="mb-4">
-          <MenuOptions isPremium={resolvedUser.plan === 'Premium'} theme={theme} />
-        </View>
+      {/* 5. Menú */}
+      <MenuOptions isPremium={resolvedUser.plan === 'Premium'} theme={theme} />
 
-        {/* 6. Beneficios Premium */}
-        {resolvedUser.plan === 'Free' && (
-          <View className="mb-4">
-            <PremiumBenefitsCard onUpgrade={handleUpgradeToPremium} />
-          </View>
-        )}
+      {/* 6. Beneficios Premium */}
+      {resolvedUser.plan === 'Free' && (
+        <PremiumBenefitsCard onUpgrade={handleUpgradeToPremium} />
+      )}
 
-        {/* 7. Footer */}
-        <View className="mb-4">
-          <LegalFooter theme={theme} />
-        </View>
+      {/* 7. Footer */}
+      <LegalFooter theme={theme} />
 
-        {/* 8. Eliminar cuenta */}
-        <View className="mb-4">
-          <DeleteAccountSection
-            deletionRequest={deletionRequest}
-            hasActiveRequest={hasActiveRequest}
-            onRequestDeletion={requestDeletion}
-            onCancelDeletion={cancelDeletion}
-            loading={deletionLoading}
-          />
-        </View>
+      {/* 8. Eliminar cuenta */}
+      <DeleteAccountSection
+        deletionRequest={deletionRequest}
+        hasActiveRequest={hasActiveRequest}
+        onRequestDeletion={requestDeletion}
+        onCancelDeletion={cancelDeletion}
+        loading={deletionLoading}
+      />
 
-        {/* 9. Logout */}
-        <Button
-          onPress={handleLogoutPress}
-          className="mb-4"
-          style={{
-            backgroundColor: 'transparent',
-            borderWidth: 2,
-            borderColor: isDark ? '#EF4444' : '#F87171',
-          }}
-        >
+      {/* 9. Logout */}
+      <TouchableOpacity
+        onPress={handleLogoutPress}
+        activeOpacity={0.78}
+        className="py-3.5 rounded-2xl items-center border"
+        style={{
+          borderColor: isDark ? '#EF4444' : '#F87171',
+          backgroundColor: 'transparent',
+        }}
+      >
+        <View className="flex-row items-center gap-2">
           <Feather
             name="log-out"
             size={16}
             color={isDark ? '#EF4444' : '#F87171'}
-            style={{ marginRight: 8 }}
           />
-          <ButtonText style={{ color: isDark ? '#EF4444' : '#F87171' }}>Cerrar sesión</ButtonText>
-        </Button>
-      </ScrollView>
-    </SafeAreaView>
+          <Text
+            className="text-sm font-bold uppercase"
+            style={{ color: isDark ? '#EF4444' : '#F87171', letterSpacing: 0.6 }}
+          >
+            Cerrar sesión
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </SurfaceScreen>
   );
 };
 

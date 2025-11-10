@@ -1,7 +1,12 @@
 import { View, Text, Pressable, ViewStyle, StyleProp, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 
-type Option = { value: string; label: string };
+type Option = {
+  value: string;
+  label: string;
+  icon?: keyof typeof Ionicons.glyphMap;
+};
 
 type Props = {
   options: Option[];
@@ -83,8 +88,17 @@ export function SegmentedControl({
               alignItems: 'center',
               backgroundColor: active ? activeBackgroundColor : backgroundColor,
               flexWrap: 'nowrap',
+              flexDirection: 'row',
+              gap: 4,
             }}
           >
+            {opt.icon && (
+              <Ionicons
+                name={opt.icon}
+                size={size === 'sm' ? 14 : 16}
+                color={active ? activeTextColor : inactiveTextColor}
+              />
+            )}
             <Text
               numberOfLines={1}
               style={{

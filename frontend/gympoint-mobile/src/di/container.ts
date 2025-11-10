@@ -18,7 +18,6 @@ import { GetSchedulesForGyms } from '@features/gyms/domain/usecases/GetSchedules
 // ===== Routines =====
 import { RoutineRepository } from '@features/routines/domain/repositories/RoutineRepository';
 import { RoutineRepositoryImpl } from '@features/routines/data/RoutineRepositoryImpl';
-import { RoutineLocal } from '@features/routines/data/datasources/RoutineLocal';
 import { GetRoutines } from '@features/routines/domain/usecases/GetRoutines';
 import { GetRoutineById } from '@features/routines/domain/usecases/GetRoutineById';
 import { ExecuteRoutine } from '@features/routines/domain/usecases/ExecuteRoutine';
@@ -32,6 +31,9 @@ import { RewardLocal } from '@features/rewards/data/datasources/RewardLocal';
 import { GetAvailableRewards } from '@features/rewards/domain/usecases/GetAvailableRewards';
 import { GenerateRewardCode } from '@features/rewards/domain/usecases/GenerateRewardCode';
 import { GetGeneratedCodes } from '@features/rewards/domain/usecases/GetGeneratedCodes';
+import { ClaimReward } from '@features/rewards/domain/usecases/ClaimReward';
+import { GetClaimedRewards } from '@features/rewards/domain/usecases/GetClaimedRewards';
+import { MarkClaimedRewardAsUsed } from '@features/rewards/domain/usecases/MarkClaimedRewardAsUsed';
 
 // ===== Home =====
 import { HomeRepository } from '@features/home/domain/repositories/HomeRepository';
@@ -95,7 +97,6 @@ class Container {
   getSchedulesForGyms: GetSchedulesForGyms;
 
   // Routines
-  routineLocal: RoutineLocal;
   routineRepository: RoutineRepository;
   getRoutines: GetRoutines;
   getRoutineById: GetRoutineById;
@@ -109,6 +110,9 @@ class Container {
   getAvailableRewards: GetAvailableRewards;
   generateRewardCode: GenerateRewardCode;
   getGeneratedCodes: GetGeneratedCodes;
+  claimReward: ClaimReward;
+  getClaimedRewards: GetClaimedRewards;
+  markClaimedRewardAsUsed: MarkClaimedRewardAsUsed;
 
   // Home
   homeRepository: HomeRepository;
@@ -164,8 +168,7 @@ class Container {
     this.getSchedulesForGyms = new GetSchedulesForGyms(this.scheduleRepository);
 
     // Routines
-    this.routineLocal = new RoutineLocal();
-    this.routineRepository = new RoutineRepositoryImpl(this.routineLocal);
+    this.routineRepository = new RoutineRepositoryImpl();
     this.getRoutines = new GetRoutines(this.routineRepository);
     this.getRoutineById = new GetRoutineById(this.routineRepository);
     this.executeRoutine = new ExecuteRoutine(this.routineRepository);
@@ -178,6 +181,9 @@ class Container {
     this.getAvailableRewards = new GetAvailableRewards(this.rewardRepository);
     this.generateRewardCode = new GenerateRewardCode(this.rewardRepository);
     this.getGeneratedCodes = new GetGeneratedCodes(this.rewardRepository);
+    this.claimReward = new ClaimReward(this.rewardRepository);
+    this.getClaimedRewards = new GetClaimedRewards(this.rewardRepository);
+    this.markClaimedRewardAsUsed = new MarkClaimedRewardAsUsed(this.rewardRepository);
 
     // Home
     this.homeRepository = new HomeRepositoryImpl();

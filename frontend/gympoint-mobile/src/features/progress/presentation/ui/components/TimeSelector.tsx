@@ -1,10 +1,12 @@
 import React from 'react';
 import { PillSelector } from '@shared/components/ui';
 
+type PeriodValue = '7d' | '30d' | '90d' | '12m';
+
 interface TimeSelectorProps {
-  periods: Array<{ value: | '30d' | '90d' | '12m'; label: string }>;
-  selected: '30d' | '90d' | '12m';
-  onSelect: (period: '30d' | '90d' | '12m') => void;
+  periods: Array<{ value: PeriodValue; label: string }>;
+  selected: PeriodValue;
+  onSelect: (period: PeriodValue) => void;
 }
 
 /**

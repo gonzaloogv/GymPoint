@@ -1,7 +1,7 @@
-import React, { useCallback, useState, useMemo } from 'react';
-import { ScrollView, View, Text, Pressable, ActivityIndicator } from 'react-native';
+import React, { useCallback, useState, useMemo, useEffect } from 'react';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { useTheme } from '@shared/hooks';
-import { Screen } from '@shared/components/ui';
+import { SurfaceScreen, LoadMoreButton, BackButton } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useTokenHistory } from '@features/tokens/presentation/hooks/useTokenHistory';
 import type { TokenTransactionType } from '@features/tokens/domain/entities/TokenTransaction';
@@ -20,6 +20,9 @@ export function TokenHistoryScreen({ navigation }: TokenHistoryScreenProps) {
   const isDark = theme === 'dark';
   const [tokenFilter, setTokenFilter] = useState<TokenFilter>('all');
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('30d');
+  const [itemsToShow, setItemsToShow] = useState(5);
+
+  const ITEMS_PER_PAGE = 5;
 
   // Calcular fechas basadas en el periodo seleccionado
   const dateFilters = useMemo(() => {
@@ -64,6 +67,15 @@ export function TokenHistoryScreen({ navigation }: TokenHistoryScreenProps) {
   // Get transactions from history (already filtered by the hook)
   const transactions = history?.transactions || [];
 
+  // Visible transactions with pagination
+  const visibleTransactions = transactions.slice(0, itemsToShow);
+  const hasMore = itemsToShow < transactions.length;
+
+  // Reset items to show when filters change
+  useEffect(() => {
+    setItemsToShow(5);
+  }, [tokenFilter, timePeriod]);
+
   // Token data for cards
   const tokenData = useMemo(() => ({
     available: balance?.available || 0,
@@ -72,100 +84,103 @@ export function TokenHistoryScreen({ navigation }: TokenHistoryScreenProps) {
   }), [balance]);
 
   return (
-    <Screen scroll safeAreaTop safeAreaBottom>
-      <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
-        {/* Header */}
-        <View className="px-4 pt-4 pb-[18px] gap-3">
-          <Pressable onPress={handleBackPress} className="flex-row items-center -ml-2">
-            <Ionicons
-              name="chevron-back"
-              size={24}
-              color={isDark ? '#60A5FA' : '#3B82F6'}
-            />
-            <Text
-              className="text-sm font-semibold"
-              style={{ color: isDark ? '#60A5FA' : '#3B82F6' }}
-            >
-              Volver
-            </Text>
-          </Pressable>
+    <SurfaceScreen
+      scroll
+      contentContainerStyle={{
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        paddingBottom: 140,
+        gap: 24,
+      }}
+    >
+      {/* Header */}
+      <View className="gap-3">
+        <BackButton onPress={handleBackPress} />
 
-          <View>
-            <Text
-              className="text-[28px] font-extrabold"
-              style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
-            >
-              Historial de tokens
-            </Text>
-            <Text
-              className="mt-2 text-xs font-semibold uppercase"
-              style={{ color: isDark ? '#9CA3AF' : '#6B7280', letterSpacing: 1.2 }}
-            >
-              {tokenData.available} tokens disponibles
-            </Text>
-          </View>
-
-          <View
-            className="h-px rounded-full"
-            style={{ backgroundColor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(148, 163, 184, 0.32)' }}
-          />
+        <View>
+          <Text
+            className="text-[28px] font-extrabold"
+            style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
+          >
+            Historial de tokens
+          </Text>
+          <Text
+            className="mt-2 text-xs font-semibold uppercase"
+            style={{ color: isDark ? '#9CA3AF' : '#6B7280', letterSpacing: 1.2 }}
+          >
+            {tokenData.available} tokens disponibles
+          </Text>
         </View>
 
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          {/* Token Cards */}
-          <View className="flex-row px-4 pb-6 gap-2">
+        <View
+          className="h-px rounded-full"
+          style={{ backgroundColor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(148, 163, 184, 0.32)' }}
+        />
+      </View>
+
+      {/* Token Cards */}
+      <View className="flex-row gap-2">
             <TokenCard type="available" value={tokenData.available} label="Disponibles" />
             <TokenCard type="earned" value={tokenData.earned} label="Ganados" />
             <TokenCard type="spent" value={tokenData.spent} label="Gastados" />
           </View>
 
-          {/* Filter Tabs: Todos / Ganados / Gastados */}
-          <View className="px-4 pb-4">
-            <View className="flex-row gap-2">
-              {(['all', 'earned', 'spent'] as const).map((filter) => (
-                <Pressable
-                  key={filter}
-                  onPress={() => setTokenFilter(filter)}
-                  className="flex-1 py-3 px-4 rounded-lg items-center justify-center"
-                  style={{
-                    backgroundColor: tokenFilter === filter ? '#3B82F6' : isDark ? '#1F2937' : '#FFFFFF',
-                    borderWidth: tokenFilter === filter ? 0 : 1,
-                    borderColor: isDark ? '#374151' : '#E5E7EB',
-                  }}
-                >
-                  <Text
-                    className="text-center font-semibold text-sm"
-                    style={{
-                      color: tokenFilter === filter ? '#FFFFFF' : isDark ? '#9CA3AF' : '#374151',
-                    }}
-                  >
-                    {filter === 'all' ? 'Todos' : filter === 'earned' ? 'Ganados' : 'Gastados'}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-
-          {/* Time Period Selector */}
-          <View className="px-4 pb-4">
-            <TimePeriodSelector
-              value={timePeriod}
-              onChange={setTimePeriod}
-            />
-          </View>
-
-          {/* Movimientos Section Label */}
-          <View className="px-4 mb-3">
-            <Text
-              className="text-sm font-semibold"
-              style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+      {/* Filter Tabs: Todos / Ganados / Gastados */}
+      <View
+        className="rounded-[28px] p-1.5 border"
+        style={[
+          {
+            backgroundColor: isDark ? '#111827' : '#ffffff',
+            borderColor: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
+          },
+          isDark
+            ? {
+                shadowColor: '#000000',
+                shadowOpacity: 0.35,
+                shadowOffset: { width: 0, height: 18 },
+                shadowRadius: 24,
+                elevation: 10,
+              }
+            : {
+                shadowColor: '#4338CA',
+                shadowOpacity: 0.12,
+                shadowOffset: { width: 0, height: 12 },
+                shadowRadius: 22,
+                elevation: 5,
+              },
+        ]}
+      >
+        <View className="flex-row">
+          {(['all', 'earned', 'spent'] as const).map((filter) => (
+            <Pressable
+              key={filter}
+              onPress={() => setTokenFilter(filter)}
+              className="flex-1 px-4 py-3 rounded-2xl items-center justify-center"
+              style={{
+                backgroundColor: tokenFilter === filter ? '#3B82F6' : 'transparent',
+              }}
             >
-              Movimientos
-            </Text>
-          </View>
+              <Text
+                className="text-center font-semibold text-base"
+                style={{
+                  color: tokenFilter === filter ? '#F9FAFB' : isDark ? '#9CA3AF' : '#6B7280',
+                }}
+              >
+                {filter === 'all' ? 'Todos' : filter === 'earned' ? 'Ganados' : 'Gastados'}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>
 
-          {/* Transactions List */}
-          <View className="px-4 pb-8">
+      {/* Time Period Selector */}
+      <TimePeriodSelector
+        value={timePeriod}
+        onChange={setTimePeriod}
+      />
+
+      {/* Movimientos Section */}
+      <View className="gap-4">
             {isLoadingHistory ? (
               <View className="py-8 items-center justify-center">
                 <ActivityIndicator size="large" color={isDark ? '#60A5FA' : '#3B82F6'} />
@@ -187,7 +202,8 @@ export function TokenHistoryScreen({ navigation }: TokenHistoryScreenProps) {
                 </Text>
               </View>
             ) : transactions.length > 0 ? (
-              transactions.map((tx) => {
+              <>
+                {visibleTransactions.map((tx) => {
               // Helper function to get transaction icon
               const getTransactionIcon = () => {
                 if (tx.type === 'earned') {
@@ -211,12 +227,33 @@ export function TokenHistoryScreen({ navigation }: TokenHistoryScreenProps) {
 
               const icon = getTransactionIcon();
 
+              const shadowStyle = isDark
+                ? {
+                    shadowColor: '#000000',
+                    shadowOpacity: 0.35,
+                    shadowOffset: { width: 0, height: 18 },
+                    shadowRadius: 24,
+                    elevation: 10,
+                  }
+                : {
+                    shadowColor: '#4338CA',
+                    shadowOpacity: 0.12,
+                    shadowOffset: { width: 0, height: 12 },
+                    shadowRadius: 22,
+                    elevation: 5,
+                  };
+
               return (
                 <View
                   key={tx.id}
-                  className={`p-4 rounded-xl mb-3 flex-row items-center ${
-                    isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-                  }`}
+                  className="p-5 rounded-[28px] border flex-row items-center"
+                  style={[
+                    {
+                      backgroundColor: isDark ? '#111827' : '#ffffff',
+                      borderColor: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
+                    },
+                    shadowStyle,
+                  ]}
                 >
                   {/* Icon */}
                   <View
@@ -259,7 +296,16 @@ export function TokenHistoryScreen({ navigation }: TokenHistoryScreenProps) {
                   </Text>
                 </View>
               );
-              })
+                })}
+
+                {/* Ver más button */}
+                {hasMore && (
+                  <LoadMoreButton
+                    onPress={() => setItemsToShow(prev => prev + ITEMS_PER_PAGE)}
+                    remainingItems={transactions.length - itemsToShow}
+                  />
+                )}
+              </>
             ) : (
               <View className="py-8 items-center justify-center">
                 <Text
@@ -270,9 +316,7 @@ export function TokenHistoryScreen({ navigation }: TokenHistoryScreenProps) {
                 </Text>
               </View>
             )}
-          </View>
-        </ScrollView>
       </View>
-    </Screen>
+    </SurfaceScreen>
   );
 }

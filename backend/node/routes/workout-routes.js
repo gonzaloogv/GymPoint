@@ -123,4 +123,7 @@ router.post('/sessions/:id/sets', controller.registrarSet);
 router.put('/sets/:id', controller.updateSet);
 router.delete('/sets/:id', controller.deleteSet);
 
+// Exercise history
+router.post('/exercises/last-sets', controller.getLastSetsForExercises);
+
 module.exports = router;

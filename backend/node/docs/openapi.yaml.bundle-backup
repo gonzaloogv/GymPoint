@@ -4012,6 +4012,63 @@ paths:
                       type: object
         '401':
           $ref: '#/components/responses/Unauthorized'
+  /api/achievements/{id}/unlock:
+    post:
+      operationId: unlockMyAchievement
+      tags:
+        - Achievements
+      summary: Desbloquear un logro manualmente
+      description: Desbloquea un logro cuando el usuario alcanza el 100% de progreso. Requiere que el progreso esté completo.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del UserAchievement a desbloquear
+      responses:
+        '200':
+          description: Logro desbloqueado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "¡Logro desbloqueado con éxito!"
+                  data:
+                    type: object
+                    properties:
+                      id_user_achievement:
+                        type: integer
+                      unlocked:
+                        type: boolean
+                      unlocked_at:
+                        type: string
+                        format: date-time
+                      progress_value:
+                        type: number
+        '400':
+          description: ID inválido o progreso insuficiente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Logro no encontrado o no pertenece al usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: El logro ya está desbloqueado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/admin/stats:
     get:
       operationId: getAdminStats
@@ -7072,6 +7129,214 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /api/rewards/{rewardId}/claim:
+    post:
+      operationId: claimReward
+      tags:
+        - Rewards
+      summary: Canjear una recompensa
+      description: Canjea una recompensa por tokens
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: rewardId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la recompensa a canjear
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tokens_spent
+              properties:
+                tokens_spent:
+                  type: number
+                  description: Cantidad de tokens gastados
+                code_id:
+                  type: integer
+                  description: ID del código de recompensa (opcional)
+                expires_at:
+                  type: string
+                  format: date-time
+                  description: Fecha de expiración (opcional)
+      responses:
+        '201':
+          description: Recompensa canjeada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_claimed_reward:
+                    type: integer
+                  id_user_profile:
+                    type: integer
+                  id_reward:
+                    type: integer
+                  id_code:
+                    type: integer
+                  claimed_date:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    enum:
+                      - PENDING
+                      - ACTIVE
+                      - USED
+                      - EXPIRED
+                  tokens_spent:
+                    type: number
+                  used_at:
+                    type: string
+                    format: date-time
+                  expires_at:
+                    type: string
+                    format: date-time
+                  reward:
+                    $ref: '#/components/schemas/RewardResponse'
+                  code:
+                    type: object
+                    properties:
+                      id_code:
+                        type: integer
+                      code:
+                        type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/users/{userId}/claimed-rewards:
+    get:
+      operationId: listClaimedRewards
+      tags:
+        - Rewards
+      summary: Listar recompensas canjeadas
+      description: Lista todas las recompensas canjeadas por un usuario
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del usuario
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - PENDING
+              - ACTIVE
+              - USED
+              - EXPIRED
+          description: Filtrar por estado
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Lista de recompensas canjeadas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+                  total:
+                    type: integer
+                  totalPages:
+                    type: integer
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/claimed-rewards/{claimedRewardId}:
+    get:
+      operationId: getClaimedReward
+      tags:
+        - Rewards
+      summary: Obtener recompensa canjeada
+      description: Obtiene los detalles de una recompensa canjeada
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: claimedRewardId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la recompensa canjeada
+      responses:
+        '200':
+          description: Detalles de la recompensa canjeada
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Recompensa canjeada no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/claimed-rewards/{claimedRewardId}/use:
+    post:
+      operationId: markClaimedRewardAsUsed
+      tags:
+        - Rewards
+      summary: Marcar recompensa como usada
+      description: Marca una recompensa canjeada como usada
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: claimedRewardId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la recompensa canjeada
+      responses:
+        '200':
+          description: Recompensa marcada como usada
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/routines:
     post:
       operationId: createRoutineWithExercises
@@ -7136,17 +7401,72 @@ paths:
         - Routines
       summary: Listar plantillas de rutinas
       parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
+        - name: difficulty
+          in: query
+          description: Filtrar por nivel de dificultad
+          schema:
+            type: string
+            enum:
+              - BEGINNER
+              - INTERMEDIATE
+              - ADVANCED
+        - name: limit
+          in: query
+          description: Límite de resultados
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 5
       responses:
         '200':
-          description: Lista paginada de templates
+          description: Lista de plantillas de rutinas
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedRoutinesResponse'
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Routine'
         '400':
           $ref: '#/components/responses/BadRequest'
+  /api/routines/{id}/import:
+    post:
+      operationId: importRoutineTemplate
+      tags:
+        - Routines
+      summary: Importar una plantilla de rutina
+      description: Crea una copia de la plantilla para el usuario autenticado
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la plantilla a importar
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Rutina importada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_routine_copy:
+                    type: integer
+                    description: ID de la rutina copiada
+                  routine:
+                    $ref: '#/components/schemas/Routine'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
   /api/routines/{id}:
     get:
       operationId: getRoutineById
@@ -9015,6 +9335,23 @@ paths:
               - IN_PROGRESS
               - COMPLETED
               - CANCELLED
+        - name: id_routine
+          in: query
+          description: Filtrar por ID de rutina
+          schema:
+            type: integer
+        - name: start_date
+          in: query
+          description: Fecha de inicio para filtrar sesiones
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: Fecha de fin para filtrar sesiones
+          schema:
+            type: string
+            format: date
       responses:
         '200':
           description: Lista de sesiones
@@ -9270,5 +9607,51 @@ paths:
           description: Set eliminado
         '404':
           $ref: '#/components/responses/NotFound'
+  /api/workouts/exercises/last-sets:
+    post:
+      operationId: getLastSetsForExercises
+      tags:
+        - Workouts
+      summary: Obtener últimos sets de ejercicios específicos
+      description: Retorna el último peso y repeticiones registrados para los ejercicios especificados
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                exercise_ids:
+                  type: array
+                  items:
+                    type: integer
+                  description: IDs de los ejercicios
+              required:
+                - exercise_ids
+      responses:
+        '200':
+          description: Últimos sets obtenidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id_exercise:
+                          type: integer
+                        last_weight:
+                          type: number
+                        last_reps:
+                          type: integer
+                        has_history:
+                          type: boolean
+        '400':
+          $ref: '#/components/responses/BadRequest'
 security:
   - bearerAuth: []

@@ -1,5 +1,7 @@
 import React from 'react';
+import { View } from 'react-native';
 import { Exercise } from '@features/routines/domain/entities';
+import { BackButton } from '@shared/components/ui/BackButton';
 import { ExerciseCard as SharedExerciseCard } from './ExerciseCard';
 
 type ExerciseDetailsProps = {
@@ -7,6 +9,7 @@ type ExerciseDetailsProps = {
   totalSets: number;
   currentSet: number;
   restSeconds: number;
+  onBack?: () => void;
 };
 
 export const ExerciseDetails: React.FC<ExerciseDetailsProps> = ({
@@ -14,11 +17,15 @@ export const ExerciseDetails: React.FC<ExerciseDetailsProps> = ({
   totalSets,
   currentSet,
   restSeconds,
+  onBack,
 }) => (
-  <SharedExerciseCard
-    exercise={exercise}
-    totalSets={totalSets}
-    currentSet={currentSet}
-    restSeconds={restSeconds}
-  />
+  <View className="gap-4">
+    {onBack && <BackButton onPress={onBack} />}
+    <SharedExerciseCard
+      exercise={exercise}
+      totalSets={totalSets}
+      currentSet={currentSet}
+      restSeconds={restSeconds}
+    />
+  </View>
 );

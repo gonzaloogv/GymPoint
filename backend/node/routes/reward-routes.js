@@ -19,32 +19,20 @@ const { verificarToken, verificarUsuarioApp, verificarAdmin } = require('../midd
 router.get('/', rewardController.listRewards);
 
 /**
- * GET /api/rewards/:rewardId
- * Obtiene una recompensa específica
- */
-router.get('/:rewardId', rewardController.getReward);
-
-/**
  * POST /api/rewards
  * Crea una nueva recompensa (admin)
  */
 router.post('/', verificarToken, verificarAdmin, rewardController.createReward);
 
-/**
- * PUT /api/rewards/:rewardId
- * Actualiza una recompensa (admin)
- */
-router.put('/:rewardId', verificarToken, verificarAdmin, rewardController.updateReward);
+// ============================================================================
+// RUTAS MÁS ESPECÍFICAS PRIMERO (antes de /:rewardId)
+// ============================================================================
 
 /**
- * DELETE /api/rewards/:rewardId
- * Elimina una recompensa (admin)
+ * POST /api/rewards/:rewardId/claim
+ * Canjea una recompensa por tokens
  */
-router.delete('/:rewardId', verificarToken, verificarAdmin, rewardController.deleteReward);
-
-// ============================================================================
-// REWARD CODES - Admin
-// ============================================================================
+router.post('/:rewardId/claim', verificarToken, verificarUsuarioApp, rewardController.claimReward);
 
 /**
  * GET /api/rewards/:rewardId/codes
@@ -59,13 +47,25 @@ router.get('/:rewardId/codes', verificarToken, verificarAdmin, rewardController.
 router.post('/:rewardId/codes', verificarToken, verificarAdmin, rewardController.createRewardCode);
 
 // ============================================================================
-// CLAIM REWARDS - User
+// RUTAS GENÉRICAS CON PARÁMETROS (al final)
 // ============================================================================
 
 /**
- * POST /api/rewards/:rewardId/claim
- * Canjea una recompensa por tokens
+ * GET /api/rewards/:rewardId
+ * Obtiene una recompensa específica
  */
-router.post('/:rewardId/claim', verificarToken, verificarUsuarioApp, rewardController.claimReward);
+router.get('/:rewardId', rewardController.getReward);
+
+/**
+ * PUT /api/rewards/:rewardId
+ * Actualiza una recompensa (admin)
+ */
+router.put('/:rewardId', verificarToken, verificarAdmin, rewardController.updateReward);
+
+/**
+ * DELETE /api/rewards/:rewardId
+ * Elimina una recompensa (admin)
+ */
+router.delete('/:rewardId', verificarToken, verificarAdmin, rewardController.deleteReward);
 
 module.exports = router;

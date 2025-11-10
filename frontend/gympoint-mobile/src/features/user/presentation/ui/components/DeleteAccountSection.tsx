@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 import { DeleteAccountModal } from './DeleteAccountModal';
@@ -34,6 +34,22 @@ export function DeleteAccountSection({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
 
+  const shadowStyle = isDark
+    ? {
+        shadowColor: '#000000',
+        shadowOpacity: 0.35,
+        shadowOffset: { width: 0, height: 18 },
+        shadowRadius: 26,
+        elevation: 12,
+      }
+    : {
+        shadowColor: '#4338CA',
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 14 },
+        shadowRadius: 22,
+        elevation: 6,
+      };
+
   const handleRequestDeletion = async (reason?: string) => {
     try {
       await onRequestDeletion(reason);
@@ -54,17 +70,35 @@ export function DeleteAccountSection({
 
   return (
     <>
-      <View className={`rounded-xl p-4 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+      <View
+        className="rounded-[28px] px-5 py-[18px] border"
+        style={[
+          {
+            backgroundColor: isDark ? '#111827' : '#ffffff',
+            borderColor: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
+          },
+          shadowStyle,
+        ]}
+      >
         {/* Header */}
-        <View className="flex-row items-center gap-3 mb-3">
-          <View className={`p-2 rounded-full ${isDark ? 'bg-red-900/30' : 'bg-red-100'}`}>
+        <View className="flex-row items-center gap-3 mb-4">
+          <View
+            className="w-14 h-14 rounded-[20px] border items-center justify-center"
+            style={{
+              backgroundColor: isDark ? 'rgba(239, 68, 68, 0.22)' : 'rgba(248, 113, 113, 0.16)',
+              borderColor: isDark ? 'rgba(248, 113, 113, 0.38)' : 'rgba(248, 113, 113, 0.28)',
+            }}
+          >
             <Ionicons
               name="warning-outline"
-              size={20}
+              size={22}
               color={isDark ? '#F87171' : '#EF4444'}
             />
           </View>
-          <Text className={`text-base font-bold flex-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          <Text
+            className="text-lg font-bold flex-1"
+            style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+          >
             Zona de peligro
           </Text>
         </View>
@@ -72,28 +106,33 @@ export function DeleteAccountSection({
         {/* Estado: Sin solicitud */}
         {!hasActiveRequest && (
           <View>
-            <Text className={`text-sm mb-3 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+            <Text
+              className="text-[13px] font-medium leading-[18px] mb-4"
+              style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+            >
               Eliminar tu cuenta es una acción permanente. Todos tus datos serán eliminados después del período de gracia.
             </Text>
-            <Pressable
+            <TouchableOpacity
               onPress={() => setShowDeleteModal(true)}
               disabled={loading}
-              className={`py-3 px-4 rounded-lg border-2 flex-row items-center justify-center gap-2 ${
-                loading ? 'opacity-50' : ''
-              }`}
+              activeOpacity={0.78}
+              className="py-3.5 rounded-2xl items-center border"
               style={{
                 borderColor: isDark ? '#EF4444' : '#F87171',
-                backgroundColor: 'transparent'
+                backgroundColor: 'transparent',
+                opacity: loading ? 0.5 : 1,
               }}
             >
-              <Ionicons name="trash-outline" size={16} color={isDark ? '#EF4444' : '#F87171'} />
-              <Text
-                className="font-semibold"
-                style={{ color: isDark ? '#EF4444' : '#F87171' }}
-              >
-                Eliminar cuenta
-              </Text>
-            </Pressable>
+              <View className="flex-row items-center gap-2">
+                <Ionicons name="trash-outline" size={16} color={isDark ? '#EF4444' : '#F87171'} />
+                <Text
+                  className="text-sm font-bold uppercase"
+                  style={{ color: isDark ? '#EF4444' : '#F87171', letterSpacing: 0.6 }}
+                >
+                  Eliminar cuenta
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -101,18 +140,29 @@ export function DeleteAccountSection({
         {hasActiveRequest && deletionRequest && (
           <View>
             {/* Alert de solicitud pendiente */}
-            <View className={`p-3 rounded-lg mb-3 ${isDark ? 'bg-yellow-900/20' : 'bg-yellow-50'}`}>
+            <View
+              className="px-4 py-3 rounded-2xl mb-4"
+              style={{
+                backgroundColor: isDark ? 'rgba(251, 191, 36, 0.15)' : 'rgba(254, 243, 199, 0.8)',
+              }}
+            >
               <View className="flex-row items-center gap-2 mb-2">
                 <Ionicons
                   name="time"
                   size={18}
                   color={isDark ? '#FBBF24' : '#F59E0B'}
                 />
-                <Text className={`text-sm font-semibold ${isDark ? 'text-yellow-400' : 'text-yellow-700'}`}>
+                <Text
+                  className="text-sm font-bold"
+                  style={{ color: isDark ? '#FBBF24' : '#F59E0B' }}
+                >
                   Eliminación programada
                 </Text>
               </View>
-              <Text className={`text-xs mb-1 ${isDark ? 'text-yellow-300' : 'text-yellow-600'}`}>
+              <Text
+                className="text-xs mb-1"
+                style={{ color: isDark ? '#FDE047' : '#D97706' }}
+              >
                 Tu cuenta será eliminada el:{' '}
                 {deletionRequest.scheduled_deletion_date ? (
                   <Text className="font-bold">
@@ -126,18 +176,27 @@ export function DeleteAccountSection({
                   'Fecha pendiente'
                 )}
               </Text>
-              <Text className={`text-xs ${isDark ? 'text-yellow-400' : 'text-yellow-700'}`}>
+              <Text
+                className="text-xs"
+                style={{ color: isDark ? '#FBBF24' : '#F59E0B' }}
+              >
                 Puedes cancelar esta solicitud en cualquier momento antes de esa fecha.
               </Text>
             </View>
 
             {/* Razón (si existe) */}
             {deletionRequest.reason && (
-              <View className="mb-3">
-                <Text className={`text-xs font-medium mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              <View className="mb-4">
+                <Text
+                  className="text-xs font-semibold mb-1.5 uppercase"
+                  style={{ color: isDark ? '#9CA3AF' : '#6B7280', letterSpacing: 0.6 }}
+                >
                   Razón:
                 </Text>
-                <Text className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <Text
+                  className="text-[13px] font-medium"
+                  style={{ color: isDark ? '#E5E7EB' : '#374151' }}
+                >
                   "{deletionRequest.reason}"
                 </Text>
               </View>
@@ -145,19 +204,26 @@ export function DeleteAccountSection({
 
             {/* Botón para cancelar */}
             {deletionRequest.can_cancel && (
-              <Pressable
+              <TouchableOpacity
                 onPress={() => setShowCancelModal(true)}
                 disabled={loading}
-                className={`py-3 px-4 rounded-lg flex-row items-center justify-center gap-2 ${
-                  loading ? 'opacity-50' : ''
-                }`}
-                style={{ backgroundColor: '#10B981' }}
+                activeOpacity={0.78}
+                className="py-3.5 rounded-2xl items-center"
+                style={{
+                  backgroundColor: isDark ? '#059669' : '#10B981',
+                  opacity: loading ? 0.5 : 1,
+                }}
               >
-                <Ionicons name="checkmark-circle" size={16} color="white" />
-                <Text className="font-bold text-white">
-                  Cancelar eliminación
-                </Text>
-              </Pressable>
+                <View className="flex-row items-center gap-2">
+                  <Ionicons name="checkmark-circle" size={16} color="white" />
+                  <Text
+                    className="text-sm font-bold text-white uppercase"
+                    style={{ letterSpacing: 0.6 }}
+                  >
+                    Cancelar eliminación
+                  </Text>
+                </View>
+              </TouchableOpacity>
             )}
           </View>
         )}

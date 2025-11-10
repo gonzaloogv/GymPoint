@@ -77,6 +77,7 @@ async function findWorkoutSessions(filters = {}, options = {}) {
   const where = {};
 
   if (filters.idUserProfile) where.id_user_profile = filters.idUserProfile;
+  if (filters.idRoutine) where.id_routine = filters.idRoutine;
   if (filters.status) where.status = filters.status;
 
   if (filters.startDate && filters.endDate) {
@@ -123,6 +124,7 @@ async function findWorkoutSessionsWithCount(filters = {}, options = {}) {
   const where = {};
 
   if (filters.idUserProfile) where.id_user_profile = filters.idUserProfile;
+  if (filters.idRoutine) where.id_routine = filters.idRoutine;
   if (filters.status) where.status = filters.status;
 
   if (filters.startDate && filters.endDate) {
@@ -377,6 +379,57 @@ async function hasCompletedWorkoutToday(idUserProfile, options = {}) {
   return hasCompleted;
 }
 
+/**
+ * Get last sets for specific exercises from user's completed workouts
+ * @param {number} idUserProfile - User profile ID
+ * @param {number[]} exerciseIds - Array of exercise IDs
+ * @param {object} options - Options object
+ * @returns {Promise<Array>} Array of last sets per exercise
+ */
+async function findLastSetsForExercises(idUserProfile, exerciseIds, options = {}) {
+  if (!exerciseIds || exerciseIds.length === 0) {
+    return [];
+  }
+
+  const sequelize = WorkoutSet.sequelize;
+
+  // Para cada ejercicio, buscar el último set en sesiones completadas
+  const lastSets = await Promise.all(
+    exerciseIds.map(async (idExercise) => {
+      const lastSet = await WorkoutSet.findOne({
+        include: [
+          {
+            model: WorkoutSession,
+            as: 'session',
+            where: {
+              id_user_profile: idUserProfile,
+              status: 'COMPLETED'
+            },
+            attributes: []
+          }
+        ],
+        where: {
+          id_exercise: idExercise
+        },
+        attributes: ['id_exercise', 'weight_kg', 'reps', 'created_at'],
+        order: [[sequelize.col('session.ended_at'), 'DESC'], ['created_at', 'DESC']],
+        limit: 1,
+        raw: true,
+        transaction: options.transaction
+      });
+
+      return {
+        id_exercise: idExercise,
+        last_weight: lastSet ? parseFloat(lastSet.weight_kg) : 0,
+        last_reps: lastSet ? parseInt(lastSet.reps, 10) : 0,
+        has_history: !!lastSet
+      };
+    })
+  );
+
+  return lastSets;
+}
+
 module.exports = {
   // WorkoutSession
   createWorkoutSession,
@@ -396,6 +449,7 @@ module.exports = {
   updateWorkoutSet,
   deleteWorkoutSet,
   recalculateSessionTotals,
+  findLastSetsForExercises,
 
   // Stats
   getWorkoutStats,

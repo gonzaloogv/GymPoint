@@ -31,6 +31,11 @@ const Reward = sequelize.define('Reward', {
     allowNull: true,
     comment: 'Tipo de recompensa'
   },
+  effect_value: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    comment: 'Valor del efecto según reward_type (ej: días de premium, % descuento)'
+  },
   token_cost: {
     type: DataTypes.INTEGER,
     allowNull: false,

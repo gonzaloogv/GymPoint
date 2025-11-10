@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Modal, ScrollView, TouchableOpacity, View, Text, Pressable, TextInput } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { Modal, ScrollView, TouchableOpacity, View, Text, TextInput, Animated, PanResponder } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@shared/hooks';
 
 interface DeleteAccountModalProps {
@@ -18,7 +19,51 @@ export function DeleteAccountModal({
 }: DeleteAccountModalProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  const { top } = useSafeAreaInsets();
   const [reason, setReason] = useState('');
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return Math.abs(gestureState.dy) > Math.abs(gestureState.dx);
+      },
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy > 0) {
+          // Arrastrar hacia abajo - comportamiento normal
+          translateY.setValue(gestureState.dy);
+        } else {
+          // Arrastrar hacia arriba - con resistencia (efecto bounce)
+          const resistance = 0.3;
+          translateY.setValue(gestureState.dy * resistance);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 150) {
+          // Cerrar modal si se arrastró suficiente hacia abajo
+          Animated.timing(translateY, {
+            toValue: 500,
+            duration: 200,
+            useNativeDriver: true,
+          }).start(() => {
+            onCancel();
+          });
+        } else {
+          // Volver a la posición original con bounce
+          Animated.spring(translateY, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
+
+  const handleModalShow = () => {
+    // Reset translateY cuando la modal se muestra
+    translateY.setValue(0);
+  };
 
   const handleConfirm = () => {
     onConfirm(reason.trim() || undefined);
@@ -31,59 +76,96 @@ export function DeleteAccountModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={handleCancel}
-    >
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={handleCancel}
-        className="flex-1 bg-black/50 justify-center items-center"
-      >
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={(e) => e.stopPropagation()}
-          className={`mx-4 rounded-xl ${isDark ? 'bg-gray-800' : 'bg-white'}`}
-          style={{ width: '90%', maxWidth: 400 }}
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={handleCancel} onShow={handleModalShow}>
+      <View className="flex-1 justify-end" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+        <TouchableOpacity activeOpacity={1} onPress={handleCancel} className="flex-1" />
+
+        <Animated.View
+          className="rounded-t-[28px]"
+          style={{
+            transform: [{ translateY }],
+            backgroundColor: isDark ? '#111827' : '#ffffff',
+            maxHeight: '90%',
+          }}
         >
-          {/* Header con icono de advertencia */}
-          <View className={`p-4 border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-            <View className="flex-row items-center gap-3">
-              <View className="bg-red-500/10 p-2 rounded-full">
-                <Ionicons name="warning" size={24} color="#EF4444" />
+          {/* Drag Indicator & Header */}
+          <View {...panResponder.panHandlers} style={{ paddingTop: 22 }}>
+            <View className="items-center pt-2 pb-3">
+              <View
+                className="w-12 h-[5px] rounded-full"
+                style={{ backgroundColor: 'rgba(148, 163, 184, 0.35)' }}
+              />
+            </View>
+
+            <View className="px-5 pb-4">
+              <View className="flex-row items-center gap-3 mb-2">
+                <View
+                  className="w-14 h-14 rounded-[20px] border items-center justify-center"
+                  style={{
+                    backgroundColor: isDark ? 'rgba(239, 68, 68, 0.22)' : 'rgba(248, 113, 113, 0.16)',
+                    borderColor: isDark ? 'rgba(248, 113, 113, 0.38)' : 'rgba(248, 113, 113, 0.28)',
+                  }}
+                >
+                  <Ionicons name="warning" size={22} color="#EF4444" />
+                </View>
+                <View className="flex-1">
+                  <Text
+                    className="text-lg font-bold"
+                    style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+                  >
+                    Eliminar cuenta
+                  </Text>
+                  <Text
+                    className="text-xs mt-0.5"
+                    style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+                  >
+                    Esta acción no se puede deshacer
+                  </Text>
+                </View>
               </View>
-              <View className="flex-1">
-                <Text className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                  Eliminar cuenta
-                </Text>
-                <Text className={`text-xs mt-0.5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Esta acción no se puede deshacer
-                </Text>
-              </View>
+              <View
+                className="h-px rounded-full mt-3"
+                style={{
+                  backgroundColor: isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(148, 163, 184, 0.32)',
+                }}
+              />
             </View>
           </View>
 
           {/* Content */}
           <ScrollView
-            className="p-4"
+            className="px-5"
             style={{ maxHeight: 450 }}
+            contentContainerStyle={{ paddingBottom: 24 }}
             showsVerticalScrollIndicator={true}
           >
             {/* Advertencias */}
-            <View className={`p-3 rounded-lg mb-4 ${isDark ? 'bg-red-900/20' : 'bg-red-50'}`}>
-              <Text className={`text-sm font-semibold mb-2 ${isDark ? 'text-red-400' : 'text-red-700'}`}>
+            <View
+              className="px-4 py-3 rounded-2xl mb-4"
+              style={{
+                backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : 'rgba(254, 226, 226, 0.8)',
+              }}
+            >
+              <Text
+                className="text-sm font-bold mb-2"
+                style={{ color: isDark ? '#F87171' : '#DC2626' }}
+              >
                 ¿Estás seguro que deseas eliminar tu cuenta?
               </Text>
-              <Text className={`text-sm ${isDark ? 'text-red-300' : 'text-red-600'}`}>
+              <Text
+                className="text-[13px] font-medium"
+                style={{ color: isDark ? '#FCA5A5' : '#DC2626' }}
+              >
                 Esta acción programará tu cuenta para ser eliminada permanentemente.
               </Text>
             </View>
 
             {/* Lista de consecuencias */}
             <View className="mb-4">
-              <Text className={`text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <Text
+                className="text-sm font-bold mb-3"
+                style={{ color: isDark ? '#E5E7EB' : '#374151' }}
+              >
                 Se eliminarán permanentemente:
               </Text>
               {[
@@ -100,7 +182,10 @@ export function DeleteAccountModal({
                     color="#EF4444"
                     style={{ marginTop: 2 }}
                   />
-                  <Text className={`text-sm flex-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <Text
+                    className="text-[13px] font-medium flex-1"
+                    style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+                  >
                     {item}
                   </Text>
                 </View>
@@ -108,25 +193,39 @@ export function DeleteAccountModal({
             </View>
 
             {/* Período de gracia */}
-            <View className={`p-3 rounded-lg mb-4 ${isDark ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
+            <View
+              className="px-4 py-3 rounded-2xl mb-4"
+              style={{
+                backgroundColor: isDark ? 'rgba(59, 130, 246, 0.15)' : 'rgba(219, 234, 254, 0.8)',
+              }}
+            >
               <View className="flex-row items-center gap-2 mb-1">
                 <Ionicons
                   name="information-circle"
                   size={18}
                   color={isDark ? '#60A5FA' : '#3B82F6'}
                 />
-                <Text className={`text-sm font-semibold ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
+                <Text
+                  className="text-sm font-bold"
+                  style={{ color: isDark ? '#60A5FA' : '#1D4ED8' }}
+                >
                   Período de gracia: 7 días
                 </Text>
               </View>
-              <Text className={`text-xs ${isDark ? 'text-blue-300' : 'text-blue-600'}`}>
+              <Text
+                className="text-xs"
+                style={{ color: isDark ? '#93C5FD' : '#1E40AF' }}
+              >
                 Tienes 7 días para cambiar de opinión y cancelar la eliminación desde tu perfil.
               </Text>
             </View>
 
             {/* Campo de razón (opcional) */}
             <View className="mb-2">
-              <Text className={`text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <Text
+                className="text-sm font-semibold mb-2"
+                style={{ color: isDark ? '#E5E7EB' : '#374151' }}
+              >
                 Razón (opcional)
               </Text>
               <TextInput
@@ -138,55 +237,71 @@ export function DeleteAccountModal({
                 numberOfLines={3}
                 maxLength={200}
                 editable={!loading}
-                className={`p-3 rounded-lg border ${
-                  isDark
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-white border-gray-300 text-gray-900'
-                }`}
-                style={{ textAlignVertical: 'top' }}
+                className="p-3 rounded-2xl border"
+                style={{
+                  backgroundColor: isDark ? '#1F2937' : '#F9FAFB',
+                  borderColor: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
+                  color: isDark ? '#F9FAFB' : '#111827',
+                  textAlignVertical: 'top',
+                }}
               />
-              <Text className={`text-xs mt-1 text-right ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+              <Text
+                className="text-xs mt-1 text-right"
+                style={{ color: isDark ? '#6B7280' : '#9CA3AF' }}
+              >
                 {reason.length}/200
               </Text>
             </View>
-          </ScrollView>
 
-          {/* Footer con botones */}
-          <View className={`p-4 border-t gap-3 ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-            {/* Botón Cancelar */}
-            <Pressable
-              onPress={handleCancel}
-              disabled={loading}
-              className={`py-3 rounded-lg ${
-                isDark ? 'bg-gray-700' : 'bg-gray-200'
-              } ${loading ? 'opacity-50' : ''}`}
-            >
-              <Text className={`text-center font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                Cancelar
-              </Text>
-            </Pressable>
-
-            {/* Botón Confirmar eliminación */}
-            <Pressable
-              onPress={handleConfirm}
-              disabled={loading}
-              className={`py-3 rounded-lg ${loading ? 'opacity-50' : ''}`}
-              style={{ backgroundColor: '#EF4444' }}
-            >
-              <View className="flex-row items-center justify-center gap-2">
-                {loading ? (
-                  <Ionicons name="hourglass-outline" size={16} color="white" />
-                ) : (
-                  <Ionicons name="trash-outline" size={16} color="white" />
-                )}
-                <Text className="text-center font-bold text-white">
-                  {loading ? 'Procesando...' : 'Sí, eliminar mi cuenta'}
+            {/* Action Buttons */}
+            <View className="flex-row gap-3 mt-4">
+              <TouchableOpacity
+                onPress={handleCancel}
+                disabled={loading}
+                activeOpacity={0.7}
+                className="flex-1 py-3.5 rounded-2xl border items-center"
+                style={{
+                  backgroundColor: isDark ? 'rgba(75, 85, 99, 0.22)' : 'rgba(156, 163, 175, 0.16)',
+                  borderColor: isDark ? 'rgba(75, 85, 99, 0.38)' : 'rgba(156, 163, 175, 0.28)',
+                  opacity: loading ? 0.5 : 1,
+                }}
+              >
+                <Text
+                  className="text-sm font-semibold"
+                  style={{ color: isDark ? '#E5E7EB' : '#374151' }}
+                >
+                  Cancelar
                 </Text>
-              </View>
-            </Pressable>
-          </View>
-        </TouchableOpacity>
-      </TouchableOpacity>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleConfirm}
+                disabled={loading}
+                activeOpacity={0.78}
+                className="flex-1 py-3.5 rounded-2xl items-center"
+                style={{
+                  backgroundColor: '#EF4444',
+                  opacity: loading ? 0.5 : 1,
+                }}
+              >
+                <View className="flex-row items-center gap-2">
+                  {loading ? (
+                    <Ionicons name="hourglass-outline" size={16} color="white" />
+                  ) : (
+                    <Ionicons name="trash-outline" size={16} color="white" />
+                  )}
+                  <Text
+                    className="text-sm font-bold text-white uppercase"
+                    style={{ letterSpacing: 0.6 }}
+                  >
+                    {loading ? 'Procesando...' : 'Sí, eliminar'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </Animated.View>
+      </View>
     </Modal>
   );
 }

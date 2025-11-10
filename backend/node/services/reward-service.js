@@ -56,6 +56,7 @@ async function createReward(command) {
       name: command.name,
       description: command.description,
       reward_type: command.reward_type,
+      effect_value: command.effect_value,
       token_cost: command.token_cost,
       discount_percentage: command.discount_percentage,
       discount_amount: command.discount_amount,
@@ -94,6 +95,7 @@ async function updateReward(command) {
     if (command.name !== undefined) payload.name = command.name;
     if (command.description !== undefined) payload.description = command.description;
     if (command.reward_type !== undefined) payload.reward_type = command.reward_type;
+    if (command.effect_value !== undefined) payload.effect_value = command.effect_value;
     if (command.token_cost !== undefined) payload.token_cost = command.token_cost;
     if (command.discount_percentage !== undefined) payload.discount_percentage = command.discount_percentage;
     if (command.discount_amount !== undefined) payload.discount_amount = command.discount_amount;
@@ -194,6 +196,80 @@ async function createRewardCode(command) {
 // ============================================================================
 // CLAIMED REWARDS
 // ============================================================================
+
+/**
+ * Aplica el efecto de una recompensa al perfil del usuario
+ * @param {number} userId - ID del UserProfile
+ * @param {string} rewardType - Tipo de recompensa ('pase_gratis', 'descuento', etc.)
+ * @param {number} effectValue - Valor del efecto (ej: días de premium)
+ * @param {Object} options - Opciones de transacción
+ * @returns {Promise<void>}
+ */
+async function applyRewardEffect(userId, rewardType, effectValue, options = {}) {
+  const { transaction } = options;
+  const { UserProfile } = require('../models');
+
+  switch (rewardType.toLowerCase()) {
+    case 'pase_gratis': {
+      // Extender o activar subscripción premium por X días
+      const userProfile = await UserProfile.findByPk(userId, { transaction });
+      if (!userProfile) {
+        throw new NotFoundError('Usuario no encontrado');
+      }
+
+      const now = new Date();
+      let newExpirationDate;
+
+      // Si el usuario ya tiene premium activo, extender la fecha de expiración
+      if (
+        userProfile.app_tier === 'PREMIUM' &&
+        userProfile.premium_expires &&
+        new Date(userProfile.premium_expires) > now
+      ) {
+        // Extender desde la fecha de expiración actual
+        const currentExpiration = new Date(userProfile.premium_expires);
+        newExpirationDate = new Date(currentExpiration);
+        newExpirationDate.setDate(newExpirationDate.getDate() + effectValue);
+      } else {
+        // Activar premium desde ahora
+        newExpirationDate = new Date(now);
+        newExpirationDate.setDate(newExpirationDate.getDate() + effectValue);
+      }
+
+      // Actualizar el perfil
+      await userProfile.update(
+        {
+          app_tier: 'PREMIUM',
+          premium_since: userProfile.premium_since || now,
+          premium_expires: newExpirationDate,
+        },
+        { transaction }
+      );
+      break;
+    }
+
+    case 'descuento': {
+      // Para descuentos, el efecto podría almacenarse en metadata del ClaimedReward
+      // o en una tabla de descuentos pendientes. Por ahora, no hacemos nada adicional
+      // ya que el descuento se aplica al momento de usar la recompensa
+      break;
+    }
+
+    case 'producto':
+    case 'servicio':
+    case 'merchandising':
+    case 'otro': {
+      // Estos tipos no requieren modificación automática del perfil
+      // El efecto se aplica cuando el usuario presente la recompensa en el gimnasio
+      break;
+    }
+
+    default: {
+      // Tipo no reconocido, no hacer nada
+      break;
+    }
+  }
+}
 
 /**
  * Lista recompensas canjeadas
@@ -317,6 +393,16 @@ async function claimReward(command) {
     // 8. Marcar código como usado si se usó
     if (codeToUse) {
       await rewardRepository.markRewardCodeAsUsed(command.codeId, { transaction });
+    }
+
+    // 9. Aplicar efectos de la recompensa según reward_type y effect_value
+    if (reward.reward_type && reward.effect_value) {
+      await applyRewardEffect(
+        command.userId,
+        reward.reward_type,
+        reward.effect_value,
+        { transaction }
+      );
     }
 
     await transaction.commit();

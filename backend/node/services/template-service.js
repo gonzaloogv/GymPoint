@@ -14,20 +14,82 @@ const getUserRoutineCounts = async (idUserProfile) => {
 const Exercise = require('../models/Exercise');
 
 const getRecommendedRoutines = async (difficulty = 'BEGINNER', limit = 5) => {
-  return await Routine.findAll({
+  const RoutineDay = require('../models/RoutineDay');
+
+  const routines = await Routine.findAll({
     where: {
       is_template: true,
       recommended_for: difficulty
     },
     order: [['template_order', 'ASC']],
-    limit
+    limit,
+    include: [
+      {
+        model: Exercise,
+        as: 'Exercises',
+        through: {
+          attributes: ['sets', 'reps', 'exercise_order', 'id_routine_day']
+        },
+        attributes: ['id_exercise', 'exercise_name', 'muscular_group', 'difficulty_level', 'description']
+      },
+      {
+        model: RoutineDay,
+        as: 'days',
+        attributes: ['id_routine_day', 'day_number', 'day_name', 'description'],
+        include: [{
+          model: RoutineExercise,
+          as: 'routineExercises',
+          attributes: ['id_exercise', 'sets', 'reps', 'exercise_order'],
+          include: [{
+            model: Exercise,
+            as: 'exercise',
+            attributes: ['id_exercise', 'exercise_name', 'muscular_group', 'difficulty_level', 'description']
+          }]
+        }]
+      }
+    ]
+  });
+
+  // Transformar al formato esperado por el frontend
+  return routines.map(routine => {
+    const plainRoutine = routine.get({ plain: true });
+    return {
+      ...plainRoutine,
+      exercises: plainRoutine.Exercises?.map(ex => ({
+        id_exercise: ex.id_exercise,
+        exercise_name: ex.exercise_name,
+        muscular_group: ex.muscular_group,
+        difficulty_level: ex.difficulty_level,
+        description: ex.description,
+        series: ex.RoutineExercise?.sets,
+        reps: ex.RoutineExercise?.reps,
+        order: ex.RoutineExercise?.exercise_order,
+        id_routine_day: ex.RoutineExercise?.id_routine_day
+      })) || [],
+      days: plainRoutine.days?.map(day => ({
+        id_routine_day: day.id_routine_day,
+        day_number: day.day_number,
+        title: day.day_name,
+        description: day.description,
+        exercises: day.routineExercises?.map(re => ({
+          id_exercise: re.exercise?.id_exercise,
+          exercise_name: re.exercise?.exercise_name,
+          muscular_group: re.exercise?.muscular_group,
+          difficulty_level: re.exercise?.difficulty_level,
+          description: re.exercise?.description,
+          series: re.sets,
+          reps: re.reps,
+          order: re.exercise_order
+        })) || []
+      })) || []
+    };
   });
 };
 
 const importTemplate = async (userId, templateRoutineId) => {
   // Limites por suscripción para importación
-  const profile = await UserProfile.findByPk(userId, { attributes: ['subscription'] });
-  const subscription = profile?.subscription || SUBSCRIPTION_TYPES.FREE;
+  const profile = await UserProfile.findByPk(userId, { attributes: ['app_tier'] });
+  const subscription = profile?.app_tier || SUBSCRIPTION_TYPES.FREE;
   const { totalOwned } = await getUserRoutineCounts(userId);
   
   if (subscription === SUBSCRIPTION_TYPES.FREE) {
@@ -46,6 +108,26 @@ const importTemplate = async (userId, templateRoutineId) => {
   const template = await Routine.findByPk(templateRoutineId);
   if (!template || !template.is_template) {
     throw new NotFoundError('Plantilla');
+  }
+
+  // Verificar si el usuario ya tiene esta plantilla importada y no eliminada
+  const alreadyImported = await UserImportedRoutine.findOne({
+    where: {
+      id_user_profile: userId,
+      id_template_routine: templateRoutineId
+    },
+    include: [{
+      model: Routine,
+      as: 'userRoutine',
+      where: {
+        deleted_at: null
+      },
+      required: true
+    }]
+  });
+
+  if (alreadyImported) {
+    throw new BusinessError('Ya tienes esta rutina en tu lista', 'ALREADY_IMPORTED');
   }
 
   // Crear copia
@@ -73,13 +155,13 @@ const importTemplate = async (userId, templateRoutineId) => {
 
   await UserImportedRoutine.create({
     id_user_profile: userId,
-    id_routine_original: templateRoutineId,
-    id_routine_copy: copy.id_routine
+    id_template_routine: templateRoutineId,
+    id_user_routine: copy.id_routine
   });
 
   // Retornar copia con ejercicios
   const withExercises = await Routine.findByPk(copy.id_routine, {
-    include: [{ model: Exercise, through: { attributes: ['series', 'reps', 'order'] } }]
+    include: [{ model: Exercise, as: 'Exercises', through: { attributes: ['sets', 'reps', 'exercise_order'] } }]
   });
   return withExercises;
 };

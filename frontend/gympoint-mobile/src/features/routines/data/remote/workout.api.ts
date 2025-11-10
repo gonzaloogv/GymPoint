@@ -49,6 +49,9 @@ export const workoutApi = {
    */
   getMySessions: async (params?: {
     status?: 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+    id_routine?: number;
+    start_date?: string;
+    end_date?: string;
     page?: number;
     limit?: number;
   }): Promise<WorkoutSessionsApiResponse> => {
@@ -177,5 +180,32 @@ export const workoutApi = {
    */
   deleteSet: async (setId: number): Promise<void> => {
     await apiClient.delete(`${BASE_PATH}/sets/${setId}`);
+  },
+
+  /**
+   * POST /api/workouts/exercises/last-sets
+   * Obtener los últimos sets de ejercicios específicos
+   */
+  getLastSetsForExercises: async (
+    exerciseIds: number[]
+  ): Promise<{
+    data: Array<{
+      id_exercise: number;
+      last_weight: number;
+      last_reps: number;
+      has_history: boolean;
+    }>;
+  }> => {
+    const response = await apiClient.post<{
+      data: Array<{
+        id_exercise: number;
+        last_weight: number;
+        last_reps: number;
+        has_history: boolean;
+      }>;
+    }>(`${BASE_PATH}/exercises/last-sets`, {
+      exercise_ids: exerciseIds,
+    });
+    return response.data;
   },
 };

@@ -3,14 +3,15 @@ import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import dumbbellIcon from '@assets/dumbbell.png';
 import {
+  SurfaceScreen,
   Button,
   Card,
   Divider,
   FormField,
   Input,
-  Screen,
+  PasswordInput,
+  ErrorText,
   H1,
   H2,
   Row,
@@ -18,7 +19,6 @@ import {
 import { BrandMark } from '@shared/components/brand';
 import { useRegister } from '../hooks/useRegister';
 import { isValidEmail, isValidName, isValidPassword, passwordsMatch } from '@shared/utils/validation';
-
 import { GenderRadioGroup } from './components/GenderRadioGroup';
 import { LocationSelector } from './components/LocationSelector';
 import { FrequencySlider } from './components/FrequencySlider';
@@ -49,71 +49,47 @@ export default function RegisterScreen() {
   const [gender, setGender] = useState('');
   const [weeklyFrequency, setWeeklyFrequency] = useState(3);
 
+  const subtitleColor = isDark ? 'text-gray-400' : 'text-gray-500';
+
   const handleRegister = async () => {
-    // Validación de nombre
     if (!isValidName(name)) {
       Alert.alert('Error', 'El nombre debe tener al menos 2 caracteres');
       return;
     }
-
-    // Validación de apellido
     if (!isValidName(lastname)) {
       Alert.alert('Error', 'El apellido debe tener al menos 2 caracteres');
       return;
     }
-
-    // Validación de email
     if (!isValidEmail(email)) {
-      Alert.alert('Error', 'Por favor, ingresá un email válido');
+      Alert.alert('Error', 'Ingresá un email válido');
       return;
     }
-
-    // Validación de contraseña
     if (!isValidPassword(password)) {
       Alert.alert('Error', 'La contraseña debe tener al menos 8 caracteres');
       return;
     }
-
     if (password.length > 64) {
-      Alert.alert('Error', 'La contraseña no puede tener más de 64 caracteres');
+      Alert.alert('Error', 'La contraseña no puede superar los 64 caracteres');
       return;
     }
-
     if (!passwordsMatch(password, confirmPassword)) {
       Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
-
-    // Validación de fecha de nacimiento
     if (!birthDate) {
-      Alert.alert('Error', 'Por favor, seleccioná tu fecha de nacimiento');
+      Alert.alert('Error', 'Seleccioná tu fecha de nacimiento');
       return;
     }
-
-    // Validación de género
     if (!gender) {
-      Alert.alert('Error', 'Por favor, seleccioná tu género');
+      Alert.alert('Error', 'Seleccioná tu género');
       return;
     }
-
-    // Validación de localidad
     if (!location.trim()) {
-      Alert.alert('Error', 'Por favor, seleccioná tu provincia');
+      Alert.alert('Error', 'Seleccioná tu provincia');
       return;
     }
 
-    // Formatear fecha a YYYY-MM-DD para el backend
     const formattedBirthDate = birthDate.toISOString().split('T')[0];
-
-    console.log('🚀 Iniciando registro con datos:', {
-      name,
-      lastname,
-      email,
-      gender,
-      location,
-      birth_date: formattedBirthDate,
-      weeklyFrequency,
-    });
 
     const result = await register({
       fullName: `${name} ${lastname}`,
@@ -126,164 +102,132 @@ export default function RegisterScreen() {
     });
 
     if (result.success) {
-      console.log('✅ Registro exitoso, navegando a Login...');
-      Alert.alert(
-        'Cuenta creada',
-        'Tu cuenta ha sido creada exitosamente. Ahora podés iniciar sesión.',
-        [
-          {
-            text: 'Aceptar',
-            onPress: () => navigation.navigate('Login'),
-          },
-        ]
-      );
-    } else {
-      console.error('❌ Error en registro:', result.error);
-      Alert.alert(
-        'Error de registro',
-        result.error || 'No se pudo completar el registro. Verificá tus datos e intentá nuevamente.',
-        [{ text: 'Aceptar' }]
-      );
+      Alert.alert('Registro completo', 'Ya podés iniciar sesión.', [
+        { text: 'Iniciar sesión', onPress: () => navigation.navigate('Login') },
+      ]);
     }
   };
 
   const handleGoogle = () => console.log('Continuar con Google');
   const handleBackToLogin = () => navigation.navigate('Login');
 
-  const subtitleColor = isDark ? 'text-textSecondary-dark' : 'text-textSecondary';
-
   return (
-    <Screen
+    <SurfaceScreen
       scroll
-      safeAreaBottom
-      safeAreaTop
-      contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 16 }}
-      keyboardShouldPersistTaps="handled"
+      edges={['top', 'bottom']}
+      contentContainerStyle={{
+        paddingHorizontal: 16,
+        paddingTop: 32,
+        paddingBottom: 140,
+        alignItems: 'center',
+      }}
+      scrollProps={{ keyboardShouldPersistTaps: 'handled' }}
     >
-      <View className="flex-1 justify-center items-center py-6">
-        {/* Header */}
-        <View className="items-center mb-6">
-          <View className="w-16 h-16 bg-primary rounded-full items-center justify-center mb-3">
-            <Text className="text-3xl">🏋️</Text>
-          </View>
-          <H1 className="text-2xl">GymPoint</H1>
-          <Text className={`mt-1 text-center ${subtitleColor}`}>
-            Unite a la comunidad fitness
-          </Text>
+      <View className="items-center gap-3 mb-8 mt-8">
+        <View className="w-20 h-20 rounded-full bg-white/10 dark:bg-white/5 items-center justify-center">
+          <BrandMark size={64} />
         </View>
-
-        <Card variant="elevated" padding="lg" className="w-full max-w-md">
-          <H2 align="center" className="mb-6">
-            Crear cuenta
-          </H2>
-
-          <View className="w-full">
-            <FormField label="Nombre">
-              <Input
-                placeholder="Juan"
-                value={name}
-                onChangeText={setName}
-                maxLength={80}
-              />
-            </FormField>
-
-            <FormField label="Apellido">
-              <Input
-                placeholder="Pérez"
-                value={lastname}
-                onChangeText={setLastname}
-                maxLength={80}
-              />
-            </FormField>
-
-            <FormField label="Email">
-              <Input
-                placeholder="tu@email.com"
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-              />
-            </FormField>
-
-            <FormField label="Contraseña" hint="Mínimo 8 caracteres">
-              <Input
-                type='password'
-                placeholder="••••••••"
-                value={password}
-                onChangeText={setPassword}
-                maxLength={64}
-              />
-            </FormField>
-
-            <FormField label="Confirmar contraseña">
-              <Input
-                type='password'
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                maxLength={64}
-              />
-            </FormField>
-
-            <FormField label="Provincia">
-              <LocationSelector value={location} onChange={setLocation} />
-            </FormField>
-
-            <FormField label="Fecha de nacimiento">
-              <BirthDatePicker value={birthDate} onChange={setBirthDate} />
-            </FormField>
-
-            <FormField label="Género">
-              <GenderRadioGroup value={gender} onChange={setGender} />
-            </FormField>
-
-            <FormField
-              label={`Frecuencia semanal: ${weeklyFrequency} ${
-                weeklyFrequency === 1 ? 'día' : 'días'
-              }`}
-            >
-              <FrequencySlider
-                value={weeklyFrequency}
-                onChange={setWeeklyFrequency}
-              />
-            </FormField>
-
-            {error && (
-              <Text className="text-sm text-error mt-2 text-center">
-                {error}
-              </Text>
-            )}
-
-            <Button
-              onPress={handleRegister}
-              disabled={loading}
-              loading={loading}
-              fullWidth
-              className="mt-4"
-            >
-              Crear cuenta
-            </Button>
-          </View>
-
-          <Divider text="o" />
-
-          <Button onPress={handleGoogle} variant="secondary" fullWidth>
-            Continuar con Google
-          </Button>
-
-          <View className="items-center mt-4">
-            <Row justify="center">
-              <Text className={subtitleColor}>¿Ya tenés cuenta? </Text>
-              <TouchableOpacity onPress={handleBackToLogin}>
-                <Text className="font-semibold text-primary">
-                  Iniciar sesión
-                </Text>
-              </TouchableOpacity>
-            </Row>
-          </View>
-        </Card>
+        <H1>GymPoint</H1>
+        <Text className={`text-center px-8 ${subtitleColor}`}>
+          Unite y empezá a seguir tus entrenamientos desde un mismo lugar.
+        </Text>
       </View>
-    </Screen>
+
+      <View className="w-full max-w-2xl">
+          <Card
+            variant="elevated"
+            padding="lg"
+          >
+            <H2 align="center" className="mb-6">
+              Crear cuenta
+            </H2>
+
+            <View className="w-full gap-3">
+              <FormField label="Nombre">
+                <Input
+                  placeholder="Juan"
+                  value={name}
+                  onChangeText={setName}
+                  maxLength={80}
+                />
+              </FormField>
+
+              <FormField label="Apellido">
+                <Input
+                  placeholder="Pérez"
+                  value={lastname}
+                  onChangeText={setLastname}
+                  maxLength={80}
+                />
+              </FormField>
+
+              <FormField label="Email">
+                <Input
+                  placeholder="tu@email.com"
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                />
+              </FormField>
+
+              <FormField label="Contraseña" hint="Mínimo 8 caracteres">
+                <PasswordInput
+                  placeholder="********"
+                  value={password}
+                  onChangeText={setPassword}
+                  maxLength={64}
+                />
+              </FormField>
+
+              <FormField label="Confirmar contraseña">
+                <PasswordInput
+                  placeholder="********"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  maxLength={64}
+                />
+              </FormField>
+
+              <FormField label="Provincia">
+                <LocationSelector value={location} onChange={setLocation} />
+              </FormField>
+
+              <FormField label="Fecha de nacimiento">
+                <BirthDatePicker value={birthDate} onChange={setBirthDate} />
+              </FormField>
+
+              <FormField label="Género">
+                <GenderRadioGroup value={gender} onChange={setGender} />
+              </FormField>
+
+              <FormField label={`Frecuencia semanal: ${weeklyFrequency} ${weeklyFrequency === 1 ? 'día' : 'días'}`}>
+                <FrequencySlider value={weeklyFrequency} onChange={setWeeklyFrequency} />
+              </FormField>
+
+              {error ? <ErrorText className="text-center">{error}</ErrorText> : null}
+
+              <Button onPress={handleRegister} disabled={loading} loading={loading} fullWidth className="mt-2">
+                Crear cuenta
+              </Button>
+            </View>
+
+            <Divider text="o" className="my-6" />
+
+            <Button onPress={handleGoogle} variant="secondary" fullWidth>
+              Continuar con Google
+            </Button>
+
+            <View className="items-center mt-4">
+              <Row justify="center">
+                <Text className={subtitleColor}>¿Ya tenés cuenta? </Text>
+                <TouchableOpacity onPress={handleBackToLogin}>
+                  <Text className="font-semibold text-primary">Iniciar sesión</Text>
+                </TouchableOpacity>
+              </Row>
+            </View>
+          </Card>
+        </View>
+    </SurfaceScreen>
   );
 }

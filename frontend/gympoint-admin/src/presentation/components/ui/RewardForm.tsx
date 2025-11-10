@@ -14,6 +14,7 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
     name: '',
     description: '',
     reward_type: 'descuento',
+    effect_value: null,
     cost_tokens: 50,
     stock: 100,
     start_date: '',
@@ -31,6 +32,7 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
         name: reward.name,
         description: reward.description,
         reward_type: reward.reward_type || 'descuento', // Usar 'descuento' por defecto si es null/undefined
+        effect_value: reward.effect_value || null,
         cost_tokens: reward.cost_tokens,
         stock: reward.stock,
         start_date: reward.start_date ? reward.start_date.split('T')[0] : '',
@@ -78,6 +80,17 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
         newErrors.finish_date = 'La fecha de fin debe ser posterior a la de inicio';
       }
     }
+
+    // Validar effect_value según el tipo de recompensa
+    if (formData.reward_type === 'pase_gratis' || formData.reward_type === 'descuento') {
+      if (!formData.effect_value || formData.effect_value <= 0) {
+        newErrors.effect_value = 'El valor del efecto es requerido y debe ser mayor a 0';
+      }
+      if (formData.reward_type === 'descuento' && formData.effect_value && formData.effect_value > 100) {
+        newErrors.effect_value = 'El porcentaje de descuento no puede ser mayor a 100';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -89,10 +102,49 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
     }
   };
 
-  const rewardTypeOptions = REWARD_TYPES.map(type => ({ 
-    value: type, 
-    label: type.replace(/_/g, ' ').toUpperCase() 
+  // Mapeo de tipos a nombres descriptivos en español
+  const getRewardTypeLabel = (type: string): string => {
+    const labels: Record<string, string> = {
+      'descuento': '💰 Descuento',
+      'pase_gratis': '🎟️ Pase Premium Gratis',
+      'producto': '📦 Producto Físico',
+      'servicio': '✨ Servicio Especial',
+      'merchandising': '👕 Merchandising',
+      'otro': '🎁 Otro'
+    };
+    return labels[type] || type;
+  };
+
+  const rewardTypeOptions = REWARD_TYPES.map(type => ({
+    value: type,
+    label: getRewardTypeLabel(type)
   }));
+
+  // Helper para obtener el placeholder y label del effect_value según el tipo
+  const getEffectValueInfo = () => {
+    switch (formData.reward_type) {
+      case 'pase_gratis':
+        return {
+          label: '⏰ Días de Premium',
+          placeholder: 'Ej: 1, 7, 30',
+          description: 'Cantidad de días de suscripción premium que otorga esta recompensa'
+        };
+      case 'descuento':
+        return {
+          label: '💯 Porcentaje de Descuento',
+          placeholder: 'Ej: 10, 20, 50',
+          description: 'Porcentaje de descuento a aplicar (0-100)'
+        };
+      default:
+        return {
+          label: '🎁 Valor del Efecto',
+          placeholder: 'Valor numérico',
+          description: 'Valor asociado al efecto de la recompensa (opcional)'
+        };
+    }
+  };
+
+  const effectInfo = getEffectValueInfo();
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -116,6 +168,27 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
           options={rewardTypeOptions}
         />
       </div>
+
+      {/* Campo effect_value - solo para tipos que lo necesitan */}
+      {(formData.reward_type === 'pase_gratis' || formData.reward_type === 'descuento') && (
+        <div className="space-y-1">
+          <Input
+            label={effectInfo.label + ' *'}
+            type="number"
+            name="effect_value"
+            value={formData.effect_value || ''}
+            onChange={handleChange}
+            min={1}
+            max={formData.reward_type === 'descuento' ? 100 : undefined}
+            placeholder={effectInfo.placeholder}
+            disabled={isLoading}
+            error={errors.effect_value}
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400 ml-1">
+            ℹ️ {effectInfo.description}
+          </p>
+        </div>
+      )}
 
       <Textarea
         label="📝 Descripción *"

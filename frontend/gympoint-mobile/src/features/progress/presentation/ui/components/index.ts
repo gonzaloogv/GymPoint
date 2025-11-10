@@ -3,6 +3,7 @@ export { MeasurementModal } from './MeasurementModal';
 export { MetricsGrid } from './MetricsGrid';
 export { ProgressChart } from './ProgressChart';
 export { ProgressSection } from './ProgressSection';
+export { ProgressOverviewHeader } from './ProgressOverviewHeader';
 export { TimePeriodSelector } from './TimePeriodSelector';
 export { TimeSelector } from './TimeSelector';
 export { TokenCard } from './TokenCard';

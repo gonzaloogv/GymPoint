@@ -14,6 +14,7 @@ function toReward(model) {
     name: model.name,
     description: model.description,
     reward_type: model.reward_type,
+    effect_value: model.effect_value,
     token_cost: model.token_cost,
     discount_percentage: model.discount_percentage,
     discount_amount: model.discount_amount,
@@ -58,8 +59,8 @@ function toRewardCode(model) {
   };
 
   // Incluir relación Reward si está presente
-  if (model.Reward) {
-    pojo.Reward = toReward(model.Reward);
+  if (model.reward) {
+    pojo.Reward = toReward(model.reward);
   }
 
   return pojo;
@@ -91,11 +92,11 @@ function toClaimedReward(model) {
   };
 
   // Incluir relaciones si están presentes
-  if (model.Reward) {
-    pojo.Reward = toReward(model.Reward);
+  if (model.reward) {
+    pojo.Reward = toReward(model.reward);
   }
-  if (model.RewardCode) {
-    pojo.RewardCode = toRewardCode(model.RewardCode);
+  if (model.code) {
+    pojo.RewardCode = toRewardCode(model.code);
   }
   if (model.UserProfile) {
     pojo.UserProfile = toUserProfile(model.UserProfile);

@@ -1,68 +1,64 @@
 import React from 'react';
 import { FlatList, View } from 'react-native';
 import { User } from '@features/auth/domain/entities/User';
-import { Reward, GeneratedCode } from '@features/rewards/domain/entities';
-import { RewardItem, GeneratedCodeItem, EmptyCodes, EmptyRewards } from './';
+import { Reward } from '@features/rewards/domain/entities';
+import { RewardItem, EmptyRewards } from './';
 
-type TabType = 'available' | 'codes';
+// COMENTADO: Sistema sin códigos por ahora - imports eliminados
+// import { GeneratedCode } from '@features/rewards/domain/entities';
+// import { GeneratedCodeItem, EmptyCodes } from './';
 
 type RewardsContentProps = {
-  activeTab: TabType;
+  activeTab?: 'available'; // Opcional porque siempre es 'available'
   user: User;
   rewards: Reward[];
-  generatedCodes: GeneratedCode[];
   onGenerate: (reward: Reward) => void;
-  onCopy: (code: string) => void;
-  onToggleCode: (code: GeneratedCode) => void;
-  onViewRewards: () => void;
+  // COMENTADO: Sistema sin códigos por ahora
+  // generatedCodes: GeneratedCode[];
+  // onCopy: (code: string) => void;
+  // onToggleCode: (code: GeneratedCode) => void;
+  // onViewRewards: () => void;
 };
 
 export const RewardsContent: React.FC<RewardsContentProps> = ({
-  activeTab,
   user,
   rewards,
-  generatedCodes,
   onGenerate,
-  onCopy,
-  onToggleCode,
-  onViewRewards,
 }) => {
   // Renderizado para REWARD ITEM
   const renderRewardItem = ({ item }: { item: Reward }) => (
     <RewardItem reward={item} tokens={user.tokens} onGenerate={onGenerate} />
   );
 
-  // Renderizado para GENERATED CODE ITEM
-  const renderCodeItem = ({ item }: { item: GeneratedCode }) => (
-    <GeneratedCodeItem item={item} onCopy={onCopy} onToggle={onToggleCode} />
-  );
+  // COMENTADO: Sistema sin códigos por ahora
+  // const renderCodeItem = ({ item }: { item: GeneratedCode }) => (
+  //   <GeneratedCodeItem item={item} onCopy={onCopy} onToggle={onToggleCode} />
+  // );
 
   return (
     <View className="pt-5 min-h-52">
-      {activeTab === 'available' && (
-        <FlatList
-          data={rewards}
-          keyExtractor={(item) => item.id}
-          renderItem={renderRewardItem}
-          scrollEnabled={false}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 16 }}
-          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-          ListEmptyComponent={() => <EmptyRewards />}
-        />
-      )}
-      {activeTab === 'codes' && (
-        <FlatList
-          data={generatedCodes}
-          keyExtractor={(item) => item.id}
-          renderItem={renderCodeItem}
-          scrollEnabled={false}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 16 }}
-          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-          ListEmptyComponent={() => <EmptyCodes onViewRewards={onViewRewards} />}
-        />
-      )}
+      <FlatList
+        data={rewards}
+        keyExtractor={(item) => item.id}
+        renderItem={renderRewardItem}
+        scrollEnabled={false}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 16 }}
+        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        ListEmptyComponent={() => <EmptyRewards />}
+      />
+
+      {/* COMENTADO: Sistema sin códigos por ahora */}
+      {/* <FlatList
+        data={generatedCodes}
+        keyExtractor={(item) => item.id}
+        renderItem={renderCodeItem}
+        scrollEnabled={false}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 16 }}
+        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        ListEmptyComponent={() => <EmptyCodes onViewRewards={onViewRewards} />}
+      /> */}
     </View>
   );
 };

@@ -72,6 +72,23 @@ paths:
               - IN_PROGRESS
               - COMPLETED
               - CANCELLED
+        - name: id_routine
+          in: query
+          description: Filtrar por ID de rutina
+          schema:
+            type: integer
+        - name: start_date
+          in: query
+          description: Fecha de inicio para filtrar sesiones
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: Fecha de fin para filtrar sesiones
+          schema:
+            type: string
+            format: date
       responses:
         '200':
           description: Lista de sesiones
@@ -327,3 +344,49 @@ paths:
           description: Set eliminado
         '404':
           $ref: ../components/responses.yaml#/components/responses/NotFound
+  /api/workouts/exercises/last-sets:
+    post:
+      operationId: getLastSetsForExercises
+      tags:
+        - Workouts
+      summary: Obtener últimos sets de ejercicios específicos
+      description: Retorna el último peso y repeticiones registrados para los ejercicios especificados
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                exercise_ids:
+                  type: array
+                  items:
+                    type: integer
+                  description: IDs de los ejercicios
+              required:
+                - exercise_ids
+      responses:
+        '200':
+          description: Últimos sets obtenidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id_exercise:
+                          type: integer
+                        last_weight:
+                          type: number
+                        last_reps:
+                          type: integer
+                        has_history:
+                          type: boolean
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest

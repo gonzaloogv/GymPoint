@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
-import { InfoCard } from '@shared/components/ui';
+import { InfoCard, LoadMoreButton } from '@shared/components/ui';
 import type { ExerciseHistoryItem } from '../../hooks/useExerciseProgress';
 
 interface ExerciseHistoryListProps {
@@ -182,23 +182,12 @@ export function ExerciseHistoryList({ history, loading = false }: ExerciseHistor
 
           {/* Ver más button */}
           {hasMore && (
-            <Pressable
-              onPress={() => setItemsToShow(prev => prev + ITEMS_PER_PAGE)}
-              className={`mt-4 py-3 px-4 rounded-lg border ${
-                isDark ? 'bg-gray-700/50 border-gray-600' : 'bg-gray-50 border-gray-200'
-              }`}
-            >
-              <View className="flex-row items-center justify-center gap-2">
-                <Text className={`text-sm font-semibold ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
-                  Ver más ({history.length - itemsToShow} restantes)
-                </Text>
-                <Ionicons
-                  name="chevron-down"
-                  size={16}
-                  color={isDark ? '#60A5FA' : '#3B82F6'}
-                />
-              </View>
-            </Pressable>
+            <View className="mt-4">
+              <LoadMoreButton
+                onPress={() => setItemsToShow(prev => prev + ITEMS_PER_PAGE)}
+                remainingItems={history.length - itemsToShow}
+              />
+            </View>
           )}
         </View>
       )}

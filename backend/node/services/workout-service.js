@@ -191,6 +191,7 @@ const listWorkoutSessions = async (query) => {
 
   return workoutRepository.findWorkoutSessions({
     idUserProfile: q.idUserProfile,
+    idRoutine: q.idRoutine,
     status: q.status,
     startDate: q.startDate,
     endDate: q.endDate
@@ -650,6 +651,30 @@ const obtenerSesionesPorUsuario = async (id_user_profile, { status, limit = 20, 
   });
 };
 
+/**
+ * Get last sets for specific exercises from user's workout history
+ * @param {object} query - GetLastSetsForExercisesQuery object
+ * @returns {Promise<Array>} Array of last sets per exercise
+ */
+const getLastSetsForExercises = async (query) => {
+  const q = ensureQuery(query);
+
+  if (!q.idUserProfile) {
+    throw new ValidationError('User profile ID is required');
+  }
+
+  if (!q.exerciseIds || !Array.isArray(q.exerciseIds) || q.exerciseIds.length === 0) {
+    return [];
+  }
+
+  const lastSets = await workoutRepository.findLastSetsForExercises(
+    q.idUserProfile,
+    q.exerciseIds
+  );
+
+  return lastSets;
+};
+
 module.exports = {
   // Query operations
   getWorkoutSession,
@@ -659,6 +684,7 @@ module.exports = {
   getWorkoutSet,
   listWorkoutSets,
   getWorkoutStats,
+  getLastSetsForExercises,
 
   // Command operations
   startWorkoutSession,

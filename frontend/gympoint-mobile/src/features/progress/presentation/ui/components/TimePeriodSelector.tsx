@@ -21,23 +21,45 @@ export function TimePeriodSelector({ value, onChange }: TimePeriodSelectorProps)
   const isDark = theme === 'dark';
   const [isOpen, setIsOpen] = useState(false);
 
-  const bgColor = isDark ? '#1F2937' : '#FFFFFF';
-  const borderColor = isDark ? '#374151' : '#E5E7EB';
-  const textColor = isDark ? '#FFFFFF' : '#111827';
+  const bgColor = isDark ? '#111827' : '#ffffff';
+  const borderColor = isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB';
+  const textColor = isDark ? '#F9FAFB' : '#111827';
   const labelColor = isDark ? '#9CA3AF' : '#6B7280';
 
+  const shadowStyle = isDark
+    ? {
+        shadowColor: '#000000',
+        shadowOpacity: 0.35,
+        shadowOffset: { width: 0, height: 18 },
+        shadowRadius: 24,
+        elevation: 10,
+      }
+    : {
+        shadowColor: '#4338CA',
+        shadowOpacity: 0.12,
+        shadowOffset: { width: 0, height: 12 },
+        shadowRadius: 22,
+        elevation: 5,
+      };
+
   return (
-    <View className="mb-6">
+    <View>
       {/* Label */}
-      <Text className="text-sm font-medium mb-2" style={{ color: labelColor }}>
+      <Text className="text-sm font-semibold mb-3" style={{ color: labelColor }}>
         Período de tiempo
       </Text>
 
       {/* Dropdown Trigger */}
       <Pressable
         onPress={() => setIsOpen(true)}
-        className="flex-row items-center justify-between px-4 py-3 rounded-lg border"
-        style={{ backgroundColor: bgColor, borderColor }}
+        className="flex-row items-center justify-between px-4 py-3 rounded-[24px] border"
+        style={[
+          {
+            backgroundColor: bgColor,
+            borderColor,
+          },
+          shadowStyle,
+        ]}
       >
         <Text className="text-base" style={{ color: textColor }}>
           {PERIOD_LABELS[value]}
@@ -62,8 +84,14 @@ export function TimePeriodSelector({ value, onChange }: TimePeriodSelectorProps)
           onPress={() => setIsOpen(false)}
         >
           <View
-            className="w-80 rounded-xl p-2"
-            style={{ backgroundColor: bgColor }}
+            className="w-80 rounded-[24px] p-2 border"
+            style={[
+              {
+                backgroundColor: bgColor,
+                borderColor,
+              },
+              shadowStyle,
+            ]}
           >
             {Object.entries(PERIOD_LABELS).map(([period, label]) => (
               <Pressable

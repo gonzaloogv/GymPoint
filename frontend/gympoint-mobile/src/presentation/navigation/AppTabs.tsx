@@ -16,6 +16,7 @@ import { GymsScreen } from '@features/gyms';
 import { GymDetailScreenWrapper } from '@features/gyms/presentation/ui/screens/GymDetailScreenWrapper';
 import { HomeScreen } from '@features/home';
 import { UserProfileScreen } from '@features/user';
+import { clearAllRoutineData } from '@features/routines/data/datasources/incompleteSessionLocalDataSource';
 import {
   RoutineDetailScreen,
   RoutineExecutionScreen,
@@ -25,6 +26,7 @@ import {
   RoutineCompletedScreen,
   CreateRoutineScreen,
   ImportRoutineScreen,
+  TemplateDetailScreen,
 } from '@features/routines';
 import {
   ProgressScreen,
@@ -57,6 +59,11 @@ function RoutinesStackNavigator() {
       <RoutinesStack.Screen
         name="ImportRoutine"
         component={ImportRoutineScreen}
+        options={{ headerShown: false }}
+      />
+      <RoutinesStack.Screen
+        name="TemplateDetail"
+        component={TemplateDetailScreen}
         options={{ headerShown: false }}
       />
       <RoutinesStack.Screen
@@ -157,8 +164,21 @@ export default function AppTabs() {
   );
 
 
-  const handleLogout = React.useCallback(() => {
+  const handleLogout = React.useCallback(async () => {
+    console.log('[AppTabs] 🚪 Logging out - clearing all user data...');
+
+    try {
+      // Clear all routine-related AsyncStorage data
+      await clearAllRoutineData();
+      console.log('[AppTabs] ✅ AsyncStorage cleared successfully');
+    } catch (error) {
+      console.error('[AppTabs] ❌ Error clearing AsyncStorage:', error);
+      // Continue with logout even if clearing fails
+    }
+
+    // Clear user session
     setUser(null);
+    console.log('[AppTabs] ✅ User logged out');
   }, [setUser]);
 
   const renderUserProfileScreen = React.useCallback(
@@ -177,9 +197,9 @@ export default function AppTabs() {
           backgroundColor: isDark ? '#1F2937' : '#FFFFFF',
           borderTopColor: isDark ? '#374151' : '#E5E7EB',
           elevation: 0,
-          height: TAB_BASE_HEIGHT + insets.bottom,
+          height: TAB_BASE_HEIGHT + insets.bottom - 8,
           paddingTop: 10,
-          paddingBottom: Math.max(insets.bottom, 8),
+          paddingBottom: insets.bottom,
         },
         tabBarIconStyle: {
           width: ITEM_MIN_WIDTH,

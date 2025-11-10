@@ -19,6 +19,7 @@
  * @property {string} name - Nombre de la recompensa
  * @property {string} description - Descripción
  * @property {string|null} reward_type - Tipo de recompensa (descuento, pase_gratis, producto, servicio, merchandising, otro)
+ * @property {number|null} effect_value - Valor del efecto (ej: días de premium, porcentaje de descuento)
  * @property {number} token_cost - Costo en tokens
  * @property {number|null} discount_percentage - Porcentaje de descuento
  * @property {number|null} discount_amount - Monto fijo de descuento
@@ -36,6 +37,7 @@ class CreateRewardCommand {
     name,
     description,
     reward_type = null,
+    effect_value = null,
     token_cost,
     discount_percentage = null,
     discount_amount = null,
@@ -51,6 +53,7 @@ class CreateRewardCommand {
     this.name = name;
     this.description = description;
     this.reward_type = reward_type;
+    this.effect_value = effect_value;
     this.token_cost = token_cost;
     this.discount_percentage = discount_percentage;
     this.discount_amount = discount_amount;
@@ -72,6 +75,7 @@ class CreateRewardCommand {
  * @property {string} [name] - Nombre
  * @property {string} [description] - Descripción
  * @property {string|null} [reward_type] - Tipo de recompensa
+ * @property {number|null} [effect_value] - Valor del efecto
  * @property {number} [token_cost] - Costo en tokens
  * @property {number|null} [discount_percentage] - Porcentaje de descuento
  * @property {number|null} [discount_amount] - Monto de descuento
@@ -89,6 +93,7 @@ class UpdateRewardCommand {
     name,
     description,
     reward_type,
+    effect_value,
     token_cost,
     discount_percentage,
     discount_amount,
@@ -104,6 +109,7 @@ class UpdateRewardCommand {
     this.name = name;
     this.description = description;
     this.reward_type = reward_type;
+    this.effect_value = effect_value;
     this.token_cost = token_cost;
     this.discount_percentage = discount_percentage;
     this.discount_amount = discount_amount;

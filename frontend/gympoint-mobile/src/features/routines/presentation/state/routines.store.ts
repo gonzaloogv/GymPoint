@@ -7,7 +7,9 @@ import { workoutRepository } from '../../data/WorkoutRepositoryImpl';
 import {
   saveIncompleteSession,
   getIncompleteSession,
-  clearIncompleteSession
+  clearIncompleteSession,
+  clearAllRoutineData,
+  checkAndUpdateDBVersion
 } from '../../data/datasources/incompleteSessionLocalDataSource';
 
 // Execution state types
@@ -74,9 +76,15 @@ interface RoutinesState {
   executionState: ExecutionState | null;
   incompleteSession: IncompleteSession | null;
 
-  // History (mock until backend implements)
+  // History
   history: RoutineSession[];
   loadingHistory: boolean;
+  historyPage: number;
+  historyHasMore: boolean;
+  historyFilters: {
+    startDate?: string;
+    endDate?: string;
+  };
 
   // Actions - use repositories directly (no use cases)
   fetchMyRoutines: () => Promise<void>;
@@ -93,9 +101,13 @@ interface RoutinesState {
   loadIncompleteSession: () => Promise<void>;
   resumeSession: () => void;
   updateIncompleteSessionProgress: (data: Partial<IncompleteSession>) => Promise<void>;
+  clearAllRoutineData: () => Promise<void>;
+  checkDBVersionAndCleanup: () => Promise<boolean>;
 
-  // History actions (mock for now)
-  fetchRoutineHistory: (routineId: number) => Promise<void>;
+  // History actions
+  fetchRoutineHistory: (routineId: number, reset?: boolean) => Promise<void>;
+  loadMoreHistory: (routineId: number) => Promise<void>;
+  setHistoryDateFilter: (startDate?: string, endDate?: string) => void;
 
   // Routine management
   deleteRoutine: (id: number) => Promise<void>;
@@ -123,11 +135,17 @@ export const useRoutinesStore = create<RoutinesState>()(
     incompleteSession: null,
     history: [],
     loadingHistory: false,
+    historyPage: 1,
+    historyHasMore: false,
+    historyFilters: {},
 
     // Fetch user's routines
     fetchMyRoutines: async () => {
       set({ loading: true, error: null });
       try {
+        // Check DB version and cleanup if needed (auto-detects DB resets)
+        await get().checkDBVersionAndCleanup();
+
         const routines = await routineRepository.getMyRoutines();
         set({ routines, loading: false });
       } catch (error) {
@@ -140,6 +158,9 @@ export const useRoutinesStore = create<RoutinesState>()(
     fetchTemplates: async () => {
       set({ loading: true, error: null });
       try {
+        // Check DB version and cleanup if needed (auto-detects DB resets)
+        await get().checkDBVersionAndCleanup();
+
         const templates = await routineRepository.getTemplates();
         set({ routines: templates, loading: false });
       } catch (error) {
@@ -167,9 +188,15 @@ export const useRoutinesStore = create<RoutinesState>()(
       try {
         const activeRoutine = await userRoutineRepository.getActiveRoutine();
         set({ activeRoutine, loading: false });
-      } catch (error) {
-        set({ error: (error as Error).message, loading: false });
-        throw error;
+      } catch (error: any) {
+        // 404 means no active routine assigned - this is valid
+        if (error?.response?.status === 404) {
+          console.log('[fetchActiveRoutine] ℹ️ No active routine found (404) - user has no assigned routine');
+          set({ activeRoutine: null, loading: false });
+        } else {
+          set({ error: (error as Error).message, loading: false });
+          throw error;
+        }
       }
     },
 
@@ -199,8 +226,13 @@ export const useRoutinesStore = create<RoutinesState>()(
                 try {
                   await workoutRepository.cancelSession(existingIncompleteSession.workoutSessionId);
                   console.log('[startExecution] ✅ Backend session cancelled');
-                } catch (cancelError) {
-                  console.warn('[startExecution] ⚠️ Could not cancel backend session:', cancelError);
+                } catch (cancelError: any) {
+                  // Silently ignore 404 errors (session already gone from backend)
+                  if (cancelError?.response?.status === 404) {
+                    console.log('[startExecution] ℹ️ Backend session already gone (404), continuing cleanup');
+                  } else {
+                    console.warn('[startExecution] ⚠️ Could not cancel backend session:', cancelError);
+                  }
                 }
               }
 
@@ -281,9 +313,17 @@ export const useRoutinesStore = create<RoutinesState>()(
                 await clearIncompleteSession();
                 set({ incompleteSession: null, executionState: null });
                 workoutSession = null;
-              } catch (cancelError) {
-                console.error('[startExecution] ❌ Error cancelling orphaned session:', cancelError);
-                throw new Error('ACTIVE_SESSION_EXISTS');
+              } catch (cancelError: any) {
+                // Silently ignore 404 errors (session already gone)
+                if (cancelError?.response?.status === 404) {
+                  console.log('[startExecution] ℹ️ Backend session already gone (404), continuing cleanup');
+                  await clearIncompleteSession();
+                  set({ incompleteSession: null, executionState: null });
+                  workoutSession = null;
+                } else {
+                  console.error('[startExecution] ❌ Error cancelling orphaned session:', cancelError);
+                  throw new Error('ACTIVE_SESSION_EXISTS');
+                }
               }
             } else {
               // Verify if the session's routine still exists
@@ -307,9 +347,17 @@ export const useRoutinesStore = create<RoutinesState>()(
 
                     // Session cleaned, continue with creating new session
                     workoutSession = null;
-                  } catch (cancelError) {
-                    console.error('[startExecution] ❌ Error cancelling orphaned session:', cancelError);
-                    throw new Error('ACTIVE_SESSION_EXISTS');
+                  } catch (cancelError: any) {
+                    // Silently ignore 404 errors (session already gone)
+                    if (cancelError?.response?.status === 404) {
+                      console.log('[startExecution] ℹ️ Backend session already gone (404), continuing cleanup');
+                      await clearIncompleteSession();
+                      set({ incompleteSession: null, executionState: null });
+                      workoutSession = null;
+                    } else {
+                      console.error('[startExecution] ❌ Error cancelling orphaned session:', cancelError);
+                      throw new Error('ACTIVE_SESSION_EXISTS');
+                    }
                   }
                 } else {
                   // Other error verifying routine, re-throw
@@ -553,8 +601,13 @@ export const useRoutinesStore = create<RoutinesState>()(
                 try {
                   await workoutRepository.cancelSession(session.workoutSessionId);
                   console.log('[loadIncompleteSession] ✅ Backend session cancelled');
-                } catch (cancelError) {
-                  console.warn('[loadIncompleteSession] ⚠️ Could not cancel backend session:', cancelError);
+                } catch (cancelError: any) {
+                  // Silently ignore 404 errors (session already gone from backend)
+                  if (cancelError?.response?.status === 404) {
+                    console.log('[loadIncompleteSession] ℹ️ Backend session already gone (404), continuing cleanup');
+                  } else {
+                    console.warn('[loadIncompleteSession] ⚠️ Could not cancel backend session:', cancelError);
+                  }
                 }
               }
 
@@ -620,34 +673,131 @@ export const useRoutinesStore = create<RoutinesState>()(
       console.log('[updateIncompleteSessionProgress] ✅ Guardado en AsyncStorage completado');
     },
 
-    // Fetch routine history
-    fetchRoutineHistory: async (routineId: number) => {
+    // Clear all routine data from AsyncStorage
+    clearAllRoutineData: async () => {
+      try {
+        console.log('[clearAllRoutineData] 🧹 Clearing all routine data from AsyncStorage...');
+
+        await clearAllRoutineData();
+
+        // Also clear state
+        set({
+          incompleteSession: null,
+          executionState: null,
+        });
+
+        console.log('[clearAllRoutineData] ✅ All routine data cleared');
+      } catch (error) {
+        console.error('[clearAllRoutineData] ❌ Error clearing routine data:', error);
+      }
+    },
+
+    // Check DB version and cleanup if needed
+    checkDBVersionAndCleanup: async () => {
+      try {
+        console.log('[checkDBVersionAndCleanup] 🔍 Checking DB version...');
+
+        // Fetch user's routines to use as DB fingerprint
+        const routines = await routineRepository.getMyRoutines();
+
+        if (routines.length === 0) {
+          console.log('[checkDBVersionAndCleanup] ℹ️ No routines found, skipping version check');
+          return false;
+        }
+
+        // Use the ID of the first routine + creation date as version fingerprint
+        const firstRoutine = routines[0];
+        const dbVersion = `${firstRoutine.id_routine}_${firstRoutine.created_at}`;
+
+        const wasCleared = await checkAndUpdateDBVersion(dbVersion);
+
+        if (wasCleared) {
+          console.log('[checkDBVersionAndCleanup] ⚠️ DB was reset, AsyncStorage cleared');
+          // Clear state as well
+          set({
+            incompleteSession: null,
+            executionState: null,
+          });
+        }
+
+        return wasCleared;
+      } catch (error) {
+        console.error('[checkDBVersionAndCleanup] ❌ Error checking DB version:', error);
+        return false;
+      }
+    },
+
+    // Fetch routine history (with pagination)
+    fetchRoutineHistory: async (routineId: number, reset: boolean = true) => {
       set({ loadingHistory: true, error: null });
 
       try {
-        // Get all completed sessions
-        const allSessions = await workoutRepository.getMySessions({
+        const { historyPage, historyFilters } = get();
+        const page = reset ? 1 : historyPage;
+        const limit = 5;
+
+        console.log('[fetchRoutineHistory] 📥 Fetching history for routine:', routineId, 'page:', page);
+
+        // Get completed sessions with pagination
+        const sessions = await workoutRepository.getMySessions({
           status: 'COMPLETED',
+          id_routine: routineId,
+          start_date: historyFilters.startDate,
+          end_date: historyFilters.endDate,
+          page,
+          limit,
         });
 
-        // Filter by routine ID and map to RoutineSession format
-        const routineSessions: RoutineSession[] = allSessions
-          .filter((session) => session.id_routine === routineId)
-          .map((session) => ({
-            id: session.id_workout_session.toString(),
-            routineId: session.id_routine?.toString() || '',
-            date: session.finished_at || session.started_at,
-            durationMin: session.duration_seconds ? Math.round(session.duration_seconds / 60) : 0,
-            completed: session.status === 'COMPLETED',
-            notes: session.notes || undefined,
-            logs: [], // Sets are not included in session list, would need separate fetch
-          }));
+        console.log('[fetchRoutineHistory] ✅ Fetched', sessions.length, 'sessions');
 
-        set({ history: routineSessions, loadingHistory: false });
+        // Map to RoutineSession format
+        const routineSessions: RoutineSession[] = sessions.map((session) => ({
+          id: session.id_workout_session.toString(),
+          routineId: session.id_routine?.toString() || '',
+          date: session.finished_at || session.started_at,
+          durationMin: session.duration_seconds ? Math.round(session.duration_seconds / 60) : 0,
+          completed: session.status === 'COMPLETED',
+          notes: session.notes || undefined,
+          logs: [], // Sets are not included in session list, would need separate fetch
+        }));
+
+        // If reset, replace history; otherwise, append
+        const newHistory = reset ? routineSessions : [...get().history, ...routineSessions];
+        const hasMore = sessions.length === limit;
+
+        set({
+          history: newHistory,
+          loadingHistory: false,
+          historyPage: page,
+          historyHasMore: hasMore,
+        });
       } catch (error) {
         console.error('[fetchRoutineHistory] ❌ Error fetching history:', error);
         set({ error: (error as Error).message, history: [], loadingHistory: false });
       }
+    },
+
+    // Load more history (pagination)
+    loadMoreHistory: async (routineId: number) => {
+      const { historyHasMore, loadingHistory, historyPage } = get();
+
+      if (!historyHasMore || loadingHistory) {
+        console.log('[loadMoreHistory] ⚠️ No more history to load or already loading');
+        return;
+      }
+
+      console.log('[loadMoreHistory] 📥 Loading page', historyPage + 1);
+      set({ historyPage: historyPage + 1 });
+      await get().fetchRoutineHistory(routineId, false);
+    },
+
+    // Set date filter for history
+    setHistoryDateFilter: (startDate?: string, endDate?: string) => {
+      console.log('[setHistoryDateFilter] 📅 Setting date filter:', { startDate, endDate });
+      set({
+        historyFilters: { startDate, endDate },
+        historyPage: 1,
+      });
     },
 
     // Delete routine

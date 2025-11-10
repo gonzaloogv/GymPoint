@@ -245,6 +245,16 @@ UserImportedRoutine.belongsTo(UserProfile, {
   as: 'user'
 });
 
+UserImportedRoutine.belongsTo(Routine, {
+  foreignKey: 'id_template_routine',
+  as: 'templateRoutine'
+});
+
+UserImportedRoutine.belongsTo(Routine, {
+  foreignKey: 'id_user_routine',
+  as: 'userRoutine'
+});
+
 // Gym ←→ Assistance
 Gym.hasMany(Assistance, {
   foreignKey: 'id_gym',
@@ -389,6 +399,17 @@ Reward.hasMany(ClaimedReward, {
 });
 
 ClaimedReward.belongsTo(Reward, {
+  foreignKey: 'id_reward',
+  as: 'reward'
+});
+
+// Reward ←→ RewardCode
+Reward.hasMany(RewardCode, {
+  foreignKey: 'id_reward',
+  as: 'codes'
+});
+
+RewardCode.belongsTo(Reward, {
   foreignKey: 'id_reward',
   as: 'reward'
 });

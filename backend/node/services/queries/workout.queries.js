@@ -11,8 +11,9 @@ class GetWorkoutSessionQuery {
 }
 
 class ListWorkoutSessionsQuery {
-  constructor({ idUserProfile, status = null, startDate = null, endDate = null, page = 1, limit = 20 }) {
+  constructor({ idUserProfile, idRoutine = null, status = null, startDate = null, endDate = null, page = 1, limit = 20 }) {
     this.idUserProfile = idUserProfile;
+    this.idRoutine = idRoutine; // Filter by routine if provided
     this.status = status; // 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'
     this.startDate = startDate;
     this.endDate = endDate;
@@ -54,6 +55,13 @@ class GetWorkoutSessionWithSetsQuery {
   }
 }
 
+class GetLastSetsForExercisesQuery {
+  constructor({ idUserProfile, exerciseIds }) {
+    this.idUserProfile = idUserProfile;
+    this.exerciseIds = exerciseIds; // Array de IDs de ejercicios
+  }
+}
+
 module.exports = {
   GetWorkoutSessionQuery,
   ListWorkoutSessionsQuery,
@@ -61,5 +69,6 @@ module.exports = {
   ListWorkoutSetsQuery,
   GetWorkoutStatsQuery,
   GetActiveWorkoutSessionQuery,
-  GetWorkoutSessionWithSetsQuery
+  GetWorkoutSessionWithSetsQuery,
+  GetLastSetsForExercisesQuery
 };

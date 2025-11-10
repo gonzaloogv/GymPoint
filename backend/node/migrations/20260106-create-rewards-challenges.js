@@ -59,6 +59,11 @@ module.exports = {
           allowNull: true,
           comment: 'Tipo de recompensa: descuento, pase_gratis, producto, servicio, merchandising, otro'
         },
+        effect_value: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          comment: 'Valor del efecto (ej: días de premium, % descuento, etc)'
+        },
         token_cost: {
           type: Sequelize.INTEGER,
           allowNull: false,

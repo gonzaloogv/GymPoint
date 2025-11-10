@@ -3,7 +3,8 @@
 import React from 'react';
 import { View } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { Screen } from '@shared/components/ui';
+import { SurfaceScreen } from '@shared/components/ui';
+import { BackButton } from '@shared/components/ui/BackButton';
 
 // 1. IMPORTACIONES DE DOMINIO Y HOOKS
 import { User } from '@features/auth/domain/entities/User';
@@ -23,10 +24,11 @@ import {
 interface RewardsScreenProps {
   user: User | null;
   onUpdateUser: (user: User) => void;
+  navigation?: any;
 }
 // ------------------------------------------------------------------------------------------------
 
-const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser }) => {
+const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser, navigation }) => {
 
   // Estado de carga
   if (!user) {
@@ -35,50 +37,60 @@ const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser }) => 
 
   // Hook con toda la lógica de rewards
   const {
-    activeTab,
-    setActiveTab,
+    // activeTab, // COMENTADO: Sin tabs por ahora
+    // setActiveTab, // COMENTADO: Sin tabs por ahora
     rewards,
-    generatedCodes,
+    // generatedCodes, // COMENTADO: Sistema sin códigos por ahora
     handleGenerate,
-    handleCopy,
-    handleToggleCode,
+    // handleCopy, // COMENTADO: Sistema sin códigos por ahora
+    // handleToggleCode, // COMENTADO: Sistema sin códigos por ahora
   } = useRewards({ user, onUpdateUser });
 
   // Handlers
-  const handleViewRewards = () => setActiveTab('available');
+  const handleGoBack = () => navigation?.goBack?.();
+  // const handleViewRewards = () => setActiveTab('available'); // COMENTADO: Sistema sin códigos por ahora
   const handlePremiumPress = () => {
     // TODO: Navegar a la pantalla Premium o modal
   };
 
+  const handleViewHistory = () => {
+    navigation?.navigate('TokenHistory');
+  };
+
   return (
-    <Screen scroll safeAreaTop contentContainerStyle={{ paddingBottom: 48, flexGrow: 1 }}>
-      <View className="flex-1 px-4">
-        {/* Header con título y tokens */}
-        <RewardsHeader user={user} />
-
-        {/* Banner Premium para usuarios Free */}
-        {user.plan === 'Free' && <PremiumUpsell onPress={handlePremiumPress} />}
-
-        {/* Sistema de pestañas */}
-        <RewardsTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-        {/* Contenido de las pestañas */}
-        <RewardsContent
-          activeTab={activeTab}
-          user={user}
-          rewards={rewards}
-          generatedCodes={generatedCodes}
-          onGenerate={handleGenerate}
-          onCopy={handleCopy}
-          onToggleCode={handleToggleCode}
-          onViewRewards={handleViewRewards}
-        />
-
-        {/* Banner de consejos */}
-        <TokensTips />
+    <SurfaceScreen
+      scroll
+      contentContainerStyle={{
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        paddingBottom: 140,
+        gap: 24,
+      }}
+    >
+      {/* Header con título y tokens */}
+      <View className="gap-4">
+        {navigation && <BackButton onPress={handleGoBack} />}
+        <RewardsHeader user={user} onViewHistory={handleViewHistory} />
       </View>
+
+      {/* Banner Premium para usuarios Free */}
+      {user.plan === 'Free' && <PremiumUpsell onPress={handlePremiumPress} />}
+
+      {/* Título de sección - antes eran tabs */}
+      <RewardsTabs />
+
+      {/* Contenido de recompensas disponibles */}
+      <RewardsContent
+        user={user}
+        rewards={rewards}
+        onGenerate={handleGenerate}
+      />
+
+      {/* Banner de consejos */}
+      <TokensTips />
+
       <Toast />
-    </Screen>
+    </SurfaceScreen>
   );
 };
 

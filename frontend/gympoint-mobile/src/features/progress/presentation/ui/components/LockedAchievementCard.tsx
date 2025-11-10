@@ -17,43 +17,86 @@ export const LockedAchievementCard: React.FC<LockedAchievementCardProps> = ({ ac
   const progress = achievement.currentProgress || 0;
   const target = achievement.targetValue;
 
+  const shadowStyle = isDark
+    ? {
+        shadowColor: '#000000',
+        shadowOpacity: 0.35,
+        shadowOffset: { width: 0, height: 18 },
+        shadowRadius: 26,
+        elevation: 12,
+      }
+    : {
+        shadowColor: '#4338CA',
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 14 },
+        shadowRadius: 22,
+        elevation: 6,
+      };
+
   return (
     <View
-      className={`p-4 rounded-xl mb-3 ${
-        isDark ? 'bg-gray-800 border border-gray-700' : 'bg-gray-50 border border-gray-200'
-      }`}
+      className="border rounded-[28px] px-5 py-[18px]"
+      style={[
+        {
+          backgroundColor: isDark ? '#111827' : '#ffffff',
+          borderColor: isDark ? 'rgba(75, 85, 99, 0.6)' : '#E5E7EB',
+        },
+        shadowStyle,
+      ]}
     >
-      {/* Badge de categoría */}
-      <View className="mb-2">
-        <AchievementCategoryBadge category={achievement.category} />
-      </View>
-
       <View className="flex-row items-start">
-        <View className="mr-3 opacity-40">
-          <Text style={{ fontSize: 48 }}>{achievement.icon}</Text>
+        {/* Icon Container */}
+        <View className="mr-4">
+          <View
+            className="w-14 h-14 rounded-[20px] border items-center justify-center opacity-40"
+            style={{
+              backgroundColor: isDark ? 'rgba(107, 114, 128, 0.22)' : 'rgba(156, 163, 175, 0.18)',
+              borderColor: isDark ? 'rgba(107, 114, 128, 0.38)' : 'rgba(156, 163, 175, 0.24)',
+            }}
+          >
+            <Ionicons
+              name="trophy-outline"
+              size={22}
+              color={isDark ? '#9CA3AF' : '#6B7280'}
+            />
+          </View>
         </View>
+
         <View className="flex-1">
+          {/* Category Badge */}
+          <View className="mb-2">
+            <AchievementCategoryBadge category={achievement.category} />
+          </View>
+
           <Text
-            className="font-bold text-lg mb-1"
+            className="text-lg font-bold"
             style={{ color: isDark ? '#F9FAFB' : '#111827' }}
           >
             {achievement.title}
           </Text>
 
           {achievement.description && (
-            <Text className={`text-xs mb-3 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+            <Text
+              className="mt-1.5 text-[13px] font-medium leading-[18px]"
+              style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+            >
               {achievement.description}
             </Text>
           )}
 
           {/* Componente de progreso reutilizable */}
-          <AchievementProgress current={progress} target={target} showPercentage />
+          <View className="mt-3">
+            <AchievementProgress current={progress} target={target} showPercentage />
+          </View>
 
           {/* Recompensa de tokens */}
           {achievement.earnedPoints > 0 && (
-            <View className="flex-row items-center mt-2">
+            <View className="flex-row items-center mt-3">
               <Ionicons name="flash-outline" size={16} color={isDark ? '#9CA3AF' : '#6B7280'} />
-              <Text className={`text-sm ml-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              <Text
+                className="text-xs font-semibold ml-1.5"
+                style={{ color: isDark ? '#9CA3AF' : '#6B7280', letterSpacing: 0.2 }}
+              >
                 Gana {achievement.earnedPoints} tokens al completar
               </Text>
             </View>

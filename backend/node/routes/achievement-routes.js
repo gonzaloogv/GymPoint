@@ -59,6 +59,38 @@ router.post(
 
 /**
  * @swagger
+ * /api/achievements/{id}/unlock:
+ *   post:
+ *     summary: Desbloquear un logro manualmente cuando se alcanza el 100%
+ *     tags: [Logros]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del UserAchievement a desbloquear
+ *     responses:
+ *       200:
+ *         description: Logro desbloqueado exitosamente
+ *       400:
+ *         description: ID inválido o progreso insuficiente
+ *       404:
+ *         description: Logro no encontrado
+ *       409:
+ *         description: El logro ya está desbloqueado
+ */
+router.post(
+  '/:id/unlock',
+  verificarToken,
+  verificarUsuarioApp,
+  controller.unlockMyAchievement
+);
+
+/**
+ * @swagger
  * /api/achievements/definitions:
  *   get:
  *     summary: Listar definiciones de logros (Admin)

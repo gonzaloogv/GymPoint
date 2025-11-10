@@ -8,11 +8,11 @@ const frequencyService = require("../services/frequency-service");
  * Limpia refresh tokens expirados o revocados y archiva frecuencias los lunes
  */
 const startCleanupJob = () => {
-  // Ejecutar cada d�a a las 3 AM
+  // Ejecutar cada día a las 3 AM
   cron.schedule("0 3 * * *", async () => {
     const now = new Date();
     try {
-      console.log("\n[CLEANUP JOB] Ejecutando limpieza autom�tica...");
+      console.log("\n[CLEANUP JOB] Ejecutando limpieza automática...");
       console.log(`   Fecha: ${now.toISOString()}`);
 
       const deleted = await RefreshToken.destroy({
@@ -47,7 +47,7 @@ const startCleanupJob = () => {
         console.log("[CLEANUP JOB] Frecuencias archivadas correctamente");
       }
     } catch (error) {
-      console.error("[CLEANUP JOB] Error en limpieza autom�tica:", error.message);
+      console.error("[CLEANUP JOB] Error en limpieza automática:", error.message);
     }
   });
 
@@ -55,7 +55,7 @@ const startCleanupJob = () => {
 };
 
 /**
- * Ejecutar limpieza manual (�til para testing o mantenimiento)
+ * Ejecutar limpieza manual (útil para testing o mantenimiento)
  */
 const runCleanupNow = async () => {
   try {

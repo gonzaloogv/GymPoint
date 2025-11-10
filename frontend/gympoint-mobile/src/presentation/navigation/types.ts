@@ -17,6 +17,7 @@ export type RoutinesStackParamList = {
   RoutinesList: undefined;
   CreateRoutine: undefined;
   ImportRoutine: undefined;
+  TemplateDetail: { templateId: string };
   RoutineDetail: { id: string }; // string (React Navigation standard)
   RoutineHistory: { id: string };
   RoutineExecution: { id: string };

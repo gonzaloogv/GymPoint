@@ -20,7 +20,8 @@ const {
   ListWorkoutSetsQuery,
   GetWorkoutStatsQuery,
   GetActiveWorkoutSessionQuery,
-  GetWorkoutSessionWithSetsQuery
+  GetWorkoutSessionWithSetsQuery,
+  GetLastSetsForExercisesQuery
 } = require('../queries/workout.queries');
 
 // ==================== RequestDTO → Command/Query ====================
@@ -102,6 +103,7 @@ function toGetActiveWorkoutSessionQuery(idUserProfile) {
 function toListWorkoutSessionsQuery(dto, idUserProfile) {
   return new ListWorkoutSessionsQuery({
     idUserProfile: idUserProfile || dto.id_user_profile || dto.idUserProfile,
+    idRoutine: dto.id_routine || dto.idRoutine || null,
     status: dto.status || null,
     startDate: dto.start_date || dto.startDate || null,
     endDate: dto.end_date || dto.endDate || null,
@@ -238,6 +240,24 @@ function toPaginatedWorkoutSessionsResponse({ items, page, limit, total }) {
   };
 }
 
+function toGetLastSetsForExercisesQuery(dto, idUserProfile) {
+  return new GetLastSetsForExercisesQuery({
+    idUserProfile,
+    exerciseIds: dto.exercise_ids || dto.exerciseIds || []
+  });
+}
+
+function toLastSetsForExercisesResponse(lastSets) {
+  if (!lastSets || !Array.isArray(lastSets)) return [];
+
+  return lastSets.map((item) => ({
+    id_exercise: item.id_exercise,
+    last_weight: item.last_weight || 0,
+    last_reps: item.last_reps || 0,
+    has_history: item.has_history || false
+  }));
+}
+
 module.exports = {
   // Request → Command/Query
   toStartWorkoutSessionCommand,
@@ -254,6 +274,7 @@ module.exports = {
   toGetWorkoutSetQuery,
   toListWorkoutSetsQuery,
   toGetWorkoutStatsQuery,
+  toGetLastSetsForExercisesQuery,
 
   // Entity → Response
   toWorkoutSessionResponse,
@@ -261,5 +282,6 @@ module.exports = {
   toWorkoutSessionsResponse,
   toWorkoutSetsResponse,
   toWorkoutStatsResponse,
-  toPaginatedWorkoutSessionsResponse
+  toPaginatedWorkoutSessionsResponse,
+  toLastSetsForExercisesResponse
 };

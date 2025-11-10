@@ -1,6 +1,6 @@
 import React from 'react';
 import { Switch as RNSwitch, View, Text, ActivityIndicator } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 
 interface NotificationSettingsProps {
@@ -32,7 +32,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
     <View className="mb-6">
       {/* Título de la sección */}
       <View className="flex-row items-center gap-1.5 mb-3">
-        <Feather name="bell" size={16} color={textColor} />
+        <Ionicons name="notifications-outline" size={16} color={textColor} />
         <Text className="font-semibold text-base" style={{ color: textColor }}>
           Notificaciones
         </Text>

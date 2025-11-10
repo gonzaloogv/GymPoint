@@ -37,30 +37,30 @@ export const MenuOptions: React.FC<MenuOptionsProps> = ({ isPremium, theme }) =>
   const menuItems = [
     // TODO: Descomentar cuando la app soporte múltiples idiomas
     // {
-    //   icon: 'globe',
+    //   icon: 'globe-outline' as const,
     //   title: 'Idioma',
     //   subtitle: 'Español',
     //   onPress: () => {},
     // },
     {
-      icon: 'gift',
+      icon: 'gift-outline' as const,
       title: 'Recompensas',
       subtitle: 'Canjes y ofertas',
       onPress: handleRewardsPress,
     },
     {
-      icon: 'zap',
+      icon: 'flash-outline' as const,
       title: 'Historial de tokens',
       subtitle: 'Ver historial',
       onPress: handleTokenHistoryPress,
     },
     {
-      icon: 'shield',
+      icon: 'shield-checkmark-outline' as const,
       title: 'Privacidad y seguridad',
       onPress: () => {},
     },
     {
-      icon: 'star',
+      icon: 'star-outline' as const,
       title: 'Calificar app',
       onPress: () => {},
     },
@@ -69,7 +69,7 @@ export const MenuOptions: React.FC<MenuOptionsProps> = ({ isPremium, theme }) =>
   // Agregar opción de gestión de suscripción solo para Premium
   if (isPremium) {
     menuItems.push({
-      icon: 'credit-card',
+      icon: 'card-outline' as const,
       title: 'Gestionar suscripción',
       onPress: () => {},
     });

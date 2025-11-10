@@ -8,6 +8,7 @@ import { PredesignedRoutine } from '@features/routines/domain/entities/Predesign
 type Props = {
   routine: PredesignedRoutine;
   onImport: (routine: PredesignedRoutine) => void;
+  onViewDetails: (routine: PredesignedRoutine) => void;
 };
 
 const getDifficultyTone = (difficulty: string) => {
@@ -21,7 +22,7 @@ const getDifficultyTone = (difficulty: string) => {
   }
 };
 
-export function ImportRoutineCard({ routine, onImport }: Props) {
+export function ImportRoutineCard({ routine, onImport, onViewDetails }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
@@ -95,12 +96,23 @@ export function ImportRoutineCard({ routine, onImport }: Props) {
             ))}
           </View>
         </View>
-
-        <View className="ml-4">
-          <Button size="sm" onPress={() => onImport(routine)}>
-            Importar
-          </Button>
         </View>
+
+        <View className="px-[18px] pb-4 flex-row gap-2">
+          <View className="flex-1">
+            <Button
+              size="sm"
+              variant="outline"
+              onPress={() => onViewDetails(routine)}
+            >
+              Ver detalles
+            </Button>
+          </View>
+          <View className="flex-1">
+            <Button size="sm" onPress={() => onImport(routine)}>
+              Importar
+            </Button>
+          </View>
         </View>
       </InfoCard>
     </View>

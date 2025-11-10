@@ -1,6 +1,6 @@
 /**
  * Progress Service - Refactorizado con CQRS pattern
- * Gesti�n de progreso f�sico de usuarios y ejercicios
+ * Gestión de progreso físico de usuarios y ejercicios
  */
 
 const { progressRepository } = require('../infra/db/repositories');
@@ -46,7 +46,7 @@ const getUserProgress = async (query) => {
 };
 
 /**
- * Obtener estad�sticas de peso de un usuario
+ * Obtener estadísticas de peso de un usuario
  * @param {GetWeightStatsQuery} query
  * @returns {Promise<Array>}
  */
@@ -224,7 +224,7 @@ const deleteProgress = async (command) => {
 };
 
 // ==================== Legacy Aliases ====================
-// Para compatibilidad con c�digo existente
+// Para compatibilidad con código existente
 
 const registrarProgreso = async (data) => {
   return registerProgress({

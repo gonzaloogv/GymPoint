@@ -7,6 +7,7 @@ import { RoutineDetailFooter } from '@features/routines/presentation/ui/footers/
 import { ExpandableExerciseDetail } from '@features/routines/presentation/ui/components/ExpandableExerciseDetail';
 import { ActivityIndicator, View, Text, Alert } from 'react-native';
 import { useRoutinesStore } from '@features/routines/presentation/state/routines.store';
+import { BackButton } from '@shared/components/ui';
 
 /**
  * Pantalla de detalle de rutina
@@ -58,6 +59,7 @@ export default function RoutineDetailScreen({ route, navigation }: any) {
       );
     }
   };
+  const handleGoBack = () => navigation?.goBack?.();
 
   if (loading || !routine) {
     return (
@@ -69,11 +71,18 @@ export default function RoutineDetailScreen({ route, navigation }: any) {
   }
 
   const headerComponent = (
-    <RoutineDetailHeader
-      routine={routine}
-      onEdit={handleEdit}
-      onDelete={handleDelete}
-    />
+    <>
+      {navigation && (
+        <View className="px-4 pt-4">
+          <BackButton onPress={handleGoBack} />
+        </View>
+      )}
+      <RoutineDetailHeader
+        routine={routine}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+    </>
   );
 
   const footerComponent = (

@@ -35,7 +35,13 @@ export default function RootNavigator() {
                 headerShown: false
               }}
             >
-              {() => <RewardsScreen user={user} onUpdateUser={updateUser} />}
+              {({ navigation }) => (
+                <RewardsScreen
+                  user={user}
+                  onUpdateUser={updateUser}
+                  navigation={navigation}
+                />
+              )}
             </Stack.Screen>
             <Stack.Screen
               name="TokenHistory"

@@ -5,6 +5,7 @@ import {
   RoutineCountsApiResponse,
   CreateRoutineRequestDTO,
   UpdateRoutineRequestDTO,
+  ImportTemplateResponseDTO,
 } from '../dto/RoutineDTO';
 
 /**
@@ -69,11 +70,11 @@ export const routineApi = {
   },
 
   /**
-   * POST /api/routines/:id/clone
-   * Clonar una rutina
+   * POST /api/routines/:id/import
+   * Importar una plantilla de rutina (crea una copia para el usuario)
    */
-  clone: async (id: number): Promise<RoutineApiResponse> => {
-    const response = await apiClient.post<RoutineApiResponse>(`${BASE_PATH}/${id}/clone`);
+  importTemplate: async (id: number): Promise<ImportTemplateResponseDTO> => {
+    const response = await apiClient.post<ImportTemplateResponseDTO>(`${BASE_PATH}/${id}/import`);
     return response.data;
   },
 

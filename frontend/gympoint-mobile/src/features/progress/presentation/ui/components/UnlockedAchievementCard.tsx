@@ -13,67 +13,100 @@ export const UnlockedAchievementCard: React.FC<UnlockedAchievementCardProps> = (
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
+  const shadowStyle = isDark
+    ? {
+        shadowColor: '#000000',
+        shadowOpacity: 0.35,
+        shadowOffset: { width: 0, height: 18 },
+        shadowRadius: 26,
+        elevation: 12,
+      }
+    : {
+        shadowColor: '#10B981',
+        shadowOpacity: 0.15,
+        shadowOffset: { width: 0, height: 14 },
+        shadowRadius: 22,
+        elevation: 6,
+      };
+
   return (
     <View
-      className={`p-4 rounded-xl mb-3 ${
-        isDark ? 'bg-gradient-to-br from-green-900/30 to-green-800/20 border border-green-700' : 'bg-gradient-to-br from-green-50 to-emerald-50 border border-green-300'
-      }`}
-      style={{
-        shadowColor: '#10B981',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
-      }}
+      className="border rounded-[28px] px-5 py-[18px]"
+      style={[
+        {
+          backgroundColor: isDark ? '#111827' : '#ffffff',
+          borderColor: isDark ? 'rgba(34, 197, 94, 0.5)' : 'rgba(34, 197, 94, 0.3)',
+        },
+        shadowStyle,
+      ]}
     >
-      {/* Badge de categoría */}
-      <View className="mb-2">
-        <AchievementCategoryBadge category={achievement.category} />
-      </View>
-
       <View className="flex-row items-start">
-        <View className="mr-3">
-          <Text style={{ fontSize: 48 }}>{achievement.icon}</Text>
-          {/* Indicador de completado */}
+        {/* Icon Container */}
+        <View className="mr-4">
           <View
-            className="absolute -top-1 -right-1 bg-green-500 rounded-full items-center justify-center"
-            style={{ width: 20, height: 20 }}
+            className="w-14 h-14 rounded-[20px] border items-center justify-center"
+            style={{
+              backgroundColor: isDark ? 'rgba(34, 197, 94, 0.22)' : 'rgba(34, 197, 94, 0.18)',
+              borderColor: isDark ? 'rgba(34, 197, 94, 0.38)' : 'rgba(34, 197, 94, 0.24)',
+            }}
           >
-            <Ionicons name="checkmark" size={14} color="white" />
+            <Ionicons
+              name="trophy"
+              size={22}
+              color={isDark ? '#86EFAC' : '#16A34A'}
+            />
+            {/* Indicador de completado */}
+            <View
+              className="absolute -top-1 -right-1 bg-green-500 rounded-full items-center justify-center"
+              style={{ width: 18, height: 18 }}
+            >
+              <Ionicons name="checkmark" size={12} color="white" />
+            </View>
           </View>
         </View>
+
         <View className="flex-1">
+          {/* Category Badge */}
+          <View className="mb-2">
+            <AchievementCategoryBadge category={achievement.category} />
+          </View>
+
           <Text
-            className="font-bold text-lg mb-1"
+            className="text-lg font-bold"
             style={{ color: isDark ? '#F9FAFB' : '#111827' }}
           >
             {achievement.title}
           </Text>
 
           {achievement.description && (
-            <Text className={`text-xs mb-3 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+            <Text
+              className="mt-1.5 text-[13px] font-medium leading-[18px]"
+              style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+            >
               {achievement.description}
             </Text>
           )}
 
           {/* Tokens ganados */}
           {achievement.earnedPoints > 0 && (
-            <View
-              className={`flex-row items-center px-3 py-2 rounded-lg mb-2 ${
-                isDark ? 'bg-yellow-900/30' : 'bg-yellow-50'
-              }`}
-            >
-              <Ionicons name="flash" size={18} color="#EAB308" />
-              <Text className="text-yellow-600 font-bold text-sm ml-1.5">
+            <View className="flex-row items-center mt-3">
+              <Ionicons name="flash" size={16} color="#FACC15" />
+              <Text
+                className="text-xs font-semibold uppercase ml-1.5"
+                style={{ color: '#FACC15', letterSpacing: 0.6 }}
+              >
                 +{achievement.earnedPoints} tokens ganados
               </Text>
             </View>
           )}
 
           {/* Fecha de desbloqueo */}
-          <View className="flex-row items-center">
+          <View className="flex-row items-center mt-2">
             <Ionicons name="checkmark-circle" size={14} color="#10B981" />
-            <Text className={`text-xs ml-1 ${isDark ? 'text-green-400' : 'text-green-600'}`}>
+            <Text
+              className="text-xs font-semibold ml-1"
+              style={{ color: isDark ? '#86EFAC' : '#16A34A', letterSpacing: 0.2 }}
+            >
               Desbloqueado {achievement.date}
             </Text>
           </View>

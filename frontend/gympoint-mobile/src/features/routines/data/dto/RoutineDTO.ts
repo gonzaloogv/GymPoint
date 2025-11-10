@@ -20,6 +20,20 @@ export interface ExerciseDTO {
 }
 
 /**
+ * Routine Day DTO
+ */
+export interface RoutineDayDTO {
+  id_routine_day: number;
+  id_routine: number;
+  day_number: number;
+  title: string | null;
+  description: string | null;
+  created_at?: string;
+  updated_at?: string;
+  exercises?: RoutineExerciseDTO[];
+}
+
+/**
  * Routine Exercise DTO (Exercise + RoutineExercise join data)
  */
 export interface RoutineExerciseDTO {
@@ -47,6 +61,7 @@ export interface RoutineDTO {
   template_order: number;
   created_at: string;
   updated_at: string;
+  days?: RoutineDayDTO[];
   exercises?: RoutineExerciseDTO[];
 }
 
@@ -102,4 +117,25 @@ export interface RoutineCountsApiResponse {
     imported_count: number;
     created_count: number;
   };
+}
+
+/**
+ * User Imported Routine DTO
+ */
+export interface UserImportedRoutineDTO {
+  id_import: number;
+  id_user_profile: number;
+  id_template_routine: number;
+  id_user_routine: number;
+  imported_at: string;
+  templateRoutine?: RoutineDTO;
+  userRoutine?: RoutineDTO;
+}
+
+/**
+ * Import Template Response DTO
+ */
+export interface ImportTemplateResponseDTO {
+  id_routine_copy: number;
+  routine: RoutineDTO;
 }
