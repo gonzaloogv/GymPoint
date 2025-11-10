@@ -67,8 +67,38 @@ async function findActiveWorkoutSession(idUserProfile, options = {}) {
       id_user_profile: idUserProfile,
       status: 'IN_PROGRESS'
     },
+    include: [
+      {
+        model: Routine,
+        as: 'routine',
+        required: false, // LEFT JOIN - allows null if routine deleted
+        attributes: ['id_routine', 'routine_name']
+      }
+    ],
     transaction: options.transaction
   });
+
+  // Auto-cleanup: If session exists but routine is deleted, cancel the session
+  if (session && session.id_routine && !session.routine) {
+    console.log('[WorkoutRepository] Auto-canceling orphaned session - routine deleted:', {
+      sessionId: session.id_workout_session,
+      routineId: session.id_routine,
+      userId: idUserProfile
+    });
+
+    await WorkoutSession.update(
+      {
+        status: 'CANCELED',
+        ended_at: getArgentinaTime()
+      },
+      {
+        where: { id_workout_session: session.id_workout_session },
+        transaction: options.transaction
+      }
+    );
+
+    return null; // No active session after auto-cleanup
+  }
 
   return toWorkoutSession(session);
 }

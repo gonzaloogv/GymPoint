@@ -20,7 +20,6 @@ import { BrandMark } from '@shared/components/brand';
 import { useAuthStore } from '../state/auth.store';
 import { useTheme } from '@shared/hooks';
 import { DI } from '@di/container';
-import { clearAllRoutineData } from '@features/routines/data/datasources/incompleteSessionLocalDataSource';
 
 type RootStackParamList = {
   Login: undefined;
@@ -46,15 +45,9 @@ export default function LoginScreen() {
     setError(null);
 
     try {
-      // Clear any previous user's AsyncStorage data before login
-      console.log('[LoginScreen] 🧹 Clearing previous user data before login...');
-      try {
-        await clearAllRoutineData();
-        console.log('[LoginScreen] ✅ Previous user data cleared');
-      } catch (clearError) {
-        console.error('[LoginScreen] ⚠️ Error clearing previous data:', clearError);
-        // Continue with login even if clearing fails
-      }
+      // NOTA: Ya no necesitamos limpiar datos antes del login
+      // Con UserScopedStorage, cada usuario tiene sus propios datos aislados
+      // Los datos se limpian automáticamente en logout con userStorage.clearUserData()
 
       if (!email.trim() && !password.trim()) {
         setUser({

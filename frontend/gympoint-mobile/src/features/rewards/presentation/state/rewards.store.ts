@@ -29,7 +29,7 @@ interface RewardsState {
     reward: Reward,
     userTokens: number,
     userId: number,
-    onUpdateUser: (tokens: number) => void,
+    onUpdateUser: (tokensOrUser: number | any) => void,
   ) => Promise<void>;
   // handleCopy: (code: string) => Promise<void>; // COMENTADO: Sistema sin códigos por ahora
   // handleToggleCode: (code: GeneratedCode) => void; // COMENTADO: Sistema sin códigos por ahora
@@ -114,9 +114,29 @@ export const useRewardsStore = create<RewardsState>((set, get) => ({
         // activeTab: 'codes', // COMENTADO: Sistema sin códigos por ahora
       }));
 
-      // Update user tokens
-      const newTokens = userTokens - reward.cost;
-      onUpdateUser(newTokens);
+      // If reward has an effect (like premium upgrade), refresh user data from backend
+      // to get updated plan/tier. Otherwise, just update tokens locally.
+      if (reward.rewardType === 'pase_gratis' || reward.category === 'premium') {
+        // Refresh complete user data from backend to get updated plan/tier
+        try {
+          const updatedUser = await DI.getMe.execute();
+          onUpdateUser(updatedUser); // Pass full user object
+          console.log('[RewardsStore] ✅ User data refreshed after reward claim:', {
+            plan: updatedUser.plan,
+            tokens: updatedUser.tokens,
+            rewardType: reward.rewardType
+          });
+        } catch (error) {
+          console.error('[RewardsStore] ❌ Error refreshing user data:', error);
+          // Fallback to updating just tokens
+          const newTokens = userTokens - reward.cost;
+          onUpdateUser(newTokens);
+        }
+      } else {
+        // Just update tokens for rewards without user effects
+        const newTokens = userTokens - reward.cost;
+        onUpdateUser(newTokens);
+      }
 
       Toast.show({
         type: 'success',
@@ -125,7 +145,12 @@ export const useRewardsStore = create<RewardsState>((set, get) => ({
       });
 
       // Refresh claimed rewards to get latest data
-      get().fetchClaimedRewards(userId);
+      const currentUserId = get().userId || userId;
+      if (currentUserId) {
+        get().fetchClaimedRewards(currentUserId);
+      } else {
+        console.warn('[RewardsStore] Cannot refresh claimed rewards - userId is undefined');
+      }
     } catch (error: any) {
       console.error('[RewardsStore] Error claiming reward:', error);
       const errorMessage = error?.response?.data?.error?.message || 'No se pudo canjear la recompensa';

@@ -30,6 +30,7 @@ export const useRewards = ({
     // setActiveTab, // COMENTADO: Sin tabs por ahora
     rewards,
     // generatedCodes, // COMENTADO: Sistema sin códigos por ahora
+    setUserId,
     fetchRewards,
     fetchClaimedRewards,
     // fetchGeneratedCodes, // COMENTADO: Sistema sin códigos por ahora
@@ -39,17 +40,28 @@ export const useRewards = ({
   } = useRewardsStore();
 
   useEffect(() => {
+    // Save userId in store for later use in handleGenerate
+    if (user.id_user) {
+      setUserId(user.id_user);
+    }
+
     fetchRewards(user.plan === 'Premium');
     // Fetch claimed rewards to prevent 'user undefined' error
-    if (user.id) {
-      fetchClaimedRewards(user.id);
+    if (user.id_user) {
+      fetchClaimedRewards(user.id_user);
     }
     // fetchGeneratedCodes(); // COMENTADO: Sistema sin códigos por ahora
-  }, [user.plan, user.id]);
+  }, [user.plan, user.id_user]);
 
   const handleGenerate = async (reward: any) => {
-    await storeHandleGenerate(reward, user.tokens, user.id, (newTokens) => {
-      onUpdateUser({ ...user, tokens: newTokens });
+    await storeHandleGenerate(reward, user.tokens, user.id_user, (tokensOrUser) => {
+      // If we receive a full user object, use it directly
+      // Otherwise, if it's just tokens (number), merge with existing user
+      if (typeof tokensOrUser === 'number') {
+        onUpdateUser({ ...user, tokens: tokensOrUser });
+      } else {
+        onUpdateUser(tokensOrUser);
+      }
     });
   };
 

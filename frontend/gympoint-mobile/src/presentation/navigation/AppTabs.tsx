@@ -16,7 +16,7 @@ import { GymsScreen } from '@features/gyms';
 import { GymDetailScreenWrapper } from '@features/gyms/presentation/ui/screens/GymDetailScreenWrapper';
 import { HomeScreen } from '@features/home';
 import { UserProfileScreen } from '@features/user';
-import { clearAllRoutineData } from '@features/routines/data/datasources/incompleteSessionLocalDataSource';
+import { userStorage } from '@shared/services/storage';
 import {
   RoutineDetailScreen,
   RoutineExecutionScreen,
@@ -165,20 +165,17 @@ export default function AppTabs() {
 
 
   const handleLogout = React.useCallback(async () => {
-    console.log('[AppTabs] 🚪 Logging out - clearing all user data...');
+    console.log('[AppTabs] Logging out...');
 
-    try {
-      // Clear all routine-related AsyncStorage data
-      await clearAllRoutineData();
-      console.log('[AppTabs] ✅ AsyncStorage cleared successfully');
-    } catch (error) {
-      console.error('[AppTabs] ❌ Error clearing AsyncStorage:', error);
-      // Continue with logout even if clearing fails
-    }
+    // NOTE: We do NOT clear user data on logout
+    // - User-scoped storage already isolates data by user ID
+    // - Incomplete sessions should persist between login sessions
+    // - When user logs back in, their progress will be restored
+    // - This allows user to logout with incomplete routine and resume later
 
-    // Clear user session
+    // Only clear the authentication state
     setUser(null);
-    console.log('[AppTabs] ✅ User logged out');
+    console.log('[AppTabs] User logged out (data preserved for next login)');
   }, [setUser]);
 
   const renderUserProfileScreen = React.useCallback(

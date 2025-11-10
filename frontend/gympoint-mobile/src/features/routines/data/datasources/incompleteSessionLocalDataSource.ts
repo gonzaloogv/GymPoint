@@ -1,13 +1,17 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { userStorage } from '@shared/services/storage';
 
 /**
  * Data source local para gestionar sesiones de entrenamiento incompletas
- * Usa AsyncStorage para persistencia
+ * Usa UserScopedStorage para persistencia con aislamiento por usuario
+ *
+ * IMPORTANTE: Todos los datos están scoped al usuario actual (user_123, user_456, etc.)
+ * Esto previene que usuarios del mismo dispositivo vean datos de otros usuarios.
  */
 
-const INCOMPLETE_SESSION_KEY = '@GymPoint:incompleteSession';
-const DB_VERSION_KEY = '@GymPoint:dbVersion';
-const ROUTINE_CACHE_PREFIX = '@GymPoint:routineCache:';
+// Keys base (se les agrega prefijo de usuario automáticamente)
+const INCOMPLETE_SESSION_KEY = 'incompleteSession';
+const DB_VERSION_KEY = 'dbVersion';
+const ROUTINE_CACHE_PREFIX = 'routineCache:';
 
 export interface SetExecution {
   setNumber: number;
@@ -56,25 +60,25 @@ export class IncompleteSessionLocalDataSource
   implements IIncompleteSessionLocalDataSource
 {
   /**
-   * Guarda una sesión incompleta en AsyncStorage
+   * Guarda una sesión incompleta con scope de usuario
    */
   async saveIncompleteSession(session: IncompleteSessionData): Promise<void> {
     try {
       const jsonString = JSON.stringify(session);
-      await AsyncStorage.setItem(INCOMPLETE_SESSION_KEY, jsonString);
+      await userStorage.setItem(INCOMPLETE_SESSION_KEY, jsonString);
     } catch (error) {
-      console.error('Error saving incomplete session to AsyncStorage:', error);
+      console.error('[IncompleteSession] Error saving session:', error);
       throw new Error('Failed to save incomplete session');
     }
   }
 
   /**
-   * Obtiene la sesión incompleta guardada
+   * Obtiene la sesión incompleta guardada del usuario actual
    * @returns IncompleteSessionData si existe, null si no hay sesión guardada
    */
   async getIncompleteSession(): Promise<IncompleteSessionData | null> {
     try {
-      const jsonString = await AsyncStorage.getItem(INCOMPLETE_SESSION_KEY);
+      const jsonString = await userStorage.getItem(INCOMPLETE_SESSION_KEY);
 
       if (!jsonString) {
         return null;
@@ -83,13 +87,13 @@ export class IncompleteSessionLocalDataSource
       const session: IncompleteSessionData = JSON.parse(jsonString);
       return session;
     } catch (error) {
-      console.error('Error retrieving incomplete session from AsyncStorage:', error);
+      console.error('[IncompleteSession] Error retrieving session:', error);
       return null;
     }
   }
 
   /**
-   * Limpia la sesión incompleta guardada
+   * Limpia la sesión incompleta guardada del usuario actual
    * Se llama cuando:
    * - Usuario completa la rutina
    * - Usuario descarta la rutina
@@ -97,66 +101,60 @@ export class IncompleteSessionLocalDataSource
    */
   async clearIncompleteSession(): Promise<void> {
     try {
-      await AsyncStorage.removeItem(INCOMPLETE_SESSION_KEY);
+      await userStorage.removeItem(INCOMPLETE_SESSION_KEY);
     } catch (error) {
-      console.error('Error clearing incomplete session from AsyncStorage:', error);
+      console.error('[IncompleteSession] Error clearing session:', error);
       throw new Error('Failed to clear incomplete session');
     }
   }
 
   /**
-   * Limpia TODOS los datos de rutinas guardados en AsyncStorage
-   * Útil cuando se detecta que la BD fue reseteada o cuando el usuario cierra sesión
+   * Limpia TODOS los datos de rutinas del usuario actual
+   * Útil cuando se detecta que la BD fue reseteada
+   *
+   * NOTA: Para logout, usar userStorage.clearUserData() directamente
    */
   async clearAllRoutineData(): Promise<void> {
     try {
-      console.log('[AsyncStorage] 🧹 Clearing all routine data...');
+      console.log('[IncompleteSession] Clearing all routine data for current user...');
 
-      // Get all keys
-      const allKeys = await AsyncStorage.getAllKeys();
+      // Limpiar incomplete session
+      await userStorage.removeItem(INCOMPLETE_SESSION_KEY);
 
-      // Filter keys related to routines and DB version
-      const routineKeys = allKeys.filter(
-        key =>
-          key.startsWith(ROUTINE_CACHE_PREFIX) ||
-          key === INCOMPLETE_SESSION_KEY ||
-          key === DB_VERSION_KEY
-      );
+      // Limpiar DB version
+      await userStorage.removeItem(DB_VERSION_KEY);
 
-      // Remove all routine-related keys
-      if (routineKeys.length > 0) {
-        await AsyncStorage.multiRemove(routineKeys);
-        console.log(`[AsyncStorage] ✅ Cleared ${routineKeys.length} routine-related keys`);
-      } else {
-        console.log('[AsyncStorage] ℹ️ No routine data to clear');
-      }
+      // TODO: Si usamos cache de rutinas, limpiarlo aquí
+      // Ejemplo: await userStorage.removeItem(ROUTINE_CACHE_PREFIX + routineId);
+
+      console.log('[IncompleteSession] Routine data cleared successfully');
     } catch (error) {
-      console.error('[AsyncStorage] ❌ Error clearing all routine data:', error);
+      console.error('[IncompleteSession] Error clearing routine data:', error);
       throw new Error('Failed to clear all routine data');
     }
   }
 
   /**
-   * Obtiene la versión de la BD guardada
+   * Obtiene la versión de la BD guardada del usuario actual
    */
   async getDBVersion(): Promise<string | null> {
     try {
-      return await AsyncStorage.getItem(DB_VERSION_KEY);
+      return await userStorage.getItem(DB_VERSION_KEY);
     } catch (error) {
-      console.error('[AsyncStorage] Error getting DB version:', error);
+      console.error('[IncompleteSession] Error getting DB version:', error);
       return null;
     }
   }
 
   /**
-   * Guarda la versión de la BD
+   * Guarda la versión de la BD del usuario actual
    */
   async setDBVersion(version: string): Promise<void> {
     try {
-      await AsyncStorage.setItem(DB_VERSION_KEY, version);
-      console.log(`[AsyncStorage] ✅ DB version set to: ${version}`);
+      await userStorage.setItem(DB_VERSION_KEY, version);
+      console.log(`[IncompleteSession] DB version set to: ${version}`);
     } catch (error) {
-      console.error('[AsyncStorage] Error setting DB version:', error);
+      console.error('[IncompleteSession] Error setting DB version:', error);
       throw new Error('Failed to set DB version');
     }
   }
@@ -173,7 +171,7 @@ export class IncompleteSessionLocalDataSource
       // Si no hay versión guardada, es la primera vez
       if (!savedVersion && currentVersion) {
         await this.setDBVersion(currentVersion);
-        console.log('[AsyncStorage] ℹ️ First time setup, version saved');
+        console.log('[IncompleteSession] First time setup, version saved');
         return false;
       }
 
@@ -184,7 +182,7 @@ export class IncompleteSessionLocalDataSource
 
       // Si las versiones no coinciden, la BD fue reseteada
       if (savedVersion !== currentVersion) {
-        console.log('[AsyncStorage] ⚠️ DB version mismatch - clearing all routine data', {
+        console.log('[IncompleteSession] DB version mismatch - clearing all routine data', {
           saved: savedVersion,
           current: currentVersion
         });
@@ -197,7 +195,7 @@ export class IncompleteSessionLocalDataSource
 
       return false;
     } catch (error) {
-      console.error('[AsyncStorage] Error checking DB version:', error);
+      console.error('[IncompleteSession] Error checking DB version:', error);
       return false;
     }
   }
