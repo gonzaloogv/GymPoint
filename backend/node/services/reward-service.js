@@ -601,6 +601,64 @@ async function getActiveEffectsForUser(userId) {
   };
 }
 
+/**
+ * Activa un multiplicador de tokens desde el inventario del usuario
+ * @param {number} userId - ID del usuario
+ * @param {number} inventoryId - ID del item en el inventario
+ * @returns {Promise<Object>} Efecto activado
+ */
+async function useInventoryItem(userId, inventoryId) {
+  const transaction = await sequelize.transaction();
+  try {
+    // 1. Verificar que el item existe en el inventario del usuario
+    const inventoryItems = await rewardRepository.findUserRewardInventory(userId, { transaction });
+    const inventoryItem = inventoryItems.find(item => item.id_inventory === inventoryId);
+
+    if (!inventoryItem) {
+      throw new NotFoundError('Item no encontrado en tu inventario');
+    }
+
+    if (inventoryItem.id_user_profile !== userId) {
+      throw new NotFoundError('Este item no te pertenece');
+    }
+
+    // 2. Verificar que el item es un token_multiplier
+    if (inventoryItem.item_type !== 'token_multiplier') {
+      throw new ValidationError('Solo puedes activar multiplicadores de tokens desde el inventario');
+    }
+
+    // 3. Obtener la recompensa asociada para obtener effect_value y duration_days
+    const reward = await rewardRepository.findRewardById(inventoryItem.id_reward, { transaction });
+    if (!reward) {
+      throw new NotFoundError('Recompensa asociada no encontrada');
+    }
+
+    // 4. Activar el efecto
+    const effect = await activateTokenMultiplier(
+      userId,
+      reward.effect_value || 2,
+      reward.duration_days || 7,
+      { transaction }
+    );
+
+    // 5. Decrementar cantidad en inventario
+    const newQuantity = inventoryItem.quantity - 1;
+    if (newQuantity <= 0) {
+      // Eliminar del inventario si llega a 0
+      await rewardRepository.deleteInventoryEntry(inventoryId, { transaction });
+    } else {
+      // Actualizar cantidad
+      await rewardRepository.updateInventoryQuantity(inventoryId, newQuantity, { transaction });
+    }
+
+    await transaction.commit();
+    return effect;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+}
+
 async function getAvailableRewardsForUser(userId) {
   const userProfile = await userProfileRepository.findById(userId);
   if (!userProfile) {
@@ -863,20 +921,15 @@ async function claimReward(command) {
 
     // 9. Aplicar efectos de la recompensa según reward_type y effect_value
     if (reward.is_stackable) {
+      // Solo agregar al inventario, NO activar automáticamente
       await addToInventory(command.userId, reward, 1, { transaction });
 
+      // Streak saver se agrega automáticamente como recovery items
       if (reward.reward_type === 'streak_saver') {
         await incrementStreakRecoveryItems(command.userId, reward.effect_value || 1, { transaction });
       }
 
-      if (reward.reward_type === 'token_multiplier') {
-        await activateTokenMultiplier(
-          command.userId,
-          reward.effect_value || 1,
-          reward.duration_days || 7,
-          { transaction }
-        );
-      }
+      // token_multiplier NO se activa automáticamente, queda en inventario para uso manual
     } else if (reward.reward_type && reward.effect_value) {
       await applyRewardEffect(command.userId, reward.reward_type, reward.effect_value, { transaction });
     }
@@ -960,6 +1013,7 @@ module.exports = {
   getActiveEffectsForUser,
   getAvailableRewardsForUser,
   getActiveMultiplier,
+  useInventoryItem,
 
   // Legacy API
   listarRecompensas,

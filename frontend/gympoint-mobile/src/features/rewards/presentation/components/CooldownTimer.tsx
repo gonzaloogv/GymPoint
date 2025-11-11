@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 import { getFutureTimeString } from '@shared/utils/dateUtils';
+import { useTheme } from '@shared/hooks';
 
 interface Props {
   endsAt: string;
@@ -10,6 +12,8 @@ interface Props {
 
 export const CooldownTimer: React.FC<Props> = ({ endsAt, compact = false }) => {
   const [timeRemaining, setTimeRemaining] = useState<string>('');
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     const updateTime = () => {
@@ -30,58 +34,35 @@ export const CooldownTimer: React.FC<Props> = ({ endsAt, compact = false }) => {
 
   if (compact) {
     return (
-      <View style={styles.compactContainer}>
-        <Text style={styles.compactText}>⏰ {timeRemaining}</Text>
+      <View
+        className="rounded-2xl px-3 py-2 border flex-row items-center gap-1"
+        style={{
+          backgroundColor: isDark ? 'rgba(251, 146, 60, 0.15)' : 'rgba(251, 146, 60, 0.1)',
+          borderColor: isDark ? 'rgba(251, 146, 60, 0.35)' : 'rgba(251, 146, 60, 0.25)',
+        }}
+      >
+        <Ionicons name="time-outline" size={12} color="#FB923C" />
+        <Text className="text-[10px] font-semibold" style={{ color: '#FB923C' }}>
+          {timeRemaining}
+        </Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.icon}>⏰</Text>
-      <View style={styles.textContainer}>
-        <Text style={styles.label}>Disponible nuevamente</Text>
-        <Text style={styles.time}>{timeRemaining}</Text>
+    <View
+      className="rounded-2xl px-3 py-2 border flex-row items-center gap-2"
+      style={{
+        backgroundColor: isDark ? 'rgba(251, 146, 60, 0.15)' : 'rgba(251, 146, 60, 0.1)',
+        borderColor: isDark ? 'rgba(251, 146, 60, 0.35)' : 'rgba(251, 146, 60, 0.25)',
+      }}
+    >
+      <Ionicons name="time-outline" size={18} color="#FB923C" />
+      <View className="flex-1">
+        <Text className="text-xs font-medium" style={{ color: isDark ? '#9CA3AF' : '#78716C' }}>
+          Se renueva {timeRemaining}
+        </Text>
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF3E0',
-    borderRadius: 8,
-    padding: 12,
-    marginTop: 8,
-  },
-  icon: {
-    fontSize: 24,
-    marginRight: 12,
-  },
-  textContainer: {
-    flex: 1,
-  },
-  label: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 2,
-  },
-  time: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#FF6B00',
-  },
-  compactContainer: {
-    backgroundColor: '#FFF3E0',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  compactText: {
-    fontSize: 11,
-    color: '#FF6B00',
-    fontWeight: '600',
-  },
-});

@@ -1,18 +1,59 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
-import { Reward } from '@features/rewards/domain/entities';
+import { Reward, RewardType } from '@features/rewards/domain/entities';
 import { CooldownTimer } from '../../components/CooldownTimer';
 
+// Helper: Mapea reward type a nombre de Ionicon
+const getRewardIconName = (rewardType?: RewardType | null): keyof typeof Ionicons.glyphMap => {
+  switch (rewardType) {
+    case 'pase_gratis':
+      return 'barbell-outline';
+    case 'descuento':
+      return 'pricetag-outline';
+    case 'producto':
+      return 'cube-outline';
+    case 'servicio':
+      return 'sparkles-outline';
+    case 'merchandising':
+      return 'shirt-outline';
+    case 'token_multiplier':
+      return 'flame-outline';
+    case 'streak_saver':
+      return 'shield-checkmark-outline';
+    default:
+      return 'gift-outline';
+  }
+};
+
+// Helper: Mapea reward type a color del icono
+const getRewardIconColor = (rewardType?: RewardType | null): string => {
+  switch (rewardType) {
+    case 'pase_gratis':
+      return '#8B5CF6'; // Purple
+    case 'descuento':
+      return '#EC4899'; // Pink
+    case 'producto':
+      return '#06B6D4'; // Cyan
+    case 'servicio':
+      return '#A855F7'; // Purple
+    case 'merchandising':
+      return '#F59E0B'; // Amber
+    case 'token_multiplier':
+      return '#F97316'; // Orange
+    case 'streak_saver':
+      return '#3B82F6'; // Blue
+    default:
+      return '#6366F1'; // Indigo
+  }
+};
 
 type RewardCardProps = {
   reward: Reward;
   tokens: number;
   isPremium: boolean;
   onGenerate: (reward: Reward) => void;
-  getCategoryColor: (category: string) => string;
-  getCategoryName: (category: string) => string;
 };
 
 export function RewardCard({
@@ -20,8 +61,6 @@ export function RewardCard({
   tokens,
   isPremium,
   onGenerate,
-  getCategoryColor,
-  getCategoryName,
 }: RewardCardProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -30,7 +69,6 @@ export function RewardCard({
   const meetsRequirements = !reward.requiresPremium || isPremium;
   const isClaimable = reward.canClaim !== false && isAffordable && meetsRequirements;
   const isDisabled = !isClaimable;
-  const categoryColor = getCategoryColor(reward.category);
 
   // DEBUG LOG para recompensas premium
   if (reward.requiresPremium) {
@@ -77,10 +115,45 @@ export function RewardCard({
   };
 
   const getButtonText = () => {
-    if (reward.reason) return reward.reason;
+    // Si está en cooldown, calcular tiempo restante
+    if (reward.canClaim === false && reward.cooldownEndsAt) {
+      const now = new Date();
+      const endsAt = new Date(reward.cooldownEndsAt);
+      const diffInMs = endsAt.getTime() - now.getTime();
+      const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+      const diffInDays = Math.floor(diffInHours / 24);
+
+      if (diffInDays >= 1) {
+        return `Reclamar en ${diffInDays} ${diffInDays === 1 ? 'día' : 'días'}`;
+      } else if (diffInHours > 0) {
+        return `Reclamar en ${diffInHours} ${diffInHours === 1 ? 'hora' : 'horas'}`;
+      } else {
+        return 'Reclamar ahora';
+      }
+    }
+
     if (!meetsRequirements) return 'Requiere Premium';
     if (!isAffordable) return `Faltan ${reward.cost - tokens} tokens`;
     return 'Reclamar recompensa';
+  };
+
+  const handleClaim = () => {
+    Alert.alert(
+      'Confirmar canje',
+      `¿Deseas canjear "${reward.title}" por ${reward.cost} tokens?`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Canjear',
+          onPress: () => onGenerate(reward),
+          style: 'default',
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
@@ -98,12 +171,17 @@ export function RewardCard({
       <View className="flex-row gap-3">
         {/* Icon */}
         <View
-          className="w-12 h-12 rounded-full items-center justify-center"
+          className="w-14 h-14 rounded-[20px] border items-center justify-center"
           style={{
-            backgroundColor: isDark ? 'rgba(59, 130, 246, 0.22)' : '#E3F2FD',
+            backgroundColor: isDark ? 'rgba(99, 102, 241, 0.22)' : 'rgba(99, 102, 241, 0.15)',
+            borderColor: isDark ? 'rgba(99, 102, 241, 0.5)' : 'rgba(99, 102, 241, 0.35)',
           }}
         >
-          <Text className="text-xl">{reward.icon}</Text>
+          <Ionicons
+            name={getRewardIconName(reward.rewardType)}
+            size={24}
+            color={getRewardIconColor(reward.rewardType)}
+          />
         </View>
 
         {/* Info */}
@@ -112,25 +190,30 @@ export function RewardCard({
           <View className="flex-row flex-wrap gap-2 mb-1">
             {/* Premium Badge */}
             {reward.requiresPremium && (
-              <View className="rounded-xl px-2 py-1 bg-amber-100 border border-amber-400">
-                <Text className="text-[10px] font-bold text-amber-700">👑 PREMIUM</Text>
+              <View
+                className="rounded-2xl px-3 py-1.5 border"
+                style={{
+                  backgroundColor: isDark ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.1)',
+                  borderColor: isDark ? 'rgba(245, 158, 11, 0.35)' : 'rgba(245, 158, 11, 0.25)',
+                }}
+              >
+                <Text className="text-[10px] font-bold" style={{ color: '#F59E0B', letterSpacing: 0.6 }}>
+                  PREMIUM
+                </Text>
               </View>
             )}
 
             {/* Stackable Badge */}
             {reward.isStackable && (
-              <View className="rounded-xl px-2 py-1 bg-green-100 border border-green-400">
-                <Text className="text-[10px] font-bold text-green-700">
-                  ACUMULABLE {reward.currentStack || 0}/{reward.maxStack || 1}
-                </Text>
-              </View>
-            )}
-
-            {/* Cooldown Badge */}
-            {reward.cooldownDays && reward.cooldownDays > 0 && (
-              <View className="rounded-xl px-2 py-1 bg-orange-100 border border-orange-400">
-                <Text className="text-[10px] font-bold text-orange-700">
-                  ⏰ {reward.cooldownDays} DÍAS
+              <View
+                className="rounded-2xl px-3 py-1.5 border"
+                style={{
+                  backgroundColor: isDark ? 'rgba(34, 197, 94, 0.15)' : 'rgba(34, 197, 94, 0.1)',
+                  borderColor: isDark ? 'rgba(34, 197, 94, 0.35)' : 'rgba(34, 197, 94, 0.25)',
+                }}
+              >
+                <Text className="text-[10px] font-bold" style={{ color: '#22C55E', letterSpacing: 0.6 }}>
+                  {reward.currentStack || 0}/{reward.maxStack || 1}
                 </Text>
               </View>
             )}
@@ -158,17 +241,31 @@ export function RewardCard({
 
           {/* Effect Info */}
           {reward.rewardType === 'token_multiplier' && reward.effectValue && (
-            <View className="rounded-lg px-3 py-2 bg-orange-50 border border-orange-200">
-              <Text className="text-xs text-orange-800 font-medium">
-                🔥 Multiplica tus tokens x{reward.effectValue} por {reward.durationDays || 7} días
+            <View
+              className="rounded-2xl px-3 py-2 border flex-row items-center gap-2"
+              style={{
+                backgroundColor: isDark ? 'rgba(249, 115, 22, 0.15)' : 'rgba(249, 115, 22, 0.1)',
+                borderColor: isDark ? 'rgba(249, 115, 22, 0.35)' : 'rgba(249, 115, 22, 0.25)',
+              }}
+            >
+              <Ionicons name="flame" size={16} color="#F97316" />
+              <Text className="text-xs font-medium flex-1" style={{ color: isDark ? '#FB923C' : '#EA580C' }}>
+                Multiplica tus tokens x{reward.effectValue} por {reward.durationDays || 7} días
               </Text>
             </View>
           )}
 
           {reward.rewardType === 'streak_saver' && (
-            <View className="rounded-lg px-3 py-2 bg-blue-50 border border-blue-200">
-              <Text className="text-xs text-blue-800 font-medium">
-                🛟 Protege tu racha automáticamente cuando sea necesario
+            <View
+              className="rounded-2xl px-3 py-2 border flex-row items-center gap-2"
+              style={{
+                backgroundColor: isDark ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)',
+                borderColor: isDark ? 'rgba(59, 130, 246, 0.35)' : 'rgba(59, 130, 246, 0.25)',
+              }}
+            >
+              <Ionicons name="shield-checkmark" size={16} color="#3B82F6" />
+              <Text className="text-xs font-medium flex-1" style={{ color: isDark ? '#60A5FA' : '#2563EB' }}>
+                Protege tu racha automáticamente cuando sea necesario
               </Text>
             </View>
           )}
@@ -178,43 +275,9 @@ export function RewardCard({
             <CooldownTimer endsAt={reward.cooldownEndsAt} />
           )}
 
-          {/* Category Badge and Valid Days */}
-          <View className="flex-row justify-between items-center">
-            <View
-              className="rounded-2xl px-3 py-2 border"
-              style={{
-                backgroundColor: `${categoryColor}20`,
-                borderColor: categoryColor,
-              }}
-            >
-              <Text className="text-xs font-semibold uppercase" style={{ color: categoryColor, letterSpacing: 0.6 }}>
-                {getCategoryName(reward.category)}
-              </Text>
-            </View>
-
-            {reward.validDays > 0 && (
-              <View className="flex-row items-center gap-1">
-                <Ionicons name="time-outline" size={12} color="#64748B" />
-                <Text className="text-xs text-[#64748B]">{reward.validDays} días</Text>
-              </View>
-            )}
-          </View>
-
-          {/* Terms */}
-          {reward.terms && (
-            <Text className="text-xs text-[#78716C] italic">{reward.terms}</Text>
-          )}
-
-          {/* Stock Info */}
-          {!reward.isUnlimited && reward.stock !== null && reward.stock !== undefined && (
-            <Text className="text-xs text-[#78716C]">
-              Stock: {reward.stock > 0 ? reward.stock : 'Agotado'}
-            </Text>
-          )}
-
           {/* Button */}
           <TouchableOpacity
-            onPress={() => onGenerate(reward)}
+            onPress={handleClaim}
             disabled={isDisabled}
             activeOpacity={0.78}
             className="py-3.5 rounded-2xl items-center"

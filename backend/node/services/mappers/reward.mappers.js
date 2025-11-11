@@ -546,4 +546,6 @@ module.exports = {
   toRewardStatsDTO,
   toUserRewardInventoryDTO,
   toActiveEffectsResponseDTO,
+  toActiveEffectEntryDTO,
+  toActiveEffectDTO: toActiveEffectEntryDTO, // Alias
 };

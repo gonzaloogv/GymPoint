@@ -675,6 +675,27 @@ async function upsertRewardInventory({ userId, rewardId, itemType, quantity, max
   return entry;
 }
 
+async function updateInventoryQuantity(inventoryId, newQuantity, options = {}) {
+  const entry = await UserRewardInventory.findByPk(inventoryId, {
+    transaction: options.transaction,
+  });
+
+  if (!entry) {
+    throw new Error('Inventory entry not found');
+  }
+
+  entry.quantity = newQuantity;
+  await entry.save({ transaction: options.transaction });
+  return entry;
+}
+
+async function deleteInventoryEntry(inventoryId, options = {}) {
+  return UserRewardInventory.destroy({
+    where: { id_inventory: inventoryId },
+    transaction: options.transaction,
+  });
+}
+
 // ============================================================================
 // ACTIVE USER EFFECTS
 // ============================================================================
@@ -769,6 +790,8 @@ module.exports = {
   findUserRewardInventory,
   findRewardInventoryEntry,
   upsertRewardInventory,
+  updateInventoryQuantity,
+  deleteInventoryEntry,
   createActiveUserEffect,
   findActiveEffectsByUser,
   findRewardCooldown,

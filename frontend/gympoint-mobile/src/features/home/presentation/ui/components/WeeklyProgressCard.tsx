@@ -37,7 +37,7 @@ export default function WeeklyProgressCard({
               backgroundColor: 'rgba(129, 140, 248, 0.18)',
             }}
           >
-            <Ionicons name="target" size={24} color={isDark ? '#C7D2FE' : '#4338CA'} />
+            <Ionicons name="flag-outline" size={24} color={isDark ? '#C7D2FE' : '#4338CA'} />
           </View>
 
           {/* Content */}

@@ -376,6 +376,36 @@ const listAvailableRewardsForUser = async (req, res) => {
   }
 };
 
+/**
+ * POST /api/rewards/inventory/:inventoryId/use
+ * Activa un multiplicador de tokens desde el inventario
+ */
+const useInventoryItem = async (req, res) => {
+  try {
+    const userId = req.account?.userProfile?.id_user_profile;
+    if (!userId) {
+      return res.status(403).json({
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Usuario autenticado requerido',
+        },
+      });
+    }
+
+    const inventoryId = Number.parseInt(req.params.inventoryId, 10);
+    const effect = await rewardService.useInventoryItem(userId, inventoryId);
+    const dto = rewardMappers.toActiveEffectDTO(effect);
+    res.status(201).json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 400).json({
+      error: {
+        code: error.code || 'USE_INVENTORY_ITEM_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
 module.exports = {
   // Rewards
   listRewards,
@@ -396,6 +426,7 @@ module.exports = {
   getMyRewardInventory,
   getMyActiveEffects,
   listAvailableRewardsForUser,
+  useInventoryItem,
 
   // Legacy aliases (Spanish) for backward compatibility
   listarTodasLasRecompensas: listRewards,

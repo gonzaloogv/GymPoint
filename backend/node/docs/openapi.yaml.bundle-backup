@@ -2725,15 +2725,54 @@ components:
             - producto
             - servicio
             - merchandising
+            - token_multiplier
+            - streak_saver
             - otro
             - null
           description: Tipo de recompensa
           example: pase_gratis
+        effect_value:
+          type:
+            - number
+            - 'null'
+          description: Valor del efecto (días, multiplicador o cantidad de ítems)
+          example: 7
         token_cost:
           type: integer
           description: Costo en tokens
           minimum: 0
           example: 500
+        cooldown_days:
+          type:
+            - integer
+            - 'null'
+          description: Días de cooldown entre reclamos
+          example: 30
+        is_unlimited:
+          type:
+            - boolean
+            - 'null'
+          description: Indica si no se descuenta stock
+        requires_premium:
+          type:
+            - boolean
+            - 'null'
+          description: Requiere que el usuario sea Premium
+        is_stackable:
+          type:
+            - boolean
+            - 'null'
+          description: Se puede acumular en inventario
+        max_stack:
+          type:
+            - integer
+            - 'null'
+          description: Máximo acumulable cuando es stackable
+        duration_days:
+          type:
+            - integer
+            - 'null'
+          description: Duración del efecto en días (multiplicadores)
         discount_percentage:
           type:
             - number
@@ -2783,6 +2822,32 @@ components:
             - 'null'
           description: Términos y condiciones de la recompensa
           example: Válido solo en horarios de 6am a 10pm. No acumulable con otras promociones.
+        can_claim:
+          type:
+            - boolean
+            - 'null'
+          description: Indica si el usuario actual puede reclamarla
+        current_stack:
+          type:
+            - integer
+            - 'null'
+          description: Cantidad actual en inventario del usuario
+        cooldown_ends_at:
+          type:
+            - string
+            - 'null'
+          format: date-time
+          description: Próxima fecha en la que podrá reclamarla
+        cooldown_hours_remaining:
+          type:
+            - integer
+            - 'null'
+          description: Horas restantes del cooldown
+        reason:
+          type:
+            - string
+            - 'null'
+          description: Mensaje explicando por qué no puede reclamarla
         created_at:
           type: string
           format: date-time
@@ -2817,10 +2882,31 @@ components:
             - producto
             - servicio
             - merchandising
+            - token_multiplier
+            - streak_saver
             - otro
+        effect_value:
+          type: number
+          description: Valor del efecto (obligatorio para pase_gratis, token_multiplier, streak_saver)
         token_cost:
           type: integer
           minimum: 0
+        cooldown_days:
+          type: integer
+          minimum: 0
+        is_unlimited:
+          type: boolean
+        requires_premium:
+          type: boolean
+        is_stackable:
+          type: boolean
+        max_stack:
+          type: integer
+          minimum: 1
+        duration_days:
+          type: integer
+          minimum: 1
+          description: Duración del efecto en días (solo multipliers)
         discount_percentage:
           type: number
           minimum: 0
@@ -2863,10 +2949,29 @@ components:
             - producto
             - servicio
             - merchandising
+            - token_multiplier
+            - streak_saver
             - otro
+        effect_value:
+          type: number
         token_cost:
           type: integer
           minimum: 0
+        cooldown_days:
+          type: integer
+          minimum: 0
+        is_unlimited:
+          type: boolean
+        requires_premium:
+          type: boolean
+        is_stackable:
+          type: boolean
+        max_stack:
+          type: integer
+          minimum: 1
+        duration_days:
+          type: integer
+          minimum: 1
         discount_percentage:
           type: number
           minimum: 0
@@ -2914,6 +3019,84 @@ components:
         totalPages:
           type: integer
           minimum: 0
+    RewardInventoryItem:
+      type: object
+      properties:
+        id_inventory:
+          type: integer
+        id_reward:
+          type: integer
+        item_type:
+          type: string
+          enum:
+            - streak_saver
+            - token_multiplier
+        quantity:
+          type: integer
+        max_stack:
+          type: integer
+        created_at:
+          type:
+            - string
+            - 'null'
+          format: date-time
+        updated_at:
+          type:
+            - string
+            - 'null'
+          format: date-time
+        reward:
+          type:
+            - object
+            - 'null'
+          properties:
+            id_reward:
+              type: integer
+            name:
+              type: string
+            description:
+              type:
+                - string
+                - 'null'
+            image_url:
+              type:
+                - string
+                - 'null'
+    RewardInventoryResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RewardInventoryItem'
+    ActiveRewardEffect:
+      type: object
+      properties:
+        id_effect:
+          type: integer
+        effect_type:
+          type: string
+          enum:
+            - token_multiplier
+        multiplier_value:
+          type: number
+        started_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        hours_remaining:
+          type: integer
+    ActiveEffectsResponse:
+      type: object
+      properties:
+        effects:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActiveRewardEffect'
+        total_multiplier:
+          type: number
     Routine:
       type: object
       properties:
@@ -7209,6 +7392,72 @@ paths:
                         type: string
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/rewards/inventory/me:
+    get:
+      operationId: getMyRewardInventory
+      tags:
+        - Rewards
+      summary: Inventario de recompensas del usuario
+      description: Devuelve los ítems acumulados por el usuario autenticado
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Inventario del usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RewardInventoryResponse'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/rewards/effects/active:
+    get:
+      operationId: getActiveRewardEffects
+      tags:
+        - Rewards
+      summary: Efectos activos del usuario
+      description: Lista los multiplicadores de tokens activos y su duración restante
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Efectos activos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveEffectsResponse'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/rewards/available:
+    get:
+      operationId: listAvailableRewardsForUser
+      tags:
+        - Rewards
+      summary: Recompensas disponibles para el usuario
+      description: Devuelve las recompensas activas junto con información de cooldown e inventario del usuario autenticado
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lista paginada de recompensas disponibles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRewardsResponse'
         '401':
           description: No autorizado
           content:

@@ -1,20 +1,37 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { RewardInventoryItem } from '../../domain/entities/Reward';
+import { useTheme } from '@shared/hooks';
 
 interface Props {
   item: RewardInventoryItem;
+  onUse?: (item: RewardInventoryItem) => void;
 }
 
-export const RewardInventoryCard: React.FC<Props> = ({ item }) => {
-  const getIcon = () => {
+export const RewardInventoryCard: React.FC<Props> = ({ item, onUse }) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const getIconName = () => {
     switch (item.itemType) {
       case 'streak_saver':
-        return '🛟';
+        return 'shield-checkmark-outline' as const;
       case 'token_multiplier':
-        return '🔥';
+        return 'flame-outline' as const;
       default:
-        return '🎁';
+        return 'gift-outline' as const;
+    }
+  };
+
+  const getIconColor = () => {
+    switch (item.itemType) {
+      case 'streak_saver':
+        return '#3B82F6'; // Blue
+      case 'token_multiplier':
+        return '#F97316'; // Orange
+      default:
+        return '#8B5CF6'; // Purple
     }
   };
 
@@ -28,93 +45,134 @@ export const RewardInventoryCard: React.FC<Props> = ({ item }) => {
     return item.reward.description || 'Item acumulable';
   };
 
+  const handleUse = () => {
+    if (!onUse) return;
+
+    Alert.alert(
+      'Usar multiplicador',
+      `¿Deseas activar ${item.reward.name} ahora?\n\nMultiplica tus tokens x${item.reward.effectValue || 1} durante ${item.reward.durationDays || 7} días`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Activar',
+          onPress: () => onUse(item),
+          style: 'default',
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const iconColor = getIconColor();
+
+  const shadowStyle = isDark
+    ? {
+        shadowColor: '#000000',
+        shadowOpacity: 0.35,
+        shadowOffset: { width: 0, height: 18 },
+        shadowRadius: 26,
+        elevation: 12,
+      }
+    : {
+        shadowColor: iconColor,
+        shadowOpacity: 0.12,
+        shadowOffset: { width: 0, height: 14 },
+        shadowRadius: 22,
+        elevation: 6,
+      };
+
   return (
-    <View style={styles.container}>
-      <View style={styles.iconContainer}>
-        <Text style={styles.icon}>{getIcon()}</Text>
-      </View>
+    <View
+      className="rounded-[28px] px-5 py-[18px] border"
+      style={[
+        {
+          backgroundColor: isDark ? '#111827' : '#ffffff',
+          borderColor: isDark ? 'rgba(99, 102, 241, 0.4)' : 'rgba(99, 102, 241, 0.3)',
+        },
+        shadowStyle,
+      ]}
+    >
+      <View className="flex-row gap-3">
+        {/* Icon Container */}
+        <View
+          className="w-14 h-14 rounded-[20px] border items-center justify-center"
+          style={{
+            backgroundColor: isDark ? `${iconColor}20` : `${iconColor}15`,
+            borderColor: isDark ? `${iconColor}50` : `${iconColor}35`,
+          }}
+        >
+          <Ionicons name={getIconName()} size={22} color={iconColor} />
+        </View>
 
-      <View style={styles.content}>
-        <Text style={styles.name}>{item.reward.name}</Text>
-        <Text style={styles.description} numberOfLines={2}>
-          {getDescription()}
-        </Text>
+        {/* Content */}
+        <View className="flex-1 gap-2">
+          {/* Title */}
+          <Text
+            className="text-lg font-bold"
+            style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+          >
+            {item.reward.name}
+          </Text>
 
-        <View style={styles.footer}>
-          <View style={styles.quantityBadge}>
-            <Text style={styles.quantityText}>
-              {item.quantity} / {item.maxStack}
-            </Text>
+          {/* Description */}
+          <Text
+            className="text-[13px] font-medium leading-[18px] text-[#78716C]"
+            numberOfLines={2}
+          >
+            {getDescription()}
+          </Text>
+
+          {/* Footer */}
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center gap-2">
+              {/* Quantity Badge */}
+              <View
+                className="rounded-2xl px-3 py-2 border"
+                style={{
+                  backgroundColor: isDark ? 'rgba(34, 197, 94, 0.15)' : 'rgba(34, 197, 94, 0.1)',
+                  borderColor: isDark ? 'rgba(34, 197, 94, 0.35)' : 'rgba(34, 197, 94, 0.25)',
+                }}
+              >
+                <Text className="text-xs font-bold" style={{ color: '#22C55E' }}>
+                  {item.quantity} / {item.maxStack}
+                </Text>
+              </View>
+
+              {/* Auto Label */}
+              {item.itemType === 'streak_saver' && (
+                <Text className="text-[10px] font-medium italic" style={{ color: isDark ? '#9CA3AF' : '#78716C' }}>
+                  Uso automático
+                </Text>
+              )}
+            </View>
+
+            {/* Use Button */}
+            {item.itemType === 'token_multiplier' && onUse && (
+              <TouchableOpacity
+                onPress={handleUse}
+                activeOpacity={0.78}
+                className="py-2 px-4 rounded-2xl"
+                style={{
+                  backgroundColor: isDark ? '#4C51BF' : '#4338CA',
+                }}
+              >
+                <Text
+                  className="text-xs font-bold uppercase"
+                  style={{
+                    color: '#ffffff',
+                    letterSpacing: 0.6,
+                  }}
+                >
+                  Usar
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
-
-          {item.itemType === 'streak_saver' && (
-            <Text style={styles.autoLabel}>Uso automático</Text>
-          )}
         </View>
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#F5F5F5',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  icon: {
-    fontSize: 32,
-  },
-  content: {
-    flex: 1,
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
-  },
-  description: {
-    fontSize: 13,
-    color: '#666',
-    marginBottom: 8,
-  },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  quantityBadge: {
-    backgroundColor: '#E8F5E9',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  quantityText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-  },
-  autoLabel: {
-    fontSize: 11,
-    color: '#999',
-    fontStyle: 'italic',
-  },
-});

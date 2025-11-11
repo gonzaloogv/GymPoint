@@ -42,6 +42,7 @@ interface RewardsState {
   // handleCopy: (code: string) => Promise<void>; // COMENTADO: Sistema sin códigos por ahora
   // handleToggleCode: (code: GeneratedCode) => void; // COMENTADO: Sistema sin códigos por ahora
   handleToggleClaimedReward: (claimedRewardId: number) => Promise<void>;
+  useInventoryItem: (inventoryId: number) => Promise<void>;
 }
 
 export const useRewardsStore = create<RewardsState>((set, get) => ({
@@ -270,6 +271,32 @@ export const useRewardsStore = create<RewardsState>((set, get) => ({
     } catch (error: any) {
       console.error('[RewardsStore] Error marking reward as used:', error);
       const errorMessage = error?.response?.data?.error?.message || 'No se pudo marcar la recompensa';
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: errorMessage,
+      });
+    }
+  },
+
+  useInventoryItem: async (inventoryId: number) => {
+    try {
+      await DI.rewardRemote.useInventoryItem(inventoryId);
+
+      // Refrescar inventario y efectos activos
+      await Promise.all([
+        get().fetchInventory(),
+        get().fetchActiveEffects(),
+      ]);
+
+      Toast.show({
+        type: 'success',
+        text1: '¡Multiplicador activado!',
+        text2: 'Tus tokens se multiplicarán automáticamente',
+      });
+    } catch (error: any) {
+      console.error('[RewardsStore] Error using inventory item:', error);
+      const errorMessage = error?.response?.data?.error?.message || 'No se pudo activar el multiplicador';
       Toast.show({
         type: 'error',
         text1: 'Error',

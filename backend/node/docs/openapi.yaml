@@ -7420,6 +7420,58 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /api/rewards/inventory/{inventoryId}/use:
+    post:
+      operationId: useInventoryItem
+      tags:
+        - Rewards
+      summary: Activar multiplicador desde inventario
+      description: Activa un multiplicador de tokens desde el inventario del usuario
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: inventoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del item en el inventario
+      responses:
+        '201':
+          description: Multiplicador activado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_effect:
+                    type: integer
+                  effect_type:
+                    type: string
+                  multiplier_value:
+                    type: number
+                  started_at:
+                    type: string
+                    format: date-time
+                  expires_at:
+                    type: string
+                    format: date-time
+                  hours_remaining:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Item no encontrado en el inventario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/rewards/effects/active:
     get:
       operationId: getActiveRewardEffects

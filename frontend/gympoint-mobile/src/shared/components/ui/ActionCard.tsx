@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import FeatherIcon from '@expo/vector-icons/Feather';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 
@@ -9,7 +8,7 @@ type Layout = 'horizontal' | 'vertical';
 type Props = {
   label: string;
   description: string;
-  icon: keyof typeof FeatherIcon.glyphMap;
+  icon: keyof typeof Ionicons.glyphMap;
   iconColor: string;
   iconBackground: string;
   onPress: () => void;
@@ -70,7 +69,7 @@ export function ActionCard({
           className="w-12 h-12 rounded-[18px] items-center justify-center"
           style={{ backgroundColor: iconBackground }}
         >
-          <FeatherIcon name={icon} size={22} color={iconColor} />
+          <Ionicons name={icon} size={22} color={iconColor} />
         </View>
       </View>
 

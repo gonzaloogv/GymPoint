@@ -23,10 +23,12 @@ export default function HomeHeader({ userName, plan, tokens, streak = 0 }: Props
     <View className="flex-row justify-between items-center">
       <View className="flex-1 flex-row items-center">
         <Avatar userName={userName} />
-        <View className="ml-3">
+        <View className="ml-3 flex-1 mr-2">
           <Text
-            className="text-3xl font-extrabold tracking-tight"
+            className="text-2xl font-extrabold tracking-tight"
             style={{ color: isDark ? '#F9FAFB' : '#111827' }}
+            numberOfLines={1}
+            ellipsizeMode="tail"
           >
             Hola, {firstName}
           </Text>
@@ -39,7 +41,7 @@ export default function HomeHeader({ userName, plan, tokens, streak = 0 }: Props
         </View>
       </View>
 
-      <View className="flex-row items-center gap-2 ml-3">
+      <View className="flex-row items-center gap-2">
         <TokenPill value={tokens} />
         <View
           className="flex-row items-center px-3 py-1.5 rounded-full border"
