@@ -13,27 +13,14 @@ type Item = {
 
 type Props = {
   data: Item[];
-  headerText?: string;
   onPressItem?: (id: string | number) => void;
 };
 
-export default function GymsList({ data, headerText, onPressItem }: Props) {
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
+export default function GymsList({ data, onPressItem }: Props) {
   return (
     <FlatList
       data={data}
       keyExtractor={(item) => String(item.id)}
-      ListHeaderComponent={
-        headerText ? (
-          <Text
-            className="text-sm font-medium px-4 mb-2"
-            style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
-          >
-            {headerText}
-          </Text>
-        ) : null
-      }
       renderItem={({ item, index }) => (
         <GymListItem
           id={item.id}

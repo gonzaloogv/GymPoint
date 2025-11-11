@@ -54,6 +54,7 @@ export * from './TokenPill';
 // Selection Components
 export * from './ChipSelector';
 export * from './SegmentedControl';
+export * from './ViewModeButtons';
 export * from './SwitchRow';
 export * from './StarRatingSelector';
 export * from './PriceRangeSelector';

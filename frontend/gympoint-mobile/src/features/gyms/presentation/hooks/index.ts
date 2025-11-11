@@ -14,4 +14,5 @@ export { useMapAnimations } from './useMapAnimations';
 export { useMapInitialRegion } from './useMapInitialRegion';
 export { useMapLocations } from './useMapLocations';
 export { useMapUserLocation } from './useMapUserLocation';
+export { useMapZoom } from './useMapZoom';
 export { useNearbyGyms } from './useNearbyGyms';
