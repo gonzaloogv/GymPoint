@@ -27,7 +27,16 @@ const Reward = sequelize.define('Reward', {
     allowNull: true
   },
   reward_type: {
-    type: DataTypes.ENUM('descuento', 'pase_gratis', 'producto', 'servicio', 'merchandising', 'otro'),
+    type: DataTypes.ENUM(
+      'descuento',
+      'pase_gratis',
+      'producto',
+      'servicio',
+      'merchandising',
+      'token_multiplier',
+      'streak_saver',
+      'otro'
+    ),
     allowNull: true,
     comment: 'Tipo de recompensa'
   },
@@ -55,6 +64,41 @@ const Reward = sequelize.define('Reward', {
     type: DataTypes.INTEGER,
     allowNull: true,
     comment: 'Stock disponible (NULL = ilimitado)'
+  },
+  cooldown_days: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+    comment: 'Días de cooldown entre reclamos (0 = sin cooldown)'
+  },
+  is_unlimited: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+    comment: 'Si es true, no se decrementa el stock'
+  },
+  requires_premium: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+    comment: 'Indica si es exclusivo para usuarios premium'
+  },
+  is_stackable: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+    comment: 'Permite acumular ítems en inventario'
+  },
+  max_stack: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+    comment: 'Máximo acumulable cuando es stackable'
+  },
+  duration_days: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    comment: 'Duración del efecto (aplica a multiplicadores)'
   },
   valid_from: {
     type: DataTypes.DATEONLY,

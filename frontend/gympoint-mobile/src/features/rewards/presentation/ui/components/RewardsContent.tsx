@@ -12,6 +12,7 @@ type RewardsContentProps = {
   activeTab?: 'available'; // Opcional porque siempre es 'available'
   user: User;
   rewards: Reward[];
+  isPremium: boolean;
   onGenerate: (reward: Reward) => void;
   // COMENTADO: Sistema sin códigos por ahora
   // generatedCodes: GeneratedCode[];
@@ -23,11 +24,12 @@ type RewardsContentProps = {
 export const RewardsContent: React.FC<RewardsContentProps> = ({
   user,
   rewards,
+  isPremium,
   onGenerate,
 }) => {
   // Renderizado para REWARD ITEM
   const renderRewardItem = ({ item }: { item: Reward }) => (
-    <RewardItem reward={item} tokens={user.tokens} onGenerate={onGenerate} />
+    <RewardItem reward={item} tokens={user.tokens} isPremium={isPremium} onGenerate={onGenerate} />
   );
 
   // COMENTADO: Sistema sin códigos por ahora

@@ -28,6 +28,42 @@ export function getRelativeTimeString(date: Date): string {
 }
 
 /**
+ * Convierte una fecha futura a formato relativo "en X tiempo"
+ * Sin dependencias externas - nativo JavaScript
+ */
+export function getFutureTimeString(date: Date | string): string {
+  const futureDate = typeof date === 'string' ? new Date(date) : date;
+  const now = new Date();
+  const diffInMs = futureDate.getTime() - now.getTime();
+
+  // Si ya pasó la fecha
+  if (diffInMs <= 0) {
+    return 'expirado';
+  }
+
+  const diffInSeconds = Math.floor(diffInMs / 1000);
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  const diffInDays = Math.floor(diffInHours / 24);
+  const diffInMonths = Math.floor(diffInDays / 30);
+  const diffInYears = Math.floor(diffInDays / 365);
+
+  if (diffInSeconds < 60) {
+    return 'en menos de un minuto';
+  } else if (diffInMinutes < 60) {
+    return `en ${diffInMinutes} ${diffInMinutes === 1 ? 'minuto' : 'minutos'}`;
+  } else if (diffInHours < 24) {
+    return `en ${diffInHours} ${diffInHours === 1 ? 'hora' : 'horas'}`;
+  } else if (diffInDays < 30) {
+    return `en ${diffInDays} ${diffInDays === 1 ? 'día' : 'días'}`;
+  } else if (diffInMonths < 12) {
+    return `en ${diffInMonths} ${diffInMonths === 1 ? 'mes' : 'meses'}`;
+  } else {
+    return `en ${diffInYears} ${diffInYears === 1 ? 'año' : 'años'}`;
+  }
+}
+
+/**
  * Formatea una fecha a string legible
  */
 export function formatDate(date: Date): string {

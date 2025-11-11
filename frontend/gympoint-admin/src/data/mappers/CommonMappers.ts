@@ -74,15 +74,23 @@ export function mapGymReviewResponseToReview(dto: GymReviewResponse): Review {
  * Convierte RewardResponse (DTO del API) a Reward (entidad del dominio)
  */
 export function mapRewardResponseToReward(dto: RewardResponse): Reward {
+  const extra = dto as Record<string, any>;
+
   return {
     id_reward: dto.id_reward,
     name: dto.name,
     description: dto.description,
-    reward_type: dto.reward_type as any,
-    effect_value: dto.effect_value || null,
+    reward_type: extra.reward_type as any,
+    effect_value: extra.effect_value ?? null,
     cost_tokens: dto.token_cost,
+    cooldown_days: extra.cooldown_days ?? 0,
+    is_unlimited: extra.is_unlimited ?? false,
+    requires_premium: extra.requires_premium ?? false,
+    is_stackable: extra.is_stackable ?? false,
+    max_stack: extra.max_stack ?? null,
+    duration_days: extra.duration_days ?? null,
     available: dto.is_active ?? true,
-    stock: dto.stock || 0,
+    stock: extra.stock ?? null,
     start_date: dto.valid_from || null,
     finish_date: dto.valid_until || null,
     image_url: dto.image_url || null,
@@ -101,16 +109,30 @@ export function mapCreateRewardDTOToRequest(domainDTO: DomainCreateRewardDTO): C
     description: domainDTO.description,
     reward_type: domainDTO.reward_type as any,
     token_cost: domainDTO.cost_tokens,
-    stock: domainDTO.stock || 0,
+    cooldown_days: domainDTO.cooldown_days ?? 0,
+    is_unlimited: domainDTO.is_unlimited ?? false,
+    requires_premium: domainDTO.requires_premium ?? false,
+    is_stackable: domainDTO.is_stackable ?? false,
+    max_stack: domainDTO.is_stackable ? (domainDTO.max_stack ?? 1) : 1,
     valid_from: domainDTO.start_date,
     valid_until: domainDTO.finish_date,
     is_active: domainDTO.available ?? true,
   };
 
+  if (domainDTO.is_unlimited) {
+    // Omitir stock para cumplir con el schema (integer únicamente)
+    delete request.stock;
+  } else {
+    request.stock = domainDTO.stock ?? 0;
+  }
+
   // Solo agregar campos opcionales si tienen valor
   if (domainDTO.effect_value) request.effect_value = domainDTO.effect_value;
   if (domainDTO.image_url) request.image_url = domainDTO.image_url;
   if (domainDTO.terms) request.terms = domainDTO.terms;
+  if (domainDTO.reward_type === 'token_multiplier') {
+    request.duration_days = domainDTO.duration_days ?? 7;
+  }
 
   return request;
 }
@@ -119,14 +141,36 @@ export function mapCreateRewardDTOToRequest(domainDTO: DomainCreateRewardDTO): C
  * Convierte UpdateRewardDTO (del dominio) a UpdateRewardRequest (DTO del API)
  */
 export function mapUpdateRewardDTOToRequest(domainDTO: DomainUpdateRewardDTO): UpdateRewardRequest {
-  const request: UpdateRewardRequest = {};
+  const request: UpdateRewardRequest & Record<string, any> = {};
 
   if (domainDTO.name !== undefined) request.name = domainDTO.name;
   if (domainDTO.description !== undefined) request.description = domainDTO.description;
   if (domainDTO.reward_type !== undefined) request.reward_type = domainDTO.reward_type as any;
   if (domainDTO.effect_value !== undefined) request.effect_value = domainDTO.effect_value || undefined;
   if (domainDTO.cost_tokens !== undefined) request.token_cost = domainDTO.cost_tokens;
-  if (domainDTO.stock !== undefined) request.stock = domainDTO.stock;
+  if (domainDTO.cooldown_days !== undefined) request.cooldown_days = domainDTO.cooldown_days ?? 0;
+  if (domainDTO.is_unlimited !== undefined) request.is_unlimited = domainDTO.is_unlimited;
+  if (domainDTO.requires_premium !== undefined) request.requires_premium = domainDTO.requires_premium;
+  if (domainDTO.is_stackable !== undefined) request.is_stackable = domainDTO.is_stackable;
+  if (domainDTO.max_stack !== undefined) request.max_stack = domainDTO.max_stack ?? 1;
+  if (domainDTO.duration_days !== undefined) {
+    if (domainDTO.duration_days === null) {
+      delete request.duration_days;
+    } else {
+      request.duration_days = domainDTO.duration_days;
+    }
+  }
+
+  if (domainDTO.is_unlimited) {
+    delete request.stock;
+  } else if (domainDTO.stock !== undefined) {
+    request.stock = domainDTO.stock;
+  }
+
+  if (domainDTO.reward_type === 'token_multiplier' && domainDTO.duration_days === undefined) {
+    request.duration_days = domainDTO.duration_days ?? 7;
+  }
+
   if (domainDTO.start_date !== undefined) request.valid_from = domainDTO.start_date;
   if (domainDTO.finish_date !== undefined) request.valid_until = domainDTO.finish_date;
   if (domainDTO.available !== undefined) request.is_active = domainDTO.available;

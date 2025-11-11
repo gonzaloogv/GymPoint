@@ -13,6 +13,9 @@ const {
   RewardGymStatsDaily,
   Gym,
   UserProfile,
+  UserRewardInventory,
+  ActiveUserEffect,
+  RewardCooldown,
 } = require('../../../models');
 const {
   toReward,
@@ -577,6 +580,155 @@ async function upsertRewardStatsDaily(payload, options = {}) {
   return toRewardGymStatsDaily(stat);
 }
 
+async function aggregateClaimedRewardsByGymAndDay(filters = {}, options = {}) {
+  const dateWhere = {};
+
+  if (filters.fromDate && filters.toDate) {
+    dateWhere.created_at = { [Op.between]: [filters.fromDate, filters.toDate] };
+  } else if (filters.fromDate) {
+    dateWhere.created_at = { [Op.gte]: filters.fromDate };
+  } else if (filters.toDate) {
+    dateWhere.created_at = { [Op.lte]: filters.toDate };
+  }
+
+  return ClaimedReward.findAll({
+    where: {
+      ...dateWhere,
+      '$reward.id_gym$': { [Op.ne]: null },
+    },
+    attributes: [
+      [sequelize.col('reward.id_gym'), 'id_gym'],
+      [sequelize.col('ClaimedReward.claimed_date'), 'day'],
+      [sequelize.fn('COUNT', sequelize.col('ClaimedReward.id_claimed_reward')), 'total_rewards_claimed'],
+      [sequelize.fn('SUM', sequelize.col('ClaimedReward.tokens_spent')), 'total_tokens_spent'],
+      [
+        sequelize.fn(
+          'COUNT',
+          sequelize.fn('DISTINCT', sequelize.col('ClaimedReward.id_user_profile'))
+        ),
+        'unique_users',
+      ],
+    ],
+    include: [
+      {
+        model: Reward,
+        as: 'reward',
+        attributes: [],
+        required: true,
+      },
+    ],
+    group: [sequelize.col('reward.id_gym'), sequelize.col('ClaimedReward.claimed_date')],
+    transaction: options.transaction,
+    raw: true,
+  });
+}
+
+// ============================================================================
+// USER REWARD INVENTORY
+// ============================================================================
+
+async function findUserRewardInventory(userId, options = {}) {
+  return UserRewardInventory.findAll({
+    where: { id_user_profile: userId },
+    include: [
+      {
+        model: Reward,
+        as: 'reward',
+        required: false,
+      },
+    ],
+    transaction: options.transaction,
+  });
+}
+
+async function findRewardInventoryEntry(userId, rewardId, itemType, options = {}) {
+  return UserRewardInventory.findOne({
+    where: {
+      id_user_profile: userId,
+      id_reward: rewardId,
+      item_type: itemType,
+    },
+    transaction: options.transaction,
+    lock: options.lock,
+  });
+}
+
+async function upsertRewardInventory({ userId, rewardId, itemType, quantity, maxStack }, options = {}) {
+  const [entry, created] = await UserRewardInventory.findOrCreate({
+    where: {
+      id_user_profile: userId,
+      id_reward: rewardId,
+      item_type: itemType,
+    },
+    defaults: {
+      quantity,
+      max_stack: maxStack,
+    },
+    transaction: options.transaction,
+  });
+
+  if (!created) {
+    entry.quantity = Math.min(entry.quantity + quantity, entry.max_stack || maxStack || 1);
+    await entry.save({ transaction: options.transaction });
+  }
+
+  return entry;
+}
+
+// ============================================================================
+// ACTIVE USER EFFECTS
+// ============================================================================
+
+async function createActiveUserEffect(payload, options = {}) {
+  return ActiveUserEffect.create(payload, {
+    transaction: options.transaction,
+  });
+}
+
+async function findActiveEffectsByUser(userId, options = {}) {
+  const { includeExpired = false } = options;
+  const where = {
+    id_user_profile: userId,
+  };
+
+  if (!includeExpired) {
+    where.is_consumed = false;
+    where.expires_at = { [Op.gt]: new Date() };
+  }
+
+  return ActiveUserEffect.findAll({
+    where,
+    transaction: options.transaction,
+  });
+}
+
+// ============================================================================
+// REWARD COOLDOWN
+// ============================================================================
+
+async function findRewardCooldown(userId, rewardId, options = {}) {
+  return RewardCooldown.findOne({
+    where: {
+      id_user_profile: userId,
+      id_reward: rewardId,
+    },
+    transaction: options.transaction,
+  });
+}
+
+async function upsertRewardCooldownEntry(payload, options = {}) {
+  return RewardCooldown.upsert(payload, {
+    transaction: options.transaction,
+  });
+}
+
+async function findRewardCooldownsByUser(userId, options = {}) {
+  return RewardCooldown.findAll({
+    where: { id_user_profile: userId },
+    transaction: options.transaction,
+  });
+}
+
 module.exports = {
   // Reward
   findRewards,
@@ -611,4 +763,15 @@ module.exports = {
   findRewardStatsDaily,
   getAggregatedRewardStats,
   upsertRewardStatsDaily,
+  aggregateClaimedRewardsByGymAndDay,
+
+  // Inventory / Effects / Cooldowns
+  findUserRewardInventory,
+  findRewardInventoryEntry,
+  upsertRewardInventory,
+  createActiveUserEffect,
+  findActiveEffectsByUser,
+  findRewardCooldown,
+  upsertRewardCooldownEntry,
+  findRewardCooldownsByUser,
 };

@@ -1,11 +1,16 @@
 // src/features/rewards/data/reward.remote.ts
 
 import { apiClient } from '@shared/http/apiClient';
-import { RewardResponseDTO, PaginatedRewardsResponseDTO } from './dto/reward.api.dto';
+import {
+  RewardResponseDTO,
+  PaginatedRewardsResponseDTO,
+  RewardInventoryResponseDTO,
+  ActiveEffectsResponseDTO,
+  ClaimRewardRequestDTO,
+} from './dto/reward.api.dto';
 import {
   ClaimedRewardResponseDTO,
   PaginatedClaimedRewardsResponseDTO,
-  ClaimRewardRequestDTO,
 } from './dto/claimed-reward.api.dto';
 
 export class RewardRemote {
@@ -98,6 +103,31 @@ export class RewardRemote {
     const response = await apiClient.post<ClaimedRewardResponseDTO>(
       `/api/claimed-rewards/${claimedRewardId}/use`
     );
+    return response.data;
+  }
+
+  /**
+   * GET /api/rewards/available
+   * Lista recompensas disponibles para el usuario autenticado
+   */
+  async getAvailableRewardsForUser(): Promise<PaginatedRewardsResponseDTO> {
+    const response = await apiClient.get<PaginatedRewardsResponseDTO>(`/api/rewards/available`);
+    return response.data;
+  }
+
+  /**
+   * GET /api/rewards/inventory/me
+   */
+  async getMyRewardInventory(): Promise<RewardInventoryResponseDTO> {
+    const response = await apiClient.get<RewardInventoryResponseDTO>(`/api/rewards/inventory/me`);
+    return response.data;
+  }
+
+  /**
+   * GET /api/rewards/effects/active
+   */
+  async getActiveEffects(): Promise<ActiveEffectsResponseDTO> {
+    const response = await apiClient.get<ActiveEffectsResponseDTO>(`/api/rewards/effects/active`);
     return response.data;
   }
 }

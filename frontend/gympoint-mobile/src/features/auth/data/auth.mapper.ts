@@ -29,12 +29,15 @@ export const mapAuthUserToEntity = (authUser: AuthUserDTO): User => {
   const profile = authUser.profile;
   const displayName = [profile.name, profile.lastname].filter(Boolean).join(' ').trim();
 
+  // El backend puede retornar tokens_balance O tokens (inconsistencia legacy), aceptamos ambos
+  const tokens = profile.tokens_balance ?? (profile as any).tokens ?? 0;
+
   return {
     id_user: profile.id_user_profile,
     name: displayName.length > 0 ? displayName : authUser.email,
     email: authUser.email,
     role: normalizeRole(authUser.roles, profile.subscription),
-    tokens: profile.tokens_balance ?? 0,
+    tokens,
     plan: profile.subscription === 'PREMIUM' ? 'Premium' : 'Free',
   };
 };
@@ -45,12 +48,15 @@ export const mapAuthUserToEntity = (authUser: AuthUserDTO): User => {
 export const mapUserProfileToEntity = (profile: UserProfileResponseDTO): User => {
   const displayName = [profile.name, profile.lastname].filter(Boolean).join(' ').trim();
 
+  // El backend puede retornar tokens_balance O tokens (inconsistencia legacy), aceptamos ambos
+  const tokens = profile.tokens_balance ?? (profile as any).tokens ?? 0;
+
   return {
     id_user: profile.id_user_profile,
     name: displayName.length > 0 ? displayName : profile.email,
     email: profile.email,
     role: profile.subscription === 'PREMIUM' ? 'PREMIUM' : 'USER',
-    tokens: profile.tokens_balance ?? 0,
+    tokens,
     plan: profile.subscription === 'PREMIUM' ? 'Premium' : 'Free',
   };
 };

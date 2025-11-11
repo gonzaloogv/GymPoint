@@ -1,5 +1,6 @@
 const notificationService = require('./notification-service');
 const tokenLedgerService = require('./token-ledger-service');
+const rewardService = require('./reward-service');
 const { TOKEN_REASONS } = require('../config/constants');
 
 const ACHIEVEMENT_REF_TYPE = 'achievement';
@@ -28,13 +29,17 @@ const handleUnlock = async ({ idUserProfile, definition, userAchievement }) => {
       );
 
       if (!alreadyRewarded) {
-        await tokenLedgerService.registrarMovimiento({
-          userId: idUserProfile,
-          delta: tokenReward,
-          reason: TOKEN_REASONS.ACHIEVEMENT_UNLOCKED,
-          refType: ACHIEVEMENT_REF_TYPE,
-          refId: userAchievement.id_user_achievement
-        });
+        const achievementMultiplier = await rewardService.getActiveMultiplier(idUserProfile);
+        const adjustedTokens = Math.floor(tokenReward * (achievementMultiplier || 1));
+        if (adjustedTokens > 0) {
+          await tokenLedgerService.registrarMovimiento({
+            userId: idUserProfile,
+            delta: adjustedTokens,
+            reason: TOKEN_REASONS.ACHIEVEMENT_UNLOCKED,
+            refType: ACHIEVEMENT_REF_TYPE,
+            refId: userAchievement.id_user_achievement
+          });
+        }
       }
     } catch (error) {
       console.error('[achievement-side-effects] Error otorgando tokens por logro', error);

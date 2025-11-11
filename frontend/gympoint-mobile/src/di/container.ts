@@ -29,6 +29,8 @@ import { RewardRepositoryImpl } from '@features/rewards/data/RewardRepositoryImp
 import { RewardRemote } from '@features/rewards/data/reward.remote';
 import { RewardLocal } from '@features/rewards/data/datasources/RewardLocal';
 import { GetAvailableRewards } from '@features/rewards/domain/usecases/GetAvailableRewards';
+import { GetRewardInventory } from '@features/rewards/domain/usecases/GetRewardInventory';
+import { GetActiveRewardEffects } from '@features/rewards/domain/usecases/GetActiveRewardEffects';
 import { GenerateRewardCode } from '@features/rewards/domain/usecases/GenerateRewardCode';
 import { GetGeneratedCodes } from '@features/rewards/domain/usecases/GetGeneratedCodes';
 import { ClaimReward } from '@features/rewards/domain/usecases/ClaimReward';
@@ -108,6 +110,8 @@ class Container {
   rewardLocal: RewardLocal;
   rewardRepository: RewardRepository;
   getAvailableRewards: GetAvailableRewards;
+  getRewardInventory: GetRewardInventory;
+  getActiveRewardEffects: GetActiveRewardEffects;
   generateRewardCode: GenerateRewardCode;
   getGeneratedCodes: GetGeneratedCodes;
   claimReward: ClaimReward;
@@ -179,6 +183,8 @@ class Container {
     this.rewardLocal = new RewardLocal();
     this.rewardRepository = new RewardRepositoryImpl(this.rewardRemote, this.rewardLocal);
     this.getAvailableRewards = new GetAvailableRewards(this.rewardRepository);
+    this.getRewardInventory = new GetRewardInventory(this.rewardRepository);
+    this.getActiveRewardEffects = new GetActiveRewardEffects(this.rewardRepository);
     this.generateRewardCode = new GenerateRewardCode(this.rewardRepository);
     this.getGeneratedCodes = new GetGeneratedCodes(this.rewardRepository);
     this.claimReward = new ClaimReward(this.rewardRepository);

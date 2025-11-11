@@ -50,6 +50,9 @@ const RefreshToken = require('./RefreshToken');
 const Reward = require('./Reward');
 const RewardCode = require('./RewardCode');
 const RewardGymStatsDaily = require('./RewardGymStatsDaily');
+const UserRewardInventory = require('./UserRewardInventory');
+const ActiveUserEffect = require('./ActiveUserEffect');
+const RewardCooldown = require('./RewardCooldown');
 const Routine = require('./Routine');
 const RoutineExercise = require('./RoutineExercise');
 const RoutineDay = require('./RoutineDay');
@@ -747,6 +750,59 @@ Reward.belongsTo(Gym, {
   as: 'gym'
 });
 
+// UserProfile ←→ UserRewardInventory
+UserProfile.hasMany(UserRewardInventory, {
+  foreignKey: 'id_user_profile',
+  as: 'rewardInventory'
+});
+
+UserRewardInventory.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'userProfile'
+});
+
+UserRewardInventory.belongsTo(Reward, {
+  foreignKey: 'id_reward',
+  as: 'reward'
+});
+
+Reward.hasMany(UserRewardInventory, {
+  foreignKey: 'id_reward',
+  as: 'inventoryEntries'
+});
+
+// UserProfile ←→ ActiveUserEffect
+UserProfile.hasMany(ActiveUserEffect, {
+  foreignKey: 'id_user_profile',
+  as: 'activeEffects'
+});
+
+ActiveUserEffect.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'userProfile'
+});
+
+// UserProfile ←→ RewardCooldown
+UserProfile.hasMany(RewardCooldown, {
+  foreignKey: 'id_user_profile',
+  as: 'rewardCooldowns'
+});
+
+RewardCooldown.belongsTo(UserProfile, {
+  foreignKey: 'id_user_profile',
+  as: 'userProfile'
+});
+
+RewardCooldown.belongsTo(Reward, {
+  foreignKey: 'id_reward',
+  as: 'reward'
+});
+
+Reward.hasMany(RewardCooldown, {
+  foreignKey: 'id_reward',
+  as: 'cooldowns'
+});
+
 // Gym ←→ RewardGymStatsDaily
 Gym.hasMany(RewardGymStatsDaily, {
   foreignKey: 'id_gym',
@@ -827,7 +883,7 @@ Presence.associate = (models) => {
 
 // Exportar todos los modelos
 module.exports = {
-  // Nueva arquitectura
+  // Modelos Usuarios
   Account,
   Role,
   AccountRole,
@@ -843,10 +899,8 @@ module.exports = {
   GymPayment,
   GymAmenity,
   GymGymAmenity,
-  // GymGymType - eliminado
   GymSchedule,
   GymSpecialSchedule,
-  // GymType - eliminado
   GymReview,
   GymRatingStats,
   ReviewHelpful,
@@ -863,6 +917,9 @@ module.exports = {
   Reward,
   RewardCode,
   RewardGymStatsDaily,
+  UserRewardInventory,
+  ActiveUserEffect,
+  RewardCooldown,
   Routine,
   RoutineExercise,
   RoutineDay,

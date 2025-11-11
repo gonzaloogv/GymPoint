@@ -5,6 +5,7 @@
 
 const { dailyChallengeRepository } = require('../infra/db/repositories');
 const tokenLedgerService = require('./token-ledger-service');
+const rewardService = require('./reward-service');
 const achievementService = require('./achievement-service');
 const { processUnlockResults } = require('./achievement-side-effects');
 const { NotFoundError, BusinessError, ValidationError } = require('../utils/errors');
@@ -210,9 +211,12 @@ const claimChallengeReward = async (command) => {
   const challenge = await dailyChallengeRepository.findById(cmd.idChallenge);
 
   // Award tokens
+  const challengeMultiplier = await rewardService.getActiveMultiplier(cmd.idUserProfile);
+  const challengeTokens = Math.floor((challenge.tokens_reward || 0) * (challengeMultiplier || 1));
+
   await tokenLedgerService.registrarMovimiento({
     userId: cmd.idUserProfile,
-    delta: challenge.tokens_reward,
+    delta: challengeTokens,
     reason: TOKEN_REASONS.DAILY_CHALLENGE_COMPLETED,
     refType: 'challenge',
     refId: cmd.idChallenge

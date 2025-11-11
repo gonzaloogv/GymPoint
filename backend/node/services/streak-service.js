@@ -6,6 +6,7 @@
 const { streakRepository } = require('../infra/db/repositories');
 const { NotFoundError, BusinessError } = require('../utils/errors');
 const { UserProfile } = require('../models');
+const notificationService = require('./notification-service');
 
 // Ensure functions para aceptar Commands/Queries/plain objects
 const ensureCommand = (input) => input;
@@ -154,11 +155,34 @@ const updateStreak = async (command) => {
         // Usa automáticamente un item de recuperación
         payload.recovery_items = streak.recovery_items - 1;
         // Mantiene el value actual
+
+        console.log(`[StreakService] 🛟 Salvavidas usado para userId=${cmd.idUserProfile}. Quedan ${payload.recovery_items}`);
+
+        // Enviar notificación al usuario
+        try {
+          await notificationService.createNotification({
+            id_user_profile: cmd.idUserProfile,
+            type: 'CHALLENGE',
+            title: '🛟 ¡Salvavidas usado!',
+            message: `Se usó automáticamente tu salvavidas para proteger tu racha de ${streak.value} días. Te quedan ${payload.recovery_items} salvavidas.`,
+            data: {
+              streakValue: streak.value,
+              recoveryItemsRemaining: payload.recovery_items,
+              action: 'streak_saved'
+            },
+            priority: 'HIGH'
+          });
+        } catch (notifError) {
+          console.error('[StreakService] Error enviando notificación de salvavidas:', notifError);
+          // No fallar la operación si falla la notificación
+        }
       } else {
         // Pierde la racha
         payload.last_value = streak.value;
         payload.value = 1; // Nueva racha comienza en 1
         payload.last_assistance_date = new Date();
+
+        console.log(`[StreakService] ❌ Racha perdida para userId=${cmd.idUserProfile}. Era ${streak.value} días.`);
       }
     }
   }

@@ -32,6 +32,8 @@ export function translateRewardType(type: string | null | undefined): string {
     'producto': 'PRODUCTO',
     'servicio': 'SERVICIO',
     'merchandising': 'MERCHANDISING',
+    'token_multiplier': 'MULTIPLICADOR',
+    'streak_saver': 'PROTECTOR DE RACHA',
     'otro': 'OTRO',
   };
 

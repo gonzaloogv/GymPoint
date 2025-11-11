@@ -4038,7 +4038,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "¡Logro desbloqueado con éxito!"
+                    example: ¡Logro desbloqueado con éxito!
                   data:
                     type: object
                     properties:

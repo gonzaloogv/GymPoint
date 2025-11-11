@@ -83,6 +83,30 @@ async function upsertDailyStat(gymId, day) {
   return rewardRepository.upsertRewardStatsDaily(payload);
 }
 
+async function runDailyUpsert(fromDate, toDate) {
+  const aggregates = await rewardRepository.aggregateClaimedRewardsByGymAndDay({
+    fromDate,
+    toDate,
+  });
+
+  for (const aggregate of aggregates) {
+    if (!aggregate.id_gym) continue;
+
+    const dayValue =
+      aggregate.day instanceof Date ? aggregate.day : new Date(aggregate.day);
+
+    await rewardRepository.upsertRewardStatsDaily({
+      id_gym: aggregate.id_gym,
+      day: dayValue,
+      total_rewards_claimed: Number(aggregate.total_rewards_claimed) || 0,
+      total_tokens_spent: Number(aggregate.total_tokens_spent) || 0,
+      unique_users: Number(aggregate.unique_users) || 0,
+    });
+  }
+
+  return aggregates.length;
+}
+
 // ============================================================================
 // LEGACY COMPATIBILITY
 // ============================================================================
@@ -96,8 +120,10 @@ module.exports = {
   getGlobalRewardStats,
   listDailyStats,
   upsertDailyStat,
+  runDailyUpsert,
 
   // Legacy API
   obtenerEstadisticasGimnasio,
   obtenerEstadisticasGlobales,
 };
+

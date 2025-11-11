@@ -71,7 +71,8 @@ export const Rewards = () => {
     return rewards.filter((reward) => {
       const matchesSearch = reward.name.toLowerCase().includes(searchTerm.toLowerCase()) || reward.description.toLowerCase().includes(searchTerm.toLowerCase());
       const isExpired = reward.finish_date ? new Date(reward.finish_date) < new Date() : false;
-      const isActive = reward.available && reward.stock > 0 && !isExpired;
+      const hasStock = reward.is_unlimited || (reward.stock ?? 0) > 0;
+      const isActive = reward.available && hasStock && !isExpired;
       if (filterStatus === 'active') return isActive && matchesSearch;
       if (filterStatus === 'inactive') return !reward.available && matchesSearch;
       if (filterStatus === 'expired') return isExpired && matchesSearch;
@@ -79,7 +80,15 @@ export const Rewards = () => {
     });
   }, [rewards, searchTerm, filterStatus]);
 
-  const activeCount = useMemo(() => rewards?.filter(r => r.available && r.stock > 0 && (r.finish_date ? new Date(r.finish_date) >= new Date() : true)).length || 0, [rewards]);
+  const activeCount = useMemo(
+    () =>
+      rewards?.filter((r) => {
+        const hasStock = r.is_unlimited || (r.stock ?? 0) > 0;
+        const notExpired = r.finish_date ? new Date(r.finish_date) >= new Date() : true;
+        return r.available && hasStock && notExpired;
+      }).length || 0,
+    [rewards]
+  );
   const inactiveCount = useMemo(() => rewards?.filter(r => !r.available).length || 0, [rewards]);
   const expiredCount = useMemo(() => rewards?.filter(r => r.finish_date ? new Date(r.finish_date) < new Date() : false).length || 0, [rewards]);
 

@@ -96,6 +96,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/achievements/{id}/unlock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Desbloquear un logro manualmente
+         * @description Desbloquea un logro cuando el usuario alcanza el 100% de progreso. Requiere que el progreso esté completo.
+         */
+        post: operations["unlockMyAchievement"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/stats": {
         parameters: {
             query?: never;
@@ -290,6 +310,125 @@ export interface paths {
         get: operations["getAdminTransactions"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/assistances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Registrar check-in en un gimnasio */
+        post: operations["registrarAsistencia"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/assistances/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Obtener historial de asistencias del usuario */
+        get: operations["obtenerHistorialAsistencias"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/assistances/auto-checkin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Auto check-in del usuario (usa geofence) */
+        post: operations["autoCheckIn"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/assistances/{id}/checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Registrar check-out y bonus por duración */
+        put: operations["checkOut"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/assistances/presence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Registrar presencia del usuario (PREMIUM) */
+        post: operations["registrarPresencia"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/assistances/today-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Verificar si el usuario ya hizo check-in hoy */
+        get: operations["verificarCheckInHoy"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/assistances/verify-auto-checkin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verificar y registrar auto check-in (PREMIUM) */
+        post: operations["verificarAutoCheckIn"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1061,6 +1200,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/gyms/{gymId}/reviews/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador del gimnasio (`id_gym`). */
+                gymId: components["parameters"]["GymIdPathParam"];
+            };
+            cookie?: never;
+        };
+        /**
+         * Obtener estadísticas de rating de un gimnasio
+         * @description Devuelve estadísticas agregadas de las reseñas de un gimnasio (promedio, distribución por estrellas, etc.)
+         */
+        get: operations["getGymRatingStats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/gyms/{gymId}/payments": {
         parameters: {
             query?: never;
@@ -1126,7 +1288,11 @@ export interface paths {
         delete: operations["deleteGymReview"];
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Actualizar una reseña (PATCH)
+         * @description Actualiza una reseña existente (admin o autor) - Alias de PUT
+         */
+        patch: operations["patchGymReview"];
         trace?: never;
     };
     "/api/media": {
@@ -1405,6 +1571,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/rewards/{rewardId}/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Canjear una recompensa
+         * @description Canjea una recompensa por tokens
+         */
+        post: operations["claimReward"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/{userId}/claimed-rewards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar recompensas canjeadas
+         * @description Lista todas las recompensas canjeadas por un usuario
+         */
+        get: operations["listClaimedRewards"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/claimed-rewards/{claimedRewardId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener recompensa canjeada
+         * @description Obtiene los detalles de una recompensa canjeada
+         */
+        get: operations["getClaimedReward"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/claimed-rewards/{claimedRewardId}/use": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Marcar recompensa como usada
+         * @description Marca una recompensa canjeada como usada
+         */
+        post: operations["markClaimedRewardAsUsed"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/routines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Crear rutina con ejercicios
+         * @description Crea una rutina con al menos 2 ejercicios
+         */
+        post: operations["createRoutineWithExercises"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/routines/me": {
         parameters: {
             query?: never;
@@ -1436,6 +1702,26 @@ export interface paths {
         get: operations["listRoutineTemplates"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/routines/{id}/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Importar una plantilla de rutina
+         * @description Crea una copia de la plantilla para el usuario autenticado
+         */
+        post: operations["importRoutineTemplate"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1635,7 +1921,435 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/user-routines/assign": {
+    "/api/users/me/body-metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar métricas corporales del usuario
+         * @description Obtiene el historial de métricas corporales del usuario
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Número máximo de resultados */
+                    limit?: number;
+                    /** @description Número de resultados a saltar */
+                    offset?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Lista de métricas corporales */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: {
+                                id_metric?: number;
+                                id_user_profile?: number;
+                                /** Format: date */
+                                date?: string;
+                                weight_kg?: number;
+                                height_cm?: number;
+                                bmi?: number;
+                                body_fat_percentage?: number;
+                                muscle_mass_kg?: number;
+                                waist_cm?: number;
+                                chest_cm?: number;
+                                arms_cm?: number;
+                                notes?: string;
+                                /** Format: date-time */
+                                created_at?: string;
+                            }[];
+                            total?: number;
+                            limit?: number;
+                            offset?: number;
+                        };
+                    };
+                };
+                /** @description No autenticado */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Usuario no encontrado */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Crear métrica corporal
+         * @description Registra una nueva métrica corporal para el usuario.
+         *
+         *     **Restricciones:**
+         *     - Usuarios PREMIUM: Pueden crear 1 métrica por semana (cada 7 días)
+         *     - Usuarios FREE: Pueden crear 1 métrica por mes
+         *     - Tokens: Se otorgan 5 tokens solo 1 vez por mes (independientemente de la suscripción)
+         *
+         *     **Edición:** Para modificar métricas existentes, usar PUT /api/users/me/body-metrics/{id_metric}
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: date
+                         * @description Fecha de la medición (YYYY-MM-DD)
+                         * @example 2025-10-30
+                         */
+                        date: string;
+                        /**
+                         * Format: float
+                         * @description Peso en kilogramos
+                         * @example 72.5
+                         */
+                        weight_kg?: number;
+                        /**
+                         * Format: float
+                         * @description Altura en centímetros
+                         * @example 175
+                         */
+                        height_cm?: number;
+                        /**
+                         * Format: float
+                         * @description Porcentaje de grasa corporal
+                         * @example 18.5
+                         */
+                        body_fat_percentage?: number;
+                        /**
+                         * Format: float
+                         * @description Masa muscular en kilogramos
+                         * @example 45.2
+                         */
+                        muscle_mass_kg?: number;
+                        /**
+                         * Format: float
+                         * @description Cintura en centímetros
+                         * @example 85
+                         */
+                        waist_cm?: number;
+                        /**
+                         * Format: float
+                         * @description Pecho en centímetros
+                         * @example 100
+                         */
+                        chest_cm?: number;
+                        /**
+                         * Format: float
+                         * @description Brazos en centímetros
+                         * @example 35
+                         */
+                        arms_cm?: number;
+                        /**
+                         * @description Notas opcionales
+                         * @example Medición después del entrenamiento
+                         */
+                        notes?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Métrica corporal creada exitosamente */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example Métrica corporal registrada exitosamente */
+                            message?: string;
+                            data?: {
+                                id_metric?: number;
+                                id_user_profile?: number;
+                                /** Format: date */
+                                date?: string;
+                                weight_kg?: number;
+                                height_cm?: number;
+                                bmi?: number;
+                                body_fat_percentage?: number;
+                                muscle_mass_kg?: number;
+                                waist_cm?: number;
+                                chest_cm?: number;
+                                arms_cm?: number;
+                                notes?: string;
+                                /** Format: date-time */
+                                created_at?: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Datos inválidos */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description No autenticado */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Usuario no encontrado */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/me/body-metrics/{id_metric}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Actualizar métrica corporal
+         * @description Actualiza una métrica corporal existente del usuario. No otorga tokens.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description ID de la métrica corporal a actualizar */
+                    id_metric: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: float
+                         * @description Peso en kilogramos
+                         */
+                        weight_kg?: number;
+                        /**
+                         * Format: float
+                         * @description Altura en centímetros
+                         */
+                        height_cm?: number;
+                        /**
+                         * Format: float
+                         * @description Porcentaje de grasa corporal
+                         */
+                        body_fat_percentage?: number;
+                        /**
+                         * Format: float
+                         * @description Masa muscular en kilogramos
+                         */
+                        muscle_mass_kg?: number;
+                        /**
+                         * Format: float
+                         * @description Cintura en centímetros
+                         */
+                        waist_cm?: number;
+                        /**
+                         * Format: float
+                         * @description Pecho en centímetros
+                         */
+                        chest_cm?: number;
+                        /**
+                         * Format: float
+                         * @description Brazos en centímetros
+                         */
+                        arms_cm?: number;
+                        /** @description Notas opcionales */
+                        notes?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Métrica corporal actualizada exitosamente */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example Métrica corporal actualizada exitosamente */
+                            message?: string;
+                            data?: {
+                                id_metric?: number;
+                                id_user_profile?: number;
+                                /** Format: date */
+                                date?: string;
+                                weight_kg?: number;
+                                height_cm?: number;
+                                bmi?: number;
+                                body_fat_percentage?: number;
+                                muscle_mass_kg?: number;
+                                waist_cm?: number;
+                                chest_cm?: number;
+                                arms_cm?: number;
+                                notes?: string;
+                                /** Format: date-time */
+                                created_at?: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Datos inválidos */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description No autenticado */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Acceso denegado */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Métrica no encontrada */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/me/body-metrics/latest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Obtener la métrica más reciente del usuario */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Métrica más reciente */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id_metric?: number;
+                            id_user_profile?: number;
+                            /** Format: date */
+                            date?: string;
+                            weight_kg?: number;
+                            height_cm?: number;
+                            bmi?: number;
+                            body_fat_percentage?: number;
+                            muscle_mass_kg?: number;
+                            waist_cm?: number;
+                            chest_cm?: number;
+                            arms_cm?: number;
+                            notes?: string;
+                            /** Format: date-time */
+                            created_at?: string;
+                        };
+                    };
+                };
+                /** @description No autenticado */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description No se encontraron métricas */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/user-gym/alta": {
         parameters: {
             query?: never;
             header?: never;
@@ -1644,7 +2358,127 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Asignar rutina a usuario */
+        /**
+         * Dar de alta a un usuario en un gimnasio
+         * @description Suscribe al usuario autenticado a un gimnasio con un plan específico
+         */
+        post: operations["subscribeToGym"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/user-gym/baja": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Dar de baja al usuario en un gimnasio
+         * @description Cancela la suscripción del usuario autenticado a un gimnasio
+         */
+        put: operations["unsubscribeFromGym"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/user-gym/me/activos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener los gimnasios activos del usuario autenticado
+         * @description Lista todos los gimnasios donde el usuario tiene una suscripción activa
+         */
+        get: operations["getActiveGymSubscriptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/user-gym/me/historial": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener historial completo de membresías del usuario autenticado
+         * @description Lista todas las membresías del usuario, activas e inactivas
+         */
+        get: operations["getUserGymHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/user-gym/gimnasio/{id_gym}/conteo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener cantidad de usuarios activos en un gimnasio
+         * @description Cuenta cuántos usuarios tienen suscripción activa en el gimnasio
+         */
+        get: operations["getGymMemberCount"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/user-gym/gimnasio/{id_gym}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obtener historial de usuarios de un gimnasio
+         * @description Lista todos los usuarios que han tenido o tienen suscripción en el gimnasio
+         */
+        get: operations["getGymMemberHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/user-routines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Asignar rutina activa a usuario */
         post: operations["assignRoutineToUser"];
         delete?: never;
         options?: never;
@@ -1652,14 +2486,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/user-routines/active": {
+    "/api/user-routines/me": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Obtener rutina activa */
+        /** Obtener rutina activa del usuario */
         get: operations["getActiveRoutine"];
         put?: never;
         post?: never;
@@ -1669,7 +2503,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/user-routines/active/details": {
+    "/api/user-routines/me/active-routine": {
         parameters: {
             query?: never;
             header?: never;
@@ -1686,44 +2520,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/user-routines/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Listar mis rutinas asignadas */
-        get: operations["listMyUserRoutines"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/user-routines/counts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Obtener contadores de rutinas
-         * @description Retorna total, importadas y creadas
-         */
-        get: operations["getUserRoutineCounts"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/user-routines/end": {
+    "/api/user-routines/me/end": {
         parameters: {
             query?: never;
             header?: never;
@@ -1731,62 +2528,8 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put?: never;
         /** Finalizar rutina activa */
-        post: operations["endUserRoutine"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/user-routines/import": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Importar plantilla de rutina
-         * @description Crea una copia de una rutina template para el usuario
-         */
-        post: operations["importRoutineTemplate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/user-routines/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Obtener rutina de usuario por ID */
-        get: operations["getUserRoutineById"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/user-routines/{id}/deactivate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Desactivar rutina de usuario */
-        put: operations["deactivateUserRoutine"];
+        put: operations["endUserRoutine"];
         post?: never;
         delete?: never;
         options?: never;
@@ -1866,7 +2609,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/users/me/notification-settings": {
+    "/api/users/me/notifications/settings": {
         parameters: {
             query?: never;
             header?: never;
@@ -2161,6 +2904,26 @@ export interface paths {
         post?: never;
         /** Eliminar un set */
         delete: operations["deleteWorkoutSet"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workouts/exercises/last-sets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Obtener últimos sets de ejercicios específicos
+         * @description Retorna el último peso y repeticiones registrados para los ejercicios especificados
+         */
+        post: operations["getLastSetsForExercises"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -4060,11 +4823,51 @@ export interface components {
         };
         NotificationSettingsResponse: {
             /** @description ID único de la configuración */
-            id_user_notification_setting: number;
+            id_setting: number;
             /** @description ID del perfil de usuario */
             id_user_profile: number;
             /**
-             * @description Notificaciones push habilitadas
+             * @description Recordatorios habilitados
+             * @example true
+             */
+            reminders_enabled?: boolean;
+            /**
+             * @description Notificaciones de logros habilitadas
+             * @example true
+             */
+            achievements_enabled?: boolean;
+            /**
+             * @description Notificaciones de recompensas habilitadas
+             * @example true
+             */
+            rewards_enabled?: boolean;
+            /**
+             * @description Novedades de gimnasios habilitadas
+             * @example true
+             */
+            gym_updates_enabled?: boolean;
+            /**
+             * @description Notificaciones de pagos habilitadas
+             * @example true
+             */
+            payment_enabled?: boolean;
+            /**
+             * @description Notificaciones sociales habilitadas
+             * @example true
+             */
+            social_enabled?: boolean;
+            /**
+             * @description Notificaciones del sistema habilitadas
+             * @example true
+             */
+            system_enabled?: boolean;
+            /**
+             * @description Notificaciones de desafíos habilitadas
+             * @example true
+             */
+            challenge_enabled?: boolean;
+            /**
+             * @description Notificaciones push globales habilitadas
              * @example true
              */
             push_enabled: boolean;
@@ -4074,33 +4877,13 @@ export interface components {
              */
             email_enabled: boolean;
             /**
-             * @description Recordatorios habilitados
-             * @example true
-             */
-            reminder_enabled?: boolean;
-            /**
-             * @description Notificaciones de logros habilitadas
-             * @example true
-             */
-            achievement_enabled?: boolean;
-            /**
-             * @description Notificaciones de recompensas habilitadas
-             * @example true
-             */
-            reward_enabled?: boolean;
-            /**
-             * @description Novedades de gimnasios habilitadas
-             * @example false
-             */
-            gym_news_enabled?: boolean;
-            /**
-             * @description Inicio de horario silencioso (HH:MM)
-             * @example 22:00
+             * @description Inicio de horario silencioso (HH:MM:SS)
+             * @example 22:00:00
              */
             quiet_hours_start?: string | null;
             /**
-             * @description Fin de horario silencioso (HH:MM)
-             * @example 08:00
+             * @description Fin de horario silencioso (HH:MM:SS)
+             * @example 08:00:00
              */
             quiet_hours_end?: string | null;
             /**
@@ -4112,26 +4895,34 @@ export interface components {
             updated_at?: string | null;
         };
         UpdateNotificationSettingsRequest: {
-            /** @description Habilitar/deshabilitar notificaciones push */
+            /** @description Habilitar/deshabilitar recordatorios */
+            reminders_enabled?: boolean;
+            /** @description Habilitar/deshabilitar notificaciones de logros */
+            achievements_enabled?: boolean;
+            /** @description Habilitar/deshabilitar notificaciones de recompensas */
+            rewards_enabled?: boolean;
+            /** @description Habilitar/deshabilitar novedades de gimnasios */
+            gym_updates_enabled?: boolean;
+            /** @description Habilitar/deshabilitar notificaciones de pagos */
+            payment_enabled?: boolean;
+            /** @description Habilitar/deshabilitar notificaciones sociales */
+            social_enabled?: boolean;
+            /** @description Habilitar/deshabilitar notificaciones del sistema */
+            system_enabled?: boolean;
+            /** @description Habilitar/deshabilitar notificaciones de desafíos */
+            challenge_enabled?: boolean;
+            /** @description Habilitar/deshabilitar notificaciones push globales */
             push_enabled?: boolean;
             /** @description Habilitar/deshabilitar notificaciones por email */
             email_enabled?: boolean;
-            /** @description Habilitar/deshabilitar recordatorios */
-            reminder_enabled?: boolean;
-            /** @description Habilitar/deshabilitar notificaciones de logros */
-            achievement_enabled?: boolean;
-            /** @description Habilitar/deshabilitar notificaciones de recompensas */
-            reward_enabled?: boolean;
-            /** @description Habilitar/deshabilitar novedades de gimnasios */
-            gym_news_enabled?: boolean;
             /**
-             * @description Inicio de horario silencioso (HH:MM)
-             * @example 22:00
+             * @description Inicio de horario silencioso (HH:MM o HH:MM:SS)
+             * @example 22:00:00
              */
             quiet_hours_start?: string;
             /**
-             * @description Fin de horario silencioso (HH:MM)
-             * @example 08:00
+             * @description Fin de horario silencioso (HH:MM o HH:MM:SS)
+             * @example 08:00:00
              */
             quiet_hours_end?: string;
         };
@@ -4578,6 +5369,66 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
         };
     };
+    unlockMyAchievement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del UserAchievement a desbloquear */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Logro desbloqueado exitosamente */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example ¡Logro desbloqueado con éxito! */
+                        message?: string;
+                        data?: {
+                            id_user_achievement?: number;
+                            unlocked?: boolean;
+                            /** Format: date-time */
+                            unlocked_at?: string;
+                            progress_value?: number;
+                        };
+                    };
+                };
+            };
+            /** @description ID inválido o progreso insuficiente */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Logro no encontrado o no pertenece al usuario */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description El logro ya está desbloqueado */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     getAdminStats: {
         parameters: {
             query?: never;
@@ -4886,6 +5737,330 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             500: components["responses"]["InternalServerError"];
+        };
+    };
+    registrarAsistencia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description ID del gimnasio
+                     * @example 3
+                     */
+                    id_gym: number;
+                    /**
+                     * Format: float
+                     * @description Latitud actual del usuario
+                     * @example -34.603722
+                     */
+                    latitude: number;
+                    /**
+                     * Format: float
+                     * @description Longitud actual del usuario
+                     * @example -58.38159
+                     */
+                    longitude: number;
+                    /**
+                     * Format: float
+                     * @description Precisión del GPS en metros
+                     * @example 10.5
+                     */
+                    accuracy?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Asistencia registrada con éxito */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Asistencia registrada con éxito */
+                        message?: string;
+                        data?: {
+                            id_assistance?: number;
+                            id_user_profile?: number;
+                            id_gym?: number;
+                            /** Format: date-time */
+                            entry_time?: string;
+                            latitude?: number;
+                            longitude?: number;
+                            accuracy?: number;
+                            gym?: {
+                                id_gym?: number;
+                                name?: string;
+                                address?: string;
+                                city?: string;
+                            };
+                        };
+                    };
+                };
+            };
+            /** @description Error en validación o fuera de rango */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        error?: {
+                            /** @enum {string} */
+                            code?: "OUT_OF_RANGE" | "GPS_INACCURATE" | "SUBSCRIPTION_REQUIRED" | "ASSISTANCE_REGISTRATION_FAILED" | "MISSING_FIELDS";
+                            message?: string;
+                        };
+                    };
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requiere rol de usuario app */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    obtenerHistorialAsistencias: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Historial obtenido con éxito */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: {
+                            id_assistance?: number;
+                            id_user_profile?: number;
+                            id_gym?: number;
+                            /** Format: date-time */
+                            entry_time?: string;
+                            /** Format: date-time */
+                            exit_time?: string | null;
+                            latitude?: number;
+                            longitude?: number;
+                            accuracy?: number | null;
+                            duration_minutes?: number | null;
+                            /** Format: date-time */
+                            created_at?: string;
+                            /** Format: date-time */
+                            updated_at?: string;
+                            gym?: {
+                                id_gym?: number;
+                                name?: string;
+                                address?: string;
+                                city?: string;
+                                profile_image_url?: string | null;
+                            };
+                        }[];
+                    };
+                };
+            };
+            /** @description Error al obtener historial */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    autoCheckIn: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    id_gym: number;
+                    latitude: number;
+                    longitude: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Auto check-in registrado */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error de validación */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    checkOut: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID de la asistencia */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Check-out registrado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error de validación */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    registrarPresencia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    id_gym: number;
+                    latitude: number;
+                    longitude: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Presencia actualizada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Función exclusiva premium */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    verificarCheckInHoy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Estado de check-in del día */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example true */
+                        has_checked_in_today?: boolean;
+                        assistance?: {
+                            id_assistance?: number;
+                            id_gym?: number;
+                            /** Format: date-time */
+                            entry_time?: string;
+                            gym_name?: string;
+                        } | null;
+                    };
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    verificarAutoCheckIn: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    id_gym: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Auto check-in completado */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No cumple permanencia mínima */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Función exclusiva premium */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     registerAccount: {
@@ -6265,6 +7440,52 @@ export interface operations {
             };
         };
     };
+    getGymRatingStats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Identificador del gimnasio (`id_gym`). */
+                gymId: components["parameters"]["GymIdPathParam"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Estadísticas de rating del gimnasio */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id_gym: number;
+                        /** Format: float */
+                        avg_rating: number;
+                        total_reviews: number;
+                        rating_5_count?: number;
+                        rating_4_count?: number;
+                        rating_3_count?: number;
+                        rating_2_count?: number;
+                        rating_1_count?: number;
+                        /** Format: float */
+                        avg_cleanliness?: number | null;
+                        /** Format: float */
+                        avg_equipment?: number | null;
+                        /** Format: float */
+                        avg_staff?: number | null;
+                        /** Format: float */
+                        avg_value?: number | null;
+                        /** Format: date-time */
+                        last_review_date?: string | null;
+                        /** Format: date-time */
+                        updated_at?: string;
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
     listGymPayments: {
         parameters: {
             query?: {
@@ -6434,6 +7655,45 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description Autenticación requerida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    patchGymReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID de la reseña */
+                reviewId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateGymReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Reseña actualizada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GymReviewResponse"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
             /** @description Autenticación requerida */
             401: {
                 headers: {
@@ -7194,6 +8454,208 @@ export interface operations {
             };
         };
     };
+    claimReward: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID de la recompensa a canjear */
+                rewardId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Cantidad de tokens gastados */
+                    tokens_spent: number;
+                    /** @description ID del código de recompensa (opcional) */
+                    code_id?: number;
+                    /**
+                     * Format: date-time
+                     * @description Fecha de expiración (opcional)
+                     */
+                    expires_at?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Recompensa canjeada exitosamente */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id_claimed_reward?: number;
+                        id_user_profile?: number;
+                        id_reward?: number;
+                        id_code?: number;
+                        /** Format: date-time */
+                        claimed_date?: string;
+                        /** @enum {string} */
+                        status?: "PENDING" | "ACTIVE" | "USED" | "EXPIRED";
+                        tokens_spent?: number;
+                        /** Format: date-time */
+                        used_at?: string;
+                        /** Format: date-time */
+                        expires_at?: string;
+                        reward?: components["schemas"]["RewardResponse"];
+                        code?: {
+                            id_code?: number;
+                            code?: string;
+                        };
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listClaimedRewards: {
+        parameters: {
+            query?: {
+                /** @description Filtrar por estado */
+                status?: "PENDING" | "ACTIVE" | "USED" | "EXPIRED";
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /** @description ID del usuario */
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de recompensas canjeadas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items?: Record<string, never>[];
+                        page?: number;
+                        limit?: number;
+                        total?: number;
+                        totalPages?: number;
+                    };
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getClaimedReward: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID de la recompensa canjeada */
+                claimedRewardId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Detalles de la recompensa canjeada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Recompensa canjeada no encontrada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    markClaimedRewardAsUsed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID de la recompensa canjeada */
+                claimedRewardId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Recompensa marcada como usada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    createRoutineWithExercises: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRoutineRequest"];
+            };
+        };
+        responses: {
+            /** @description Rutina creada exitosamente */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message?: string;
+                        data?: components["schemas"]["RoutineWithDetails"];
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+        };
+    };
     getMyRoutines: {
         parameters: {
             query?: {
@@ -7226,10 +8688,10 @@ export interface operations {
     listRoutineTemplates: {
         parameters: {
             query?: {
-                /** @description Número de página (1-indexado). */
-                page?: components["parameters"]["PageParam"];
-                /** @description Tamaño máximo de página. */
-                limit?: components["parameters"]["LimitParam"];
+                /** @description Filtrar por nivel de dificultad */
+                difficulty?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+                /** @description Límite de resultados */
+                limit?: number;
             };
             header?: never;
             path?: never;
@@ -7237,16 +8699,48 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Lista paginada de templates */
+            /** @description Lista de plantillas de rutinas */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedRoutinesResponse"];
+                    "application/json": {
+                        message?: string;
+                        data?: components["schemas"]["Routine"][];
+                    };
                 };
             };
             400: components["responses"]["BadRequest"];
+        };
+    };
+    importRoutineTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID de la plantilla a importar */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Rutina importada exitosamente */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description ID de la rutina copiada */
+                        id_routine_copy?: number;
+                        routine?: components["schemas"]["Routine"];
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
         };
     };
     getRoutineById: {
@@ -7760,6 +9254,349 @@ export interface operations {
             };
         };
     };
+    subscribeToGym: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description ID del gimnasio
+                     * @example 2
+                     */
+                    id_gym: number;
+                    /**
+                     * @description Plan de membresía
+                     * @example MENSUAL
+                     * @enum {string}
+                     */
+                    plan: "MENSUAL" | "SEMANAL" | "ANUAL";
+                    /**
+                     * Format: date
+                     * @description Fecha de inicio (opcional). Si no se envía, se usa la fecha actual
+                     * @example 2025-10-29
+                     */
+                    subscription_start?: string;
+                    /**
+                     * Format: date
+                     * @description Fecha de fin (opcional). Si no se envía, se calcula automáticamente según el plan
+                     * @example 2025-11-29
+                     */
+                    subscription_end?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Usuario dado de alta correctamente */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Alta en gimnasio realizada con éxito */
+                        message?: string;
+                        data?: {
+                            id_user?: number;
+                            id_gym?: number;
+                            /** @example MENSUAL */
+                            plan?: string;
+                            active?: boolean;
+                            /** Format: date-time */
+                            start_date?: string;
+                        };
+                    };
+                };
+            };
+            /** @description Faltan datos requeridos o límite de gimnasios alcanzado */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Plan inválido */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        error?: {
+                            /** @example INVALID_PLAN */
+                            code?: string;
+                            /** @example Plan inválido. Valores aceptados MENSUAL, SEMANAL, ANUAL */
+                            message?: string;
+                            /**
+                             * @example [
+                             *       "MENSUAL",
+                             *       "SEMANAL",
+                             *       "ANUAL"
+                             *     ]
+                             */
+                            accepted_values?: string[];
+                        };
+                    };
+                };
+            };
+        };
+    };
+    unsubscribeFromGym: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description ID del gimnasio
+                     * @example 2
+                     */
+                    id_gym: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Usuario dado de baja correctamente */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example Baja en gimnasio realizada con éxito */
+                        message?: string;
+                    };
+                };
+            };
+            /** @description Faltan datos requeridos */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Suscripción no encontrada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getActiveGymSubscriptions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de gimnasios activos */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description ID de la relación user_gym */
+                        id?: number;
+                        /** @description ID del perfil de usuario */
+                        id_user_profile?: number;
+                        /** @description ID del gimnasio */
+                        id_gym?: number;
+                        /** @description Nombre del gimnasio */
+                        gym_name?: string;
+                        /** @enum {string} */
+                        plan?: "MENSUAL" | "SEMANAL" | "ANUAL";
+                        is_active?: boolean;
+                        /** Format: date */
+                        subscription_start?: string;
+                        /** Format: date */
+                        subscription_end?: string;
+                        trial_used?: boolean;
+                        /**
+                         * Format: date
+                         * @description Fecha en que usó el trial (null si no aplicó)
+                         */
+                        trial_date?: string;
+                    }[];
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getUserGymHistory: {
+        parameters: {
+            query?: {
+                /** @description Filtrar por estado (activo o no) */
+                active?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de membresías por gimnasio */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id?: number;
+                        id_user_profile?: number;
+                        id_gym?: number;
+                        gym_name?: string;
+                        /** @enum {string} */
+                        plan?: "MENSUAL" | "SEMANAL" | "ANUAL";
+                        is_active?: boolean;
+                        /** Format: date */
+                        subscription_start?: string;
+                        /** Format: date */
+                        subscription_end?: string;
+                        trial_used?: boolean;
+                        /**
+                         * Format: date
+                         * @description Fecha en que usó el trial (null si no aplicó)
+                         */
+                        trial_date?: string;
+                    }[];
+                };
+            };
+            /** @description No autorizado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getGymMemberCount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description ID del gimnasio */
+                id_gym: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Cantidad de usuarios activos */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example 42 */
+                        count?: number;
+                    };
+                };
+            };
+            /** @description Gimnasio no encontrado */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getGymMemberHistory: {
+        parameters: {
+            query?: {
+                /** @description Filtrar por estado (activo o no) */
+                active?: boolean;
+            };
+            header?: never;
+            path: {
+                /** @description ID del gimnasio */
+                id_gym: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de usuarios que pasaron por el gimnasio */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id?: number;
+                        id_user_profile?: number;
+                        id_gym?: number;
+                        plan?: string;
+                        is_active?: boolean;
+                        /** Format: date */
+                        subscription_start?: string;
+                        /** Format: date */
+                        subscription_end?: string;
+                    }[];
+                };
+            };
+            /** @description Gimnasio no encontrado */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     assignRoutineToUser: {
         parameters: {
             query?: never;
@@ -7769,7 +9606,11 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["AssignRoutineRequest"];
+                "application/json": {
+                    id_routine: number;
+                    /** Format: date */
+                    start_date: string;
+                };
             };
         };
         responses: {
@@ -7835,58 +9676,6 @@ export interface operations {
             404: components["responses"]["NotFound"];
         };
     };
-    listMyUserRoutines: {
-        parameters: {
-            query?: {
-                /** @description Número de página (1-indexado). */
-                page?: components["parameters"]["PageParam"];
-                /** @description Tamaño máximo de página. */
-                limit?: components["parameters"]["LimitParam"];
-                active?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Lista de rutinas del usuario */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["UserRoutine"][];
-                    };
-                };
-            };
-            400: components["responses"]["BadRequest"];
-        };
-    };
-    getUserRoutineCounts: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Contadores de rutinas */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["UserRoutineCounts"];
-                    };
-                };
-            };
-            400: components["responses"]["BadRequest"];
-        };
-    };
     endUserRoutine: {
         parameters: {
             query?: never;
@@ -7897,88 +9686,6 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Rutina finalizada */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["UserRoutine"];
-                    };
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    importRoutineTemplate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ImportRoutineRequest"];
-            };
-        };
-        responses: {
-            /** @description Rutina importada */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message?: string;
-                        data?: components["schemas"]["Routine"];
-                    };
-                };
-            };
-            400: components["responses"]["BadRequest"];
-            404: components["responses"]["NotFound"];
-        };
-    };
-    getUserRoutineById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identificador único del recurso */
-                id: components["parameters"]["IdPathParam"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Rutina de usuario */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data?: components["schemas"]["UserRoutine"];
-                    };
-                };
-            };
-            404: components["responses"]["NotFound"];
-        };
-    };
-    deactivateUserRoutine: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Identificador único del recurso */
-                id: components["parameters"]["IdPathParam"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Rutina desactivada */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -8481,6 +10188,12 @@ export interface operations {
                 /** @description Tamaño máximo de página. */
                 limit?: components["parameters"]["LimitParam"];
                 status?: "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+                /** @description Filtrar por ID de rutina */
+                id_routine?: number;
+                /** @description Fecha de inicio para filtrar sesiones */
+                start_date?: string;
+                /** @description Fecha de fin para filtrar sesiones */
+                end_date?: string;
             };
             header?: never;
             path?: never;
@@ -8756,6 +10469,41 @@ export interface operations {
                 content?: never;
             };
             404: components["responses"]["NotFound"];
+        };
+    };
+    getLastSetsForExercises: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description IDs de los ejercicios */
+                    exercise_ids: number[];
+                };
+            };
+        };
+        responses: {
+            /** @description Últimos sets obtenidos */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: {
+                            id_exercise?: number;
+                            last_weight?: number;
+                            last_reps?: number;
+                            has_history?: boolean;
+                        }[];
+                    };
+                };
+            };
+            400: components["responses"]["BadRequest"];
         };
     };
 }

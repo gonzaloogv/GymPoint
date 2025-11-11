@@ -46,11 +46,17 @@ function toCreateRewardCommand(dto, createdBy, gymId = null) {
     name: dto.name,
     description: dto.description,
     reward_type: dto.reward_type || null,
-    effect_value: dto.effect_value || null,
+    effect_value: dto.effect_value ?? null,
     token_cost: dto.token_cost,
-    discount_percentage: dto.discount_percentage || null,
-    discount_amount: dto.discount_amount || null,
-    stock: dto.stock || null,
+    discount_percentage: dto.discount_percentage ?? null,
+    discount_amount: dto.discount_amount ?? null,
+    stock: dto.stock ?? null,
+    cooldown_days: dto.cooldown_days ?? 0,
+    is_unlimited: dto.is_unlimited ?? false,
+    requires_premium: dto.requires_premium ?? false,
+    is_stackable: dto.is_stackable ?? false,
+    max_stack: dto.max_stack ?? 1,
+    duration_days: dto.duration_days ?? null,
     valid_from: dto.valid_from ? new Date(dto.valid_from) : null,
     valid_until: dto.valid_until ? new Date(dto.valid_until) : null,
     is_active: dto.is_active !== undefined ? dto.is_active : true,
@@ -74,6 +80,12 @@ function toUpdateRewardCommand(dto, rewardId, updatedBy) {
     discount_percentage: dto.discount_percentage,
     discount_amount: dto.discount_amount,
     stock: dto.stock,
+    cooldown_days: dto.cooldown_days,
+    is_unlimited: dto.is_unlimited,
+    requires_premium: dto.requires_premium,
+    is_stackable: dto.is_stackable,
+    max_stack: dto.max_stack,
+    duration_days: dto.duration_days,
     valid_from: dto.valid_from ? new Date(dto.valid_from) : undefined,
     valid_until: dto.valid_until ? new Date(dto.valid_until) : undefined,
     is_active: dto.is_active,
@@ -307,6 +319,12 @@ function toRewardDTO(reward) {
     reward_type: reward.reward_type,
     effect_value: reward.effect_value || null,
     token_cost: reward.token_cost,
+    cooldown_days: reward.cooldown_days !== undefined ? reward.cooldown_days : null,
+    is_unlimited: reward.is_unlimited !== undefined ? reward.is_unlimited : null,
+    requires_premium: reward.requires_premium !== undefined ? reward.requires_premium : null,
+    is_stackable: reward.is_stackable !== undefined ? reward.is_stackable : null,
+    max_stack: reward.max_stack !== undefined ? reward.max_stack : null,
+    duration_days: reward.duration_days !== undefined ? reward.duration_days : null,
     discount_percentage: reward.discount_percentage || null,
     discount_amount: reward.discount_amount || null,
     stock: reward.stock,
@@ -315,6 +333,11 @@ function toRewardDTO(reward) {
     is_active: reward.is_active,
     image_url: reward.image_url || null,
     terms: reward.terms || null,
+    can_claim: reward.can_claim !== undefined ? reward.can_claim : null,
+    current_stack: reward.current_stack !== undefined ? reward.current_stack : null,
+    cooldown_ends_at: reward.cooldown_ends_at ? formatDateTimeToISO(reward.cooldown_ends_at) : null,
+    cooldown_hours_remaining: reward.cooldown_hours_remaining !== undefined ? reward.cooldown_hours_remaining : null,
+    reason: reward.reason || null,
     created_at: reward.created_at ? reward.created_at.toISOString() : null,
     updated_at: reward.updated_at ? reward.updated_at.toISOString() : null,
     gym: reward.Gym ? toGymSummaryDTO(reward.Gym) : null,
@@ -435,10 +458,55 @@ function toRewardStatsDTO(stats) {
  * Helper: Mapea Gym a resumen
  */
 function toGymSummaryDTO(gym) {
+  if (!gym) return null;
   return {
     id_gym: gym.id_gym,
     name: gym.name,
     city: gym.city || null,
+  };
+}
+
+function toUserRewardInventoryItemDTO(entry) {
+  return {
+    id_inventory: entry.id_inventory,
+    id_reward: entry.id_reward,
+    item_type: entry.item_type,
+    quantity: entry.quantity,
+    max_stack: entry.max_stack,
+    created_at: entry.created_at ? entry.created_at.toISOString() : null,
+    updated_at: entry.updated_at ? entry.updated_at.toISOString() : null,
+    reward: entry.reward
+      ? {
+          id_reward: entry.reward.id_reward,
+          name: entry.reward.name,
+          description: entry.reward.description || null,
+          image_url: entry.reward.image_url || null,
+        }
+      : null,
+  };
+}
+
+function toUserRewardInventoryDTO(items) {
+  return {
+    inventory: items.map(toUserRewardInventoryItemDTO),
+  };
+}
+
+function toActiveEffectEntryDTO(effect) {
+  return {
+    id_effect: effect.id_effect,
+    effect_type: effect.effect_type,
+    multiplier_value: effect.multiplier_value,
+    started_at: formatDateTimeToISO(effect.started_at),
+    expires_at: formatDateTimeToISO(effect.expires_at),
+    hours_remaining: effect.hours_remaining,
+  };
+}
+
+function toActiveEffectsResponseDTO(payload) {
+  return {
+    effects: payload.effects.map(toActiveEffectEntryDTO),
+    total_multiplier: payload.total_multiplier,
   };
 }
 
@@ -476,4 +544,6 @@ module.exports = {
   toPaginatedTokenLedgerDTO,
   toTokenBalanceDTO,
   toRewardStatsDTO,
+  toUserRewardInventoryDTO,
+  toActiveEffectsResponseDTO,
 };

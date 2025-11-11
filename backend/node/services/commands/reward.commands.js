@@ -21,6 +21,12 @@
  * @property {string|null} reward_type - Tipo de recompensa (descuento, pase_gratis, producto, servicio, merchandising, otro)
  * @property {number|null} effect_value - Valor del efecto (ej: días de premium, porcentaje de descuento)
  * @property {number} token_cost - Costo en tokens
+ * @property {number} cooldown_days - Días de cooldown entre reclamos
+ * @property {boolean} is_unlimited - Stock ilimitado
+ * @property {boolean} requires_premium - Solo usuarios premium
+ * @property {boolean} is_stackable - Se puede acumular en inventario
+ * @property {number} max_stack - Máximo acumulable
+ * @property {number|null} duration_days - Duración del efecto (multipliers)
  * @property {number|null} discount_percentage - Porcentaje de descuento
  * @property {number|null} discount_amount - Monto fijo de descuento
  * @property {number|null} stock - Stock disponible (null = ilimitado)
@@ -42,6 +48,12 @@ class CreateRewardCommand {
     discount_percentage = null,
     discount_amount = null,
     stock = null,
+    cooldown_days = 0,
+    is_unlimited = false,
+    requires_premium = false,
+    is_stackable = false,
+    max_stack = 1,
+    duration_days = null,
     valid_from = null,
     valid_until = null,
     is_active = true,
@@ -58,6 +70,12 @@ class CreateRewardCommand {
     this.discount_percentage = discount_percentage;
     this.discount_amount = discount_amount;
     this.stock = stock;
+    this.cooldown_days = cooldown_days;
+    this.is_unlimited = is_unlimited;
+    this.requires_premium = requires_premium;
+    this.is_stackable = is_stackable;
+    this.max_stack = max_stack;
+    this.duration_days = duration_days;
     this.valid_from = valid_from;
     this.valid_until = valid_until;
     this.is_active = is_active;
@@ -77,6 +95,12 @@ class CreateRewardCommand {
  * @property {string|null} [reward_type] - Tipo de recompensa
  * @property {number|null} [effect_value] - Valor del efecto
  * @property {number} [token_cost] - Costo en tokens
+ * @property {number} [cooldown_days] - Días de cooldown entre reclamos
+ * @property {boolean} [is_unlimited] - Stock ilimitado
+ * @property {boolean} [requires_premium] - Solo usuarios premium
+ * @property {boolean} [is_stackable] - Se puede acumular en inventario
+ * @property {number} [max_stack] - Máximo acumulable
+ * @property {number|null} [duration_days] - Duración del efecto (multipliers)
  * @property {number|null} [discount_percentage] - Porcentaje de descuento
  * @property {number|null} [discount_amount] - Monto de descuento
  * @property {number|null} [stock] - Stock
@@ -98,6 +122,12 @@ class UpdateRewardCommand {
     discount_percentage,
     discount_amount,
     stock,
+    cooldown_days,
+    is_unlimited,
+    requires_premium,
+    is_stackable,
+    max_stack,
+    duration_days,
     valid_from,
     valid_until,
     is_active,
@@ -114,6 +144,12 @@ class UpdateRewardCommand {
     this.discount_percentage = discount_percentage;
     this.discount_amount = discount_amount;
     this.stock = stock;
+    this.cooldown_days = cooldown_days;
+    this.is_unlimited = is_unlimited;
+    this.requires_premium = requires_premium;
+    this.is_stackable = is_stackable;
+    this.max_stack = max_stack;
+    this.duration_days = duration_days;
     this.valid_from = valid_from;
     this.valid_until = valid_until;
     this.is_active = is_active;

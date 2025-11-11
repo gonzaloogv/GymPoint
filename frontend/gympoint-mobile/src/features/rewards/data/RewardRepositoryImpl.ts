@@ -4,7 +4,7 @@ import {
   ListClaimedRewardsParams,
   ClaimRewardParams,
 } from '../domain/repositories/RewardRepository';
-import { Reward } from '../domain/entities/Reward';
+import { Reward, RewardInventoryItem, ActiveEffectsSummary } from '../domain/entities/Reward';
 import { GeneratedCode } from '../domain/entities/GeneratedCode';
 import { ClaimedReward } from '../domain/entities/ClaimedReward';
 import { RewardRemote } from './reward.remote';
@@ -13,7 +13,11 @@ import {
   mapRewardDTOToEntity,
   mapGeneratedCodeDTOToEntity,
 } from './mappers/reward.mapper';
-import { mapRewardResponseDTOArrayToEntityArray } from './mappers/reward.api.mapper';
+import {
+  mapRewardResponseDTOArrayToEntityArray,
+  mapRewardInventoryResponseDTOToEntity,
+  mapActiveEffectsResponseDTOToEntity,
+} from './mappers/reward.api.mapper';
 import {
   mapClaimedRewardResponseDTOToEntity,
   mapClaimedRewardResponseDTOArrayToEntityArray,
@@ -48,28 +52,34 @@ export class RewardRepositoryImpl implements RewardRepository {
     }
   }
 
-  async getAvailableRewards(isPremium: boolean): Promise<Reward[]> {
+  async getAvailableRewards(): Promise<Reward[]> {
     try {
-      // Get all active rewards from API
-      const dtos = await this.remote.listRewards({ available: true });
-      const rewards = mapRewardResponseDTOArrayToEntityArray(dtos);
-
-      // Filter based on user plan
-      const filtered = rewards.filter(reward => {
-        // If reward category is premium, only show to premium users
-        if (reward.category === 'premium' && !isPremium) {
-          return false;
-        }
-        return reward.available;
-      });
-
-      return filtered;
+      const response = await this.remote.getAvailableRewardsForUser();
+      return mapRewardResponseDTOArrayToEntityArray(response.items);
     } catch (error) {
       console.error('[RewardRepository] Error fetching available rewards from API:', error);
-
-      // Fallback to local mock data
-      const dtos = await this.local.getAllRewards(isPremium);
+      const dtos = await this.local.getAllRewards(true);
       return dtos.map(mapRewardDTOToEntity);
+    }
+  }
+
+  async getRewardInventory(): Promise<RewardInventoryItem[]> {
+    try {
+      const dto = await this.remote.getMyRewardInventory();
+      return mapRewardInventoryResponseDTOToEntity(dto);
+    } catch (error) {
+      console.error('[RewardRepository] Error fetching reward inventory:', error);
+      return [];
+    }
+  }
+
+  async getActiveEffects(): Promise<ActiveEffectsSummary> {
+    try {
+      const dto = await this.remote.getActiveEffects();
+      return mapActiveEffectsResponseDTOToEntity(dto);
+    } catch (error) {
+      console.error('[RewardRepository] Error fetching active effects:', error);
+      return { effects: [], totalMultiplier: 1 };
     }
   }
 

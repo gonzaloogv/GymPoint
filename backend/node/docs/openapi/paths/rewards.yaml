@@ -216,6 +216,75 @@ paths:
               schema:
                 $ref: ../components/common.yaml#/components/schemas/Error
 
+  /api/rewards/inventory/me:
+    get:
+      operationId: getMyRewardInventory
+      tags:
+        - Rewards
+      summary: Inventario de recompensas del usuario
+      description: Devuelve los ítems acumulados por el usuario autenticado
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Inventario del usuario
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/rewards.yaml#/components/schemas/RewardInventoryResponse
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+
+  /api/rewards/effects/active:
+    get:
+      operationId: getActiveRewardEffects
+      tags:
+        - Rewards
+      summary: Efectos activos del usuario
+      description: Lista los multiplicadores de tokens activos y su duración restante
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Efectos activos
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/rewards.yaml#/components/schemas/ActiveEffectsResponse
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+
+  /api/rewards/available:
+    get:
+      operationId: listAvailableRewardsForUser
+      tags:
+        - Rewards
+      summary: Recompensas disponibles para el usuario
+      description: Devuelve las recompensas activas junto con información de cooldown e inventario del usuario autenticado
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lista paginada de recompensas disponibles
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/rewards.yaml#/components/schemas/PaginatedRewardsResponse
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+
   /api/users/{userId}/claimed-rewards:
     get:
       operationId: listClaimedRewards

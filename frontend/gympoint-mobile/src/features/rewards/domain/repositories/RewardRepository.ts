@@ -1,6 +1,6 @@
 // src/features/rewards/domain/repositories/RewardRepository.ts
 
-import { Reward } from '../entities/Reward';
+import { Reward, RewardInventoryItem, ActiveEffectsSummary } from '../entities/Reward';
 import { GeneratedCode } from '../entities/GeneratedCode';
 import { ClaimedReward } from '../entities/ClaimedReward';
 
@@ -23,7 +23,9 @@ export interface ClaimRewardParams {
 export interface RewardRepository {
   listRewards(params?: ListRewardsParams): Promise<Reward[]>;
   getRewardById(id: number): Promise<Reward | null>;
-  getAvailableRewards(isPremium: boolean): Promise<Reward[]>;
+  getAvailableRewards(): Promise<Reward[]>;
+  getRewardInventory(): Promise<RewardInventoryItem[]>;
+  getActiveEffects(): Promise<ActiveEffectsSummary>;
   getGeneratedCodes(): Promise<GeneratedCode[]>;
 
   // Claimed rewards methods

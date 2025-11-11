@@ -289,6 +289,93 @@ const markClaimedRewardAsUsed = async (req, res) => {
   }
 };
 
+/**
+ * GET /api/rewards/inventory/me
+ * Devuelve el inventario de recompensas del usuario autenticado
+ */
+const getMyRewardInventory = async (req, res) => {
+  try {
+    const userId = req.account?.userProfile?.id_user_profile;
+    if (!userId) {
+      return res.status(403).json({
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Usuario autenticado requerido',
+        },
+      });
+    }
+
+    const items = await rewardService.getUserRewardInventory(userId);
+    const dto = rewardMappers.toUserRewardInventoryDTO(items);
+    res.json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      error: {
+        code: error.code || 'GET_INVENTORY_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
+/**
+ * GET /api/rewards/effects/active
+ * Devuelve los efectos activos del usuario autenticado
+ */
+const getMyActiveEffects = async (req, res) => {
+  try {
+    const userId = req.account?.userProfile?.id_user_profile;
+    if (!userId) {
+      return res.status(403).json({
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Usuario autenticado requerido',
+        },
+      });
+    }
+
+    const payload = await rewardService.getActiveEffectsForUser(userId);
+    const dto = rewardMappers.toActiveEffectsResponseDTO(payload);
+    res.json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      error: {
+        code: error.code || 'GET_ACTIVE_EFFECTS_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
+/**
+ * GET /api/rewards/available
+ * Lista recompensas disponibles para el usuario autenticado (con contexto)
+ */
+const listAvailableRewardsForUser = async (req, res) => {
+  try {
+    const userId = req.account?.userProfile?.id_user_profile;
+    if (!userId) {
+      return res.status(403).json({
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Usuario autenticado requerido',
+        },
+      });
+    }
+
+    const result = await rewardService.getAvailableRewardsForUser(userId);
+    const dto = rewardMappers.toPaginatedRewardsDTO(result);
+    res.json(dto);
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      error: {
+        code: error.code || 'LIST_AVAILABLE_REWARDS_FAILED',
+        message: error.message,
+      },
+    });
+  }
+};
+
 module.exports = {
   // Rewards
   listRewards,
@@ -306,6 +393,9 @@ module.exports = {
   getClaimedReward,
   claimReward,
   markClaimedRewardAsUsed,
+  getMyRewardInventory,
+  getMyActiveEffects,
+  listAvailableRewardsForUser,
 
   // Legacy aliases (Spanish) for backward compatibility
   listarTodasLasRecompensas: listRewards,

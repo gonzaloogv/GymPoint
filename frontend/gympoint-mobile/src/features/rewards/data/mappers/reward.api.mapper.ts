@@ -1,7 +1,18 @@
 // src/features/rewards/data/mappers/reward.api.mapper.ts
 
-import { Reward, RewardCategory, RewardType } from '../../domain/entities/Reward';
-import { RewardResponseDTO } from '../dto/reward.api.dto';
+import {
+  Reward,
+  RewardCategory,
+  RewardType,
+  RewardInventoryItem,
+  ActiveEffectsSummary,
+  ActiveRewardEffect,
+} from '../../domain/entities/Reward';
+import {
+  RewardResponseDTO,
+  RewardInventoryResponseDTO,
+  ActiveEffectsResponseDTO,
+} from '../dto/reward.api.dto';
 
 const getRewardCategory = (rewardType?: RewardType | null, stock?: number | null): RewardCategory => {
   if (rewardType === 'pase_gratis' || rewardType === 'servicio') {
@@ -29,6 +40,10 @@ const getRewardIcon = (rewardType?: RewardType | null): string => {
       return '💆';
     case 'merchandising':
       return '👕';
+    case 'token_multiplier':
+      return '🔥';
+    case 'streak_saver':
+      return '🛟';
     default:
       return '🎁';
   }
@@ -62,7 +77,14 @@ export const mapRewardResponseDTOToEntity = (dto: RewardResponseDTO): Reward => 
     name: dto.name,
     description: dto.description,
     rewardType: dto.reward_type,
+    effectValue: dto.effect_value ?? null,
     tokenCost: dto.token_cost,
+    cooldownDays: dto.cooldown_days ?? null,
+    isUnlimited: dto.is_unlimited ?? null,
+    requiresPremium: dto.requires_premium ?? null,
+    isStackable: dto.is_stackable ?? null,
+    maxStack: dto.max_stack ?? null,
+    durationDays: dto.duration_days ?? null,
     discountPercentage: dto.discount_percentage,
     discountAmount: dto.discount_amount,
     stock: dto.stock,
@@ -71,6 +93,11 @@ export const mapRewardResponseDTOToEntity = (dto: RewardResponseDTO): Reward => 
     isActive: dto.is_active,
     imageUrl: dto.image_url,
     terms: dto.terms,
+    canClaim: dto.can_claim ?? null,
+    currentStack: dto.current_stack ?? null,
+    cooldownEndsAt: dto.cooldown_ends_at ?? null,
+    cooldownHoursRemaining: dto.cooldown_hours_remaining ?? null,
+    reason: dto.reason ?? null,
     createdAt: dto.created_at,
     updatedAt: dto.updated_at,
 
@@ -80,10 +107,46 @@ export const mapRewardResponseDTOToEntity = (dto: RewardResponseDTO): Reward => 
     category,
     icon,
     validDays,
-    available: dto.is_active && (dto.stock === null || dto.stock > 0),
+    available: dto.can_claim ?? (dto.is_active && (dto.stock === null || dto.stock > 0)),
   };
 };
 
 export const mapRewardResponseDTOArrayToEntityArray = (dtos: RewardResponseDTO[]): Reward[] => {
   return dtos.map(mapRewardResponseDTOToEntity);
+};
+
+export const mapRewardInventoryResponseDTOToEntity = (
+  dto: RewardInventoryResponseDTO
+): RewardInventoryItem[] => {
+  if (!dto?.inventory) return [];
+
+  return dto.inventory.map((item) => ({
+    id: item.id_inventory,
+    userId: item.id_user_profile,
+    rewardId: item.id_reward,
+    itemType: item.item_type,
+    quantity: item.quantity,
+    maxStack: item.max_stack,
+    createdAt: item.created_at,
+    updatedAt: item.updated_at,
+    reward: mapRewardResponseDTOToEntity(item.reward),
+  }));
+};
+
+export const mapActiveEffectsResponseDTOToEntity = (
+  dto: ActiveEffectsResponseDTO
+): ActiveEffectsSummary => {
+  const effects: ActiveRewardEffect[] = (dto.effects || []).map((effect) => ({
+    id: effect.id_effect,
+    effectType: effect.effect_type,
+    multiplierValue: effect.multiplier_value,
+    startedAt: effect.started_at,
+    expiresAt: effect.expires_at,
+    hoursRemaining: effect.hours_remaining,
+  }));
+
+  return {
+    effects,
+    totalMultiplier: dto.total_multiplier || 1,
+  };
 };

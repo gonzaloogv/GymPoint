@@ -55,14 +55,58 @@ module.exports = {
           allowNull: true
         },
         reward_type: {
-          type: Sequelize.ENUM('descuento', 'pase_gratis', 'producto', 'servicio', 'merchandising', 'otro'),
+          type: Sequelize.ENUM(
+            'descuento',
+            'pase_gratis',
+            'producto',
+            'servicio',
+            'merchandising',
+            'token_multiplier',
+            'streak_saver',
+            'otro'
+          ),
           allowNull: true,
-          comment: 'Tipo de recompensa: descuento, pase_gratis, producto, servicio, merchandising, otro'
+          comment: 'Tipo de recompensa: descuento, pase_gratis, producto, servicio, merchandising, token_multiplier, streak_saver, otro'
         },
         effect_value: {
           type: Sequelize.INTEGER,
           allowNull: true,
           comment: 'Valor del efecto (ej: días de premium, % descuento, etc)'
+        },
+        cooldown_days: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
+          comment: 'Días de cooldown entre reclamos (0 = sin cooldown)'
+        },
+        is_unlimited: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+          comment: 'Indica si no se decrementa el stock al reclamar'
+        },
+        requires_premium: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+          comment: 'Solo usuarios premium pueden reclamarla'
+        },
+        is_stackable: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+          comment: 'Permite acumularla en inventario'
+        },
+        max_stack: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          defaultValue: 1,
+          comment: 'Cantidad máxima acumulable'
+        },
+        duration_days: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          comment: 'Duración del efecto en días (para multiplicadores)'
         },
         token_cost: {
           type: Sequelize.INTEGER,
@@ -136,6 +180,209 @@ module.exports = {
         transaction
       });
       console.log(' Tabla "reward" creada con 3 índices\n');
+
+      // ========================================
+      // TABLA: user_reward_inventory
+      // ========================================
+      console.log(' Creando tabla "user_reward_inventory"...');
+      await queryInterface.createTable('user_reward_inventory', {
+        id_inventory: {
+          type: Sequelize.INTEGER,
+          primaryKey: true,
+          autoIncrement: true
+        },
+        id_user_profile: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'user_profiles',
+            key: 'id_user_profile'
+          },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
+        },
+        id_reward: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'reward',
+            key: 'id_reward'
+          },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
+        },
+        item_type: {
+          type: Sequelize.ENUM('streak_saver', 'token_multiplier'),
+          allowNull: false
+        },
+        quantity: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          defaultValue: 0
+        },
+        max_stack: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          defaultValue: 1
+        },
+        created_at: {
+          type: Sequelize.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        },
+        updated_at: {
+          type: Sequelize.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
+        }
+      }, { transaction });
+
+      await queryInterface.addConstraint('user_reward_inventory', {
+        fields: ['id_user_profile', 'id_reward', 'item_type'],
+        type: 'unique',
+        name: 'uniq_user_reward_inventory_per_reward',
+        transaction
+      });
+
+      await queryInterface.addIndex('user_reward_inventory', ['id_user_profile'], {
+        name: 'idx_user_reward_inventory_user',
+        transaction
+      });
+
+      await queryInterface.addIndex('user_reward_inventory', ['item_type'], {
+        name: 'idx_user_reward_inventory_type',
+        transaction
+      });
+      console.log(' Tabla "user_reward_inventory" creada con índices');
+
+      // ========================================
+      // TABLA: active_user_effects
+      // ========================================
+      console.log(' Creando tabla "active_user_effects"...');
+      await queryInterface.createTable('active_user_effects', {
+        id_effect: {
+          type: Sequelize.INTEGER,
+          primaryKey: true,
+          autoIncrement: true
+        },
+        id_user_profile: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'user_profiles',
+            key: 'id_user_profile'
+          },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
+        },
+        effect_type: {
+          type: Sequelize.ENUM('token_multiplier'),
+          allowNull: false
+        },
+        multiplier_value: {
+          type: Sequelize.DECIMAL(3, 1),
+          allowNull: false
+        },
+        started_at: {
+          type: Sequelize.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        },
+        expires_at: {
+          type: Sequelize.DATE,
+          allowNull: false
+        },
+        is_consumed: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: false
+        },
+        created_at: {
+          type: Sequelize.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        }
+      }, { transaction });
+
+      await queryInterface.addIndex('active_user_effects', ['id_user_profile', 'expires_at', 'is_consumed'], {
+        name: 'idx_active_effects_user_expires',
+        transaction
+      });
+
+      await queryInterface.addIndex('active_user_effects', ['effect_type'], {
+        name: 'idx_active_effects_type',
+        transaction
+      });
+      console.log(' Tabla "active_user_effects" creada con índices');
+
+      // ========================================
+      // TABLA: reward_cooldown
+      // ========================================
+      console.log(' Creando tabla "reward_cooldown"...');
+      await queryInterface.createTable('reward_cooldown', {
+        id_cooldown: {
+          type: Sequelize.INTEGER,
+          primaryKey: true,
+          autoIncrement: true
+        },
+        id_user_profile: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'user_profiles',
+            key: 'id_user_profile'
+          },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
+        },
+        id_reward: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'reward',
+            key: 'id_reward'
+          },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
+        },
+        last_claimed_at: {
+          type: Sequelize.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        },
+        can_claim_again_at: {
+          type: Sequelize.DATE,
+          allowNull: false
+        },
+        created_at: {
+          type: Sequelize.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        },
+        updated_at: {
+          type: Sequelize.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
+        }
+      }, { transaction });
+
+      await queryInterface.addConstraint('reward_cooldown', {
+        fields: ['id_user_profile', 'id_reward'],
+        type: 'unique',
+        name: 'uniq_reward_cooldown_user_reward',
+        transaction
+      });
+
+      await queryInterface.addIndex('reward_cooldown', ['id_user_profile'], {
+        name: 'idx_reward_cooldown_user',
+        transaction
+      });
+
+      await queryInterface.addIndex('reward_cooldown', ['can_claim_again_at'], {
+        name: 'idx_reward_cooldown_time',
+        transaction
+      });
+      console.log(' Tabla "reward_cooldown" creada con índices');
 
       // ========================================
       // TABLA: reward_code
@@ -912,14 +1159,14 @@ module.exports = {
       console.log('========================================');
       console.log(' MIGRACIÓN 6 COMPLETADA');
       console.log('========================================');
-      console.log(' Tablas creadas: 12');
+      console.log(' Tablas creadas: 15');
       console.log('   - reward, reward_code, claimed_reward (con expiración)');
       console.log('   - token_ledger, reward_gym_stats_daily');
       console.log('   - daily_challenge_template, daily_challenge_settings');
       console.log('   - daily_challenge, user_daily_challenge');
       console.log('   - achievement_definition, user_achievement');
       console.log('   - user_achievement_event');
-      console.log(' Índices creados: 20');
+      console.log(' Índices creados: 26');
       console.log(' Sistema de plantillas y rotación automática integrado');
       console.log(' Campos adicionales: used_at, expires_at en claimed_reward');
       console.log('========================================\n');
@@ -948,6 +1195,9 @@ module.exports = {
       await queryInterface.dropTable('reward_gym_stats_daily', { transaction });
       await queryInterface.dropTable('token_ledger', { transaction });
       await queryInterface.dropTable('claimed_reward', { transaction });
+      await queryInterface.dropTable('reward_cooldown', { transaction });
+      await queryInterface.dropTable('active_user_effects', { transaction });
+      await queryInterface.dropTable('user_reward_inventory', { transaction });
       await queryInterface.dropTable('reward_code', { transaction });
       await queryInterface.dropTable('reward', { transaction });
 

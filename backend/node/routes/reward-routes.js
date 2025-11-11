@@ -29,6 +29,24 @@ router.post('/', verificarToken, verificarAdmin, rewardController.createReward);
 // ============================================================================
 
 /**
+ * GET /api/rewards/inventory/me
+ * Devuelve inventario de rewards del usuario
+ */
+router.get('/inventory/me', verificarToken, verificarUsuarioApp, rewardController.getMyRewardInventory);
+
+/**
+ * GET /api/rewards/effects/active
+ * Devuelve efectos activos del usuario
+ */
+router.get('/effects/active', verificarToken, verificarUsuarioApp, rewardController.getMyActiveEffects);
+
+/**
+ * GET /api/rewards/available
+ * Lista recompensas disponibles considerando cooldown e inventario
+ */
+router.get('/available', verificarToken, verificarUsuarioApp, rewardController.listAvailableRewardsForUser);
+
+/**
  * POST /api/rewards/:rewardId/claim
  * Canjea una recompensa por tokens
  */

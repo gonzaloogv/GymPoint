@@ -15,6 +15,7 @@ const { presenceRepository } = require('../infra/db/repositories');
 
 // Other services
 const tokenLedgerService = require('./token-ledger-service');
+const rewardService = require('./reward-service');
 const achievementService = require('./achievement-service');
 const { processUnlockResults } = require('./achievement-side-effects');
 const frequencyService = require('./frequency-service');
@@ -257,9 +258,12 @@ const registrarAsistencia = async (command) => {
   }
 
   // Otorgar tokens usando ledger
+  const multiplier = await rewardService.getActiveMultiplier(idUserProfile);
+  const tokensAwarded = Math.floor((TOKENS.ATTENDANCE || 0) * (multiplier || 1));
+
   const { newBalance } = await tokenLedgerService.registrarMovimiento({
     userId: idUserProfile,
-    delta: TOKENS.ATTENDANCE,
+    delta: tokensAwarded,
     reason: TOKEN_REASONS.ATTENDANCE,
     refType: 'assistance',
     refId: nuevaAsistencia.id_assistance
@@ -330,19 +334,25 @@ const checkOut = async (command) => {
 
   let newBalance = undefined;
   let awarded = 0;
+  let adjustedDelta = 0;
   if (delta > 0) {
     // Evitar doble procesamiento de checkout usando ref_type distinto
     const yaExiste = await tokenLedgerService.existeMovimiento('assistance_checkout', command.assistanceId);
     if (!yaExiste) {
+      const multiplierExtra = await rewardService.getActiveMultiplier(command.userProfileId);
+      adjustedDelta = Math.floor(delta * (multiplierExtra || 1));
+      if (adjustedDelta <= 0) {
+        adjustedDelta = 0;
+      }
       const res = await tokenLedgerService.registrarMovimiento({
         userId: command.userProfileId,
-        delta,
+        delta: adjustedDelta,
         reason: TOKEN_REASONS.ATTENDANCE,
         refType: 'assistance_checkout',
         refId: command.assistanceId
       });
       newBalance = res.newBalance;
-      awarded = delta;
+      awarded = adjustedDelta;
     }
   }
 
@@ -498,9 +508,12 @@ const autoCheckIn = async (command) => {
   }
 
   // Otorgar tokens usando ledger
+  const multiplier = await rewardService.getActiveMultiplier(idUserProfile);
+  const tokensAwarded = Math.floor((TOKENS.ATTENDANCE || 0) * (multiplier || 1));
+
   const { newBalance } = await tokenLedgerService.registrarMovimiento({
     userId: idUserProfile,
-    delta: TOKENS.ATTENDANCE,
+    delta: tokensAwarded,
     reason: TOKEN_REASONS.ATTENDANCE,
     refType: 'assistance',
     refId: nuevaAsistencia.id_assistance
@@ -741,9 +754,11 @@ const verificarAutoCheckIn = async (command) => {
   }
 
   // Otorgar tokens
+  const multiplier = await rewardService.getActiveMultiplier(command.userProfileId);
+  const tokensAwarded = Math.floor((TOKENS.ATTENDANCE || 0) * (multiplier || 1));
   const { newBalance } = await tokenLedgerService.registrarMovimiento({
     userId: command.userProfileId,
-    delta: TOKENS.ATTENDANCE,
+    delta: tokensAwarded,
     reason: TOKEN_REASONS.ATTENDANCE,
     refType: 'assistance',
     refId: nuevaAsistencia.id_assistance

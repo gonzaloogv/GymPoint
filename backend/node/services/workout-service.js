@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Workout Service - Refactored with CQRS Pattern (Lote 7)
  * Handles WorkoutSession and WorkoutSet operations
  */
@@ -16,6 +16,7 @@ const achievementService = require('./achievement-service');
 const { processUnlockResults } = require('./achievement-side-effects');
 const progressService = require('./progress-service');
 const challengeService = require('./challenge-service');
+const rewardService = require('./reward-service');
 
 // Ensure functions for flexible parameter acceptance
 const ensureQuery = (input) => input;
@@ -78,7 +79,7 @@ const updateDailyChallengeProgress = async (idUserProfile, sessionData) => {
         break;
 
       default:
-        console.warn(`[updateDailyChallengeProgress] Tipo de desafío no reconocido: ${challenge.challenge_type}`);
+        console.warn(`[updateDailyChallengeProgress] Tipo de desafÃ­o no reconocido: ${challenge.challenge_type}`);
         return;
     }
 
@@ -93,11 +94,11 @@ const updateDailyChallengeProgress = async (idUserProfile, sessionData) => {
     );
 
     if (newValue >= challenge.target_value) {
-      console.log(`[updateDailyChallengeProgress] Desafío completado: "${challenge.title}" +${challenge.tokens_reward} tokens`);
+      console.log(`[updateDailyChallengeProgress] DesafÃ­o completado: "${challenge.title}" +${challenge.tokens_reward} tokens`);
     }
   } catch (error) {
-    console.error('[updateDailyChallengeProgress] Error actualizando desafío:', error);
-    // No lanzamos el error para no fallar la transacción del workout
+    console.error('[updateDailyChallengeProgress] Error actualizando desafÃ­o:', error);
+    // No lanzamos el error para no fallar la transacciÃ³n del workout
   }
 };
 
@@ -116,9 +117,9 @@ const ensureRoutineExists = async (idRoutine, transaction) => {
 const ensureRoutineDayExists = async (idRoutineDay, idRoutine, transaction) => {
   if (!idRoutineDay) return;
   const day = await routineRepository.findRoutineDayById(idRoutineDay, { transaction });
-  if (!day) throw new NotFoundError('Día de rutina');
+  if (!day) throw new NotFoundError('DÃ­a de rutina');
   if (idRoutine && day.id_routine !== idRoutine) {
-    throw new ValidationError('El día seleccionado no pertenece a la rutina');
+    throw new ValidationError('El dÃ­a seleccionado no pertenece a la rutina');
   }
 };
 
@@ -146,7 +147,7 @@ const getWorkoutSession = async (query) => {
   });
 
   if (!session) {
-    throw new NotFoundError('Sesión de entrenamiento');
+    throw new NotFoundError('SesiÃ³n de entrenamiento');
   }
 
   return session;
@@ -166,7 +167,7 @@ const getWorkoutSessionWithSets = async (query) => {
   });
 
   if (!session) {
-    throw new NotFoundError('Sesión de entrenamiento');
+    throw new NotFoundError('SesiÃ³n de entrenamiento');
   }
 
   return session;
@@ -257,7 +258,7 @@ const startWorkoutSession = async (command) => {
   // Check if user already has an active session
   const existing = await workoutRepository.findActiveWorkoutSession(cmd.idUserProfile);
   if (existing) {
-    throw new ConflictError('Ya tienes una sesión en progreso');
+    throw new ConflictError('Ya tienes una sesiÃ³n en progreso');
   }
 
   return sequelize.transaction(async (transaction) => {
@@ -294,9 +295,9 @@ const registerWorkoutSet = async (command) => {
   return sequelize.transaction(async (transaction) => {
     // Get session with lock
     const session = await workoutRepository.findWorkoutSessionById(cmd.idWorkoutSession, { transaction });
-    if (!session) throw new NotFoundError('Sesión de entrenamiento');
+    if (!session) throw new NotFoundError('SesiÃ³n de entrenamiento');
     if (session.status !== 'IN_PROGRESS') {
-      throw new ValidationError('Solo se pueden registrar sets en una sesión en progreso');
+      throw new ValidationError('Solo se pueden registrar sets en una sesiÃ³n en progreso');
     }
 
     // Validate exercise exists
@@ -393,9 +394,9 @@ const finishWorkoutSession = async (command) => {
 
   const session = await sequelize.transaction(async (transaction) => {
     const workout = await workoutRepository.findWorkoutSessionById(cmd.idWorkoutSession, { transaction });
-    if (!workout) throw new NotFoundError('Sesión de entrenamiento');
+    if (!workout) throw new NotFoundError('SesiÃ³n de entrenamiento');
     if (workout.status !== 'IN_PROGRESS') {
-      throw new ValidationError('La sesión no está en progreso');
+      throw new ValidationError('La sesiÃ³n no estÃ¡ en progreso');
     }
 
     // Recalculate totals before finishing
@@ -421,7 +422,7 @@ const finishWorkoutSession = async (command) => {
 
     // Register progress for the day
     try {
-      console.log('[finishWorkoutSession] 📊 Registrando progreso del día...');
+      console.log('[finishWorkoutSession] ðŸ“Š Registrando progreso del dÃ­a...');
 
       // Get all sets from this session
       const sets = await workoutRepository.findWorkoutSetsBySession(cmd.idWorkoutSession, { transaction });
@@ -458,7 +459,7 @@ const finishWorkoutSession = async (command) => {
 
         const sessionDate = new Date(finishedAt).toISOString().split('T')[0];
 
-        console.log('[finishWorkoutSession] 📈 Progreso calculado:', {
+        console.log('[finishWorkoutSession] ðŸ“ˆ Progreso calculado:', {
           date: sessionDate,
           totalSets: totals.total_sets,
           totalReps: totals.total_reps,
@@ -476,11 +477,11 @@ const finishWorkoutSession = async (command) => {
           exercises
         });
 
-        console.log('[finishWorkoutSession] ✅ Progreso registrado exitosamente');
+        console.log('[finishWorkoutSession] âœ… Progreso registrado exitosamente');
       }
     } catch (error) {
-      console.error('[finishWorkoutSession] ❌ Error registrando progreso:', error);
-      // No lanzamos el error para no fallar toda la transacción
+      console.error('[finishWorkoutSession] âŒ Error registrando progreso:', error);
+      // No lanzamos el error para no fallar toda la transacciÃ³n
     }
 
     // Award tokens (limited to 1 per day to prevent farming)
@@ -495,17 +496,19 @@ const finishWorkoutSession = async (command) => {
       );
 
       if (!hasCompletedToday) {
-        console.log('[finishWorkoutSession] 🪙 Otorgando tokens (primera sesión del día)');
+        console.log('[finishWorkoutSession] �Y�T Otorgando tokens (primera sesi��n del d��a)');
+        const workoutMultiplier = await rewardService.getActiveMultiplier(workout.id_user_profile, { transaction });
+        const workoutTokens = Math.floor((TOKENS.WORKOUT_SESSION || 0) * (workoutMultiplier || 1));
         await tokenLedgerService.registrarMovimiento({
           userId: workout.id_user_profile,
-          delta: TOKENS.WORKOUT_SESSION,
+          delta: workoutTokens,
           reason: TOKEN_REASONS.WORKOUT_COMPLETED,
           refType: 'workout_session',
           refId: workout.id_workout_session,
           transaction
         });
       } else {
-        console.log('[finishWorkoutSession] ⚠️ Tokens no otorgados (ya completó una sesión hoy)');
+        console.log('[finishWorkoutSession] �s���? Tokens no otorgados (ya complet�� una sesi��n hoy)');
       }
     }
 
@@ -516,7 +519,7 @@ const finishWorkoutSession = async (command) => {
   try {
     await syncWorkoutAchievements(session.id_user_profile);
   } catch (error) {
-    console.error('[workout-service] Error post-completar sesión', error);
+    console.error('[workout-service] Error post-completar sesiÃ³n', error);
   }
 
   // Update daily challenge progress
@@ -528,7 +531,7 @@ const finishWorkoutSession = async (command) => {
       totalWeight: session.total_weight
     });
   } catch (error) {
-    console.error('[workout-service] Error actualizando desafío del día', error);
+    console.error('[workout-service] Error actualizando desafÃ­o del dÃ­a', error);
   }
 
   return session;
@@ -544,12 +547,12 @@ const cancelWorkoutSession = async (command) => {
 
   // If already cancelled or completed, just return the session (idempotent)
   if (session.status === 'CANCELLED') {
-    console.log('[cancelWorkoutSession] ⚠️ Session already cancelled, returning existing session');
+    console.log('[cancelWorkoutSession] âš ï¸ Session already cancelled, returning existing session');
     return session;
   }
 
   if (session.status === 'COMPLETED') {
-    console.log('[cancelWorkoutSession] ⚠️ Cannot cancel completed session, returning as-is');
+    console.log('[cancelWorkoutSession] âš ï¸ Cannot cancel completed session, returning as-is');
     return session;
   }
 
@@ -572,7 +575,7 @@ const updateWorkoutSession = async (command) => {
   const cmd = ensureCommand(command);
 
   const session = await workoutRepository.findWorkoutSessionById(cmd.idWorkoutSession);
-  if (!session) throw new NotFoundError('Sesión de entrenamiento');
+  if (!session) throw new NotFoundError('SesiÃ³n de entrenamiento');
 
   return workoutRepository.updateWorkoutSession(cmd.idWorkoutSession, {
     notes: cmd.notes !== undefined ? cmd.notes : session.notes
@@ -703,3 +706,5 @@ module.exports = {
   cancelarSesion,
   obtenerSesionesPorUsuario
 };
+
+

@@ -20,6 +20,10 @@ async function seedInitialData() {
   try {
     console.log('Iniciando seed de datos iniciales...\n');
 
+    let amenitiesSummaryCount = 0;
+    let exercisesSummaryCount = 0;
+    let achievementsSummaryCount = 0;
+
     // ========================================
     // 1. CREAR CUENTA DE ADMINISTRADOR (SI NO EXISTE)
     // ========================================
@@ -82,6 +86,7 @@ async function seedInitialData() {
 
     if (existingAmenitiesCount[0].count > 0) {
       console.log(`✓ Ya existen ${existingAmenitiesCount[0].count} amenidades en la BD`);
+      amenitiesSummaryCount = existingAmenitiesCount[0].count;
     } else {
       const amenities = [
         { name: 'Duchas', category: 'FACILITY', icon: 'shower' },
@@ -114,6 +119,7 @@ async function seedInitialData() {
         });
       }
       console.log(`✓ ${amenities.length} amenidades creadas`);
+      amenitiesSummaryCount = amenities.length;
     }
     console.log();
 
@@ -128,6 +134,7 @@ async function seedInitialData() {
 
     if (existingExercisesCount[0].count > 0) {
       console.log(`✓ Ya existen ${existingExercisesCount[0].count} ejercicios en la BD\n`);
+      exercisesSummaryCount = existingExercisesCount[0].count;
     } else {
 
     const exercises = [
@@ -181,6 +188,7 @@ async function seedInitialData() {
       });
     }
       console.log(`✓ ${exercises.length} ejercicios creados\n`);
+      exercisesSummaryCount = exercises.length;
     }
 
     // ========================================
@@ -194,6 +202,7 @@ async function seedInitialData() {
 
     if (existingAchievementsCount[0].count > 0) {
       console.log(`✓ Ya existen ${existingAchievementsCount[0].count} logros en la BD\n`);
+      achievementsSummaryCount = existingAchievementsCount[0].count;
     } else {
 
     const achievements = [
@@ -339,6 +348,175 @@ async function seedInitialData() {
       });
     }
       console.log(`✓ ${achievements.length} logros creados\n`);
+      achievementsSummaryCount = achievements.length;
+    }
+
+    // ============================================
+    // REWARDS SEED DATA
+    // ============================================
+    let rewardsSummaryCount = 0;
+
+    const [rewardsCountResult] = await sequelize.query(
+      'SELECT COUNT(*) as count FROM reward',
+      { transaction }
+    );
+    const rewardsCount = rewardsCountResult[0].count;
+
+    if (rewardsCount === 0) {
+      console.log('📦 Creando recompensas iniciales...');
+
+      const rewards = [
+        // --- Premium Passes ---
+        {
+          name: 'Premium 1 día',
+          description: 'Accede a todas las funciones Premium por 1 día',
+          reward_type: 'pase_gratis',
+          effect_value: 1,
+          token_cost: 1500,
+          stock: null,
+          is_unlimited: true,
+          cooldown_days: 30,
+          requires_premium: false,
+          is_stackable: false,
+          max_stack: 1,
+          duration_days: null,
+          is_active: true,
+          id_gym: null
+        },
+        {
+          name: 'Premium 7 días',
+          description: 'Accede a todas las funciones Premium por 7 días',
+          reward_type: 'pase_gratis',
+          effect_value: 7,
+          token_cost: 5000,
+          stock: null,
+          is_unlimited: true,
+          cooldown_days: 30,
+          requires_premium: false,
+          is_stackable: false,
+          max_stack: 1,
+          duration_days: null,
+          is_active: true,
+          id_gym: null
+        },
+        {
+          name: 'Premium 30 días',
+          description: 'Accede a todas las funciones Premium por 30 días completos',
+          reward_type: 'pase_gratis',
+          effect_value: 30,
+          token_cost: 20000,
+          stock: null,
+          is_unlimited: true,
+          cooldown_days: 30,
+          requires_premium: false,
+          is_stackable: false,
+          max_stack: 1,
+          duration_days: null,
+          is_active: true,
+          id_gym: null
+        },
+
+        // --- Token Multipliers (Premium Only, Stackable hasta 3) ---
+        {
+          name: 'Tokens x2 (7 días)',
+          description: 'Duplica todos los tokens que ganes durante 7 días. Acumulable hasta 3 veces.',
+          reward_type: 'token_multiplier',
+          effect_value: 2,
+          token_cost: 3500,
+          stock: null,
+          is_unlimited: true,
+          cooldown_days: 30,
+          requires_premium: true,
+          is_stackable: true,
+          max_stack: 3,
+          duration_days: 7,
+          is_active: true,
+          id_gym: null
+        },
+        {
+          name: 'Tokens x3 (7 días)',
+          description: 'Triplica todos los tokens que ganes durante 7 días. Acumulable hasta 3 veces.',
+          reward_type: 'token_multiplier',
+          effect_value: 3,
+          token_cost: 6000,
+          stock: null,
+          is_unlimited: true,
+          cooldown_days: 30,
+          requires_premium: true,
+          is_stackable: true,
+          max_stack: 3,
+          duration_days: 7,
+          is_active: true,
+          id_gym: null
+        },
+        {
+          name: 'Tokens x5 (7 días)',
+          description: 'Multiplica por 5 todos los tokens que ganes durante 7 días. Acumulable hasta 3 veces.',
+          reward_type: 'token_multiplier',
+          effect_value: 5,
+          token_cost: 10000,
+          stock: null,
+          is_unlimited: true,
+          cooldown_days: 30,
+          requires_premium: true,
+          is_stackable: true,
+          max_stack: 3,
+          duration_days: 7,
+          is_active: true,
+          id_gym: null
+        },
+
+        // --- Streak Saver (Stackable hasta 5) ---
+        {
+          name: 'Salvavidas de Racha',
+          description: 'Protege tu racha automáticamente si fallas un día. Se usa automáticamente cuando sea necesario. Acumulable hasta 5 veces.',
+          reward_type: 'streak_saver',
+          effect_value: 1,
+          token_cost: 800,
+          stock: null,
+          is_unlimited: true,
+          cooldown_days: 30,
+          requires_premium: false,
+          is_stackable: true,
+          max_stack: 5,
+          duration_days: null,
+          is_active: true,
+          id_gym: null
+        }
+      ];
+
+      for (const reward of rewards) {
+        await sequelize.query(
+          `INSERT INTO reward (
+            id_gym, name, description, reward_type, effect_value,
+            token_cost, stock, is_unlimited, cooldown_days,
+            requires_premium, is_stackable, max_stack, duration_days, is_active,
+            created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+          {
+            replacements: [
+              reward.id_gym,
+              reward.name,
+              reward.description,
+              reward.reward_type,
+              reward.effect_value,
+              reward.token_cost,
+              reward.stock,
+              reward.is_unlimited,
+              reward.cooldown_days,
+              reward.requires_premium,
+              reward.is_stackable,
+              reward.max_stack,
+              reward.duration_days,
+              reward.is_active
+            ],
+            transaction
+          }
+        );
+      }
+
+      console.log(`✓ ${rewards.length} recompensas creadas\n`);
+      rewardsSummaryCount = rewards.length;
     }
 
     await transaction.commit();
@@ -348,9 +526,10 @@ async function seedInitialData() {
     console.log('========================================');
     console.log(' Datos creados:');
     console.log(`   - 1 cuenta de administrador (admin@gympoint.com / admin123)`);
-    console.log(`   - ${amenities.length} amenidades de gimnasios`);
-    console.log(`   - ${exercises.length} ejercicios básicos`);
-    console.log(`   - ${achievements.length} logros del sistema`);
+    console.log(`   - ${amenitiesSummaryCount} amenidades de gimnasios`);
+    console.log(`   - ${exercisesSummaryCount} ejercicios básicos`);
+    console.log(`   - ${achievementsSummaryCount} logros del sistema`);
+    console.log(`   - ${rewardsSummaryCount} recompensas disponibles`);
     console.log('========================================\n');
     console.log(' Próximos pasos:');
     console.log('   1. Accede con admin@gympoint.com / admin123');

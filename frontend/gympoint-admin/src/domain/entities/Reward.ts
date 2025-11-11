@@ -8,8 +8,14 @@ export interface Reward {
   reward_type: string;
   effect_value?: number | null; // Valor del efecto (ej: días de premium, % descuento)
   cost_tokens: number;
+  cooldown_days?: number | null;
+  is_unlimited?: boolean;
+  requires_premium?: boolean;
+  is_stackable?: boolean;
+  max_stack?: number | null;
+  duration_days?: number | null;
   available: boolean;
-  stock: number;
+  stock: number | null;
   start_date: string | null; // ISO date string
   finish_date: string | null; // ISO date string
   image_url?: string | null; // URL de la imagen de la recompensa
@@ -27,7 +33,13 @@ export interface CreateRewardDTO {
   reward_type: string;
   effect_value?: number | null; // Valor del efecto según reward_type
   cost_tokens: number;
-  stock: number;
+  cooldown_days?: number;
+  is_unlimited?: boolean;
+  requires_premium?: boolean;
+  is_stackable?: boolean;
+  max_stack?: number | null;
+  duration_days?: number | null;
+  stock: number | null;
   start_date: string; // Format: YYYY-MM-DD
   finish_date: string; // Format: YYYY-MM-DD
   available?: boolean; // Opcional, por defecto true
@@ -61,6 +73,8 @@ export const REWARD_TYPES = [
   'producto',
   'servicio',
   'merchandising',
+  'token_multiplier',
+  'streak_saver',
   'otro'
 ] as const;
 
