@@ -34,15 +34,17 @@ export default function HomeHeader({ userName, plan, tokens, streak = 0 }: Props
     <View className="flex-row justify-between items-center">
       <View className="flex-1 flex-row items-center">
         <Avatar userName={userName} />
-        <View className="ml-3">
-          {/* Título principal: Ahora 32px en lugar de 30px, letterSpacing estandarizado */}
+        <View className="ml-3 flex-1 mr-2">
+          {/* Título principal: 28px (text-2xl) con lógica para nombres largos */}
           <Text
-            className="font-extrabold"
+            className="font-extrabold tracking-tight"
             style={{
-              fontSize: 32,
+              fontSize: 28,
               letterSpacing: -0.4,
               color: palette.title,
             }}
+            numberOfLines={1}
+            ellipsizeMode="tail"
           >
             Hola, {firstName}
           </Text>
