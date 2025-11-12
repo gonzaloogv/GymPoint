@@ -247,7 +247,11 @@ router.post('/google', authController.googleLogin);
  * @swagger
  * /api/auth/refresh-token:
  *   post:
- *     summary: Obtener un nuevo access token usando un refresh token válido
+ *     summary: Renovar tokens de autenticación
+ *     description: |
+ *       Renueva el access token y genera un nuevo refresh token.
+ *       El refresh token anterior es revocado automáticamente.
+ *       Esto implementa la rotación de refresh tokens como medida de seguridad.
  *     tags: [Autenticación]
  *     requestBody:
  *       required: true
@@ -259,21 +263,56 @@ router.post('/google', authController.googleLogin);
  *             properties:
  *               refreshToken:
  *                 type: string
+ *                 description: Refresh token activo obtenido en login
  *                 example: eyJhbGciOiJIUzI1NiIsIn...
  *     responses:
  *       200:
- *         description: Nuevo token de acceso emitido
+ *         description: Tokens renovados exitosamente
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 accessToken:
+ *                 token:
  *                   type: string
- *       403:
- *         description: Refresh token inválido o expirado
+ *                   description: Nuevo access token (válido por 15 minutos)
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                 refreshToken:
+ *                   type: string
+ *                   description: Nuevo refresh token (válido por 30 días)
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *       400:
+ *         description: Refresh token no proporcionado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: MISSING_TOKEN
+ *                     message:
+ *                       type: string
+ *                       example: El refresh token es requerido
  *       401:
- *         description: Error de verificación
+ *         description: Refresh token inválido, expirado, o revocado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: TOKEN_REFRESH_FAILED
+ *                     message:
+ *                       type: string
+ *                       example: Refresh token inválido o expirado
  */
 router.post('/refresh-token', authController.refreshAccessToken);
 

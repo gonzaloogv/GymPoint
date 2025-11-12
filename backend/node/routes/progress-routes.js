@@ -104,6 +104,31 @@ router.post('/', verificarToken, verificarUsuarioApp, controller.registrarProgre
 
 /**
  * @swagger
+ * /api/progress/weekly-workouts:
+ *   get:
+ *     summary: Obtener el conteo de workouts completados de la semana actual
+ *     description: Retorna el número de workouts COMPLETED de lunes a domingo de la semana actual
+ *     tags: [Progreso]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Conteo de workouts semanales
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 weeklyWorkouts:
+ *                   type: integer
+ *                   example: 3
+ *       401:
+ *         description: No autorizado
+ */
+router.get('/weekly-workouts', verificarToken, verificarUsuarioApp, controller.getWeeklyWorkoutsCount);
+
+/**
+ * @swagger
  * /api/progress/me/ejercicios/{id_exercise}/promedio:
  *   get:
  *     summary: Obtener el promedio de peso y repeticiones de un ejercicio

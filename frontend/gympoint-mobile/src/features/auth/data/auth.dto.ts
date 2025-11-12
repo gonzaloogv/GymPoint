@@ -68,7 +68,8 @@ export type AuthSuccessResponseDTO = {
 };
 
 export type RefreshTokenResponseDTO = {
-  accessToken: string;
+  token: string;
+  refreshToken?: string;
 };
 
 // Backward compatibility (deprecated - usar AuthSuccessResponseDTO)

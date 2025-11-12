@@ -30,6 +30,7 @@ export function getRelativeTimeString(date: Date): string {
 /**
  * Convierte una fecha futura a formato relativo "en X tiempo"
  * Sin dependencias externas - nativo JavaScript
+ * Prioriza mostrar días cuando >= 24 horas, y horas solo cuando < 24 horas
  */
 export function getFutureTimeString(date: Date | string): string {
   const futureDate = typeof date === 'string' ? new Date(date) : date;
@@ -53,8 +54,10 @@ export function getFutureTimeString(date: Date | string): string {
   } else if (diffInMinutes < 60) {
     return `en ${diffInMinutes} ${diffInMinutes === 1 ? 'minuto' : 'minutos'}`;
   } else if (diffInHours < 24) {
+    // Menos de 24 horas - mostrar en horas
     return `en ${diffInHours} ${diffInHours === 1 ? 'hora' : 'horas'}`;
   } else if (diffInDays < 30) {
+    // 24+ horas - mostrar en días
     return `en ${diffInDays} ${diffInDays === 1 ? 'día' : 'días'}`;
   } else if (diffInMonths < 12) {
     return `en ${diffInMonths} ${diffInMonths === 1 ? 'mes' : 'meses'}`;

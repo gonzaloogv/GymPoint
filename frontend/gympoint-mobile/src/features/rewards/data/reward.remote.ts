@@ -130,4 +130,13 @@ export class RewardRemote {
     const response = await apiClient.get<ActiveEffectsResponseDTO>(`/api/rewards/effects/active`);
     return response.data;
   }
+
+  /**
+   * POST /api/rewards/inventory/:inventoryId/use
+   * Activa un multiplicador desde el inventario
+   */
+  async useInventoryItem(inventoryId: number): Promise<any> {
+    const response = await apiClient.post(`/api/rewards/inventory/${inventoryId}/use`, {});
+    return response.data;
+  }
 }

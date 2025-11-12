@@ -1,7 +1,6 @@
 import React from 'react';
 import { RewardCard } from './RewardCard';
 import { Reward } from '@features/rewards/domain/entities';
-import { getCategoryColor, getCategoryName } from '../../utils/categories';
 
 type RewardItemProps = {
   reward: Reward;
@@ -17,8 +16,6 @@ export const RewardItem: React.FC<RewardItemProps> = ({ reward, tokens, isPremiu
       tokens={tokens}
       isPremium={isPremium}
       onGenerate={onGenerate}
-      getCategoryColor={getCategoryColor}
-      getCategoryName={getCategoryName}
     />
   );
 };

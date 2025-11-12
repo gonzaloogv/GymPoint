@@ -466,7 +466,16 @@ const refreshAccessToken = async (input) => {
   const profile = account.userProfile || account.adminProfile || null;
   const newAccessToken = generateAccessToken(account, account.roles || [], profile);
 
-  return { token: newAccessToken };
+  // Generar nuevo refresh token para mantener la sesión activa
+  const newRefreshToken = await generateRefreshToken(account.id_account, {
+    source: 'token_refresh',
+    previous_token: command.refreshToken.substring(0, 20),
+  });
+
+  return {
+    token: newAccessToken,
+    refreshToken: newRefreshToken
+  };
 };
 
 const logout = async (input) => {

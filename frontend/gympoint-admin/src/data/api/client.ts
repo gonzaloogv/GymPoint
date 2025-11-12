@@ -76,15 +76,17 @@ apiClient.interceptors.response.use(
 
       try {
         // Llamar al endpoint de refresh
-        const response = await axios.post('http://localhost:3000/api/auth/refresh', {
+        const response = await axios.post('http://localhost:3000/api/auth/refresh-token', {
           refreshToken,
         });
 
-        const { accessToken, refreshToken: newRefreshToken } = response.data.tokens;
+        const { token: accessToken, refreshToken: newRefreshToken } = response.data;
 
         // Guardar nuevos tokens
         localStorage.setItem('admin_token', accessToken);
-        localStorage.setItem('admin_refresh_token', newRefreshToken);
+        if (newRefreshToken) {
+          localStorage.setItem('admin_refresh_token', newRefreshToken);
+        }
 
         // Actualizar el header del request original
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;

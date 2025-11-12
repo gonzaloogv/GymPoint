@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { ProgressMetric, TokenData, Achievement } from '@features/progress/domain/entities/ProgressMetric';
+import { ProgressRemote } from '@features/progress/data/progress.remote';
+
+const progressRemote = new ProgressRemote();
 
 interface ProgressState {
   // KPI Data
@@ -25,6 +28,7 @@ interface ProgressState {
   // Actions
   setCurrentStreak: (streak: number) => void;
   setWeeklyWorkouts: (workouts: number) => void;
+  fetchWeeklyWorkouts: () => Promise<void>;
   setMetrics: (metrics: ProgressMetric[]) => void;
   setSelectedPeriod: (period: '7d' | '30d' | '90d' | '12m') => void;
   setTokenData: (data: TokenData) => void;
@@ -36,14 +40,14 @@ interface ProgressState {
 }
 
 const initialState = {
-  currentStreak: 14,
-  weeklyWorkouts: 4,
+  currentStreak: 0,
+  weeklyWorkouts: 0,
   metrics: [],
   selectedPeriod: '90d' as const,
   tokenData: {
-    available: 245,
-    earned: 1840,
-    spent: 1595,
+    available: 0,
+    earned: 0,
+    spent: 0,
   },
   tokenFilter: 'all' as const,
   achievements: [],
@@ -64,6 +68,25 @@ export const useProgressStore = create<ProgressState>()(
       set((state) => {
         state.weeklyWorkouts = workouts;
       }),
+
+    fetchWeeklyWorkouts: async () => {
+      try {
+        set((state) => {
+          state.isLoading = true;
+        });
+        const count = await progressRemote.getWeeklyWorkoutsCount();
+        set((state) => {
+          state.weeklyWorkouts = count;
+          state.isLoading = false;
+        });
+      } catch (error) {
+        console.error('[ProgressStore] Error fetching weekly workouts:', error);
+        set((state) => {
+          state.error = 'Error al cargar workouts semanales';
+          state.isLoading = false;
+        });
+      }
+    },
 
     setMetrics: (metrics) =>
       set((state) => {

@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import FeatherIcon from '@expo/vector-icons/Feather';
+import { Ionicons } from '@expo/vector-icons';
 import { ActionCard } from '@shared/components/ui';
 import { palette } from '@shared/styles';
 import { useTheme } from '@shared/hooks';
@@ -11,7 +11,7 @@ type QuickAction = {
   key: 'gyms' | 'routines' | 'progress' | 'rewards';
   label: string;
   description: string;
-  icon: keyof typeof FeatherIcon.glyphMap;
+  icon: keyof typeof Ionicons.glyphMap;
   color: string;
   colorDark: string;
   background: string;
@@ -29,7 +29,7 @@ export default function QuickActions({ onFindGyms, onMyRoutines }: Props) {
       key: 'gyms',
       label: 'Encontrar gym',
       description: 'Cerca de ti',
-      icon: 'map-pin',
+      icon: 'location-outline',
       color: palette.gymPrimary,
       colorDark: '#60a5fa',
       background: palette.overlayBlue,
@@ -40,7 +40,7 @@ export default function QuickActions({ onFindGyms, onMyRoutines }: Props) {
       key: 'routines',
       label: 'Mis rutinas',
       description: 'Entrenamientos',
-      icon: 'activity',
+      icon: 'pulse-outline',
       color: '#7c3aed',
       colorDark: '#a78bfa',
       background: '#ede9fe',
@@ -51,7 +51,7 @@ export default function QuickActions({ onFindGyms, onMyRoutines }: Props) {
       key: 'progress',
       label: 'Progreso',
       description: 'Ver estadisticas',
-      icon: 'trending-up',
+      icon: 'trending-up-outline',
       color: '#059669',
       colorDark: '#4ade80',
       background: '#d1fae5',
@@ -62,7 +62,7 @@ export default function QuickActions({ onFindGyms, onMyRoutines }: Props) {
       key: 'rewards',
       label: 'Recompensas',
       description: 'Disponibles',
-      icon: 'gift',
+      icon: 'gift-outline',
       color: '#d97706',
       colorDark: '#fb923c',
       background: '#fef3c7',

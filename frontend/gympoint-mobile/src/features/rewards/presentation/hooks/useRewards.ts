@@ -19,6 +19,7 @@ type UseRewardsResult = {
   activeEffects: any;
   // generatedCodes: any[]; // COMENTADO: Sistema sin códigos por ahora
   handleGenerate: (reward: any) => Promise<void>;
+  useInventoryItem: (inventoryId: number) => Promise<void>;
   // handleCopy: (code: string) => Promise<void>; // COMENTADO: Sistema sin códigos por ahora
   // handleToggleCode: (code: any) => void; // COMENTADO: Sistema sin códigos por ahora
 };
@@ -40,6 +41,7 @@ export const useRewards = ({
     fetchClaimedRewards,
     // fetchGeneratedCodes, // COMENTADO: Sistema sin códigos por ahora
     handleGenerate: storeHandleGenerate,
+    useInventoryItem: storeUseInventoryItem,
     // handleCopy, // COMENTADO: Sistema sin códigos por ahora
     // handleToggleCode, // COMENTADO: Sistema sin códigos por ahora
   } = useRewardsStore();
@@ -86,6 +88,7 @@ export const useRewards = ({
     activeEffects,
     // generatedCodes, // COMENTADO: Sistema sin códigos por ahora
     handleGenerate,
+    useInventoryItem: storeUseInventoryItem,
     // handleCopy, // COMENTADO: Sistema sin cÃ³digos por ahora
     // handleToggleCode, // COMENTADO: Sistema sin cÃ³digos por ahora
   };

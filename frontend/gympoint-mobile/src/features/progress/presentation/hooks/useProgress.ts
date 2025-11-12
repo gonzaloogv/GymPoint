@@ -18,6 +18,7 @@ export function useProgress() {
     // Actions
     setCurrentStreak: store.setCurrentStreak,
     setWeeklyWorkouts: store.setWeeklyWorkouts,
+    fetchWeeklyWorkouts: store.fetchWeeklyWorkouts,
     setMetrics: store.setMetrics,
     setSelectedPeriod: store.setSelectedPeriod,
     setTokenData: store.setTokenData,

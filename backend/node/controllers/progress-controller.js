@@ -5,6 +5,7 @@
 
 const progressService = require('../services/progress-service');
 const progressMappers = require('../services/mappers/progress.mappers');
+const workoutService = require('../services/workout-service');
 const { NotFoundError } = require('../utils/errors');
 
 const registrarProgreso = async (req, res) => {
@@ -114,6 +115,39 @@ const obtenerPromedioLevantamiento = async (req, res) => {
   }
 };
 
+/**
+ * GET /api/progress/weekly-workouts
+ * Obtiene el conteo de workouts completados de la semana actual (lunes a lunes)
+ */
+const getWeeklyWorkoutsCount = async (req, res) => {
+  try {
+    const idUserProfile = req.user?.id_user_profile || req.account?.userProfile?.id_user_profile;
+
+    if (!idUserProfile) {
+      return res.status(401).json({
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Usuario no autenticado'
+        }
+      });
+    }
+
+    const count = await workoutService.getWeeklyCompletedWorkouts(idUserProfile);
+
+    res.json({
+      weeklyWorkouts: count
+    });
+  } catch (err) {
+    console.error('[progress-controller] Error getting weekly workouts:', err);
+    res.status(500).json({
+      error: {
+        code: 'GET_WEEKLY_WORKOUTS_FAILED',
+        message: err.message
+      }
+    });
+  }
+};
+
 module.exports = {
   registrarProgreso,
   obtenerProgresoPorUsuario,
@@ -121,5 +155,6 @@ module.exports = {
   obtenerHistorialEjercicios,
   obtenerHistorialPorEjercicio,
   obtenerMejorLevantamiento,
-  obtenerPromedioLevantamiento
+  obtenerPromedioLevantamiento,
+  getWeeklyWorkoutsCount
 };

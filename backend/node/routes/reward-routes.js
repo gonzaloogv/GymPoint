@@ -47,6 +47,12 @@ router.get('/effects/active', verificarToken, verificarUsuarioApp, rewardControl
 router.get('/available', verificarToken, verificarUsuarioApp, rewardController.listAvailableRewardsForUser);
 
 /**
+ * POST /api/rewards/inventory/:inventoryId/use
+ * Activa un multiplicador de tokens desde el inventario
+ */
+router.post('/inventory/:inventoryId/use', verificarToken, verificarUsuarioApp, rewardController.useInventoryItem);
+
+/**
  * POST /api/rewards/:rewardId/claim
  * Canjea una recompensa por tokens
  */

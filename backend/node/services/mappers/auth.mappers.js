@@ -164,6 +164,7 @@ function toAuthSuccessResponse(result) {
 function toRefreshTokenResponse(result) {
   return {
     token: result.accessToken || result.token || result.access_token || null,
+    refreshToken: result.refreshToken || null,
   };
 }
 

@@ -56,7 +56,7 @@ export default function HomeHeader({ userName, plan, tokens, streak = 0 }: Props
         </View>
       </View>
 
-      <View className="flex-row items-center gap-2 ml-3">
+      <View className="flex-row items-center gap-2">
         <TokenPill value={tokens} />
         {/* Streak badge - Usa paleta para colores consistentes */}
         <View
