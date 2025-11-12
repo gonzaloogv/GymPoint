@@ -17,4 +17,11 @@ export class AchievementRemote {
     const body = category ? { category } : {};
     await apiClient.post('/api/achievements/sync', body);
   }
+
+  async unlockAchievement(achievementId: string): Promise<UserAchievementResponseDTO> {
+    const response = await apiClient.post<{ message: string; data: UserAchievementResponseDTO }>(
+      `/api/achievements/${achievementId}/unlock`
+    );
+    return response.data.data;
+  }
 }

@@ -57,6 +57,7 @@ import { AchievementRepositoryImpl } from '@features/progress/data/AchievementRe
 import { AchievementRemote } from '@features/progress/data/achievement.remote';
 import { GetAchievements } from '@features/progress/domain/useCases/GetAchievements';
 import { SyncAchievements } from '@features/progress/domain/useCases/SyncAchievements';
+import { UnlockAchievement } from '@features/progress/domain/useCases/UnlockAchievement';
 
 // ===== Tokens =====
 import { TokenRepository } from '@features/tokens/domain/repositories/TokenRepository';
@@ -135,6 +136,7 @@ class Container {
   achievementRepository: AchievementRepository;
   getAchievements: GetAchievements;
   syncAchievements: SyncAchievements;
+  unlockAchievement: UnlockAchievement;
 
   // Tokens
   tokenRemote: TokenRemote;
@@ -208,6 +210,7 @@ class Container {
     this.achievementRepository = new AchievementRepositoryImpl(this.achievementRemote);
     this.getAchievements = new GetAchievements(this.achievementRepository);
     this.syncAchievements = new SyncAchievements(this.achievementRepository);
+    this.unlockAchievement = new UnlockAchievement(this.achievementRepository);
 
     // Tokens
     this.tokenRemote = new TokenRemote();

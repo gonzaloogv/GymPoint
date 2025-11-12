@@ -133,19 +133,36 @@ const unlockMyAchievement = async (req, res, next) => {
   try {
     const idUserProfile = req.user.id_user_profile;
     const { id } = req.params;
-    const userAchievementId = Number(id);
+    const achievementDefinitionId = Number(id);
 
-    if (Number.isNaN(userAchievementId)) {
+    console.log(`[unlockMyAchievement] Usuario ${idUserProfile} intentando desbloquear achievement definition ID: ${achievementDefinitionId}`);
+
+    if (Number.isNaN(achievementDefinitionId)) {
       throw new ValidationError('ID inválido');
     }
 
-    const result = await achievementService.unlockAchievement(userAchievementId, idUserProfile);
+    const result = await achievementService.unlockAchievement(achievementDefinitionId, idUserProfile);
+
+    console.log(`[unlockMyAchievement] Logro desbloqueado exitosamente para usuario ${idUserProfile}`);
+
+    // Formatear la respuesta usando buildAchievementResponse
+    const formattedAchievement = buildAchievementResponse([result])[0];
+
+    // Agregar información de tokens a la respuesta
+    const unlockMessage = result.definition.metadata?.unlock_message || result.definition.description || result.definition.name;
 
     res.json({
       message: '¡Logro desbloqueado con éxito!',
-      data: result
+      data: {
+        ...formattedAchievement,
+        earnedTokens: result.earnedTokens, // Tokens otorgados (con multiplicador)
+        tokenReward: result.tokenReward, // Tokens base
+        multiplier: result.multiplier, // Multiplicador aplicado
+        unlockMessage // Mensaje personalizado del logro
+      }
     });
   } catch (error) {
+    console.error(`[unlockMyAchievement] Error:`, error.message);
     next(error);
   }
 };

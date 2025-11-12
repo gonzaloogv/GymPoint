@@ -1,10 +1,11 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Achievement } from '../../../domain/entities/Achievement';
 import { useTheme } from '@shared/hooks';
 import { AchievementProgress } from './AchievementProgress';
 import { AchievementCategoryBadge } from './AchievementCategoryBadge';
+import { useAchievementsStore } from '../../state/achievements.store';
 
 interface LockedAchievementCardProps {
   achievement: Achievement;
@@ -13,9 +14,12 @@ interface LockedAchievementCardProps {
 export const LockedAchievementCard: React.FC<LockedAchievementCardProps> = ({ achievement }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  const { unlockAchievement } = useAchievementsStore();
+  const [isUnlocking, setIsUnlocking] = useState(false);
 
   const progress = achievement.currentProgress || 0;
   const target = achievement.targetValue;
+  const isCompleted = progress >= target;
 
   const shadowStyle = isDark
     ? {
@@ -32,6 +36,34 @@ export const LockedAchievementCard: React.FC<LockedAchievementCardProps> = ({ ac
         shadowRadius: 22,
         elevation: 6,
       };
+
+  const handleUnlock = () => {
+    Alert.alert(
+      '¿Desbloquear logro?',
+      `¡Completaste "${achievement.title}"! ¿Deseas desbloquearlo y recibir tus ${achievement.earnedPoints} tokens?`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Desbloquear',
+          onPress: async () => {
+            setIsUnlocking(true);
+            try {
+              await unlockAchievement(achievement.id);
+            } catch (error) {
+              console.error('Error unlocking achievement:', error);
+            } finally {
+              setIsUnlocking(false);
+            }
+          },
+          style: 'default',
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   return (
     <View
@@ -100,6 +132,39 @@ export const LockedAchievementCard: React.FC<LockedAchievementCardProps> = ({ ac
                 Gana {achievement.earnedPoints} tokens al completar
               </Text>
             </View>
+          )}
+
+          {/* Botón de desbloquear (solo si está al 100%) */}
+          {isCompleted && (
+            <TouchableOpacity
+              onPress={handleUnlock}
+              disabled={isUnlocking}
+              activeOpacity={0.78}
+              className="mt-4 py-3.5 rounded-2xl items-center"
+              style={{
+                backgroundColor: isUnlocking
+                  ? isDark
+                    ? 'rgba(34, 197, 94, 0.22)'
+                    : 'rgba(34, 197, 94, 0.16)'
+                  : isDark
+                    ? '#22C55E'
+                    : '#16A34A',
+              }}
+            >
+              <View className="flex-row items-center gap-2">
+                {isUnlocking ? (
+                  <Ionicons name="hourglass-outline" size={18} color="#ffffff" />
+                ) : (
+                  <Ionicons name="lock-open-outline" size={18} color="#ffffff" />
+                )}
+                <Text
+                  className="text-sm font-bold uppercase"
+                  style={{ color: '#ffffff', letterSpacing: 0.6 }}
+                >
+                  {isUnlocking ? 'Desbloqueando...' : '¡Desbloquear logro!'}
+                </Text>
+              </View>
+            </TouchableOpacity>
           )}
         </View>
       </View>

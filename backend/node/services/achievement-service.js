@@ -619,42 +619,94 @@ const updateDefinition = async (id, payload) => {
   return definition;
 };
 
-const unlockAchievement = async (userAchievementId, idUserProfile) => {
+const unlockAchievement = async (achievementDefinitionId, idUserProfile) => {
+  const { handleUnlock } = require('./achievement-side-effects');
   const transaction = await sequelize.transaction();
+
   try {
+    console.log(`\n========================================`);
+    console.log(`[unlockAchievement] INICIO DEL PROCESO`);
+    console.log(`========================================`);
+    console.log(`User ID: ${idUserProfile}`);
+    console.log(`Achievement Definition ID: ${achievementDefinitionId}`);
+
+    const definition = await AchievementDefinition.findByPk(achievementDefinitionId, { transaction });
+    if (!definition) {
+      console.log(`❌ ERROR: Definición no encontrada`);
+      throw new NotFoundError('Definición de logro no encontrada');
+    }
+
+    console.log(`\n📋 ACHIEVEMENT INFO:`);
+    console.log(`   Code: ${definition.code}`);
+    console.log(`   Name: ${definition.name}`);
+    console.log(`   Category: ${definition.category}`);
+    console.log(`   Metric Type: ${definition.metric_type}`);
+    console.log(`   Target Value: ${definition.target_value}`);
+
+    // CRÍTICO: Primero sincronizar el achievement para asegurar que existe y está actualizado
+    console.log(`\n🔄 SINCRONIZANDO achievement antes de desbloquear...`);
+    await syncAchievementForUser({
+      idUserProfile,
+      definition,
+      transaction
+    });
+
     const userAchievement = await UserAchievement.findOne({
       where: {
-        id_user_achievement: userAchievementId,
+        id_achievement_definition: achievementDefinitionId,
         id_user_profile: idUserProfile
       },
-      include: [
-        {
-          model: AchievementDefinition,
-          as: 'achievement',
-          attributes: ['id_achievement_definition', 'name', 'target_value']
-        }
-      ],
       transaction
     });
 
     if (!userAchievement) {
+      console.log(`❌ ERROR: user_achievement no encontrado después del sync`);
       throw new NotFoundError('Logro no encontrado o no pertenece al usuario');
     }
 
+    console.log(`\n💾 USER_ACHIEVEMENT (después del sync):`);
+    console.log(`   ID: ${userAchievement.id_user_achievement}`);
+    console.log(`   Unlocked: ${userAchievement.unlocked}`);
+    console.log(`   Progress: ${userAchievement.progress_value} / ${userAchievement.progress_denominator}`);
+
     if (userAchievement.unlocked) {
+      console.log(`❌ ERROR: El logro ya está desbloqueado`);
       throw new ConflictError('El logro ya está desbloqueado');
     }
 
-    // Verificar que el progreso haya alcanzado el objetivo
-    const targetValue = userAchievement.progress_denominator || userAchievement.achievement?.target_value || 0;
-    if (userAchievement.progress_value < targetValue) {
-      throw new ValidationError(`Progreso insuficiente. Necesitas alcanzar ${targetValue}, tienes ${userAchievement.progress_value}`);
+    // IMPORTANTE: Recalcular el progreso en tiempo real antes de validar
+    console.log(`\n🔍 RECALCULANDO progreso en tiempo real...`);
+    const metricResult = await calculateMetric(idUserProfile, definition, { transaction });
+    const currentProgress = metricResult.value || 0;
+    const targetValue = metricResult.denominator || definition.target_value || 0;
+
+    console.log(`\n📊 PROGRESO EN TIEMPO REAL:`);
+    console.log(`   Metric Result:`, JSON.stringify(metricResult, null, 2));
+    console.log(`   Current Progress: ${currentProgress}`);
+    console.log(`   Target Value: ${targetValue}`);
+    console.log(`   Percentage: ${(currentProgress / targetValue * 100).toFixed(1)}%`);
+
+    if (currentProgress < targetValue) {
+      console.log(`\n❌ ERROR: Progreso insuficiente`);
+      console.log(`   Achievement: ${definition.name} (${definition.code})`);
+      console.log(`   Se necesita: ${targetValue}`);
+      console.log(`   Tienes: ${currentProgress}`);
+      console.log(`   Falta: ${targetValue - currentProgress}`);
+      throw new ValidationError(`Progreso insuficiente para "${definition.name}" (${definition.code}). Necesitas alcanzar ${targetValue}, tienes ${currentProgress}`);
     }
+
+    console.log(`\n✅ Progreso validado correctamente!`)
+
+    // Actualizar el progreso antes de desbloquear
+    userAchievement.progress_value = currentProgress;
+    userAchievement.progress_denominator = targetValue;
 
     // Desbloquear el logro
     userAchievement.unlocked = true;
     userAchievement.unlocked_at = new Date();
     await userAchievement.save({ transaction });
+
+    console.log(`[unlockAchievement] Logro desbloqueado exitosamente`);
 
     // Registrar evento de desbloqueo
     await recordEvent({
@@ -662,7 +714,7 @@ const unlockAchievement = async (userAchievementId, idUserProfile) => {
       userAchievement,
       eventType: 'UNLOCKED',
       delta: 0,
-      snapshotValue: userAchievement.progress_value,
+      snapshotValue: currentProgress,
       sourceType: 'manual_unlock',
       sourceId: null,
       metadata: { unlockedManually: true }
@@ -670,14 +722,39 @@ const unlockAchievement = async (userAchievementId, idUserProfile) => {
 
     await transaction.commit();
 
+    // Procesar side-effects (tokens y notificaciones) DESPUÉS del commit
+    console.log(`[unlockAchievement] Procesando side-effects (tokens y notificaciones)...`);
+    await handleUnlock({
+      idUserProfile,
+      definition: definition.get({ plain: true }),
+      userAchievement
+    });
+
+    // Calcular los tokens otorgados para la respuesta
+    const tokenReward = definition.metadata?.token_reward || 0;
+    const rewardService = require('./reward-service');
+    const achievementMultiplier = await rewardService.getActiveMultiplier(idUserProfile);
+    const earnedTokens = Math.floor(tokenReward * (achievementMultiplier || 1));
+
+    const percentage = targetValue > 0 ? Math.min(1, currentProgress / targetValue) : 0;
+
     return {
-      id_user_achievement: userAchievement.id_user_achievement,
+      definition: definition.get({ plain: true }),
+      progress: {
+        value: currentProgress,
+        denominator: targetValue,
+        percentage
+      },
       unlocked: true,
       unlocked_at: userAchievement.unlocked_at,
-      progress_value: userAchievement.progress_value,
-      progress_denominator: targetValue
+      last_source_type: userAchievement.last_source_type || null,
+      last_source_id: userAchievement.last_source_id || null,
+      earnedTokens, // Tokens otorgados
+      tokenReward, // Tokens base
+      multiplier: achievementMultiplier || 1 // Multiplicador aplicado
     };
   } catch (error) {
+    console.error(`[unlockAchievement] Error:`, error.message);
     await transaction.rollback();
     throw error;
   }

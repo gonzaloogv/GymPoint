@@ -39,4 +39,19 @@ export class AchievementRepositoryImpl implements AchievementRepository {
       throw error;
     }
   }
+
+  async unlockAchievement(achievementId: string): Promise<Achievement> {
+    try {
+      console.log(`[AchievementRepository] Unlocking achievement: ${achievementId}`);
+      const dto = await this.remote.unlockAchievement(achievementId);
+      const achievements = mapUserAchievementResponseDTOArrayToEntityArray([dto]);
+      console.log('[AchievementRepository] Achievement unlocked successfully');
+      return achievements[0];
+    } catch (error) {
+      logError('AchievementRepository.unlockAchievement', error);
+      const errorMessage = parseBackendError(error);
+      console.error(`[AchievementRepository] Unlock error: ${errorMessage}`);
+      throw error;
+    }
+  }
 }

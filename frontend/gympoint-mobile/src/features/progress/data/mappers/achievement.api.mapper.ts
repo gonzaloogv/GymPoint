@@ -49,6 +49,12 @@ export const mapUserAchievementResponseDTOToEntity = (dto: UserAchievementRespon
     icon,
     earnedPoints,
     date: dto.unlocked_at ? formatDate(dto.unlocked_at) : undefined,
+
+    // Unlock fields (solo presentes al desbloquear)
+    earnedTokens: (dto as any).earnedTokens, // Tokens otorgados con multiplicador
+    tokenReward: (dto as any).tokenReward, // Tokens base
+    multiplier: (dto as any).multiplier, // Multiplicador aplicado
+    unlockMessage: (dto as any).unlockMessage, // Mensaje personalizado
   };
 };
 

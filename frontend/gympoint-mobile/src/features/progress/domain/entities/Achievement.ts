@@ -19,4 +19,9 @@ export interface Achievement {
   icon: string;
   earnedPoints: number;
   date?: string;
+  // Campos adicionales para desbloqueo
+  earnedTokens?: number; // Tokens otorgados (con multiplicador)
+  tokenReward?: number; // Tokens base
+  multiplier?: number; // Multiplicador aplicado
+  unlockMessage?: string; // Mensaje personalizado al desbloquear
 }

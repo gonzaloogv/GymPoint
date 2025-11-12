@@ -71,7 +71,7 @@ router.post(
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID del UserAchievement a desbloquear
+ *         description: ID del AchievementDefinition a desbloquear (no el user_achievement ID)
  *     responses:
  *       200:
  *         description: Logro desbloqueado exitosamente
