@@ -35,8 +35,14 @@ export const AchievementCategoryBadge: React.FC<AchievementCategoryBadgeProps> =
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const colors = CATEGORY_COLORS[category];
+  // Fallback para categorías no reconocidas
+  const colors = CATEGORY_COLORS[category] || { light: '#E5E7EB', dark: '#374151', text: '#6B7280' };
+  const label = CATEGORY_LABELS[category] || category;
   const bgColor = isDark ? colors.dark : colors.light;
+
+  if (!CATEGORY_COLORS[category]) {
+    console.warn(`[AchievementCategoryBadge] Categoría no reconocida: ${category}`);
+  }
 
   return (
     <View
@@ -47,7 +53,7 @@ export const AchievementCategoryBadge: React.FC<AchievementCategoryBadgeProps> =
         className="text-xs font-medium"
         style={{ color: colors.text }}
       >
-        {CATEGORY_LABELS[category]}
+        {label}
       </Text>
     </View>
   );
