@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useTheme } from '@shared/hooks';
+import { createScreenPalette } from '@shared/theme/palettes';
 import { FILTERS } from '../../hooks/useRoutinesFilters';
 import { Input } from '@shared/components/ui';
 
@@ -11,6 +12,14 @@ type Props = {
   onStatusChange: (s: 'All' | 'Pending') => void;
 };
 
+/**
+ * RoutinesHeader - Encabezado de la pantalla de rutinas
+ *
+ * Cambios en esta refactorización (FASE 2):
+ * - Antes: useMemo con paleta duplicada de GymScreenHeader
+ * - Ahora: Usa createScreenPalette(isDark) para colores centralizados
+ * - Elimina duplicación y mejora mantenibilidad
+ */
 export default function RoutinesHeader({
   search,
   onSearchChange,
@@ -19,20 +28,7 @@ export default function RoutinesHeader({
 }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-
-  const palette = useMemo(
-    () => ({
-      title: isDark ? '#F9FAFB' : '#111827',
-      subtitle: isDark ? '#9CA3AF' : '#6B7280',
-      activeBg: isDark ? 'rgba(79, 70, 229, 0.24)' : 'rgba(129, 140, 248, 0.2)',
-      activeBorder: isDark ? 'rgba(129, 140, 248, 0.4)' : 'rgba(129, 140, 248, 0.28)',
-      activeText: isDark ? '#C7D2FE' : '#4338CA',
-      pillBg: isDark ? 'rgba(31, 41, 55, 0.9)' : '#F3F4F6',
-      pillBorder: isDark ? 'rgba(55, 65, 81, 0.8)' : '#E5E7EB',
-      pillText: isDark ? '#E5E7EB' : '#374151',
-    }),
-    [isDark],
-  );
+  const palette = createScreenPalette(isDark);
 
   return (
     <View style={styles.container}>

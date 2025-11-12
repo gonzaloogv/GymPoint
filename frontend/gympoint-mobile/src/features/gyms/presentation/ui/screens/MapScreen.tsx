@@ -6,6 +6,7 @@ import { SurfaceScreen } from '@shared/components/ui';
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
+import { SCREEN_CONTENT_STYLE } from '@shared/styles/layouts';
 
 import { MAP_SECTION_HEIGHT } from '@features/gyms/domain/constants/map';
 import { MOCK_UI } from '@features/gyms/data/datasources/GymMocks';
@@ -99,7 +100,7 @@ export default function MapScreen() {
   return (
     <SurfaceScreen
       scroll={shouldScroll}
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={SCREEN_CONTENT_STYLE}
       innerStyle={styles.inner}
       edges={['top', 'left', 'right']}
     >
@@ -218,17 +219,11 @@ const styles = StyleSheet.create({
   inner: {
     paddingBottom: 0,
   },
-  scrollContent: {
-    paddingHorizontal: 16,    // Single source of truth para padding horizontal
-    paddingTop: 16,           // Espacio superior
-    paddingBottom: 140,       // Espacio para bottom navigation
-  },
   body: {
-    flex: 1,
     paddingTop: 8,            // Separación del header
   },
   defaultViewContent: {
-    gap: 16,                  // Solo gap, sin paddingHorizontal
+    gap: 24,                  // Consistente con SCREEN_GAP
   },
   listViewContent: {
     flex: 1,                  // Solo flex, sin paddingHorizontal

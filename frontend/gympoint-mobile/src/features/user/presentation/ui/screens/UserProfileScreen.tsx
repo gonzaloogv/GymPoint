@@ -7,6 +7,7 @@ import { View, TouchableOpacity, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { SurfaceScreen } from '@shared/components/ui';
 import { useTheme } from '@shared/hooks';
+import { SCREEN_CONTENT_STYLE } from '@shared/styles/layouts';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { PremiumAlert } from '../components/PremiumAlert';
 import { PremiumBadge } from '../components/PremiumBadge';
@@ -96,12 +97,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   return (
     <SurfaceScreen
       scroll
-      contentContainerStyle={{
-        paddingHorizontal: 16,
-        paddingTop: 16,
-        paddingBottom: 140,
-        gap: 24,
-      }}
+      contentContainerStyle={SCREEN_CONTENT_STYLE}
     >
       {/* 1. Header */}
       <ProfileHeader user={resolvedUser} theme={theme} />

@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
+import { createScreenPalette } from '@shared/theme/palettes';
 import { Input } from '@shared/components/ui';
 
 type ViewMode = 'default' | 'list' | 'fullscreen';
@@ -15,15 +16,18 @@ type Props = {
 };
 
 /**
- * Header para la pantalla de búsqueda de gimnasios
- * Sigue el mismo patrón visual que RoutinesHeader con:
+ * GymScreenHeader - Header para la pantalla de búsqueda de gimnasios
+ *
+ * Cambios en esta refactorización (FASE 2):
+ * - Antes: useMemo con paleta idéntica a RoutinesHeader (duplicación)
+ * - Ahora: Usa createScreenPalette(isDark) para colores centralizados
+ * - Elimina duplicación y mejora mantenibilidad
+ *
+ * Sigue el patrón visual de RoutinesHeader con:
  * - Título grande y subtítulo descriptivo
  * - Input de búsqueda
  * - Pills para cambiar entre vista MAPA/LISTA
  * - Botón circular de filtros
- *
- * Nota: El botón MAPA cambia a vista default (mapa card + lista),
- * el botón LISTA cambia a vista lista sin mapa
  */
 export default function GymScreenHeader({
   searchText,
@@ -34,22 +38,7 @@ export default function GymScreenHeader({
 }: Props) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-
-  // Paleta de colores consistente con RoutinesHeader
-  const palette = useMemo(
-    () => ({
-      title: isDark ? '#F9FAFB' : '#111827',
-      subtitle: isDark ? '#9CA3AF' : '#6B7280',
-      activeBg: isDark ? 'rgba(79, 70, 229, 0.24)' : 'rgba(129, 140, 248, 0.2)',
-      activeBorder: isDark ? 'rgba(129, 140, 248, 0.4)' : 'rgba(129, 140, 248, 0.28)',
-      activeText: isDark ? '#C7D2FE' : '#4338CA',
-      pillBg: isDark ? 'rgba(31, 41, 55, 0.9)' : '#F3F4F6',
-      pillBorder: isDark ? 'rgba(55, 65, 81, 0.8)' : '#E5E7EB',
-      pillText: isDark ? '#E5E7EB' : '#374151',
-      filterIcon: isDark ? '#9CA3AF' : '#6B7280',
-    }),
-    [isDark],
-  );
+  const palette = createScreenPalette(isDark);
 
   return (
     <View style={styles.container}>
@@ -135,7 +124,7 @@ export default function GymScreenHeader({
 
 const styles = StyleSheet.create({
   container: {
-    // paddingHorizontal: 16 es manejado por el contenedor padre (MapScreen)
+    paddingHorizontal: 16,
     paddingTop: 0,
     paddingBottom: 8,
   },
