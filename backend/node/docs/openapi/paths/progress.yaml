@@ -383,3 +383,31 @@ paths:
             application/json:
               schema:
                 $ref: ../components/common.yaml#/components/schemas/Error
+  /api/progress/weekly-workouts:
+    get:
+      operationId: getWeeklyWorkoutsCount
+      tags:
+        - Progress
+      summary: Obtener conteo de workouts completados de la semana actual
+      description: |
+        Retorna el número de workouts con estado COMPLETED realizados desde el lunes hasta el domingo de la semana actual.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Conteo de workouts semanales obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  weeklyWorkouts:
+                    type: integer
+                    description: Número de workouts completados en la semana actual
+                    example: 3
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error

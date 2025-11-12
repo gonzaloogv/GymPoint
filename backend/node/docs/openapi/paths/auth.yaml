@@ -83,7 +83,11 @@ paths:
       operationId: refreshAccessToken
       tags:
         - Auth
-      summary: Renovar access token usando refresh token
+      summary: Renovar tokens de autenticación
+      description: |
+        Renueva el access token y genera un nuevo refresh token.
+        El refresh token anterior es revocado automáticamente.
+        Esto implementa la rotación de refresh tokens (refresh token rotation) como medida de seguridad.
       requestBody:
         required: true
         content:
@@ -92,7 +96,7 @@ paths:
               $ref: '../components/schemas/auth.yaml#/components/schemas/RefreshTokenRequest'
       responses:
         '200':
-          description: Nuevo access token emitido
+          description: Tokens renovados exitosamente
           content:
             application/json:
               schema:

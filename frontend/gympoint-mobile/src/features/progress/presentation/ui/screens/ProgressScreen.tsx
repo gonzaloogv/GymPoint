@@ -24,15 +24,16 @@ type ProgressScreenProps = {
 export function ProgressScreen({ navigation }: ProgressScreenProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const { weeklyWorkouts } = useProgress();
-  const { user, weeklyProgress, fetchHomeData } = useHomeStore();
+  const { weeklyWorkouts, fetchWeeklyWorkouts } = useProgress();
+  const { user, fetchHomeData } = useHomeStore();
 
   useEffect(() => {
     fetchHomeData();
+    fetchWeeklyWorkouts(); // Cargar workouts semanales reales del backend
   }, []);
 
   const currentStreak = user?.streak || 0;
-  const currentWeeklyWorkouts = weeklyProgress?.current || weeklyWorkouts;
+  const currentWeeklyWorkouts = weeklyWorkouts; // Usar siempre el valor del progress store (datos reales)
 
   const handleNavigateToPhysicalProgress = useCallback(() => {
     navigation?.navigate('PhysicalProgress');

@@ -483,5 +483,19 @@ module.exports = {
 
   // Stats
   getWorkoutStats,
-  hasCompletedWorkoutToday
+  hasCompletedWorkoutToday,
+  countCompletedWorkoutsByDateRange: async (userId, startDate, endDate, options = {}) => {
+    const count = await WorkoutSession.count({
+      where: {
+        id_user_profile: userId,
+        status: 'COMPLETED',
+        ended_at: {
+          [Op.gte]: startDate,
+          [Op.lt]: endDate,
+        },
+      },
+      transaction: options.transaction,
+    });
+    return count;
+  },
 };

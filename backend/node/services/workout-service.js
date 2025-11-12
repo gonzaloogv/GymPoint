@@ -678,6 +678,41 @@ const getLastSetsForExercises = async (query) => {
   return lastSets;
 };
 
+/**
+ * Get count of completed workouts for the current week (Monday to Sunday)
+ * @param {number} userId - User ID
+ * @returns {Promise<number>} Count of completed workouts this week
+ */
+const getWeeklyCompletedWorkouts = async (userId) => {
+  try {
+    // Get current date in UTC
+    const now = new Date();
+
+    // Calculate Monday of current week (start of week)
+    const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // If Sunday, go back 6 days
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + daysToMonday);
+    monday.setHours(0, 0, 0, 0);
+
+    // Calculate next Monday (end of week)
+    const nextMonday = new Date(monday);
+    nextMonday.setDate(monday.getDate() + 7);
+
+    // Query completed workouts in this range
+    const count = await workoutRepository.countCompletedWorkoutsByDateRange(
+      userId,
+      monday,
+      nextMonday
+    );
+
+    return count;
+  } catch (error) {
+    console.error('[workout-service] Error getting weekly completed workouts:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   // Query operations
   getWorkoutSession,
@@ -688,6 +723,7 @@ module.exports = {
   listWorkoutSets,
   getWorkoutStats,
   getLastSetsForExercises,
+  getWeeklyCompletedWorkouts,
 
   // Command operations
   startWorkoutSession,
