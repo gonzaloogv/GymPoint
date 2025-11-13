@@ -32,7 +32,7 @@ const config: ExpoConfig = {
     favicon: './assets/favicon.png',
     bundler: 'metro',
   },
-  plugins: ['expo-secure-store'],
+  plugins: ['expo-secure-store', 'expo-web-browser'],
   extra: {
     apiUrl: process.env.EXPO_PUBLIC_API_BASE_URL,
     realtimeUrl: process.env.EXPO_PUBLIC_REALTIME_URL,
