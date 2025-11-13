@@ -2,21 +2,26 @@ import { create } from 'zustand';
 
 import { UserProfile } from '../../domain/entities/UserProfile';
 import { UserStats } from '../../domain/entities/UserStats';
+import { Frequency } from '../../domain/entities/Frequency';
 import { DI } from '@di/container';
 
 interface UserProfileState {
   // State
   profile: UserProfile | null;
   stats: UserStats | null;
+  frequency: Frequency | null;
   notificationsEnabled: boolean;
   locationEnabled: boolean;
   showPremiumModal: boolean;
   isLoading: boolean;
   isLoadingNotifications: boolean;
+  isLoadingFrequency: boolean;
 
   // Actions
   fetchUserProfile: () => Promise<void>;
   fetchUserStats: () => Promise<void>;
+  fetchWeeklyFrequency: () => Promise<void>;
+  updateWeeklyFrequency: (goal: number) => Promise<void>;
   fetchNotificationSettings: () => Promise<void>;
   toggleNotifications: (enabled: boolean) => Promise<void>;
   toggleLocation: (enabled: boolean) => Promise<void>;
@@ -28,11 +33,13 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
   // Initial state
   profile: null,
   stats: null,
+  frequency: null,
   notificationsEnabled: true,
   locationEnabled: true,
   showPremiumModal: false,
   isLoading: false,
   isLoadingNotifications: false,
+  isLoadingFrequency: false,
 
   // Actions
   fetchUserProfile: async () => {
@@ -61,6 +68,37 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
       });
     } catch (error) {
       console.error('Error fetching user stats:', error);
+    }
+  },
+
+  fetchWeeklyFrequency: async () => {
+    set({ isLoadingFrequency: true });
+    try {
+      const frequency = await DI.getWeeklyFrequency.execute();
+      set({ frequency });
+    } catch (error) {
+      console.error('[userProfile.store] Error fetching weekly frequency:', error);
+    } finally {
+      set({ isLoadingFrequency: false });
+    }
+  },
+
+  updateWeeklyFrequency: async (goal: number) => {
+    const previousFrequency = get().frequency;
+    console.log(`[userProfile.store] Updating frequency to: ${goal}`, { previousFrequency });
+    set({ isLoadingFrequency: true });
+
+    try {
+      const updatedFrequency = await DI.updateWeeklyFrequency.execute(goal);
+      console.log('[userProfile.store] Update successful:', updatedFrequency);
+      set({ frequency: updatedFrequency });
+    } catch (error) {
+      console.error('[userProfile.store] Error updating weekly frequency:', error);
+      // Revert on error
+      set({ frequency: previousFrequency });
+      throw error; // Re-throw so UI can show error
+    } finally {
+      set({ isLoadingFrequency: false });
     }
   },
 

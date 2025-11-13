@@ -1,6 +1,6 @@
 /**
  * SettingsCard - Card contenedor de todas las configuraciones
- * Agrupa las configuraciones de notificaciones, ubicación y tema
+ * Agrupa las configuraciones de notificaciones, ubicación, frecuencia y tema
  */
 
 import React from 'react';
@@ -10,6 +10,7 @@ import { Card, SegmentedControl } from '@shared/components/ui';
 import { useTheme } from '@shared/hooks';
 import { NotificationSettings } from './NotificationSettings';
 import { LocationSettings } from './LocationSettings';
+import { FrequencySettings } from './FrequencySettings';
 
 interface SettingsCardProps {
   notificationsEnabled: boolean;
@@ -17,6 +18,10 @@ interface SettingsCardProps {
   onNotificationToggle: (value: boolean) => void;
   locationEnabled: boolean;
   onLocationToggle: (value: boolean) => void;
+  currentGoal: number;
+  pendingGoal: number | null;
+  isLoadingFrequency: boolean;
+  onFrequencyUpdate: (goal: number) => void;
 }
 
 export const SettingsCard: React.FC<SettingsCardProps> = ({
@@ -25,6 +30,10 @@ export const SettingsCard: React.FC<SettingsCardProps> = ({
   onNotificationToggle,
   locationEnabled,
   onLocationToggle,
+  currentGoal,
+  pendingGoal,
+  isLoadingFrequency,
+  onFrequencyUpdate,
 }) => {
   const { theme, themeMode, setThemeMode } = useTheme();
   const isDark = theme === 'dark';
@@ -55,6 +64,17 @@ export const SettingsCard: React.FC<SettingsCardProps> = ({
       <LocationSettings
         locationEnabled={locationEnabled}
         onToggle={onLocationToggle}
+      />
+
+      {/* Separador */}
+      <View style={{ height: 1, backgroundColor: isDark ? '#374151' : '#e5e7eb', marginVertical: 16 }} />
+
+      {/* Configuración de frecuencia semanal */}
+      <FrequencySettings
+        currentGoal={currentGoal}
+        pendingGoal={pendingGoal}
+        onUpdate={onFrequencyUpdate}
+        loading={isLoadingFrequency}
       />
 
       {/* Configuración de tema */}

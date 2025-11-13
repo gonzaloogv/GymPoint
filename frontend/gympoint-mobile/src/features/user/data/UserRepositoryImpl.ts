@@ -2,6 +2,7 @@ import { UserRepository } from '../domain/repositories/UserRepository';
 import { UserProfile } from '../domain/entities/UserProfile';
 import { UserStats } from '../domain/entities/UserStats';
 import { NotificationSettings } from '../domain/entities/NotificationSettings';
+import { Frequency } from '../domain/entities/Frequency';
 import { UserProfileDTO, UserStatsDTO } from './dto/UserProfileDTO';
 import {
   mapUserProfileDTOToEntity,
@@ -11,6 +12,7 @@ import {
   mapNotificationSettingsDTOToEntity,
   mapNotificationSettingsEntityToDTO,
 } from './mappers/notificationSettings.mapper';
+import { mapFrequencyDTOToEntity } from './mappers/frequency.mapper';
 import { UserRemote } from './user.remote';
 
 export class UserRepositoryImpl implements UserRepository {
@@ -60,5 +62,15 @@ export class UserRepositoryImpl implements UserRepository {
     this.mockProfile.plan = 'Premium';
     this.mockProfile.role = 'PREMIUM';
     return mapUserProfileDTOToEntity(this.mockProfile);
+  }
+
+  async getWeeklyFrequency(): Promise<Frequency> {
+    const dto = await UserRemote.getWeeklyFrequency();
+    return mapFrequencyDTOToEntity(dto);
+  }
+
+  async updateWeeklyFrequency(goal: number): Promise<Frequency> {
+    const dto = await UserRemote.updateWeeklyFrequency({ goal });
+    return mapFrequencyDTOToEntity(dto);
   }
 }

@@ -50,6 +50,8 @@ import { UserRepositoryImpl } from '@features/user/data/UserRepositoryImpl';
 import { GetUserProfile } from '@features/user/domain/usecases/GetUserProfile';
 import { UpdateUserSettings } from '@features/user/domain/usecases/UpdateUserSettings';
 import { UpgradeToPremium } from '@features/user/domain/usecases/UpgradeToPremium';
+import { GetWeeklyFrequency } from '@features/user/domain/usecases/GetWeeklyFrequency';
+import { UpdateWeeklyFrequency } from '@features/user/domain/usecases/UpdateWeeklyFrequency';
 
 // ===== Achievements =====
 import { AchievementRepository } from '@features/progress/domain/repositories/AchievementRepository';
@@ -130,6 +132,8 @@ class Container {
   getUserProfile: GetUserProfile;
   updateUserSettings: UpdateUserSettings;
   upgradeToPremium: UpgradeToPremium;
+  getWeeklyFrequency: GetWeeklyFrequency;
+  updateWeeklyFrequency: UpdateWeeklyFrequency;
 
   // Achievements
   achievementRemote: AchievementRemote;
@@ -204,6 +208,8 @@ class Container {
     this.getUserProfile = new GetUserProfile(this.userRepository);
     this.updateUserSettings = new UpdateUserSettings(this.userRepository);
     this.upgradeToPremium = new UpgradeToPremium(this.userRepository);
+    this.getWeeklyFrequency = new GetWeeklyFrequency(this.userRepository);
+    this.updateWeeklyFrequency = new UpdateWeeklyFrequency(this.userRepository);
 
     // Achievements
     this.achievementRemote = new AchievementRemote();

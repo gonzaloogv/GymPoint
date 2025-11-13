@@ -45,7 +45,13 @@ module.exports = {
           type: Sequelize.INTEGER,
           allowNull: false,
           defaultValue: 3,
-          comment: 'Meta de asistencias por semana'
+          comment: 'Meta de asistencias por semana (actualmente vigente)'
+        },
+        pending_goal: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          defaultValue: null,
+          comment: 'Meta pendiente que se aplicará al inicio de la próxima semana (lunes 00:05)'
         },
         assist: {
           type: Sequelize.INTEGER,

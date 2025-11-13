@@ -162,28 +162,25 @@ const createWeeklyGoal = async (command) => {
 
   if (existente) {
     // Actualizar meta existente
+    // IMPORTANTE: No actualizar 'goal' directamente para no perder progreso de la semana actual
+    // El cambio se guarda en 'pending_goal' y se aplicará al inicio de la próxima semana (lunes 00:05)
     const payload = {
-      goal: cmd.goal
+      pending_goal: cmd.goal
     };
 
-    // Resetear semana actual al cambiar meta
-    const { weekStartDate, weekNumber, year } = getWeekMetadata(new Date());
-    payload.week_start_date = formatDate(weekStartDate);
-    payload.week_number = weekNumber;
-    payload.year = year;
-    payload.assist = 0;
-    payload.achieved_goal = false;
+    console.log(`[frequency-service] Frecuencia actualizada: goal actual=${existente.goal}, pending_goal=${cmd.goal} (se aplicará el próximo lunes)`);
 
     return frequencyRepository.updateByUserProfileId(cmd.idUserProfile, payload, {
       transaction: cmd.transaction
     });
   }
 
-  // Crear nueva meta
+  // Crear nueva meta (primera vez)
   const { weekStartDate, weekNumber, year } = getWeekMetadata(new Date());
   return frequencyRepository.create({
     id_user_profile: cmd.idUserProfile || cmd.id_user,
     goal: cmd.goal,
+    pending_goal: null, // No hay cambio pendiente en la primera creación
     assist: 0,
     achieved_goal: false,
     week_start_date: formatDate(weekStartDate),
@@ -343,13 +340,22 @@ const resetWeek = async (command = {}) => {
       }
 
       // Resetear contadores para la nueva semana
-      await frequencyRepository.update(frequency.id_frequency, {
+      const resetPayload = {
         assist: 0,
         achieved_goal: false,
         week_start_date: formatDate(nextWeekMeta.weekStartDate),
         week_number: nextWeekMeta.weekNumber,
         year: nextWeekMeta.year
-      }, { transaction });
+      };
+
+      // Aplicar pending_goal a goal si existe un cambio pendiente
+      if (frequency.pending_goal !== null && frequency.pending_goal !== undefined) {
+        console.log(`[frequency-service] Aplicando cambio pendiente para usuario ${frequency.id_user_profile || frequency.id_user}: goal ${frequency.goal} -> ${frequency.pending_goal}`);
+        resetPayload.goal = frequency.pending_goal;
+        resetPayload.pending_goal = null; // Limpiar el cambio pendiente
+      }
+
+      await frequencyRepository.update(frequency.id_frequency, resetPayload, { transaction });
     }
 
     await transaction.commit();

@@ -47,10 +47,14 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   // ============================================
   const {
     profile,
+    frequency,
     notificationsEnabled,
     isLoadingNotifications,
+    isLoadingFrequency,
     locationEnabled,
     fetchUserProfile,
+    fetchWeeklyFrequency,
+    updateWeeklyFrequency,
     fetchNotificationSettings,
     toggleNotifications,
     toggleLocation,
@@ -71,7 +75,8 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   useEffect(() => {
     fetchUserProfile();
     fetchNotificationSettings();
-  }, [fetchUserProfile, fetchNotificationSettings]);
+    fetchWeeklyFrequency();
+  }, [fetchUserProfile, fetchNotificationSettings, fetchWeeklyFrequency]);
 
   // ============================================
   // HANDLERS
@@ -82,6 +87,10 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
 
   const handleNotificationToggle = async (value: boolean) => {
     await toggleNotifications(value);
+  };
+
+  const handleFrequencyUpdate = async (goal: number) => {
+    await updateWeeklyFrequency(goal);
   };
 
   const handleUpgradeToPremium = async () => {
@@ -116,6 +125,10 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
         onNotificationToggle={handleNotificationToggle}
         locationEnabled={locationEnabled}
         onLocationToggle={toggleLocation}
+        currentGoal={frequency?.goal ?? 3}
+        pendingGoal={frequency?.pending_goal ?? null}
+        isLoadingFrequency={isLoadingFrequency}
+        onFrequencyUpdate={handleFrequencyUpdate}
       />
 
       {/* 5. Menú */}

@@ -38,12 +38,24 @@ export interface FrequencyResponseDTO {
   id_frequency: number;
   id_user: number;
   goal: number;
+  pending_goal: number | null; // Meta pendiente que se aplicará el próximo lunes
   assist: number;
   achieved_goal: boolean;
+  week_start_date: string | null;
+  week_number: number | null;
+  year: number | null;
   userProfile?: {
     name: string;
     lastname: string;
   };
+}
+
+/**
+ * DTO de solicitud para actualizar frecuencia semanal
+ * Para: POST /api/frequency
+ */
+export interface UpdateWeeklyFrequencyRequestDTO {
+  goal: number;
 }
 
 /**

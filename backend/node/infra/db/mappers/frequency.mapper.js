@@ -8,6 +8,7 @@ function toFrequency(instance) {
     id_frequency: plain.id_frequency,
     id_user_profile: plain.id_user_profile || plain.id_user,
     goal: plain.goal || 3,
+    pending_goal: plain.pending_goal !== undefined ? plain.pending_goal : null,
     assist: plain.assist || 0,
     achieved_goal: plain.achieved_goal || 0,
     week_start_date: plain.week_start_date,
