@@ -1,5 +1,13 @@
 # Changelog - GymPoint Admin
 
+## [Unreleased]
+
+- Agregado soporte para REALTIME_UI / REALTIME_URL / REALTIME_TRANSPORT en backend, admin y mobile.
+- WebSocketService ahora respeta transports configurables y expone REALTIME_ENABLED para gating en la UI.
+- useRealtimeSync (admin) alinea los query keys reales de TanStack Query y actualiza las listas sin perder filtros; tambi閚 dispara toasts mediante RealtimeToastPortal.
+- Mobile sincroniza tokens, plan premium, progreso semanal y asistencia en vivo actualizando los stores de Home/Profile/Progress/Tokens.
+- Documentaci髇 nueva: docs/realtime_audit.md, realtime_test_plan.md, realtime_howto.md.
+
 ## [3.0.0] - 2025-10-16
 
 ### 馃帀 Grandes Actualizaciones
@@ -272,4 +280,5 @@ Esta versi贸n incluye tres grandes m贸dulos implementados completamente:
 - Gesti贸n b谩sica de usuarios
 - Gesti贸n b谩sica de transacciones
 - Vista b谩sica de gimnasios
+
 

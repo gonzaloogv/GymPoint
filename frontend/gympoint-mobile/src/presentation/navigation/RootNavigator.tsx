@@ -3,6 +3,7 @@ import { View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { LoginScreen, RegisterScreen, useAuthStore } from '@features/auth';
+import { mapUserProfileToEntity } from '@features/auth/data/auth.mapper';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import AppTabs from './AppTabs';
@@ -61,14 +62,11 @@ export default function RootNavigator() {
 
           if (userProfile) {
             console.log('[RootNavigator] Session restored:', userProfile.email);
-            setUser({
-              id_user: userProfile.id_user,
-              name: userProfile.name,
-              email: userProfile.email,
-              role: userProfile.role,
-              tokens: userProfile.tokens,
-              plan: userProfile.plan,
-            });
+            console.log('[RootNavigator] Raw userProfile:', JSON.stringify(userProfile, null, 2));
+            // Usar el mapper para combinar name + lastname correctamente
+            const mappedUser = mapUserProfileToEntity(userProfile);
+            console.log('[RootNavigator] Mapped user:', JSON.stringify(mappedUser, null, 2));
+            setUser(mappedUser);
           } else {
             console.log('[RootNavigator] Failed to get user profile');
             await SecureStore.deleteItemAsync('gp_access');

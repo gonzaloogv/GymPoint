@@ -1,156 +1,148 @@
-import { useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { websocketService } from '../../data/api/websocket.service';
-import type {
-  GymRequestCreatedData,
-  GymRequestApprovedData,
-  GymRequestRejectedData,
-  UserSubscriptionChangedData,
-  AdminStatsUpdatedData,
-} from '../../data/dto/WebSocketEvents';
+import React, { useEffect } from 'react';
+import { QueryKey, useQueryClient } from '@tanstack/react-query';
+import { websocketService, REALTIME_ENABLED } from '../../data/api/websocket.service';
+import { emitRealtimeToast } from '../utils/realtimeToast';
+import type { UserSubscriptionChangedData, AdminStatsUpdatedData } from '../../data/dto/WebSocketEvents';
+import type { GymRequestPayload } from '@shared/types/websocket-events.types';
 
-/**
- * Hook para sincronizar eventos de WebSocket con TanStack Query
- * Actualiza la caché de forma silenciosa sin causar re-renders innecesarios
- *
- * Este hook debe ser usado en el componente raíz del admin panel (App.tsx)
- * para mantener todas las queries sincronizadas automáticamente
- */
+const adminStatsKey: QueryKey = ['admin', 'stats'];
+type GymRequestStatus = 'pending' | 'approved' | 'rejected';
+const gymRequestKey = (status?: GymRequestStatus) => ['gym-requests', status] as const;
+
 export function useRealtimeSync() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    // Solo conectar si hay token
+    if (!REALTIME_ENABLED) return;
+
     const token = localStorage.getItem('admin_token');
     if (!token) return;
 
-    // Conectar al WebSocket
     websocketService.connect().catch((error) => {
       console.error('[useRealtimeSync] Failed to connect:', error);
     });
 
-    // ========== GYM REQUESTS ==========
+    const hasGymRequestCache = (status?: GymRequestStatus) =>
+      Boolean(queryClient.getQueryState(gymRequestKey(status)));
 
-    // Nueva solicitud creada
-    const handleGymRequestCreated = (data: GymRequestCreatedData) => {
-      console.log('🔥🔥🔥 [useRealtimeSync] GYM REQUEST CREATED EVENT RECEIVED! 🔥🔥🔥');
-      console.log('[useRealtimeSync] Data:', data);
-      console.log('[useRealtimeSync] Gym Request:', data.gymRequest);
+    const updateGymRequestList = (
+      status: GymRequestStatus | undefined,
+      updater: (current: any[]) => any[],
+    ) => {
+      if (!hasGymRequestCache(status)) return;
+      queryClient.setQueryData<any[]>(gymRequestKey(status), (old = []) => updater(old));
+    };
 
-      // Actualizar lista de solicitudes pendientes (key correcta)
-      queryClient.setQueryData<any[]>(['gym-requests', 'pending'], (old) => {
-        console.log('[useRealtimeSync] Updating pending requests. Old data:', old);
-        if (!old) return [data.gymRequest];
-        const newData = [data.gymRequest, ...old];
-        console.log('[useRealtimeSync] New pending data:', newData);
-        return newData;
+    const updateAdminStats = (updater: (current: any) => any) => {
+      if (!queryClient.getQueryState(adminStatsKey)) return;
+      queryClient.setQueryData(adminStatsKey, updater);
+    };
+
+    const handleGymRequestCreated = (data: GymRequestPayload) => {
+      updateGymRequestList('pending', (old) => [data.gymRequest, ...old]);
+      updateGymRequestList(undefined, (old) => [data.gymRequest, ...old]);
+      queryClient.invalidateQueries({ queryKey: ['gym-requests'] });
+      emitRealtimeToast({
+        title: 'Nueva solicitud recibida',
+        description: data.gymRequest?.name ?? 'Revisa la bandeja de solicitudes',
+        variant: 'info',
       });
-
-      // También actualizar lista completa si existe (sin filtro)
-      queryClient.setQueryData<any[]>(['gym-requests', undefined], (old) => {
-        if (!old) return [data.gymRequest];
-        return [data.gymRequest, ...old];
-      });
-
-      // Invalidar todas las variantes de gym-requests para asegurar
-      console.log('[useRealtimeSync] Invalidating gym-requests queries...');
-      queryClient.invalidateQueries({ queryKey: ['gym-requests'] });
-      console.log('[useRealtimeSync] ✅ Cache updated successfully!');
     };
 
-    // Solicitud aprobada
-    const handleGymRequestApproved = (data: GymRequestApprovedData) => {
-      console.log('[useRealtimeSync] Gym request approved:', data);
-
-      // Invalidar para refrescar
-      queryClient.invalidateQueries({ queryKey: ['gym-requests'] });
-      queryClient.invalidateQueries({ queryKey: ['gyms'] });
-    };
-
-    // Solicitud rechazada
-    const handleGymRequestRejected = (data: GymRequestRejectedData) => {
-      console.log('[useRealtimeSync] Gym request rejected:', data);
-
-      // Invalidar para refrescar
-      queryClient.invalidateQueries({ queryKey: ['gym-requests'] });
-    };
-
-    // ========== USER MANAGEMENT ==========
-
-    // Suscripción de usuario cambiada
-    const handleUserSubscriptionChanged = (data: UserSubscriptionChangedData) => {
-      console.log('[useRealtimeSync] User subscription changed:', data);
-
-      // Actualizar en lista de usuarios
-      queryClient.setQueryData<any>(['users'], (old) => {
-        if (!old?.users) return old;
-        return {
+    const handleGymRequestApproved = (data: GymRequestPayload) => {
+      updateGymRequestList('pending', (old) =>
+        old.filter((req) => req.id_gym_request !== data.requestId),
+      );
+      updateGymRequestList(undefined, (old) =>
+        old.map((req) =>
+          req.id_gym_request === data.requestId
+            ? { ...req, status: 'approved', id_gym: data.gymId }
+            : req,
+        ),
+      );
+      updateGymRequestList('approved', (old) => {
+        if (old.some((req) => req.id_gym_request === data.requestId)) {
+          return old;
+        }
+        return [
+          data.gymRequest ?? { id_gym_request: data.requestId, status: 'approved', id_gym: data.gymId },
           ...old,
-          users: old.users.map((user: any) =>
-            user.id_user_profile === data.userId || user.id_account === data.accountId
-              ? { ...user, subscription_tier: data.newSubscription, isPremium: data.isPremium }
-              : user
-          ),
-        };
+        ];
       });
-
-      // Actualizar stats si cambió a premium
-      if (data.isPremium && data.previousSubscription !== 'PREMIUM') {
-        queryClient.setQueryData<any>(['adminStats'], (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            premiumUsers: (old.premiumUsers || 0) + 1,
-          };
-        });
-      } else if (!data.isPremium && data.previousSubscription === 'PREMIUM') {
-        queryClient.setQueryData<any>(['adminStats'], (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            premiumUsers: Math.max((old.premiumUsers || 1) - 1, 0),
-          };
-        });
-      }
+      queryClient.setQueryData<any[]>(['gyms'], (old) => {
+        if (!old || !data.gym) return old;
+        if (old.some((gym) => gym.id_gym === data.gymId)) return old;
+        return [data.gym, ...old];
+      });
+      queryClient.invalidateQueries({ queryKey: ['gym-requests'] });
     };
 
-    // ========== ADMIN STATS ==========
+    const handleGymRequestRejected = (data: GymRequestPayload) => {
+      updateGymRequestList('pending', (old) =>
+        old.filter((req) => req.id_gym_request !== data.requestId),
+      );
+      updateGymRequestList(undefined, (old) =>
+        old.map((req) =>
+          req.id_gym_request === data.requestId
+            ? { ...req, status: 'rejected', rejection_reason: data.reason }
+            : req,
+        ),
+      );
+      updateGymRequestList('rejected', (old) => {
+        if (old.some((req) => req.id_gym_request === data.requestId)) {
+          return old;
+        }
+        return [data.gymRequest ?? { id_gym_request: data.requestId, status: 'rejected' }, ...old];
+      });
+      queryClient.invalidateQueries({ queryKey: ['gym-requests'] });
+    };
 
-    // Estadísticas actualizadas
+    const handleUserSubscriptionChanged = (data: UserSubscriptionChangedData) => {
+      const userQueries = queryClient.getQueriesData<{ data?: any[] }>({ queryKey: ['admin', 'users'] });
+      userQueries.forEach(([key, cached]) => {
+        if (!cached?.data) return;
+        const updatedUsers = cached.data.map((user) =>
+          user.id_user_profile === data.userId || user.id_account === data.accountId
+            ? { ...user, subscription: data.newSubscription }
+            : user,
+        );
+        queryClient.setQueryData(key, { ...cached, data: updatedUsers });
+      });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+
+      updateAdminStats((old: any) => {
+        if (!old) return old;
+        if (data.isPremium && data.previousSubscription !== 'PREMIUM') {
+          return { ...old, premiumUsers: (old.premiumUsers || 0) + 1 };
+        }
+        if (!data.isPremium && data.previousSubscription === 'PREMIUM') {
+          return { ...old, premiumUsers: Math.max((old.premiumUsers || 1) - 1, 0) };
+        }
+        return old;
+      });
+    };
+
     const handleStatsUpdated = (data: AdminStatsUpdatedData) => {
-      console.log('[useRealtimeSync] Stats updated:', data);
-
-      // Actualizar stats completas
-      queryClient.setQueryData(['adminStats'], data.stats);
+      updateAdminStats(() => data.stats);
+      queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
     };
 
-    // ========== SUSCRIBIRSE A EVENTOS ==========
-
-    console.log('[useRealtimeSync] 🎧 Registering event listeners...');
     websocketService.onGymRequestCreated(handleGymRequestCreated);
     websocketService.onGymRequestApproved(handleGymRequestApproved);
     websocketService.onGymRequestRejected(handleGymRequestRejected);
     websocketService.onUserSubscriptionChanged(handleUserSubscriptionChanged);
     websocketService.onStatsUpdated(handleStatsUpdated);
-    console.log('[useRealtimeSync] ✅ All event listeners registered successfully!');
 
-    // Cleanup: remover listeners al desmontar
     return () => {
       websocketService.off('gym:request:created', handleGymRequestCreated);
       websocketService.off('gym:request:approved', handleGymRequestApproved);
       websocketService.off('gym:request:rejected', handleGymRequestRejected);
       websocketService.off('user:subscription:changed', handleUserSubscriptionChanged);
       websocketService.off('admin:stats:updated', handleStatsUpdated);
-
-      // Opcional: desconectar al desmontar el componente principal
-      // websocketService.disconnect();
     };
   }, [queryClient]);
 }
 
-/**
- * Hook para obtener el estado de conexión de WebSocket
- */
 export function useWebSocketStatus() {
   const [isConnected, setIsConnected] = React.useState(websocketService.isConnected());
 
@@ -159,10 +151,7 @@ export function useWebSocketStatus() {
       setIsConnected(websocketService.isConnected());
     };
 
-    // Verificar cada segundo
     const interval = setInterval(checkConnection, 1000);
-
-    // Verificar inmediatamente
     checkConnection();
 
     return () => clearInterval(interval);
@@ -170,6 +159,3 @@ export function useWebSocketStatus() {
 
   return isConnected;
 }
-
-// Importar React para el segundo hook
-import React from 'react';

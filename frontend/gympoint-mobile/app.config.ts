@@ -7,7 +7,10 @@ const config: ExpoConfig = {
   slug: 'gympoint-mobile',
   version: '1.0.0',
   extra: {
-    apiUrl: process.env.EXPO_PUBLIC_API_BASE_URL, // 👈 viene del .env
+    apiUrl: process.env.EXPO_PUBLIC_API_BASE_URL,
+    realtimeUrl: process.env.EXPO_PUBLIC_REALTIME_URL,
+    realtimeUi: process.env.EXPO_PUBLIC_REALTIME_UI,
+    realtimeTransport: process.env.EXPO_PUBLIC_REALTIME_TRANSPORT,
   },
 };
 

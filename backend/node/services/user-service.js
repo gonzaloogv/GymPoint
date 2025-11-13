@@ -126,15 +126,16 @@ const getUserByAccountId = async (query) => {
   }
 
   // Combinar datos de account y profile
+  // IMPORTANTE: primero el spread del perfil, luego sobrescribir con datos del account
   return {
+    ...account.userProfile,
+    // Sobrescribir con datos de account que son la fuente de verdad
     id_account: account.id_account,
     email: account.email,
     auth_provider: account.auth_provider,
     email_verified: account.email_verified,
     last_login: account.last_login,
     roles: account.roles || [],
-    // Datos del perfil
-    ...account.userProfile,
   };
 };
 
@@ -245,18 +246,6 @@ const updateUserTokens = async (command) => {
     reason: cmd.reason || 'MANUAL_ADJUSTMENT',
     refType: cmd.refType,
     refId: cmd.refId,
-  });
-
-  // Emitir evento para actualizaciones en tiempo real
-  appEvents.emit(EVENTS.USER_TOKENS_UPDATED, {
-    userId: cmd.userProfileId,
-    accountId: userProfile?.id_account,
-    newBalance,
-    previousBalance,
-    delta: cmd.delta,
-    reason: cmd.reason,
-    transaction,
-    timestamp: new Date()
   });
 
   return newBalance;

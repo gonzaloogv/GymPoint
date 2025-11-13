@@ -12,6 +12,7 @@ interface TokensState {
   fetchTokenHistory: (filters?: TokenTransactionFilters) => Promise<void>;
   fetchTokenBalance: () => Promise<void>;
   clearError: () => void;
+  setBalanceValue: (value: number) => void;
 }
 
 export const useTokensStore = create<TokensState>((set) => ({
@@ -44,4 +45,18 @@ export const useTokensStore = create<TokensState>((set) => ({
   },
 
   clearError: () => set({ error: null }),
+
+  setBalanceValue: (value: number) =>
+    set((state) => {
+      if (!state.balance) {
+        return {
+          balance: {
+            available: value,
+            earned: value,
+            spent: 0,
+          },
+        };
+      }
+      return { balance: { ...state.balance, available: value } };
+    }),
 }));

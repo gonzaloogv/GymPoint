@@ -14,6 +14,7 @@
 const { TokenLedger, UserProfile } = require('../models');
 const sequelize = require('../config/database');
 const { NotFoundError, BusinessError } = require('../utils/errors');
+const { emitEvent, EVENTS } = require('../websocket/events/event-emitter');
 
 /**
  * Registra un movimiento de tokens en el ledger
@@ -106,7 +107,19 @@ const registrarMovimiento = async ({ userId, delta, reason, refType = null, refI
     // 4. Actualizar balance en user_profile
     await userProfile.update({ tokens: newBalance }, { transaction: t });
 
-    // 5. Commit si no es transacción externa
+    // 5. Emitir evento para interfaces en vivo
+    emitEvent(EVENTS.USER_TOKENS_UPDATED, {
+      userId,
+      newBalance,
+      previousBalance: currentBalance,
+      delta,
+      reason,
+      refType,
+      refId,
+      timestamp: new Date().toISOString(),
+    });
+
+    // 6. Commit si no es transacción externa
     if (!transaction) {
       await t.commit();
     }

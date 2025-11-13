@@ -13,7 +13,7 @@ export interface NotificationPayload {
   type: 'REMINDER' | 'ACHIEVEMENT' | 'REWARD' | 'GYM_UPDATE' | 'PAYMENT' | 'SOCIAL' | 'SYSTEM' | 'CHALLENGE';
   title: string;
   message: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   isRead: boolean;
   createdAt: string;
   timestamp: string;
@@ -112,6 +112,15 @@ export interface GymRatingUpdatedPayload {
   totalReviews: number;
   timestamp?: string;
 }
+
+// ============================================================================
+// PROGRESS & ATTENDANCE EVENTS
+// ============================================================================
+
+export type {
+  WeeklyProgressUpdatedPayload,
+  AttendanceRecordedPayload,
+} from '@root/shared/types/websocket-events.types';
 
 // ============================================================================
 // ACHIEVEMENT & REWARD EVENTS
@@ -241,6 +250,10 @@ export const WS_EVENTS = {
 
   // System
   SYSTEM_ANNOUNCEMENT: 'system:announcement',
+
+  // Progress
+  PROGRESS_WEEKLY_UPDATED: 'progress:weekly:updated',
+  ATTENDANCE_RECORDED: 'attendance:recorded',
 } as const;
 
 export type WebSocketEventName = (typeof WS_EVENTS)[keyof typeof WS_EVENTS];
@@ -260,7 +273,7 @@ export interface WebSocketState {
 // ============================================================================
 
 export interface WebSocketContextValue {
-  socket: any | null; // Socket instance
+  socket: unknown | null; // Socket instance
   connected: boolean;
   connecting: boolean;
   error: string | null;
@@ -281,7 +294,7 @@ export interface WebSocketContextValue {
   unsubscribeFromStreak: () => void;
 
   // Generic emit
-  emit: (event: string, data?: any) => void;
-  on: (event: string, callback: (...args: any[]) => void) => void;
-  off: (event: string, callback?: (...args: any[]) => void) => void;
+  emit: (event: string, data?: unknown) => void;
+  on: (event: string, callback: (...args: unknown[]) => void) => void;
+  off: (event: string, callback?: (...args: unknown[]) => void) => void;
 }

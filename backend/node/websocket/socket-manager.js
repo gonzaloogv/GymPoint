@@ -133,13 +133,15 @@ function registerAppEventListeners(io) {
 
   // Presencia
   appEvents.on(EVENTS.PRESENCE_UPDATED, (data) => {
-    if (data.gymId) {
-      io.to(`gym:${data.gymId}`).emit('presence:updated', {
-        currentCount: data.currentCount,
-        gymId: data.gymId,
-        timestamp: data.timestamp
-      });
+    if (!data || typeof data.gymId !== 'number') {
+      console.error('[WebSocket] Invalid payload for PRESENCE_UPDATED:', data);
+      return;
     }
+    io.to(`gym:${data.gymId}`).emit('presence:updated', {
+      currentCount: data.currentCount,
+      gymId: data.gymId,
+      timestamp: data.timestamp
+    });
   });
 
   // Rachas
@@ -263,70 +265,106 @@ function registerAppEventListeners(io) {
 
   // Gestión de usuarios (enviado al usuario específico)
   appEvents.on(EVENTS.USER_TOKENS_UPDATED, (data) => {
-    if (data.userId) {
-      io.to(`user:${data.userId}`).emit('user:tokens:updated', {
-        newBalance: data.newBalance,
-        previousBalance: data.previousBalance,
-        delta: data.delta,
-        reason: data.reason,
-        timestamp: data.timestamp
-      });
-
-      // También emitir a room de tokens si está suscrito
-      io.to(`user-tokens:${data.userId}`).emit('user:tokens:updated', {
-        newBalance: data.newBalance,
-        previousBalance: data.previousBalance,
-        delta: data.delta,
-        reason: data.reason,
-        timestamp: data.timestamp
-      });
+    if (!data || typeof data.userId !== 'number' || typeof data.newBalance !== 'number') {
+      console.error('[WebSocket] Invalid payload for USER_TOKENS_UPDATED:', data);
+      return;
     }
+    io.to(`user:${data.userId}`).emit('user:tokens:updated', {
+      newBalance: data.newBalance,
+      previousBalance: data.previousBalance,
+      delta: data.delta,
+      reason: data.reason,
+      timestamp: data.timestamp
+    });
+
+    // También emitir a room de tokens si está suscrito
+    io.to(`user-tokens:${data.userId}`).emit('user:tokens:updated', {
+      newBalance: data.newBalance,
+      previousBalance: data.previousBalance,
+      delta: data.delta,
+      reason: data.reason,
+      timestamp: data.timestamp
+    });
   });
 
   appEvents.on(EVENTS.USER_SUBSCRIPTION_UPDATED, (data) => {
-    if (data.userId) {
-      io.to(`user:${data.userId}`).emit('user:subscription:updated', {
-        previousSubscription: data.previousSubscription,
-        newSubscription: data.newSubscription,
-        isPremium: data.isPremium,
-        premiumSince: data.premiumSince,
-        premiumExpires: data.premiumExpires,
-        timestamp: data.timestamp
-      });
-
-      // También emitir a room de perfil si está suscrito
-      io.to(`user-profile:${data.userId}`).emit('user:subscription:updated', {
-        previousSubscription: data.previousSubscription,
-        newSubscription: data.newSubscription,
-        isPremium: data.isPremium,
-        premiumSince: data.premiumSince,
-        premiumExpires: data.premiumExpires,
-        timestamp: data.timestamp
-      });
-
-      // Emitir a admins para actualizar la lista de usuarios
-      io.to('admin:user-management').emit('user:subscription:changed', {
-        userId: data.userId,
-        accountId: data.accountId,
-        newSubscription: data.newSubscription,
-        isPremium: data.isPremium,
-        timestamp: data.timestamp
-      });
+    if (!data || typeof data.userId !== 'number' || typeof data.newSubscription !== 'string') {
+      console.error('[WebSocket] Invalid payload for USER_SUBSCRIPTION_UPDATED:', data);
+      return;
     }
+    io.to(`user:${data.userId}`).emit('user:subscription:updated', {
+      previousSubscription: data.previousSubscription,
+      newSubscription: data.newSubscription,
+      isPremium: data.isPremium,
+      premiumSince: data.premiumSince,
+      premiumExpires: data.premiumExpires,
+      timestamp: data.timestamp
+    });
+
+    io.to(`user-profile:${data.userId}`).emit('user:subscription:updated', {
+      previousSubscription: data.previousSubscription,
+      newSubscription: data.newSubscription,
+      isPremium: data.isPremium,
+      premiumSince: data.premiumSince,
+      premiumExpires: data.premiumExpires,
+      timestamp: data.timestamp
+    });
+
+    io.to('admin:user-management').emit('user:subscription:changed', {
+      userId: data.userId,
+      accountId: data.accountId,
+      newSubscription: data.newSubscription,
+      isPremium: data.isPremium,
+      timestamp: data.timestamp
+    });
   });
 
   appEvents.on(EVENTS.USER_PROFILE_UPDATED, (data) => {
-    if (data.userId) {
-      io.to(`user:${data.userId}`).emit('user:profile:updated', {
-        profile: data.profile,
-        timestamp: data.timestamp
-      });
-
-      io.to(`user-profile:${data.userId}`).emit('user:profile:updated', {
-        profile: data.profile,
-        timestamp: data.timestamp
-      });
+    if (!data || typeof data.userId !== 'number') {
+      console.error('[WebSocket] Invalid payload for USER_PROFILE_UPDATED:', data);
+      return;
     }
+    io.to(`user:${data.userId}`).emit('user:profile:updated', {
+      profile: data.profile,
+      timestamp: data.timestamp
+    });
+
+    io.to(`user-profile:${data.userId}`).emit('user:profile:updated', {
+      profile: data.profile,
+      timestamp: data.timestamp
+    });
+  });
+
+  appEvents.on(EVENTS.PROGRESS_WEEKLY_UPDATED, (data) => {
+    if (!data || typeof data.userId !== 'number' || typeof data.goal !== 'number') {
+      console.error('[WebSocket] Invalid payload for PROGRESS_WEEKLY_UPDATED:', data);
+      return;
+    }
+    io.to(`user:${data.userId}`).emit('progress:weekly:updated', {
+      goal: data.goal,
+      current: data.current,
+      achieved: data.achieved,
+      percentage: data.percentage,
+      weekStart: data.weekStart,
+      weekNumber: data.weekNumber,
+      year: data.year,
+      timestamp: data.timestamp,
+    });
+  });
+
+  appEvents.on(EVENTS.ATTENDANCE_RECORDED, (data) => {
+    if (!data || typeof data.userId !== 'number' || typeof data.gymId !== 'number') {
+      console.error('[WebSocket] Invalid payload for ATTENDANCE_RECORDED:', data);
+      return;
+    }
+    io.to(`user:${data.userId}`).emit('attendance:recorded', {
+      attendanceId: data.attendanceId,
+      gymId: data.gymId,
+      tokensAwarded: data.tokensAwarded,
+      newBalance: data.newBalance,
+      streak: data.streak,
+      timestamp: data.timestamp,
+    });
   });
 
   // Estadísticas de admin

@@ -1,6 +1,6 @@
 // src/shared/services/websocket.service.ts
 import { io, Socket } from 'socket.io-client';
-import { API_BASE_URL } from '@shared/config/env';
+import { API_BASE_URL, REALTIME_URL, REALTIME_TRANSPORTS, REALTIME_UI_ENABLED } from '@shared/config/env';
 import { tokenStorage } from './api';
 import { WS_EVENTS } from '@shared/types/websocket.types';
 
@@ -24,6 +24,10 @@ class WebSocketService {
     }
 
     try {
+      if (!REALTIME_UI_ENABLED) {
+        throw new Error('Realtime disabled via REALTIME_UI flag');
+      }
+
       // Obtener token de autenticación
       const token = await tokenStorage.getAccess();
 
@@ -31,14 +35,14 @@ class WebSocketService {
         throw new Error('No authentication token available');
       }
 
-      console.log('[WebSocket] Connecting to:', API_BASE_URL);
+      console.log('[WebSocket] Connecting to:', REALTIME_URL);
 
       // Crear conexión Socket.IO
-      this.socket = io(API_BASE_URL, {
+      this.socket = io(REALTIME_URL, {
         auth: {
           token,
         },
-        transports: ['websocket', 'polling'],
+        transports: REALTIME_TRANSPORTS.length ? REALTIME_TRANSPORTS : ['websocket', 'polling'],
         reconnection: true,
         reconnectionAttempts: this.maxReconnectAttempts,
         reconnectionDelay: this.reconnectDelay,

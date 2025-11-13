@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Assistance Service (CQRS - Phase 4 Compliant)
  * - NO dependencies on Sequelize or Express
  * - Receives pure Commands/Queries
@@ -75,6 +75,58 @@ const emitStreakEvents = (userProfileId, oldStreak, newStreak) => {
       currentStreak: newStreak.value,
       message: messages[milestone] || `¡${milestone} días consecutivos!`,
     });
+  }
+};
+
+const emitWeeklyProgressEvent = (userId, frequency) => {
+  if (!frequency) return;
+
+  const goal = frequency.goal ?? 0;
+  const current = frequency.assist ?? 0;
+  const percentage = goal > 0 ? Math.min(100, Math.round((current / goal) * 100)) : 0;
+
+  emitEvent(EVENTS.PROGRESS_WEEKLY_UPDATED, {
+    userId,
+    goal,
+    current,
+    achieved: Boolean(frequency.achieved_goal),
+    percentage,
+    weekStart: frequency.week_start_date,
+    weekNumber: frequency.week_number,
+    year: frequency.year,
+    timestamp: new Date().toISOString(),
+  });
+};
+
+const emitAttendanceRecordedEvent = ({
+  userId,
+  gymId,
+  assistanceId,
+  tokensAwarded,
+  newBalance,
+  streak,
+}) => {
+  emitEvent(EVENTS.ATTENDANCE_RECORDED, {
+    userId,
+    gymId,
+    attendanceId: assistanceId,
+    tokensAwarded,
+    newBalance,
+    streak,
+    timestamp: new Date().toISOString(),
+  });
+};
+
+const emitPresenceUpdateCount = async (gymId) => {
+  try {
+    const currentCount = await presenceRepository.countActiveByGym(gymId);
+    emitEvent(EVENTS.PRESENCE_UPDATED, {
+      gymId,
+      currentCount,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('[assistance-service] Error emitting presence update:', error.message);
   }
 };
 
@@ -270,7 +322,8 @@ const registrarAsistencia = async (command) => {
   });
 
   // Actualizar frecuencia semanal
-  await frequencyService.actualizarAsistenciaSemanal(idUserProfile);
+  const weeklyProgress = await frequencyService.actualizarAsistenciaSemanal(idUserProfile);
+  emitWeeklyProgressEvent(idUserProfile, weeklyProgress);
   await syncAttendanceAchievements(idUserProfile);
 
   // Emitir eventos WebSocket
@@ -278,6 +331,14 @@ const registrarAsistencia = async (command) => {
     userId: idUserProfile,
     gymId: idGym,
     timestamp: new Date().toISOString(),
+  });
+  emitAttendanceRecordedEvent({
+    userId: idUserProfile,
+    gymId: idGym,
+    assistanceId: nuevaAsistencia.id_assistance,
+    tokensAwarded,
+    newBalance,
+    streak: updatedStreak.value,
   });
 
   emitStreakEvents(idUserProfile, racha, updatedStreak);
@@ -520,7 +581,8 @@ const autoCheckIn = async (command) => {
   });
 
   // Actualizar frecuencia semanal
-  await frequencyService.actualizarAsistenciaSemanal(idUserProfile);
+  const weeklyProgress = await frequencyService.actualizarAsistenciaSemanal(idUserProfile);
+  emitWeeklyProgressEvent(idUserProfile, weeklyProgress);
   await syncAttendanceAchievements(idUserProfile);
 
   // Emitir eventos WebSocket
@@ -528,6 +590,14 @@ const autoCheckIn = async (command) => {
     userId: idUserProfile,
     gymId: idGym,
     timestamp: new Date().toISOString(),
+  });
+  emitAttendanceRecordedEvent({
+    userId: idUserProfile,
+    gymId: idGym,
+    assistanceId: nuevaAsistencia.id_assistance,
+    tokensAwarded,
+    newBalance,
+    streak: updatedStreak.value,
   });
 
   emitStreakEvents(idUserProfile, racha, updatedStreak);
@@ -586,6 +656,8 @@ const registrarPresencia = async (command) => {
       location_updates_count: presencia.location_updates_count + 1
     });
 
+    await emitPresenceUpdateCount(command.gymId);
+
     // Calcular duración de permanencia
     const duracionMinutos = (ahora - new Date(presencia.first_seen_at)) / 60000;
 
@@ -607,6 +679,8 @@ const registrarPresencia = async (command) => {
     distance_meters: Math.round(distancia),
     location_updates_count: 1
   });
+
+  await emitPresenceUpdateCount(command.gymId);
 
   return {
     presencia,
@@ -765,7 +839,8 @@ const verificarAutoCheckIn = async (command) => {
   });
 
   // Actualizar frecuencia
-  await frequencyService.actualizarAsistenciaSemanal(command.userProfileId);
+  const weeklyProgress = await frequencyService.actualizarAsistenciaSemanal(command.userProfileId);
+  emitWeeklyProgressEvent(command.userProfileId, weeklyProgress);
   await syncAttendanceAchievements(command.userProfileId);
 
   // Emitir eventos WebSocket
@@ -774,11 +849,21 @@ const verificarAutoCheckIn = async (command) => {
     gymId: command.gymId,
     timestamp: new Date().toISOString(),
   });
+  emitAttendanceRecordedEvent({
+    userId: command.userProfileId,
+    gymId: command.gymId,
+    assistanceId: nuevaAsistencia.id_assistance,
+    tokensAwarded,
+    newBalance,
+    streak: updatedStreak.value,
+  });
 
   emitStreakEvents(command.userProfileId, racha, updatedStreak);
 
   // Marcar presencia como completada
   await presenceRepository.markAsConvertedToAssistance(presencia.id_presence, nuevaAsistencia.id_assistance);
+  await emitPresenceUpdateCount(command.gymId);
+
 
   return {
     asistencia: nuevaAsistencia,
@@ -797,3 +882,7 @@ module.exports = {
   verificarAutoCheckIn,
   calculateDistance
 };
+
+
+
+

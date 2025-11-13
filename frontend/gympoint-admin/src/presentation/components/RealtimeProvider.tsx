@@ -1,6 +1,8 @@
 import { ReactNode } from 'react';
 import { useRealtimeSync } from '../hooks/useRealtimeSync';
 import { RealtimeIndicatorTooltip } from './ui/RealtimeIndicator';
+import { RealtimeToastPortal } from './ui/RealtimeToast';
+import { REALTIME_ENABLED } from '../../data/api/websocket.service';
 
 interface RealtimeProviderProps {
   children: ReactNode;
@@ -8,18 +10,17 @@ interface RealtimeProviderProps {
 }
 
 /**
- * Provider que inicializa la sincronización en tiempo real via WebSocket
+ * Provider que inicializa la sincronizaci�n en tiempo real via WebSocket
  * Debe ser colocado dentro del QueryClientProvider y dentro de rutas protegidas
  */
 export function RealtimeProvider({ children, showIndicator = false }: RealtimeProviderProps) {
-  // Hook que maneja toda la sincronización automática
   useRealtimeSync();
 
   return (
     <>
       {children}
-      {/* Indicador de conexión en la esquina */}
-      {showIndicator && <RealtimeIndicatorTooltip />}
+      {REALTIME_ENABLED && showIndicator && <RealtimeIndicatorTooltip />}
+      {REALTIME_ENABLED && <RealtimeToastPortal />}
     </>
   );
 }
