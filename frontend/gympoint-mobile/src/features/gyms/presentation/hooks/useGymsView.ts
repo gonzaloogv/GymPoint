@@ -1,22 +1,32 @@
 import { useState } from 'react';
 
-export function useGymsView(initialView: 'map' | 'list' = 'map') {
-  const [viewMode, setViewMode] = useState<'map' | 'list'>(initialView);
+/**
+ * Hook para manejar los tres estados de vista del MapScreen:
+ * - 'default': Vista principal con mapa card pequeño + lista
+ * - 'list': Solo lista sin mapa
+ * - 'fullscreen': Mapa completo en modal (sin lista)
+ */
+export function useGymsView(initialView: 'default' | 'list' | 'fullscreen' = 'default') {
+  const [viewMode, setViewMode] = useState<'default' | 'list' | 'fullscreen'>(initialView);
 
-  const switchToMap = () => setViewMode('map');
+  const switchToDefault = () => setViewMode('default');
   const switchToList = () => setViewMode('list');
-  const toggleView = () => setViewMode((current) => (current === 'map' ? 'list' : 'map'));
+  const openFullscreenMap = () => setViewMode('fullscreen');
+  const closeFullscreenMap = () => setViewMode('default');
 
+  const isDefaultView = viewMode === 'default';
   const isListView = viewMode === 'list';
-  const isMapView = viewMode === 'map';
+  const isFullscreenView = viewMode === 'fullscreen';
 
   return {
     viewMode,
     setViewMode,
-    switchToMap,
+    switchToDefault,
     switchToList,
-    toggleView,
+    openFullscreenMap,
+    closeFullscreenMap,
+    isDefaultView,
     isListView,
-    isMapView,
+    isFullscreenView,
   };
 }

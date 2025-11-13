@@ -1,6 +1,6 @@
 import { Platform, StyleProp, ViewStyle } from 'react-native';
 import type { LatLng, MapLocation, Region } from '@features/gyms/presentation/types';
-import { useMapUserLocation } from '@features/gyms/presentation/hooks';
+import { useMapUserLocation, useMapZoom } from '@features/gyms/presentation/hooks';
 import { MapFallback, MapMarker, UserLocationPin } from '@shared/components/ui';
 import { MAP_STYLE } from './mapViewConfig';
 import WebMapView from './MapView.web';
@@ -61,18 +61,27 @@ export default function MapView({
       zoomDelta,
     });
 
+  // Hook para gestionar zoom adaptativo
+  const { zoomState, handleRegionChange } = useMapZoom();
+
   return (
     <NativeMapView
       ref={mapRef}
       initialRegion={startRegion || initialRegion}
       onMapReady={handleReady}
       onLayout={handleReady}
+      onRegionChangeComplete={handleRegionChange}
       style={[MAP_STYLE, { height: mapHeight }, style]}
       showsUserLocation
       showsMyLocationButton
     >
       {locations.map((location) => (
-        <MapMarker key={location.id} location={location} />
+        <MapMarker
+          key={location.id}
+          location={location}
+          pinSize={zoomState.pinSize}
+          scale={zoomState.scale}
+        />
       ))}
 
       {userLocation && (

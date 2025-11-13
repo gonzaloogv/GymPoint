@@ -3,6 +3,7 @@ import type { ReactElement } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './context';
 import { Layout } from './presentation/components';
+import { RealtimeProvider } from './presentation/components/RealtimeProvider';
 import {
   DailyChallenges,
   Dashboard,
@@ -49,7 +50,9 @@ const App = (): ReactElement => {
               path="/"
               element={
                 <ProtectedRoute>
-                  <Layout />
+                  <RealtimeProvider>
+                    <Layout />
+                  </RealtimeProvider>
                 </ProtectedRoute>
               }
             >

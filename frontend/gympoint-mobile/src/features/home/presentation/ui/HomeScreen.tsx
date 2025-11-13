@@ -1,8 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { SurfaceScreen } from '@shared/components/ui';
+import { SCREEN_CONTENT_STYLE } from '@shared/styles/layouts';
 import { useHome } from '../hooks/useHome';
 import {
   HomeHeader,
@@ -15,16 +14,14 @@ import {
 type AppTabsParamList = {
   Inicio: undefined;
   'Mi Gimnasio': undefined;
-  Mapa: undefined; 
-  Rutinas: undefined; 
+  Mapa: undefined;
+  Rutinas: undefined;
   Recompensa: undefined;
   Usuario: undefined;
 };
 
 export default function HomeScreen() {
   const navigation = useNavigation<BottomTabNavigationProp<AppTabsParamList>>();
-  const { bottom } = useSafeAreaInsets();
-  const tabBarHeight = useBottomTabBarHeight();
 
   const { user, weeklyGoal, currentProgress, progressPct, dailyChallenge, perm, requestLocation } =
     useHome();
@@ -32,15 +29,8 @@ export default function HomeScreen() {
   const goToGyms = () => navigation.navigate('Mapa');
   const goToRoutines = () => navigation.navigate('Rutinas');
 
-  const contentSpacing = {
-    paddingHorizontal: 16,
-    paddingTop: 4,
-    paddingBottom: tabBarHeight + bottom + 8,
-    rowGap: 24,
-  };
-
   return (
-    <SurfaceScreen scroll contentContainerStyle={contentSpacing}>
+    <SurfaceScreen scroll contentContainerStyle={SCREEN_CONTENT_STYLE}>
       <HomeHeader userName={user.name} plan={user.plan} tokens={user.tokens} streak={user.streak} />
 
       <WeeklyProgressCard

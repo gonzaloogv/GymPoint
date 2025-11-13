@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { useTheme } from '@shared/hooks';
+import { createScreenPalette } from '@shared/theme/palettes';
 import { ActionCard } from '@shared/components/ui';
 import { KPICard } from './KPICard';
 import StreakIcon from '@assets/icons/streak.svg';
@@ -17,23 +18,20 @@ export function ProgressOverviewHeader({
 }: ProgressOverviewHeaderProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-
-  const titleColor = isDark ? '#F9FAFB' : '#111827';
-  const subtitleColor = isDark ? '#9CA3AF' : '#6B7280';
-  const sectionSpacing = isDark ? 'rgba(55, 65, 81, 0.5)' : 'rgba(148, 163, 184, 0.32)';
+  const palette = createScreenPalette(isDark);
 
   return (
-    <View className="pt-4 pb-6 gap-6">
+    <View className="pt-4 pb-6 gap-6 px-4">
       <View>
         <Text
           className="text-[32px] font-extrabold"
-          style={{ color: titleColor, letterSpacing: -0.4 }}
+          style={{ color: palette.title, letterSpacing: -0.4 }}
         >
           Progreso
         </Text>
         <Text
           className="mt-2 text-xs font-semibold uppercase"
-          style={{ color: subtitleColor, letterSpacing: 1.2 }}
+          style={{ color: palette.subtitle, letterSpacing: 1.2 }}
         >
           Tu rendimiento y metas
         </Text>
@@ -62,7 +60,7 @@ export function ProgressOverviewHeader({
         layout="horizontal"
       />
 
-      <View className="h-px rounded-full" style={{ backgroundColor: sectionSpacing }} />
+      <View className="h-px rounded-full" style={{ backgroundColor: palette.divider }} />
     </View>
   );
 }

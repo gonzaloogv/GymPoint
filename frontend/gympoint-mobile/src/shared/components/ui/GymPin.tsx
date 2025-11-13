@@ -11,35 +11,44 @@ import Animated, {
 
 interface GymPinProps {
   size?: number;
+  scale?: number;
 }
 
 const AnimatedG = Animated.createAnimatedComponent(G);
 
 /**
- * GymPin - Pin personalizado para marcar gimnasios en el mapa
+ * GymPin - Pin personalizado adaptativo para marcar gimnasios en el mapa
  * Incluye mancuerna y pin de ubicación con animación de bob (arriba/abajo)
+ *
+ * @param size - Tamaño base del pin (default: 48)
+ * @param scale - Factor de escala adicional para zoom adaptativo (default: 1.0)
  */
-export function GymPin({ size = 48 }: GymPinProps) {
+export function GymPin({ size = 48, scale = 1.0 }: GymPinProps) {
   const translateY = useSharedValue(0);
 
+  // Calcular tamaño efectivo considerando la escala
+  const effectiveSize = size * scale;
+  // El movimiento se adapta al tamaño (proporcional)
+  const bobAmount = size / 8;
+
   useEffect(() => {
-    // Animación de bob: -6 → 6 → -6 en 1.6s, loop infinito
+    // Animación de bob: proporcional al tamaño
     translateY.value = withRepeat(
       withSequence(
-        withTiming(6, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-        withTiming(-6, { duration: 800, easing: Easing.inOut(Easing.ease) })
+        withTiming(bobAmount, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+        withTiming(-bobAmount, { duration: 800, easing: Easing.inOut(Easing.ease) })
       ),
       -1,
       false
     );
-  }, []);
+  }, [bobAmount]); // Re-animar cuando cambia el tamaño
 
   const animatedProps = useAnimatedProps(() => ({
     transform: [{ translateY: translateY.value }],
   }));
 
   return (
-    <Svg width={size} height={size} viewBox="0 0 502.691 502.691">
+    <Svg width={effectiveSize} height={effectiveSize} viewBox="0 0 502.691 502.691">
       {/* PIN DE UBICACIÓN (DETRÁS, ARRIBA, ANIMADO) */}
       <AnimatedG animatedProps={animatedProps}>
         <G transform="translate(251.345 155) scale(8.875) translate(-16 -16)">

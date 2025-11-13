@@ -29,17 +29,23 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
    * Conectar al WebSocket
    */
   const connect = useCallback(async () => {
+    console.log('[WebSocketProvider] 🔌 Connect called');
+
     if (state.connected || state.connecting) {
+      console.log('[WebSocketProvider] Already connected or connecting, skipping');
       return;
     }
 
     // Verificar si hay token antes de intentar conectar
+    console.log('[WebSocketProvider] Checking for auth token...');
     const token = await tokenStorage.getAccess();
     if (!token) {
+      console.log('[WebSocketProvider] ❌ No auth token found - user must login first');
       setState({ connected: false, connecting: false, error: null });
       return;
     }
 
+    console.log('[WebSocketProvider] ✅ Token found, attempting to connect...');
     setState((prev) => ({ ...prev, connecting: true, error: null }));
 
     try {
@@ -179,6 +185,29 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
       disconnect();
     };
   }, [autoConnect, connect, disconnect]);
+
+  /**
+   * Verificar periódicamente si el usuario hizo login y reconectar
+   * Esto maneja el caso donde el usuario hace login después del montaje inicial
+   */
+  useEffect(() => {
+    if (!autoConnect) return;
+
+    const checkAndReconnect = async () => {
+      const token = await tokenStorage.getAccess();
+
+      // Si hay token pero no está conectado ni conectando, reconectar
+      if (token && !state.connected && !state.connecting) {
+        console.log('[WebSocketProvider] 🔄 Token detected after login, reconnecting...');
+        connect();
+      }
+    };
+
+    // Verificar cada 2 segundos
+    const interval = setInterval(checkAndReconnect, 2000);
+
+    return () => clearInterval(interval);
+  }, [autoConnect, state.connected, state.connecting, connect]);
 
   // ============================================================================
   // NOTIFICATION METHODS

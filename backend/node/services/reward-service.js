@@ -8,6 +8,7 @@ const { rewardRepository } = require('../infra/db/repositories');
 const { userProfileRepository } = require('../infra/db/repositories');
 const { UserProfile, Streak } = require('../models');
 const { NotFoundError, ConflictError, ValidationError } = require('../utils/errors');
+const { appEvents, EVENTS } = require('../websocket/events/event-emitter');
 
 const STACKABLE_TYPES = new Set(['streak_saver', 'token_multiplier']);
 
@@ -240,6 +241,13 @@ async function createReward(command) {
 
     const reward = await rewardRepository.createReward(payload, { transaction });
     await transaction.commit();
+
+    // Emitir evento de recompensa creada para actualizaciones en tiempo real
+    appEvents.emit(EVENTS.REWARD_CREATED, {
+      reward: reward,
+      timestamp: new Date().toISOString()
+    });
+
     return reward;
   } catch (error) {
     await transaction.rollback();
@@ -324,6 +332,13 @@ async function updateReward(command) {
 
     const updated = await rewardRepository.updateReward(command.rewardId, payload, { transaction });
     await transaction.commit();
+
+    // Emitir evento de recompensa actualizada para actualizaciones en tiempo real
+    appEvents.emit(EVENTS.REWARD_UPDATED, {
+      reward: updated,
+      timestamp: new Date().toISOString()
+    });
+
     return updated;
   } catch (error) {
     await transaction.rollback();

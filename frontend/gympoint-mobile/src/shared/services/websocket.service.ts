@@ -61,25 +61,25 @@ class WebSocketService {
     if (!this.socket) return;
 
     this.socket.on(WS_EVENTS.CONNECT, () => {
-      console.log('[WebSocket] Connected successfully');
+      console.log('[WebSocket Mobile] ✅ Connected successfully');
       this.reconnectAttempts = 0;
     });
 
     this.socket.on(WS_EVENTS.DISCONNECT, (reason: string) => {
-      console.log('[WebSocket] Disconnected:', reason);
+      console.log('[WebSocket Mobile] Disconnected:', reason);
     });
 
     this.socket.on(WS_EVENTS.CONNECT_ERROR, (error: Error) => {
-      console.error('[WebSocket] Connection error:', error.message);
+      console.error('[WebSocket Mobile] ❌ Connection error:', error.message);
       this.reconnectAttempts++;
 
       if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-        console.error('[WebSocket] Max reconnection attempts reached');
+        console.error('[WebSocket Mobile] Max reconnection attempts reached');
       }
     });
 
     this.socket.on(WS_EVENTS.CONNECTION_SUCCESS, (data: any) => {
-      console.log('[WebSocket] Connection success:', data);
+      console.log('[WebSocket Mobile] ✅ Connection success:', data);
     });
   }
 
@@ -260,6 +260,76 @@ class WebSocketService {
    */
   unsubscribeFromGymAssistance(gymId: number) {
     this.emit(WS_EVENTS.ASSISTANCE_UNSUBSCRIBE_GYM, { gymId });
+  }
+
+  // ============================================================================
+  // USER PROFILE METHODS
+  // ============================================================================
+
+  /**
+   * Suscribirse a actualizaciones de perfil
+   */
+  subscribeToProfile() {
+    console.log('[WebSocket Mobile] 📤 Subscribing to profile updates...');
+    this.emit('user:subscribe:profile');
+
+    // Escuchar confirmación
+    this.on('user:subscribed:profile', (data: any) => {
+      console.log('[WebSocket Mobile] ✅ Profile subscription confirmed:', data);
+    });
+  }
+
+  /**
+   * Desuscribirse de actualizaciones de perfil
+   */
+  unsubscribeFromProfile() {
+    console.log('[WebSocket Mobile] 📤 Unsubscribing from profile updates...');
+    this.emit('user:unsubscribe:profile');
+  }
+
+  /**
+   * Suscribirse a actualizaciones de tokens
+   */
+  subscribeToTokens() {
+    console.log('[WebSocket Mobile] 📤 Subscribing to token updates...');
+    this.emit('user:subscribe:tokens');
+
+    // Escuchar confirmación
+    this.on('user:subscribed:tokens', (data: any) => {
+      console.log('[WebSocket Mobile] ✅ Tokens subscription confirmed:', data);
+    });
+  }
+
+  /**
+   * Desuscribirse de actualizaciones de tokens
+   */
+  unsubscribeFromTokens() {
+    console.log('[WebSocket Mobile] 📤 Unsubscribing from token updates...');
+    this.emit('user:unsubscribe:tokens');
+  }
+
+  /**
+   * Escuchar actualizaciones de tokens
+   */
+  onTokensUpdated(callback: (data: any) => void) {
+    console.log('[WebSocket Mobile] 🎧 Listening for tokens updates...');
+    this.on('user:tokens:updated', callback);
+  }
+
+  /**
+   * Escuchar actualizaciones de suscripción
+   */
+  onSubscriptionUpdated(callback: (data: any) => void) {
+    console.log('[WebSocket Mobile] 🎧 Listening for subscription updates...');
+    this.on('user:subscription:updated', callback);
+  }
+
+  /**
+   * Escuchar actualizaciones de perfil
+   */
+  onProfileUpdated(callback: (data: any) => void) {
+    console.log('[WebSocket Mobile] 🎧 Listening for profile updates...');
+    this.on('user:profile:updated', callback);
   }
 }
 

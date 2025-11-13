@@ -4,6 +4,7 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 import { useCheckIn, useTodayCheckInStatus } from '@features/assistance';
 import { UseGymSubscriptionStatusResult } from '@features/subscriptions';
+import { useAchievementsStore } from '@features/progress/presentation/state/achievements.store';
 
 interface CheckInSectionProps {
   gymId: number;
@@ -24,6 +25,7 @@ export function CheckInSection({
   const isDark = theme === 'dark';
   const { checkIn, isCheckingIn, error: checkInError } = useCheckIn();
   const todayCheckInStatus = useTodayCheckInStatus();
+  const { syncAchievements } = useAchievementsStore();
 
   const isInRange = distance <= 0.15;
 
@@ -35,6 +37,15 @@ export function CheckInSection({
     if (success) {
       // Refrescar el estado de check-in
       await todayCheckInStatus.refetch();
+
+      // Sincronizar achievements (asistencia, streak, frecuencia)
+      console.log('🏆 [CheckInSection] Sincronizando achievements después del check-in...');
+      try {
+        await syncAchievements();
+        console.log('✅ [CheckInSection] Achievements sincronizados correctamente');
+      } catch (error) {
+        console.error('❌ [CheckInSection] Error sincronizando achievements:', error);
+      }
 
       Alert.alert(
         '✅ Check-in exitoso',

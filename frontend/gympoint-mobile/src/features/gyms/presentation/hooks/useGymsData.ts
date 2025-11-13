@@ -61,7 +61,8 @@ export function useGymsData({
 
   const { data, loading, error } = useNearbyGyms(latitude, longitude, 10000);
 
-  const baseGyms = data?.length ? data : mockData;
+  // Usar solo datos reales, sin mocks/fallbacks
+  const baseGyms = data || [];
   const baseIds = useMemo(
     () =>
       baseGyms
@@ -73,7 +74,7 @@ export function useGymsData({
 
   const filteredGyms = useGymsFiltering(
     data || [],
-    mockData,
+    [], // Sin mocks
     searchText,
     selectedServices,
     selectedAmenities,
@@ -89,7 +90,7 @@ export function useGymsData({
   const resultsCount = filteredGyms.length;
   const hasUserLocation = Boolean(userLocation);
   const initialRegion = useMapInitialRegion(latitude, longitude);
-  const mapLocations = useMapLocations(filteredGyms.length ? filteredGyms : mockData);
+  const mapLocations = useMapLocations(filteredGyms); // Sin fallback a mocks
   const userLatLng = latitude && longitude ? { latitude, longitude } : undefined;
   const isLoading = loading || (!latitude && !longitude);
   const topNearbyGyms = filteredGyms.slice(0, 3);

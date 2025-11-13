@@ -14,9 +14,9 @@ export class AuthRepositoryImpl implements AuthRepository {
   async login(email: string, password: string) {
     const response = await AuthRemote.login({ email, password });
 
-    // Guardar tokens en SecureStore
-    await SecureStore.setItemAsync('accessToken', response.tokens.accessToken);
-    await SecureStore.setItemAsync('refreshToken', response.tokens.refreshToken);
+    // Guardar tokens en SecureStore usando las mismas claves que api.ts ('gp_access', 'gp_refresh')
+    await SecureStore.setItemAsync('gp_access', response.tokens.accessToken);
+    await SecureStore.setItemAsync('gp_refresh', response.tokens.refreshToken);
 
     return {
       user: mapAuthUserToEntity(response.user),
@@ -38,7 +38,7 @@ export class AuthRepositoryImpl implements AuthRepository {
    */
   async logout() {
     try {
-      const refreshToken = await SecureStore.getItemAsync('refreshToken');
+      const refreshToken = await SecureStore.getItemAsync('gp_refresh');
       if (refreshToken) {
         // Intentar revocar el token en el backend
         await AuthRemote.logout({ refreshToken });
@@ -47,8 +47,8 @@ export class AuthRepositoryImpl implements AuthRepository {
       console.warn('Error al revocar refresh token:', error);
     } finally {
       // Siempre eliminar tokens locales
-      await SecureStore.deleteItemAsync('accessToken');
-      await SecureStore.deleteItemAsync('refreshToken');
+      await SecureStore.deleteItemAsync('gp_access');
+      await SecureStore.deleteItemAsync('gp_refresh');
     }
   }
 
@@ -67,9 +67,9 @@ export class AuthRepositoryImpl implements AuthRepository {
       frequency_goal: params.frequency_goal,
     });
 
-    // Guardar tokens en SecureStore
-    await SecureStore.setItemAsync('accessToken', response.tokens.accessToken);
-    await SecureStore.setItemAsync('refreshToken', response.tokens.refreshToken);
+    // Guardar tokens en SecureStore usando las mismas claves que api.ts ('gp_access', 'gp_refresh')
+    await SecureStore.setItemAsync('gp_access', response.tokens.accessToken);
+    await SecureStore.setItemAsync('gp_refresh', response.tokens.refreshToken);
 
     return {
       user: mapAuthUserToEntity(response.user),

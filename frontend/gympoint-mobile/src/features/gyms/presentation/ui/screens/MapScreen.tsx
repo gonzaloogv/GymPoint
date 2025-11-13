@@ -3,13 +3,13 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { SurfaceScreen } from '@shared/components/ui';
-import { View, StyleSheet } from 'react-native';
-import { formatResultsLabel } from '@shared/utils';
+import { View, TouchableOpacity, Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@shared/hooks';
+import { SCREEN_CONTENT_STYLE } from '@shared/styles/layouts';
 
 import { MAP_SECTION_HEIGHT } from '@features/gyms/domain/constants/map';
-import { MOCK_UI } from '@features/gyms/data/datasources/GymMocks';
 import {
-  useActiveFiltersCount,
   useGymSchedules,
   useGymsData,
   useGymsFiltering,
@@ -23,7 +23,8 @@ import {
 import FiltersSheet from '../components/list/FiltersSheet';
 import GymsList from '../components/list/GymsList';
 import MapSection from '../components/map/MapSection';
-import MapScreenHeader from '../components/map/MapScreenHeader';
+import GymScreenHeader from '../components/map/GymScreenHeader';
+import FullscreenMapModal from '../components/map/FullscreenMapModal';
 import ResultsInfo from '../components/list/ResultsInfo';
 import type { GymsStackParamList } from '@presentation/navigation/types';
 
@@ -32,9 +33,13 @@ type GymsNavigationProp = NativeStackNavigationProp<GymsStackParamList, 'GymsLis
 export default function MapScreen() {
   const navigation = useNavigation<GymsNavigationProp>();
   const [searchText, setSearchText] = useState('');
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   // Custom hooks for state management
-  const { viewMode, setViewMode, isListView } = useGymsView('map');
+  // Inicializa en vista 'default' (mapa card + lista)
+  const { viewMode, setViewMode, isDefaultView, isListView, openFullscreenMap, closeFullscreenMap } =
+    useGymsView('default');
   const {
     filterVisible,
     selectedServices,
@@ -64,7 +69,6 @@ export default function MapScreen() {
     mapLocations,
     userLatLng,
     isLoading,
-    topNearbyGyms,
     locError,
     error,
   } = useGymsData({
@@ -73,7 +77,7 @@ export default function MapScreen() {
     useGymsFiltering,
     useMapInitialRegion,
     useMapLocations,
-    mockData: MOCK_UI,
+    mockData: [], // Sin mocks - mostrar datos reales de la base de datos
     searchText,
     selectedServices,
     selectedAmenities,
@@ -84,45 +88,35 @@ export default function MapScreen() {
     timeFilter,
   });
 
-  const activeFilters = useActiveFiltersCount(
-    selectedServices,
-    selectedAmenities,
-    selectedFeatures,
-    priceFilter,
-    ratingFilter,
-    timeFilter,
-    openNow,
-  );
-
-  const listHeader = formatResultsLabel(resultsCount, hasUserLocation);
-
   const handleGymPress = (gymId: string | number) => {
     const numericGymId = typeof gymId === 'string' ? parseInt(gymId, 10) : gymId;
     navigation.navigate('GymDetail', { gymId: numericGymId });
   };
 
-  const scroll = !isListView;
+  // Scroll siempre activo (excepto cuando no hay contenido)
+  const shouldScroll = true;
 
   return (
     <SurfaceScreen
-      scroll={scroll}
-      contentContainerStyle={scroll ? styles.scrollContent : styles.staticContent}
-      innerStyle={styles.inner}
+      scroll={shouldScroll}
+      contentContainerStyle={SCREEN_CONTENT_STYLE}
+      innerStyle={{ paddingBottom: 0 }}
       edges={['top', 'left', 'right']}
     >
-      <View style={[styles.body, isListView && styles.bodyList]}>
-        <MapScreenHeader
-          viewMode={viewMode}
-          onChangeViewMode={setViewMode}
-          onOpenFilters={openFilters}
-          activeFilters={activeFilters}
-          searchText={searchText}
-          onChangeSearch={setSearchText}
-        />
+      {/* Header siempre visible */}
+      <GymScreenHeader
+        searchText={searchText}
+        onChangeSearch={setSearchText}
+        viewMode={viewMode}
+        onChangeViewMode={setViewMode}
+        onOpenFilters={openFilters}
+      />
 
-        {!isListView && (
-          <View style={styles.mapModeContent}>
-            <ResultsInfo count={resultsCount} hasUserLocation={hasUserLocation} />
+      <View className="pt-2">
+        {/* VISTA DEFAULT: Mapa card + Botón expandir + Texto contador + Lista */}
+        {isDefaultView && (
+          <View className="gap-6">
+            {/* Mapa como card */}
             <MapSection
               initialRegion={initialRegion}
               mapLocations={mapLocations}
@@ -130,25 +124,74 @@ export default function MapScreen() {
               loading={isLoading}
               error={error}
               locError={locError}
-              moreList={topNearbyGyms}
               mapHeight={MAP_SECTION_HEIGHT}
               showUserFallbackPin
-              onGymPress={handleGymPress}
+            />
+
+            {/* Botón Expandir Mapa */}
+            <TouchableOpacity
+              onPress={openFullscreenMap}
+              activeOpacity={0.75}
+              className={`flex-row items-center justify-center py-3 px-5 rounded-xl border gap-2 shadow-sm ${
+                isDark
+                  ? 'bg-gray-800/95 border-gray-700/80'
+                  : 'bg-white/95 border-gray-200/80'
+              }`}
+              style={{
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.08,
+                shadowRadius: 4,
+                elevation: 2,
+              }}
+            >
+              <Ionicons
+                name="expand-outline"
+                size={20}
+                color={isDark ? '#C7D2FE' : '#4338CA'}
+              />
+              <Text className={`text-sm font-semibold tracking-wide ${isDark ? 'text-indigo-300' : 'text-indigo-700'}`}>
+                Expandir Mapa
+              </Text>
+            </TouchableOpacity>
+
+            {/* Texto contador: "6 gimnasios encontrados..." */}
+            <ResultsInfo count={resultsCount} hasUserLocation={hasUserLocation} />
+
+            {/* Lista de gimnasios */}
+            <GymsList
+              data={filteredGyms}
+              onPressItem={handleGymPress}
             />
           </View>
         )}
 
-        {isListView ? (
-          <View style={styles.listWrapper}>
+        {/* VISTA LISTA: Solo texto contador + lista (sin mapa) */}
+        {isListView && (
+          <View className="flex-1">
+            {/* Texto contador: "6 gimnasios encontrados..." */}
+            <ResultsInfo count={resultsCount} hasUserLocation={hasUserLocation} />
+
+            {/* Lista de gimnasios */}
             <GymsList
               data={filteredGyms}
-              headerText={listHeader}
               onPressItem={handleGymPress}
             />
           </View>
-        ) : null}
+        )}
       </View>
 
+      {/* Modal de Mapa Fullscreen */}
+      <FullscreenMapModal
+        visible={viewMode === 'fullscreen'}
+        onClose={closeFullscreenMap}
+        initialRegion={initialRegion}
+        mapLocations={mapLocations}
+        userLocation={userLatLng}
+        showUserFallbackPin
+      />
+
+      {/* Filters Sheet */}
       <FiltersSheet
         visible={filterVisible}
         onClose={closeFilters}
@@ -170,28 +213,3 @@ export default function MapScreen() {
     </SurfaceScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  inner: {
-    paddingBottom: 0,
-  },
-  scrollContent: {
-    paddingBottom: 24,
-  },
-  staticContent: {
-    flex: 1,
-    paddingBottom: 0,
-  },
-  body: {
-    flexGrow: 1,
-  },
-  bodyList: {
-    flex: 1,
-  },
-  mapModeContent: {
-    gap: 16,
-  },
-  listWrapper: {
-    flex: 1,
-  },
-});
