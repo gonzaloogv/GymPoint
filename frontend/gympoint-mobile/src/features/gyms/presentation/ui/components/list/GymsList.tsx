@@ -9,7 +9,6 @@ type Item = {
   name: string;
   distancia?: number;
   address?: string;
-  hours?: string;
 };
 
 type Props = {
@@ -41,23 +40,22 @@ export default function GymsList({ data, onPressItem }: Props) {
     );
   }
 
-  // Renderizar lista normal con .map() - visualmente idéntico a FlatList
+  // Renderizar lista de tarjetas de gimnasios
+  // Cambios (FASE 2 - Redesign):
+  // - Removido: separadores entre items (ahora cada card tiene su propio espaciado)
+  // - Removido: prop index (LocationBadge no lo necesita)
+  // - Padding: las cards manejan su propio spacing (marginBottom en GymListItem)
   return (
     <View className="pb-6">
-      {data.map((item, index) => (
-        <View key={String(item.id)}>
-          <GymListItem
-            id={item.id}
-            name={item.name}
-            distancia={item.distancia}
-            address={item.address}
-            hours={item.hours}
-            index={index}
-            onPress={onPressItem}
-          />
-          {/* Separador entre items (excepto el último) */}
-          {index < data.length - 1 && <View className="h-px bg-border" />}
-        </View>
+      {data.map((item) => (
+        <GymListItem
+          key={String(item.id)}
+          id={item.id}
+          name={item.name}
+          distancia={item.distancia}
+          address={item.address}
+          onPress={onPressItem}
+        />
       ))}
     </View>
   );

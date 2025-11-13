@@ -115,7 +115,7 @@ export default function GymScreenHeader({
             ${isDark ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}
           `}
         >
-          <Ionicons name="filter-sharp" size={16} color={palette.filterIcon} />
+          <Ionicons name="options-outline" size={16} color={palette.filterIcon} />
         </TouchableOpacity>
       </View>
     </View>

@@ -44,6 +44,7 @@ export * from './BackButton';
 export * from './refactor/Badge';
 export * from './BadgeDot';
 export * from './IndexBadge';
+export * from './LocationBadge';
 export * from './UnifiedBadge';
 export * from './MetaChip';
 export * from './SetPill';
