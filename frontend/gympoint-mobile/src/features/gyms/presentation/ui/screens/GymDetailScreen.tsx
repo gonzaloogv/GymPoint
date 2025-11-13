@@ -43,7 +43,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
   const subscriptionStatus = useGymSubscriptionStatus(
     gym.id,
     gym.name,
-    gymDetail?.trial_allowed || false
+    false
   );
 
   // Reviews state
@@ -61,7 +61,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
     gymId: gym.id,
     limit: 5,
     sortBy: 'created_at',
-    order: 'desc',
+    order: 'DESC',
   });
 
   const { stats: ratingStats } = useGymRatingStats(gym.id);

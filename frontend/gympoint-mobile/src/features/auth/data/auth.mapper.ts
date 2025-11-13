@@ -92,17 +92,20 @@ export const mapUser = (
   }
 
   // Formato legacy (soporte para casos antiguos)
-  const id = u.id_user_profile ?? ('id' in u ? u.id : -1);
-  const displayName = [u.name, u.lastname].filter(Boolean).join(' ').trim();
-  const roles = 'roles' in u ? u.roles ?? [] : [];
-  const subscription = 'subscription' in u ? u.subscription ?? 'FREE' : 'FREE';
+  const legacyUser = u as { id?: number; email?: string; name?: string; lastname?: string; roles?: string[]; subscription?: 'FREE' | 'PREMIUM'; tokens?: number; id_user_profile?: number };
+  const id = legacyUser.id_user_profile ?? legacyUser.id ?? -1;
+  const name = legacyUser.name;
+  const lastname = legacyUser.lastname;
+  const displayName = [name, lastname].filter(Boolean).join(' ').trim();
+  const roles = legacyUser.roles ?? [];
+  const subscription = legacyUser.subscription ?? 'FREE';
 
   return {
     id_user: id,
-    name: displayName.length > 0 ? displayName : ('email' in u ? u.email : ''),
-    email: 'email' in u ? u.email : '',
+    name: displayName.length > 0 ? displayName : (legacyUser.email ?? ''),
+    email: legacyUser.email ?? '',
     role: normalizeRole(roles, subscription),
-    tokens: ('tokens' in u ? u.tokens : 0) ?? 0,
+    tokens: (legacyUser.tokens ?? 0) ?? 0,
     plan: subscription === 'PREMIUM' ? 'Premium' : 'Free',
   };
 };

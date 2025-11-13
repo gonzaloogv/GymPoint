@@ -17,6 +17,7 @@ import {
   Row,
 } from '@shared/components/ui';
 import { BrandMark } from '@shared/components/brand';
+import { GymPointLogo } from '@assets/branding/gympoint-logo.svg';
 import { useRegister } from '../hooks/useRegister';
 import { isValidEmail, isValidName, isValidPassword, passwordsMatch } from '@shared/utils/validation';
 import { GenderRadioGroup } from './components/GenderRadioGroup';
@@ -125,7 +126,7 @@ export default function RegisterScreen() {
     >
       <View className="items-center gap-3 mb-8 mt-8">
         <View className="w-20 h-20 rounded-full bg-white/10 dark:bg-white/5 items-center justify-center">
-          <BrandMark size={64} />
+          <BrandMark icon={GymPointLogo} size="lg" />
         </View>
         <H1>GymPoint</H1>
         <Text className={`text-center px-8 ${subtitleColor}`}>
@@ -205,7 +206,11 @@ export default function RegisterScreen() {
                 <FrequencySlider value={weeklyFrequency} onChange={setWeeklyFrequency} />
               </FormField>
 
-              {error ? <ErrorText className="text-center">{error}</ErrorText> : null}
+              {error ? (
+                <View className="mb-4 items-center">
+                  <ErrorText>{error}</ErrorText>
+                </View>
+              ) : null}
 
               <Button onPress={handleRegister} disabled={loading} loading={loading} fullWidth className="mt-2">
                 Crear cuenta

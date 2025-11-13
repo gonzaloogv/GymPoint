@@ -19,10 +19,8 @@ export interface AuthRepository {
   me(): Promise<User>;
   logout(): Promise<void>;
   register(params: RegisterParams): Promise<{
-    id: number;
-    email: string;
-    name: string;
-    lastname: string;
-    subscription: 'FREE' | 'PREMIUM';
+    user: User;
+    accessToken: string;
+    refreshToken: string;
   }>;
 }

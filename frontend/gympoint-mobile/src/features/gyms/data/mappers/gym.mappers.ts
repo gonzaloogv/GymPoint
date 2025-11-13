@@ -1,5 +1,5 @@
 // src/features/gyms/data/mappers/gym.mapper.ts
-import { Gym } from '../../domain/entities/Gym';
+import { Gym, EquipmentByCategory } from '../../domain/entities/Gym';
 import { GymDTO } from '../dto/GymDTO';
 import { GymResponseDTO } from '../dto/GymApiDTO';
 
@@ -69,8 +69,9 @@ export function mapGymDTOtoEntity(dto: GymDTO): Gym | null {
     monthPrice: toNum(dto.month_price),
     weekPrice: toNum(dto.week_price),
 
-    // Equipment, rules y amenities vienen como arrays del backend
-    equipment: Array.isArray(dto.equipment) ? dto.equipment : undefined,
+    // Equipment: actualmente viene como string[] en el DTO legacy, eventualmente será EquipmentByCategory
+    // Por ahora convertimos string[] a undefined (no lo mapeamos aún)
+    equipment: undefined,
     rules: Array.isArray(dto.rules) ? dto.rules : undefined,
     amenities: Array.isArray(dto.amenities) ? dto.amenities : undefined,
 
