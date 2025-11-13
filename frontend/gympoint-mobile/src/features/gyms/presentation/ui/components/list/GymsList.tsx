@@ -9,7 +9,6 @@ type Item = {
   name: string;
   distancia?: number;
   address?: string;
-  hours?: string;
 };
 
 type Props = {
@@ -51,7 +50,6 @@ export default function GymsList({ data, onPressItem }: Props) {
             name={item.name}
             distancia={item.distancia}
             address={item.address}
-            hours={item.hours}
             index={index}
             onPress={onPressItem}
           />

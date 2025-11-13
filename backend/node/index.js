@@ -26,6 +26,7 @@ const { initializeWebSocket } = require('./websocket/socket-manager');
 
 // Cargar variables de entorno
 dotenv.config();
+const REALTIME_UI_ENABLED = (process.env.REALTIME_UI || 'on').toLowerCase() !== 'off';
 
 // Importar rutas
 const healthRoutes = require('./routes/health-routes');
@@ -183,7 +184,11 @@ async function startServer() {
 
     // 4. Inicializar WebSocket
     console.log('Inicializando WebSocket...');
-    initializeWebSocket(server);
+    if (REALTIME_UI_ENABLED) {
+      initializeWebSocket(server);
+    } else {
+      console.log('[Realtime] REALTIME_UI=off → WebSocket deshabilitado.');
+    }
 
     // 5. Iniciar servidor
     server.listen(PORT, '0.0.0.0', () => {
@@ -193,7 +198,11 @@ async function startServer() {
       console.log(` Documentación API: http://localhost:${PORT}/docs`);
       console.log(` Health check: http://localhost:${PORT}/health`);
       console.log(` Ready check: http://localhost:${PORT}/ready`);
-      console.log(` WebSocket disponible en ws://localhost:${PORT}`);
+      if (REALTIME_UI_ENABLED) {
+        console.log(` WebSocket disponible en ws://localhost:${PORT}`);
+      } else {
+        console.log(' WebSocket deshabilitado (REALTIME_UI=off)');
+      }
       console.log(` Entorno: ${process.env.NODE_ENV || 'development'}`);
       console.log('='.repeat(50));
       console.log('');

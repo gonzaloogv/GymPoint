@@ -68,7 +68,7 @@ export const PremiumAlert: React.FC<PremiumAlertProps> = ({ onUpgrade }) => {
               color: isDark ? '#F9FAFB' : '#111827',
             }}
           >
-            ¡Actualizá a Premium!
+            ¡Actualiza a Premium!
           </Text>
 
           {/* Descripción */}
@@ -78,7 +78,7 @@ export const PremiumAlert: React.FC<PremiumAlertProps> = ({ onUpgrade }) => {
               color: isDark ? '#C4B5FD' : '#7C3AED',
             }}
           >
-            Desbloqueá estadísticas avanzadas, recompensas exclusivas y más.
+            Desbloquea estadísticas avanzadas, recompensas exclusivas y más.
           </Text>
 
           {/* Botón de acción */}

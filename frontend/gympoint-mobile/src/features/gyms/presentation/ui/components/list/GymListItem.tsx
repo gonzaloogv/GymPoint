@@ -18,7 +18,6 @@ export function GymListItem({
   name,
   distancia,
   address,
-  hours,
   index,
   onPress,
 }: Props) {
@@ -41,7 +40,7 @@ export function GymListItem({
         {name}
       </Text>
       <Text className="text-xs" style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}>
-        {formatDistance(distancia)} • {hours ?? '—'}
+        {formatDistance(distancia)}
       </Text>
       {address && (
         <Text className="text-xs" style={{ color: isDark ? '#9CA3AF' : '#6B7280' }} numberOfLines={1}>

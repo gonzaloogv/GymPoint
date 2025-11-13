@@ -2,59 +2,29 @@
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
-// Si existe en app.config.ts → extra.apiUrl
-const extraUrl = Constants.expoConfig?.extra?.apiUrl as string | undefined;
-
-// Fallbacks sensatos si no hay variable
+const extra = Constants.expoConfig?.extra ?? {};
+const rawApiUrl = (extra.apiUrl as string | undefined) ?? process.env.EXPO_PUBLIC_API_BASE_URL;
 const ANDROID_EMULATOR = 'http://10.0.2.2:3000';
 const IOS_SIMULATOR = 'http://localhost:3000';
+const fallbackApi = Platform.OS === 'android' ? ANDROID_EMULATOR : IOS_SIMULATOR;
 
-// Detectar si estamos corriendo en Expo Go vs. build nativo
-// executionEnvironment: 'storeClient' = Expo Go, 'standalone' = build nativo
-const isExpoGo = Constants.executionEnvironment === 'storeClient';
+export const API_BASE_URL = (rawApiUrl ?? fallbackApi).replace(/\/$/, '');
 
-/**
- * Resuelve la URL del API considerando el entorno de ejecución
- *
- * IMPORTANTE: Expo Go vs Builds Nativos
- *
- * Expo Go (appOwnership === 'expo'):
- *   - Tanto iOS como Android pueden acceder a IPs locales (192.168.x.x)
- *   - Usa la misma red WiFi que la máquina host
- *   - Debe usar la URL del .env
- *
- * Build Nativo en Emulador Android:
- *   - NO puede acceder a 192.168.x.x (red virtual separada)
- *   - Debe usar 10.0.2.2 para acceder al localhost del host
- *
- * Solución:
- *   1. Si hay URL en .env, SIEMPRE usarla (funciona en Expo Go)
- *   2. Si NO hay URL y es Android, usar 10.0.2.2 (build nativo)
- *   3. Si NO hay URL y es iOS, usar localhost
- */
-const resolveApiUrl = (): string => {
-  // PRIORIDAD 1: Si hay una URL configurada (de .env), usarla
-  // Esto funciona en Expo Go para ambas plataformas
-  if (extraUrl) {
-    console.log('📱 Usando URL del .env:', extraUrl);
-    return extraUrl;
-  }
+const rawRealtimeFlag = ((extra.realtimeUi as string | undefined) ?? process.env.EXPO_PUBLIC_REALTIME_UI ?? 'on')
+  .toString()
+  .toLowerCase();
+export const REALTIME_UI_ENABLED = rawRealtimeFlag !== 'off';
 
-  // PRIORIDAD 2: Fallback por plataforma (solo cuando NO hay .env)
-  const fallback = Platform.OS === 'android' ? ANDROID_EMULATOR : IOS_SIMULATOR;
-  console.log(`📱 No hay .env, usando fallback para ${Platform.OS}:`, fallback);
-  return fallback;
-};
+const rawRealtimeUrl = (extra.realtimeUrl as string | undefined) ?? process.env.EXPO_PUBLIC_REALTIME_URL;
+export const REALTIME_URL = (rawRealtimeUrl ?? API_BASE_URL).replace(/\/$/, '');
 
-export const API_BASE_URL = resolveApiUrl();
+const rawRealtimeTransport =
+  (extra.realtimeTransport as string | undefined) ?? process.env.EXPO_PUBLIC_REALTIME_TRANSPORT ?? 'websocket,polling';
+export const REALTIME_TRANSPORTS = rawRealtimeTransport
+  .split(',')
+  .map((entry) => entry.trim())
+  .filter(Boolean);
 
-// Logging detallado para debugging (solo en desarrollo)
-if (__DEV__) {
-  console.log('🌐 ========== API CONFIG ==========');
-  console.log('🌐 API_BASE_URL:', API_BASE_URL);
-  console.log('🌐 Platform:', Platform.OS);
-  console.log('🌐 Execution Environment:', Constants.executionEnvironment);
-  console.log('🌐 Is Expo Go:', isExpoGo);
-  console.log('🌐 Extra URL from .env:', extraUrl);
-  console.log('🌐 ==================================');
-}
+console.log('[env] API_BASE_URL:', API_BASE_URL);
+console.log('[env] REALTIME_URL:', REALTIME_URL);
+console.log('[env] REALTIME_UI_ENABLED:', REALTIME_UI_ENABLED);

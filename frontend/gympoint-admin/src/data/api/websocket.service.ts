@@ -1,5 +1,19 @@
 import { io, Socket } from 'socket.io-client';
 
+const rawRealtimeFlag = (import.meta.env.VITE_REALTIME_UI ?? 'on').toString().toLowerCase();
+const fallbackBaseUrl =
+  import.meta.env.VITE_REALTIME_URL ??
+  import.meta.env.VITE_API_BASE_URL ??
+  window.location.origin.replace(/\/$/, '');
+const parsedTransports =
+  (import.meta.env.VITE_REALTIME_TRANSPORT as string | undefined)
+    ?.split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+const transportList = parsedTransports && parsedTransports.length > 0 ? parsedTransports : ['websocket', 'polling'];
+
+export const REALTIME_ENABLED = rawRealtimeFlag !== 'off';
+
 /**
  * WebSocket Service (Singleton) para Admin Panel
  * Maneja conexión WebSocket con autenticación JWT
@@ -25,6 +39,13 @@ class WebSocketService {
    */
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
+      if (!REALTIME_ENABLED) {
+        console.info('[WebSocket Admin] REALTIME_UI=off. Skipping WebSocket connection.');
+        this.isConnecting = false;
+        resolve();
+        return;
+      }
+
       if (this.socket?.connected) {
         console.log('[WebSocket Admin] Already connected');
         resolve();
@@ -47,12 +68,11 @@ class WebSocketService {
         return;
       }
 
-      // Usar la misma base URL que axios (sin /api)
-      const baseURL = 'http://localhost:3000';
+      const baseURL = fallbackBaseUrl;
 
       this.socket = io(baseURL, {
         auth: { token },
-        transports: ['websocket', 'polling'],
+        transports: transportList.length ? transportList : ['websocket', 'polling'],
         reconnection: true,
         reconnectionAttempts: this.maxReconnectAttempts,
         reconnectionDelay: 1000,

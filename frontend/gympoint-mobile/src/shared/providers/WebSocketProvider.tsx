@@ -1,9 +1,10 @@
-// src/shared/providers/WebSocketProvider.tsx
+﻿// src/shared/providers/WebSocketProvider.tsx
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import { websocketService } from '@shared/services/websocket.service';
 import { tokenStorage } from '@shared/services/api';
 import type { WebSocketContextValue, WebSocketState } from '@shared/types/websocket.types';
+import { REALTIME_UI_ENABLED } from '@shared/config/env';
 
 const WebSocketContext = createContext<WebSocketContextValue | null>(null);
 
@@ -186,28 +187,6 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
     };
   }, [autoConnect, connect, disconnect]);
 
-  /**
-   * Verificar periódicamente si el usuario hizo login y reconectar
-   * Esto maneja el caso donde el usuario hace login después del montaje inicial
-   */
-  useEffect(() => {
-    if (!autoConnect) return;
-
-    const checkAndReconnect = async () => {
-      const token = await tokenStorage.getAccess();
-
-      // Si hay token pero no está conectado ni conectando, reconectar
-      if (token && !state.connected && !state.connecting) {
-        console.log('[WebSocketProvider] 🔄 Token detected after login, reconnecting...');
-        connect();
-      }
-    };
-
-    // Verificar cada 2 segundos
-    const interval = setInterval(checkAndReconnect, 2000);
-
-    return () => clearInterval(interval);
-  }, [autoConnect, state.connected, state.connecting, connect]);
 
   // ============================================================================
   // NOTIFICATION METHODS
@@ -335,3 +314,8 @@ export function useWebSocketContext(): WebSocketContextValue {
 
   return context;
 }
+
+
+
+
+

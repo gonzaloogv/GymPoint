@@ -159,6 +159,18 @@ async function markAsConvertedToAssistance(idPresence, idAssistance, options = {
   );
 }
 
+async function countActiveByGym(gymId, options = {}) {
+  return Presence.count({
+    where: {
+      id_gym: gymId,
+      status: {
+        [Op.in]: ['DETECTING', 'CONFIRMED'],
+      },
+    },
+    transaction: options.transaction,
+  });
+}
+
 module.exports = {
   createPresence,
   updatePresence,
@@ -166,4 +178,5 @@ module.exports = {
   findActivePresence,
   findAll,
   markAsConvertedToAssistance,
+  countActiveByGym,
 };
