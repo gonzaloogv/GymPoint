@@ -1,0 +1,7 @@
+export * from './Hero'
+export * from './Features'
+export * from './About'
+export * from './Testimonials'
+export * from './GymRegister'
+export * from './SocialMedia'
+export * from './Contact'

@@ -1,0 +1,413 @@
+paths:
+  /api/progress:
+    post:
+      operationId: registerProgress
+      tags:
+        - Progress
+      summary: Registrar progreso físico del usuario
+      description: |
+        Registra el progreso físico del usuario incluyendo peso total levantado, repeticiones totales, sets totales y ejercicios realizados.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - date
+                - total_weight_lifted
+                - total_reps
+                - total_sets
+              properties:
+                date:
+                  type: string
+                  format: date
+                  description: Fecha del registro
+                  example: '2025-01-15'
+                total_weight_lifted:
+                  type: number
+                  format: float
+                  description: Peso total levantado en kg
+                  example: 5000
+                total_reps:
+                  type: integer
+                  description: Repeticiones totales
+                  example: 100
+                total_sets:
+                  type: integer
+                  description: Sets totales
+                  example: 20
+                notes:
+                  type: string
+                  description: Notas adicionales
+                  example: Great workout session
+                exercises:
+                  type: array
+                  description: Lista de ejercicios realizados
+                  items:
+                    type: object
+                    required:
+                      - id_exercise
+                      - used_weight
+                      - reps
+                    properties:
+                      id_exercise:
+                        type: integer
+                        description: ID del ejercicio
+                        example: 5
+                      used_weight:
+                        type: number
+                        format: float
+                        description: Peso utilizado en kg
+                        example: 80
+                      reps:
+                        type: integer
+                        description: Número de repeticiones
+                        example: 10
+                      sets:
+                        type: integer
+                        description: Número de sets
+                        example: 3
+                        default: 1
+      responses:
+        '201':
+          description: Progreso registrado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Progreso registrado con éxito
+                  data:
+                    $ref: ../components/schemas/progress.yaml#/components/schemas/ProgressResponse
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/progress/me:
+    get:
+      operationId: getUserProgress
+      tags:
+        - Progress
+      summary: Obtener historial de progreso del usuario
+      description: |
+        Obtiene todo el historial de progreso físico del usuario autenticado con opciones de paginación y filtrado.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+          description: Número máximo de registros a retornar
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Número de registros a saltar
+        - name: include_exercises
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Incluir detalles de ejercicios
+      responses:
+        '200':
+          description: Historial de progreso obtenido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: ../components/schemas/progress.yaml#/components/schemas/ProgressResponse
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/progress/me/estadistica:
+    get:
+      operationId: getWeightStats
+      tags:
+        - Progress
+      summary: Obtener estadísticas de peso levantado
+      description: |
+        Obtiene estadísticas de peso total levantado del usuario en un rango de fechas opcional.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Fecha de inicio del rango
+          example: '2025-01-01'
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Fecha de fin del rango
+          example: '2025-01-31'
+      responses:
+        '200':
+          description: Estadísticas obtenidas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        total_weight_lifted:
+                          type: number
+                        total_reps:
+                          type: integer
+                        total_sets:
+                          type: integer
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/progress/me/ejercicios:
+    get:
+      operationId: getExerciseHistory
+      tags:
+        - Progress
+      summary: Obtener historial completo de ejercicios
+      description: |
+        Obtiene el historial completo de todos los ejercicios realizados por el usuario autenticado.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 100
+          description: Número máximo de registros
+      responses:
+        '200':
+          description: Historial de ejercicios obtenido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        exercise_name:
+                          type: string
+                        muscular_group:
+                          type: string
+                        used_weight:
+                          type: number
+                        reps:
+                          type: integer
+                        sets:
+                          type: integer
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/progress/me/ejercicios/{id_exercise}:
+    get:
+      operationId: getExerciseHistoryByExercise
+      tags:
+        - Progress
+      summary: Obtener historial de un ejercicio específico
+      description: |
+        Obtiene el historial de un ejercicio específico del usuario autenticado.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/ExerciseIdPathParam
+          description: ID del ejercicio
+          example: 5
+      responses:
+        '200':
+          description: Historial del ejercicio obtenido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        used_weight:
+                          type: number
+                        reps:
+                          type: integer
+                        sets:
+                          type: integer
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/progress/me/ejercicios/{id_exercise}/mejor:
+    get:
+      operationId: getPersonalRecord
+      tags:
+        - Progress
+      summary: Obtener récord personal de un ejercicio
+      description: |
+        Obtiene el mejor levantamiento (peso máximo) del usuario para un ejercicio específico.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/ExerciseIdPathParam
+          description: ID del ejercicio
+          example: 5
+      responses:
+        '200':
+          description: Récord personal obtenido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      date:
+                        type: string
+                        format: date
+                      used_weight:
+                        type: number
+                      reps:
+                        type: integer
+                      sets:
+                        type: integer
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/progress/me/ejercicios/{id_exercise}/promedio:
+    get:
+      operationId: getExerciseAverages
+      tags:
+        - Progress
+      summary: Obtener promedios de un ejercicio
+      description: |
+        Obtiene los promedios de peso, repeticiones y sets para un ejercicio específico del usuario.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/ExerciseIdPathParam
+          description: ID del ejercicio
+          example: 5
+      responses:
+        '200':
+          description: Promedios obtenidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      average_weight:
+                        type: number
+                        description: Peso promedio
+                      average_reps:
+                        type: number
+                        description: Repeticiones promedio
+                      average_sets:
+                        type: number
+                        description: Sets promedio
+                      total_records:
+                        type: integer
+                        description: Total de registros
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/progress/weekly-workouts:
+    get:
+      operationId: getWeeklyWorkoutsCount
+      tags:
+        - Progress
+      summary: Obtener conteo de workouts completados de la semana actual
+      description: |
+        Retorna el número de workouts con estado COMPLETED realizados desde el lunes hasta el domingo de la semana actual.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Conteo de workouts semanales obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  weeklyWorkouts:
+                    type: integer
+                    description: Número de workouts completados en la semana actual
+                    example: 3
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error

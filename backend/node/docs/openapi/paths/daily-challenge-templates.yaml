@@ -1,0 +1,138 @@
+paths:
+  /api/daily-challenge-templates:
+    get:
+      operationId: listDailyChallengeTemplates
+      tags:
+        - Challenges
+      summary: Listar plantillas de desafíos
+      description: Obtiene la lista de plantillas de desafíos diarios (admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: is_active
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: Filtrar solo plantillas activas
+      responses:
+        '200':
+          description: Lista de plantillas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../components/schemas/daily-challenge-templates.yaml#/components/schemas/DailyChallengeTemplateResponse
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+    post:
+      operationId: createDailyChallengeTemplate
+      tags:
+        - Challenges
+      summary: Crear una nueva plantilla de desafío
+      description: Crea una nueva plantilla de desafío diario (admin)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/daily-challenge-templates.yaml#/components/schemas/CreateDailyChallengeTemplateRequest
+      responses:
+        '201':
+          description: Plantilla creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/daily-challenge-templates.yaml#/components/schemas/DailyChallengeTemplateResponse
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/daily-challenge-templates/{id}:
+    get:
+      operationId: getDailyChallengeTemplateById
+      tags:
+        - Challenges
+      summary: Obtener una plantilla por ID
+      description: Obtiene los detalles de una plantilla específica
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
+          description: ID de la plantilla
+      responses:
+        '200':
+          description: Detalles de la plantilla
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/daily-challenge-templates.yaml#/components/schemas/DailyChallengeTemplateResponse
+        '404':
+          description: Plantilla no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+    put:
+      operationId: updateDailyChallengeTemplate
+      tags:
+        - Challenges
+      summary: Actualizar una plantilla
+      description: Actualiza los datos de una plantilla (admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
+          description: ID de la plantilla
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/daily-challenge-templates.yaml#/components/schemas/UpdateDailyChallengeTemplateRequest
+      responses:
+        '200':
+          description: Plantilla actualizada
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/daily-challenge-templates.yaml#/components/schemas/DailyChallengeTemplateResponse
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+        '404':
+          description: Plantilla no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+    delete:
+      operationId: deleteDailyChallengeTemplate
+      tags:
+        - Challenges
+      summary: Eliminar una plantilla
+      description: Elimina una plantilla de desafío
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
+          description: ID de la plantilla
+      responses:
+        '204':
+          description: Plantilla eliminada exitosamente
+        '404':
+          description: Plantilla no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error

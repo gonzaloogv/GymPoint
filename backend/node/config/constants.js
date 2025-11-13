@@ -1,0 +1,71 @@
+module.exports = {
+  // Tokens
+  TOKENS: {
+    ATTENDANCE: parseInt(process.env.TOKENS_ATTENDANCE || '10'),
+    ROUTINE_COMPLETE: parseInt(process.env.TOKENS_ROUTINE_COMPLETED || '15'),
+    WEEKLY_BONUS: parseInt(process.env.WEEKLY_GOAL_BONUS || '20'),
+    REVIEW: parseInt(process.env.TOKENS_REVIEW || '10'),
+    BODY_METRICS: parseInt(process.env.TOKENS_BODY_METRICS || '5'),
+    WORKOUT_SESSION: parseInt(process.env.TOKENS_WORKOUT_SESSION || '10')
+  },
+
+  // Proximity
+  PROXIMITY_METERS: parseInt(process.env.PROXIMITY_M || '180'),
+  ACCURACY_MAX_METERS: parseInt(process.env.GPS_ACCURACY_MAX_M || '100'),
+
+  // Pagination
+  DEFAULT_PAGE_SIZE: 50,
+  MAX_PAGE_SIZE: 100,
+
+  // Auth
+  ACCESS_TOKEN_TTL: process.env.ACCESS_TOKEN_TTL || '60m',
+  REFRESH_TOKEN_TTL_DAYS: 30,
+
+  // Gym search
+  MAX_SEARCH_RADIUS_KM: 100,
+  DEFAULT_SEARCH_RADIUS_KM: 5,
+
+  // Token reasons
+  TOKEN_REASONS: {
+    ATTENDANCE: 'ATTENDANCE',
+    ROUTINE_COMPLETE: 'ROUTINE_COMPLETE',
+    REWARD_CLAIM: 'REWARD_CLAIM',
+    WEEKLY_BONUS: 'WEEKLY_BONUS',
+    ADMIN_ADJUSTMENT: 'ADMIN_ADJUSTMENT',
+    STREAK_RECOVERY: 'STREAK_RECOVERY',
+    REVIEW_SUBMITTED: 'REVIEW_SUBMITTED',
+    DAILY_CHALLENGE_COMPLETED: 'DAILY_CHALLENGE_COMPLETED',
+    WORKOUT_COMPLETED: 'WORKOUT_COMPLETED',
+    ACHIEVEMENT_UNLOCKED: 'ACHIEVEMENT_UNLOCKED',
+    BODY_METRICS_ENTRY: 'BODY_METRICS_ENTRY'
+  },
+
+  // Reward providers
+  REWARD_PROVIDERS: {
+    SYSTEM: 'system',
+    GYM: 'gym'
+  },
+
+  // Subscription types
+  SUBSCRIPTION_TYPES: {
+    FREE: 'FREE',
+    PREMIUM: 'PREMIUM'
+  },
+
+  // User roles
+  ROLES: {
+    USER: 'USER',
+    ADMIN: 'ADMIN'
+  },
+
+  // Account deletion
+  ACCOUNT_DELETION_STATUS: {
+    PENDING: 'PENDING',
+    CANCELLED: 'CANCELLED',
+    COMPLETED: 'COMPLETED'
+  },
+  ACCOUNT_DELETION: {
+    GRACE_PERIOD_DAYS: parseInt(process.env.ACCOUNT_DELETION_GRACE_DAYS || '30'),
+    BATCH_SIZE: parseInt(process.env.ACCOUNT_DELETION_BATCH_SIZE || '50')
+  }
+};

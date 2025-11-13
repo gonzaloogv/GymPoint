@@ -1,14 +1,248 @@
-// index.js
 const express = require('express');
+const http = require('http');
 const dotenv = require('dotenv');
-const authRoutes = require('./routes/auth-routes');
+const cors = require('cors');
+const sequelize = require('./config/database');
+const setupSwagger = require('./utils/swagger');
+const { runMigrations } = require('./migrate');
+const { requestTimer } = require('./utils/monitoring');
+const { startRewardStatsJob } = require('./jobs/reward-stats-job');
+const { startCleanupJob } = require('./jobs/cleanup-job');
+const { startAccountDeletionJob } = require('./jobs/account-deletion-job');
+const { startDailyChallengeJob } = require('./jobs/daily-challenge-job');
+const { startSubscriptionExpirationJob } = require('./jobs/subscription-expiration-job');
+const { startWeeklyFrequencyResetJob } = require('./jobs/weekly-frequency-reset-job');
+const { errorHandler, notFoundHandler } = require('./middlewares/error-handler');
+const openapiValidatorMiddleware = require('./middlewares/openapi-validator');
+const { initSentry, sentryRequestHandler, sentryErrorHandler } = require('./config/sentry');
+const {
+  apiLimiter,
+  authLimiter,
+  registerLimiter,
+  webhookLimiter,
+  paymentLimiter
+} = require('./config/rate-limit');
+const { initializeWebSocket } = require('./websocket/socket-manager');
 
+// Cargar variables de entorno
 dotenv.config();
-const app = express();
-app.use(express.json());
-app.use('/api/auth', authRoutes);
+const REALTIME_UI_ENABLED = (process.env.REALTIME_UI || 'on').toLowerCase() !== 'off';
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Importar rutas
+const healthRoutes = require('./routes/health-routes');
+const authRoutes = require('./routes/auth-routes');
+const gymRoutes = require('./routes/gym-routes');
+const assistanceRoutes = require('./routes/assistance-routes');
+const routineRoutes = require('./routes/routine-routes');
+const exerciseRoutes = require('./routes/exercise-routes');
+const userRoutineRoutes = require('./routes/user-routine-routes');
+const progressRoutes = require('./routes/progress-routes');
+const rewardRoutes = require('./routes/reward-routes');
+const transactionRoutes = require('./routes/transaction-routes');
+const tokenRoutes = require('./routes/token-routes');
+const userGymRoutes = require('./routes/user-gym-routes');
+const frequencyRoutes = require('./routes/frequency-routes');
+const streakRoutes = require('./routes/streak-routes');
+const gymScheduleRoutes = require('./routes/gym-schedule-routes');
+const specialScheduleRoutes = require('./routes/gym-special-schedule-routes');
+const gymPaymentRoutes = require('./routes/gym-payment-routes');
+const rewardCodeRoutes = require('./routes/reward-code-routes');
+const claimedRewardRoutes = require('./routes/claimed-reward-routes');
+const userRoutes = require('./routes/user-routes');
+const adminRoutes = require('./routes/admin-routes');
+const adminRewardsRoutes = require('./routes/admin-rewards-routes');
+const adminDailyChallengeRoutes = require('./routes/admin-daily-challenge-routes');
+const adminReviewRoutes = require('./routes/admin-review-routes.js');
+const reviewRoutes = require('./routes/review-routes');
+const mediaRoutes = require('./routes/media-routes');
+const workoutRoutes = require('./routes/workout-routes');
+const locationRoutes = require('./routes/location-routes');
+const challengeRoutes = require('./routes/challenge-routes');
+const achievementRoutes = require('./routes/achievement-routes');
+// NOTA: body-metrics y notifications se montan como subrutas en user-routes.js (líneas 148-149)
+// const bodyMetricsRoutes = require('./routes/body-metrics-routes');
+// const notificationRoutes = require('./routes/notification-routes');
+const paymentRoutes = require('./routes/payment-routes');
+const webhookRoutes = require('./routes/webhook-routes');
+const testRoutes = require('./routes/test-routes');
+// Lote 9
+const userFavoriteGymRoutes = require('./routes/user-favorite-gym-routes');
+const gymRequestRoutes = require('./routes/gym-request-routes');
+
+// Inicializar app
+const app = express();
+
+// Inicializar Sentry (debe ser lo primero)
+const sentryEnabled = initSentry(app);
+if (sentryEnabled) {
+  app.use(sentryRequestHandler());
+}
+
+// Middlewares
+app.use(cors({
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true,
+  credentials: true
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Monitoring: latencia HTTP (log en lentas) y header X-Response-Time
+app.use(requestTimer({ thresholdMs: Number(process.env.SLOW_HTTP_MS || 300) }));
+
+// Confiar en proxies (para obtener IP real detrás de reverse proxy)
+app.set('trust proxy', true);
+
+// Health checks (sin autenticación, para load balancers/kubernetes)
+app.use('/', healthRoutes);
+
+// Exponer el spec de OpenAPI
+const path = require('path');
+const specPath = path.join(__dirname, 'docs', 'openapi.yaml');
+app.get('/openapi.yaml', (_req, res) => {
+  res.sendFile(specPath);
 });
+
+// Validación runtime contra OpenAPI spec (debe ir ANTES de las rutas de API)
+app.use(openapiValidatorMiddleware);
+
+// Rate limiting general para todas las rutas de API
+app.use('/api/', apiLimiter);
+
+// Rutas de API con rate limiting específico
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/google', authLimiter);
+app.use('/api/auth/register', registerLimiter);
+app.use('/api/auth', authRoutes);
+app.use('/api/gyms', gymRoutes);
+app.use('/api/gym-requests', gymRequestRoutes);
+app.use('/api/assistances', assistanceRoutes);
+app.use('/api/routines', routineRoutes);
+app.use('/api/exercises', exerciseRoutes);
+app.use('/api/user-routines', userRoutineRoutes);
+app.use('/api/progress', progressRoutes);
+app.use('/api/rewards', rewardRoutes);
+app.use('/api/claimed-rewards', claimedRewardRoutes);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/tokens', tokenRoutes);
+app.use('/api/user-gym', userGymRoutes);
+app.use('/api/favorites', userFavoriteGymRoutes);
+app.use('/api/frequency', frequencyRoutes);
+app.use('/api/streak', streakRoutes);
+app.use('/api/schedules', gymScheduleRoutes);
+app.use('/api/special-schedules', specialScheduleRoutes);
+app.use('/api/gym-special-schedules', specialScheduleRoutes);
+app.use('/api/gym-payments', gymPaymentRoutes);
+app.use('/api/reward-codes', rewardCodeRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/admin/reviews', adminReviewRoutes);
+app.use('/api/admin/rewards', adminRewardsRoutes);
+app.use('/api/admin/daily-challenges', adminDailyChallengeRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/gym-reviews', reviewRoutes); // Alias OpenAPI para reviews
+app.use('/api/media', mediaRoutes);
+app.use('/api/workouts', workoutRoutes);
+app.use('/api/location', locationRoutes);
+app.use('/api/challenges', challengeRoutes);
+app.use('/api/achievements', achievementRoutes);
+// NOTA: Estas rutas se montan en user-routes.js como subrutas de /api/users/me/
+// app.use('/api/body-metrics', bodyMetricsRoutes); // Ahora: /api/users/me/body-metrics
+// app.use('/api/notifications', notificationRoutes); // Ahora: /api/users/me/notifications
+app.use('/api/payments', paymentLimiter, paymentRoutes);
+app.use('/api/webhooks', webhookLimiter, webhookRoutes);
+app.use('/api/test', testRoutes);
+
+// Swagger UI
+setupSwagger(app);
+
+// Manejo de errores - debe ir al final de todas las rutas
+app.use(notFoundHandler);  // 404 para rutas no encontradas
+
+// Sentry error handler (DEBE IR ANTES del error handler general)
+if (sentryEnabled) {
+  app.use(sentryErrorHandler());
+}
+
+app.use(errorHandler);     // Manejo centralizado de errores
+
+// Función para iniciar el servidor
+async function startServer() {
+  const PORT = process.env.PORT || 3000;
+
+  try {
+    // 1. Verificar conexión a base de datos
+    console.log('Verificando conexión a MySQL...');
+    await sequelize.authenticate();
+    console.log('Conexión con MySQL establecida correctamente');
+
+    // 2. Ejecutar migraciones automáticamente
+    console.log('Ejecutando migraciones...');
+    await runMigrations();
+
+    // 3. Crear servidor HTTP (necesario para WebSocket)
+    const server = http.createServer(app);
+
+    // 4. Inicializar WebSocket
+    console.log('Inicializando WebSocket...');
+    if (REALTIME_UI_ENABLED) {
+      initializeWebSocket(server);
+    } else {
+      console.log('[Realtime] REALTIME_UI=off → WebSocket deshabilitado.');
+    }
+
+    // 5. Iniciar servidor
+    server.listen(PORT, '0.0.0.0', () => {
+      console.log('');
+      console.log('='.repeat(50));
+      console.log(` Servidor GymPoint corriendo en puerto ${PORT}`);
+      console.log(` Documentación API: http://localhost:${PORT}/docs`);
+      console.log(` Health check: http://localhost:${PORT}/health`);
+      console.log(` Ready check: http://localhost:${PORT}/ready`);
+      if (REALTIME_UI_ENABLED) {
+        console.log(` WebSocket disponible en ws://localhost:${PORT}`);
+      } else {
+        console.log(' WebSocket deshabilitado (REALTIME_UI=off)');
+      }
+      console.log(` Entorno: ${process.env.NODE_ENV || 'development'}`);
+      console.log('='.repeat(50));
+      console.log('');
+    });
+
+    // 6. Iniciar jobs programados
+    if (process.env.NODE_ENV !== 'test') {
+      startRewardStatsJob(); // Cada 5 minutos
+      startCleanupJob(); // Diario a las 3 AM
+      startAccountDeletionJob(); // Diario a las 2 AM
+      startDailyChallengeJob(); // Diario a las 00:01 UTC
+      startSubscriptionExpirationJob(); // Diario a las 9 AM
+      startWeeklyFrequencyResetJob(); // Lunes a las 00:00 UTC-3 (03:00 UTC)
+    }
+
+  } catch (error) {
+    console.error(' Error fatal al iniciar el servidor:', error);
+    process.exit(1);
+  }
+}
+
+// Iniciar servidor solo si no estamos en modo test
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
+
+// Exportar app para tests
+module.exports = app;
+
+// Manejo de señales para shutdown graceful
+process.on('SIGTERM', async () => {
+  console.log('  SIGTERM recibido. Cerrando conexiones...');
+  await sequelize.close();
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  console.log('\n  SIGINT recibido. Cerrando servidor...');
+  await sequelize.close();
+  process.exit(0);
+});
+
+

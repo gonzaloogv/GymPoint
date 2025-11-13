@@ -1,0 +1,124 @@
+paths:
+  /api/auth/register:
+    post:
+      operationId: registerAccount
+      tags:
+        - Auth
+      summary: Registrar una nueva cuenta de usuario
+      description: |
+        Crea una `Account`, `UserProfile`, `Frequency` y `Streak` iniciales. Retorna los tokens de autenticación y la información básica del usuario.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registro exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/auth.yaml#/components/schemas/AuthSuccessResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '409':
+          description: Email ya registrado
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+  /api/auth/login:
+    post:
+      operationId: loginWithPassword
+      tags:
+        - Auth
+      summary: Autenticación por email y contraseña
+      description: |
+        Valida las credenciales y emite un nuevo par de tokens JWT/refresh.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Autenticación exitosa
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/auth.yaml#/components/schemas/AuthSuccessResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+  /api/auth/google:
+    post:
+      operationId: loginWithGoogle
+      tags:
+        - Auth
+      summary: Login con Google OAuth
+      description: |
+        Valida un ID token de Google. Crea o vincula la cuenta y responde con tokens de acceso.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/components/schemas/GoogleLoginRequest'
+      responses:
+        '200':
+          description: Autenticación exitosa
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/auth.yaml#/components/schemas/AuthSuccessResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+  /api/auth/refresh-token:
+    post:
+      operationId: refreshAccessToken
+      tags:
+        - Auth
+      summary: Renovar tokens de autenticación
+      description: |
+        Renueva el access token y genera un nuevo refresh token.
+        El refresh token anterior es revocado automáticamente.
+        Esto implementa la rotación de refresh tokens (refresh token rotation) como medida de seguridad.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Tokens renovados exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/auth.yaml#/components/schemas/RefreshTokenResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+  /api/auth/logout:
+    post:
+      operationId: revokeRefreshToken
+      tags:
+        - Auth
+      summary: Revocar un refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+      responses:
+        '204':
+          description: Refresh token revocado
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'

@@ -1,0 +1,288 @@
+{
+  "files": [
+    "components/common.yaml",
+    "components/parameters.yaml",
+    "components/responses.yaml",
+    "components/securitySchemes.yaml",
+    "components/schemas/auth.yaml",
+    "components/schemas/users.yaml",
+    "components/schemas/gyms.yaml",
+    "components/schemas/exercises.yaml",
+    "components/schemas/routines.yaml",
+    "components/schemas/user-routines.yaml",
+    "components/schemas/workouts.yaml",
+    "components/schemas/progress.yaml",
+    "components/schemas/media.yaml",
+    "components/schemas/streak.yaml",
+    "components/schemas/frequency.yaml",
+    "components/schemas/challenges.yaml",
+    "components/schemas/rewards.yaml",
+    "components/schemas/daily-challenges.yaml",
+    "components/schemas/daily-challenge-templates.yaml",
+    "components/schemas/gym-special-schedules.yaml",
+    "components/schemas/common.yaml",
+    "paths/auth.yaml",
+    "paths/users.yaml",
+    "paths/gyms.yaml",
+    "paths/exercises.yaml",
+    "paths/routines.yaml",
+    "paths/user-routines.yaml",
+    "paths/workouts.yaml",
+    "paths/progress.yaml",
+    "paths/media.yaml",
+    "paths/streak.yaml",
+    "paths/frequency.yaml",
+    "paths/challenges.yaml",
+    "paths/rewards.yaml",
+    "paths/achievements.yaml",
+    "paths/daily-challenges.yaml",
+    "paths/gym-special-schedules.yaml",
+    "paths/unknown.yaml"
+  ],
+  "schemas": {
+    "common": [
+      "WorkoutSet",
+      "WorkoutStats",
+      "CompleteWorkoutSessionRequest",
+      "UpdateWorkoutSessionRequest",
+      "RegisterWorkoutSetRequest",
+      "CheckInRequest",
+      "AssistanceResponse",
+      "CheckInResponseData",
+      "CheckOutResponse",
+      "PresenceRequest",
+      "PresenceResponse",
+      "AssistanceHistoryResponse",
+      "CreateRewardRequest",
+      "UpdateRewardRequest",
+      "AchievementDefinitionResponse",
+      "CreateAchievementDefinitionRequest",
+      "UpdateAchievementDefinitionRequest"
+    ],
+    "auth": [
+      "AuthSuccessResponse",
+      "AuthTokenPair",
+      "AuthUser",
+      "UserProfileSummary",
+      "RegisterRequest",
+      "LoginRequest",
+      "GoogleLoginRequest",
+      "RefreshTokenRequest",
+      "RefreshTokenResponse",
+      "LogoutRequest"
+    ],
+    "users": [
+      "UserProfileResponse",
+      "UpdateUserProfileRequest",
+      "UpdateEmailRequest",
+      "EmailUpdateResponse",
+      "RequestAccountDeletionRequest",
+      "AccountDeletionResponse",
+      "AccountDeletionStatusResponse",
+      "NotificationSettingsResponse",
+      "UpdateNotificationSettingsRequest",
+      "UpdateTokensRequest",
+      "TokensUpdateResponse",
+      "UpdateSubscriptionRequest"
+    ],
+    "gyms": [
+      "GymListResponse",
+      "GymResponse",
+      "CreateGymRequest",
+      "UpdateGymRequest",
+      "GymAmenity",
+      "GymTypeList",
+      "CreateGymScheduleRequest",
+      "GymScheduleResponse",
+      "GymSchedulesWeekResponse",
+      "CreateGymReviewRequest",
+      "GymReviewResponse",
+      "PaginatedGymReviewsResponse",
+      "CreateGymPaymentRequest",
+      "GymPaymentResponse",
+      "PaginatedGymPaymentsResponse"
+    ],
+    "exercises": [
+      "Exercise",
+      "CreateExerciseRequest",
+      "UpdateExerciseRequest",
+      "PaginatedExercisesResponse"
+    ],
+    "routines": [
+      "Routine",
+      "RoutineWithDetails",
+      "RoutineDay",
+      "RoutineExercise",
+      "ExerciseInRoutine",
+      "CreateRoutineRequest",
+      "UpdateRoutineRequest",
+      "AddExerciseToRoutineRequest",
+      "UpdateRoutineExerciseRequest",
+      "CreateRoutineDayRequest",
+      "UpdateRoutineDayRequest",
+      "PaginatedRoutinesResponse"
+    ],
+    "user-routines": [
+      "UserRoutine",
+      "UserRoutineCounts",
+      "AssignRoutineRequest",
+      "ImportRoutineRequest"
+    ],
+    "workouts": [
+      "WorkoutSession",
+      "StartWorkoutSessionRequest",
+      "UpdateWorkoutSetRequest"
+    ],
+    "progress": [
+      "ProgressResponse"
+    ],
+    "media": [
+      "MediaResponse"
+    ],
+    "streak": [
+      "StreakResponse",
+      "StreakStatsResponse"
+    ],
+    "frequency": [
+      "FrequencyResponse"
+    ],
+    "challenges": [
+      "TodayChallengeResponse",
+      "ChallengeProgressResponse"
+    ],
+    "rewards": [
+      "RewardResponse"
+    ],
+    "daily-challenges": [
+      "DailyChallengeResponse",
+      "CreateDailyChallengeRequest",
+      "UpdateDailyChallengeRequest"
+    ],
+    "daily-challenge-templates": [
+      "DailyChallengeTemplateResponse",
+      "CreateDailyChallengeTemplateRequest",
+      "UpdateDailyChallengeTemplateRequest"
+    ],
+    "gym-special-schedules": [
+      "GymSpecialScheduleResponse",
+      "CreateGymSpecialScheduleRequest",
+      "UpdateGymSpecialScheduleRequest"
+    ]
+  },
+  "paths": {
+    "auth": [
+      "/api/auth/register",
+      "/api/auth/login",
+      "/api/auth/google",
+      "/api/auth/refresh-token",
+      "/api/auth/logout"
+    ],
+    "users": [
+      "/api/users/me",
+      "/api/users/me/email",
+      "/api/users/me/deletion-request",
+      "/api/users/me/notification-settings",
+      "/api/users/{userId}",
+      "/api/users/{userId}/tokens",
+      "/api/users/{userId}/subscription"
+    ],
+    "gyms": [
+      "/api/gyms",
+      "/api/gyms/{gymId}",
+      "/api/gyms/tipos",
+      "/api/gyms/amenidades",
+      "/api/gyms/{gymId}/schedules",
+      "/api/gyms/{gymId}/reviews",
+      "/api/gyms/{gymId}/payments"
+    ],
+    "exercises": [
+      "/api/exercises",
+      "/api/exercises/paginated",
+      "/api/exercises/{id}"
+    ],
+    "routines": [
+      "/api/routines",
+      "/api/routines/me",
+      "/api/routines/templates",
+      "/api/routines/{id}",
+      "/api/routines/{id}/exercises",
+      "/api/routines/{id}/exercises/{id_exercise}",
+      "/api/routines/{id}/days",
+      "/api/routines/days/{id_routine_day}"
+    ],
+    "user-routines": [
+      "/api/user-routines/assign",
+      "/api/user-routines/active",
+      "/api/user-routines/active/details",
+      "/api/user-routines/me",
+      "/api/user-routines/counts",
+      "/api/user-routines/end",
+      "/api/user-routines/import",
+      "/api/user-routines/{id}",
+      "/api/user-routines/{id}/deactivate"
+    ],
+    "workouts": [
+      "/api/workouts/sessions",
+      "/api/workouts/sessions/active",
+      "/api/workouts/sessions/me",
+      "/api/workouts/stats",
+      "/api/workouts/sessions/{id}",
+      "/api/workouts/sessions/{id}/complete",
+      "/api/workouts/sessions/{id}/cancel",
+      "/api/workouts/sessions/{id}/sets",
+      "/api/workouts/sets/{id}"
+    ],
+    "progress": [
+      "/api/progress",
+      "/api/progress/me",
+      "/api/progress/me/estadistica",
+      "/api/progress/me/ejercicios",
+      "/api/progress/me/ejercicios/{id_exercise}",
+      "/api/progress/me/ejercicios/{id_exercise}/mejor",
+      "/api/progress/me/ejercicios/{id_exercise}/promedio"
+    ],
+    "media": [
+      "/api/media",
+      "/api/media/{entity_type}/{entity_id}",
+      "/api/media/{id_media}/primary",
+      "/api/media/{id_media}"
+    ],
+    "streak": [
+      "/api/streak/me",
+      "/api/streak/use-recovery",
+      "/api/streak/stats",
+      "/api/streak/{id_user_profile}/reset",
+      "/api/streak/{id_user_profile}/grant-recovery"
+    ],
+    "frequency": [
+      "/api/frequency",
+      "/api/frequency/me",
+      "/api/frequency/reset"
+    ],
+    "challenges": [
+      "/api/challenges/today",
+      "/api/challenges/{id}/progress"
+    ],
+    "rewards": [
+      "/api/rewards",
+      "/api/rewards/{id}"
+    ],
+    "achievements": [
+      "/api/achievements",
+      "/api/achievements/{id}"
+    ],
+    "daily-challenges": [
+      "/api/daily-challenges",
+      "/api/daily-challenges/{id}"
+    ],
+    "gym-special-schedules": [
+      "/api/gym-special-schedules/{gymId}",
+      "/api/gym-special-schedules/{id}"
+    ],
+    "unknown": [
+      "/api/daily-challenge-templates",
+      "/api/daily-challenge-templates/{id}"
+    ]
+  },
+  "stats": {}
+}

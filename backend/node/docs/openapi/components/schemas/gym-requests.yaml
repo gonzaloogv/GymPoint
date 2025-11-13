@@ -1,0 +1,143 @@
+components:
+  schemas:
+    GymRequest:
+      type: object
+      properties:
+        id_gym_request:
+          type: integer
+        name:
+          type: string
+        description:
+          type:
+            - string
+            - 'null'
+        city:
+          type: string
+        address:
+          type: string
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        created_at:
+          type: string
+
+    CreateGymRequestDTO:
+      type: object
+      required:
+        - name
+        - location
+        - contact
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 2000
+        location:
+          type: object
+          required:
+            - city
+            - address
+          properties:
+            city:
+              type: string
+              maxLength: 50
+            address:
+              type: string
+              maxLength: 200
+            latitude:
+              type: number
+              minimum: -90
+              maximum: 90
+            longitude:
+              type: number
+              minimum: -180
+              maximum: 180
+        contact:
+          type: object
+          properties:
+            phone:
+              type: string
+              maxLength: 20
+            email:
+              oneOf:
+                - type: string
+                  format: email
+                - type: string
+                  maxLength: 0
+            social_media:
+              type: object
+              properties:
+                instagram:
+                  type: string
+                  maxLength: 100
+                facebook:
+                  type: string
+                  maxLength: 100
+        website:
+          type: string
+          format: uri
+        attributes:
+          type: object
+          properties:
+            photos:
+              type: array
+              items:
+                type: string
+                format: uri
+            equipment:
+              type: object
+              description: 'Equipamiento categorizado por tipo con cantidades'
+              additionalProperties:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - name
+                    - quantity
+                  properties:
+                    name:
+                      type: string
+                    quantity:
+                      type: integer
+                      minimum: 1
+              example:
+                fuerza:
+                  - name: Banco press
+                    quantity: 4
+                cardio:
+                  - name: Cinta
+                    quantity: 8
+            services:
+              type: array
+              items:
+                type: string
+              description: 'Servicios/tipos del gimnasio'
+              example: ["Funcional", "CrossFit"]
+            rules:
+              type: array
+              items:
+                type: string
+              description: 'Reglas del gimnasio'
+        pricing:
+          type: object
+          properties:
+            monthly:
+              type: number
+              minimum: 0
+            weekly:
+              type: number
+              minimum: 0
+            daily:
+              type: number
+              minimum: 0
+        schedule:
+          type: array
+          items:
+            type: object
+        amenities:
+          type: array
+          items:
+            type: string

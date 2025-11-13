@@ -1,0 +1,392 @@
+paths:
+  /api/workouts/sessions:
+    post:
+      operationId: startWorkoutSession
+      tags:
+        - Workouts
+      summary: Iniciar sesión de entrenamiento
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/workouts.yaml#/components/schemas/StartWorkoutSessionRequest
+      responses:
+        '201':
+          description: Sesión iniciada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/schemas/workouts.yaml#/components/schemas/WorkoutSession
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+        '409':
+          description: Ya existe una sesión activa
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/workouts/sessions/active:
+    get:
+      operationId: getActiveWorkoutSession
+      tags:
+        - Workouts
+      summary: Obtener sesión activa
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Sesión activa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: ../components/schemas/workouts.yaml#/components/schemas/WorkoutSession
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound
+  /api/workouts/sessions/me:
+    get:
+      operationId: listMyWorkoutSessions
+      tags:
+        - Workouts
+      summary: Listar mis sesiones de entrenamiento
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/PageParam
+        - $ref: ../components/parameters.yaml#/components/parameters/LimitParam
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - IN_PROGRESS
+              - COMPLETED
+              - CANCELLED
+        - name: id_routine
+          in: query
+          description: Filtrar por ID de rutina
+          schema:
+            type: integer
+        - name: start_date
+          in: query
+          description: Fecha de inicio para filtrar sesiones
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: Fecha de fin para filtrar sesiones
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Lista de sesiones
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: ../components/schemas/workouts.yaml#/components/schemas/WorkoutSession
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+  /api/workouts/stats:
+    get:
+      operationId: getWorkoutStats
+      tags:
+        - Workouts
+      summary: Obtener estadísticas de workout
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Estadísticas de workout
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: ../components/common.yaml#/components/schemas/WorkoutStats
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+  /api/workouts/sessions/{id}:
+    get:
+      operationId: getWorkoutSession
+      tags:
+        - Workouts
+      summary: Obtener sesión por ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
+      responses:
+        '200':
+          description: Sesión encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: ../components/schemas/workouts.yaml#/components/schemas/WorkoutSession
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound
+    put:
+      operationId: updateWorkoutSession
+      tags:
+        - Workouts
+      summary: Actualizar sesión (notas)
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/common.yaml#/components/schemas/UpdateWorkoutSessionRequest
+      responses:
+        '200':
+          description: Sesión actualizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/schemas/workouts.yaml#/components/schemas/WorkoutSession
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound
+  /api/workouts/sessions/{id}/complete:
+    put:
+      operationId: completeWorkoutSession
+      tags:
+        - Workouts
+      summary: Completar sesión
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ../components/common.yaml#/components/schemas/CompleteWorkoutSessionRequest
+      responses:
+        '200':
+          description: Sesión completada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/schemas/workouts.yaml#/components/schemas/WorkoutSession
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound
+  /api/workouts/sessions/{id}/cancel:
+    put:
+      operationId: cancelWorkoutSession
+      tags:
+        - Workouts
+      summary: Cancelar sesión
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
+      responses:
+        '200':
+          description: Sesión cancelada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/schemas/workouts.yaml#/components/schemas/WorkoutSession
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound
+  /api/workouts/sessions/{id}/sets:
+    get:
+      operationId: listWorkoutSets
+      tags:
+        - Workouts
+      summary: Listar sets de una sesión
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
+        - name: id_exercise
+          in: query
+          schema:
+            type: integer
+          description: Filtrar por ejercicio
+      responses:
+        '200':
+          description: Lista de sets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: ../components/common.yaml#/components/schemas/WorkoutSet
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+    post:
+      operationId: registerWorkoutSet
+      tags:
+        - Workouts
+      summary: Registrar un set
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/common.yaml#/components/schemas/RegisterWorkoutSetRequest
+      responses:
+        '201':
+          description: Set registrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/common.yaml#/components/schemas/WorkoutSet
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+  /api/workouts/sets/{id}:
+    put:
+      operationId: updateWorkoutSet
+      tags:
+        - Workouts
+      summary: Actualizar un set
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/workouts.yaml#/components/schemas/UpdateWorkoutSetRequest
+      responses:
+        '200':
+          description: Set actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/common.yaml#/components/schemas/WorkoutSet
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound
+    delete:
+      operationId: deleteWorkoutSet
+      tags:
+        - Workouts
+      summary: Eliminar un set
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/IdPathParam
+      responses:
+        '204':
+          description: Set eliminado
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound
+  /api/workouts/exercises/last-sets:
+    post:
+      operationId: getLastSetsForExercises
+      tags:
+        - Workouts
+      summary: Obtener últimos sets de ejercicios específicos
+      description: Retorna el último peso y repeticiones registrados para los ejercicios especificados
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                exercise_ids:
+                  type: array
+                  items:
+                    type: integer
+                  description: IDs de los ejercicios
+              required:
+                - exercise_ids
+      responses:
+        '200':
+          description: Últimos sets obtenidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id_exercise:
+                          type: integer
+                        last_weight:
+                          type: number
+                        last_reps:
+                          type: integer
+                        has_history:
+                          type: boolean
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest

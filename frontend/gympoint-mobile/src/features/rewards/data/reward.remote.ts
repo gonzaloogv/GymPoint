@@ -1,0 +1,142 @@
+// src/features/rewards/data/reward.remote.ts
+
+import { apiClient } from '@shared/http/apiClient';
+import {
+  RewardResponseDTO,
+  PaginatedRewardsResponseDTO,
+  RewardInventoryResponseDTO,
+  ActiveEffectsResponseDTO,
+  ClaimRewardRequestDTO,
+} from './dto/reward.api.dto';
+import {
+  ClaimedRewardResponseDTO,
+  PaginatedClaimedRewardsResponseDTO,
+} from './dto/claimed-reward.api.dto';
+
+export class RewardRemote {
+  /**
+   * GET /api/rewards
+   * Lista todas las recompensas disponibles (paginado)
+   */
+  async listRewards(params?: { available?: boolean }): Promise<RewardResponseDTO[]> {
+    const queryParams = new URLSearchParams();
+
+    if (params?.available !== undefined) {
+      queryParams.append('available', String(params.available));
+    }
+
+    const queryString = queryParams.toString();
+    const url = `/api/rewards${queryString ? `?${queryString}` : ''}`;
+
+    const response = await apiClient.get<PaginatedRewardsResponseDTO>(url);
+
+    // La API devuelve un objeto paginado, extraemos el array de items
+    return response.data.items || [];
+  }
+
+  /**
+   * GET /api/rewards/:id
+   * Obtiene una recompensa específica por ID
+   */
+  async getRewardById(id: number): Promise<RewardResponseDTO> {
+    const response = await apiClient.get<RewardResponseDTO>(`/api/rewards/${id}`);
+    return response.data;
+  }
+
+  /**
+   * POST /api/rewards/:rewardId/claim
+   * Canjea una recompensa por tokens
+   */
+  async claimReward(rewardId: number, request: ClaimRewardRequestDTO): Promise<ClaimedRewardResponseDTO> {
+    const response = await apiClient.post<ClaimedRewardResponseDTO>(
+      `/api/rewards/${rewardId}/claim`,
+      request
+    );
+    return response.data;
+  }
+
+  /**
+   * GET /api/users/:userId/claimed-rewards
+   * Lista recompensas canjeadas por un usuario
+   */
+  async listClaimedRewards(userId: number, params?: {
+    status?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<ClaimedRewardResponseDTO[]> {
+    const queryParams = new URLSearchParams();
+
+    if (params?.status) {
+      queryParams.append('status', params.status);
+    }
+    if (params?.page) {
+      queryParams.append('page', String(params.page));
+    }
+    if (params?.limit) {
+      queryParams.append('limit', String(params.limit));
+    }
+
+    const queryString = queryParams.toString();
+    const url = `/api/users/${userId}/claimed-rewards${queryString ? `?${queryString}` : ''}`;
+
+    const response = await apiClient.get<PaginatedClaimedRewardsResponseDTO>(url);
+
+    return response.data.items || [];
+  }
+
+  /**
+   * GET /api/claimed-rewards/:claimedRewardId
+   * Obtiene una recompensa canjeada específica
+   */
+  async getClaimedRewardById(claimedRewardId: number): Promise<ClaimedRewardResponseDTO> {
+    const response = await apiClient.get<ClaimedRewardResponseDTO>(
+      `/api/claimed-rewards/${claimedRewardId}`
+    );
+    return response.data;
+  }
+
+  /**
+   * POST /api/claimed-rewards/:claimedRewardId/use
+   * Marca una recompensa canjeada como usada
+   */
+  async markClaimedRewardAsUsed(claimedRewardId: number): Promise<ClaimedRewardResponseDTO> {
+    const response = await apiClient.post<ClaimedRewardResponseDTO>(
+      `/api/claimed-rewards/${claimedRewardId}/use`
+    );
+    return response.data;
+  }
+
+  /**
+   * GET /api/rewards/available
+   * Lista recompensas disponibles para el usuario autenticado
+   */
+  async getAvailableRewardsForUser(): Promise<PaginatedRewardsResponseDTO> {
+    const response = await apiClient.get<PaginatedRewardsResponseDTO>(`/api/rewards/available`);
+    return response.data;
+  }
+
+  /**
+   * GET /api/rewards/inventory/me
+   */
+  async getMyRewardInventory(): Promise<RewardInventoryResponseDTO> {
+    const response = await apiClient.get<RewardInventoryResponseDTO>(`/api/rewards/inventory/me`);
+    return response.data;
+  }
+
+  /**
+   * GET /api/rewards/effects/active
+   */
+  async getActiveEffects(): Promise<ActiveEffectsResponseDTO> {
+    const response = await apiClient.get<ActiveEffectsResponseDTO>(`/api/rewards/effects/active`);
+    return response.data;
+  }
+
+  /**
+   * POST /api/rewards/inventory/:inventoryId/use
+   * Activa un multiplicador desde el inventario
+   */
+  async useInventoryItem(inventoryId: number): Promise<any> {
+    const response = await apiClient.post(`/api/rewards/inventory/${inventoryId}/use`, {});
+    return response.data;
+  }
+}

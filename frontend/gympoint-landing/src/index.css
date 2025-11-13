@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Fjalla+One&family=Oswald:wght@200..700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-display: 'Oswald', sans-serif; 
+  --font-optical-sizing: auto;
+  --font-weight: <weight>;
+  --font-style: normal;
+  --color-primary-light: #FFFFFF;
+  --color-secondary-light: #E4E4E7;
+  --color-primary-dark: #121212;  
+  --color-secondary-dark: #1A1A1A;
+  --color-secondary: #4F9CF9;     
+
+  --color-button-hover: #3073C7;
+  --color-transparent: transparent;
+
+  --color-card-highlighted-light-bg: #FAFAFA;
+  --color-card-highlighted-dark-bg: #2A2A2A;
+
+  --color-input-border: #DDDDDD;
+  --color-error: #F44336;
+
+  --color-muted-light: #6B7280;
+  --color-muted-dark: #9CA3AF;
+}
+
+body {
+  @apply font-display;
+  overflow-x: hidden;
+}
+
+#root {
+  overflow-x: hidden;
+}
+
+body.light {
+  @apply bg-secondary-light transition-colors duration-300;
+}
+
+body.dark {
+  @apply bg-zinc-900 transition-colors duration-300;
+}
+
+.features-gradient-light {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
+}
+
+.features-gradient-dark {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+}
+
+section[id] {
+  scroll-margin-top: 120px;
+}
+
+section[id] > div[id],
+div[id] {
+  scroll-margin-top: 120px;
+}

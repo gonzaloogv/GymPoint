@@ -1,0 +1,102 @@
+paths:
+  /api/user-routines:
+    post:
+      operationId: assignRoutineToUser
+      tags:
+        - User Routines
+      summary: Asignar rutina activa a usuario
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id_routine
+                - start_date
+              properties:
+                id_routine:
+                  type: integer
+                start_date:
+                  type: string
+                  format: date
+      responses:
+        '201':
+          description: Rutina asignada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/schemas/user-routines.yaml#/components/schemas/UserRoutine
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+  /api/user-routines/me:
+    get:
+      operationId: getActiveRoutine
+      tags:
+        - User Routines
+      summary: Obtener rutina activa del usuario
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Rutina activa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: ../components/schemas/user-routines.yaml#/components/schemas/UserRoutine
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound
+  /api/user-routines/me/active-routine:
+    get:
+      operationId: getActiveRoutineWithExercises
+      tags:
+        - User Routines
+      summary: Obtener rutina activa con ejercicios
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Rutina activa con ejercicios
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/schemas/routines.yaml#/components/schemas/RoutineWithDetails
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound
+  /api/user-routines/me/end:
+    put:
+      operationId: endUserRoutine
+      tags:
+        - User Routines
+      summary: Finalizar rutina activa
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Rutina finalizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/schemas/user-routines.yaml#/components/schemas/UserRoutine
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound

@@ -1,0 +1,61 @@
+components:
+  schemas:
+    UserRoutine:
+      type: object
+      properties:
+        id_user_routine:
+          type: integer
+        id_user:
+          type: integer
+        id_routine:
+          type: integer
+        start_date:
+          type: string
+          format: date-time
+        finish_date:
+          type: string
+          format: date-time
+        active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        routine:
+          $ref: ./routines.yaml#/components/schemas/RoutineWithDetails
+      required:
+        - id_user_routine
+        - id_user
+        - id_routine
+        - start_date
+        - active
+    UserRoutineCounts:
+      type: object
+      properties:
+        total_owned:
+          type: integer
+        imported_count:
+          type: integer
+        created_count:
+          type: integer
+    AssignRoutineRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        id_routine:
+          type: integer
+        start_date:
+          type: string
+          format: date-time
+      required:
+        - id_routine
+    ImportRoutineRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        id_template_routine:
+          type: integer
+      required:
+        - id_template_routine

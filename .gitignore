@@ -2,6 +2,24 @@
 node_modules/
 .env
 
+# Variables de entorno con secretos (NUNCA subir estos archivos)
+.env.local
+.env.*.local
+.env.production
+.env.production.backend
+.env.development.backend
+
+# Frontend env files (pueden contener API keys)
+frontend/**/.env
+frontend/**/.env.local
+frontend/**/.env.development
+frontend/**/.env.production
+frontend/**/.env.*.local
+
+# Testing
+coverage/
+*.lcov
+
 # Logs
 logs
 *.log
@@ -13,3 +31,7 @@ logs
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Claude agent files
+AGENT.md
+.claude
