@@ -6,23 +6,30 @@ const { OAuth2Client } = require('google-auth-library');
  */
 class GoogleAuthProvider {
   constructor() {
-    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const listFromEnv = process.env.GOOGLE_CLIENT_IDS;
+    const singleClientId = process.env.GOOGLE_CLIENT_ID;
 
-    if (!clientId) {
-      console.warn('⚠️  GOOGLE_CLIENT_ID no está configurado. Google OAuth estará deshabilitado.');
+    const clientIds = (listFromEnv || singleClientId || '')
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+
+    if (clientIds.length === 0) {
+      console.warn('⚠️  GOOGLE_CLIENT_ID(S) no está configurado. Google OAuth estará deshabilitado.');
       this.enabled = false;
       return;
     }
 
-    // Si es dummy, deshabilitar Google OAuth
-    if (clientId === 'dummy-client-id-for-development') {
-      console.warn('⚠️  Google OAuth deshabilitado (usando GOOGLE_CLIENT_ID dummy)');
+    // Si alguno es dummy, filtrar
+    const sanitizedIds = clientIds.filter((id) => id !== 'dummy-client-id-for-development');
+    if (sanitizedIds.length === 0) {
+      console.warn('⚠️  Google OAuth deshabilitado (solo se encontraron client IDs dummy)');
       this.enabled = false;
       return;
     }
 
-    this.client = new OAuth2Client(clientId);
-    this.clientId = clientId;
+    this.client = new OAuth2Client(sanitizedIds[0]);
+    this.clientIds = sanitizedIds;
     this.enabled = true;
   }
 
@@ -38,9 +45,10 @@ class GoogleAuthProvider {
     }
 
     try {
+      const audience = this.clientIds?.length === 1 ? this.clientIds[0] : this.clientIds;
       const ticket = await this.client.verifyIdToken({
         idToken,
-        audience: this.clientId
+        audience,
       });
 
       const payload = ticket.getPayload();

@@ -26,6 +26,22 @@ export class AuthRepositoryImpl implements AuthRepository {
   }
 
   /**
+   * Login con Google OAuth (usa idToken provisto por Google)
+   */
+  async loginWithGoogle(idToken: string) {
+    const response = await AuthRemote.googleLogin({ idToken });
+
+    await SecureStore.setItemAsync('gp_access', response.tokens.accessToken);
+    await SecureStore.setItemAsync('gp_refresh', response.tokens.refreshToken);
+
+    return {
+      user: mapAuthUserToEntity(response.user),
+      accessToken: response.tokens.accessToken,
+      refreshToken: response.tokens.refreshToken,
+    };
+  }
+
+  /**
    * Obtener perfil del usuario actual
    */
   async me() {

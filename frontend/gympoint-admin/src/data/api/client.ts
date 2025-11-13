@@ -1,7 +1,10 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
+const RAW_API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:3000';
+const API_BASE_URL = `${RAW_API_URL.replace(/\/$/, '')}/api`;
+
 export const apiClient = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -76,7 +79,7 @@ apiClient.interceptors.response.use(
 
       try {
         // Llamar al endpoint de refresh
-        const response = await axios.post('http://localhost:3000/api/auth/refresh-token', {
+        const response = await axios.post(`${API_BASE_URL}/auth/refresh-token`, {
           refreshToken,
         });
 

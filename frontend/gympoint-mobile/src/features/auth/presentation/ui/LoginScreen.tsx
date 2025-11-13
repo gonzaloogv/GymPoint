@@ -20,6 +20,7 @@ import { BrandMark } from '@shared/components/brand';
 import { useAuthStore } from '../state/auth.store';
 import { useTheme } from '@shared/hooks';
 import { DI } from '@di/container';
+import { useGoogleAuth } from '../hooks/useGoogleAuth';
 
 type RootStackParamList = {
   Login: undefined;
@@ -39,6 +40,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { startGoogleAuth, googleError, googleLoading } = useGoogleAuth();
 
   const handleLogin = async () => {
     setLoading(true);
@@ -83,7 +85,6 @@ export default function LoginScreen() {
     }
   };
 
-  const handleGoogle = () => console.log('Continuar con Google');
   const handleForgotPassword = () => console.log('Olvidé mi contraseña');
   const handleRegister = () => navigation.navigate('Register');
 
@@ -138,7 +139,7 @@ export default function LoginScreen() {
                 />
               </FormField>
 
-              {error ? <ErrorText>{error}</ErrorText> : null}
+      {error || googleError ? <ErrorText>{error ?? googleError}</ErrorText> : null}
 
               <Button onPress={handleLogin} disabled={loading} loading={loading} fullWidth className="mt-2">
                 Iniciar sesión
@@ -150,7 +151,7 @@ export default function LoginScreen() {
 
             <Divider text="o" className="my-6" />
 
-            <Button onPress={handleGoogle} variant="secondary" fullWidth>
+            <Button onPress={startGoogleAuth} variant="secondary" fullWidth disabled={googleLoading} loading={googleLoading}>
               Continuar con Google
             </Button>
 

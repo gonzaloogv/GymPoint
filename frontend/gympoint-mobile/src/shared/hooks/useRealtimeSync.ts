@@ -32,16 +32,30 @@ export function useRealtimeSync() {
       reason: string;
       timestamp: string;
     }) => {
+      console.log('[useRealtimeSync Mobile] 💰 Tokens updated event received:', {
+        newBalance: data.newBalance,
+        previousBalance: data.previousBalance,
+        delta: data.delta,
+        reason: data.reason,
+      });
+
       queryClient.setQueryData(['user-profile'], (old: any) => (old ? { ...old, tokens: data.newBalance } : old));
 
       const homeStore = useHomeStore.getState();
       if (homeStore.user) {
         homeStore.patchUser({ tokens: data.newBalance });
+        console.log('[useRealtimeSync Mobile] ✅ homeStore.user updated with tokens:', data.newBalance);
+      } else {
+        console.log('[useRealtimeSync Mobile] ⚠️ homeStore.user is null, skipping update');
       }
 
       const authStore = useAuthStore.getState();
       if (authStore.user) {
+        const previousTokens = authStore.user.tokens;
         authStore.updateUser({ ...authStore.user, tokens: data.newBalance });
+        console.log('[useRealtimeSync Mobile] ✅ authStore.user updated! Previous:', previousTokens, '→ New:', data.newBalance);
+      } else {
+        console.log('[useRealtimeSync Mobile] ⚠️ authStore.user is null, skipping update');
       }
 
       useUserProfileStore.setState((prev) => ({

@@ -213,7 +213,9 @@ async function seedInitialData() {
         description: 'Iniciaste sesión por primera vez',
         category: 'ONBOARDING',
         metric: 'ONBOARDING_STEP_COMPLETED',
-        target: 1
+        target: 1,
+        tokenReward: 100,
+        unlockMessage: '¡Bienvenido! Has completado tu primer inicio de sesión'
       },
       // Streak
       {
@@ -222,7 +224,9 @@ async function seedInitialData() {
         description: 'Mantuviste una racha de 3 días consecutivos',
         category: 'STREAK',
         metric: 'STREAK_DAYS',
-        target: 3
+        target: 3,
+        tokenReward: 150,
+        unlockMessage: '¡Increíble racha de 3 días!'
       },
       {
         code: 'STREAK_7_DAYS',
@@ -230,7 +234,9 @@ async function seedInitialData() {
         description: 'Mantuviste una racha de una semana',
         category: 'STREAK',
         metric: 'STREAK_DAYS',
-        target: 7
+        target: 7,
+        tokenReward: 250,
+        unlockMessage: '¡Increíble racha de 7 días!'
       },
       {
         code: 'STREAK_30_DAYS',
@@ -238,7 +244,9 @@ async function seedInitialData() {
         description: 'Un mes completo de consistencia',
         category: 'STREAK',
         metric: 'STREAK_DAYS',
-        target: 30
+        target: 30,
+        tokenReward: 500,
+        unlockMessage: '¡Increíble racha de 30 días!'
       },
 
       // Asistencia
@@ -248,7 +256,9 @@ async function seedInitialData() {
         description: 'Registraste tu primera asistencia al gym',
         category: 'ATTENDANCE',
         metric: 'ASSISTANCE_TOTAL',
-        target: 1
+        target: 1,
+        tokenReward: 100,
+        unlockMessage: '¡Has asistido 1 vez al gym!'
       },
       {
         code: 'WORKOUT_10',
@@ -256,7 +266,9 @@ async function seedInitialData() {
         description: 'Completaste 10 sesiones de entrenamiento',
         category: 'ATTENDANCE',
         metric: 'ASSISTANCE_TOTAL',
-        target: 10
+        target: 10,
+        tokenReward: 200,
+        unlockMessage: '¡Has asistido 10 veces al gym!'
       },
       {
         code: 'WORKOUT_50',
@@ -264,7 +276,9 @@ async function seedInitialData() {
         description: 'Completaste 50 sesiones de entrenamiento',
         category: 'ATTENDANCE',
         metric: 'ASSISTANCE_TOTAL',
-        target: 50
+        target: 50,
+        tokenReward: 400,
+        unlockMessage: '¡Has asistido 50 veces al gym!'
       },
       {
         code: 'WORKOUT_100',
@@ -272,7 +286,9 @@ async function seedInitialData() {
         description: '100 entrenamientos completados',
         category: 'ATTENDANCE',
         metric: 'ASSISTANCE_TOTAL',
-        target: 100
+        target: 100,
+        tokenReward: 700,
+        unlockMessage: '¡Has asistido 100 veces al gym!'
       },
 
       // Frecuencia
@@ -282,7 +298,9 @@ async function seedInitialData() {
         description: 'Cumpliste tu meta de frecuencia semanal',
         category: 'FREQUENCY',
         metric: 'FREQUENCY_WEEKS_MET',
-        target: 1
+        target: 1,
+        tokenReward: 150,
+        unlockMessage: '¡Has cumplido tu objetivo 1 semana!'
       },
       {
         code: 'FREQUENCY_4_WEEKS',
@@ -290,7 +308,9 @@ async function seedInitialData() {
         description: 'Cumpliste tu meta 4 semanas seguidas',
         category: 'FREQUENCY',
         metric: 'FREQUENCY_WEEKS_MET',
-        target: 4
+        target: 4,
+        tokenReward: 350,
+        unlockMessage: '¡Has cumplido tu objetivo 4 semanas!'
       },
 
       // Desafíos
@@ -300,7 +320,9 @@ async function seedInitialData() {
         description: 'Completaste tu primer desafío diario',
         category: 'CHALLENGE',
         metric: 'DAILY_CHALLENGE_COMPLETED_COUNT',
-        target: 1
+        target: 1,
+        tokenReward: 100,
+        unlockMessage: '¡Has completado 1 desafío!'
       },
       {
         code: 'CHALLENGE_7',
@@ -308,7 +330,9 @@ async function seedInitialData() {
         description: 'Completaste 7 desafíos diarios',
         category: 'CHALLENGE',
         metric: 'DAILY_CHALLENGE_COMPLETED_COUNT',
-        target: 7
+        target: 7,
+        tokenReward: 300,
+        unlockMessage: '¡Has completado 7 desafíos!'
       },
 
       // Tokens
@@ -318,7 +342,9 @@ async function seedInitialData() {
         description: 'Acumulaste 100 tokens',
         category: 'TOKEN',
         metric: 'TOKEN_BALANCE_REACHED',
-        target: 100
+        target: 100,
+        tokenReward: 250,
+        unlockMessage: '¡Has alcanzado 100 tokens!'
       },
       {
         code: 'TOKENS_500',
@@ -326,15 +352,22 @@ async function seedInitialData() {
         description: 'Acumulaste 500 tokens',
         category: 'TOKEN',
         metric: 'TOKEN_BALANCE_REACHED',
-        target: 500
+        target: 500,
+        tokenReward: 1000,
+        unlockMessage: '¡Has alcanzado 500 tokens!'
       }
     ];
 
     for (const achievement of achievements) {
+      const metadata = JSON.stringify({
+        token_reward: achievement.tokenReward,
+        unlock_message: achievement.unlockMessage
+      });
+
       await sequelize.query(`
         INSERT INTO achievement_definition
-        (code, name, description, category, metric_type, target_value, is_active, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, TRUE, NOW(), NOW())
+        (code, name, description, category, metric_type, target_value, metadata, is_active, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, TRUE, NOW(), NOW())
       `, {
         replacements: [
           achievement.code,
@@ -342,7 +375,8 @@ async function seedInitialData() {
           achievement.description,
           achievement.category,
           achievement.metric,
-          achievement.target
+          achievement.target,
+          metadata
         ],
         transaction
       });

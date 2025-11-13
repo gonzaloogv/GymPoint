@@ -24,6 +24,7 @@ import { LocationSelector } from './components/LocationSelector';
 import { FrequencySlider } from './components/FrequencySlider';
 import { BirthDatePicker } from './components/BirthDatePicker';
 import { useTheme } from '@shared/hooks';
+import { useGoogleAuth } from '../hooks/useGoogleAuth';
 
 type RootStackParamList = {
   Login: undefined;
@@ -38,6 +39,7 @@ export default function RegisterScreen() {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const { register, loading, error } = useRegister();
+  const { startGoogleAuth, googleError, googleLoading } = useGoogleAuth();
 
   const [name, setName] = useState('');
   const [lastname, setLastname] = useState('');
@@ -108,7 +110,6 @@ export default function RegisterScreen() {
     }
   };
 
-  const handleGoogle = () => console.log('Continuar con Google');
   const handleBackToLogin = () => navigation.navigate('Login');
 
   return (
@@ -205,7 +206,9 @@ export default function RegisterScreen() {
                 <FrequencySlider value={weeklyFrequency} onChange={setWeeklyFrequency} />
               </FormField>
 
-              {error ? <ErrorText className="text-center">{error}</ErrorText> : null}
+              {error || googleError ? (
+                <ErrorText className="text-center">{error ?? googleError}</ErrorText>
+              ) : null}
 
               <Button onPress={handleRegister} disabled={loading} loading={loading} fullWidth className="mt-2">
                 Crear cuenta
@@ -214,7 +217,13 @@ export default function RegisterScreen() {
 
             <Divider text="o" className="my-6" />
 
-            <Button onPress={handleGoogle} variant="secondary" fullWidth>
+            <Button
+              onPress={startGoogleAuth}
+              variant="secondary"
+              fullWidth
+              disabled={googleLoading}
+              loading={googleLoading}
+            >
               Continuar con Google
             </Button>
 

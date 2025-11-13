@@ -4,6 +4,7 @@ import { AuthRepositoryImpl } from '@features/auth/data/AuthRepositoryImpl';
 import { LoginUser } from '@features/auth/domain/usecases/LoginUser';
 import { GetMe } from '@features/auth/domain/usecases/GetMe';
 import { RegisterUser } from '@features/auth/domain/usecases/RegisterUser';
+import { LoginWithGoogle } from '@features/auth/domain/usecases/LoginWithGoogle';
 
 // ===== Gyms (ya existente) =====
 import { GymRepository } from '@features/gyms/domain/repositories/GymRepository';
@@ -92,6 +93,7 @@ class Container {
   loginUser: LoginUser;
   getMe: GetMe;
   registerUser: RegisterUser;
+  loginWithGoogle: LoginWithGoogle;
 
   // Gyms
   gymRepository: GymRepository;
@@ -168,6 +170,7 @@ class Container {
     this.loginUser = new LoginUser(this.authRepository);
     this.getMe = new GetMe(this.authRepository);
     this.registerUser = new RegisterUser(this.authRepository);
+    this.loginWithGoogle = new LoginWithGoogle(this.authRepository);
 
     // Gyms
     this.gymRepository = new GymRepositoryImpl();

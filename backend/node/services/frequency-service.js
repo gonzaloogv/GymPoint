@@ -4,6 +4,7 @@
  */
 
 const { frequencyRepository, streakRepository } = require('../infra/db/repositories');
+const streakService = require('./streak-service');
 const tokenLedgerService = require('./token-ledger-service');
 const { NotFoundError, BusinessError } = require('../utils/errors');
 const { TOKENS, TOKEN_REASONS } = require('../config/constants');
@@ -304,14 +305,24 @@ const resetWeek = async (command = {}) => {
         );
 
         if (streak && streak.value > 0) {
-          // Resetear streak: guardar en last_value, actualizar max_value si aplica, value = 0
-          const newMaxValue = Math.max(streak.max_value || 0, streak.value);
-          await streakRepository.updateStreak(streak.id_streak, {
-            last_value: streak.value,
-            value: 0,
-            max_value: newMaxValue
-          }, { transaction });
-          console.log(`[frequency-service] Streak reseteado para usuario ${frequency.id_user_profile || frequency.id_user}: ${streak.value} -> 0 (meta no cumplida: ${frequency.assist}/${frequency.goal})`);
+          const updatedStreak = await streakService.updateStreak({
+            idStreak: streak.id_streak,
+            idUserProfile: frequency.id_user_profile || frequency.id_user,
+            continuaRacha: false,
+            lossResetValue: 0,
+            lossResetDate: streak.last_assistance_date,
+            updateMaxOnLoss: true,
+            transaction,
+          });
+
+          const logAction =
+            updatedStreak.value === streak.value
+              ? 'protegida con salvavidas'
+              : `reseteada a ${updatedStreak.value}`;
+
+          console.log(
+            `[frequency-service] Streak ${logAction} para usuario ${frequency.id_user_profile || frequency.id_user} (meta no cumplida: ${frequency.assist}/${frequency.goal})`
+          );
         }
       }
 

@@ -130,8 +130,9 @@ const useRecoveryItem = async (command) => {
  */
 const updateStreak = async (command) => {
   const cmd = ensureCommand(command);
+  const repoOptions = cmd.transaction ? { transaction: cmd.transaction } : {};
 
-  const streak = await streakRepository.findById(cmd.idStreak);
+  const streak = await streakRepository.findById(cmd.idStreak, repoOptions);
 
   if (!streak) {
     throw new NotFoundError('Racha');
@@ -177,10 +178,19 @@ const updateStreak = async (command) => {
           // No fallar la operación si falla la notificación
         }
       } else {
+        const lossResetValue =
+          cmd.lossResetValue !== undefined ? cmd.lossResetValue : 1;
+        const lossResetDate =
+          cmd.lossResetDate !== undefined ? cmd.lossResetDate : new Date();
+        const shouldUpdateMax = Boolean(cmd.updateMaxOnLoss);
         // Pierde la racha
         payload.last_value = streak.value;
-        payload.value = 1; // Nueva racha comienza en 1
-        payload.last_assistance_date = new Date();
+        payload.value = lossResetValue;
+        payload.last_assistance_date = lossResetDate;
+
+        if (shouldUpdateMax) {
+          payload.max_value = Math.max(streak.max_value || 0, streak.value);
+        }
 
         console.log(`[StreakService] ❌ Racha perdida para userId=${cmd.idUserProfile}. Era ${streak.value} días.`);
       }
@@ -191,8 +201,10 @@ const updateStreak = async (command) => {
   if (cmd.value !== undefined) payload.value = cmd.value;
   if (cmd.lastValue !== undefined) payload.last_value = cmd.lastValue;
   if (cmd.recoveryItems !== undefined) payload.recovery_items = cmd.recoveryItems;
+  if (cmd.lastAssistanceDate !== undefined) payload.last_assistance_date = cmd.lastAssistanceDate;
+  if (cmd.maxValue !== undefined) payload.max_value = cmd.maxValue;
 
-  return streakRepository.updateStreak(cmd.idStreak, payload);
+  return streakRepository.updateStreak(cmd.idStreak, payload, repoOptions);
 };
 
 /**
