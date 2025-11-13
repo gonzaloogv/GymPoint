@@ -4,7 +4,7 @@ import { RoutineRepository } from '../repositories/RoutineRepository';
 export class GetRoutineById {
   constructor(private repository: RoutineRepository) {}
 
-  async execute(id: string): Promise<Routine> {
+  async execute(id: number): Promise<Routine> {
     return await this.repository.getById(id);
   }
 }

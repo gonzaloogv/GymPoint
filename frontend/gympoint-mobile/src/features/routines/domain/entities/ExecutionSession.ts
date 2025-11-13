@@ -4,6 +4,11 @@
  */
 
 /**
+ * TimerState - Estados posibles del temporizador de descanso
+ */
+export type TimerState = 'idle' | 'running' | 'paused' | 'completed';
+
+/**
  * SetExecution - Representa una serie durante la ejecución
  */
 export interface SetExecution {

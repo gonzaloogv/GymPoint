@@ -8,7 +8,7 @@ export interface UseGymReviewsParams {
   page?: number;
   limit?: number;
   sortBy?: 'created_at' | 'rating' | 'helpful_count';
-  order?: 'ASC' | 'DESC';
+  order?: 'asc' | 'desc';
   minRating?: number;
   maxRating?: number;
   withCommentOnly?: boolean;

@@ -1,2 +1,5 @@
 export * from './userProfile.mapper';
-export * from './notificationSettings.mapper';
+export {
+  mapNotificationSettingsDTOToEntity,
+  mapNotificationSettingsEntityToDTO,
+} from './notificationSettings.mapper';

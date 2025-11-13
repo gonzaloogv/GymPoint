@@ -69,7 +69,7 @@ export const MenuOptions: React.FC<MenuOptionsProps> = ({ isPremium, theme }) =>
   // Agregar opción de gestión de suscripción solo para Premium
   if (isPremium) {
     menuItems.push({
-      icon: 'card-outline' as const,
+      icon: 'star-outline' as const,
       title: 'Gestionar suscripción',
       onPress: () => {},
     });

@@ -8,4 +8,13 @@ export * from './domain/entities/Subscription';
 
 // Data layer
 export { SubscriptionRemote } from './data/subscription.remote';
-export type * from './data/dto/subscription.api.dto';
+export type {
+  UserGymSubscriptionDTO,
+  SubscribeToGymRequestDTO,
+  UnsubscribeFromGymRequestDTO,
+  SubscribeToGymResponseDTO,
+  ActiveSubscriptionsResponseDTO,
+  SubscriptionHistoryResponseDTO,
+  SubscriptionHistoryQueryParams,
+  SubscriptionValidationError,
+} from './data/dto/subscription.api.dto';

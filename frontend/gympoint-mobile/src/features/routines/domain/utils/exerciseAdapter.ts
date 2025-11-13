@@ -16,15 +16,12 @@ export function legacyExerciseToRoutineExercise(
   return {
     id_exercise: parseInt(exercise.id, 10) || 0,
     exercise_name: exercise.name,
-    series: typeof exercise.sets === 'number' ? exercise.sets : parseInt(exercise.sets, 10) || 3,
+    series: typeof exercise.sets === 'number' ? exercise.sets : parseInt(exercise.sets, 10),
     reps: exercise.reps,
     muscular_group: exercise.muscleGroups?.[0] || 'General',
     description: null,
     order: 0, // Will be set based on index
-    rest_time_seconds: exercise.rest || 60,
-    id_routine: 0, // Will be set by parent
-    video_url: null,
-    instructions: null,
+    difficulty_level: undefined,
   };
 }
 
@@ -38,9 +35,9 @@ export function routineExerciseToLegacyExercise(
   return {
     id: routineExercise.id_exercise.toString(),
     name: routineExercise.exercise_name,
-    sets: routineExercise.series,
-    reps: routineExercise.reps,
-    rest: routineExercise.rest_time_seconds || 60,
+    sets: routineExercise.series ?? 3,
+    reps: routineExercise.reps ?? '0',
+    rest: 60,
     muscleGroups: routineExercise.muscular_group ? [routineExercise.muscular_group] : ['General'],
   };
 }

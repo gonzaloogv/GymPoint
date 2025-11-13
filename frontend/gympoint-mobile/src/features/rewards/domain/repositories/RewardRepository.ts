@@ -33,4 +33,7 @@ export interface RewardRepository {
   listClaimedRewards(userId: number, params?: ListClaimedRewardsParams): Promise<ClaimedReward[]>;
   getClaimedRewardById(claimedRewardId: number): Promise<ClaimedReward | null>;
   markClaimedRewardAsUsed(claimedRewardId: number): Promise<ClaimedReward>;
+
+  // Code generation method
+  generateCode(rewardId: number): Promise<GeneratedCode>;
 }

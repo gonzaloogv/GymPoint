@@ -17,16 +17,19 @@ type NavigationProp = NativeStackNavigationProp<RoutinesStackParamList, 'ImportR
 
 // Map Routine entity to PredesignedRoutine format for the UI
 const mapRoutineToPredesigned = (routine: Routine): PredesignedRoutine => {
-  // Map difficulty from backend format (BEGINNER/INTERMEDIATE/ADVANCED) to Spanish
-  const difficultyMap: Record<string, 'Principiante' | 'Intermedio' | 'Avanzado'> = {
-    'BEGINNER': 'Principiante',
-    'INTERMEDIATE': 'Intermedio',
-    'ADVANCED': 'Avanzado',
+  // Map difficulty from backend format (BEGINNER/INTERMEDIATE/ADVANCED)
+  const difficultyMap: Record<string, 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'> = {
+    'BEGINNER': 'BEGINNER',
+    'Principiante': 'BEGINNER',
+    'INTERMEDIATE': 'INTERMEDIATE',
+    'Intermedio': 'INTERMEDIATE',
+    'ADVANCED': 'ADVANCED',
+    'Avanzado': 'ADVANCED',
   };
 
-  const difficulty = routine.recommended_for
-    ? (difficultyMap[routine.recommended_for] || 'Intermedio')
-    : 'Intermedio';
+  const difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' = routine.recommended_for
+    ? (difficultyMap[routine.recommended_for] || 'INTERMEDIATE')
+    : 'INTERMEDIATE';
 
   // Calculate exercise count from days or exercises
   let exerciseCount = 0;

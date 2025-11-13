@@ -6,6 +6,11 @@ import { Exercise } from './Exercise';
 export type RoutineDifficulty = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
 
 /**
+ * Estado de una rutina
+ */
+export type RoutineStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'PAUSED';
+
+/**
  * Día de una rutina
  */
 export interface RoutineDay {
@@ -25,6 +30,7 @@ export interface RoutineDay {
  */
 export interface Routine {
   id_routine: number;
+  id?: number; // Alias para compatibilidad con componentes
   routine_name: string;
   description: string | null;
   created_by: number;
@@ -33,6 +39,7 @@ export interface Routine {
   template_order: number;
   created_at: string; // ISO date
   updated_at: string; // ISO date
+  objective?: string; // Objetivo de la rutina (opcional)
   days?: RoutineDay[]; // Días de la rutina
   exercises?: RoutineExercise[];
 }

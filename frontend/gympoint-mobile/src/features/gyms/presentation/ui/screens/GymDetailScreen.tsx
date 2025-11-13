@@ -61,7 +61,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
     gymId: gym.id,
     limit: 5,
     sortBy: 'created_at',
-    order: 'DESC',
+    order: 'desc',
   });
 
   const { stats: ratingStats } = useGymRatingStats(gym.id);

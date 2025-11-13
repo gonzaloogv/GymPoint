@@ -1,4 +1,5 @@
 import { Routine, CreateRoutineRequest, UpdateRoutineRequest, ImportTemplateResponse } from '../entities/Routine';
+import { RoutineSession } from '../entities/RoutineHistory';
 
 /**
  * Routine Repository Interface
@@ -58,4 +59,21 @@ export interface RoutineRepository {
     imported_count: number;
     created_count: number;
   }>;
+
+  /**
+   * Guardar una sesión de ejecución de rutina
+   * POST /api/routine-sessions
+   */
+  saveSession(session: RoutineSession): Promise<void>;
+
+  /**
+   * Obtener historial de ejecuciones de una rutina
+   * GET /api/routine-sessions/:routineId
+   */
+  getHistory(routineId: number): Promise<RoutineSession[]>;
+
+  /**
+   * Obtener todas las rutinas (alias para getMyRoutines)
+   */
+  getAll(): Promise<Routine[]>;
 }

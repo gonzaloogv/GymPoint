@@ -24,10 +24,6 @@ export const mapUserProfileDTOToEntity = (dto: UserProfileResponseDTO): UserProf
     plan: dto.subscription === 'PREMIUM' ? 'Premium' : 'Free',
     streak: undefined, // Se obtiene de StreakResponseDTO
     avatar: dto.profile_picture_url || undefined,
-    lastname: dto.lastname,
-    gender: dto.gender || undefined,
-    locality: dto.locality || undefined,
-    birth_date: dto.birth_date || undefined,
   };
 };
 

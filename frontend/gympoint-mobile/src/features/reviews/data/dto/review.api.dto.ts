@@ -120,7 +120,7 @@ export interface ListReviewsQueryParams {
   page?: number;
   limit?: number;
   sortBy?: 'created_at' | 'rating' | 'helpful_count' | 'updated_at';
-  order?: 'ASC' | 'DESC';
+  order?: 'asc' | 'desc';
   min_rating?: number;
   max_rating?: number;
   with_comment_only?: boolean;

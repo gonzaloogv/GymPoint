@@ -1,10 +1,18 @@
-export type RoutineDifficulty = 'Principiante' | 'Intermedio' | 'Avanzado';
 export type RoutineSource = 'template' | 'gym';
+
+/**
+ * Display labels for routine difficulty levels
+ */
+export const PREDESIGNED_DIFFICULTY_LABELS = {
+  BEGINNER: 'Principiante',
+  INTERMEDIATE: 'Intermedio',
+  ADVANCED: 'Avanzado',
+} as const;
 
 export interface PredesignedRoutine {
   id: string;
   name: string;
-  difficulty: RoutineDifficulty;
+  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
   duration: number; // minutos
   exerciseCount: number;
   muscleGroups: string[];
