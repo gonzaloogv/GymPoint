@@ -16,6 +16,7 @@ const {
   ProgressExercise
 } = require('../models');
 const { ValidationError, NotFoundError, ConflictError } = require('../utils/errors');
+const { appEvents, EVENTS } = require('../websocket/events/event-emitter');
 
 const CATEGORY_VALUES = Object.values(AchievementDefinition.CATEGORIES);
 const METRIC_VALUES = Object.values(AchievementDefinition.METRIC_TYPES);
@@ -256,11 +257,19 @@ const calculateMetric = async (idUserProfile, definition, options = {}) => {
   if (!calculator) {
     return {
       value: 0,
+      denominator: definition.target_value || 1,
       metadata: { reason: 'UNSUPPORTED_METRIC' }
     };
   }
 
-  return calculator(idUserProfile, definition, options);
+  const result = await calculator(idUserProfile, definition, options);
+
+  // Garantizar que siempre retornamos denominator
+  if (!result.denominator) {
+    result.denominator = definition.target_value || 1;
+  }
+
+  return result;
 };
 
 const syncAchievementForUser = async ({
@@ -439,13 +448,21 @@ const getUserAchievements = async (idUserProfile, { category, categories } = {})
       // Calcular el progreso actual en tiempo real
       let progressValue = 0;
       let denominator = definition.target_value || 1;
+      let calculationSuccess = false;
 
       try {
         const metricResult = await calculateMetric(idUserProfile, definition);
-        progressValue = metricResult.value || 0;
+        progressValue = metricResult.value !== undefined ? metricResult.value : 0;
         denominator = metricResult.denominator || definition.target_value || 1;
+        calculationSuccess = true;
+
+        // Log para debug cuando el progreso es 0 pero puede ser válido
+        if (progressValue === 0 && achievement && achievement.progress_value > 0) {
+          console.warn(`[achievement-service] Achievement ${definition.code} tiene progreso guardado (${achievement.progress_value}) pero el cálculo en tiempo real retornó 0`);
+        }
       } catch (error) {
         console.error(`[achievement-service] Error calculando métrica para ${definition.code}:`, error.message);
+        console.error(`[achievement-service] Metric type: ${definition.metric_type}, Stack:`, error.stack);
         // Fallback a los valores guardados si falla el cálculo
         progressValue = achievement?.progress_value || 0;
         denominator = achievement?.progress_denominator || definition.target_value || 1;
@@ -463,7 +480,12 @@ const getUserAchievements = async (idUserProfile, { category, categories } = {})
         unlocked: Boolean(achievement?.unlocked),
         unlocked_at: achievement?.unlocked_at || null,
         last_source_type: achievement?.last_source_type || null,
-        last_source_id: achievement?.last_source_id || null
+        last_source_id: achievement?.last_source_id || null,
+        _debug: process.env.NODE_ENV === 'development' ? {
+          calculationSuccess,
+          savedProgress: achievement?.progress_value || null,
+          metricType: definition.metric_type
+        } : undefined
       };
     })
   );
@@ -580,6 +602,13 @@ const createDefinition = async (payload) => {
   }
 
   const definition = await AchievementDefinition.create(sanitized);
+
+  // Emitir evento de logro creado para actualizaciones en tiempo real
+  appEvents.emit(EVENTS.ACHIEVEMENT_CREATED, {
+    achievement: definition.get({ plain: true }),
+    timestamp: new Date().toISOString()
+  });
+
   return definition;
 };
 
@@ -615,6 +644,12 @@ const updateDefinition = async (id, payload) => {
       { where: { id_achievement_definition: id } }
     );
   }
+
+  // Emitir evento de logro actualizado para actualizaciones en tiempo real
+  appEvents.emit(EVENTS.ACHIEVEMENT_UPDATED, {
+    achievement: definition.get({ plain: true }),
+    timestamp: new Date().toISOString()
+  });
 
   return definition;
 };

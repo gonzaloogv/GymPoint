@@ -56,6 +56,11 @@ export class UserScopedStorage {
       const scopedKey = this.getUserKey(key);
       await AsyncStorage.setItem(scopedKey, value);
     } catch (error) {
+      // Si no hay usuario autenticado, no hacer nada silenciosamente
+      // Esto es normal durante la inicialización de la app antes del login
+      if (error instanceof Error && error.message.includes('No authenticated user')) {
+        return;
+      }
       console.error(`[UserScopedStorage] Error saving item "${key}":`, error);
       throw error;
     }
@@ -64,13 +69,18 @@ export class UserScopedStorage {
   /**
    * Obtiene un item de AsyncStorage con scope de usuario
    * @param key - Key base
-   * @returns Valor guardado o null si no existe
+   * @returns Valor guardado o null si no existe o no hay usuario autenticado
    */
   async getItem(key: string): Promise<string | null> {
     try {
       const scopedKey = this.getUserKey(key);
       return await AsyncStorage.getItem(scopedKey);
     } catch (error) {
+      // Si no hay usuario autenticado, retornar null silenciosamente
+      // Esto es normal durante la inicialización de la app antes del login
+      if (error instanceof Error && error.message.includes('No authenticated user')) {
+        return null;
+      }
       console.error(`[UserScopedStorage] Error reading item "${key}":`, error);
       return null;
     }
@@ -85,6 +95,11 @@ export class UserScopedStorage {
       const scopedKey = this.getUserKey(key);
       await AsyncStorage.removeItem(scopedKey);
     } catch (error) {
+      // Si no hay usuario autenticado, no hacer nada silenciosamente
+      // Esto es normal durante la inicialización de la app antes del login
+      if (error instanceof Error && error.message.includes('No authenticated user')) {
+        return;
+      }
       console.error(`[UserScopedStorage] Error removing item "${key}":`, error);
       throw error;
     }

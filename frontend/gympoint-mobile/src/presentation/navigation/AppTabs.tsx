@@ -167,15 +167,26 @@ export default function AppTabs() {
   const handleLogout = React.useCallback(async () => {
     console.log('[AppTabs] Logging out...');
 
-    // NOTE: We do NOT clear user data on logout
-    // - User-scoped storage already isolates data by user ID
-    // - Incomplete sessions should persist between login sessions
-    // - When user logs back in, their progress will be restored
-    // - This allows user to logout with incomplete routine and resume later
+    try {
+      // 1. Limpiar tokens de SecureStore (usando las mismas claves que api.ts)
+      const SecureStore = await import('expo-secure-store');
+      await SecureStore.deleteItemAsync('gp_access');
+      await SecureStore.deleteItemAsync('gp_refresh');
+      console.log('[AppTabs] Tokens cleared from SecureStore');
 
-    // Only clear the authentication state
-    setUser(null);
-    console.log('[AppTabs] User logged out (data preserved for next login)');
+      // 2. Limpiar el estado de autenticación
+      setUser(null);
+      console.log('[AppTabs] User logged out successfully');
+
+      // NOTE: We do NOT clear user-scoped data on logout
+      // - User-scoped storage already isolates data by user ID
+      // - Incomplete sessions should persist between login sessions
+      // - When user logs back in, their progress will be restored
+    } catch (error) {
+      console.error('[AppTabs] Error during logout:', error);
+      // Aún así limpiar el estado local
+      setUser(null);
+    }
   }, [setUser]);
 
   const renderUserProfileScreen = React.useCallback(

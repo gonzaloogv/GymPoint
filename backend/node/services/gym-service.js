@@ -5,6 +5,7 @@ const {
   // gymTypeRepository - ELIMINADO
   gymAmenityRepository,
 } = require('../infra/db/repositories');
+const { appEvents, EVENTS } = require('../websocket/events/event-emitter');
 const {
   CreateGymCommand,
   UpdateGymCommand,
@@ -248,7 +249,15 @@ const createGym = async (input) => {
     await gymRepository.setAmenities(gym.id_gym, amenityIds);
   }
 
-  return gymRepository.findById(gym.id_gym);
+  const createdGym = await gymRepository.findById(gym.id_gym);
+
+  // Emitir evento de gimnasio creado para actualizaciones en tiempo real
+  appEvents.emit(EVENTS.GYM_CREATED, {
+    gym: createdGym,
+    timestamp: new Date().toISOString()
+  });
+
+  return createdGym;
 };
 
 const updateGym = async (id, data = {}) => {
@@ -297,14 +306,29 @@ const updateGym = async (id, data = {}) => {
     await gymRepository.setAmenities(command.gymId, amenityIds);
   }
 
-  return gymRepository.findById(command.gymId);
+  const updatedGym = await gymRepository.findById(command.gymId);
+
+  // Emitir evento de gimnasio actualizado para actualizaciones en tiempo real
+  appEvents.emit(EVENTS.GYM_UPDATED, {
+    gym: updatedGym,
+    timestamp: new Date().toISOString()
+  });
+
+  return updatedGym;
 };
 
 const deleteGym = async (input) => {
   const command = ensureDeleteGymCommand(input);
   const existing = await gymRepository.findById(command.gymId);
   if (!existing) throw new NotFoundError('Gimnasio');
+
   await gymRepository.deleteGym(command.gymId);
+
+  // Emitir evento de gimnasio eliminado para actualizaciones en tiempo real
+  appEvents.emit(EVENTS.GYM_DELETED, {
+    gymId: command.gymId,
+    timestamp: new Date().toISOString()
+  });
 };
 
 // -----------------------------------------------------------------------------

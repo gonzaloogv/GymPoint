@@ -1,5 +1,6 @@
 // src/features/gyms/ui/components/GymsList.tsx
-import { View, Text, FlatList } from 'react-native';
+import { View, Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 import { GymListItem } from './GymListItem';
 
@@ -17,23 +18,47 @@ type Props = {
 };
 
 export default function GymsList({ data, onPressItem }: Props) {
-  return (
-    <FlatList
-      data={data}
-      keyExtractor={(item) => String(item.id)}
-      renderItem={({ item, index }) => (
-        <GymListItem
-          id={item.id}
-          name={item.name}
-          distancia={item.distancia}
-          address={item.address}
-          hours={item.hours}
-          index={index}
-          onPress={onPressItem}
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  // Si no hay datos, mostrar el estado vacío
+  if (data.length === 0) {
+    return (
+      <View className="items-center justify-center py-20 px-8">
+        <Ionicons
+          name="business-outline"
+          size={64}
+          color={isDark ? '#4B5563' : '#D1D5DB'}
         />
-      )}
-      ItemSeparatorComponent={() => <View className="h-px bg-border" />}
-      contentContainerStyle={{ paddingBottom: 24, backgroundColor: 'transparent' }}
-    />
+        <Text className={`text-lg font-semibold mt-4 text-center ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+          No hay gimnasios disponibles
+        </Text>
+        <Text className={`text-sm mt-2 text-center leading-5 ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
+          Aún no se han cargado gimnasios en la aplicación.{'\n'}
+          Vuelve más tarde para encontrar espacios cercanos.
+        </Text>
+      </View>
+    );
+  }
+
+  // Renderizar lista normal con .map() - visualmente idéntico a FlatList
+  return (
+    <View className="pb-6">
+      {data.map((item, index) => (
+        <View key={String(item.id)}>
+          <GymListItem
+            id={item.id}
+            name={item.name}
+            distancia={item.distancia}
+            address={item.address}
+            hours={item.hours}
+            index={index}
+            onPress={onPressItem}
+          />
+          {/* Separador entre items (excepto el último) */}
+          {index < data.length - 1 && <View className="h-px bg-border" />}
+        </View>
+      ))}
+    </View>
   );
 }

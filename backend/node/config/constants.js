@@ -18,7 +18,7 @@ module.exports = {
   MAX_PAGE_SIZE: 100,
 
   // Auth
-  ACCESS_TOKEN_TTL: process.env.ACCESS_TOKEN_TTL || '15m',
+  ACCESS_TOKEN_TTL: process.env.ACCESS_TOKEN_TTL || '60m',
   REFRESH_TOKEN_TTL_DAYS: 30,
 
   // Gym search

@@ -6,13 +6,16 @@ import '../global.css';
 
 import RootNavigator from '@presentation/navigation/RootNavigator';
 import { ThemeProvider, WebSocketProvider } from '@shared/providers';
-import { useTheme } from '@shared/hooks';
+import { useTheme, useRealtimeSync } from '@shared/hooks';
 
 const qc = new QueryClient();
 
 // Memoizar AppContent para evitar re-renders innecesarios del WebSocketProvider
 const AppContent = React.memo(() => {
   const { isDark } = useTheme();
+
+  // Sincronización en tiempo real de tokens, suscripciones y perfil
+  useRealtimeSync();
 
   return (
     <>

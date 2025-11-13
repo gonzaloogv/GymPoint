@@ -3,13 +3,12 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { SurfaceScreen } from '@shared/components/ui';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, TouchableOpacity, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@shared/hooks';
 import { SCREEN_CONTENT_STYLE } from '@shared/styles/layouts';
 
 import { MAP_SECTION_HEIGHT } from '@features/gyms/domain/constants/map';
-import { MOCK_UI } from '@features/gyms/data/datasources/GymMocks';
 import {
   useGymSchedules,
   useGymsData,
@@ -78,7 +77,7 @@ export default function MapScreen() {
     useGymsFiltering,
     useMapInitialRegion,
     useMapLocations,
-    mockData: MOCK_UI,
+    mockData: [], // Sin mocks - mostrar datos reales de la base de datos
     searchText,
     selectedServices,
     selectedAmenities,
@@ -101,7 +100,7 @@ export default function MapScreen() {
     <SurfaceScreen
       scroll={shouldScroll}
       contentContainerStyle={SCREEN_CONTENT_STYLE}
-      innerStyle={styles.inner}
+      innerStyle={{ paddingBottom: 0 }}
       edges={['top', 'left', 'right']}
     >
       {/* Header siempre visible */}
@@ -113,10 +112,10 @@ export default function MapScreen() {
         onOpenFilters={openFilters}
       />
 
-      <View style={styles.body}>
+      <View className="pt-2">
         {/* VISTA DEFAULT: Mapa card + Botón expandir + Texto contador + Lista */}
         {isDefaultView && (
-          <View style={styles.defaultViewContent}>
+          <View className="gap-6">
             {/* Mapa como card */}
             <MapSection
               initialRegion={initialRegion}
@@ -133,25 +132,25 @@ export default function MapScreen() {
             <TouchableOpacity
               onPress={openFullscreenMap}
               activeOpacity={0.75}
-              style={[
-                styles.expandMapButton,
-                {
-                  backgroundColor: isDark ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-                  borderColor: isDark ? 'rgba(55, 65, 81, 0.8)' : 'rgba(229, 231, 235, 0.8)',
-                },
-              ]}
+              className={`flex-row items-center justify-center py-3 px-5 rounded-xl border gap-2 shadow-sm ${
+                isDark
+                  ? 'bg-gray-800/95 border-gray-700/80'
+                  : 'bg-white/95 border-gray-200/80'
+              }`}
+              style={{
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.08,
+                shadowRadius: 4,
+                elevation: 2,
+              }}
             >
               <Ionicons
                 name="expand-outline"
                 size={20}
                 color={isDark ? '#C7D2FE' : '#4338CA'}
               />
-              <Text
-                style={[
-                  styles.expandMapText,
-                  { color: isDark ? '#C7D2FE' : '#4338CA' },
-                ]}
-              >
+              <Text className={`text-sm font-semibold tracking-wide ${isDark ? 'text-indigo-300' : 'text-indigo-700'}`}>
                 Expandir Mapa
               </Text>
             </TouchableOpacity>
@@ -169,7 +168,7 @@ export default function MapScreen() {
 
         {/* VISTA LISTA: Solo texto contador + lista (sin mapa) */}
         {isListView && (
-          <View style={styles.listViewContent}>
+          <View className="flex-1">
             {/* Texto contador: "6 gimnasios encontrados..." */}
             <ResultsInfo count={resultsCount} hasUserLocation={hasUserLocation} />
 
@@ -214,38 +213,3 @@ export default function MapScreen() {
     </SurfaceScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  inner: {
-    paddingBottom: 0,
-  },
-  body: {
-    paddingTop: 8,            // Separación del header
-  },
-  defaultViewContent: {
-    gap: 24,                  // Consistente con SCREEN_GAP
-  },
-  listViewContent: {
-    flex: 1,                  // Solo flex, sin paddingHorizontal
-  },
-  expandMapButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    borderWidth: 1,
-    gap: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  expandMapText: {
-    fontSize: 14,
-    fontWeight: '600',
-    letterSpacing: 0.2,
-  },
-});

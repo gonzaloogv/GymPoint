@@ -10,3 +10,5 @@ export * from './useStreakUpdates';
 export * from './useWebSocketConnection';
 export * from './useReviewUpdates';
 export * from './useCheckInUpdates';
+export * from './useRealtimeSync';
+export * from './useCountUpAnimation';

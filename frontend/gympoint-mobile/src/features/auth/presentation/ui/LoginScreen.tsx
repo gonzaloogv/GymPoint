@@ -45,32 +45,30 @@ export default function LoginScreen() {
     setError(null);
 
     try {
-      // NOTA: Ya no necesitamos limpiar datos antes del login
-      // Con UserScopedStorage, cada usuario tiene sus propios datos aislados
-      // Los datos se limpian automáticamente en logout con userStorage.clearUserData()
-
-      if (!email.trim() && !password.trim()) {
-        setUser({
-          id_user: -1,
-          name: 'Usuario Demo',
-          email: 'demo@gympoint.app',
-          role: 'USER',
-          tokens: 150,
-          plan: 'Free',
-        });
+      // Validar que los campos no estén vacíos
+      if (!email.trim()) {
+        setError('Por favor, ingresa tu email');
         return;
       }
 
+      if (!password.trim()) {
+        setError('Por favor, ingresa tu contraseña');
+        return;
+      }
+
+      // Validar formato de email
       if (!isValidEmail(email)) {
         setError('Por favor, ingresa un email válido');
         return;
       }
 
+      // Validar longitud de contraseña
       if (!isValidPassword(password)) {
         setError('La contraseña debe tener al menos 8 caracteres');
         return;
       }
 
+      // Intentar login con el backend
       const result = await DI.loginUser.execute({ email, password });
       Alert.alert('Bienvenido a GymPoint', 'Ahora podés navegar por la app.');
       setUser(result.user);

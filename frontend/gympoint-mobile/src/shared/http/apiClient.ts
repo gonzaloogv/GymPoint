@@ -10,7 +10,8 @@ export const api = axios.create({ baseURL: API_BASE_URL, timeout: 15000 });
 type RetryableConfig = AxiosRequestConfig & { _retry?: boolean };
 
 api.interceptors.request.use(async (config) => {
-  const token = await SecureStore.getItemAsync('accessToken');
+  // IMPORTANTE: Usar las mismas claves que api.ts para consistencia
+  const token = await SecureStore.getItemAsync('gp_access');
   if (token) {
     const headers = config.headers ?? {};
     (headers as Record<string, string>).Authorization = `Bearer ${token}`;
@@ -67,7 +68,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = await SecureStore.getItemAsync('refreshToken');
+        const refreshToken = await SecureStore.getItemAsync('gp_refresh');
         if (!refreshToken) throw new Error('No refresh token');
 
         const { data } = await axios.post(`${API_BASE_URL}/api/auth/refresh-token`, {
@@ -75,11 +76,11 @@ api.interceptors.response.use(
         });
 
         // Guardar el nuevo access token
-        await SecureStore.setItemAsync('accessToken', data.token);
+        await SecureStore.setItemAsync('gp_access', data.token);
 
         // Guardar el nuevo refresh token si viene en la respuesta
         if (data.refreshToken) {
-          await SecureStore.setItemAsync('refreshToken', data.refreshToken);
+          await SecureStore.setItemAsync('gp_refresh', data.refreshToken);
         }
 
         queue.forEach((fn) => fn());
@@ -87,8 +88,8 @@ api.interceptors.response.use(
 
         return api(original);
       } catch (e) {
-        await SecureStore.deleteItemAsync('accessToken');
-        await SecureStore.deleteItemAsync('refreshToken');
+        await SecureStore.deleteItemAsync('gp_access');
+        await SecureStore.deleteItemAsync('gp_refresh');
         queue = [];
         throw e;
       } finally {

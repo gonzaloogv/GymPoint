@@ -5,7 +5,6 @@ import { Gym } from '../domain/entities/Gym';
 import { GymRepository, ListNearbyParams } from '../domain/repositories/GymRepository';
 import { GymDTO } from './dto/GymDTO';
 import { mapGymDTOtoEntity } from './mappers/gym.mappers';
-import { MOCK_UI } from '../data/datasources/GymMocks';
 
 /**
  * Calcula la distancia entre dos puntos usando la fórmula de Haversine
@@ -53,13 +52,9 @@ export class GymRepositoryImpl implements GymRepository {
 
       throw new Error('No hay datos en /api/gyms');
     } catch (apiError) {
-      // Fallback final: usar mocks
-      return MOCK_UI.map((mockGym) => ({
-        ...mockGym,
-        distancia: distanceMeters({ lat, lng }, { lat: mockGym.lat, lng: mockGym.lng }),
-      }))
-        .filter((g) => (g.distancia ?? Infinity) <= radius)
-        .sort((a, b) => (a.distancia ?? Infinity) - (b.distancia ?? Infinity));
+      // Sin fallback - retornar array vacío si la API falla
+      console.error('Error fetching gyms:', apiError);
+      return [];
     }
   }
 
@@ -78,7 +73,8 @@ export class GymRepositoryImpl implements GymRepository {
 
       throw new Error('No hay datos en la API');
     } catch (apiError) {
-      return MOCK_UI;
+      console.error('Error fetching all gyms:', apiError);
+      return [];
     }
   }
 
@@ -93,12 +89,7 @@ export class GymRepositoryImpl implements GymRepository {
 
       throw new Error('Gimnasio no encontrado en API');
     } catch (apiError) {
-      const mockGym = MOCK_UI.find((g) => g.id === id);
-
-      if (mockGym) {
-        return mockGym;
-      }
-
+      console.error(`Error fetching gym ${id}:`, apiError);
       return null;
     }
   }

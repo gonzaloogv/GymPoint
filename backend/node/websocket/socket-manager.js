@@ -49,6 +49,8 @@ function initializeWebSocket(server) {
     registerNotificationHandlers(socket);
     registerPresenceHandlers(socket);
     registerAssistanceHandlers(socket);
+    registerAdminHandlers(socket);
+    registerUserHandlers(socket);
 
     // Manejador de desconexión
     socket.on('disconnect', (reason) => {
@@ -90,6 +92,22 @@ function registerPresenceHandlers(socket) {
 function registerAssistanceHandlers(socket) {
   const assistanceHandlers = require('./handlers/assistance.handler');
   assistanceHandlers.register(socket, io);
+}
+
+/**
+ * Registra los handlers de administración
+ */
+function registerAdminHandlers(socket) {
+  const adminHandlers = require('./handlers/admin.handler');
+  adminHandlers.register(socket, io);
+}
+
+/**
+ * Registra los handlers de usuario
+ */
+function registerUserHandlers(socket) {
+  const userHandlers = require('./handlers/user.handler');
+  userHandlers.register(socket, io);
 }
 
 /**
@@ -206,6 +224,240 @@ function registerAppEventListeners(io) {
       message: data.message,
       priority: data.priority,
       timestamp: data.timestamp
+    });
+  });
+
+  // Solicitudes de gimnasios (Admin)
+  appEvents.on(EVENTS.GYM_REQUEST_CREATED, (data) => {
+    console.log('🔥🔥🔥 [Socket Manager] GYM_REQUEST_CREATED event received! 🔥🔥🔥');
+    console.log('[Socket Manager] Gym Request ID:', data.gymRequest?.id_gym_request);
+    console.log('[Socket Manager] Gym Request Name:', data.gymRequest?.name);
+    console.log('[Socket Manager] Emitting to room: admin:gym-requests');
+
+    io.to('admin:gym-requests').emit('gym:request:created', {
+      gymRequest: data.gymRequest,
+      timestamp: data.timestamp
+    });
+
+    console.log('[Socket Manager] ✅ Event emitted successfully!');
+  });
+
+  appEvents.on(EVENTS.GYM_REQUEST_APPROVED, (data) => {
+    io.to('admin:gym-requests').emit('gym:request:approved', {
+      requestId: data.requestId,
+      gymId: data.gymId,
+      gymRequest: data.gymRequest,
+      gym: data.gym,
+      timestamp: data.timestamp
+    });
+  });
+
+  appEvents.on(EVENTS.GYM_REQUEST_REJECTED, (data) => {
+    io.to('admin:gym-requests').emit('gym:request:rejected', {
+      requestId: data.requestId,
+      gymRequest: data.gymRequest,
+      reason: data.reason,
+      timestamp: data.timestamp
+    });
+  });
+
+  // Gestión de usuarios (enviado al usuario específico)
+  appEvents.on(EVENTS.USER_TOKENS_UPDATED, (data) => {
+    if (data.userId) {
+      io.to(`user:${data.userId}`).emit('user:tokens:updated', {
+        newBalance: data.newBalance,
+        previousBalance: data.previousBalance,
+        delta: data.delta,
+        reason: data.reason,
+        timestamp: data.timestamp
+      });
+
+      // También emitir a room de tokens si está suscrito
+      io.to(`user-tokens:${data.userId}`).emit('user:tokens:updated', {
+        newBalance: data.newBalance,
+        previousBalance: data.previousBalance,
+        delta: data.delta,
+        reason: data.reason,
+        timestamp: data.timestamp
+      });
+    }
+  });
+
+  appEvents.on(EVENTS.USER_SUBSCRIPTION_UPDATED, (data) => {
+    if (data.userId) {
+      io.to(`user:${data.userId}`).emit('user:subscription:updated', {
+        previousSubscription: data.previousSubscription,
+        newSubscription: data.newSubscription,
+        isPremium: data.isPremium,
+        premiumSince: data.premiumSince,
+        premiumExpires: data.premiumExpires,
+        timestamp: data.timestamp
+      });
+
+      // También emitir a room de perfil si está suscrito
+      io.to(`user-profile:${data.userId}`).emit('user:subscription:updated', {
+        previousSubscription: data.previousSubscription,
+        newSubscription: data.newSubscription,
+        isPremium: data.isPremium,
+        premiumSince: data.premiumSince,
+        premiumExpires: data.premiumExpires,
+        timestamp: data.timestamp
+      });
+
+      // Emitir a admins para actualizar la lista de usuarios
+      io.to('admin:user-management').emit('user:subscription:changed', {
+        userId: data.userId,
+        accountId: data.accountId,
+        newSubscription: data.newSubscription,
+        isPremium: data.isPremium,
+        timestamp: data.timestamp
+      });
+    }
+  });
+
+  appEvents.on(EVENTS.USER_PROFILE_UPDATED, (data) => {
+    if (data.userId) {
+      io.to(`user:${data.userId}`).emit('user:profile:updated', {
+        profile: data.profile,
+        timestamp: data.timestamp
+      });
+
+      io.to(`user-profile:${data.userId}`).emit('user:profile:updated', {
+        profile: data.profile,
+        timestamp: data.timestamp
+      });
+    }
+  });
+
+  // Estadísticas de admin
+  appEvents.on(EVENTS.ADMIN_STATS_UPDATED, (data) => {
+    io.to('admin:stats').emit('admin:stats:updated', {
+      stats: data.stats,
+      timestamp: data.timestamp
+    });
+  });
+
+  // ========== EVENTOS BROADCAST (TODOS LOS USUARIOS MOBILE) ==========
+
+  // Gimnasios - Cuando se crea/edita/elimina un gimnasio, todos deben actualizar
+  appEvents.on(EVENTS.GYM_CREATED, (data) => {
+    console.log('🏋️ [Socket Manager] GYM_CREATED - Broadcasting to all users');
+    io.emit('data:gyms:updated', {
+      action: 'created',
+      gym: data.gym,
+      timestamp: data.timestamp || new Date().toISOString()
+    });
+  });
+
+  appEvents.on(EVENTS.GYM_UPDATED, (data) => {
+    console.log('🏋️ [Socket Manager] GYM_UPDATED - Broadcasting to all users');
+    io.emit('data:gyms:updated', {
+      action: 'updated',
+      gym: data.gym,
+      timestamp: data.timestamp || new Date().toISOString()
+    });
+  });
+
+  appEvents.on(EVENTS.GYM_DELETED, (data) => {
+    console.log('🏋️ [Socket Manager] GYM_DELETED - Broadcasting to all users');
+    io.emit('data:gyms:updated', {
+      action: 'deleted',
+      gymId: data.gymId,
+      timestamp: data.timestamp || new Date().toISOString()
+    });
+  });
+
+  // Logros - Cuando admin crea/edita logros
+  appEvents.on(EVENTS.ACHIEVEMENT_CREATED, (data) => {
+    console.log('🏆 [Socket Manager] ACHIEVEMENT_CREATED - Broadcasting to all users');
+    io.emit('data:achievements:updated', {
+      action: 'created',
+      achievement: data.achievement,
+      timestamp: data.timestamp || new Date().toISOString()
+    });
+  });
+
+  appEvents.on(EVENTS.ACHIEVEMENT_UPDATED, (data) => {
+    console.log('🏆 [Socket Manager] ACHIEVEMENT_UPDATED - Broadcasting to all users');
+    io.emit('data:achievements:updated', {
+      action: 'updated',
+      achievement: data.achievement,
+      timestamp: data.timestamp || new Date().toISOString()
+    });
+  });
+
+  // Recompensas - Cuando admin crea/edita recompensas
+  appEvents.on(EVENTS.REWARD_CREATED, (data) => {
+    console.log('🎁 [Socket Manager] REWARD_CREATED - Broadcasting to all users');
+    io.emit('data:rewards:updated', {
+      action: 'created',
+      reward: data.reward,
+      timestamp: data.timestamp || new Date().toISOString()
+    });
+  });
+
+  appEvents.on(EVENTS.REWARD_UPDATED, (data) => {
+    console.log('🎁 [Socket Manager] REWARD_UPDATED - Broadcasting to all users');
+    io.emit('data:rewards:updated', {
+      action: 'updated',
+      reward: data.reward,
+      timestamp: data.timestamp || new Date().toISOString()
+    });
+  });
+
+  // Ejercicios - Cuando admin crea/edita/elimina ejercicios
+  appEvents.on(EVENTS.EXERCISE_CREATED, (data) => {
+    console.log('💪 [Socket Manager] EXERCISE_CREATED - Broadcasting to all users');
+    io.emit('data:exercises:updated', {
+      action: 'created',
+      exercise: data.exercise,
+      timestamp: data.timestamp || new Date().toISOString()
+    });
+  });
+
+  appEvents.on(EVENTS.EXERCISE_UPDATED, (data) => {
+    console.log('💪 [Socket Manager] EXERCISE_UPDATED - Broadcasting to all users');
+    io.emit('data:exercises:updated', {
+      action: 'updated',
+      exercise: data.exercise,
+      timestamp: data.timestamp || new Date().toISOString()
+    });
+  });
+
+  appEvents.on(EVENTS.EXERCISE_DELETED, (data) => {
+    console.log('💪 [Socket Manager] EXERCISE_DELETED - Broadcasting to all users');
+    io.emit('data:exercises:updated', {
+      action: 'deleted',
+      exerciseId: data.exerciseId,
+      timestamp: data.timestamp || new Date().toISOString()
+    });
+  });
+
+  // Plantillas de rutinas - Cuando admin crea/edita/elimina plantillas
+  appEvents.on(EVENTS.ROUTINE_TEMPLATE_CREATED, (data) => {
+    console.log('📋 [Socket Manager] ROUTINE_TEMPLATE_CREATED - Broadcasting to all users');
+    io.emit('data:routine-templates:updated', {
+      action: 'created',
+      template: data.template,
+      timestamp: data.timestamp || new Date().toISOString()
+    });
+  });
+
+  appEvents.on(EVENTS.ROUTINE_TEMPLATE_UPDATED, (data) => {
+    console.log('📋 [Socket Manager] ROUTINE_TEMPLATE_UPDATED - Broadcasting to all users');
+    io.emit('data:routine-templates:updated', {
+      action: 'updated',
+      template: data.template,
+      timestamp: data.timestamp || new Date().toISOString()
+    });
+  });
+
+  appEvents.on(EVENTS.ROUTINE_TEMPLATE_DELETED, (data) => {
+    console.log('📋 [Socket Manager] ROUTINE_TEMPLATE_DELETED - Broadcasting to all users');
+    io.emit('data:routine-templates:updated', {
+      action: 'deleted',
+      templateId: data.templateId,
+      timestamp: data.timestamp || new Date().toISOString()
     });
   });
 

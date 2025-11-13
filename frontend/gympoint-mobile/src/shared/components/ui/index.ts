@@ -87,3 +87,6 @@ export { PasswordInput, InputLogin } from './Input';
 
 // Button specializations
 export { ButtonText } from './Button';
+
+// Animated Components
+export * from './AnimatedNumber';

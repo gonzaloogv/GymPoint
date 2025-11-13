@@ -2,6 +2,7 @@ const GymRequest = require('../models/GymRequest');
 const gymService = require('./gym-service');
 const { Amenity } = require('../models');
 const { NotFoundError, ValidationError } = require('../utils/errors');
+const { appEvents, EVENTS } = require('../websocket/events/event-emitter');
 
 /**
  * Convertir nombres de amenidades a IDs
@@ -97,6 +98,12 @@ async function createRequest(data) {
     status: 'pending'
   });
 
+  // Emitir evento para actualizaciones en tiempo real
+  appEvents.emit(EVENTS.GYM_REQUEST_CREATED, {
+    gymRequest: request.toJSON(),
+    timestamp: new Date()
+  });
+
   return request;
 }
 
@@ -174,6 +181,15 @@ async function approveRequest(requestId, adminId) {
     processed_at: new Date()
   });
 
+  // Emitir evento para actualizaciones en tiempo real
+  appEvents.emit(EVENTS.GYM_REQUEST_APPROVED, {
+    requestId: request.id_gym_request,
+    gymId: gym.id_gym,
+    gymRequest: request.toJSON(),
+    gym: gym.toJSON ? gym.toJSON() : gym,
+    timestamp: new Date()
+  });
+
   return gym;
 }
 
@@ -196,6 +212,14 @@ async function rejectRequest(requestId, reason, adminId) {
     rejection_reason: reason,
     processed_by: adminId,
     processed_at: new Date()
+  });
+
+  // Emitir evento para actualizaciones en tiempo real
+  appEvents.emit(EVENTS.GYM_REQUEST_REJECTED, {
+    requestId: request.id_gym_request,
+    gymRequest: request.toJSON(),
+    reason: reason,
+    timestamp: new Date()
   });
 
   return request;

@@ -10,6 +10,7 @@ const { NotFoundError, ConflictError, ValidationError } = require('../utils/erro
 const { TOKENS, TOKEN_REASONS, SUBSCRIPTION_TYPES, ACCOUNT_DELETION, ACCOUNT_DELETION_STATUS } = require('../config/constants');
 const sequelize = require('../config/database');
 const tokenLedgerService = require('./token-ledger-service');
+const { appEvents, EVENTS } = require('../websocket/events/event-emitter');
 
 // Repositories
 const {
@@ -234,12 +235,28 @@ const updateEmail = async (command) => {
 const updateUserTokens = async (command) => {
   const cmd = ensureUpdateUserTokensCommand(command);
 
-  const { newBalance } = await tokenLedgerService.registrarMovimiento({
+  // Obtener balance anterior
+  const userProfile = await userProfileRepository.findById(cmd.userProfileId);
+  const previousBalance = userProfile ? userProfile.token_balance : 0;
+
+  const { newBalance, transaction } = await tokenLedgerService.registrarMovimiento({
     userId: cmd.userProfileId,
     delta: cmd.delta,
     reason: cmd.reason || 'MANUAL_ADJUSTMENT',
     refType: cmd.refType,
     refId: cmd.refId,
+  });
+
+  // Emitir evento para actualizaciones en tiempo real
+  appEvents.emit(EVENTS.USER_TOKENS_UPDATED, {
+    userId: cmd.userProfileId,
+    accountId: userProfile?.id_account,
+    newBalance,
+    previousBalance,
+    delta: cmd.delta,
+    reason: cmd.reason,
+    transaction,
+    timestamp: new Date()
   });
 
   return newBalance;
@@ -264,7 +281,9 @@ const updateUserSubscription = async (command) => {
     throw new NotFoundError('Perfil de usuario');
   }
 
-  return userProfileRepository.updateSubscription(
+  const previousSubscription = userProfile.subscription_tier;
+
+  const updatedProfile = await userProfileRepository.updateSubscription(
     cmd.userProfileId,
     cmd.subscription,
     {
@@ -272,6 +291,21 @@ const updateUserSubscription = async (command) => {
       premiumExpires: cmd.premiumExpires,
     }
   );
+
+  // Emitir evento para actualizaciones en tiempo real
+  appEvents.emit(EVENTS.USER_SUBSCRIPTION_UPDATED, {
+    userId: cmd.userProfileId,
+    accountId: userProfile.id_account,
+    previousSubscription,
+    newSubscription: cmd.subscription,
+    isPremium: cmd.subscription === SUBSCRIPTION_TYPES.PREMIUM,
+    premiumSince: cmd.premiumSince,
+    premiumExpires: cmd.premiumExpires,
+    userProfile: updatedProfile,
+    timestamp: new Date()
+  });
+
+  return updatedProfile;
 };
 
 /**
