@@ -28,12 +28,18 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
 
   /**
    * Conectar al WebSocket
+   * NOTA: No incluimos state en dependencias para evitar ciclo infinito
    */
   const connect = useCallback(async () => {
     console.log('[WebSocketProvider] 🔌 Connect called');
 
-    if (state.connected || state.connecting) {
-      console.log('[WebSocketProvider] Already connected or connecting, skipping');
+    // Usamos setState con función para acceder al estado previo
+    // de forma segura sin ponerlo como dependencia del useCallback
+
+    // Verificar si ya hay una conexión activa
+    const socket = websocketService.getSocket?.();
+    if (socket?.connected) {
+      console.log('[WebSocketProvider] Already connected, skipping');
       return;
     }
 
@@ -100,7 +106,7 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
       // Reconectar con refresh de token si es error de auth
       scheduleReconnect(isAuthError);
     }
-  }, [state.connected, state.connecting]);
+  }, []);
 
   /**
    * Desconectar del WebSocket
@@ -204,7 +210,7 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
     return () => {
       subscription.remove();
     };
-  }, [state.connected, autoConnect, connect]);
+  }, [autoConnect, connect]);
 
   /**
    * Auto-conectar al montar si está habilitado

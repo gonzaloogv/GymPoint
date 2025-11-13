@@ -3,6 +3,20 @@ import { Platform } from 'react-native';
 import type { MapLocation } from '@features/gyms/presentation/types';
 import { GymPin } from './GymPin';
 
+// Importar Marker de forma estática (solo en plataformas nativas)
+let Marker: any = null;
+if (Platform.OS !== 'web') {
+  try {
+    const MapView = require('react-native-maps');
+    Marker = MapView.Marker;
+    if (!Marker) {
+      console.warn('[MapMarker] ⚠️ Marker no está disponible en react-native-maps');
+    }
+  } catch (error) {
+    console.warn('[MapMarker] ⚠️ Error importando react-native-maps:', error);
+  }
+}
+
 type Props = {
   location: MapLocation;
   pinSize?: number;
@@ -24,13 +38,35 @@ function MapMarkerComponent({ location, pinSize = 48, scale = 1.0 }: Props) {
     return null;
   }
 
-  // Importación dinámica solo para plataformas nativas
-  let Marker;
-  try {
-    const RNMaps = require('react-native-maps');
-    Marker = RNMaps.Marker || RNMaps.default.Marker;
-  } catch (error) {
-    console.warn('react-native-maps no está disponible:', error);
+  // Validar que las coordenadas sean válidas antes de renderizar
+  if (!location.coordinate ||
+      typeof location.coordinate.latitude !== 'number' ||
+      typeof location.coordinate.longitude !== 'number' ||
+      !isFinite(location.coordinate.latitude) ||
+      !isFinite(location.coordinate.longitude)) {
+    console.warn('[MapMarker] ⚠️ Coordenadas inválidas para location:', {
+      locationId: location.id,
+      title: location.title,
+      coordinate: location.coordinate,
+      latType: typeof location.coordinate?.latitude,
+      lngType: typeof location.coordinate?.longitude,
+      latIsFinite: Number.isFinite(location.coordinate?.latitude),
+      lngIsFinite: Number.isFinite(location.coordinate?.longitude),
+    });
+    return null;
+  }
+
+  // Debug: Log valid coordinates being rendered
+  console.log('[MapMarker] ✅ Rendering marker:', {
+    locationId: location.id,
+    title: location.title,
+    lat: location.coordinate.latitude,
+    lng: location.coordinate.longitude,
+  });
+
+  // Verificar que Marker está disponible (importado en el scope global)
+  if (!Marker) {
+    console.warn('[MapMarker] ⚠️ Marker component not available');
     return null;
   }
 

@@ -28,7 +28,19 @@ function parseEquipment(e?: string): string[] | undefined {
 export function mapGymResponseToEntity(dto: GymResponseDTO): Gym | null {
   const lat = toNum(dto.latitude);
   const lng = toNum(dto.longitude);
-  if (typeof lat !== 'number' || typeof lng !== 'number') return null;
+
+  // Debug logging for coordinate conversion
+  if (typeof lat !== 'number' || typeof lng !== 'number') {
+    console.warn('[mapGymResponseToEntity] ⚠️ Invalid coordinates for gym:', {
+      gymId: dto.id_gym,
+      gymName: dto.name,
+      rawLatitude: dto.latitude,
+      rawLongitude: dto.longitude,
+      convertedLat: lat,
+      convertedLng: lng,
+    });
+    return null;
+  }
 
   return {
     id: dto.id_gym,
@@ -53,7 +65,19 @@ export function mapGymResponseToEntity(dto: GymResponseDTO): Gym | null {
 export function mapGymDTOtoEntity(dto: GymDTO): Gym | null {
   const lat = toNum(dto.latitude);
   const lng = toNum(dto.longitude);
-  if (typeof lat !== 'number' || typeof lng !== 'number') return null;
+
+  // Debug logging for coordinate conversion
+  if (typeof lat !== 'number' || typeof lng !== 'number') {
+    console.warn('[mapGymDTOtoEntity] ⚠️ Invalid coordinates for gym (legacy):', {
+      gymId: dto.id_gym,
+      gymName: dto.name,
+      rawLatitude: dto.latitude,
+      rawLongitude: dto.longitude,
+      convertedLat: lat,
+      convertedLng: lng,
+    });
+    return null;
+  }
 
   // Backend retorna distance_km, mapearlo a distancia
   const distancia = dto.distancia ?? (dto.distance_km ? toNum(dto.distance_km) : undefined);

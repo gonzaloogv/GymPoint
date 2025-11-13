@@ -36,6 +36,17 @@ export default function MapSection({
   const hasLocationError = Boolean(error || locError);
   const errorMessage = locError ?? LOCATION_FALLBACK_MESSAGE;
 
+  // Debug logging
+  console.log('[MapSection] 🗺️ MapSection rendered with:', {
+    initialRegion,
+    mapLocationsCount: mapLocations.length,
+    mapLocationsSamples: mapLocations.slice(0, 3),
+    userLocation,
+    loading,
+    hasError: Boolean(error),
+    locError,
+  });
+
   return (
     <>
       <MapBox style={{ height: computedHeight }}>
