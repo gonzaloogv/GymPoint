@@ -10,6 +10,7 @@ import {
   NotificationSettingsResponseDTO,
   UpdateNotificationSettingsRequestDTO,
 } from '../../auth/data/auth.dto';
+import { FrequencyResponseDTO, UpdateWeeklyFrequencyRequestDTO } from './dto/user.dto';
 
 // Re-export para compatibilidad
 export type { UserProfileResponseDTO };
@@ -91,4 +92,18 @@ export const UserRemote = {
    */
   getUserById: (userId: number) =>
     api.get<UserProfileResponseDTO>(`/api/users/${userId}`).then((r) => r.data),
+
+  /**
+   * GET /api/frequency/me
+   * Obtener frecuencia semanal del usuario actual
+   */
+  getWeeklyFrequency: () =>
+    api.get<FrequencyResponseDTO>('/api/frequency/me').then((r) => r.data),
+
+  /**
+   * POST /api/frequency
+   * Actualizar frecuencia semanal (cambio se aplica el próximo lunes)
+   */
+  updateWeeklyFrequency: (payload: UpdateWeeklyFrequencyRequestDTO) =>
+    api.post<FrequencyResponseDTO>('/api/frequency', payload).then((r) => r.data),
 };

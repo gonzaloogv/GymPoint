@@ -28,18 +28,48 @@ function distanceMeters(
 export class GymRepositoryImpl implements GymRepository {
   async listNearby({ lat, lng, radius = 10000 }: ListNearbyParams): Promise<Gym[]> {
     try {
+      console.log('[GymRepositoryImpl] 🔄 Fetching gyms from /api/gyms...');
+      console.log('[GymRepositoryImpl] Params:', { lat, lng, radius });
+
       // Obtener todos los gimnasios
       const res = await api.get('/api/gyms');
 
+      console.log('[GymRepositoryImpl] 📦 Response received');
+      console.log('[GymRepositoryImpl] Response type:', typeof res.data);
+      console.log('[GymRepositoryImpl] Is array?', Array.isArray(res.data));
+
       // Extraer la lista de gimnasios (manejar respuesta paginada)
-      const list: GymDTO[] = Array.isArray(res.data)
-        ? res.data
-        : (res.data?.items ?? res.data?.data ?? []);
+      let list: GymDTO[];
+
+      if (Array.isArray(res.data)) {
+        // Caso 1: Respuesta directa como array
+        console.log('[GymRepositoryImpl] ✅ Direct array response');
+        list = res.data;
+      } else if (res.data?.items && Array.isArray(res.data.items)) {
+        // Caso 2: Respuesta paginada con campo "items"
+        console.log('[GymRepositoryImpl] ✅ Paginated response with items field');
+        console.log('[GymRepositoryImpl] Items count:', res.data.items.length);
+        console.log('[GymRepositoryImpl] Page:', res.data.page, 'Total:', res.data.total);
+        list = res.data.items;
+      } else if (res.data?.data && Array.isArray(res.data.data)) {
+        // Caso 3: Respuesta con campo "data"
+        console.log('[GymRepositoryImpl] ✅ Response with data field');
+        list = res.data.data;
+      } else {
+        // Caso 4: Estructura desconocida
+        console.error('[GymRepositoryImpl] ❌ Unexpected response structure:');
+        console.error('[GymRepositoryImpl] Keys:', Object.keys(res.data || {}));
+        console.error('[GymRepositoryImpl] Full response:', JSON.stringify(res.data, null, 2));
+        list = [];
+      }
+
+      console.log('[GymRepositoryImpl] 📊 Extracted list length:', list.length);
 
       if (list.length > 0) {
-        
+        console.log('[GymRepositoryImpl] 🗺️  Calculating distances and filtering by radius...');
+
         // Calcular distancia en el cliente y filtrar por radio
-        return list
+        const gyms = list
           .map(mapGymDTOtoEntity)
           .filter((g): g is Gym => !!g)
           .map((g) => ({
@@ -48,32 +78,59 @@ export class GymRepositoryImpl implements GymRepository {
           }))
           .filter((g) => (g.distancia ?? Infinity) <= radius)
           .sort((a, b) => (a.distancia ?? Infinity) - (b.distancia ?? Infinity));
+
+        console.log('[GymRepositoryImpl] ✅ Gyms nearby:', gyms.length);
+        return gyms;
       }
 
-      throw new Error('No hay datos en /api/gyms');
+      console.warn('[GymRepositoryImpl] ⚠️  No gyms in response');
+      return [];
     } catch (apiError) {
-      // Sin fallback - retornar array vacío si la API falla
-      console.error('Error fetching gyms:', apiError);
+      console.error('[GymRepositoryImpl] ❌ Error fetching gyms:', {
+        message: apiError instanceof Error ? apiError.message : String(apiError),
+        response: (apiError as any)?.response?.data,
+        status: (apiError as any)?.response?.status,
+      });
       return [];
     }
   }
 
   async listAll(): Promise<Gym[]> {
     try {
+      console.log('[GymRepositoryImpl] 🔄 Fetching all gyms from /api/gyms...');
       const res = await api.get('/api/gyms');
 
       // Extraer la lista de gimnasios (manejar respuesta paginada)
-      const list: GymDTO[] = Array.isArray(res.data)
-        ? res.data
-        : (res.data?.items ?? res.data?.data ?? []);
+      let list: GymDTO[];
 
-      if (list.length > 0) {
-        return list.map(mapGymDTOtoEntity).filter((g): g is Gym => !!g);
+      if (Array.isArray(res.data)) {
+        console.log('[GymRepositoryImpl] ✅ Direct array response');
+        list = res.data;
+      } else if (res.data?.items && Array.isArray(res.data.items)) {
+        console.log('[GymRepositoryImpl] ✅ Paginated response - Items:', res.data.items.length);
+        list = res.data.items;
+      } else if (res.data?.data && Array.isArray(res.data.data)) {
+        console.log('[GymRepositoryImpl] ✅ Response with data field');
+        list = res.data.data;
+      } else {
+        console.error('[GymRepositoryImpl] ❌ Unexpected response structure');
+        list = [];
       }
 
-      throw new Error('No hay datos en la API');
+      if (list.length > 0) {
+        const gyms = list.map(mapGymDTOtoEntity).filter((g): g is Gym => !!g);
+        console.log('[GymRepositoryImpl] ✅ All gyms loaded:', gyms.length);
+        return gyms;
+      }
+
+      console.warn('[GymRepositoryImpl] ⚠️  No gyms in response');
+      return [];
     } catch (apiError) {
-      console.error('Error fetching all gyms:', apiError);
+      console.error('[GymRepositoryImpl] ❌ Error fetching all gyms:', {
+        message: apiError instanceof Error ? apiError.message : String(apiError),
+        response: (apiError as any)?.response?.data,
+        status: (apiError as any)?.response?.status,
+      });
       return [];
     }
   }
