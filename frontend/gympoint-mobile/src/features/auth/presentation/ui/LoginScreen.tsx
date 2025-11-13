@@ -16,7 +16,7 @@ import {
   H2,
   Row,
 } from '@shared/components/ui';
-import { BrandMark } from '@shared/components/brand';
+import { Logo } from '@shared/components/brand';
 import { useAuthStore } from '../state/auth.store';
 import { useTheme } from '@shared/hooks';
 import { DI } from '@di/container';
@@ -95,20 +95,17 @@ export default function LoginScreen() {
   return (
     <SurfaceScreen
       scroll
-      edges={['top', 'bottom']}
+      edges={['bottom']}
       contentContainerStyle={{
         paddingHorizontal: 16,
-        paddingTop: 32,
-        paddingBottom: 140,
+        paddingTop: 10,
+        paddingBottom: 70,
         alignItems: 'center',
       }}
       scrollProps={{ keyboardShouldPersistTaps: 'handled' }}
     >
-      <View className="items-center gap-3 mb-8 mt-12">
-        <View className="w-20 h-20 rounded-full bg-white/10 dark:bg-white/5 items-center justify-center">
-          <BrandMark size={64} />
-        </View>
-        <H1>GymPoint</H1>
+      <View className="items-center gap-4 mb-8">
+        <Logo size="lg" />
         <Text className={`text-center px-8 ${subtitleColor}`}>Entrá y retomá tus entrenamientos.</Text>
       </View>
 
