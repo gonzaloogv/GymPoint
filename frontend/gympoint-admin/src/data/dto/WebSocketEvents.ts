@@ -49,6 +49,7 @@ export interface UserSubscriptionChangedData {
   accountId: number;
   newSubscription: string;
   isPremium: boolean;
+  previousSubscription?: string;
   timestamp: string;
 }
 

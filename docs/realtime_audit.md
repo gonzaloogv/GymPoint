@@ -41,3 +41,17 @@
 - Missing feature flag makes it impossible to disable the live UI if regressions surface.
 
 These findings drive the implementation plan: introduce a shared realtime config (flag + URL + transport), extend backend emitters for weekly progress/tokens, fix admin query cache updates + notifications, and retrofit the mobile stores so Home/Profile/Progress screens react instantly.
+
+## Remediations Implementadas
+- **Env flags y configuración común**: `REALTIME_UI`, `REALTIME_URL` y `REALTIME_TRANSPORT` disponibles en backend, admin y mobile. Cuando la flag está en `off`, los clientes no intentan conectar y el server evita levantar Socket.IO.
+- **Backend**:
+  - `token-ledger-service` emite `user:tokens:updated` para todos los movimientos (sin duplicados).
+  - `assistance-service` publica `progress:weekly:updated` y `attendance:recorded` con payloads mínimos para parchear stores.
+  - `socket-manager` reenvía los nuevos tópicos a las rooms de cada usuario.
+- **Admin web**:
+  - WebSocket usa las variables nuevas y sólo se conecta si `REALTIME_UI` está activo.
+  - `useRealtimeSync` ahora actualiza las mismas query keys que usa TanStack Query y dispara un toast “Nueva solicitud recibida” con un portal liviano.
+- **Mobile (Expo)**:
+  - Config del provider respeta la flag y evita reconexiones inútiles.
+  - `useRealtimeSync` parchea los stores (`useHomeStore`, `useUserProfileStore`, `useProgressStore`, `useTokensStore`, `useAuthStore`) cuando llegan eventos de tokens, plan premium, progreso semanal y asistencia.
+  - `Home`/`Profile`/`Progress` reflejan tokens, streak y meta semanal en vivo, y se muestra un aviso “Has recibido Premium” al subir de plan.

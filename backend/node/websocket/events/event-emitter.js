@@ -34,6 +34,7 @@ const EVENTS = {
   STREAK_UPDATED: 'streak:updated',
   STREAK_LOST: 'streak:lost',
   STREAK_MILESTONE: 'streak:milestone',
+  ATTENDANCE_RECORDED: 'attendance:recorded',
 
   // Reseñas y Ratings
   REVIEW_CREATED: 'review:created',
@@ -84,6 +85,7 @@ const EVENTS = {
   USER_SUBSCRIPTION_UPDATED: 'user:subscription:updated',
   USER_TOKENS_UPDATED: 'user:tokens:updated',
   USER_PROFILE_UPDATED: 'user:profile:updated',
+  PROGRESS_WEEKLY_UPDATED: 'progress:weekly:updated',
 
   // Estadísticas de admin
   ADMIN_STATS_UPDATED: 'admin:stats:updated',

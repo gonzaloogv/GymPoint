@@ -21,6 +21,8 @@ interface HomeState {
   checkLocationPermission: () => Promise<void>;
   requestLocationPermission: () => Promise<void>;
   setUser: (user: HomeStats) => void;
+  patchUser: (patch: Partial<HomeStats>) => void;
+  updateWeeklyProgress: (progress: WeeklyProgress) => void;
 }
 
 export const useHomeStore = create<HomeState>((set, get) => ({
@@ -64,4 +66,12 @@ export const useHomeStore = create<HomeState>((set, get) => ({
   },
 
   setUser: (user) => set({ user }),
+
+  patchUser: (patch) =>
+    set((state) => {
+      if (!state.user) return {};
+      return { user: { ...state.user, ...patch } };
+    }),
+
+  updateWeeklyProgress: (progress) => set({ weeklyProgress: progress }),
 }));
