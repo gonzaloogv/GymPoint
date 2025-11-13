@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { testimonialsData } from '../../data/testimonialsData';
-import { Heading, Card, StarRating, Button, DemoButton } from '../ui';
+import { Heading, Card, StarRating, Button } from '../ui'; // DemoButton comentado - Sin funcionalidad
+// import { DemoButton } from '../ui'; // TODO: Comentado - Sin funcionalidad aún
 import { useScrollDirection } from '../../hooks';
 import { mainContainer, fadeInUp, secondaryContainer, fadeInLeft } from '../../animations/variants';
 
@@ -43,11 +44,11 @@ export const Testimonials: React.FC = () => {
                     ))}
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                     className="flex gap-4 justify-center flex-wrap"
                     variants={fadeInUp}
                 >
-                    <DemoButton size='lg' className='uppercase'/>
+                    {/* <DemoButton size='lg' className='uppercase'/> TODO: Comentado - Sin funcionalidad aún */}
                     <Button variant="secondary" size="lg">
                         <a href="https://www.apple.com/ar/ios/app-store/" target="_blank">
                             DESCARGAR APP

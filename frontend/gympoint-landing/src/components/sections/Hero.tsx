@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
-import { Heading, Paragraph, Button, DemoButton } from '../ui';
+import { Heading, Paragraph, Button } from '../ui'; // DemoButton comentado - Sin funcionalidad
+// import { DemoButton } from '../ui'; // TODO: Comentado - Sin funcionalidad aún
 import { mainContainer, fadeInUp, mapVariants } from '../../animations/variants';
 import { useMap, useScrollDirection } from '../../hooks';
 
@@ -35,16 +36,16 @@ export const Hero = forwardRef<HTMLElement>((_, ref) => {
                     </Paragraph>
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                     className="flex gap-4 justify-center flex-wrap"
                     variants={fadeInUp}
                 >
-                    <DemoButton size="lg" className="uppercase" />
-                        <Button variant="secondary" size="lg">
-                            <a href="https://www.apple.com/ar/ios/app-store/" target="_blank">
-                                DESCARGAR APP
-                            </a>
-                        </Button>
+                    {/* <DemoButton size="lg" className="uppercase" /> TODO: Comentado - Sin funcionalidad aún */}
+                    <Button variant="secondary" size="lg">
+                        <a href="https://www.apple.com/ar/ios/app-store/" target="_blank">
+                            DESCARGAR APP
+                        </a>
+                    </Button>
                 </motion.div>
 
                 <motion.div

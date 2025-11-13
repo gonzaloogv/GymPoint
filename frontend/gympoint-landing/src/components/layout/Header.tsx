@@ -6,7 +6,7 @@ import { closeMenuIcon, menuIcon } from "../../assets/imgs";
 import { useTheme } from "../../hooks";
 import { Container } from "./Container";
 import { useScrollDirection } from "../../hooks/useScrollDirection";
-import { DemoButton } from "../ui/DemoButton";
+// import { DemoButton } from "../ui/DemoButton"; // TODO: Comentado - Sin funcionalidad aún
 import { motion, AnimatePresence } from "framer-motion";
 import { menuLinkItem, menuLinksContainer, menuOverlayVariants } from "../../animations/variants";
 
@@ -84,7 +84,7 @@ export const Header = () => {
                                 Descargar App
                             </a>
                         </Button>
-                        <DemoButton size="sm" />
+                        {/* <DemoButton size="sm" /> TODO: Comentado - Sin funcionalidad aún */}
                     </div>
 
                     <button
@@ -134,16 +134,16 @@ export const Header = () => {
                                 ))}
                             </motion.div>
 
-                            <motion.div 
+                            <motion.div
                                 className="flex gap-4 mt-8"
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.5, duration: 0.3 }}
                             >
-                                <DemoButton 
-                                    size="sm" 
+                                {/* <DemoButton
+                                    size="sm"
                                     onAdditionalClick={closeMenuDelayed}
-                                />
+                                /> TODO: Comentado - Sin funcionalidad aún */}
                                 <Button variant="primary">
                                     <a href="https://www.apple.com/ar/ios/app-store/" target="_blank">
                                         Descargar App

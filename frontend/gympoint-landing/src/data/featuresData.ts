@@ -1,3 +1,5 @@
+import { mapaScreenshot, rutinaScreenshot, recompensasScreenshot, perfilScreenshot } from '../assets/imgs';
+
 export interface FeatureContent {
   id: string;
   title: string;
@@ -7,7 +9,7 @@ export interface FeatureContent {
     description: string;
   };
   mediaType: 'video' | 'image';
-  mediaUrl?: string;
+  mediaUrl?: string | undefined;
 }
 
 export const featuresContent: FeatureContent[] = [
@@ -19,7 +21,8 @@ export const featuresContent: FeatureContent[] = [
       number: '99%',
       description: 'de los usuarios ahorro tiempo para encontrar su primer gimnasio o uno nuevo que se adapta a sus necesidades'
     },
-    mediaType: 'video',
+    mediaType: 'image',
+    mediaUrl: mapaScreenshot
   },
   {
     id: 'routine',
@@ -29,7 +32,8 @@ export const featuresContent: FeatureContent[] = [
       number: '47%',
       description: 'logra comprender su progreso y seguir mejorando su entrenamiento (cargas, repeticiones, resistencia)'
     },
-    mediaType: 'video',
+    mediaType: 'image',
+    mediaUrl: rutinaScreenshot
   },
   {
     id: 'progress',
@@ -39,7 +43,8 @@ export const featuresContent: FeatureContent[] = [
       number: '52%',
       description: 'de los usuarios noto sus puntos debiles y que grupo muscular deberia mejorar'
     },
-    mediaType: 'video',
+    mediaType: 'image',
+    mediaUrl: recompensasScreenshot
   },
   {
     id: 'streak',
@@ -49,6 +54,7 @@ export const featuresContent: FeatureContent[] = [
       number: '64%',
       description: 'de los usuarios afirma divertirse mejorando su racha y compitiendo con sus amigos y colegas'
     },
-    mediaType: 'video',
+    mediaType: 'image',
+    mediaUrl: perfilScreenshot
   }
 ];

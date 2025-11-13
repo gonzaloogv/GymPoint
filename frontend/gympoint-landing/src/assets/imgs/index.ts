@@ -12,5 +12,9 @@ import tiktokIcon from './tiktok.svg'
 import youtubeIcon from './youtube.svg'
 import linkedinIcon from './linkedin.svg'
 import socialMediaImg from './socialMedia.png'
+import mapaScreenshot from './1mapa.jpg'
+import rutinaScreenshot from './2rutina.jpg'
+import recompensasScreenshot from './3recompensas.jpg'
+import perfilScreenshot from './4perfil.jpg'
 
-export { gympointLogo, menuIcon, closeMenuIcon, streak, routine, search, progress, teamImg, missionImg, instagramIcon, tiktokIcon, youtubeIcon, linkedinIcon, socialMediaImg }
+export { gympointLogo, menuIcon, closeMenuIcon, streak, routine, search, progress, teamImg, missionImg, instagramIcon, tiktokIcon, youtubeIcon, linkedinIcon, socialMediaImg, mapaScreenshot, rutinaScreenshot, recompensasScreenshot, perfilScreenshot }
