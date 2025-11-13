@@ -278,6 +278,10 @@ export interface WebSocketContextValue {
   connecting: boolean;
   error: string | null;
 
+  // Connection management
+  connect: () => Promise<void>;
+  disconnect: () => void;
+
   // Notifications
   subscribeToNotifications: () => void;
   unsubscribeFromNotifications: () => void;

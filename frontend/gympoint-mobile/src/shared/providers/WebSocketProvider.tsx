@@ -21,7 +21,7 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
   });
 
   const appState = useRef(AppState.currentState);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttemptsRef = useRef(0);
   const maxReconnectAttempts = 3;
   const isInitialMount = useRef(true);
@@ -306,6 +306,10 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
       connecting: state.connecting,
       error: state.error,
 
+      // Connection management
+      connect,
+      disconnect,
+
       // Notifications
       subscribeToNotifications,
       unsubscribeFromNotifications,
@@ -330,6 +334,8 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
       state.connected,
       state.connecting,
       state.error,
+      connect,
+      disconnect,
       subscribeToNotifications,
       unsubscribeFromNotifications,
       markNotificationAsRead,
