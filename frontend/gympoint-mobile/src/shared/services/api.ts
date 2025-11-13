@@ -11,6 +11,29 @@ export const api: AxiosInstance = axios.create({
 const TOKEN_KEY = 'gp_access';
 const REFRESH_KEY = 'gp_refresh';
 
+/**
+ * Helper centralizado para refrescar tokens
+ * Usado tanto por tokenStorage.refreshAccessToken() como por Axios interceptor
+ * @returns El nuevo access token
+ */
+async function performTokenRefresh(): Promise<string> {
+  const refreshToken = await SecureStore.getItemAsync(REFRESH_KEY);
+  if (!refreshToken) {
+    throw new Error('No refresh token available');
+  }
+
+  const { data } = await axios.post(`${API_BASE_URL}/api/auth/refresh-token`, {
+    refreshToken,
+  });
+
+  await SecureStore.setItemAsync(TOKEN_KEY, data.token);
+  if (data.refreshToken) {
+    await SecureStore.setItemAsync(REFRESH_KEY, data.refreshToken);
+  }
+
+  return data.token;
+}
+
 export const tokenStorage = {
   getAccess: () => SecureStore.getItemAsync(TOKEN_KEY),
   setAccess: (v: string) => SecureStore.setItemAsync(TOKEN_KEY, v),
@@ -18,6 +41,13 @@ export const tokenStorage = {
   getRefresh: () => SecureStore.getItemAsync(REFRESH_KEY),
   setRefresh: (v: string) => SecureStore.setItemAsync(REFRESH_KEY, v),
   delRefresh: () => SecureStore.deleteItemAsync(REFRESH_KEY),
+
+  /**
+   * Refresca el access token explícitamente
+   * Útil para WebSocket antes de reconectar
+   * @returns El nuevo access token
+   */
+  refreshAccessToken: (): Promise<string> => performTokenRefresh(),
 };
 
 api.interceptors.request.use(async (config) => {
@@ -52,21 +82,15 @@ api.interceptors.response.use(
 
       try {
         isRefreshing = true;
-        const refresh = await tokenStorage.getRefresh();
-        if (!refresh) throw new Error('No refresh token');
 
-        const { data } = await axios.post(`${API_BASE_URL}/api/v1/auth/refresh`, {
-          refreshToken: refresh,
-        });
-
-        await tokenStorage.setAccess(data.accessToken);
-        if (data.refreshToken) await tokenStorage.setRefresh(data.refreshToken);
+        // Usar el helper centralizado para refrescar tokens
+        const newAccessToken = await performTokenRefresh();
 
         queue.forEach((fn) => fn());
         queue = [];
         isRefreshing = false;
 
-        original.headers.Authorization = `Bearer ${data.accessToken}`;
+        original.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(original);
       } catch (e) {
         isRefreshing = false;

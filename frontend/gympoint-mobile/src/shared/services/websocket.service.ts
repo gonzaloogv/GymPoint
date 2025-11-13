@@ -43,9 +43,9 @@ class WebSocketService {
           token,
         },
         transports: REALTIME_TRANSPORTS.length ? REALTIME_TRANSPORTS : ['websocket', 'polling'],
-        reconnection: true,
-        reconnectionAttempts: this.maxReconnectAttempts,
-        reconnectionDelay: this.reconnectDelay,
+        // Desactivar reconexión automática para evitar reintentos con token expirado
+        // La reconexión la maneja WebSocketProvider con refresh de token
+        reconnection: false,
         timeout: 10000,
       });
 

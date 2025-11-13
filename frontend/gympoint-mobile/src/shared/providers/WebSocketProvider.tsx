@@ -74,10 +74,14 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
           error: error.message,
         });
 
-        // Solo reconectar si no es error de autenticación
-        if (!error.message.includes('authentication') && !error.message.includes('token')) {
-          scheduleReconnect();
-        }
+        // Detectar si es error de autenticación/token
+        const isAuthError = error.message.includes('authentication') ||
+                           error.message.includes('token') ||
+                           error.message.includes('expired') ||
+                           error.message.includes('unauthorized');
+
+        // Reconectar con refresh de token si es error de auth
+        scheduleReconnect(isAuthError);
       });
     } catch (error: any) {
       console.error('[WebSocketProvider] Failed to connect:', error);
@@ -87,10 +91,14 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
         error: error.message || 'Failed to connect',
       });
 
-      // Solo reconectar si no es error de autenticación
-      if (!error.message?.includes('authentication') && !error.message?.includes('token')) {
-        scheduleReconnect();
-      }
+      // Detectar si es error de autenticación/token
+      const isAuthError = error.message?.includes('authentication') ||
+                         error.message?.includes('token') ||
+                         error.message?.includes('expired') ||
+                         error.message?.includes('unauthorized');
+
+      // Reconectar con refresh de token si es error de auth
+      scheduleReconnect(isAuthError);
     }
   }, [state.connected, state.connecting]);
 
@@ -107,9 +115,9 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
   }, []);
 
   /**
-   * Programar reconexión
+   * Programar reconexión con refresh de token
    */
-  const scheduleReconnect = useCallback(() => {
+  const scheduleReconnect = useCallback(async (isAuthError: boolean = false) => {
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
     }
@@ -119,12 +127,30 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
 
     // Si excedió el máximo de intentos, no reconectar
     if (reconnectAttemptsRef.current > maxReconnectAttempts) {
+      console.log('[WebSocketProvider] Max reconnect attempts reached');
       return;
     }
 
     const delay = Math.min(3000 * reconnectAttemptsRef.current, 10000); // Backoff exponencial, max 10s
 
-    reconnectTimeoutRef.current = setTimeout(() => {
+    reconnectTimeoutRef.current = setTimeout(async () => {
+      // Si es error de autenticación, refrescar token antes de reconectar
+      if (isAuthError) {
+        const refreshToken = await tokenStorage.getRefresh();
+        if (!refreshToken) {
+          console.log('[WebSocketProvider] No refresh token available for reconnection');
+          return;
+        }
+
+        try {
+          await tokenStorage.refreshAccessToken();
+          console.log('[WebSocketProvider] ✅ Token refreshed before reconnection');
+        } catch (error) {
+          console.error('[WebSocketProvider] ❌ Failed to refresh token before reconnection:', error);
+          return;
+        }
+      }
+
       connect();
     }, delay);
   }, [connect]);
@@ -136,8 +162,28 @@ export function WebSocketProvider({ children, autoConnect = true }: WebSocketPro
     const subscription = AppState.addEventListener('change', async (nextAppState: AppStateStatus) => {
       // App viene del background al foreground
       if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        console.log('[WebSocketProvider] App became active, checking reconnection...');
+
         // Resetear contador de intentos cuando vuelve al foreground
         reconnectAttemptsRef.current = 0;
+
+        // Verificar si hay refresh token antes de intentar refrescar
+        const refreshToken = await tokenStorage.getRefresh();
+        if (!refreshToken) {
+          console.log('[WebSocketProvider] No refresh token found, skipping reconnection (user not authenticated)');
+          return;
+        }
+
+        // IMPORTANTE: Refrescar token antes de reconectar (puede haber expirado en background)
+        try {
+          await tokenStorage.refreshAccessToken();
+          console.log('[WebSocketProvider] ✅ Token refreshed successfully');
+        } catch (error) {
+          console.error('[WebSocketProvider] ❌ Failed to refresh token:', error);
+          // Si falla el refresh, probablemente el usuario necesita re-login
+          setState(prev => ({ ...prev, connected: false, error: 'Token refresh failed' }));
+          return;
+        }
 
         // Verificar si hay token antes de reconectar
         const token = await tokenStorage.getAccess();
