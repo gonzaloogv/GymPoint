@@ -8,6 +8,9 @@
       "distribution": "internal"
     },
     "production": {
+      "env": {
+        "EXPO_PUBLIC_ENV": "production"
+      },
       "android": {
         "buildType": "apk"
       }

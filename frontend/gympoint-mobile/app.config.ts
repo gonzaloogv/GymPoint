@@ -19,7 +19,7 @@ const config: ExpoConfig = {
     supportsTablet: true,
   },
   android: {
-    package: 'app.gympoint.mobile',
+    package: 'ien.gympoint.mobile',
     versionCode: 1,
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
@@ -27,12 +27,20 @@ const config: ExpoConfig = {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#ffffff',
     },
+    config: {
+      googleMaps: {
+        apiKey: process.env.ANDROID_GOOGLE_MAPS_API_KEY,
+      },
+    },
   },
   web: {
     favicon: './assets/favicon.png',
     bundler: 'metro',
   },
-  plugins: ['expo-secure-store', 'expo-web-browser'],
+  plugins: [
+    'expo-secure-store',
+    'expo-web-browser',
+  ],
   extra: {
     apiUrl: process.env.EXPO_PUBLIC_API_BASE_URL,
     realtimeUrl: process.env.EXPO_PUBLIC_REALTIME_URL,
@@ -47,3 +55,5 @@ const config: ExpoConfig = {
 };
 
 export default config;
+
+

@@ -10,6 +10,7 @@
   EXPO_PUBLIC_REALTIME_TRANSPORT=websocket,polling
   EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID=<ANDROID_CLIENT_ID_DEV>
   EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=18224652722-07atvnqpng2qc7cdttlmeuns6k30ghc9.apps.googleusercontent.com
+  ANDROID_GOOGLE_MAPS_API_KEY=<ANDROID_MAPS_API_KEY_DEV>
   ```
 
 - `.env.production`
@@ -18,8 +19,9 @@
   EXPO_PUBLIC_REALTIME_URL=https://api.gympoint.app
   EXPO_PUBLIC_REALTIME_UI=on
   EXPO_PUBLIC_REALTIME_TRANSPORT=websocket,polling
-  EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID=<ANDROID_CLIENT_ID_PROD>
-  EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=18224652722-07atvnqpng2qc7cdttlmeuns6k30ghc9.apps.googleusercontent.com
+  EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID=287573324529-pgae1blloghtmvlqh2iboc9jod4mbj3k.apps.googleusercontent.com
+  EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=287573324529-pgae1blloghtmvlqh2iboc9jod4mbj3k.apps.googleusercontent.com
+  ANDROID_GOOGLE_MAPS_API_KEY=<ANDROID_MAPS_API_KEY_PROD>
   ```
 
 Guarda las claves sensibles (por ejemplo `ANDROID_GOOGLE_MAPS_API_KEY`) como secretos en EAS (`npx eas secret:create`).
@@ -67,26 +69,28 @@ cd android
 
 1. Ve a [Google Cloud Console - Credentials](https://console.cloud.google.com/apis/credentials?project=gympoint-478021)
 2. Click **"+ CREATE CREDENTIALS"** → **"OAuth client ID"**
-3. Selecciona **"Android"**
+3. Selecciona **"Android"** o **"Web application"**
 4. Configura:
    - **Name**: `GymPoint Android Client`
-   - **Package name**: `app.gympoint.mobile`
+   - **Package name**: `ien.gympoint.mobile` (para Android)
    - **SHA-1 certificate fingerprint**: `D3:7A:D5:AB:2F:B9:62:5F:98:FB:05:58:7E:87:8B:EA:1F:38:E2:FE`
 5. Click **"CREATE"** y copia el Client ID generado
 
-### Actualizar .env.production
+### Configuración Actual
 
-Edita `frontend/gympoint-mobile/.env.production`:
+**Google OAuth Client IDs configurados:**
 ```env
-EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID=<TU_ANDROID_CLIENT_ID_AQUI>
-EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=18224652722-07atvnqpng2qc7cdttlmeuns6k30ghc9.apps.googleusercontent.com
+ANDROID_CLIENT_ID=287573324529-pgae1blloghtmvlqh2iboc9jod4mbj3k.apps.googleusercontent.com
+WEB_CLIENT_ID=287573324529-pgae1blloghtmvlqh2iboc9jod4mbj3k.apps.googleusercontent.com
 ```
 
-### Actualizar backend
+**Package name actual:** `ien.gympoint.mobile`
 
-Edita `.env.production.backend` para agregar el Android Client ID:
+### Backend
+
+El backend ya está configurado en `.env.production.backend`:
 ```env
-GOOGLE_CLIENT_IDS=18224652722-07atvnqpng2qc7cdttlmeuns6k30ghc9.apps.googleusercontent.com,<TU_ANDROID_CLIENT_ID>
+GOOGLE_CLIENT_IDS=18224652722-07atvnqpng2qc7cdttlmeuns6k30ghc9.apps.googleusercontent.com,287573324529-pgae1blloghtmvlqh2iboc9jod4mbj3k.apps.googleusercontent.com
 ```
 
 Más detalles en [docs/setup_google_oauth.md](setup_google_oauth.md).
