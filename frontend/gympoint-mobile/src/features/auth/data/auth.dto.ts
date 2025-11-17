@@ -58,6 +58,8 @@ export type AuthUserDTO = {
   id_account: number;
   email: string;
   email_verified: boolean;
+  auth_provider?: 'local' | 'google';
+  profile_completed?: boolean;
   roles: string[];
   profile: UserProfileSummaryDTO;
 };
@@ -65,6 +67,20 @@ export type AuthUserDTO = {
 export type AuthSuccessResponseDTO = {
   tokens: AuthTokenPairDTO;
   user: AuthUserDTO;
+  needsOnboarding?: boolean;
+};
+
+export type CompleteOnboardingRequestDTO = {
+  frequency_goal: number;
+  birth_date: string;
+  gender?: 'M' | 'F' | 'O';
+};
+
+export type CompleteOnboardingResponseDTO = {
+  success: boolean;
+  message: string;
+  user: AuthUserDTO;
+  needsOnboarding: boolean;
 };
 
 export type RefreshTokenResponseDTO = {
@@ -87,6 +103,8 @@ export type UserProfileResponseDTO = {
   lastname: string;
   email: string;
   email_verified?: boolean;
+  auth_provider?: 'local' | 'google';
+  profile_completed?: boolean;
   gender?: 'M' | 'F' | 'O' | null;
   locality?: string | null;
   birth_date?: string | null;

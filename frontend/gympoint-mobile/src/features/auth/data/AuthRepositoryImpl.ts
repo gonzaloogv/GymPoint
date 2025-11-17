@@ -1,5 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
-import { AuthRepository, RegisterParams } from '../domain/repositories/AuthRepository';
+import { AuthRepository, RegisterParams, CompleteOnboardingParams } from '../domain/repositories/AuthRepository';
 import { AuthRemote } from './auth.remote';
 import { mapAuthUserToEntity, mapUserProfileToEntity } from './auth.mapper';
 
@@ -92,5 +92,18 @@ export class AuthRepositoryImpl implements AuthRepository {
       accessToken: response.tokens.accessToken,
       refreshToken: response.tokens.refreshToken,
     };
+  }
+
+  /**
+   * Completar onboarding para usuarios de Google OAuth
+   */
+  async completeOnboarding(params: CompleteOnboardingParams) {
+    const response = await AuthRemote.completeOnboarding({
+      frequency_goal: params.frequencyGoal,
+      birth_date: params.birthDate,
+      gender: params.gender,
+    });
+
+    return mapAuthUserToEntity(response.user);
   }
 }

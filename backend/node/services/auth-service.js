@@ -919,6 +919,7 @@ const googleLogin = async (input, context = {}) => {
             email_verified: true,
             is_active: true,
             password_hash: null,
+            profile_completed: false, // Requiere onboarding para completar perfil
           },
           { transaction }
         );
@@ -946,8 +947,10 @@ const googleLogin = async (input, context = {}) => {
           { transaction }
         );
 
+        // Crear frecuencia con goal=1 (mínimo válido) como placeholder
+        // El usuario elegirá su meta real en el onboarding
         const frequency = await frequencyService.crearMetaSemanal(
-          { id_user: userProfile.id_user_profile, goal: 3 },
+          { id_user: userProfile.id_user_profile, goal: 1 },
           { transaction }
         );
 
@@ -1062,6 +1065,121 @@ const logout = async (input) => {
   await refreshTokenRepository.revokeByToken(command.refreshToken);
 };
 
+// ---------------------------------------------------------------------------
+// Onboarding
+// ---------------------------------------------------------------------------
+
+/**
+ * Calcula la edad en años a partir de una fecha de nacimiento
+ * @param {string} birthDateString - Fecha en formato YYYY-MM-DD
+ * @returns {number} Edad en años
+ */
+const calculateAge = (birthDateString) => {
+  const birth = new Date(birthDateString);
+  if (isNaN(birth.getTime())) {
+    throw new ValidationError('Fecha de nacimiento inválida');
+  }
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+};
+
+/**
+ * Completa el onboarding de un usuario (frecuencia, fecha de nacimiento, género)
+ * @param {number} accountId - ID de la cuenta
+ * @param {Object} data - Datos del onboarding
+ * @param {number} data.frequencyGoal - Meta de frecuencia semanal (1-7)
+ * @param {string} data.birthDate - Fecha de nacimiento (YYYY-MM-DD)
+ * @param {string} [data.gender] - Género (M, F, O)
+ * @returns {Object} Cuenta y perfil actualizados
+ */
+const completeOnboarding = async (accountId, { frequencyGoal, birthDate, gender = 'O' }) => {
+  // Validación de frecuencia
+  if (!Number.isInteger(frequencyGoal) || frequencyGoal < 1 || frequencyGoal > 7) {
+    throw new ValidationError('Frecuencia debe ser un entero entre 1 y 7');
+  }
+
+  // Validación de fecha de nacimiento
+  if (!birthDate || !/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) {
+    throw new ValidationError('Fecha de nacimiento debe tener formato YYYY-MM-DD');
+  }
+
+  const age = calculateAge(birthDate);
+  if (age < 13) {
+    throw new ValidationError('Debes tener al menos 13 años');
+  }
+  if (age > 100) {
+    throw new ValidationError('Edad máxima permitida es 100 años');
+  }
+
+  // Validación de género
+  if (!['M', 'F', 'O'].includes(gender)) {
+    throw new ValidationError('Género debe ser M, F u O');
+  }
+
+  // Verificar que la cuenta existe y necesita onboarding
+  const account = await accountRepository.findById(accountId, { includeUserProfile: true });
+  if (!account) {
+    throw new NotFoundError('Cuenta no encontrada');
+  }
+
+  if (account.profile_completed) {
+    throw new ValidationError('El perfil ya fue completado');
+  }
+
+  if (account.auth_provider !== 'google') {
+    throw new ValidationError('El onboarding solo aplica a cuentas de Google');
+  }
+
+  const profile = account.userProfile;
+  if (!profile) {
+    throw new NotFoundError('Perfil de usuario no encontrado');
+  }
+
+  // Actualizar en transacción
+  await runWithRetryableTransaction(async (transaction) => {
+    // 1. Actualizar perfil (birth_date, gender)
+    await userProfileRepository.updateUserProfile(
+      profile.id_user_profile,
+      {
+        birth_date: birthDate,
+        gender: gender,
+      },
+      { transaction }
+    );
+
+    // 2. Crear o actualizar meta de frecuencia
+    // createWeeklyGoal maneja ambos casos (crear si no existe, actualizar si existe)
+    await frequencyService.createWeeklyGoal({
+      idUserProfile: profile.id_user_profile,
+      goal: frequencyGoal,
+      transaction,
+    });
+
+    // 3. Marcar cuenta como completada
+    await accountRepository.updateAccount(
+      accountId,
+      { profile_completed: true },
+      { transaction }
+    );
+  });
+
+  // Retornar datos actualizados
+  const updatedAccount = await accountRepository.findById(accountId, {
+    includeRoles: true,
+    includeUserProfile: true,
+  });
+
+  return {
+    account: updatedAccount,
+    profile: updatedAccount.userProfile,
+  };
+};
+
 module.exports = {
   register,
   login,
@@ -1077,4 +1195,6 @@ module.exports = {
   requestPasswordReset,
   resetPassword,
   changePassword,
+  // Onboarding
+  completeOnboarding,
 };

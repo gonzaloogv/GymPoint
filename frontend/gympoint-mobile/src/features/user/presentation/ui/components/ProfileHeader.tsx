@@ -5,9 +5,11 @@
 
 import React from 'react';
 import { View, Text } from 'react-native';
-import { Card, Avatar, UnifiedBadge } from '@shared/components/ui';
+import { Card, Avatar } from '@shared/components/ui';
 import { UserProfile } from '@features/user/types/userTypes';
 import { useTheme } from '@shared/hooks';
+import StreakIcon from '@assets/icons/streak.svg';
+import { Ionicons } from '@expo/vector-icons';
 
 interface ProfileHeaderProps {
   user: UserProfile;
@@ -49,15 +51,60 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user, theme }) => 
               gap: 8,
             }}
           >
-            <UnifiedBadge
-              variant={user.plan === 'Premium' ? 'primary' : 'secondary'}
-              icon={user.plan === 'Premium' ? 'star' : undefined}
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 9999,
+                borderWidth: 1,
+                backgroundColor: isDark ? 'rgba(129, 140, 248, 0.14)' : 'rgba(129, 140, 248, 0.12)',
+                borderColor: isDark ? 'rgba(129, 140, 248, 0.38)' : 'rgba(129, 140, 248, 0.24)',
+              }}
             >
-              {user.plan}
-            </UnifiedBadge>
-            <UnifiedBadge variant="outline" icon="zap" iconColor={isDark ? '#FBBF24' : '#FFA726'}>
-              {user.streak || 0} días
-            </UnifiedBadge>
+              {user.plan === 'Premium' && (
+                <Ionicons
+                  name="star"
+                  size={14}
+                  color={isDark ? '#C7D2FE' : '#4338CA'}
+                  style={{ marginRight: 4 }}
+                />
+              )}
+              <Text
+                style={{
+                  fontWeight: '600',
+                  fontSize: 14,
+                  color: isDark ? '#C7D2FE' : '#4338CA',
+                }}
+              >
+                {user.plan}
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 9999,
+                borderWidth: 1,
+                backgroundColor: isDark ? 'rgba(129, 140, 248, 0.14)' : 'rgba(129, 140, 248, 0.12)',
+                borderColor: isDark ? 'rgba(129, 140, 248, 0.38)' : 'rgba(129, 140, 248, 0.24)',
+              }}
+            >
+              <StreakIcon width={18} height={18} accessibilityLabel="racha" />
+              <Text
+                style={{
+                  marginLeft: 4,
+                  fontWeight: '600',
+                  fontSize: 14,
+                  color: isDark ? '#C7D2FE' : '#4338CA',
+                }}
+              >
+                {user.streak || 0} días
+              </Text>
+            </View>
           </View>
         </View>
       </View>

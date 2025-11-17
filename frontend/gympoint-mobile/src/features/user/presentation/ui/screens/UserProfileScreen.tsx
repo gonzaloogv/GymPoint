@@ -17,7 +17,8 @@ import { LegalFooter } from '../components/LegalFooter';
 import { DeleteAccountSection } from '../components/DeleteAccountSection';
 import { useUserProfileStore } from '../../state/userProfile.store';
 import { useAccountDeletion } from '../../hooks/useAccountDeletion';
-import { UserProfile, UserProfileScreenProps } from '../../../types/userTypes';
+import { UserProfileScreenProps } from '../../../types/userTypes';
+import { useProgressStore } from '@features/progress/presentation/state/progress.store';
 
 // Importar el tema
 import { lightTheme } from '@presentation/theme';
@@ -30,16 +31,11 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   const { theme: themeMode } = useTheme();
   const isDark = themeMode === 'dark';
   const theme = lightTheme;
-  const defaultUser: UserProfile = {
-    id_user: 0,
-    name: 'GymPoint User',
-    email: 'usuario@gympoint.com',
-    role: 'USER',
-    tokens: 0,
-    plan: 'Free',
-    streak: 0,
-  };
-  const resolvedUser = user ?? defaultUser;
+  // Obtener streak real desde progressStore (actualizado por WebSocket)
+  const currentStreak = useProgressStore((state) => state.currentStreak);
+
+  // Combinar user con streak real del progressStore
+  const resolvedUser = user ? { ...user, streak: currentStreak } : null;
 
   // ============================================
   // ZUSTAND STORE
@@ -102,6 +98,10 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   // ============================================
   // RENDER
   // ============================================
+  if (!resolvedUser) {
+    return null;
+  }
+
   return (
     <SurfaceScreen
       scroll

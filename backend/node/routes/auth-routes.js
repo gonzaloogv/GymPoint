@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth-controller');
+const { verificarToken } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -636,6 +637,98 @@ router.post('/forgot-password', authController.forgotPassword);
  *                       type: string
  */
 router.post('/reset-password', authController.resetPassword);
+
+/**
+ * @swagger
+ * /api/auth/complete-onboarding:
+ *   post:
+ *     summary: Completar onboarding de usuario (frecuencia, fecha de nacimiento, género)
+ *     description: |
+ *       Completa el perfil de usuario para cuentas de Google OAuth.
+ *       - Solo aplica a cuentas de Google con profile_completed = false
+ *       - Actualiza frequency_goal, birth_date y gender
+ *       - Marca profile_completed = true al finalizar
+ *       - Requiere autenticación con Bearer token
+ *     tags: [Autenticación]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [frequency_goal, birth_date]
+ *             properties:
+ *               frequency_goal:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 7
+ *                 description: Meta de días de entrenamiento por semana
+ *                 example: 3
+ *               birth_date:
+ *                 type: string
+ *                 format: date
+ *                 description: Fecha de nacimiento (YYYY-MM-DD)
+ *                 example: "1990-01-15"
+ *               gender:
+ *                 type: string
+ *                 enum: [M, F, O]
+ *                 description: Género del usuario (opcional, default O)
+ *                 example: M
+ *     responses:
+ *       200:
+ *         description: Perfil completado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Perfil completado exitosamente
+ *                 user:
+ *                   type: object
+ *                   description: Usuario actualizado con profile_completed = true
+ *                 needsOnboarding:
+ *                   type: boolean
+ *                   example: false
+ *       400:
+ *         description: Datos inválidos o perfil ya completado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       enum: [MISSING_FREQUENCY, MISSING_BIRTH_DATE, ONBOARDING_FAILED]
+ *                     message:
+ *                       type: string
+ *       401:
+ *         description: Usuario no autenticado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: UNAUTHORIZED
+ *                     message:
+ *                       type: string
+ *                       example: Usuario no autenticado
+ */
+router.post('/complete-onboarding', verificarToken, authController.completeOnboarding);
 
 module.exports = router;
 

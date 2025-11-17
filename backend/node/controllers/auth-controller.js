@@ -360,6 +360,69 @@ const resetPassword = async (req, res) => {
   }
 };
 
+/**
+ * Completa el onboarding del usuario (frecuencia, fecha de nacimiento, género)
+ * POST /api/auth/complete-onboarding
+ * Body: { frequency_goal: 3, birth_date: "1990-01-15", gender: "M" }
+ * Requiere autenticación (Bearer token)
+ */
+const completeOnboarding = async (req, res) => {
+  const { frequency_goal, birth_date, gender } = req.body;
+
+  if (!frequency_goal) {
+    return res.status(400).json({
+      error: {
+        code: 'MISSING_FREQUENCY',
+        message: 'La frecuencia semanal es requerida',
+      },
+    });
+  }
+
+  if (!birth_date) {
+    return res.status(400).json({
+      error: {
+        code: 'MISSING_BIRTH_DATE',
+        message: 'La fecha de nacimiento es requerida',
+      },
+    });
+  }
+
+  try {
+    const accountId = req.account?.id_account;
+    if (!accountId) {
+      return res.status(401).json({
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Usuario no autenticado',
+        },
+      });
+    }
+
+    const result = await authService.completeOnboarding(accountId, {
+      frequencyGoal: Number(frequency_goal),
+      birthDate: birth_date,
+      gender: gender || 'O',
+    });
+
+    // Retornar usuario actualizado con needsOnboarding = false
+    res.json({
+      success: true,
+      message: 'Perfil completado exitosamente',
+      user: authMapper.toAuthUser(result.account, result.profile),
+      needsOnboarding: false,
+    });
+  } catch (err) {
+    const status = err instanceof ValidationError ? 400 : 500;
+
+    res.status(status).json({
+      error: {
+        code: 'ONBOARDING_FAILED',
+        message: err.message,
+      },
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -372,4 +435,6 @@ module.exports = {
   // Password reset
   forgotPassword,
   resetPassword,
+  // Onboarding
+  completeOnboarding,
 };

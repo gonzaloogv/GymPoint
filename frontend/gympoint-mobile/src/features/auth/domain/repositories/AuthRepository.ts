@@ -11,6 +11,12 @@ export interface RegisterParams {
   frequency_goal: number;
 }
 
+export interface CompleteOnboardingParams {
+  frequencyGoal: number;
+  birthDate: string;
+  gender?: 'M' | 'F' | 'O';
+}
+
 export interface AuthRepository {
   login(
     email: string,
@@ -26,4 +32,5 @@ export interface AuthRepository {
     lastname: string;
     subscription: 'FREE' | 'PREMIUM';
   }>;
+  completeOnboarding(params: CompleteOnboardingParams): Promise<User>;
 }

@@ -3,6 +3,7 @@ import { View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { LoginScreen, RegisterScreen, ForgotPasswordScreen, useAuthStore } from '@features/auth';
+import OnboardingScreen from '@features/auth/presentation/ui/OnboardingScreen';
 import { mapUserProfileToEntity } from '@features/auth/data/auth.mapper';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
@@ -18,6 +19,7 @@ type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   ForgotPassword: undefined;
+  Onboarding: undefined;
   Rewards: undefined;
   TokenHistory: undefined;
   ChangePassword: undefined;
@@ -84,6 +86,9 @@ export default function RootNavigator() {
     checkActiveSession();
   }, [setUser]);
 
+  // Verificar si el usuario necesita completar onboarding
+  const needsOnboarding = user && user.authProvider === 'google' && !user.profileCompleted;
+
   // Mostrar loading mientras verifica auth
   if (isCheckingAuth) {
     return (
@@ -96,10 +101,12 @@ export default function RootNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName={user ? "App" : "Login"}
+        initialRouteName={user ? (needsOnboarding ? "Onboarding" : "App") : "Login"}
         screenOptions={{ headerShown: false }}
       >
-        {user ? (
+        {user && needsOnboarding ? (
+          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+        ) : user ? (
           <>
             <Stack.Screen name="App" component={AppTabs} />
             <Stack.Screen

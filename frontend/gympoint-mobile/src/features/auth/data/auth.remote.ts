@@ -8,6 +8,8 @@ import {
   AuthSuccessResponseDTO,
   RefreshTokenResponseDTO,
   UserProfileResponseDTO,
+  CompleteOnboardingRequestDTO,
+  CompleteOnboardingResponseDTO,
 } from './auth.dto';
 
 /**
@@ -55,4 +57,11 @@ export const AuthRemote = {
    * Obtener perfil del usuario actual (requiere autenticación)
    */
   me: () => api.get<UserProfileResponseDTO>('/api/users/me').then((r) => r.data),
+
+  /**
+   * POST /api/auth/complete-onboarding
+   * Completar onboarding para usuarios de Google OAuth
+   */
+  completeOnboarding: (payload: CompleteOnboardingRequestDTO) =>
+    api.post<CompleteOnboardingResponseDTO>('/api/auth/complete-onboarding', payload).then((r) => r.data),
 };

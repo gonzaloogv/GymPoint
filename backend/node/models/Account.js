@@ -57,6 +57,12 @@ const Account = sequelize.define('Account', {
     allowNull: true,
     comment: 'Fecha límite para verificar email (período de gracia de 7 días)'
   },
+  profile_completed: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+    comment: 'Si el usuario completó el onboarding inicial (frecuencia, fecha nacimiento, género)'
+  },
   is_active: {
     type: DataTypes.BOOLEAN,
     allowNull: false,

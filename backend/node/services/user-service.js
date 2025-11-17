@@ -133,6 +133,7 @@ const getUserByAccountId = async (query) => {
     id_account: account.id_account,
     email: account.email,
     auth_provider: account.auth_provider,
+    profile_completed: account.profile_completed,
     email_verified: account.email_verified,
     last_login: account.last_login,
     roles: account.roles || [],

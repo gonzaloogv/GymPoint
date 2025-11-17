@@ -48,8 +48,8 @@ export const PremiumBenefitsCard: React.FC<PremiumBenefitsCardProps> = ({
       className="rounded-[28px] px-5 py-[18px] border"
       style={[
         {
-          backgroundColor: isDark ? 'rgba(147, 51, 234, 0.15)' : 'rgba(196, 181, 253, 0.2)',
-          borderColor: isDark ? 'rgba(147, 51, 234, 0.4)' : 'rgba(147, 51, 234, 0.3)',
+          backgroundColor: isDark ? '#312e81' : '#ede9fe',
+          borderColor: isDark ? '#7c3aed' : '#c4b5fd',
         },
         shadowStyle,
       ]}
@@ -58,8 +58,8 @@ export const PremiumBenefitsCard: React.FC<PremiumBenefitsCardProps> = ({
         <View
           className="w-14 h-14 rounded-[20px] border items-center justify-center"
           style={{
-            backgroundColor: isDark ? 'rgba(147, 51, 234, 0.25)' : 'rgba(147, 51, 234, 0.2)',
-            borderColor: isDark ? 'rgba(196, 181, 253, 0.4)' : 'rgba(147, 51, 234, 0.25)',
+            backgroundColor: isDark ? '#4c1d95' : '#ddd6fe',
+            borderColor: isDark ? '#7c3aed' : '#a78bfa',
           }}
         >
           <Ionicons
