@@ -80,7 +80,7 @@ export const Header = () => {
                     <ThemeSwitcher />
                     <div className="hidden sm:flex gap-2">
                         <Button variant="secondary" size="sm">
-                            <a href="https://www.apple.com/ar/ios/app-store/" target="_blank">
+                            <a href="https://expo.dev/artifacts/eas/bhPYPYgdwWgcQn1RstDQBv.apk" target="_blank">
                                 Descargar App
                             </a>
                         </Button>

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
@@ -7,13 +7,14 @@ export const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleButtonRef = useRef<HTMLButtonElement>(null);
 
-  const handleSidebarToggle = () => {
+  // Memoizar handlers para evitar re-renders innecesarios en el sidebar
+  const handleSidebarToggle = useCallback(() => {
     setIsSidebarOpen((prev) => !prev);
-  };
+  }, []);
 
-  const handleSidebarClose = () => {
+  const handleSidebarClose = useCallback(() => {
     setIsSidebarOpen(false);
-  };
+  }, []);
 
   // Manejar cambios de resolución
   useEffect(() => {

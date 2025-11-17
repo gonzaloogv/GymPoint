@@ -1,5 +1,18 @@
 import { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import {
+  HiOutlineChartBarSquare,
+  HiOutlineUsers,
+  HiOutlineBuildingOffice2,
+  HiOutlineClipboardDocumentList,
+  HiOutlineBolt,
+  HiOutlineStar,
+  HiOutlineBanknotes,
+  HiOutlineGift,
+  HiOutlineFlag,
+  HiOutlineTrophy,
+} from 'react-icons/hi2';
+import type { IconType } from 'react-icons';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -7,17 +20,23 @@ interface SidebarProps {
   toggleButtonRef?: React.RefObject<HTMLButtonElement>;
 }
 
-const NAV_ITEMS = [
-  { path: '/', label: 'Panel', icon: '📊' },
-  { path: '/users', label: 'Usuarios', icon: '👥' },
-  { path: '/gyms', label: 'Gimnasios', icon: '🏢' },
-  { path: '/routines', label: 'Rutinas', icon: '📋' },
-  { path: '/exercises', label: 'Ejercicios', icon: '💪' },
-  { path: '/reviews', label: 'Reviews', icon: '⭐' },
-  { path: '/transactions', label: 'Transacciones', icon: '💰' },
-  { path: '/rewards', label: 'Recompensas', icon: '🎁' },
-  { path: '/daily-challenges', label: 'Desafíos Diarios', icon: '🎯' },
-  { path: '/achievements', label: 'Logros', icon: '🏆' },
+interface NavItem {
+  path: string;
+  label: string;
+  Icon: IconType;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { path: '/', label: 'Panel', Icon: HiOutlineChartBarSquare },
+  { path: '/users', label: 'Usuarios', Icon: HiOutlineUsers },
+  { path: '/gyms', label: 'Gimnasios', Icon: HiOutlineBuildingOffice2 },
+  { path: '/routines', label: 'Rutinas', Icon: HiOutlineClipboardDocumentList },
+  { path: '/exercises', label: 'Ejercicios', Icon: HiOutlineBolt },
+  { path: '/reviews', label: 'Reviews', Icon: HiOutlineStar },
+  { path: '/transactions', label: 'Transacciones', Icon: HiOutlineBanknotes },
+  { path: '/rewards', label: 'Recompensas', Icon: HiOutlineGift },
+  { path: '/daily-challenges', label: 'Desafios Diarios', Icon: HiOutlineFlag },
+  { path: '/achievements', label: 'Logros', Icon: HiOutlineTrophy },
 ];
 
 export const Sidebar = ({ isOpen, onClose, toggleButtonRef }: SidebarProps) => {
@@ -27,19 +46,19 @@ export const Sidebar = ({ isOpen, onClose, toggleButtonRef }: SidebarProps) => {
   const isActivePath = (path: string) =>
     path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
 
-  // Cerrar al hacer clic fuera (solo en móvil)
+  // Cerrar al hacer clic fuera (solo en m��vil)
   useEffect(() => {
     if (!isOpen) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
 
-      // No cerrar si el click fue en el botón toggle o dentro del sidebar
+      // No cerrar si el click fue en el bot��n toggle o dentro del sidebar
       const isClickInToggle = toggleButtonRef?.current?.contains(target);
       const isClickInSidebar = sidebarRef.current?.contains(target);
 
       if (!isClickInSidebar && !isClickInToggle) {
-        // Solo cerrar en móvil
+        // Solo cerrar en m��vil
         if (window.innerWidth < 1024) {
           onClose();
         }
@@ -52,7 +71,7 @@ export const Sidebar = ({ isOpen, onClose, toggleButtonRef }: SidebarProps) => {
       }
     };
 
-    // Solo agregar listeners en viewport móvil
+    // Solo agregar listeners en viewport m��vil
     if (window.innerWidth < 1024) {
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('keydown', handleEsc);
@@ -67,7 +86,7 @@ export const Sidebar = ({ isOpen, onClose, toggleButtonRef }: SidebarProps) => {
     };
   }, [isOpen, onClose, toggleButtonRef]);
 
-  // Cerrar sidebar al cambiar de ruta en móvil
+  // Cerrar sidebar al cambiar de ruta en m��vil
   useEffect(() => {
     if (window.innerWidth < 1024) {
       onClose();
@@ -76,7 +95,7 @@ export const Sidebar = ({ isOpen, onClose, toggleButtonRef }: SidebarProps) => {
 
   return (
     <>
-      {/* Backdrop para móvil con animación */}
+      {/* Backdrop para m��vil con animaci��n */}
       {isOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/50 transition-opacity duration-300 lg:hidden"
@@ -85,7 +104,7 @@ export const Sidebar = ({ isOpen, onClose, toggleButtonRef }: SidebarProps) => {
         />
       )}
 
-      {/* Sidebar con animación de deslizamiento suave */}
+      {/* Sidebar con animaci��n de deslizamiento suave */}
       <aside
         ref={sidebarRef}
         className={`
@@ -105,7 +124,7 @@ export const Sidebar = ({ isOpen, onClose, toggleButtonRef }: SidebarProps) => {
           <button
             onClick={onClose}
             className="rounded-md p-2 text-text-muted transition-colors hover:bg-bg hover:text-text dark:hover:bg-bg-dark dark:hover:text-text-dark"
-            aria-label="Cerrar menú"
+            aria-label="Cerrar menǧ"
           >
             <svg
               className="h-5 w-5"
@@ -123,7 +142,7 @@ export const Sidebar = ({ isOpen, onClose, toggleButtonRef }: SidebarProps) => {
           </button>
         </div>
 
-        {/* Navegación */}
+        {/* Navegaci��n */}
         <nav className="overflow-y-auto p-4" style={{ height: 'calc(100% - 4rem)' }}>
           <ul className="space-y-1">
             {NAV_ITEMS.map((item, index) => (
@@ -147,9 +166,10 @@ export const Sidebar = ({ isOpen, onClose, toggleButtonRef }: SidebarProps) => {
                     }
                   `}
                 >
-                  <span className="text-lg transition-transform duration-200 hover:scale-110" aria-hidden="true">
-                    {item.icon}
-                  </span>
+                  <item.Icon
+                    className="h-5 w-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+                    aria-hidden="true"
+                  />
                   <span>{item.label}</span>
                 </Link>
               </li>

@@ -38,6 +38,7 @@ export class AuthRepositoryImpl implements AuthRepository {
       user: mapAuthUserToEntity(response.user),
       accessToken: response.tokens.accessToken,
       refreshToken: response.tokens.refreshToken,
+      needsOnboarding: response.needsOnboarding ?? false,
     };
   }
 

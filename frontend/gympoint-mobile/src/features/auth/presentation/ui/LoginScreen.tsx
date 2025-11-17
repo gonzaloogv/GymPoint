@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -21,12 +21,13 @@ import { GoogleIcon } from '@shared/components/icons';
 import { useAuthStore } from '../state/auth.store';
 import { useTheme } from '@shared/hooks';
 import { DI } from '@di/container';
-import { useGoogleAuth } from '../hooks/useGoogleAuth';
+import { useGoogleAuth, GoogleLoginResult } from '../hooks/useGoogleAuth';
 
 type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   ForgotPassword: undefined;
+  Onboarding: undefined;
   App: undefined;
 };
 
@@ -42,7 +43,29 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const { startGoogleAuth, googleError, googleLoading } = useGoogleAuth();
+
+  // Callback para manejar navegación post-Google login
+  // La navegación la maneja automáticamente RootNavigator basándose en user.profileCompleted
+  const handleGoogleSuccess = useCallback(
+    (result: GoogleLoginResult) => {
+      const needsOnboarding =
+        result.needsOnboarding || (result.user.authProvider === 'google' && !result.user.profileCompleted);
+
+      if (needsOnboarding) {
+        Alert.alert('Bienvenido a GymPoint', 'Completá tu perfil para continuar.');
+      } else {
+        Alert.alert('Bienvenido a GymPoint', 'Sesión iniciada con Google.');
+      }
+
+      // NO navegar explícitamente - RootNavigator maneja la navegación
+      // automáticamente al detectar cambio en user state (profileCompleted)
+    },
+    [],
+  );
+
+  const { startGoogleAuth, googleError, googleLoading } = useGoogleAuth({
+    onSuccess: handleGoogleSuccess,
+  });
 
   const handleLogin = async () => {
     setLoading(true);

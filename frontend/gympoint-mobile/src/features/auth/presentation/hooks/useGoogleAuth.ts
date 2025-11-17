@@ -5,8 +5,27 @@ import * as Google from 'expo-auth-session/providers/google';
 import { GOOGLE_ANDROID_CLIENT_ID, GOOGLE_IOS_CLIENT_ID, GOOGLE_WEB_CLIENT_ID } from '@shared/config/env';
 import { DI } from '@di/container';
 import { useAuthStore } from '../state/auth.store';
+import { User } from '../../domain/entities/User';
 
-export const useGoogleAuth = () => {
+/**
+ * Resultado del login con Google OAuth
+ */
+export interface GoogleLoginResult {
+  user: User;
+  accessToken: string;
+  refreshToken: string;
+  needsOnboarding: boolean;
+}
+
+/**
+ * Configuración del hook useGoogleAuth
+ */
+interface UseGoogleAuthConfig {
+  onSuccess?: (result: GoogleLoginResult) => void;
+  onError?: (error: string) => void;
+}
+
+export const useGoogleAuth = (config?: UseGoogleAuthConfig) => {
   const setUser = useAuthStore((state) => state.setUser);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -38,18 +57,27 @@ export const useGoogleAuth = () => {
       try {
         const result = await DI.loginWithGoogle.execute({ idToken });
         setUser(result.user);
-        Alert.alert('Bienvenido a GymPoint', 'Sesion iniciada con Google.');
+
+        // Invocar callback de éxito si fue proporcionado
+        if (config?.onSuccess) {
+          config.onSuccess(result);
+        }
       } catch (err: any) {
         const message =
           err?.response?.data?.error?.message ??
           err?.message ??
           'No pudimos completar el inicio de sesion con Google.';
         setError(message);
+
+        // Invocar callback de error si fue proporcionado
+        if (config?.onError) {
+          config.onError(message);
+        }
       } finally {
         setIsProcessing(false);
       }
     },
-    [setUser],
+    [setUser, config],
   );
 
   useEffect(() => {

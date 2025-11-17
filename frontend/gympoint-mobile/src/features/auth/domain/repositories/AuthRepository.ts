@@ -22,7 +22,9 @@ export interface AuthRepository {
     email: string,
     password: string,
   ): Promise<{ user: User; accessToken: string; refreshToken: string }>;
-  loginWithGoogle(idToken: string): Promise<{ user: User; accessToken: string; refreshToken: string }>;
+  loginWithGoogle(
+    idToken: string,
+  ): Promise<{ user: User; accessToken: string; refreshToken: string; needsOnboarding: boolean }>;
   me(): Promise<User>;
   logout(): Promise<void>;
   register(params: RegisterParams): Promise<{
