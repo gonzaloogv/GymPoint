@@ -9,6 +9,7 @@ export const Logo: React.FC<LogoProps> = ({
     const standard = 'h-auto transition-opacity hover:opacity-80';
 
     const sizeStyle = {
+        xs: 'w-16',
         sm: 'w-24',
         md: 'w-32',
         lg: 'w-40',

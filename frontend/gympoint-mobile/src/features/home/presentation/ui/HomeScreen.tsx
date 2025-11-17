@@ -3,6 +3,7 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { SurfaceScreen } from '@shared/components/ui';
 import { SCREEN_CONTENT_STYLE } from '@shared/styles/layouts';
 import { useHome } from '../hooks/useHome';
+import { EmailVerificationBanner } from '@features/auth/presentation/ui/components';
 import {
   HomeHeader,
   WeeklyProgressCard,
@@ -32,6 +33,9 @@ export default function HomeScreen() {
   return (
     <SurfaceScreen scroll contentContainerStyle={SCREEN_CONTENT_STYLE}>
       <HomeHeader userName={user.name} plan={user.plan} tokens={user.tokens} streak={user.streak} />
+
+      {/* Banner de verificación de email (solo si no está verificado) */}
+      {!user.emailVerified && user.email && <EmailVerificationBanner email={user.email} />}
 
       <WeeklyProgressCard
         current={currentProgress}

@@ -44,10 +44,21 @@ async function revokeById(idRefreshToken, options = {}) {
   );
 }
 
+async function revokeAllByAccount(idAccount, options = {}) {
+  await RefreshToken.update(
+    { is_revoked: true },
+    {
+      where: { id_account: idAccount },
+      transaction: options.transaction,
+    }
+  );
+}
+
 module.exports = {
   createRefreshToken,
   findByToken,
   findActiveByToken,
   revokeByToken,
   revokeById,
+  revokeAllByAccount,
 };

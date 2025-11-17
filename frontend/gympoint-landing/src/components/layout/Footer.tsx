@@ -24,10 +24,10 @@ export const Footer: React.FC = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 
                 <div className="flex justify-end space-x-6 mb-8">
-                    <a href="https://instagram.com/gympoint" target="_blank" className={`${iconHoverColor} transition-colors`}><FaInstagram size={24} /></a>
-                    <a href="https://tiktok.com/gympoint" target="_blank" className={`${iconHoverColor} transition-colors`}><FaTiktok size={24} /></a>
-                    <a href="https://youtube.com/gympoint" target="_blank" className={`${iconHoverColor} transition-colors`}><FaYoutube size={24} /></a>
-                    <a href="https://linkedin.com/gympoint" target="_blank" className={`${iconHoverColor} transition-colors`}><FaLinkedin size={24} /></a>
+                    <a href="https://instagram.com/gympoint_app" target="_blank" className={`${iconHoverColor} transition-colors`}><FaInstagram size={24} /></a>
+                    <a href="#" target="_blank" className={`${iconHoverColor} transition-colors`}><FaTiktok size={24} /></a>
+                    <a href="#" target="_blank" className={`${iconHoverColor} transition-colors`}><FaYoutube size={24} /></a>
+                    <a href="#" target="_blank" className={`${iconHoverColor} transition-colors`}><FaLinkedin size={24} /></a>
                 </div>
 
                 <hr className={borderColor} />

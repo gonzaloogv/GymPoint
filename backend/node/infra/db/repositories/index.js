@@ -2,6 +2,8 @@ module.exports = {
   accountRepository: require('./account.repository'),
   userProfileRepository: require('./user-profile.repository'),
   refreshTokenRepository: require('./refresh-token.repository'),
+  emailVerificationRepository: require('./email-verification.repository'),
+  passwordResetRepository: require('./password-reset.repository'),
   streakRepository: require('./streak.repository'),
   gymRepository: require('./gym.repository'),
   // gymTypeRepository eliminado - refactoring Phase 1

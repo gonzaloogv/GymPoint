@@ -27,10 +27,13 @@ export const REALTIME_TRANSPORTS = rawRealtimeTransport
 
 const rawGoogleAndroidId =
   (extra.googleAndroidClientId as string | undefined) ?? process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
+const rawGoogleIosId =
+  (extra.googleIosClientId as string | undefined) ?? process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
 const rawGoogleWebId =
   (extra.googleWebClientId as string | undefined) ?? process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
 
 export const GOOGLE_ANDROID_CLIENT_ID = rawGoogleAndroidId?.trim() || undefined;
+export const GOOGLE_IOS_CLIENT_ID = rawGoogleIosId?.trim() || undefined;
 export const GOOGLE_WEB_CLIENT_ID = rawGoogleWebId?.trim() || undefined;
 
 // Logs de configuración (solo en desarrollo)
@@ -39,5 +42,6 @@ if (__DEV__) {
   console.log('[env] REALTIME_URL:', REALTIME_URL);
   console.log('[env] REALTIME_UI_ENABLED:', REALTIME_UI_ENABLED);
   console.log('[env] GOOGLE_ANDROID_CLIENT_ID:', GOOGLE_ANDROID_CLIENT_ID ? '✓ configured' : '✗ missing');
+  console.log('[env] GOOGLE_IOS_CLIENT_ID:', GOOGLE_IOS_CLIENT_ID ? '✓ configured' : '✗ missing');
   console.log('[env] GOOGLE_WEB_CLIENT_ID:', GOOGLE_WEB_CLIENT_ID ? '✓ configured' : '✗ missing');
 }

@@ -11,8 +11,7 @@ function toRefreshToken(instance) {
     user_agent: plain.user_agent || '',
     ip_address: plain.ip_address || '',
     expires_at: plain.expires_at || null,
-    revoked: Boolean(plain.revoked),
-    revoked_at: plain.revoked_at || null,
+    is_revoked: Boolean(plain.is_revoked),
     created_at: plain.created_at || null,
     updated_at: plain.updated_at || null,
   };

@@ -5,11 +5,22 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "APP_ENV": "development"
+      }
     },
     "production": {
       "env": {
-        "EXPO_PUBLIC_ENV": "production"
+        "APP_ENV": "production",
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.gympoint.app",
+        "EXPO_PUBLIC_REALTIME_URL": "https://api.gympoint.app",
+        "EXPO_PUBLIC_REALTIME_UI": "on",
+        "EXPO_PUBLIC_REALTIME_TRANSPORT": "websocket,polling",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "287573324529-pgae1blloghtmvlqh2iboc9jod4mbj3k.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "287573324529-md2279mr550olejlse4hk9v84jbjo8fl.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "287573324529-7khgk8lqttjlcb7uqvnc675466tsov5b.apps.googleusercontent.com",
+        "ANDROID_GOOGLE_MAPS_API_KEY": "AIzaSyBcHWzl7wKARlw9zjRcfucG06E_iQPySYc"
       },
       "android": {
         "buildType": "apk"

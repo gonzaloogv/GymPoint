@@ -34,6 +34,11 @@ export const MenuOptions: React.FC<MenuOptionsProps> = ({ isPremium, theme }) =>
     navigation.navigate('Rewards' as never);
   }, [navigation]);
 
+  const handleChangePasswordPress = useCallback(() => {
+    // Navigate to ChangePassword modal
+    navigation.navigate('ChangePassword' as never);
+  }, [navigation]);
+
   const menuItems = [
     // TODO: Descomentar cuando la app soporte múltiples idiomas
     // {
@@ -53,6 +58,11 @@ export const MenuOptions: React.FC<MenuOptionsProps> = ({ isPremium, theme }) =>
       title: 'Historial de tokens',
       subtitle: 'Ver historial',
       onPress: handleTokenHistoryPress,
+    },
+    {
+      icon: 'key-outline' as const,
+      title: 'Cambiar contraseña',
+      onPress: handleChangePasswordPress,
     },
     {
       icon: 'shield-checkmark-outline' as const,

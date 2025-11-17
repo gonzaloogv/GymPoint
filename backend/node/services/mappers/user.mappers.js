@@ -330,6 +330,7 @@ function toUserProfileResponse(userProfile) {
     id_user_profile: userProfile.id_user_profile ?? userProfile.idUserProfile,
     id_account: userProfile.id_account ?? userProfile.idAccount,
     email: userProfile.email,
+    email_verified: userProfile.email_verified ?? false,
     name: userProfile.name,
     lastname: userProfile.lastname,
     gender: userProfile.gender,

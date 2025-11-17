@@ -239,7 +239,7 @@ const desactivarCuenta = async (idAccount) => {
   
   if (userProfile) {
     await RefreshToken.update(
-      { revoked: true },
+      { is_revoked: true },
       { where: { id_user: userProfile.id_user_profile } }
     );
   }

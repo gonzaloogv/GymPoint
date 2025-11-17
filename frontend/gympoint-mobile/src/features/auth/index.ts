@@ -1,1 +1,1 @@
-export { useAuthStore, LoginScreen, RegisterScreen } from './presentation';
+export { useAuthStore, LoginScreen, RegisterScreen, ForgotPasswordScreen } from './presentation';

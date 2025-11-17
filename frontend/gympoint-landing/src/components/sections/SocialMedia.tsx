@@ -6,10 +6,10 @@ import { motion } from 'framer-motion';
 import { fadeInLeft, fadeInRight, fadeInUp, mainContainer } from '../../animations/variants';
 
 const socialLinks: SocialLink[] = [
-    { name: 'Instagram', url: 'https://instagram.com/gympoint', icon: instagramIcon },
-    { name: 'TikTok', url: 'https://tiktok.com/@gympoint', icon: tiktokIcon },
-    { name: 'Youtube', url: 'https://youtube.com/@gympoint', icon: youtubeIcon },
-    { name: 'LinkedIn', url: 'https://linkedin.com/company/gympoint', icon: linkedinIcon },
+    { name: 'Instagram', url: 'https://instagram.com/gympoint_app', icon: instagramIcon },
+    { name: 'TikTok', url: '#', icon: tiktokIcon },
+    { name: 'Youtube', url: '#', icon: youtubeIcon },
+    { name: 'LinkedIn', url: '#', icon: linkedinIcon },
 ];
 
 export const SocialMedia: React.FC = () => {

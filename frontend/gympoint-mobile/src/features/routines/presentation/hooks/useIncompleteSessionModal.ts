@@ -58,8 +58,19 @@ export function useIncompleteSessionModal() {
     const isExecutionScreen = route.name === 'RoutineExecution' || route.name === 'RoutineCompleted';
 
     if (incompleteSession && !isExecutionScreen) {
-      console.log('[Modal] Sesión incompleta detectada:', incompleteSession.routineName);
-      setVisible(true);
+      // Fix: No mostrar el modal si la sesión fue creada hace menos de 2 segundos
+      // Esto evita el race condition cuando se navega de RoutinesList → RoutineExecution
+      // El problema: startExecution guarda la sesión antes de que route.name se actualice
+      const sessionAge = Date.now() - new Date(incompleteSession.startedAt).getTime();
+      const isRecentlyCreated = sessionAge < 2000; // 2 segundos
+
+      if (isRecentlyCreated) {
+        console.log('[Modal] Sesión recién creada, asumiendo navegación en progreso');
+        setVisible(false);
+      } else {
+        console.log('[Modal] Sesión incompleta detectada:', incompleteSession.routineName);
+        setVisible(true);
+      }
     } else {
       setVisible(false);
     }

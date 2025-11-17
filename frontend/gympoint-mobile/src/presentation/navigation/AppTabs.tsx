@@ -12,6 +12,7 @@ import MapIcon from '@assets/icons/map.svg';
 import UserIcon from '@assets/icons/user.svg';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '@features/auth';
+import { AuthRepositoryImpl } from '@features/auth/data/AuthRepositoryImpl';
 import { GymsScreen } from '@features/gyms';
 import { GymDetailScreenWrapper } from '@features/gyms/presentation/ui/screens/GymDetailScreenWrapper';
 import { HomeScreen } from '@features/home';
@@ -168,13 +169,13 @@ export default function AppTabs() {
     console.log('[AppTabs] Logging out...');
 
     try {
-      // 1. Limpiar tokens de SecureStore (usando las mismas claves que api.ts)
-      const SecureStore = await import('expo-secure-store');
-      await SecureStore.deleteItemAsync('gp_access');
-      await SecureStore.deleteItemAsync('gp_refresh');
-      console.log('[AppTabs] Tokens cleared from SecureStore');
+      // CRÍTICO: Revocar el refresh token en el backend antes de limpiar localmente
+      // Esto previene que tokens válidos queden activos después del logout
+      const authRepository = new AuthRepositoryImpl();
+      await authRepository.logout();
+      console.log('[AppTabs] Refresh token revoked on backend');
 
-      // 2. Limpiar el estado de autenticación
+      // Limpiar el estado de autenticación
       setUser(null);
       console.log('[AppTabs] User logged out successfully');
 

@@ -25,6 +25,7 @@ function toAccount(instance) {
     auth_provider: plain.auth_provider,
     google_id: plain.google_id || null,
     email_verified: Boolean(plain.email_verified),
+    email_verification_deadline: plain.email_verification_deadline || null,
     is_active: Boolean(plain.is_active),
     last_login: plain.last_login || null,
     created_at: plain.created_at || null,

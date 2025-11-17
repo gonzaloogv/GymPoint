@@ -1,5 +1,7 @@
 const userService = require('../services/user-service');
+const authService = require('../services/auth-service');
 const { user: userMapper } = require('../services/mappers');
+const { ValidationError, UnauthorizedError } = require('../utils/errors');
 
 /**
  * Obtener perfil del usuario actual
@@ -278,6 +280,107 @@ const actualizarSuscripcion = async (req, res) => {
   }
 };
 
+/**
+ * Cambiar contraseña del usuario autenticado
+ * POST /api/users/me/change-password
+ *
+ * Body: { currentPassword, newPassword, confirmPassword }
+ */
+const cambiarContrasena = async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    // Validar campos requeridos
+    if (!currentPassword) {
+      return res.status(400).json({
+        error: {
+          code: 'MISSING_CURRENT_PASSWORD',
+          message: 'La contraseña actual es requerida',
+        },
+      });
+    }
+
+    if (!newPassword) {
+      return res.status(400).json({
+        error: {
+          code: 'MISSING_NEW_PASSWORD',
+          message: 'La nueva contraseña es requerida',
+        },
+      });
+    }
+
+    if (!confirmPassword) {
+      return res.status(400).json({
+        error: {
+          code: 'MISSING_CONFIRM_PASSWORD',
+          message: 'La confirmación de contraseña es requerida',
+        },
+      });
+    }
+
+    // Validar que la nueva contraseña coincida con la confirmación
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        error: {
+          code: 'PASSWORD_MISMATCH',
+          message: 'La nueva contraseña y su confirmación no coinciden',
+        },
+      });
+    }
+
+    // Obtener ID de cuenta del token JWT
+    const accountId = req.user?.id_account || req.user?.id || req.account?.id_account;
+
+    if (!accountId) {
+      return res.status(401).json({
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'No se pudo identificar la cuenta',
+        },
+      });
+    }
+
+    // Llamar al servicio de autenticación
+    await authService.changePassword({
+      accountId,
+      currentPassword,
+      newPassword,
+    });
+
+    res.json({
+      success: true,
+      message: 'Contraseña actualizada exitosamente. Se han cerrado todas tus sesiones activas por seguridad.',
+    });
+  } catch (err) {
+    // Manejar errores específicos
+    let status = 500;
+    let errorCode = 'CHANGE_PASSWORD_FAILED';
+
+    if (err instanceof ValidationError) {
+      status = 400;
+      if (err.message.includes('Google')) {
+        errorCode = 'GOOGLE_ACCOUNT';
+      } else if (err.message.includes('diferente')) {
+        errorCode = 'SAME_AS_CURRENT';
+      } else if (err.message.includes('caracteres')) {
+        errorCode = 'WEAK_PASSWORD';
+      } else {
+        errorCode = 'INVALID_DATA';
+      }
+    } else if (err instanceof UnauthorizedError) {
+      status = 401;
+      errorCode = 'INCORRECT_CURRENT_PASSWORD';
+    }
+
+    res.status(status).json({
+      error: {
+        code: errorCode,
+        message: err.message,
+      },
+    });
+  }
+};
+
 module.exports = {
   obtenerPerfil,
   actualizarPerfil,
@@ -287,5 +390,6 @@ module.exports = {
   cancelarSolicitudEliminacion,
   obtenerUsuarioPorId,
   actualizarTokens,
-  actualizarSuscripcion
+  actualizarSuscripcion,
+  cambiarContrasena,
 };

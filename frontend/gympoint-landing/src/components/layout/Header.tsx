@@ -55,7 +55,7 @@ export const Header = () => {
             `}
         >
             <Container className="flex items-center w-full gap-8">
-                <Logo to="#home"/>
+                <Logo to="#home" size="xs"/>
 
                 <nav className="hidden md:flex items-center gap-6">
                     {navLinks.map((link) => (

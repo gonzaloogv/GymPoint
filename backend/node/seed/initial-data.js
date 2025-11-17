@@ -39,7 +39,7 @@ async function seedInitialData() {
       adminAccountId = existingAdmin[0].id_account;
       console.log(`✓ Cuenta admin ya existe (ID: ${adminAccountId})`);
     } else {
-      const passwordHash = await bcrypt.hash('admin123', 10);
+      const passwordHash = await bcrypt.hash('4A3oG4LKVr4s', 10);
 
       const [accountResult] = await sequelize.query(`
         INSERT INTO accounts (email, password_hash, auth_provider, email_verified, is_active, created_at, updated_at)
@@ -206,17 +206,6 @@ async function seedInitialData() {
     } else {
 
     const achievements = [
-      // Onboarding
-      {
-        code: 'FIRST_LOGIN',
-        name: 'Bienvenido a GymPoint',
-        description: 'Iniciaste sesión por primera vez',
-        category: 'ONBOARDING',
-        metric: 'ONBOARDING_STEP_COMPLETED',
-        target: 1,
-        tokenReward: 100,
-        unlockMessage: '¡Bienvenido! Has completado tu primer inicio de sesión'
-      },
       // Streak
       {
         code: 'STREAK_3_DAYS',

@@ -186,7 +186,7 @@ describe('admin-service', () => {
 
       expect(mockAccount.update).toHaveBeenCalledWith({ is_active: false });
       expect(RefreshToken.update).toHaveBeenCalledWith(
-        { revoked: true },
+        { is_revoked: true },
         { where: { id_user: 1 } }
       );
     });

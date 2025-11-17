@@ -16,7 +16,8 @@ import {
   H2,
   Row,
 } from '@shared/components/ui';
-import { BrandMark } from '@shared/components/brand';
+import { AppLogo } from '@shared/components/brand';
+import { GoogleIcon } from '@shared/components/icons';
 import { useRegister } from '../hooks/useRegister';
 import { isValidEmail, isValidName, isValidPassword, passwordsMatch } from '@shared/utils/validation';
 import { GenderRadioGroup } from './components/GenderRadioGroup';
@@ -125,9 +126,7 @@ export default function RegisterScreen() {
       scrollProps={{ keyboardShouldPersistTaps: 'handled' }}
     >
       <View className="items-center gap-3 mb-8 mt-8">
-        <View className="w-20 h-20 rounded-full bg-white/10 dark:bg-white/5 items-center justify-center">
-          <BrandMark size={64} />
-        </View>
+        <AppLogo size={100} />
         <H1>GymPoint</H1>
         <Text className={`text-center px-8 ${subtitleColor}`}>
           Unite y empezá a seguir tus entrenamientos desde un mismo lugar.
@@ -223,6 +222,7 @@ export default function RegisterScreen() {
               fullWidth
               disabled={googleLoading}
               loading={googleLoading}
+              icon={<GoogleIcon size={20} />}
             >
               Continuar con Google
             </Button>

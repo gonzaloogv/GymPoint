@@ -130,6 +130,110 @@ router.put('/me/email', verificarToken, verificarUsuarioApp, controller.actualiz
 
 /**
  * @swagger
+ * /api/users/me/change-password:
+ *   post:
+ *     summary: Cambiar contraseña del usuario autenticado
+ *     description: |
+ *       Permite cambiar la contraseña del usuario desde su perfil.
+ *       - Solo funciona para cuentas con auth_provider 'local'
+ *       - Requiere la contraseña actual para validar identidad
+ *       - Revoca todas las sesiones activas por seguridad
+ *       - Envía email de confirmación
+ *       - La nueva contraseña debe ser diferente a la actual
+ *     tags: [Usuario]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *               - confirmPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 description: Contraseña actual del usuario
+ *                 example: miPassword123
+ *               newPassword:
+ *                 type: string
+ *                 description: Nueva contraseña (mínimo 6 caracteres)
+ *                 example: nuevaPassword456
+ *               confirmPassword:
+ *                 type: string
+ *                 description: Confirmación de la nueva contraseña
+ *                 example: nuevaPassword456
+ *     responses:
+ *       200:
+ *         description: Contraseña actualizada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Contraseña actualizada exitosamente. Se han cerrado todas tus sesiones activas por seguridad.
+ *       400:
+ *         description: Datos inválidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       enum: [MISSING_CURRENT_PASSWORD, MISSING_NEW_PASSWORD, MISSING_CONFIRM_PASSWORD, PASSWORD_MISMATCH, WEAK_PASSWORD, SAME_AS_CURRENT, GOOGLE_ACCOUNT, INVALID_DATA]
+ *                       example: PASSWORD_MISMATCH
+ *                     message:
+ *                       type: string
+ *                       example: La nueva contraseña y su confirmación no coinciden
+ *       401:
+ *         description: Contraseña actual incorrecta o no autorizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       enum: [UNAUTHORIZED, INCORRECT_CURRENT_PASSWORD]
+ *                       example: INCORRECT_CURRENT_PASSWORD
+ *                     message:
+ *                       type: string
+ *                       example: La contraseña actual es incorrecta
+ *       500:
+ *         description: Error del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: string
+ *                       example: CHANGE_PASSWORD_FAILED
+ *                     message:
+ *                       type: string
+ */
+router.post('/me/change-password', verificarToken, verificarUsuarioApp, controller.cambiarContrasena);
+
+/**
+ * @swagger
  * /api/users/me:
  *   delete:
  *     summary: Solicitar eliminación programada de la cuenta

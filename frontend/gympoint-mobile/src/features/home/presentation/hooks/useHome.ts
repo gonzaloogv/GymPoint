@@ -56,11 +56,13 @@ const useHomeHook = () => {
   const user = authUser
     ? {
         name: authUser.name,
+        email: authUser.email,
+        emailVerified: authUser.emailVerified,
         plan: authUser.plan,
         tokens: authUser.tokens,
         streak: currentStreak,
       }
-    : { name: '', plan: 'Free' as const, tokens: 0, streak: 0 };
+    : { name: '', email: '', emailVerified: true, plan: 'Free' as const, tokens: 0, streak: 0 };
 
   return {
     user,

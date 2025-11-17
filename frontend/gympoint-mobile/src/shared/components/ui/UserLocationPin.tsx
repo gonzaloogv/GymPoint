@@ -3,20 +3,12 @@ import { Animated, View, Text, Platform } from 'react-native';
 import type { LatLng } from '@features/gyms/presentation/types';
 import { useMapAnimations } from '@features/gyms/presentation/hooks';
 
-const USER_PIN_SIZE = 30;
+const USER_PIN_SIZE = 24;
 const DEBUG_BADGE_STYLE = {
   backgroundColor: '#fff',
   padding: 6,
   borderRadius: 6,
 };
-
-const USER_PIN_SOURCE = (() => {
-  try {
-    return require('../../../../assets/ubication.png');
-  } catch {
-    return undefined;
-  }
-})();
 
 type Props = {
   userLocation: LatLng;
@@ -51,7 +43,7 @@ export function UserLocationPin({
 
   return (
     <>
-      {showFallbackPin && USER_PIN_SOURCE && (
+      {showFallbackPin && (
         <Marker
           coordinate={userLocation}
           title="Tu ubicación"
@@ -61,14 +53,21 @@ export function UserLocationPin({
           tracksViewChanges={tracksViewChanges}
           onLayout={onLayout}
         >
-          <Animated.Image
-            source={USER_PIN_SOURCE}
+          <Animated.View
             style={{
               width: USER_PIN_SIZE,
               height: USER_PIN_SIZE,
+              borderRadius: USER_PIN_SIZE / 2,
+              backgroundColor: '#4285F4',
+              borderWidth: 3,
+              borderColor: '#FFFFFF',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 3,
+              elevation: 5,
               transform: [{ scale }],
             }}
-            resizeMode="contain"
           />
         </Marker>
       )}

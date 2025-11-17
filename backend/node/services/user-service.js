@@ -414,7 +414,7 @@ const requestAccountDeletion = async (command) => {
     // Revocar refresh tokens
     if (account.userProfile) {
       await RefreshToken.update(
-        { revoked: true },
+        { is_revoked: true },
         {
           where: { id_user: account.userProfile.id_user_profile },
           transaction

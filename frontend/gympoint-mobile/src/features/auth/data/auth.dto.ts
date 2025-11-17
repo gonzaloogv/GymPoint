@@ -86,6 +86,7 @@ export type UserProfileResponseDTO = {
   name: string;
   lastname: string;
   email: string;
+  email_verified?: boolean;
   gender?: 'M' | 'F' | 'O' | null;
   locality?: string | null;
   birth_date?: string | null;

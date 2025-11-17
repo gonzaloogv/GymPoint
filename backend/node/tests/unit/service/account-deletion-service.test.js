@@ -206,7 +206,7 @@ describe('user-service requestAccountDeletion', () => {
       { transaction: mockTransaction }
     );
     expect(RefreshToken.update).toHaveBeenCalledWith(
-      { revoked: true },
+      { is_revoked: true },
       {
         where: { id_user: 5 },
         transaction: mockTransaction,
@@ -289,7 +289,7 @@ describe('user-service requestAccountDeletion', () => {
     await userService.requestAccountDeletion({ accountId: 10 });
 
     expect(RefreshToken.update).toHaveBeenCalledWith(
-      { revoked: true },
+      { is_revoked: true },
       {
         where: { id_user: 5 },
         transaction: mockTransaction,

@@ -16,7 +16,8 @@ import {
   H2,
   Row,
 } from '@shared/components/ui';
-import { BrandMark } from '@shared/components/brand';
+import { AppLogo } from '@shared/components/brand';
+import { GoogleIcon } from '@shared/components/icons';
 import { useAuthStore } from '../state/auth.store';
 import { useTheme } from '@shared/hooks';
 import { DI } from '@di/container';
@@ -25,6 +26,7 @@ import { useGoogleAuth } from '../hooks/useGoogleAuth';
 type RootStackParamList = {
   Login: undefined;
   Register: undefined;
+  ForgotPassword: undefined;
   App: undefined;
 };
 
@@ -85,7 +87,7 @@ export default function LoginScreen() {
     }
   };
 
-  const handleForgotPassword = () => console.log('Olvidé mi contraseña');
+  const handleForgotPassword = () => navigation.navigate('ForgotPassword');
   const handleRegister = () => navigation.navigate('Register');
 
   const subtitleColor = isDark ? 'text-gray-400' : 'text-gray-500';
@@ -104,9 +106,7 @@ export default function LoginScreen() {
       scrollProps={{ keyboardShouldPersistTaps: 'handled' }}
     >
       <View className="items-center gap-3 mb-8 mt-12">
-        <View className="w-20 h-20 rounded-full bg-white/10 dark:bg-white/5 items-center justify-center">
-          <BrandMark size={64} />
-        </View>
+        <AppLogo size={100} />
         <H1>GymPoint</H1>
         <Text className={`text-center px-8 ${subtitleColor}`}>Entrá y retomá tus entrenamientos.</Text>
       </View>
@@ -151,7 +151,14 @@ export default function LoginScreen() {
 
             <Divider text="o" className="my-6" />
 
-            <Button onPress={startGoogleAuth} variant="secondary" fullWidth disabled={googleLoading} loading={googleLoading}>
+            <Button
+              onPress={startGoogleAuth}
+              variant="secondary"
+              fullWidth
+              disabled={googleLoading}
+              loading={googleLoading}
+              icon={<GoogleIcon size={20} />}
+            >
               Continuar con Google
             </Button>
 

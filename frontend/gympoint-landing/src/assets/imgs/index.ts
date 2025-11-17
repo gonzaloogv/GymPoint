@@ -1,4 +1,4 @@
-import gympointLogo from './gympointLogo.png';
+import gympointLogo from './logo.svg';
 import menuIcon from './menu.svg'
 import closeMenuIcon from './closeMenu.png'
 import streak from './streak.svg'

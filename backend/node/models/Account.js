@@ -52,6 +52,11 @@ const Account = sequelize.define('Account', {
     defaultValue: false,
     comment: 'Si el email está verificado'
   },
+  email_verification_deadline: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Fecha límite para verificar email (período de gracia de 7 días)'
+  },
   is_active: {
     type: DataTypes.BOOLEAN,
     allowNull: false,

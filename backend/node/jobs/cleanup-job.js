@@ -2,6 +2,7 @@ const cron = require("node-cron");
 const { RefreshToken, GymRequest, WorkoutSession, Routine } = require("../models");
 const { Op } = require("sequelize");
 const frequencyService = require("../services/frequency-service");
+const { emailVerificationRepository, passwordResetRepository } = require("../infra/db/repositories");
 const { getArgentinaTime } = require("../utils/timezone");
 
 /**
@@ -20,12 +21,24 @@ const startCleanupJob = () => {
         where: {
           [Op.or]: [
             { expires_at: { [Op.lt]: new Date() } },
-            { revoked: true }
+            { is_revoked: true }
           ]
         }
       });
 
       console.log(`[CLEANUP JOB] Limpieza completada: ${deleted} tokens eliminados`);
+
+      // Limpiar email verification tokens expirados o usados hace más de 7 días
+      const deletedVerificationTokens = await emailVerificationRepository.cleanupExpiredTokens();
+      if (deletedVerificationTokens > 0) {
+        console.log(`[CLEANUP JOB] ${deletedVerificationTokens} tokens de verificación de email eliminados`);
+      }
+
+      // Limpiar password reset tokens expirados o usados hace más de 7 días
+      const deletedResetTokens = await passwordResetRepository.cleanupExpiredTokens();
+      if (deletedResetTokens > 0) {
+        console.log(`[CLEANUP JOB] ${deletedResetTokens} tokens de reset de contraseña eliminados`);
+      }
 
       // Eliminar solicitudes de gimnasios pendientes de más de 30 días
       const thirtyDaysAgo = new Date();
@@ -137,12 +150,24 @@ const runCleanupNow = async () => {
       where: {
         [Op.or]: [
           { expires_at: { [Op.lt]: new Date() } },
-          { revoked: true }
+          { is_revoked: true }
         ]
       }
     });
 
     console.log(`[CLEANUP JOB] Limpieza manual completada: ${deleted} tokens eliminados`);
+
+    // Limpiar email verification tokens expirados o usados hace más de 7 días
+    const deletedVerificationTokens = await emailVerificationRepository.cleanupExpiredTokens();
+    if (deletedVerificationTokens > 0) {
+      console.log(`[CLEANUP JOB] ${deletedVerificationTokens} tokens de verificación de email eliminados`);
+    }
+
+    // Limpiar password reset tokens expirados o usados hace más de 7 días
+    const deletedResetTokens = await passwordResetRepository.cleanupExpiredTokens();
+    if (deletedResetTokens > 0) {
+      console.log(`[CLEANUP JOB] ${deletedResetTokens} tokens de reset de contraseña eliminados`);
+    }
 
     // Eliminar solicitudes de gimnasios pendientes de más de 30 días
     const thirtyDaysAgo = new Date();
@@ -159,7 +184,12 @@ const runCleanupNow = async () => {
       console.log(`[CLEANUP JOB] ${deletedRequests} solicitudes de gimnasios pendientes eliminadas (>30 días)`);
     }
 
-    return { tokens: deleted, requests: deletedRequests };
+    return {
+      tokens: deleted,
+      verificationTokens: deletedVerificationTokens,
+      resetTokens: deletedResetTokens,
+      requests: deletedRequests
+    };
   } catch (error) {
     console.error("[CLEANUP JOB] Error en limpieza manual:", error.message);
     throw error;

@@ -59,6 +59,11 @@ api.interceptors.response.use(
     const original = error.config as RetryableConfig;
 
     if (error.response?.status === 401 && !original._retry) {
+      const isAuthEndpoint = original.url?.includes('/api/auth/');
+      if (isAuthEndpoint) {
+        // No intentar refresh en endpoints de auth; devolver el 401 original
+        throw error;
+      }
       if (isRefreshing) {
         await new Promise<void>((resolve) => queue.push(resolve));
         return api(original);
@@ -69,7 +74,7 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = await SecureStore.getItemAsync('gp_refresh');
-        if (!refreshToken) throw new Error('No refresh token');
+        if (!refreshToken) throw error;
 
         const { data } = await axios.post(`${API_BASE_URL}/api/auth/refresh-token`, {
           refreshToken,

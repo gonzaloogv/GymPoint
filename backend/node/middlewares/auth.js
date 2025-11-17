@@ -58,11 +58,28 @@ const verificarToken = async (req, res, next) => {
     }
 
     if (!account.is_active) {
-      return res.status(403).json({ 
-        error: { 
-          code: 'ACCOUNT_DISABLED', 
-          message: 'Cuenta deshabilitada' 
-        } 
+      return res.status(403).json({
+        error: {
+          code: 'ACCOUNT_DISABLED',
+          message: 'Cuenta deshabilitada'
+        }
+      });
+    }
+
+    // CRÍTICO: Verificar email_verified para cuentas locales con rol USER
+    // Solo aplicar a usuarios finales, no ADMIN
+    // Período de gracia de 7 días desde registro
+    const isUser = account.roles?.some((role) => role.role_name === 'USER');
+    const graceDeadline = account.email_verification_deadline;
+    const graceActive = graceDeadline && new Date() < new Date(graceDeadline);
+    const mustVerifyEmail = account.auth_provider === 'local' && isUser && !graceActive;
+
+    if (!account.email_verified && mustVerifyEmail) {
+      return res.status(403).json({
+        error: {
+          code: 'EMAIL_NOT_VERIFIED',
+          message: 'Tu período de gracia ha expirado. Debes verificar tu email antes de continuar. Revisa tu bandeja de entrada o solicita un nuevo enlace de verificación.'
+        }
       });
     }
 

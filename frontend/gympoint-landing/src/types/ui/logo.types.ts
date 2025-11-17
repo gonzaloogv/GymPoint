@@ -1,4 +1,4 @@
-type Size = 'sm' | 'md' | 'lg';
+type Size = 'xs' | 'sm' | 'md' | 'lg';
 
 export interface LogoProps {
     size?: Size;

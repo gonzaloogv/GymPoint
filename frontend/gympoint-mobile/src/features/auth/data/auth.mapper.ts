@@ -36,6 +36,7 @@ export const mapAuthUserToEntity = (authUser: AuthUserDTO): User => {
     id_user: profile.id_user_profile,
     name: displayName.length > 0 ? displayName : authUser.email,
     email: authUser.email,
+    emailVerified: authUser.email_verified ?? false,
     role: normalizeRole(authUser.roles, profile.subscription),
     tokens,
     plan: profile.subscription === 'PREMIUM' ? 'Premium' : 'Free',
@@ -55,6 +56,7 @@ export const mapUserProfileToEntity = (profile: UserProfileResponseDTO): User =>
     id_user: profile.id_user_profile,
     name: displayName.length > 0 ? displayName : profile.email,
     email: profile.email,
+    emailVerified: profile.email_verified ?? false,
     role: profile.subscription === 'PREMIUM' ? 'PREMIUM' : 'USER',
     tokens,
     plan: profile.subscription === 'PREMIUM' ? 'Premium' : 'Free',
@@ -69,7 +71,7 @@ export const mapUser = (
   u:
     | AuthUserDTO
     | UserProfileSummaryDTO
-    | { id: number; email: string; name?: string; lastname?: string; roles?: string[]; subscription?: 'FREE' | 'PREMIUM'; tokens?: number; id_user_profile?: number },
+    | { id: number; email: string; name?: string; lastname?: string; roles?: string[]; subscription?: 'FREE' | 'PREMIUM'; tokens?: number; id_user_profile?: number; email_verified?: boolean },
 ): User => {
   // Si es AuthUserDTO (tiene 'profile')
   if ('profile' in u && u.profile) {
@@ -85,6 +87,7 @@ export const mapUser = (
       id_user: profile.id_user_profile,
       name: displayName.length > 0 ? displayName : ('email' in u ? u.email : ''),
       email: 'email' in u ? u.email : '',
+      emailVerified: ('email_verified' in u ? u.email_verified : false) ?? false,
       role: profile.subscription === 'PREMIUM' ? 'PREMIUM' : 'USER',
       tokens: ('tokens_balance' in profile ? profile.tokens_balance : ('tokens' in u ? u.tokens : 0)) ?? 0,
       plan: profile.subscription === 'PREMIUM' ? 'Premium' : 'Free',
@@ -101,6 +104,7 @@ export const mapUser = (
     id_user: id,
     name: displayName.length > 0 ? displayName : ('email' in u ? u.email : ''),
     email: 'email' in u ? u.email : '',
+    emailVerified: ('email_verified' in u ? u.email_verified : false) ?? false,
     role: normalizeRole(roles, subscription),
     tokens: ('tokens' in u ? u.tokens : 0) ?? 0,
     plan: subscription === 'PREMIUM' ? 'Premium' : 'Free',

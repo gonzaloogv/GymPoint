@@ -24,7 +24,20 @@
   ANDROID_GOOGLE_MAPS_API_KEY=<ANDROID_MAPS_API_KEY_PROD>
   ```
 
-Guarda las claves sensibles (por ejemplo `ANDROID_GOOGLE_MAPS_API_KEY`) como secretos en EAS (`npx eas secret:create`).
+## Configurar EAS Secrets
+
+Las variables de entorno de producción se configuran como EAS Secrets (no se suben archivos `.env` al repositorio):
+
+```bash
+cd frontend/gympoint-mobile
+npx eas secret:create --scope project --name EXPO_PUBLIC_API_BASE_URL --value "https://api.gympoint.app"
+npx eas secret:create --scope project --name EXPO_PUBLIC_REALTIME_URL --value "https://api.gympoint.app"
+npx eas secret:create --scope project --name EXPO_PUBLIC_REALTIME_UI --value "on"
+npx eas secret:create --scope project --name EXPO_PUBLIC_REALTIME_TRANSPORT --value "websocket,polling"
+npx eas secret:create --scope project --name EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID --value "287573324529-pgae1blloghtmvlqh2iboc9jod4mbj3k.apps.googleusercontent.com"
+npx eas secret:create --scope project --name EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID --value "287573324529-pgae1blloghtmvlqh2iboc9jod4mbj3k.apps.googleusercontent.com"
+npx eas secret:create --scope project --name ANDROID_GOOGLE_MAPS_API_KEY --value "<YOUR_MAPS_API_KEY>"
+```
 
 ## Configurar EAS
 
@@ -44,7 +57,6 @@ Guarda las claves sensibles (por ejemplo `ANDROID_GOOGLE_MAPS_API_KEY`) como sec
 
 ```bash
 cd frontend/gympoint-mobile
-cp .env.production .env  # o usa EAS secrets si prefieres
 npx eas build -p android --profile production
 ```
 

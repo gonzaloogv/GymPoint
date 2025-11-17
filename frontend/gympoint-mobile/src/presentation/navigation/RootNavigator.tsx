@@ -2,21 +2,25 @@ import { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { LoginScreen, RegisterScreen, useAuthStore } from '@features/auth';
+import { LoginScreen, RegisterScreen, ForgotPasswordScreen, useAuthStore } from '@features/auth';
 import { mapUserProfileToEntity } from '@features/auth/data/auth.mapper';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import AppTabs from './AppTabs';
 import RewardsScreen from '@features/rewards/presentation/ui/screens/RewardsScreen';
 import { TokenHistoryScreen } from '@features/progress/presentation/ui/screens/TokenHistoryScreen';
+import { ChangePasswordScreen } from '@features/user/presentation/ui/screens/ChangePasswordScreen';
 import { API_BASE_URL } from '@shared/config/env';
+import { refreshAndPersistTokens, clearTokens } from '@shared/utils/tokenRefresh';
 
 type RootStackParamList = {
   App: undefined;
   Login: undefined;
   Register: undefined;
+  ForgotPassword: undefined;
   Rewards: undefined;
   TokenHistory: undefined;
+  ChangePassword: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -45,43 +49,33 @@ export default function RootNavigator() {
 
         console.log('[RootNavigator] Active session found, refreshing tokens...');
 
-        // Intentar refrescar el token usando axios directo para evitar problemas de dependencias
-        const tokenResponse = await axios.post(`${API_BASE_URL}/api/auth/refresh-token`, {
-          refreshToken
+        // Usar helper centralizado para refresh + persistencia atómica
+        const { accessToken: newAccessToken } = await refreshAndPersistTokens(refreshToken);
+
+        // Token refrescado exitosamente, ahora obtener el perfil del usuario
+        const userProfileResponse = await axios.get(`${API_BASE_URL}/api/users/me`, {
+          headers: {
+            Authorization: `Bearer ${newAccessToken}`
+          }
         });
 
-        if (tokenResponse.data?.token) {
-          // Token refrescado exitosamente, ahora obtener el perfil del usuario
-          const userProfileResponse = await axios.get(`${API_BASE_URL}/api/users/me`, {
-            headers: {
-              Authorization: `Bearer ${tokenResponse.data.token}`
-            }
-          });
+        const userProfile = userProfileResponse.data;
 
-          const userProfile = userProfileResponse.data;
-
-          if (userProfile) {
-            console.log('[RootNavigator] Session restored:', userProfile.email);
-            console.log('[RootNavigator] Raw userProfile:', JSON.stringify(userProfile, null, 2));
-            // Usar el mapper para combinar name + lastname correctamente
-            const mappedUser = mapUserProfileToEntity(userProfile);
-            console.log('[RootNavigator] Mapped user:', JSON.stringify(mappedUser, null, 2));
-            setUser(mappedUser);
-          } else {
-            console.log('[RootNavigator] Failed to get user profile');
-            await SecureStore.deleteItemAsync('gp_access');
-            await SecureStore.deleteItemAsync('gp_refresh');
-          }
+        if (userProfile) {
+          console.log('[RootNavigator] Session restored:', userProfile.email);
+          console.log('[RootNavigator] Raw userProfile:', JSON.stringify(userProfile, null, 2));
+          // Usar el mapper para combinar name + lastname correctamente
+          const mappedUser = mapUserProfileToEntity(userProfile);
+          console.log('[RootNavigator] Mapped user:', JSON.stringify(mappedUser, null, 2));
+          setUser(mappedUser);
         } else {
-          console.log('[RootNavigator] Failed to refresh token');
-          await SecureStore.deleteItemAsync('gp_access');
-          await SecureStore.deleteItemAsync('gp_refresh');
+          console.log('[RootNavigator] Failed to get user profile');
+          await clearTokens();
         }
       } catch (error) {
         console.error('[RootNavigator] Session check failed:', error);
         // Si falla, limpiar tokens inválidos
-        await SecureStore.deleteItemAsync('gp_access');
-        await SecureStore.deleteItemAsync('gp_refresh');
+        await clearTokens();
       } finally {
         setIsCheckingAuth(false);
       }
@@ -131,11 +125,27 @@ export default function RootNavigator() {
                 headerShown: false
               }}
             />
+            <Stack.Screen
+              name="ChangePassword"
+              component={ChangePasswordScreen}
+              options={{
+                presentation: 'card',
+                headerShown: false
+              }}
+            />
           </>
         ) : (
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen
+              name="ForgotPassword"
+              component={ForgotPasswordScreen}
+              options={{
+                presentation: 'card',
+                headerShown: false
+              }}
+            />
           </>
         )}
       </Stack.Navigator>

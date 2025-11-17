@@ -47,9 +47,9 @@ export function GymPin({ size = 48, scale = 1.0 }: GymPinProps) {
 
   return (
     <Animated.View style={animatedStyle}>
-      <Svg width={effectiveSize} height={effectiveSize} viewBox="0 0 502.691 502.691">
+      <Svg width={effectiveSize} height={effectiveSize} viewBox="-20 -20 542.691 542.691">
         {/* PIN DE UBICACIÓN (DETRÁS, ARRIBA, ANIMADO) */}
-        <G transform="translate(251.345 155) scale(8.875) translate(-16 -16)">
+        <G transform="translate(251.345 175) scale(8.875) translate(-16 -16)">
           <Path
             d="M21 12C21 9.24 18.76 7 16 7C13.24 7 11 9.24 11 12C11 14.76 13.24 17 16 17C18.76 17 21 14.76 21 12ZM16 1C22.08 1 27 5.92 27 12C27 21 16 31 16 31C16 31 5 21 5 12C5 5.92 9.92 1 16 1Z"
             fill="#ECF0F1"
@@ -65,7 +65,7 @@ export function GymPin({ size = 48, scale = 1.0 }: GymPinProps) {
         </G>
 
         {/* MANCUERNA (ADELANTE, ABAJO) */}
-        <G transform="translate(41 162) scale(0.837)">
+        <G transform="translate(41 182) scale(0.837)">
           <Path
             fill="#43adff"
             d="M27.927,325.818C12.567,325.818,0,313.251,0,297.891V204.8c0-15.36,12.567-27.927,27.927-27.927c15.36,0,27.927,12.567,27.927,27.927v93.091C55.855,313.251,43.287,325.818,27.927,325.818z"
