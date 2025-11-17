@@ -30,7 +30,7 @@ services:
       PORT: 3000
       JWT_SECRET: clave_super_secreta_para_tokens
       JWT_REFRESH_SECRET: clave_distinta_para_refresh
-      GOOGLE_CLIENT_ID: 287573324529-6dratpth8ik6jr9ppdpf2nv666e0mv9b.apps.googleusercontent.com
+      GOOGLE_CLIENT_IDS: 287573324529-7khgk8lqttjlcb7uqvnc675466tsov5b.apps.googleusercontent.com,287573324529-jue5dcgrog5f1gvmnhbhfeta7bvrvc0h.apps.googleusercontent.com,287573324529-pgae1blloghtmvlqh2iboc9jod4mbj3k.apps.googleusercontent.com,287573324529-8u4jgi2eldc0id20gqf0gmcg52c211o4.apps.googleusercontent.com,287573324529-md2279mr550olejlse4hk9v84jbjo8fl.apps.googleusercontent.com
       NODE_ENV: production
     ports:
       - '3000:3000'
