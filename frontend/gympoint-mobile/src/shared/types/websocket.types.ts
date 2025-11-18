@@ -324,6 +324,6 @@ export interface WebSocketContextValue {
 
   // Generic emit
   emit: (event: string, data?: unknown) => void;
-  on: (event: string, callback: (...args: unknown[]) => void) => void;
-  off: (event: string, callback?: (...args: unknown[]) => void) => void;
+  on: (event: string, callback: (...args: any[]) => void) => void;
+  off: (event: string, callback?: (...args: any[]) => void) => void;
 }

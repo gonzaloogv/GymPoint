@@ -744,7 +744,7 @@ const register = async (input, context = {}) => {
         id_account: account.id_account,
         name: command.name,
         lastname: command.lastname,
-        gender: null, // Se completa en onboarding
+        gender: 'O', // Default 'Otro' para onboarding fase 1 (columna NOT NULL)
         locality: command.locality,
         birth_date: null, // Se completa en onboarding
         subscription: 'FREE',

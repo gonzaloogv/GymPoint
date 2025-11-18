@@ -122,3 +122,31 @@ paths:
           description: Refresh token revocado
         '400':
           $ref: '../components/responses.yaml#/components/responses/BadRequest'
+  /api/auth/complete-onboarding:
+    post:
+      operationId: completeOnboarding
+      tags:
+        - Auth
+      summary: Completar onboarding de usuario
+      description: |
+        Completa el perfil de usuario con género, fecha de nacimiento y frecuencia semanal objetivo.
+        Marca profile_completed como true. Requiere autenticación Bearer.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/auth.yaml#/components/schemas/CompleteOnboardingRequest'
+      responses:
+        '200':
+          description: Onboarding completado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas/auth.yaml#/components/schemas/CompleteOnboardingResponse'
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'

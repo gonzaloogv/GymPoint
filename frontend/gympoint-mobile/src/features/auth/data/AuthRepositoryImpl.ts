@@ -70,7 +70,8 @@ export class AuthRepositoryImpl implements AuthRepository {
   }
 
   /**
-   * Registro de nueva cuenta
+   * Registro de nueva cuenta (Onboarding fase 1)
+   * Solo envía campos básicos. Los campos de perfil se completan en /complete-onboarding
    */
   async register(params: RegisterParams) {
     const response = await AuthRemote.register({
@@ -78,10 +79,8 @@ export class AuthRepositoryImpl implements AuthRepository {
       password: params.password,
       name: params.name,
       lastname: params.lastname,
-      gender: params.gender as 'M' | 'F' | 'O' | undefined,
-      locality: params.locality,
-      birth_date: params.birth_date,
-      frequency_goal: params.frequency_goal,
+      // Onboarding 2 fases: NO enviar campos de fase 2 en registro
+      // Backend usará defaults: gender='O', locality=null, birth_date=null, frequency_goal=3
     });
 
     // Guardar tokens en SecureStore usando las mismas claves que api.ts ('gp_access', 'gp_refresh')

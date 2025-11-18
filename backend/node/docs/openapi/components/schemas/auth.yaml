@@ -205,3 +205,45 @@ components:
           format: date-time
       required:
         - id_exercise
+    CompleteOnboardingRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - frequency_goal
+        - birth_date
+      properties:
+        frequency_goal:
+          type: integer
+          minimum: 1
+          maximum: 7
+          description: Frecuencia semanal objetivo (días por semana)
+          example: 3
+        birth_date:
+          type: string
+          format: date
+          description: Fecha de nacimiento en formato YYYY-MM-DD
+          example: "2000-01-15"
+        gender:
+          allOf:
+            - $ref: '../common.yaml#/components/schemas/Gender'
+          default: O
+          description: Género del usuario (M/F/O)
+    CompleteOnboardingResponse:
+      type: object
+      required:
+        - success
+        - message
+        - user
+        - needsOnboarding
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Perfil completado exitosamente"
+        user:
+          $ref: '#/components/schemas/AuthUser'
+        needsOnboarding:
+          type: boolean
+          example: false

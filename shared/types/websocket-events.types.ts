@@ -49,3 +49,16 @@ export interface GymRequestPayload {
   reason?: string;
   timestamp: string;
 }
+
+export interface AchievementUnlockedPayload {
+  achievementId: number;
+  name: string;
+  description: string;
+  points: number;
+}
+
+export interface RewardEarnedPayload {
+  rewardId: number;
+  name: string;
+  type: string;
+}

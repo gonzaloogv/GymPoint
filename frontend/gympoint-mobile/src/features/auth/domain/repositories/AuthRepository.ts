@@ -5,10 +5,11 @@ export interface RegisterParams {
   lastname: string;
   email: string;
   password: string;
-  gender: string;
-  locality: string;
+  // Onboarding 2 fases: campos opcionales (se completan en fase 2)
+  gender?: 'M' | 'F' | 'O';
+  locality?: string | null;
   birth_date?: string | null;
-  frequency_goal: number;
+  frequency_goal?: number;
 }
 
 export interface CompleteOnboardingParams {

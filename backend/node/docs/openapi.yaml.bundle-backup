@@ -705,11 +705,17 @@ components:
       type: object
       additionalProperties: false
       required:
-        - accessToken
+        - token
+        - refreshToken
       properties:
-        accessToken:
+        token:
           type: string
-          description: Nuevo JWT de acceso.
+          description: Nuevo access token JWT (válido por 15 minutos).
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refreshToken:
+          type: string
+          description: Nuevo refresh token JWT (válido por 30 días). El anterior ha sido revocado.
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
     LogoutRequest:
       type: object
       additionalProperties: false
@@ -5048,7 +5054,11 @@ paths:
       operationId: refreshAccessToken
       tags:
         - Auth
-      summary: Renovar access token usando refresh token
+      summary: Renovar tokens de autenticación
+      description: |
+        Renueva el access token y genera un nuevo refresh token.
+        El refresh token anterior es revocado automáticamente.
+        Esto implementa la rotación de refresh tokens (refresh token rotation) como medida de seguridad.
       requestBody:
         required: true
         content:
@@ -5057,7 +5067,7 @@ paths:
               $ref: '#/components/schemas/RefreshTokenRequest'
       responses:
         '200':
-          description: Nuevo access token emitido
+          description: Tokens renovados exitosamente
           content:
             application/json:
               schema:

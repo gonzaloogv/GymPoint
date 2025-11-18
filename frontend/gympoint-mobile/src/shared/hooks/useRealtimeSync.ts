@@ -71,9 +71,9 @@ export function useRealtimeSync() {
       tokensStore.invalidateHistory();
 
       // Invalidar queries de historial y ledger
-      queryClient.invalidateQueries(['token-history']);
-      queryClient.invalidateQueries(['token-transactions']);
-      queryClient.invalidateQueries(['token-balance']);
+      queryClient.invalidateQueries({ queryKey: ['token-history'] });
+      queryClient.invalidateQueries({ queryKey: ['token-transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['token-balance'] });
 
       if (data.delta > 0) {
         Toast.show({
@@ -218,9 +218,9 @@ export function useRealtimeSync() {
       console.log('[useRealtimeSync] 📝 Reviews updated:', data);
 
       // Solo invalidar queries específicas del gym afectado
-      queryClient.invalidateQueries(['gym-reviews', data.gymId]);
-      queryClient.invalidateQueries(['gym-rating-stats', data.gymId]);
-      queryClient.invalidateQueries(['gym-detail', data.gymId]);
+      queryClient.invalidateQueries({ queryKey: ['gym-reviews', data.gymId] });
+      queryClient.invalidateQueries({ queryKey: ['gym-rating-stats', data.gymId] });
+      queryClient.invalidateQueries({ queryKey: ['gym-detail', data.gymId] });
 
       // NO invalidar listas/mapas completos (costoso)
       // NO mostrar toasts (ya lo hace useReviewUpdates en GymDetail)
@@ -302,8 +302,8 @@ export function useRealtimeSync() {
       console.log('[useRealtimeSync] 🏋️ New check-in:', data);
 
       // Invalidar asistencias
-      queryClient.invalidateQueries(['assistance']);
-      queryClient.invalidateQueries(['streak']);
+      queryClient.invalidateQueries({ queryKey: ['assistance'] });
+      queryClient.invalidateQueries({ queryKey: ['streak'] });
 
       // Si otorga tokens, delegar a handler de tokens existente
       if (data.tokensAwarded) {
@@ -334,7 +334,7 @@ export function useRealtimeSync() {
     }) => {
       console.log('[useRealtimeSync] ❌ Assistance cancelled:', data);
 
-      queryClient.invalidateQueries(['assistance']);
+      queryClient.invalidateQueries({ queryKey: ['assistance'] });
 
       Toast.show({
         type: 'error',
@@ -379,7 +379,7 @@ export function useRealtimeSync() {
       });
 
       // Opcional: invalidar feed de anuncios si existe
-      queryClient.invalidateQueries(['system-announcements']);
+      queryClient.invalidateQueries({ queryKey: ['system-announcements'] });
     };
 
     /**
@@ -394,8 +394,8 @@ export function useRealtimeSync() {
     }) => {
       console.log('[useRealtimeSync] 🎯 New daily challenge:', data);
 
-      queryClient.invalidateQueries(['daily-challenges']);
-      queryClient.invalidateQueries(['active-challenges']);
+      queryClient.invalidateQueries({ queryKey: ['daily-challenges'] });
+      queryClient.invalidateQueries({ queryKey: ['active-challenges'] });
 
       Toast.show({
         type: 'info',
@@ -419,8 +419,8 @@ export function useRealtimeSync() {
       console.log('[useRealtimeSync] 📊 Challenge progress:', data);
 
       // Solo invalidar ese desafío específico
-      queryClient.invalidateQueries(['challenge-progress', data.challengeId]);
-      queryClient.invalidateQueries(['user-challenges']);
+      queryClient.invalidateQueries({ queryKey: ['challenge-progress', data.challengeId] });
+      queryClient.invalidateQueries({ queryKey: ['user-challenges'] });
     };
 
     /**
@@ -436,8 +436,8 @@ export function useRealtimeSync() {
     }) => {
       console.log('[useRealtimeSync] ✅ Challenge completed:', data);
 
-      queryClient.invalidateQueries(['user-challenges']);
-      queryClient.invalidateQueries(['daily-challenges']);
+      queryClient.invalidateQueries({ queryKey: ['user-challenges'] });
+      queryClient.invalidateQueries({ queryKey: ['daily-challenges'] });
 
       // Reusar handler de tokens si hay recompensa
       if (data.tokensAwarded) {
@@ -473,9 +473,9 @@ export function useRealtimeSync() {
       console.log('[useRealtimeSync] 🏆 Achievement unlocked:', data);
 
       // Invalidar queries de logros
-      queryClient.invalidateQueries(['achievements']);
-      queryClient.invalidateQueries(['user-achievements']);
-      queryClient.invalidateQueries(['achievements-progress']);
+      queryClient.invalidateQueries({ queryKey: ['achievements'] });
+      queryClient.invalidateQueries({ queryKey: ['user-achievements'] });
+      queryClient.invalidateQueries({ queryKey: ['achievements-progress'] });
 
       // Notificar al usuario
       Toast.show({
@@ -495,9 +495,9 @@ export function useRealtimeSync() {
       console.log('[useRealtimeSync] 🎁 Reward earned:', data);
 
       // Invalidar queries de recompensas e inventario
-      queryClient.invalidateQueries(['rewards']);
-      queryClient.invalidateQueries(['user-inventory']);
-      queryClient.invalidateQueries(['available-rewards']);
+      queryClient.invalidateQueries({ queryKey: ['rewards'] });
+      queryClient.invalidateQueries({ queryKey: ['user-inventory'] });
+      queryClient.invalidateQueries({ queryKey: ['available-rewards'] });
 
       // Notificar al usuario
       Toast.show({
@@ -522,13 +522,13 @@ export function useRealtimeSync() {
       console.log('[useRealtimeSync] 🏋️ Gyms updated:', data);
 
       // Invalidar queries de gimnasios
-      queryClient.invalidateQueries(['nearby-gyms']);
-      queryClient.invalidateQueries(['gyms']);
+      queryClient.invalidateQueries({ queryKey: ['nearby-gyms'] });
+      queryClient.invalidateQueries({ queryKey: ['gyms'] });
 
       // Si es un gym específico, invalidar su detalle
       if (data.gymId) {
-        queryClient.invalidateQueries(['gym', data.gymId]);
-        queryClient.invalidateQueries(['gym-detail', data.gymId]);
+        queryClient.invalidateQueries({ queryKey: ['gym', data.gymId] });
+        queryClient.invalidateQueries({ queryKey: ['gym-detail', data.gymId] });
       }
 
       // Mostrar notificación solo si es relevante
@@ -555,13 +555,13 @@ export function useRealtimeSync() {
 
       // Invalidar queries según el tipo de datos
       if (eventName.includes('exercises')) {
-        queryClient.invalidateQueries(['exercises']);
+        queryClient.invalidateQueries({ queryKey: ['exercises'] });
       } else if (eventName.includes('routine-templates')) {
-        queryClient.invalidateQueries(['routine-templates']);
+        queryClient.invalidateQueries({ queryKey: ['routine-templates'] });
       } else if (eventName.includes('achievements')) {
-        queryClient.invalidateQueries(['achievements']);
+        queryClient.invalidateQueries({ queryKey: ['achievements'] });
       } else if (eventName.includes('rewards')) {
-        queryClient.invalidateQueries(['rewards']);
+        queryClient.invalidateQueries({ queryKey: ['rewards'] });
       }
     };
 
