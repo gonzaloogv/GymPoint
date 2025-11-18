@@ -928,32 +928,14 @@ const googleLogin = async (input, context = {}) => {
           { transaction }
         );
 
-        // Crear frecuencia con goal=1 (mínimo válido) como placeholder
-        // El usuario elegirá su meta real en el onboarding
-        const frequency = await frequencyService.crearMetaSemanal(
-          { id_user: userProfile.id_user_profile, goal: 1 },
-          { transaction }
-        );
+        // Onboarding 2 fases: NO crear frecuencia ni streak en alta de Google
+        // Se crearán en /complete-onboarding (fase 2) cuando el usuario complete su perfil
+        // Esto evita conflictos al intentar crear/actualizar en onboarding
 
-        const streak = await streakRepository.createStreak(
-          {
-            id_user_profile: userProfile.id_user_profile,
-            value: 0,
-            last_value: 0,
-            max_value: 0,
-            recovery_items: 0,
-            id_frequency: frequency.id_frequency,
-          },
-          { transaction }
-        );
+        // ELIMINADO: placeholder de frecuencia y streak
+        // La lógica de completeOnboarding ya maneja crear frecuencia/streak si no existen
 
-        await userProfileRepository.updateUserProfile(
-          userProfile.id_user_profile,
-          { id_streak: streak.id_streak },
-          { transaction }
-        );
-
-         return newAccount.id_account;
+        return newAccount.id_account;
       });
 
       account = await accountRepository.findById(accountId, {
@@ -1079,8 +1061,11 @@ const calculateAge = (birthDateString) => {
  * @returns {Object} Cuenta y perfil actualizados
  */
 const completeOnboarding = async (accountId, { frequencyGoal, birthDate, gender = 'O' }) => {
+  console.log('[ONBOARDING] Iniciando para account:', accountId, { frequencyGoal, birthDate, gender });
+
   // Validación de frecuencia
   if (!Number.isInteger(frequencyGoal) || frequencyGoal < 1 || frequencyGoal > 7) {
+    console.error('[ONBOARDING] Validación fallida: frecuencia inválida:', frequencyGoal);
     throw new ValidationError('Frecuencia debe ser un entero entre 1 y 7');
   }
 
@@ -1121,7 +1106,8 @@ const completeOnboarding = async (accountId, { frequencyGoal, birthDate, gender 
   }
 
   // Actualizar en transacción
-  await runWithRetryableTransaction(async (transaction) => {
+  try {
+    await runWithRetryableTransaction(async (transaction) => {
     // 1. Actualizar perfil (birth_date, gender)
     await userProfileRepository.updateUserProfile(
       profile.id_user_profile,
@@ -1134,11 +1120,18 @@ const completeOnboarding = async (accountId, { frequencyGoal, birthDate, gender 
 
     // 2. Crear o actualizar meta de frecuencia
     // createWeeklyGoal maneja ambos casos (crear si no existe, actualizar si existe)
+    console.log('[ONBOARDING] Intentando crear/actualizar frecuencia:', {
+      id_user_profile: profile.id_user_profile,
+      goal: frequencyGoal,
+    });
+
     const frequency = await frequencyService.createWeeklyGoal({
       idUserProfile: profile.id_user_profile,
       goal: frequencyGoal,
       transaction,
     });
+
+    console.log('[ONBOARDING] Frecuencia creada/actualizada:', frequency.id_frequency);
 
     // 3. Crear streak si no existe (para cuentas locales que vienen del onboarding)
     if (!profile.id_streak) {
@@ -1167,7 +1160,18 @@ const completeOnboarding = async (accountId, { frequencyGoal, birthDate, gender 
       { profile_completed: true },
       { transaction }
     );
-  });
+    });
+  } catch (error) {
+    console.error('[ONBOARDING] Error en transacción:', {
+      message: error.message,
+      stack: error.stack,
+      accountId,
+      profileId: profile?.id_user_profile,
+    });
+    throw error;
+  }
+
+  console.log('[ONBOARDING] Transacción completada exitosamente');
 
   // Retornar datos actualizados
   const updatedAccount = await accountRepository.findById(accountId, {

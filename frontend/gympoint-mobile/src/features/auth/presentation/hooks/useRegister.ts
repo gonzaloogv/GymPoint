@@ -43,8 +43,13 @@ export const useRegister = () => {
 
       console.log('✅ Registro exitoso:', response);
 
-      // No logueamos automáticamente - el usuario debe ir a login
-      return { success: true };
+      // Onboarding 2 fases: retornar usuario y tokens para que RegisterScreen actualice el store
+      return {
+        success: true,
+        user: response.user,
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
+      };
     } catch (err: any) {
       // Usar utilidad centralizada para logging y parsing de errores
       logError('Registro', err);

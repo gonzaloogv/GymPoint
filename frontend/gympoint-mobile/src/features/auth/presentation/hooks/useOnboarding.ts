@@ -46,11 +46,25 @@ export const useOnboarding = () => {
 
       return { success: true, user: updatedUser };
     } catch (err: any) {
+      // Log COMPLETO del error para debugging
+      console.error('❌ [ONBOARDING] Error completo:', {
+        message: err?.message,
+        status: err?.response?.status,
+        backendError: err?.response?.data,
+        config: {
+          url: err?.config?.url,
+          data: err?.config?.data,
+        },
+      });
+
       logError('Onboarding', err);
       const errorMessage = parseBackendError(err);
 
-      setError(errorMessage);
-      return { success: false, error: errorMessage };
+      // Mostrar el error real del backend si está disponible
+      const detailedError = err?.response?.data?.error?.message || errorMessage;
+
+      setError(detailedError);
+      return { success: false, error: detailedError };
     } finally {
       setLoading(false);
     }

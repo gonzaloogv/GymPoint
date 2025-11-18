@@ -95,15 +95,31 @@ export class AuthRepositoryImpl implements AuthRepository {
   }
 
   /**
-   * Completar onboarding para usuarios de Google OAuth
+   * Completar onboarding para usuarios (local y Google OAuth)
    */
   async completeOnboarding(params: CompleteOnboardingParams) {
-    const response = await AuthRemote.completeOnboarding({
+    console.log('📤 [ONBOARDING] Enviando:', {
       frequency_goal: params.frequencyGoal,
       birth_date: params.birthDate,
       gender: params.gender,
     });
 
-    return mapAuthUserToEntity(response.user);
+    try {
+      const response = await AuthRemote.completeOnboarding({
+        frequency_goal: params.frequencyGoal,
+        birth_date: params.birthDate,
+        gender: params.gender,
+      });
+
+      console.log('✅ [ONBOARDING] Respuesta exitosa:', response);
+      return mapAuthUserToEntity(response.user);
+    } catch (error: any) {
+      console.error('❌ [ONBOARDING] Error en repositorio:', {
+        status: error?.response?.status,
+        data: error?.response?.data,
+        message: error?.message,
+      });
+      throw error;
+    }
   }
 }

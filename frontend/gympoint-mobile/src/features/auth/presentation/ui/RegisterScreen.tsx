@@ -26,6 +26,7 @@ import { FrequencySlider } from './components/FrequencySlider';
 import { BirthDatePicker } from './components/BirthDatePicker';
 import { useTheme } from '@shared/hooks';
 import { useGoogleAuth } from '../hooks/useGoogleAuth';
+import { useAuthStore } from '../state/auth.store';
 
 type RootStackParamList = {
   Login: undefined;
@@ -41,6 +42,7 @@ export default function RegisterScreen() {
   const isDark = theme === 'dark';
   const { register, loading, error } = useRegister();
   const { startGoogleAuth, googleError, googleLoading } = useGoogleAuth();
+  const setUser = useAuthStore((state) => state.setUser);
 
   // Onboarding 2 fases: solo campos básicos en Fase 1
   const [name, setName] = useState('');
@@ -84,9 +86,11 @@ export default function RegisterScreen() {
       password,
     });
 
-    if (result.success) {
-      // Los tokens ya están guardados, RootNavigator detectará needsOnboarding
+    if (result.success && result.user) {
+      // Actualizar store de Zustand para que RootNavigator detecte needsOnboarding
+      setUser(result.user);
       Alert.alert('Registro exitoso', 'Completá tu perfil para continuar.');
+      // RootNavigator detectará profileCompleted: false y navegará a Onboarding automáticamente
     }
   };
 
