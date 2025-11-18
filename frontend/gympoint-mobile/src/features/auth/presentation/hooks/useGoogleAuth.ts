@@ -86,9 +86,11 @@ export const useGoogleAuth = (config?: UseGoogleAuthConfig) => {
       if (token) {
         authenticateWithBackend(token);
       } else {
+        setIsProcessing(false);
         setError('Google no entrego un token valido.');
       }
     } else if (response?.type === 'error') {
+      setIsProcessing(false);
       setError(response.error?.message ?? 'Error al conectar con Google.');
     }
   }, [response, authenticateWithBackend]);

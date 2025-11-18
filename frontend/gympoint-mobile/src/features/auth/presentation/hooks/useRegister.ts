@@ -6,10 +6,6 @@ interface RegisterData {
   fullName: string;
   email: string;
   password: string;
-  location: string;
-  birth_date: string;
-  gender: string;
-  weeklyFrequency: number;
 }
 
 export const useRegister = () => {
@@ -31,32 +27,18 @@ export const useRegister = () => {
       const name = nameParts[0] || '';
       const lastname = nameParts.slice(1).join(' ') || name;
 
-      // Validar campos requeridos
+      // Validar campos requeridos (solo fase 1)
       if (!data.email || !data.password) {
         throw new Error('Email y contraseña son requeridos');
       }
 
-      if (!data.gender) {
-        throw new Error('El género es requerido');
-      }
-
-      if (!data.location) {
-        throw new Error('La localidad es requerida');
-      }
-
-      if (!data.birth_date) {
-        throw new Error('La fecha de nacimiento es requerida');
-      }
-
+      // Onboarding 2 fases: solo enviar campos básicos
       const response = await DI.registerUser.execute({
         name,
         lastname,
         email: data.email,
         password: data.password,
-        gender: data.gender,
-        locality: data.location,
-        birth_date: data.birth_date,
-        frequency_goal: data.weeklyFrequency,
+        // Backend usará defaults: gender='O', locality=null, birth_date=null, frequency_goal=3
       });
 
       console.log('✅ Registro exitoso:', response);
