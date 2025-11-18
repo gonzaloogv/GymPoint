@@ -32,13 +32,16 @@ export const mapAuthUserToEntity = (authUser: AuthUserDTO): User => {
   // El backend puede retornar tokens_balance O tokens (inconsistencia legacy), aceptamos ambos
   const tokens = profile.tokens_balance ?? (profile as any).tokens ?? 0;
 
+  // LOGGING TEMPORAL: Verificar profile_completed
+  console.log('[MAPPER] mapAuthUserToEntity - authUser.profile_completed:', authUser.profile_completed);
+
   return {
     id_user: profile.id_user_profile,
     name: displayName.length > 0 ? displayName : authUser.email,
     email: authUser.email,
     emailVerified: authUser.email_verified ?? false,
     authProvider: authUser.auth_provider ?? 'local',
-    profileCompleted: authUser.profile_completed ?? false, // Default seguro
+    profileCompleted: Boolean(authUser.profile_completed), // ✅ Sin default - confiar en backend
     role: normalizeRole(authUser.roles, profile.subscription),
     tokens,
     plan: profile.subscription === 'PREMIUM' ? 'Premium' : 'Free',
@@ -54,13 +57,16 @@ export const mapUserProfileToEntity = (profile: UserProfileResponseDTO): User =>
   // El backend puede retornar tokens_balance O tokens (inconsistencia legacy), aceptamos ambos
   const tokens = profile.tokens_balance ?? (profile as any).tokens ?? 0;
 
+  // LOGGING TEMPORAL: Verificar profile_completed
+  console.log('[MAPPER] mapUserProfileToEntity - profile.profile_completed:', profile.profile_completed);
+
   return {
     id_user: profile.id_user_profile,
     name: displayName.length > 0 ? displayName : profile.email,
     email: profile.email,
     emailVerified: profile.email_verified ?? false,
     authProvider: profile.auth_provider ?? 'local',
-    profileCompleted: profile.profile_completed ?? false, // Default seguro
+    profileCompleted: Boolean(profile.profile_completed), // ✅ Sin default - confiar en backend
     role: profile.subscription === 'PREMIUM' ? 'PREMIUM' : 'USER',
     tokens,
     plan: profile.subscription === 'PREMIUM' ? 'Premium' : 'Free',
@@ -93,7 +99,7 @@ export const mapUser = (
       email: 'email' in u ? u.email : '',
       emailVerified: ('email_verified' in u ? u.email_verified : false) ?? false,
       authProvider: 'local',
-      profileCompleted: ('profile_completed' in u ? u.profile_completed : false) ?? false, // Default seguro
+      profileCompleted: Boolean('profile_completed' in u ? u.profile_completed : false), // ✅ Sin double default
       role: profile.subscription === 'PREMIUM' ? 'PREMIUM' : 'USER',
       tokens: ('tokens_balance' in profile ? profile.tokens_balance : ('tokens' in u ? u.tokens : 0)) ?? 0,
       plan: profile.subscription === 'PREMIUM' ? 'Premium' : 'Free',
@@ -112,7 +118,7 @@ export const mapUser = (
     email: 'email' in u ? u.email : '',
     emailVerified: ('email_verified' in u ? u.email_verified : false) ?? false,
     authProvider: 'local',
-    profileCompleted: true,
+    profileCompleted: Boolean('profile_completed' in u ? u.profile_completed : false), // ✅ Sin hardcode a true
     role: normalizeRole(roles, subscription),
     tokens: ('tokens' in u ? u.tokens : 0) ?? 0,
     plan: subscription === 'PREMIUM' ? 'Premium' : 'Free',

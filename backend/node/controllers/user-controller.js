@@ -12,7 +12,23 @@ const obtenerPerfil = async (req, res) => {
     // req.user.id contiene id_account gracias al middleware
     const query = userMapper.toGetUserByAccountIdQuery(req.user.id);
     const usuario = await userService.getUserByAccountId(query);
-    res.json(userMapper.toUserProfileResponse(usuario));
+
+    // LOGGING TEMPORAL: Verificar profile_completed
+    console.log('[/api/users/me] Usuario desde service:', {
+      id_account: usuario.id_account,
+      email: usuario.email,
+      profile_completed: usuario.profile_completed,
+      profile_completed_tipo: typeof usuario.profile_completed,
+    });
+
+    const response = userMapper.toUserProfileResponse(usuario);
+    console.log('[/api/users/me] Respuesta mapeada:', {
+      email: response.email,
+      profile_completed: response.profile_completed,
+      profile_completed_tipo: typeof response.profile_completed,
+    });
+
+    res.json(response);
   } catch (err) {
     res.status(404).json({
       error: {

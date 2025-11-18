@@ -31,7 +31,22 @@ const login = async (req, res) => {
   try {
     const command = authMapper.toLoginCommand(req.body);
     const result = await authService.login(command, req);
-    res.json(authMapper.toAuthSuccessResponse(result));
+
+    // LOGGING TEMPORAL: Verificar profile_completed
+    console.log('[/api/auth/login] Result desde service:', {
+      email: result.account?.email,
+      profile_completed: result.account?.profile_completed,
+      profile_completed_tipo: typeof result.account?.profile_completed,
+    });
+
+    const response = authMapper.toAuthSuccessResponse(result);
+    console.log('[/api/auth/login] Respuesta mapeada:', {
+      email: response.user?.email,
+      profile_completed: response.user?.profile_completed,
+      needsOnboarding: response.needsOnboarding,
+    });
+
+    res.json(response);
   } catch (err) {
     const status = err instanceof ValidationError ? 400 : 401;
     res.status(status).json({
@@ -57,7 +72,22 @@ const googleLogin = async (req, res) => {
     }
 
     const result = await authService.googleLogin({ idToken }, req);
-    res.json(authMapper.toAuthSuccessResponse(result));
+
+    // LOGGING TEMPORAL: Verificar profile_completed
+    console.log('[/api/auth/google] Result desde service:', {
+      email: result.account?.email,
+      profile_completed: result.account?.profile_completed,
+      profile_completed_tipo: typeof result.account?.profile_completed,
+    });
+
+    const response = authMapper.toAuthSuccessResponse(result);
+    console.log('[/api/auth/google] Respuesta mapeada:', {
+      email: response.user?.email,
+      profile_completed: response.user?.profile_completed,
+      needsOnboarding: response.needsOnboarding,
+    });
+
+    res.json(response);
   } catch (err) {
     const status = err instanceof ValidationError ? 400 : 401;
     res.status(status).json({

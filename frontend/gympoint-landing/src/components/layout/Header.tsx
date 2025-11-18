@@ -80,7 +80,7 @@ export const Header = () => {
                     <ThemeSwitcher />
                     <div className="hidden sm:flex gap-2">
                         <Button variant="secondary" size="sm">
-                            <a href="https://expo.dev/artifacts/eas/bhPYPYgdwWgcQn1RstDQBv.apk" target="_blank">
+                            <a href="https://expo.dev/artifacts/eas/aHN7WxchqG5UNrs6x5iwP2.apk" target="_blank">
                                 Descargar App
                             </a>
                         </Button>
