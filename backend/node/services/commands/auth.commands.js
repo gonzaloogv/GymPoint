@@ -14,27 +14,26 @@
 /**
  * Command para registrar una nueva cuenta
  *
- * Flujo UC-AUTH-01:
+ * Onboarding 2 fases (Fase 1 - Autenticación):
  * 1. Validar email único
  * 2. Hashear password
- * 3. Crear Account (email_verified=false, is_active=true)
- * 4. Crear UserProfile
+ * 3. Crear Account (email_verified=false, is_active=true, profile_completed=false)
+ * 4. Crear UserProfile básico (solo name, lastname)
  * 5. Asignar Role: USER
- * 6. Crear Streak inicial
- * 7. Crear Frequency inicial
- * 8. Crear UserNotificationSettings por defecto
- * 9. Enviar verificación por email
- * 10. Emitir access y refresh tokens
+ * 6. NO crear Streak ni Frequency (se crean en Fase 2: /complete-onboarding)
+ * 7. Crear UserNotificationSettings por defecto
+ * 8. Enviar verificación por email
+ * 9. Emitir access y refresh tokens
  *
  * @typedef {Object} RegisterCommand
  * @property {string} email - Email único del usuario
  * @property {string} password - Contraseña sin hashear (se hasheará en el service)
  * @property {string} name - Nombre del usuario
  * @property {string} lastname - Apellido del usuario
- * @property {string} [gender='O'] - Género (M, F, O)
- * @property {string} [locality] - Localidad del usuario
- * @property {string|null} [birthDate] - Fecha de nacimiento (YYYY-MM-DD)
- * @property {number} [frequencyGoal=3] - Meta semanal de asistencias
+ * @property {string|null} [gender] - Género (M, F, O) - Se completa en onboarding
+ * @property {string|null} [locality] - Localidad del usuario
+ * @property {string|null} [birthDate] - Fecha de nacimiento (YYYY-MM-DD) - Se completa en onboarding
+ * @property {number|null} [frequencyGoal] - Meta semanal de asistencias - Se completa en onboarding
  */
 class RegisterCommand {
   constructor({
@@ -42,10 +41,10 @@ class RegisterCommand {
     password,
     name,
     lastname,
-    gender = 'O',
+    gender = null,
     locality = null,
     birthDate = null,
-    frequencyGoal = 3,
+    frequencyGoal = null,
   }) {
     this.email = email;
     this.password = password;

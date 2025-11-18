@@ -14,6 +14,26 @@ interface UseStreakUpdatesReturn {
 
 /**
  * Hook para manejar actualizaciones de racha en tiempo real
+ *
+ * @deprecated Este hook se mantiene para compatibilidad con componentes existentes,
+ * pero se recomienda usar `useRealtimeSync` directamente para sincronización global.
+ *
+ * `useRealtimeSync` centraliza todos los eventos WebSocket (streak, tokens, achievements, etc.)
+ * y evita duplicación de listeners y lógica. Este hook seguirá funcionando, pero considere
+ * migrar a `useRealtimeSync` en nuevos componentes.
+ *
+ * @param autoSubscribe - Suscribirse automáticamente al conectar (default: true)
+ * @param showToasts - Mostrar toasts en actualizaciones (default: true)
+ * @returns Estado de la racha y métodos de suscripción
+ *
+ * @example
+ * // Forma antigua (deprecated):
+ * const { currentStreak } = useStreakUpdates();
+ *
+ * // Forma recomendada (usar useRealtimeSync globalmente + leer desde store):
+ * useRealtimeSync(); // En nivel superior de la app
+ * const { user } = useHomeStore(); // Leer streak desde store
+ * const currentStreak = user?.streak ?? 0;
  */
 export function useStreakUpdates(autoSubscribe = true, showToasts = true): UseStreakUpdatesReturn {
   const { connected, on, off, subscribeToStreak, unsubscribeFromStreak } = useWebSocketContext();

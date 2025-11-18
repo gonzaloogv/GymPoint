@@ -13,6 +13,8 @@ interface TokensState {
   fetchTokenBalance: () => Promise<void>;
   clearError: () => void;
   setBalanceValue: (value: number) => void;
+  updateTokenDelta: (delta: number) => void;
+  invalidateHistory: () => void;
 }
 
 export const useTokensStore = create<TokensState>((set) => ({
@@ -59,4 +61,36 @@ export const useTokensStore = create<TokensState>((set) => ({
       }
       return { balance: { ...state.balance, available: value } };
     }),
+
+  /**
+   * Actualiza earned/spent basado en delta de tokens (desde WS)
+   * @param delta - Positivo = ganados, Negativo = gastados
+   */
+  updateTokenDelta: (delta: number) =>
+    set((state) => {
+      if (!state.balance) return state;
+
+      if (delta > 0) {
+        return {
+          balance: {
+            ...state.balance,
+            earned: state.balance.earned + delta,
+          },
+        };
+      } else if (delta < 0) {
+        return {
+          balance: {
+            ...state.balance,
+            spent: state.balance.spent + Math.abs(delta),
+          },
+        };
+      }
+
+      return state;
+    }),
+
+  /**
+   * Marca el historial como stale para forzar refetch
+   */
+  invalidateHistory: () => set({ history: null }),
 }));

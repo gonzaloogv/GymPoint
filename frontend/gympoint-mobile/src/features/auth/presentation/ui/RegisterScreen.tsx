@@ -42,15 +42,12 @@ export default function RegisterScreen() {
   const { register, loading, error } = useRegister();
   const { startGoogleAuth, googleError, googleLoading } = useGoogleAuth();
 
+  // Onboarding 2 fases: solo campos básicos en Fase 1
   const [name, setName] = useState('');
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [location, setLocation] = useState('');
-  const [birthDate, setBirthDate] = useState<Date | null>(null);
-  const [gender, setGender] = useState('');
-  const [weeklyFrequency, setWeeklyFrequency] = useState(3);
 
   const subtitleColor = isDark ? 'text-gray-400' : 'text-gray-500';
 
@@ -79,35 +76,17 @@ export default function RegisterScreen() {
       Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
-    if (!birthDate) {
-      Alert.alert('Error', 'Seleccioná tu fecha de nacimiento');
-      return;
-    }
-    if (!gender) {
-      Alert.alert('Error', 'Seleccioná tu género');
-      return;
-    }
-    if (!location.trim()) {
-      Alert.alert('Error', 'Seleccioná tu provincia');
-      return;
-    }
 
-    const formattedBirthDate = birthDate.toISOString().split('T')[0];
-
+    // Onboarding 2 fases: solo enviar campos básicos
     const result = await register({
       fullName: `${name} ${lastname}`,
       email,
       password,
-      location,
-      birth_date: formattedBirthDate,
-      gender,
-      weeklyFrequency,
     });
 
     if (result.success) {
-      Alert.alert('Registro completo', 'Ya podés iniciar sesión.', [
-        { text: 'Iniciar sesión', onPress: () => navigation.navigate('Login') },
-      ]);
+      // Los tokens ya están guardados, RootNavigator detectará needsOnboarding
+      Alert.alert('Registro exitoso', 'Completá tu perfil para continuar.');
     }
   };
 
@@ -129,7 +108,7 @@ export default function RegisterScreen() {
         <AppLogo size={100} />
         <H1>GymPoint</H1>
         <Text className={`text-center px-8 ${subtitleColor}`}>
-          Unite y empezá a seguir tus entrenamientos desde un mismo lugar.
+          Creá tu cuenta y empezá a seguir tus entrenamientos.
         </Text>
       </View>
 
@@ -189,21 +168,7 @@ export default function RegisterScreen() {
                 />
               </FormField>
 
-              <FormField label="Provincia">
-                <LocationSelector value={location} onChange={setLocation} />
-              </FormField>
-
-              <FormField label="Fecha de nacimiento">
-                <BirthDatePicker value={birthDate} onChange={setBirthDate} />
-              </FormField>
-
-              <FormField label="Género">
-                <GenderRadioGroup value={gender} onChange={setGender} />
-              </FormField>
-
-              <FormField label={`Frecuencia semanal: ${weeklyFrequency} ${weeklyFrequency === 1 ? 'día' : 'días'}`}>
-                <FrequencySlider value={weeklyFrequency} onChange={setWeeklyFrequency} />
-              </FormField>
+              {/* Onboarding 2 fases: campos de perfil se completan en OnboardingScreen */}
 
               {error || googleError ? (
                 <ErrorText className="text-center">{error ?? googleError}</ErrorText>

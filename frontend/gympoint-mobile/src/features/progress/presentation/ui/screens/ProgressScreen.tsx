@@ -4,6 +4,7 @@ import { SurfaceScreen } from '@shared/components/ui';
 import { useTheme } from '@shared/hooks';
 import { useProgress } from '@features/progress/presentation/hooks/useProgress';
 import { useHomeStore } from '@features/home/presentation/state/home.store';
+import { useAchievementsStore } from '@features/progress/presentation/state/achievements.store';
 import { ProgressSection } from '../components/ProgressSection';
 import { ProgressOverviewHeader } from '../components/ProgressOverviewHeader';
 import { RoutinesLayout } from '@features/routines/presentation/ui/layouts';
@@ -26,14 +27,33 @@ export function ProgressScreen({ navigation }: ProgressScreenProps) {
   const isDark = theme === 'dark';
   const { weeklyWorkouts, fetchWeeklyWorkouts } = useProgress();
   const { user, fetchHomeData } = useHomeStore();
+  const { achievements, fetchAchievements } = useAchievementsStore();
 
   useEffect(() => {
     fetchHomeData();
     fetchWeeklyWorkouts(); // Cargar workouts semanales reales del backend
+    fetchAchievements(); // Cargar logros del usuario
   }, []);
 
   const currentStreak = user?.streak || 0;
   const currentWeeklyWorkouts = weeklyWorkouts; // Usar siempre el valor del progress store (datos reales)
+
+  // Calcular medallas obtenidas este mes
+  const monthlyAchievements = useMemo(() => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    return achievements.filter((achievement) => {
+      if (!achievement.isUnlocked || !achievement.unlockedAt) return false;
+
+      const unlockedDate = new Date(achievement.unlockedAt);
+      return (
+        unlockedDate.getMonth() === currentMonth &&
+        unlockedDate.getFullYear() === currentYear
+      );
+    }).length;
+  }, [achievements]);
 
   const handleNavigateToPhysicalProgress = useCallback(() => {
     navigation?.navigate('PhysicalProgress');
@@ -64,7 +84,7 @@ export function ProgressScreen({ navigation }: ProgressScreenProps) {
       {
         key: 'achievements',
         title: 'Logros',
-        description: '6 medallas obtenidas este mes',
+        description: `${monthlyAchievements} ${monthlyAchievements === 1 ? 'medalla obtenida' : 'medallas obtenidas'} este mes`,
         icon: <Ionicons name="trophy" size={22} color={isDark ? '#FBBF24' : '#D97706'} />,
         badge: 'Reconocimientos',
         onPress: handleNavigateToAchievements,
@@ -78,7 +98,7 @@ export function ProgressScreen({ navigation }: ProgressScreenProps) {
         onPress: () => {},
       },
     ],
-    [handleNavigateToAchievements, handleNavigateToPhysicalProgress, isDark, navigation],
+    [handleNavigateToAchievements, handleNavigateToPhysicalProgress, isDark, navigation, monthlyAchievements],
   );
 
   const renderShortcut = useCallback(

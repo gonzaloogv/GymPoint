@@ -38,7 +38,7 @@ export const mapAuthUserToEntity = (authUser: AuthUserDTO): User => {
     email: authUser.email,
     emailVerified: authUser.email_verified ?? false,
     authProvider: authUser.auth_provider ?? 'local',
-    profileCompleted: authUser.profile_completed ?? true,
+    profileCompleted: authUser.profile_completed ?? false, // Default seguro
     role: normalizeRole(authUser.roles, profile.subscription),
     tokens,
     plan: profile.subscription === 'PREMIUM' ? 'Premium' : 'Free',
@@ -60,7 +60,7 @@ export const mapUserProfileToEntity = (profile: UserProfileResponseDTO): User =>
     email: profile.email,
     emailVerified: profile.email_verified ?? false,
     authProvider: profile.auth_provider ?? 'local',
-    profileCompleted: profile.profile_completed ?? true,
+    profileCompleted: profile.profile_completed ?? false, // Default seguro
     role: profile.subscription === 'PREMIUM' ? 'PREMIUM' : 'USER',
     tokens,
     plan: profile.subscription === 'PREMIUM' ? 'Premium' : 'Free',
@@ -93,7 +93,7 @@ export const mapUser = (
       email: 'email' in u ? u.email : '',
       emailVerified: ('email_verified' in u ? u.email_verified : false) ?? false,
       authProvider: 'local',
-      profileCompleted: true,
+      profileCompleted: ('profile_completed' in u ? u.profile_completed : false) ?? false, // Default seguro
       role: profile.subscription === 'PREMIUM' ? 'PREMIUM' : 'USER',
       tokens: ('tokens_balance' in profile ? profile.tokens_balance : ('tokens' in u ? u.tokens : 0)) ?? 0,
       plan: profile.subscription === 'PREMIUM' ? 'Premium' : 'Free',

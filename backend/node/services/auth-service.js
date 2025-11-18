@@ -558,10 +558,11 @@ const ensureRegisterCommand = (input = {}) =>
         password: input.password,
         name: input.name,
         lastname: input.lastname,
-        gender: input.gender || 'O',
+        // Onboarding 2 fases: campos opcionales sin defaults
+        gender: input.gender ?? null,
         locality: input.locality ?? null,
         birthDate: input.birth_date ?? input.birthDate ?? null,
-        frequencyGoal: input.frequency_goal ?? input.frequencyGoal ?? 3,
+        frequencyGoal: input.frequency_goal ?? input.frequencyGoal ?? null,
       });
 
 const ensureLoginCommand = (input = {}) =>
@@ -699,8 +700,6 @@ const resolveGoogleCommand = async (input) => {
 
 const register = async (input, context = {}) => {
   const command = ensureRegisterCommand(input);
-  const birthDate = normalizeBirthDate(command.birthDate);
-  const frequencyGoal = Number(command.frequencyGoal ?? 3) || 3;
 
   // CRÍTICO: Validar y normalizar email ANTES de iniciar transacción
   // Esto evita validaciones DNS costosas dentro de transacciones DB
@@ -719,6 +718,7 @@ const register = async (input, context = {}) => {
     const verificationDeadline = new Date();
     verificationDeadline.setDate(verificationDeadline.getDate() + 7);
 
+    // Onboarding 2 fases: marcar profile_completed: false
     const account = await accountRepository.createAccount(
       {
         email: normalizedEmail, // Usar email normalizado (lowercase)
@@ -727,6 +727,7 @@ const register = async (input, context = {}) => {
         email_verified: false,
         email_verification_deadline: verificationDeadline,
         is_active: true,
+        profile_completed: false, // Requiere onboarding
       },
       { transaction }
     );
@@ -737,43 +738,23 @@ const register = async (input, context = {}) => {
     }
     await accountRepository.linkRole(account.id_account, userRole.id_role, { transaction });
 
+    // Onboarding 2 fases: crear solo perfil básico sin birth_date ni gender
     const userProfile = await userProfileRepository.createUserProfile(
       {
         id_account: account.id_account,
         name: command.name,
         lastname: command.lastname,
-        gender: command.gender,
+        gender: null, // Se completa en onboarding
         locality: command.locality,
-        birth_date: birthDate,
+        birth_date: null, // Se completa en onboarding
         subscription: 'FREE',
         tokens: 0,
       },
       { transaction }
     );
 
-    const frequency = await frequencyService.crearMetaSemanal(
-      { id_user: userProfile.id_user_profile, goal: frequencyGoal },
-      { transaction }
-    );
-
-    const streak = await streakRepository.createStreak(
-      {
-        id_user_profile: userProfile.id_user_profile,
-        value: 0,
-        last_value: 0,
-        max_value: 0,
-        recovery_items: 0,
-        id_frequency: frequency.id_frequency,
-      },
-      { transaction }
-    );
-
-    const updatedProfile =
-      (await userProfileRepository.updateUserProfile(
-        userProfile.id_user_profile,
-        { id_streak: streak.id_streak },
-        { transaction }
-      )) || userProfile;
+    // Onboarding 2 fases: NO crear frecuencia ni streak en Fase 1
+    // Se crearán en /complete-onboarding (Fase 2)
 
     return account.id_account;
   });
@@ -1131,9 +1112,8 @@ const completeOnboarding = async (accountId, { frequencyGoal, birthDate, gender 
     throw new ValidationError('El perfil ya fue completado');
   }
 
-  if (account.auth_provider !== 'google') {
-    throw new ValidationError('El onboarding solo aplica a cuentas de Google');
-  }
+  // Onboarding 2 fases: permitir tanto cuentas locales como Google
+  // (restricción eliminada)
 
   const profile = account.userProfile;
   if (!profile) {
@@ -1154,13 +1134,34 @@ const completeOnboarding = async (accountId, { frequencyGoal, birthDate, gender 
 
     // 2. Crear o actualizar meta de frecuencia
     // createWeeklyGoal maneja ambos casos (crear si no existe, actualizar si existe)
-    await frequencyService.createWeeklyGoal({
+    const frequency = await frequencyService.createWeeklyGoal({
       idUserProfile: profile.id_user_profile,
       goal: frequencyGoal,
       transaction,
     });
 
-    // 3. Marcar cuenta como completada
+    // 3. Crear streak si no existe (para cuentas locales que vienen del onboarding)
+    if (!profile.id_streak) {
+      const streak = await streakRepository.createStreak(
+        {
+          id_user_profile: profile.id_user_profile,
+          value: 0,
+          last_value: 0,
+          max_value: 0,
+          recovery_items: 0,
+          id_frequency: frequency.id_frequency,
+        },
+        { transaction }
+      );
+
+      await userProfileRepository.updateUserProfile(
+        profile.id_user_profile,
+        { id_streak: streak.id_streak },
+        { transaction }
+      );
+    }
+
+    // 4. Marcar cuenta como completada
     await accountRepository.updateAccount(
       accountId,
       { profile_completed: true },

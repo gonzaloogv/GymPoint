@@ -12,6 +12,7 @@ import {
 } from '@shared/components/ui';
 import { AppLogo } from '@shared/components/brand';
 import { useOnboarding } from '../hooks/useOnboarding';
+import { useAuthStore } from '../state/auth.store';
 import { GenderRadioGroup } from './components/GenderRadioGroup';
 import { FrequencySlider } from './components/FrequencySlider';
 import { BirthDatePicker } from './components/BirthDatePicker';
@@ -21,6 +22,7 @@ export default function OnboardingScreen() {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const { completeOnboarding, loading, error } = useOnboarding();
+  const { user, updateUser } = useAuthStore();
 
   const [birthDate, setBirthDate] = useState<Date | null>(null);
   const [gender, setGender] = useState('');
@@ -63,8 +65,16 @@ export default function OnboardingScreen() {
     });
 
     if (result.success) {
-      // El updateUser ya actualiza el store, la navegación se manejará automáticamente
-      console.log('✅ Perfil completado, navegando a la app...');
+      // Actualizar store con profileCompleted: true
+      if (user) {
+        updateUser({
+          ...user,
+          profileCompleted: true,
+        });
+      }
+
+      Alert.alert('¡Perfil completo!', 'Bienvenido a GymPoint');
+      // RootNavigator detectará el cambio y navegará a App automáticamente
     }
   };
 

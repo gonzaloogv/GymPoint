@@ -86,8 +86,8 @@ export default function RootNavigator() {
     checkActiveSession();
   }, [setUser]);
 
-  // Verificar si el usuario necesita completar onboarding
-  const needsOnboarding = user && user.authProvider === 'google' && !user.profileCompleted;
+  // Onboarding 2 fases: TODOS los usuarios necesitan completar onboarding si profileCompleted es false
+  const needsOnboarding = user && !user.profileCompleted;
 
   // Mostrar loading mientras verifica auth
   if (isCheckingAuth) {

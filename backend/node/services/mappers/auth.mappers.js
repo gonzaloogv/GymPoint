@@ -129,7 +129,7 @@ function toAuthUser(account, profile) {
       email: null,
       email_verified: false,
       auth_provider: 'local',
-      profile_completed: true,
+      profile_completed: false, // Default seguro
       roles: [],
       profile: toUserProfileSummary(profile),
     };
@@ -147,7 +147,7 @@ function toAuthUser(account, profile) {
     email: account.email,
     email_verified: Boolean(account.email_verified),
     auth_provider: account.auth_provider || 'local',
-    profile_completed: Boolean(account.profile_completed ?? true),
+    profile_completed: Boolean(account.profile_completed), // Sin default peligroso
     roles,
     profile: toUserProfileSummary(userProfile),
   };
@@ -158,10 +158,8 @@ function toAuthSuccessResponse(result) {
   const refreshToken = result.refreshToken ?? null;
   const account = result.account;
 
-  // Solo Google OAuth requiere onboarding si profile_completed es false
-  const needsOnboarding =
-    account?.auth_provider === 'google' &&
-    !account?.profile_completed;
+  // Onboarding 2 fases: TODOS requieren onboarding si profile_completed es false
+  const needsOnboarding = !account?.profile_completed;
 
   return {
     tokens: {

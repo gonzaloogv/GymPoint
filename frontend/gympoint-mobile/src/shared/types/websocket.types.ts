@@ -140,6 +140,30 @@ export interface RewardEarnedPayload {
 }
 
 // ============================================================================
+// DAILY CHALLENGE EVENTS
+// ============================================================================
+
+export interface DailyChallengeUpdatedPayload {
+  challengeId: number;
+  templateId: number;
+  date: string;
+  title: string;
+  description: string;
+  targetValue: number;
+  timestamp: string;
+}
+
+export interface UserChallengeProgressPayload {
+  challengeId: number;
+  userId: number;
+  currentProgress: number;
+  targetValue: number;
+  isCompleted: boolean;
+  tokensAwarded?: number;
+  timestamp: string;
+}
+
+// ============================================================================
 // SYSTEM EVENTS
 // ============================================================================
 
@@ -254,6 +278,11 @@ export const WS_EVENTS = {
   // Progress
   PROGRESS_WEEKLY_UPDATED: 'progress:weekly:updated',
   ATTENDANCE_RECORDED: 'attendance:recorded',
+
+  // Daily Challenges
+  DAILY_CHALLENGE_NEW: 'daily-challenge:new',
+  USER_CHALLENGE_PROGRESS: 'user-challenge:progress',
+  USER_CHALLENGE_COMPLETED: 'user-challenge:completed',
 } as const;
 
 export type WebSocketEventName = (typeof WS_EVENTS)[keyof typeof WS_EVENTS];
