@@ -79,7 +79,7 @@ export const Footer: React.FC = () => {
                 
                 <div className="pt-8 flex flex-col sm:flex-row justify-between items-center text-sm">
                     <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-                       <a href="https://www.apple.com/ar/ios/app-store/" target="_blank" className={`font-semibold ${primaryLinkColor}`}>Descargar App</a>
+                       <a href="https://expo.dev/artifacts/eas/cT6FmYtcD3xZ2UUFE6jYz6.apk" target="_blank" className={`font-semibold ${primaryLinkColor}`}>Descargar App</a>
                     </div>
                     <p className="mt-4 sm:mt-0">
                         &copy;{new Date().getFullYear()} GymPoint. Todos los derechos reservados.

@@ -41,7 +41,7 @@ export const Hero = forwardRef<HTMLElement>((_, ref) => {
                 >
                     <DemoButton size="lg" className="uppercase" />
                         <Button variant="secondary" size="lg">
-                            <a href="https://www.apple.com/ar/ios/app-store/" target="_blank">
+                            <a href="https://expo.dev/artifacts/eas/cT6FmYtcD3xZ2UUFE6jYz6.apk" target="_blank">
                                 DESCARGAR APP
                             </a>
                         </Button>
