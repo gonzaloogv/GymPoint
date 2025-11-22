@@ -587,6 +587,7 @@ export function useRealtimeSync() {
     websocketService.on(WS_EVENTS.REVIEW_NEW, handleReviewsUpdated);
     websocketService.on(WS_EVENTS.REVIEW_UPDATED, handleReviewsUpdated);
     websocketService.on(WS_EVENTS.GYM_RATING_UPDATED, handleReviewsUpdated);
+    websocketService.on(WS_EVENTS.REVIEW_HELPFUL_UPDATED, handleReviewsUpdated);
 
     // Eventos de streak
     websocketService.on(WS_EVENTS.STREAK_MILESTONE, handleStreakMilestone);
@@ -627,6 +628,7 @@ export function useRealtimeSync() {
       websocketService.off(WS_EVENTS.REVIEW_NEW, handleReviewsUpdated);
       websocketService.off(WS_EVENTS.REVIEW_UPDATED, handleReviewsUpdated);
       websocketService.off(WS_EVENTS.GYM_RATING_UPDATED, handleReviewsUpdated);
+      websocketService.off(WS_EVENTS.REVIEW_HELPFUL_UPDATED, handleReviewsUpdated);
 
       // Cleanup eventos de streak
       websocketService.off(WS_EVENTS.STREAK_MILESTONE, handleStreakMilestone);

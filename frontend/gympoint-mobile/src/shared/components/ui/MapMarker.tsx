@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from "react";
 import { Platform } from "react-native";
 import type { MapLocation } from "@features/gyms/presentation/types";
-import { GymPin } from "./GymPin";
+import { GymPin, GYM_PIN_ANCHOR_Y } from "./GymPin";
 
 type Props = {
   location: MapLocation;
@@ -14,6 +14,8 @@ type Props = {
  * Soporta tamaño dinámico según nivel de zoom
  */
 function MapMarkerComponent({ location, pinSize = 48, scale = 1.0 }: Props) {
+  // Para Android: mantener tracksViewChanges=true para evitar clipping de bitmap
+  // Para iOS: desactivar después de carga inicial para mejor rendimiento
   const [tracksViewChanges, setTracksViewChanges] = useState(true);
 
   if (Platform.OS === "web") {
@@ -30,38 +32,40 @@ function MapMarkerComponent({ location, pinSize = 48, scale = 1.0 }: Props) {
     return null;
   }
 
-  // Desactivar tracking después de animación inicial (2s)
+  // Solo para iOS: desactivar tracking después de animación inicial (2s)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setTracksViewChanges(false);
-    }, 2000);
+    if (Platform.OS === 'ios') {
+      const timer = setTimeout(() => {
+        setTracksViewChanges(false);
+      }, 2000);
 
-    return () => clearTimeout(timer);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
-  // Re-activar tracking cuando cambia el tamaño (para animación de resize)
+  // Solo para iOS: re-activar tracking cuando cambia el tamaño
   useEffect(() => {
-    setTracksViewChanges(true);
-    const timer = setTimeout(() => {
-      setTracksViewChanges(false);
-    }, 500);
+    if (Platform.OS === 'ios') {
+      setTracksViewChanges(true);
+      const timer = setTimeout(() => {
+        setTracksViewChanges(false);
+      }, 500);
 
-    return () => clearTimeout(timer);
+      return () => clearTimeout(timer);
+    }
   }, [pinSize, scale]);
-
-  const effectiveSize = pinSize * scale;
-  // Compensar el padding del GymPin (0.5 * effectiveSize)
-  // CenterOffset (iOS): Desplazar el centro hacia arriba
-  const yOffset = -(effectiveSize * 0.5);
 
   return (
     <Marker
       key={location.id}
       coordinate={location.coordinate}
       title={location.title}
-      anchor={{ x: 0.5, y: 0.75 }} // Android: 0.75 es el punto donde termina el pin visualmente (padding es 0.5, size es 1.0 -> total 2.0. Tip at 1.5. 1.5/2.0 = 0.75)
-      centerOffset={{ x: 0, y: yOffset }}
+      anchor={{ x: 0.5, y: GYM_PIN_ANCHOR_Y }} // Ajustado al padding extra para evitar recorte en Android
       tracksViewChanges={tracksViewChanges}
+      style={{
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
       <GymPin size={pinSize} scale={scale} />
     </Marker>

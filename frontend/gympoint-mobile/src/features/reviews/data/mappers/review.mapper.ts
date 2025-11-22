@@ -56,6 +56,7 @@ export function mapReviewDTOToEntity(dto: ReviewDTO): Review {
     isVerified: dto.is_verified || false,
     createdAt: new Date(dto.created_at),
     updatedAt: new Date(dto.updated_at),
+    hasUserVoted: dto.user_voted === true,
     author,
     gym,
   };

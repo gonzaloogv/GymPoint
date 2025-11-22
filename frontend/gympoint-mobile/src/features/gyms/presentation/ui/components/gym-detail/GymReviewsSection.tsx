@@ -41,7 +41,8 @@ export function GymReviewsSection({
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const filteredReviews = reviews.filter((r) => r.userId !== currentUserId);
+  // Las reseñas ya vienen filtradas desde GymDetailScreen (sin la del usuario actual)
+  // No es necesario filtrar nuevamente
 
   return (
     <InfoCard variant="default" className="mx-4 mt-4">
@@ -108,7 +109,7 @@ export function GymReviewsSection({
 
       {/* Reviews List */}
       <ReviewsList
-        reviews={filteredReviews}
+        reviews={reviews}
         isLoading={isLoading}
         error={null}
         pagination={pagination}
@@ -118,7 +119,11 @@ export function GymReviewsSection({
         onHelpful={onHelpful}
         onEdit={onEdit}
         onDelete={onDelete}
-        emptyMessage="No hay reseñas aún. ¡Sé el primero en dejar una!"
+        emptyMessage={
+          hasMyReview
+            ? "No hay otras reseñas todavía"
+            : "No hay reseñas aún. ¡Sé el primero en dejar una!"
+        }
       />
     </InfoCard>
   );

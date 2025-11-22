@@ -8,7 +8,7 @@ export interface UseGymReviewsParams {
   page?: number;
   limit?: number;
   sortBy?: 'created_at' | 'rating' | 'helpful_count';
-  order?: 'ASC' | 'DESC';
+  order?: 'asc' | 'desc';
   minRating?: number;
   maxRating?: number;
   withCommentOnly?: boolean;
@@ -64,11 +64,13 @@ export function useGymReviews(params: UseGymReviewsParams): UseGymReviewsResult 
       setError(null);
 
       try {
+        const normalizedOrder = (order || 'desc').toLowerCase() as 'asc' | 'desc';
+
         const response = await ReviewRemote.listGymReviews(gymId, {
           page: pageNum,
           limit,
           sortBy,
-          order,
+          order: normalizedOrder,
           min_rating: minRating,
           max_rating: maxRating,
           with_comment_only: withCommentOnly,

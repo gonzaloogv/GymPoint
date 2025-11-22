@@ -104,6 +104,12 @@ export function GymDetailScreenWrapper() {
     [queryClient, gymId],
   );
 
+  const handleHelpfulUpdated = useCallback(() => {
+    console.log('[GymDetailWrapper] Helpful updated, invalidating queries...');
+    queryClient.invalidateQueries({ queryKey: ['gym-reviews', gymId] });
+    queryClient.invalidateQueries({ queryKey: ['gym-detail', gymId] });
+  }, [queryClient, gymId]);
+
   /**
    * WebSocket callbacks para check-ins
    */
@@ -152,6 +158,7 @@ export function GymDetailScreenWrapper() {
     onNewReview: handleNewReview,
     onReviewUpdated: handleReviewUpdated,
     onRatingUpdated: handleRatingUpdated,
+    onHelpfulUpdated: handleHelpfulUpdated,
   });
 
   useCheckInUpdates({

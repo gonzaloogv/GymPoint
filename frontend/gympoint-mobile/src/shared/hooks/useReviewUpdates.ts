@@ -7,6 +7,7 @@ interface ReviewUpdatesCallbacks {
   onNewReview?: (data: { reviewId: number; gymId: number; rating: number }) => void;
   onReviewUpdated?: (data: { reviewId: number; gymId: number; rating: number }) => void;
   onRatingUpdated?: (data: { gymId: number; averageRating: number; totalReviews: number }) => void;
+  onHelpfulUpdated?: (data: { reviewId: number; gymId: number; helpfulCount: number; userId: number; hasVoted: boolean }) => void;
 }
 
 /**
@@ -20,13 +21,15 @@ export function useReviewUpdates(gymId: number | null, callbacks: ReviewUpdatesC
   const onNewReviewRef = useRef(callbacks.onNewReview);
   const onReviewUpdatedRef = useRef(callbacks.onReviewUpdated);
   const onRatingUpdatedRef = useRef(callbacks.onRatingUpdated);
+  const onHelpfulUpdatedRef = useRef(callbacks.onHelpfulUpdated);
 
   // Actualizar refs cuando cambien los callbacks
   useEffect(() => {
     onNewReviewRef.current = callbacks.onNewReview;
     onReviewUpdatedRef.current = callbacks.onReviewUpdated;
     onRatingUpdatedRef.current = callbacks.onRatingUpdated;
-  }, [callbacks.onNewReview, callbacks.onReviewUpdated, callbacks.onRatingUpdated]);
+    onHelpfulUpdatedRef.current = callbacks.onHelpfulUpdated;
+  }, [callbacks.onNewReview, callbacks.onReviewUpdated, callbacks.onRatingUpdated, callbacks.onHelpfulUpdated]);
 
   /**
    * Handler para nueva review
@@ -69,6 +72,19 @@ export function useReviewUpdates(gymId: number | null, callbacks: ReviewUpdatesC
   );
 
   /**
+   * Handler para votos de �til actualizados
+   */
+  const handleHelpfulUpdated = useCallback(
+    (data: { reviewId: number; gymId: number; helpfulCount: number; userId: number; hasVoted: boolean; timestamp?: string }) => {
+      if (data.gymId !== gymId) return;
+
+      console.log('[useReviewUpdates] Helpful updated:', data);
+      onHelpfulUpdatedRef.current?.(data);
+    },
+    [gymId],
+  );
+
+  /**
    * Registrar listeners cuando se conecta
    */
   useEffect(() => {
@@ -77,13 +93,15 @@ export function useReviewUpdates(gymId: number | null, callbacks: ReviewUpdatesC
     on(WS_EVENTS.REVIEW_NEW, handleNewReview);
     on(WS_EVENTS.REVIEW_UPDATED, handleReviewUpdated);
     on(WS_EVENTS.GYM_RATING_UPDATED, handleRatingUpdated);
+    on(WS_EVENTS.REVIEW_HELPFUL_UPDATED, handleHelpfulUpdated);
 
     return () => {
       off(WS_EVENTS.REVIEW_NEW, handleNewReview);
       off(WS_EVENTS.REVIEW_UPDATED, handleReviewUpdated);
       off(WS_EVENTS.GYM_RATING_UPDATED, handleRatingUpdated);
+      off(WS_EVENTS.REVIEW_HELPFUL_UPDATED, handleHelpfulUpdated);
     };
-  }, [connected, gymId, on, off, handleNewReview, handleReviewUpdated, handleRatingUpdated]);
+  }, [connected, gymId, on, off, handleNewReview, handleReviewUpdated, handleRatingUpdated, handleHelpfulUpdated]);
 
   return { connected };
 }

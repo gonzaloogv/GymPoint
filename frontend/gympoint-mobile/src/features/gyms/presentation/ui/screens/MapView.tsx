@@ -1,9 +1,10 @@
 import { Platform, StyleProp, ViewStyle } from 'react-native';
 import type { LatLng, MapLocation, Region } from '@features/gyms/presentation/types';
 import { useMapUserLocation, useMapZoom } from '@features/gyms/presentation/hooks';
-import { MapFallback, MapMarker, UserLocationPin } from '@shared/components/ui';
+import { MapFallback, MapMarker, UserLocationPin, ClusterMarker } from '@shared/components/ui';
 import { MAP_STYLE } from './mapViewConfig';
 import WebMapView from './MapView.web';
+import React from 'react';
 
 type Props = {
   initialRegion: Region;
@@ -45,10 +46,13 @@ export default function MapView({
   }
 
   // Importación dinámica solo para plataformas nativas
-  let NativeMapView;
+  let ClusteredMapView;
+  let Marker;
   try {
+    const MapClustering = require('react-native-map-clustering');
     const RNMaps = require('react-native-maps');
-    NativeMapView = RNMaps.default;
+    ClusteredMapView = MapClustering.default;
+    Marker = RNMaps.Marker || RNMaps.default.Marker;
   } catch (error) {
     console.warn('react-native-maps no está disponible:', error);
     return null;
@@ -65,7 +69,7 @@ export default function MapView({
   const { zoomState, handleRegionChange } = useMapZoom();
 
   return (
-    <NativeMapView
+    <ClusteredMapView
       ref={mapRef}
       initialRegion={startRegion || initialRegion}
       onMapReady={handleReady}
@@ -74,6 +78,21 @@ export default function MapView({
       style={[MAP_STYLE, { height: mapHeight }, style]}
       showsUserLocation
       showsMyLocationButton
+      radius={60}
+      maxZoom={20}
+      minZoom={1}
+      extent={512}
+      nodeSize={64}
+      clusterColor="#43adff"
+      clusterTextColor="#ffffff"
+      renderCluster={(cluster) => {
+        const { coordinate, pointCount } = cluster;
+        return (
+          <Marker key={`cluster-${coordinate.latitude}-${coordinate.longitude}`} coordinate={coordinate}>
+            <ClusterMarker count={pointCount} />
+          </Marker>
+        );
+      }}
     >
       {locations.map((location) => (
         <MapMarker
@@ -92,6 +111,6 @@ export default function MapView({
           onLayout={handleUserMarkerLayout}
         />
       )}
-    </NativeMapView>
+    </ClusteredMapView>
   );
 }

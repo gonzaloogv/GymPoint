@@ -36,6 +36,9 @@ export interface Review {
   createdAt: Date;
   updatedAt: Date;
 
+  // Voto del usuario actual
+  hasUserVoted?: boolean;
+
   // Relaciones opcionales
   author?: ReviewAuthor;
   gym?: ReviewGym;

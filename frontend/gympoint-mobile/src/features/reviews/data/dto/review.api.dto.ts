@@ -21,6 +21,7 @@ export interface ReviewDTO {
   is_verified: boolean;
   created_at: string; // ISO datetime
   updated_at: string; // ISO datetime
+  user_voted?: boolean; // Indica si el usuario actual votó esta review como útil
   user?: {
     id_user_profile: number;
     name: string;
@@ -120,7 +121,7 @@ export interface ListReviewsQueryParams {
   page?: number;
   limit?: number;
   sortBy?: 'created_at' | 'rating' | 'helpful_count' | 'updated_at';
-  order?: 'ASC' | 'DESC';
+  order?: 'asc' | 'desc';
   min_rating?: number;
   max_rating?: number;
   with_comment_only?: boolean;

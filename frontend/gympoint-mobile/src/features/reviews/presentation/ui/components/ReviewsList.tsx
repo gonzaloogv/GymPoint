@@ -23,7 +23,7 @@ interface ReviewsListProps {
   currentUserId?: number;
   onRefresh?: () => void;
   onLoadMore?: () => void;
-  onHelpful?: (reviewId: number) => void;
+  onHelpful?: (reviewId: number) => Promise<void>;
   onEdit?: (review: Review) => void;
   onDelete?: (reviewId: number) => void;
   emptyMessage?: string;
@@ -75,7 +75,7 @@ export function ReviewsList({
         </Text>
         {onRefresh && (
           <TouchableOpacity
-            onPress={handleRefresh}
+            onPress={onRefresh}
             className="mt-4 bg-primary px-6 py-2 rounded-lg"
           >
             <Text className="text-white font-semibold">Reintentar</Text>

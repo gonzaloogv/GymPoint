@@ -70,6 +70,7 @@ export * from './MapFallback';
 export * from './MapMarker';
 export * from './GymPin';
 export * from './UserLocationPin';
+export * from './ClusterMarker';
 export * from './ResultsInfo';
 
 // Feedback Components

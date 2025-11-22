@@ -22,7 +22,11 @@ export const ReviewRemote = {
    */
   listGymReviews: (gymId: number, params?: ListReviewsQueryParams) =>
     api
-      .get<PaginatedReviewsResponseDTO>(`/api/gyms/${gymId}/reviews`, { params })
+      .get<PaginatedReviewsResponseDTO>(`/api/gyms/${gymId}/reviews`, {
+        params: params?.order
+          ? { ...params, order: params.order.toLowerCase() as 'asc' | 'desc' }
+          : params,
+      })
       .then((r) => r.data),
 
   /**
@@ -74,10 +78,21 @@ export const ReviewRemote = {
    * POST /api/reviews/:id_review/helpful
    * Marcar una reseña como útil
    */
-  markReviewHelpful: (reviewId: number) =>
-    api
-      .post<{ message: string }>(`/api/reviews/${reviewId}/helpful`)
-      .then((r) => r.data),
+  markReviewHelpful: (reviewId: number) => {
+    const url = `/api/reviews/${reviewId}/helpful`;
+    console.log('[REVIEW-REMOTE] markReviewHelpful called with reviewId:', reviewId);
+    console.log('[REVIEW-REMOTE] POST URL:', url);
+    return api
+      .post<{ message: string }>(url)
+      .then((r) => {
+        console.log('[REVIEW-REMOTE] markReviewHelpful SUCCESS:', r.data);
+        return r.data;
+      })
+      .catch((err) => {
+        console.error('[REVIEW-REMOTE] markReviewHelpful ERROR:', err.response?.status, err.response?.data);
+        throw err;
+      });
+  },
 
   /**
    * DELETE /api/reviews/:id_review/helpful

@@ -87,6 +87,16 @@ const config: ExpoConfig = {
   plugins: [
     'expo-secure-store',
     'expo-web-browser',
+    [
+      'react-native-maps',
+      {
+        config: {
+          googleMaps: {
+            apiKey: process.env.ANDROID_GOOGLE_MAPS_API_KEY,
+          },
+        },
+      },
+    ],
   ],
   extra: {
     apiUrl: process.env.EXPO_PUBLIC_API_BASE_URL,

@@ -106,6 +106,21 @@ export interface ReviewUpdatedPayload {
   timestamp: string;
 }
 
+export interface ReviewDeletedPayload {
+  reviewId: number;
+  gymId: number;
+  timestamp: string;
+}
+
+export interface ReviewHelpfulUpdatedPayload {
+  reviewId: number;
+  gymId: number;
+  helpfulCount: number;
+  userId: number;
+  hasVoted: boolean;
+  timestamp: string;
+}
+
 export interface GymRatingUpdatedPayload {
   gymId: number;
   averageRating: number;
@@ -266,6 +281,8 @@ export const WS_EVENTS = {
   // Reviews
   REVIEW_NEW: 'review:new',
   REVIEW_UPDATED: 'review:updated',
+  REVIEW_DELETED: 'review:deleted',
+  REVIEW_HELPFUL_UPDATED: 'review:helpful:updated',
   GYM_RATING_UPDATED: 'gym:rating:updated',
 
   // Achievements & Rewards

@@ -1,7 +1,7 @@
-﻿import React, { useState } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { GymDetailScreenProps } from "./GymDetailScreen.types";
-import { useTheme } from "@shared/hooks";
+import { useTheme, useReviewUpdates } from "@shared/hooks";
 import { SurfaceScreen } from "@shared/components/ui";
 import { useGymDetail } from "../../hooks/useGymDetail";
 import { useGymSubscriptionStatus } from "@features/subscriptions";
@@ -31,6 +31,7 @@ import {
 } from "@features/reviews";
 import { useAuthStore } from "@features/auth";
 import { ReviewsScreen } from "./ReviewsScreen";
+import { BackButton } from "@shared/components/ui";
 
 export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps) {
   const { theme } = useTheme();
@@ -55,6 +56,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
 
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
+  const [displayReviews, setDisplayReviews] = useState<Review[]>([]);
 
   const {
     reviews,
@@ -70,7 +72,19 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
   });
 
   const { stats: ratingStats } = useGymRatingStats(gym.id);
-  const { createReview, updateReview, deleteReview, markHelpful, isCreating, isUpdating } = useReviewActions();
+
+  useEffect(() => {
+    setDisplayReviews(reviews);
+  }, [reviews]);
+  const {
+    createReview,
+    updateReview,
+    deleteReview,
+    markHelpful,
+    unmarkHelpful,
+    isCreating,
+    isUpdating,
+  } = useReviewActions();
 
   const additionalInfo = {
     phone: gymDetail?.phone || "",
@@ -96,6 +110,29 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
     icon: categoryIcons[category.toLowerCase()] || "💪",
     items: items || [],
   }));
+
+  // WS: mantener GymDetail sincronizado con cambios en reviews y votos de útil
+  useReviewUpdates(gym.id, {
+    onNewReview: async () => {
+      await refetchReviews();
+    },
+    onReviewUpdated: async () => {
+      await refetchReviews();
+    },
+    onHelpfulUpdated: async (data) => {
+      setDisplayReviews(prev =>
+        prev.map(r =>
+          r.id === data.reviewId
+            ? {
+                ...r,
+                helpfulCount: data.helpfulCount ?? r.helpfulCount,
+                hasUserVoted: data.userId === user?.id_user ? data.hasVoted : r.hasUserVoted,
+              }
+            : r
+        )
+      );
+    },
+  });
 
   const handleCreateReview = () => {
     setReviewToEdit(null);
@@ -135,11 +172,46 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
   };
 
   const handleMarkHelpful = async (reviewId: number) => {
-    await markHelpful(reviewId);
-    await refetchReviews();
+    const previous = displayReviews;
+    const review = previous.find((r) => r.id === reviewId);
+    if (!review) return;
+
+    const alreadyVoted = review.hasUserVoted;
+    const delta = alreadyVoted ? -1 : 1;
+    const nextCount = Math.max(0, (review.helpfulCount || 0) + delta);
+
+    setDisplayReviews(prev => prev.map(r =>
+      r.id === reviewId ? { ...r, helpfulCount: nextCount, hasUserVoted: !alreadyVoted } : r
+    ));
+
+    const ok = alreadyVoted ? await unmarkHelpful(reviewId) : await markHelpful(reviewId);
+
+    if (!ok) {
+      setDisplayReviews(previous);
+    }
   };
 
   const [showReviewsScreen, setShowReviewsScreen] = useState(false);
+
+  // Mostrar solo la reseña más útil en el detalle (excluyendo la del usuario actual)
+  const displayedReviews = React.useMemo(() => {
+    if (!displayReviews || displayReviews.length === 0) return [];
+
+    // Filtrar reseñas excluyendo la del usuario actual
+    const otherReviews = displayReviews.filter(r => r.userId !== user?.id_user);
+
+    if (otherReviews.length === 0) return [];
+
+    return [...otherReviews]
+      .sort((a, b) => {
+        const helpfulDiff = (b.helpfulCount || 0) - (a.helpfulCount || 0);
+        if (helpfulDiff !== 0) return helpfulDiff;
+        const ratingDiff = (b.rating || 0) - (a.rating || 0);
+        if (ratingDiff !== 0) return ratingDiff;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      })
+      .slice(0, 1);
+  }, [displayReviews, user?.id_user]);
 
   const formatScheduleText = () => {
     if (!schedules || schedules.length === 0) return "Sin información de horarios";
@@ -209,7 +281,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
     return "Sin información de horarios";
   };
 
-  const myReview = reviews.find((r) => r.userId === user?.id_user);
+  const myReview = displayReviews.find((r) => r.userId === user?.id_user);
 
   if (loading) {
     return (
@@ -283,17 +355,17 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
         />
 
         <GymReviewsSection
-          reviews={reviews}
+          reviews={displayedReviews}
           averageRating={averageRating ?? 0}
           ratingStats={ratingStats}
           isLoading={reviewsLoading}
-          pagination={pagination}
+          pagination={undefined}
           currentUserId={user?.id_user}
           hasMyReview={!!myReview}
           onCreateReview={handleCreateReview}
           onShowAll={() => setShowReviewsScreen(true)}
           onRefresh={refetchReviews}
-          onLoadMore={loadNextPage}
+          onLoadMore={undefined}
           onHelpful={handleMarkHelpful}
           onEdit={handleEditReview}
           onDelete={handleDeleteReview}
