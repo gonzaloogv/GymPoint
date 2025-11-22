@@ -31,6 +31,7 @@ function toGym(instance, options = {}) {
     featured: Boolean(plain.featured),
     month_price: plain.month_price != null ? Number(plain.month_price) : null,
     week_price: plain.week_price != null ? Number(plain.week_price) : null,
+    trial_allowed: Boolean(plain.trial_allowed),
     rules: plain.rules || [],
     auto_checkin_enabled: Boolean(plain.auto_checkin_enabled),
     geofence_radius_meters: plain.geofence_radius_meters ?? null,

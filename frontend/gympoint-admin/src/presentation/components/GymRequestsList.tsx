@@ -150,6 +150,9 @@ export const GymRequestsList = () => {
                       <strong>Teléfono:</strong> {request.phone}
                     </p>
                   )}
+                  <p className="text-text-muted">
+                    <strong>Pase de prueba:</strong> {request.trial_allowed ? 'Sí, admite 1 día gratis' : 'No'}
+                  </p>
                   {request.website && (
                     <p className="text-text-muted">
                       <strong>Web:</strong>{' '}
@@ -166,6 +169,27 @@ export const GymRequestsList = () => {
                     <p className="text-text-muted">{request.description}</p>
                   </div>
                 )}
+
+                {(() => {
+                  const schedule = Array.isArray(request.schedule)
+                    ? request.schedule
+                    : typeof request.schedule === 'string'
+                      ? (() => { try { return JSON.parse(request.schedule); } catch { return []; } })()
+                      : [];
+                  return schedule.length > 0 ? (
+                    <div>
+                      <h4 className="font-semibold text-text dark:text-text-dark mb-2">Horarios</h4>
+                      <ul className="space-y-1 text-text-muted">
+                        {schedule.map((slot: any, idx: number) => (
+                          <li key={`${slot.day}-${idx}`}>
+                            <strong className="capitalize">{slot.day}:</strong>{' '}
+                            {slot.is_open ? `${slot.opens} - ${slot.closes}` : 'Cerrado'}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null;
+                })()}
 
                 {request.services && Array.isArray(request.services) && request.services.length > 0 && (
                   <div>

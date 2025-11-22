@@ -106,7 +106,8 @@ export const useGymFormSubmit = (): UseGymFormSubmitReturn => {
           attributes: formData.attributes,
           pricing: formData.pricing,
           schedule: formData.schedule,
-          amenities: formData.amenities
+          amenities: formData.amenities,
+          trial_allowed: formData.trial_allowed ?? false
         }),
       });
 

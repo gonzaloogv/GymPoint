@@ -116,6 +116,7 @@ const registrarMovimiento = async ({ userId, delta, reason, refType = null, refI
       reason,
       refType,
       refId,
+      ledgerEntry: ledgerEntry.toJSON ? ledgerEntry.toJSON() : ledgerEntry,
       timestamp: new Date().toISOString(),
     });
 

@@ -43,7 +43,7 @@ export const Navbar = ({ onMenuClick, toggleButtonRef }: NavbarProps) => {
             />
           </svg>
           <span className="text-base font-bold text-primary transition-colors group-hover:text-primary/80 sm:text-lg">
-            Panel de Administracion
+            Administración
           </span>
         </button>
 

@@ -6,6 +6,7 @@ export interface ListUsersParams {
   limit?: number;
   subscription?: 'FREE' | 'PREMIUM';
   search?: string;
+  status?: 'active' | 'revoked';
   sortBy?: string;
   order?: 'ASC' | 'DESC';
 }

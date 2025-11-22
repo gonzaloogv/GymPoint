@@ -205,11 +205,11 @@ module.exports = {
       // ========================================
       console.log(' Creando tabla "account_deletion_request"...');
       await queryInterface.createTable('account_deletion_request', {
-        id_deletion_request: {
+        id_request: {
           type: Sequelize.INTEGER,
           primaryKey: true,
           autoIncrement: true,
-          comment: 'ID único de la solicitud'
+          comment: 'ID unico de la solicitud'
         },
         id_account: {
           type: Sequelize.INTEGER,
@@ -220,15 +220,20 @@ module.exports = {
           },
           onDelete: 'CASCADE',
           onUpdate: 'CASCADE',
-          comment: 'Cuenta que solicita eliminación'
+          comment: 'Cuenta que solicita eliminacion'
         },
         reason: {
           type: Sequelize.TEXT,
           allowNull: true,
-          comment: 'Razón de la eliminación (opcional)'
+          comment: 'Razon de la eliminacion (opcional)'
+        },
+        scheduled_deletion_date: {
+          type: Sequelize.DATEONLY,
+          allowNull: false,
+          comment: 'Fecha programada para eliminar la cuenta'
         },
         status: {
-          type: Sequelize.ENUM('PENDING', 'APPROVED', 'REJECTED', 'COMPLETED', 'CANCELLED'),
+          type: Sequelize.ENUM('PENDING', 'CANCELLED', 'COMPLETED'),
           allowNull: false,
           defaultValue: 'PENDING',
           comment: 'Estado de la solicitud'
@@ -239,39 +244,34 @@ module.exports = {
           defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
           comment: 'Fecha de solicitud'
         },
-        processed_at: {
+        cancelled_at: {
           type: Sequelize.DATE,
           allowNull: true,
-          comment: 'Fecha de procesamiento'
+          comment: 'Fecha de cancelacion'
         },
-        processed_by: {
-          type: Sequelize.INTEGER,
+        completed_at: {
+          type: Sequelize.DATE,
           allowNull: true,
-          references: {
-            model: 'admin_profiles',
-            key: 'id_admin_profile'
-          },
-          onDelete: 'SET NULL',
-          onUpdate: 'CASCADE',
-          comment: 'Admin que procesó la solicitud'
+          comment: 'Fecha de completado'
         },
-        notes: {
-          type: Sequelize.TEXT,
+        metadata: {
+          type: Sequelize.JSON,
           allowNull: true,
-          comment: 'Notas del administrador'
+          comment: 'Datos adicionales de la solicitud'
         }
       }, { transaction });
 
-      // Índices para búsquedas
-      await queryInterface.addIndex('account_deletion_request', ['id_account', 'status'], {
-        name: 'idx_deletion_request_account_status',
+      // Indices para busquedas
+      await queryInterface.addIndex('account_deletion_request', ['id_account'], {
+        name: 'idx_account_deletion_account',
         transaction
       });
-      await queryInterface.addIndex('account_deletion_request', ['status', 'requested_at'], {
-        name: 'idx_deletion_request_status_date',
+      await queryInterface.addIndex('account_deletion_request', ['status', 'scheduled_deletion_date'], {
+        name: 'idx_account_deletion_status_date',
         transaction
       });
-      console.log(' Tabla "account_deletion_request" creada con 2 índices\n');
+      console.log(' Tabla "account_deletion_request" creada con 2 indices\n');
+
 
       await transaction.commit();
       console.log('========================================');

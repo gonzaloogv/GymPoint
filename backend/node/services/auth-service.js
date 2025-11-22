@@ -29,6 +29,7 @@ const {
   GoogleAuthCommand,
   LogoutCommand,
 } = require('./commands/auth.commands');
+const { appEvents, EVENTS } = require('../websocket/events/event-emitter');
 
 const ACCESS_EXPIRATION = ACCESS_TOKEN_TTL;
 const REFRESH_EXPIRATION_DAYS = REFRESH_TOKEN_TTL_DAYS;
@@ -684,11 +685,14 @@ const resolveGoogleCommand = async (input) => {
   }
 
   const googleUser = await googleProvider.verifyToken(idToken);
+  const rawName = googleUser.name || '';
+  const derivedLastname = googleUser.lastName || rawName.split(' ').slice(1).join(' ') || '';
 
   return new GoogleAuthCommand({
     idToken,
     email: googleUser.email,
-    name: googleUser.name || googleUser.lastName || '',
+    name: googleUser.name || rawName.split(' ')[0] || '',
+    lastname: derivedLastname,
     googleId: googleUser.googleId,
     picture: googleUser.picture || null,
   });
@@ -786,6 +790,30 @@ const register = async (input, context = {}) => {
   const token = generateAccessToken(account, account.roles || [], profile);
   const refreshToken = await generateRefreshToken(account.id_account, context);
 
+  // Emitir evento de usuario creado para admins (user-management)
+  if (profile) {
+    try {
+      appEvents.emit(EVENTS.USER_CREATED, {
+        user: {
+          id_user_profile: profile.id_user_profile,
+          id_account: account.id_account,
+          email: account.email,
+          name: profile.name,
+          lastname: profile.lastname,
+          subscription: profile.subscription || profile.app_tier || 'FREE',
+          tokens: profile.tokens || 0,
+          is_active: account.is_active,
+          auth_provider: account.auth_provider,
+          last_login: account.last_login,
+          created_at: profile.created_at || account.created_at,
+        },
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('[Auth] Error emitting USER_CREATED event:', error.message);
+    }
+  }
+
   return {
     token,
     refreshToken,
@@ -845,6 +873,7 @@ const login = async (...args) => {
   await accountRepository.updateLastLogin(account.id_account, new Date());
 
   const profile = account.userProfile || account.adminProfile || null;
+
   const token = generateAccessToken(account, account.roles || [], profile);
 
   const refreshToken = await generateRefreshToken(account.id_account, context);
@@ -917,7 +946,7 @@ const googleLogin = async (input, context = {}) => {
           {
             id_account: newAccount.id_account,
             name: command.name,
-            lastname: command.name,
+            lastname: command.lastname || command.name,
             gender: 'O',
             locality: null,
             birth_date: null,
@@ -951,6 +980,7 @@ const googleLogin = async (input, context = {}) => {
   }
 
   const profile = account.userProfile || account.adminProfile || null;
+
   const token = generateAccessToken(account, account.roles || [], profile);
 
   const refreshToken = await generateRefreshToken(account.id_account, context);

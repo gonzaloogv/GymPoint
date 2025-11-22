@@ -123,6 +123,12 @@ module.exports = {
           allowNull: true,
           comment: 'Precio diario'
         },
+        trial_allowed: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+          comment: 'Si permite pase de dia gratis'
+        },
         // Horarios
         schedule: {
           type: Sequelize.JSON,

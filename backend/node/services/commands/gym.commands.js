@@ -46,6 +46,7 @@ class CreateGymCommand {
     latitude,
     longitude,
     month_price,
+    week_price = null,
     geofence_radius_meters = 100,
     min_stay_minutes = 30,
     description = null,
@@ -56,6 +57,7 @@ class CreateGymCommand {
     verified = false,
     featured = false,
     auto_checkin_enabled = false,
+    trial_allowed = false,
     createdBy,
     amenities = [],
     rules = [],
@@ -68,6 +70,7 @@ class CreateGymCommand {
     this.latitude = latitude;
     this.longitude = longitude;
     this.month_price = month_price;
+    this.week_price = week_price;
     this.geofence_radius_meters = geofence_radius_meters;
     this.min_stay_minutes = min_stay_minutes;
     this.description = description;
@@ -78,6 +81,7 @@ class CreateGymCommand {
     this.verified = verified;
     this.featured = featured;
     this.auto_checkin_enabled = auto_checkin_enabled;
+    this.trial_allowed = trial_allowed;
     this.createdBy = createdBy;
     this.amenities = amenities;
     this.rules = rules;
@@ -122,6 +126,7 @@ class UpdateGymCommand {
     latitude,
     longitude,
     month_price,
+    week_price,
     geofence_radius_meters,
     min_stay_minutes,
     description,
@@ -132,6 +137,7 @@ class UpdateGymCommand {
     verified,
     featured,
     auto_checkin_enabled,
+    trial_allowed,
     updatedBy,
     amenities,
     rules,
@@ -145,6 +151,7 @@ class UpdateGymCommand {
     this.latitude = latitude;
     this.longitude = longitude;
     this.month_price = month_price;
+    this.week_price = week_price;
     this.geofence_radius_meters = geofence_radius_meters;
     this.min_stay_minutes = min_stay_minutes;
     this.description = description;
@@ -155,6 +162,7 @@ class UpdateGymCommand {
     this.verified = verified;
     this.featured = featured;
     this.auto_checkin_enabled = auto_checkin_enabled;
+    this.trial_allowed = trial_allowed;
     this.updatedBy = updatedBy;
     this.amenities = amenities;
     this.rules = rules;

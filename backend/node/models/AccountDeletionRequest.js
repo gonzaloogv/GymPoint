@@ -1,12 +1,13 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
+// Modelo alineado con el esquema real de la tabla account_deletion_request
 const AccountDeletionRequest = sequelize.define('AccountDeletionRequest', {
-  id_deletion_request: {
+  id_request: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
-    comment: 'ID único de la solicitud'
+    comment: 'ID unico de la solicitud'
   },
   id_account: {
     type: DataTypes.INTEGER,
@@ -17,15 +18,20 @@ const AccountDeletionRequest = sequelize.define('AccountDeletionRequest', {
     },
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
-    comment: 'Cuenta que solicita eliminación'
+    comment: 'Cuenta que solicita eliminacion'
   },
   reason: {
     type: DataTypes.TEXT,
     allowNull: true,
-    comment: 'Razón de la eliminación (opcional)'
+    comment: 'Razon de la eliminacion (opcional)'
+  },
+  scheduled_deletion_date: {
+    type: DataTypes.DATEONLY,
+    allowNull: false,
+    comment: 'Fecha programada para eliminar la cuenta'
   },
   status: {
-    type: DataTypes.ENUM('PENDING', 'APPROVED', 'REJECTED', 'COMPLETED', 'CANCELLED'),
+    type: DataTypes.ENUM('PENDING', 'CANCELLED', 'COMPLETED'),
     allowNull: false,
     defaultValue: 'PENDING',
     comment: 'Estado de la solicitud'
@@ -36,38 +42,32 @@ const AccountDeletionRequest = sequelize.define('AccountDeletionRequest', {
     defaultValue: DataTypes.NOW,
     comment: 'Fecha de solicitud'
   },
-  processed_at: {
+  cancelled_at: {
     type: DataTypes.DATE,
     allowNull: true,
-    comment: 'Fecha de procesamiento'
+    comment: 'Fecha de cancelacion'
   },
-  processed_by: {
-    type: DataTypes.INTEGER,
+  completed_at: {
+    type: DataTypes.DATE,
     allowNull: true,
-    references: {
-      model: 'admin_profiles',
-      key: 'id_admin_profile'
-    },
-    onDelete: 'SET NULL',
-    onUpdate: 'CASCADE',
-    comment: 'Admin que procesó la solicitud'
+    comment: 'Fecha de completado'
   },
-  notes: {
-    type: DataTypes.TEXT,
+  metadata: {
+    type: DataTypes.JSON,
     allowNull: true,
-    comment: 'Notas del administrador'
+    comment: 'Datos adicionales de la solicitud'
   }
 }, {
   tableName: 'account_deletion_request',
   timestamps: false,
   indexes: [
     {
-      fields: ['id_account', 'status'],
-      name: 'idx_deletion_request_account_status'
+      fields: ['id_account'],
+      name: 'idx_account_deletion_account'
     },
     {
-      fields: ['status', 'requested_at'],
-      name: 'idx_deletion_request_status_date'
+      fields: ['status', 'scheduled_deletion_date'],
+      name: 'idx_account_deletion_status_date'
     }
   ]
 });

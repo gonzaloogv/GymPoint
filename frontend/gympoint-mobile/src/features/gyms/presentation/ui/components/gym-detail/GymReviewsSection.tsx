@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '@shared/hooks';
-import { InfoCard } from '@shared/components/ui';
-import { Review, ReviewsList, RatingStars, RatingStats } from '@features/reviews';
+﻿import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "@shared/hooks";
+import { InfoCard } from "@shared/components/ui";
+import { Review, ReviewsList, RatingStars, RatingStats } from "@features/reviews";
 
 interface GymReviewsSectionProps {
   reviews: Review[];
@@ -14,6 +14,7 @@ interface GymReviewsSectionProps {
   currentUserId?: number;
   hasMyReview: boolean;
   onCreateReview: () => void;
+  onShowAll?: () => void;
   onRefresh: () => Promise<void>;
   onLoadMore?: () => void;
   onHelpful: (reviewId: number) => Promise<void>;
@@ -30,6 +31,7 @@ export function GymReviewsSection({
   currentUserId,
   hasMyReview,
   onCreateReview,
+  onShowAll,
   onRefresh,
   onLoadMore,
   onHelpful,
@@ -37,7 +39,7 @@ export function GymReviewsSection({
   onDelete,
 }: GymReviewsSectionProps) {
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const isDark = theme === "dark";
 
   const filteredReviews = reviews.filter((r) => r.userId !== currentUserId);
 
@@ -48,22 +50,22 @@ export function GymReviewsSection({
         <View
           className="w-14 h-14 rounded-[20px] border items-center justify-center mr-3"
           style={{
-            backgroundColor: isDark ? 'rgba(250, 204, 21, 0.24)' : 'rgba(250, 204, 21, 0.18)',
-            borderColor: isDark ? 'rgba(250, 204, 21, 0.38)' : 'rgba(250, 204, 21, 0.24)',
+            backgroundColor: isDark ? "rgba(250, 204, 21, 0.24)" : "rgba(250, 204, 21, 0.18)",
+            borderColor: isDark ? "rgba(250, 204, 21, 0.38)" : "rgba(250, 204, 21, 0.24)",
           }}
         >
-          <Ionicons name="star" size={22} color={isDark ? '#FCD34D' : '#F59E0B'} />
+          <Ionicons name="star" size={22} color={isDark ? "#FCD34D" : "#F59E0B"} />
         </View>
         <Text
           className="flex-1 text-lg font-bold"
-          style={{ color: isDark ? '#F9FAFB' : '#111827', letterSpacing: -0.2 }}
+          style={{ color: isDark ? "#F9FAFB" : "#111827", letterSpacing: -0.2 }}
         >
           Reseñas
         </Text>
         {!hasMyReview && (
           <TouchableOpacity className="flex-row items-center gap-1.5" onPress={onCreateReview} activeOpacity={0.75}>
-            <Ionicons name="add-circle-outline" size={22} color={isDark ? '#60A5FA' : '#2563EB'} />
-            <Text className="text-[13px] font-semibold" style={{ color: isDark ? '#60A5FA' : '#2563EB' }}>
+            <Ionicons name="add-circle-outline" size={22} color={isDark ? "#60A5FA" : "#2563EB"} />
+            <Text className="text-[13px] font-semibold" style={{ color: isDark ? "#60A5FA" : "#2563EB" }}>
               Escribir
             </Text>
           </TouchableOpacity>
@@ -75,16 +77,23 @@ export function GymReviewsSection({
         <View
           className="rounded-2xl px-4 py-3 flex-row items-center justify-between mb-4"
           style={{
-            backgroundColor: isDark ? 'rgba(17, 24, 39, 0.6)' : '#F9FAFB',
+            backgroundColor: isDark ? "rgba(17, 24, 39, 0.6)" : "#F9FAFB",
           }}
         >
           <RatingStars rating={averageRating} size={20} />
           <Text
             className="text-[13px] font-medium"
-            style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
+            style={{ color: isDark ? "#9CA3AF" : "#6B7280" }}
           >
-            {ratingStats.totalReviews} {ratingStats.totalReviews === 1 ? 'reseña' : 'reseñas'}
+            {ratingStats.totalReviews} {ratingStats.totalReviews === 1 ? "reseña" : "reseñas"}
           </Text>
+          {ratingStats.totalReviews > 1 && onShowAll && (
+            <TouchableOpacity onPress={onShowAll} activeOpacity={0.7}>
+              <Text className="text-[12px] font-semibold" style={{ color: isDark ? "#60A5FA" : "#2563EB" }}>
+                Ver todas
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
 
@@ -93,7 +102,7 @@ export function GymReviewsSection({
         className="mb-4"
         style={{
           borderBottomWidth: StyleSheet.hairlineWidth,
-          borderBottomColor: isDark ? 'rgba(55, 65, 81, 0.6)' : 'rgba(212, 212, 216, 0.7)',
+          borderBottomColor: isDark ? "rgba(55, 65, 81, 0.6)" : "rgba(212, 212, 216, 0.7)",
         }}
       />
 
@@ -114,4 +123,3 @@ export function GymReviewsSection({
     </InfoCard>
   );
 }
-

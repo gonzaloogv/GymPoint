@@ -100,7 +100,8 @@ export interface GymRequest {
   monthly_price: number | null;
   weekly_price: number | null;
   daily_price: number | null;
-  schedule: any[];
+  schedule: DaySchedule[];
+  trial_allowed: boolean;
   amenities: number[]; // IDs de amenidades
   status: 'pending' | 'approved' | 'rejected';
   rejection_reason: string | null;
@@ -109,4 +110,11 @@ export interface GymRequest {
   processed_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface DaySchedule {
+  day: string;
+  opens: string;
+  closes: string;
+  is_open: boolean;
 }

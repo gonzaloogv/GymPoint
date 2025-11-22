@@ -108,6 +108,7 @@ const createGymRequest = async (req, res) => {
       weekly_price: req.body.pricing?.weekly || req.body.weekly_price,
       daily_price: req.body.pricing?.daily || req.body.daily_price,
       schedule: req.body.schedule || [],
+      trial_allowed: req.body.trial_allowed ?? req.body.trialAllowed ?? false,
       amenities: amenityIds // Ahora son IDs numéricos
     };
 

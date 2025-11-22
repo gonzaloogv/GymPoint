@@ -118,6 +118,12 @@ const GymRequest = sequelize.define('GymRequest', {
     allowNull: true,
     comment: 'Precio diario'
   },
+  trial_allowed: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+    comment: 'Si permite pase de dia gratis'
+  },
 
   // Horarios
   schedule: {

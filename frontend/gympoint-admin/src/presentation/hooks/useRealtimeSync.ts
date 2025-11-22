@@ -127,10 +127,65 @@ export function useRealtimeSync() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
     };
 
+    const handleUserStatusUpdated = (data: { accountId: number; userId?: number | null; is_active: boolean; email?: string }) => {
+      const userQueries = queryClient.getQueriesData<{ data?: any[] }>({ queryKey: ['admin', 'users'] });
+      userQueries.forEach(([key, cached]) => {
+        if (!cached?.data) return;
+        const updatedUsers = cached.data.map((user) =>
+          user.id_account === data.accountId || user.id_user_profile === data.userId
+            ? { ...user, is_active: data.is_active }
+            : user,
+        );
+        queryClient.setQueryData(key, { ...cached, data: updatedUsers });
+      });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+    };
+
+    const handleUserCreated = (data: { user: any }) => {
+      if (!data?.user) return;
+      const userQueries = queryClient.getQueriesData<{ data?: any[]; pagination?: any }>({
+        queryKey: ['admin', 'users'],
+      });
+      userQueries.forEach(([key, cached]) => {
+        if (!cached) return;
+        const exists = cached.data?.some(
+          (u) =>
+            u.id_account === data.user.id_account ||
+            u.id_user_profile === data.user.id_user_profile ||
+            u.email === data.user.email
+        );
+        const newData = exists ? cached.data || [] : [data.user, ...(cached.data || [])];
+        const pagination = cached.pagination
+          ? { ...cached.pagination, total: (cached.pagination.total || 0) + (exists ? 0 : 1) }
+          : cached.pagination;
+        queryClient.setQueryData(key, { ...cached, data: newData, pagination });
+      });
+    };
+
+    const handleUserTokensUpdated = (data: any) => {
+      // Actualizar tokens en caches de usuarios
+      const userQueries = queryClient.getQueriesData<{ data?: any[] }>({ queryKey: ['admin', 'users'] });
+      userQueries.forEach(([key, cached]) => {
+        if (!cached?.data) return;
+        const updatedUsers = cached.data.map((user) =>
+          user.id_user_profile === data.userId
+            ? { ...user, tokens: data.newBalance }
+            : user
+        );
+        queryClient.setQueryData(key, { ...cached, data: updatedUsers });
+      });
+
+      // Invalidate transactions list to pull latest ledger
+      queryClient.invalidateQueries({ queryKey: ['admin', 'transactions'] });
+    };
+
     websocketService.onGymRequestCreated(handleGymRequestCreated);
     websocketService.onGymRequestApproved(handleGymRequestApproved);
     websocketService.onGymRequestRejected(handleGymRequestRejected);
     websocketService.onUserSubscriptionChanged(handleUserSubscriptionChanged);
+    websocketService.onUserStatusUpdated(handleUserStatusUpdated);
+    websocketService.onUserCreated(handleUserCreated);
+    websocketService.onUserTokensUpdated(handleUserTokensUpdated);
     websocketService.onStatsUpdated(handleStatsUpdated);
 
     return () => {
@@ -138,6 +193,9 @@ export function useRealtimeSync() {
       websocketService.off('gym:request:approved', handleGymRequestApproved);
       websocketService.off('gym:request:rejected', handleGymRequestRejected);
       websocketService.off('user:subscription:changed', handleUserSubscriptionChanged);
+      websocketService.off('user:status:updated', handleUserStatusUpdated);
+      websocketService.off('user:created', handleUserCreated);
+      websocketService.off('user:tokens:updated', handleUserTokensUpdated);
       websocketService.off('admin:stats:updated', handleStatsUpdated);
     };
   }, [queryClient]);

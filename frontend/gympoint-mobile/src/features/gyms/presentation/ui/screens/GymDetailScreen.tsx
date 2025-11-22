@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { GymDetailScreenProps } from './GymDetailScreen.types';
-import { useTheme } from '@shared/hooks';
-import { SurfaceScreen } from '@shared/components/ui';
-import { useGymDetail } from '../../hooks/useGymDetail';
-import { useGymSubscriptionStatus } from '@features/subscriptions';
+﻿import React, { useState } from "react";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { GymDetailScreenProps } from "./GymDetailScreen.types";
+import { useTheme } from "@shared/hooks";
+import { SurfaceScreen } from "@shared/components/ui";
+import { useGymDetail } from "../../hooks/useGymDetail";
+import { useGymSubscriptionStatus } from "@features/subscriptions";
 import {
   GymLocationCard,
   GymServicesCard,
@@ -19,7 +19,7 @@ import {
   GymContactCard,
   GymMyReviewCard,
   GymReviewsSection,
-} from '../components/gym-detail';
+} from "../components/gym-detail";
 import {
   useGymReviews,
   useGymRatingStats,
@@ -28,29 +28,34 @@ import {
   Review,
   CreateReviewData,
   UpdateReviewData,
-} from '@features/reviews';
-import { useAuthStore } from '@features/auth';
+} from "@features/reviews";
+import { useAuthStore } from "@features/auth";
+import { ReviewsScreen } from "./ReviewsScreen";
 
 export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps) {
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const isDark = theme === "dark";
   const { user } = useAuthStore();
 
-  // Fetch detailed gym data
-  const { gym: gymDetail, schedules, loading, error, averageRating, totalReviews, refetch: refetchGymDetail } = useGymDetail(gym.id);
+  const {
+    gym: gymDetail,
+    schedules,
+    loading,
+    error,
+    averageRating,
+    totalReviews,
+    refetch: refetchGymDetail,
+  } = useGymDetail(gym.id);
 
-  // Subscription status
   const subscriptionStatus = useGymSubscriptionStatus(
     gym.id,
     gym.name,
     gymDetail?.trial_allowed || false
   );
 
-  // Reviews state
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
 
-  // Reviews functionality
   const {
     reviews,
     pagination,
@@ -60,48 +65,38 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
   } = useGymReviews({
     gymId: gym.id,
     limit: 5,
-    sortBy: 'created_at',
-    order: 'desc',
+    sortBy: "created_at",
+    order: "desc",
   });
 
   const { stats: ratingStats } = useGymRatingStats(gym.id);
-  const {
-    createReview,
-    updateReview,
-    deleteReview,
-    markHelpful,
-    isCreating,
-    isUpdating,
-  } = useReviewActions();
+  const { createReview, updateReview, deleteReview, markHelpful, isCreating, isUpdating } = useReviewActions();
 
-  // Additional info
   const additionalInfo = {
-    phone: gymDetail?.phone || '',
-    website: gymDetail?.website || '',
-    email: gymDetail?.email || '',
+    phone: gymDetail?.phone || "",
+    website: gymDetail?.website || "",
+    email: gymDetail?.email || "",
     amenities: gymDetail?.amenities || [],
   };
 
   const price = gymDetail?.monthPrice ?? gym.price ?? 0;
   const gymRules = gymDetail?.rules || [];
 
-  // Map equipment from API (categorized object) to array for display
   const equipmentByCategory = gymDetail?.equipment || {};
   const categoryIcons: Record<string, string> = {
-    fuerza: '🏋️',
-    cardio: '🏃',
-    funcional: '🤸',
-    pesas: '💪',
-    maquinas: '⚙️',
+    fuerza: "💪",
+    cardio: "🏃",
+    funcional: "🤸",
+    pesas: "🏋️",
+    maquinas: "🛠️",
   };
 
   const equipment = Object.entries(equipmentByCategory).map(([category, items]) => ({
     category: category.charAt(0).toUpperCase() + category.slice(1),
-    icon: categoryIcons[category.toLowerCase()] || '🏋️',
+    icon: categoryIcons[category.toLowerCase()] || "💪",
     items: items || [],
   }));
 
-  // Review handlers
   const handleCreateReview = () => {
     setReviewToEdit(null);
     setShowReviewModal(true);
@@ -117,7 +112,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
       const result = await updateReview(reviewToEdit.id, data as UpdateReviewData);
       if (result) {
         await refetchReviews();
-        refetchGymDetail(); // Actualizar stats en header
+        refetchGymDetail();
         setShowReviewModal(false);
         setReviewToEdit(null);
       }
@@ -125,7 +120,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
       const result = await createReview(data as CreateReviewData);
       if (result) {
         await refetchReviews();
-        refetchGymDetail(); // Actualizar stats en header
+        refetchGymDetail();
         setShowReviewModal(false);
       }
     }
@@ -135,7 +130,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
     const success = await deleteReview(reviewId);
     if (success) {
       await refetchReviews();
-      refetchGymDetail(); // Actualizar stats en header
+      refetchGymDetail();
     }
   };
 
@@ -144,45 +139,83 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
     await refetchReviews();
   };
 
-  // Format schedules for display
-  const formatScheduleText = () => {
-    if (!schedules || schedules.length === 0) {
-      return 'Sin información de horarios';
-    }
+  const [showReviewsScreen, setShowReviewsScreen] = useState(false);
 
-    const DAY_MAP: Record<number, string> = {
-      0: 'dom',
-      1: 'lun',
-      2: 'mar',
-      3: 'mie',
-      4: 'jue',
-      5: 'vie',
-      6: 'sab',
+  const formatScheduleText = () => {
+    if (!schedules || schedules.length === 0) return "Sin información de horarios";
+
+    const normalizeDay = (value: any): number | null => {
+      if (typeof value === "number") return value;
+      const raw = (value || "").toString().toLowerCase().trim();
+      const short = raw.substring(0, 3);
+      const map: Record<string, number> = {
+        dom: 0,
+        sun: 0,
+        lun: 1,
+        mon: 1,
+        mar: 2,
+        tue: 2,
+        mie: 3,
+        mié: 3,
+        wed: 3,
+        jue: 4,
+        thu: 4,
+        vie: 5,
+        fri: 5,
+        sab: 6,
+        sáb: 6,
+        sat: 6,
+      };
+      return map[raw] ?? map[short] ?? null;
     };
 
-    const today = new Date().getDay();
-    const todayKey = DAY_MAP[today];
-    const todaySchedule = schedules.find((s) => s.day_of_week === todayKey);
+    const nowUtc = Date.now() + new Date().getTimezoneOffset() * 60000;
+    const now = new Date(nowUtc - 3 * 60 * 60000);
+    const today = now.getDay();
 
-    if (todaySchedule && !todaySchedule.closed && todaySchedule.opening_time && todaySchedule.closing_time) {
-      return `${todaySchedule.opening_time.substring(0, 5)} - ${todaySchedule.closing_time.substring(0, 5)}`;
+    const todaySchedule = schedules.find((s) => normalizeDay((s as any).day_of_week) === today);
+    if (!todaySchedule) return "Sin información de horarios";
+
+    const openStr =
+      (todaySchedule as any).opening_time ||
+      (todaySchedule as any).open_time ||
+      (todaySchedule as any).opens ||
+      "";
+    const closeStr =
+      (todaySchedule as any).closing_time ||
+      (todaySchedule as any).close_time ||
+      (todaySchedule as any).closes ||
+      "";
+
+    if ((todaySchedule as any).closed === true || (todaySchedule as any).is_closed) {
+      return "Cerrado ahora";
     }
 
-    if (todaySchedule?.closed) {
-      return 'Cerrado hoy';
+    if (openStr && closeStr) {
+      const [oh, om] = String(openStr).split(":").map(Number);
+      const [ch, cm] = String(closeStr).split(":").map(Number);
+      if ([oh, om, ch, cm].every(Number.isFinite)) {
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+        const openMinutes = oh * 60 + om;
+        const closeMinutes = ch * 60 + cm;
+        const isOpen =
+          openMinutes <= closeMinutes
+            ? nowMinutes >= openMinutes && nowMinutes < closeMinutes
+            : nowMinutes >= openMinutes || nowMinutes < closeMinutes;
+        return isOpen ? "Abierto ahora" : "Cerrado ahora";
+      }
     }
 
-    return 'Ver horarios completos';
+    return "Sin información de horarios";
   };
 
-  // Get user's review
   const myReview = reviews.find((r) => r.userId === user?.id_user);
 
   if (loading) {
     return (
       <SurfaceScreen>
         <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color={isDark ? '#ffffff' : '#111827'} />
+          <ActivityIndicator size="large" color={isDark ? "#ffffff" : "#111827"} />
         </View>
       </SurfaceScreen>
     );
@@ -192,16 +225,13 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
     return (
       <SurfaceScreen>
         <View className="flex-1 justify-center items-center px-4">
-          <Text className="text-lg font-bold mb-2" style={{ color: isDark ? '#F9FAFB' : '#111827' }}>
+          <Text className="text-lg font-bold mb-2" style={{ color: isDark ? "#F9FAFB" : "#111827" }}>
             Error al cargar el gimnasio
           </Text>
-          <Text className="text-center" style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}>
+          <Text className="text-center" style={{ color: isDark ? "#9CA3AF" : "#6B7280" }}>
             {String(error)}
           </Text>
-          <TouchableOpacity
-            className="bg-primary rounded-[24px] px-6 py-3 mt-4"
-            onPress={onBack}
-          >
+          <TouchableOpacity className="bg-primary rounded-[24px] px-6 py-3 mt-4" onPress={onBack}>
             <Text className="text-onPrimary font-semibold">Volver</Text>
           </TouchableOpacity>
         </View>
@@ -209,103 +239,86 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
     );
   }
 
+  if (showReviewsScreen) {
+    return <ReviewsScreen gymId={gym.id} gymName={gym.name} onBack={() => setShowReviewsScreen(false)} />;
+  }
+
   return (
     <SurfaceScreen scroll>
-      <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
-        {/* Header */}
+      <View className={`flex-1 ${isDark ? "bg-gray-900" : "bg-white"}`}>
         <GymDetailHeader gymName={gym.name} onBack={onBack} />
 
-        {/* Rating and Schedule */}
         <GymRatingScheduleBar
           averageRating={averageRating ?? 0}
           totalReviews={totalReviews}
           scheduleText={formatScheduleText()}
         />
 
-      {/* Location Card */}
-      <GymLocationCard
-        address={gym.address}
-        city={gym.city}
-        distance={gym.distance}
-        coordinates={gym.coordinates}
-      />
+        <GymLocationCard
+          address={gym.address}
+          city={gym.city}
+          distance={gym.distance}
+          coordinates={gym.coordinates}
+        />
 
-      {/* Services Card */}
-      {gymDetail?.services && <GymServicesCard services={gymDetail.services} />}
+        {gymDetail?.services && <GymServicesCard services={gymDetail.services} />}
 
-      {/* Price Card */}
-      <GymPriceCard price={price} />
+        <GymPriceCard price={price} />
 
-      {/* Subscription Card */}
-      <GymSubscriptionCard
-        gymId={gym.id}
-        gymName={gym.name}
-        subscriptionStatus={subscriptionStatus}
-      />
+        <GymSubscriptionCard gymId={gym.id} gymName={gym.name} subscriptionStatus={subscriptionStatus} />
 
-      {/* Equipment Card */}
-      {equipment.length > 0 && <GymEquipmentCard equipment={equipment} />}
+        {equipment.length > 0 && <GymEquipmentCard equipment={equipment} />}
 
-      {/* Schedule Card */}
-      <GymScheduleCard schedules={schedules} />
+        <GymScheduleCard schedules={schedules} />
 
-      {/* Contact Info */}
-      <GymContactCard
-        phone={additionalInfo.phone}
-        email={additionalInfo.email}
-        website={additionalInfo.website}
-      />
+        <GymContactCard phone={additionalInfo.phone} email={additionalInfo.email} website={additionalInfo.website} />
 
-      {/* Rules Card */}
-      <GymRulesCard rules={gymRules} />
+        <GymRulesCard rules={gymRules} />
 
-      {/* Mi Reseña Card - Separado para mejor UX visual */}
-      <GymMyReviewCard
-        review={myReview || null}
-        onHelpful={handleMarkHelpful}
-        onEdit={handleEditReview}
-        onDelete={handleDeleteReview}
-      />
+        <GymMyReviewCard
+          review={myReview || null}
+          onHelpful={handleMarkHelpful}
+          onEdit={handleEditReview}
+          onDelete={handleDeleteReview}
+        />
 
-      {/* Reviews Section */}
-      <GymReviewsSection
-        reviews={reviews}
-        averageRating={averageRating ?? 0}
-        ratingStats={ratingStats}
-        isLoading={reviewsLoading}
-        pagination={pagination}
-        currentUserId={user?.id_user}
-        hasMyReview={!!myReview}
-        onCreateReview={handleCreateReview}
-        onRefresh={refetchReviews}
-        onLoadMore={loadNextPage}
-        onHelpful={handleMarkHelpful}
-        onEdit={handleEditReview}
-        onDelete={handleDeleteReview}
-      />
+        <GymReviewsSection
+          reviews={reviews}
+          averageRating={averageRating ?? 0}
+          ratingStats={ratingStats}
+          isLoading={reviewsLoading}
+          pagination={pagination}
+          currentUserId={user?.id_user}
+          hasMyReview={!!myReview}
+          onCreateReview={handleCreateReview}
+          onShowAll={() => setShowReviewsScreen(true)}
+          onRefresh={refetchReviews}
+          onLoadMore={loadNextPage}
+          onHelpful={handleMarkHelpful}
+          onEdit={handleEditReview}
+          onDelete={handleDeleteReview}
+        />
 
-      {/* Check-in Section */}
-      <CheckInSection
-        gymId={gym.id}
-        gymName={gym.name}
-        distance={gym.distance}
-        subscriptionStatus={subscriptionStatus}
-        onCheckIn={onCheckIn}
-      />
+        <CheckInSection
+          gymId={gym.id}
+          gymName={gym.name}
+          distance={gym.distance}
+          subscriptionStatus={subscriptionStatus}
+          onCheckIn={onCheckIn}
+        />
 
-      {/* Review Modal */}
-      <CreateReviewModal
-        visible={showReviewModal}
-        gymId={gym.id}
-        gymName={gym.name}
-        existingReview={reviewToEdit}
-        onClose={() => {
-          setShowReviewModal(false);
-          setReviewToEdit(null);
-        }}
-        onSubmit={handleSubmitReview}
-        isSubmitting={isCreating || isUpdating}
-      />
+        <CreateReviewModal
+          visible={showReviewModal}
+          gymId={gym.id}
+          gymName={gym.name}
+          existingReview={reviewToEdit}
+          onClose={() => {
+            setShowReviewModal(false);
+            setReviewToEdit(null);
+          }}
+          onSubmit={handleSubmitReview}
+          isSubmitting={isCreating || isUpdating}
+        />
       </View>
     </SurfaceScreen>
   );

@@ -413,15 +413,14 @@ const requestAccountDeletion = async (command) => {
     }, { transaction });
 
     // Revocar refresh tokens
-    if (account.userProfile) {
-      await RefreshToken.update(
-        { is_revoked: true },
-        {
-          where: { id_user: account.userProfile.id_user_profile },
-          transaction
-        }
-      );
-    }
+    // Revocar todos los refresh tokens ligados a la cuenta
+    await RefreshToken.update(
+      { is_revoked: true },
+      {
+        where: { id_account: cmd.accountId },
+        transaction
+      }
+    );
 
     await transaction.commit();
     return mapDeletionRequest(request);

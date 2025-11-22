@@ -115,10 +115,11 @@ class RefreshTokenCommand {
  * @property {string} [picture] - URL de la foto de perfil
  */
 class GoogleAuthCommand {
-  constructor({ idToken, email, name, googleId, picture = null }) {
+  constructor({ idToken, email, name, lastname, googleId, picture = null }) {
     this.idToken = idToken;
     this.email = email;
     this.name = name;
+    this.lastname = lastname;
     this.googleId = googleId;
     this.picture = picture;
   }

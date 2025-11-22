@@ -285,6 +285,18 @@ function registerAppEventListeners(io) {
       reason: data.reason,
       timestamp: data.timestamp
     });
+
+    io.to('admin:user-management').emit('user:tokens:updated', {
+      userId: data.userId,
+      newBalance: data.newBalance,
+      previousBalance: data.previousBalance,
+      delta: data.delta,
+      reason: data.reason,
+      refType: data.refType,
+      refId: data.refId,
+      ledgerEntry: data.ledgerEntry,
+      timestamp: data.timestamp
+    });
   });
 
   appEvents.on(EVENTS.USER_SUBSCRIPTION_UPDATED, (data) => {
@@ -332,6 +344,31 @@ function registerAppEventListeners(io) {
     io.to(`user-profile:${data.userId}`).emit('user:profile:updated', {
       profile: data.profile,
       timestamp: data.timestamp
+    });
+  });
+
+  appEvents.on(EVENTS.USER_ACCOUNT_STATUS_UPDATED, (data) => {
+    if (!data || typeof data.accountId !== 'number') {
+      console.error('[WebSocket] Invalid payload for USER_ACCOUNT_STATUS_UPDATED:', data);
+      return;
+    }
+    io.to('admin:user-management').emit('user:status:updated', {
+      accountId: data.accountId,
+      userId: data.userId,
+      is_active: data.isActive,
+      email: data.email,
+      timestamp: data.timestamp,
+    });
+  });
+
+  appEvents.on(EVENTS.USER_CREATED, (data) => {
+    if (!data || !data.user) {
+      console.error('[WebSocket] Invalid payload for USER_CREATED:', data);
+      return;
+    }
+    io.to('admin:user-management').emit('user:created', {
+      user: data.user,
+      timestamp: data.timestamp || new Date().toISOString(),
     });
   });
 

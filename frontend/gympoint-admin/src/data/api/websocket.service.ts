@@ -252,6 +252,27 @@ class WebSocketService {
   }
 
   /**
+   * Escuchar cambios de estado de cuenta (activado/desactivado)
+   */
+  onUserStatusUpdated(handler: (data: any) => void): void {
+    this.on('user:status:updated', handler);
+  }
+
+  /**
+   * Escuchar creación de usuarios
+   */
+  onUserCreated(handler: (data: any) => void): void {
+    this.on('user:created', handler);
+  }
+
+  /**
+   * Escuchar actualización de tokens (movimientos)
+   */
+  onUserTokensUpdated(handler: (data: any) => void): void {
+    this.on('user:tokens:updated', handler);
+  }
+
+  /**
    * Escuchar actualización de estadísticas
    */
   onStatsUpdated(handler: (data: any) => void): void {

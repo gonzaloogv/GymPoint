@@ -34,6 +34,7 @@ const getInitialFormData = (): GymFormData => {
     description: '',
     schedule: getDefaultSchedule(),
     amenities: [],
+    trial_allowed: false,
   };
 
   const saved = localStorage.getItem(STORAGE_KEY);
@@ -110,14 +111,14 @@ export const useGymForm = () => {
 
 const isStep1Complete = () => {
   const { name, location, contact } = formData;
+  const hasCoordinates = location.latitude !== null && location.longitude !== null;
 
   return !!(
     name.trim() &&
     location.address.trim() &&
     location.city.trim() &&
-    location.latitude !== null &&
-    location.longitude !== null &&
-    contact.phone.trim()
+    contact.phone.trim() &&
+    hasCoordinates
   );
 };
 

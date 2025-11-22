@@ -43,8 +43,7 @@ export function GymScheduleCard({ schedules }: GymScheduleCardProps) {
           Horarios
         </Text>
       </View>
-      <ScheduleCard schedules={schedules} />
+      <ScheduleCard schedules={schedules} isDark={isDark} />
     </InfoCard>
   );
 }
-

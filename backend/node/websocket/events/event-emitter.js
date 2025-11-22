@@ -82,9 +82,11 @@ const EVENTS = {
   ROUTINE_TEMPLATE_DELETED: 'routine:template:deleted', // Admin elimina plantilla
 
   // Gestión de usuarios (Admin)
+  USER_CREATED: 'user:created',
   USER_SUBSCRIPTION_UPDATED: 'user:subscription:updated',
   USER_TOKENS_UPDATED: 'user:tokens:updated',
   USER_PROFILE_UPDATED: 'user:profile:updated',
+  USER_ACCOUNT_STATUS_UPDATED: 'user:account:status:updated',
   PROGRESS_WEEKLY_UPDATED: 'progress:weekly:updated',
 
   // Estadísticas de admin

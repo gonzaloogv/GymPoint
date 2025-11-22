@@ -51,7 +51,8 @@ function toGoogleAuthCommand(dto, payload) {
   return new GoogleAuthCommand({
     idToken: dto.id_token,
     email: payload.email,
-    name: payload.name,
+    name: payload.given_name || payload.name || '',
+    lastname: payload.family_name || payload.name?.split(' ').slice(1).join(' ') || '',
     googleId: payload.sub,
     picture: payload.picture || null,
   });

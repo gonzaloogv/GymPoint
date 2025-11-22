@@ -119,7 +119,7 @@ export const Sidebar = ({ isOpen, onClose, toggleButtonRef }: SidebarProps) => {
         {/* Header del sidebar */}
         <div className="flex h-16 items-center justify-between border-b border-border px-4 dark:border-border-dark">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-primary">AdminPanel</span>
+            <span className="text-xl font-bold text-primary">Menú</span>
           </Link>
           <button
             onClick={onClose}
@@ -159,10 +159,9 @@ export const Sidebar = ({ isOpen, onClose, toggleButtonRef }: SidebarProps) => {
                   className={`
                     flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium
                     transition-all duration-200
-                    ${
-                      isActivePath(item.path)
-                        ? 'bg-primary/15 text-primary shadow-sm'
-                        : 'text-text hover:bg-bg hover:text-primary hover:shadow-sm dark:text-text-dark dark:hover:bg-bg-dark'
+                    ${isActivePath(item.path)
+                      ? 'bg-primary/15 text-primary shadow-sm'
+                      : 'text-text hover:bg-bg hover:text-primary hover:shadow-sm dark:text-text-dark dark:hover:bg-bg-dark'
                     }
                   `}
                 >

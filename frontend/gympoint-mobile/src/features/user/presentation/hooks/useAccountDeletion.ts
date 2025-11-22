@@ -68,7 +68,7 @@ export function useAccountDeletion() {
 
       Alert.alert(
         'Solicitud registrada',
-        response.data.message || 'Tu cuenta será eliminada después del período de gracia de 7 días.',
+        response.data.message || 'Tu cuenta será eliminada después del período de gracia de 30 días.',
         [{ text: 'Entendido' }]
       );
     } catch (err: any) {

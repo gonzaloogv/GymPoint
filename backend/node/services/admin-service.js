@@ -86,11 +86,12 @@ const obtenerEstadisticas = async () => {
  * @returns {Promise<Object>} Lista paginada de usuarios
  */
 const listarUsuarios = async (options = {}) => {
-  const {
+ const {
     page = 1,
     limit = 20,
     subscription,
     search,
+    status,
     sortBy = 'created_at',
     order = 'DESC'
   } = options;
@@ -105,20 +106,35 @@ const listarUsuarios = async (options = {}) => {
     where.app_tier = subscription;
   }
 
-  // Búsqueda
-  const includeWhere = {};
-  if (search) {
-    includeWhere.email = {
-      [Op.like]: `%${search}%`
-    };
+  // Búsqueda combinada
+  const accountWhere = {};
+  const orConditions = [];
+  const term = search?.trim();
+  const numericId = term && !Number.isNaN(Number(term)) ? Number(term) : null;
+
+  if (term) {
+    orConditions.push(
+      { name: { [Op.like]: `%${term}%` } },
+      { lastname: { [Op.like]: `%${term}%` } },
+      { '$account.email$': { [Op.like]: `%${term}%` } }
+    );
+    if (numericId !== null) {
+      orConditions.push(
+        { id_user_profile: numericId },
+        { '$account.id_account$': numericId }
+      );
+    }
   }
 
-  // Búsqueda en nombre/apellido
-  if (search) {
-    where[Op.or] = [
-      { name: { [Op.like]: `%${search}%` } },
-      { lastname: { [Op.like]: `%${search}%` } }
-    ];
+  if (orConditions.length) {
+    where[Op.or] = orConditions;
+  }
+
+  // Filtro por estado de cuenta (revocados/inactivos)
+  if (status === 'revoked' || status === 'inactive') {
+    accountWhere.is_active = false;
+  } else if (status === 'active') {
+    accountWhere.is_active = true;
   }
 
   // Obtener usuarios
@@ -127,8 +143,9 @@ const listarUsuarios = async (options = {}) => {
     include: {
       model: Account,
       as: 'account',
+      required: true,
       attributes: ['id_account', 'email', 'auth_provider', 'is_active', 'last_login'],
-      where: Object.keys(includeWhere).length > 0 ? includeWhere : undefined
+      where: Object.keys(accountWhere).length > 0 ? accountWhere : undefined
     },
     order: [[sortBy, order]],
     limit: validLimit,
@@ -221,7 +238,9 @@ const buscarUsuarioPorEmail = async (email) => {
  * @returns {Promise<void>}
  */
 const desactivarCuenta = async (idAccount) => {
-  const account = await Account.findByPk(idAccount);
+  const account = await Account.findByPk(idAccount, {
+    include: [{ model: UserProfile, as: 'userProfile' }],
+  });
   
   if (!account) {
     throw new Error('Cuenta no encontrada');
@@ -240,9 +259,18 @@ const desactivarCuenta = async (idAccount) => {
   if (userProfile) {
     await RefreshToken.update(
       { is_revoked: true },
-      { where: { id_user: userProfile.id_user_profile } }
+      { where: { id_account: userProfile.id_account } }
     );
   }
+
+  const { appEvents, EVENTS } = require('../websocket/events/event-emitter');
+  appEvents.emit(EVENTS.USER_ACCOUNT_STATUS_UPDATED, {
+    accountId: idAccount,
+    userId: userProfile?.id_user_profile ?? null,
+    email: account.email,
+    isActive: false,
+    timestamp: new Date().toISOString(),
+  });
 };
 
 /**
@@ -251,7 +279,9 @@ const desactivarCuenta = async (idAccount) => {
  * @returns {Promise<void>}
  */
 const activarCuenta = async (idAccount) => {
-  const account = await Account.findByPk(idAccount);
+  const account = await Account.findByPk(idAccount, {
+    include: [{ model: UserProfile, as: 'userProfile' }],
+  });
   
   if (!account) {
     throw new Error('Cuenta no encontrada');
@@ -262,6 +292,15 @@ const activarCuenta = async (idAccount) => {
   }
 
   await account.update({ is_active: true });
+
+  const { appEvents, EVENTS } = require('../websocket/events/event-emitter');
+  appEvents.emit(EVENTS.USER_ACCOUNT_STATUS_UPDATED, {
+    accountId: idAccount,
+    userId: account.userProfile?.id_user_profile ?? null,
+    email: account.email,
+    isActive: true,
+    timestamp: new Date().toISOString(),
+  });
 };
 
 /**

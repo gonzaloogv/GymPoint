@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef } from 'react';
-import type { Region } from '../types';
+﻿import { useState, useCallback, useRef } from "react";
+import type { Region } from "../types";
 
 /**
  * Hook para gestionar niveles de zoom del mapa y calcular tamaños de pin adaptativos
@@ -11,29 +11,29 @@ import type { Region } from '../types';
  * - Se implementa throttling (200ms) para optimizar performance
  */
 
-type ZoomLevel = 'very-close' | 'close' | 'medium' | 'far' | 'very-far';
+type ZoomLevel = "very-close" | "close" | "medium" | "far" | "very-far";
 
 type ZoomState = {
   level: ZoomLevel;
   pinSize: number;
-  scale: number; // Factor de escala (0.5 - 1.5)
+  scale: number; // Factor de escala (0.85 - 1.1)
 };
 
-// Configuración de rangos de zoom
+// Configuración de rangos de zoom (tamaños moderados para no cortar el pin)
 const ZOOM_CONFIG = {
-  'very-close': { maxDelta: 0.005, pinSize: 64, scale: 1.5 }, // Muy cerca
-  'close': { maxDelta: 0.02, pinSize: 56, scale: 1.2 }, // Cerca
-  'medium': { maxDelta: 0.05, pinSize: 48, scale: 1.0 }, // Medio (default)
-  'far': { maxDelta: 0.15, pinSize: 40, scale: 0.8 }, // Lejos
-  'very-far': { maxDelta: Infinity, pinSize: 32, scale: 0.6 }, // Muy lejos
+  "very-close": { maxDelta: 0.005, pinSize: 52, scale: 1.1 },
+  close: { maxDelta: 0.02, pinSize: 48, scale: 1.05 },
+  medium: { maxDelta: 0.05, pinSize: 44, scale: 1.0 },
+  far: { maxDelta: 0.15, pinSize: 40, scale: 0.9 },
+  "very-far": { maxDelta: Infinity, pinSize: 36, scale: 0.85 },
 } as const;
 
 const THROTTLE_MS = 200; // Actualizar como máximo cada 200ms
 
 export function useMapZoom() {
   const [zoomState, setZoomState] = useState<ZoomState>({
-    level: 'medium',
-    pinSize: 48,
+    level: "medium",
+    pinSize: 44,
     scale: 1.0,
   });
 
@@ -45,11 +45,11 @@ export function useMapZoom() {
    * latitudeDelta grande = menos zoom (lejos)
    */
   const calculateZoomLevel = useCallback((latitudeDelta: number): ZoomLevel => {
-    if (latitudeDelta <= ZOOM_CONFIG['very-close'].maxDelta) return 'very-close';
-    if (latitudeDelta <= ZOOM_CONFIG['close'].maxDelta) return 'close';
-    if (latitudeDelta <= ZOOM_CONFIG['medium'].maxDelta) return 'medium';
-    if (latitudeDelta <= ZOOM_CONFIG['far'].maxDelta) return 'far';
-    return 'very-far';
+    if (latitudeDelta <= ZOOM_CONFIG["very-close"].maxDelta) return "very-close";
+    if (latitudeDelta <= ZOOM_CONFIG.close.maxDelta) return "close";
+    if (latitudeDelta <= ZOOM_CONFIG.medium.maxDelta) return "medium";
+    if (latitudeDelta <= ZOOM_CONFIG.far.maxDelta) return "far";
+    return "very-far";
   }, []);
 
   /**

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { AdminRepositoryImpl } from '@/data';
 import { ListUsersParams, TransactionParams } from '@/domain';
 
@@ -29,6 +29,9 @@ export const useUsers = (params?: ListUsersParams) => {
   return useQuery({
     queryKey: ['admin', 'users', params],
     queryFn: () => adminRepository.listUsers(params),
+    placeholderData: keepPreviousData,
+    staleTime: 10 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
