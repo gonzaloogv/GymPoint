@@ -74,6 +74,11 @@ function toRemoveReviewHelpfulCommand(reviewId, userId) {
   return new RemoveReviewHelpfulCommand({ reviewId, userId });
 }
 
+// Alias legible para las rutas REST (/helpful)
+function toUnmarkReviewHelpfulCommand(reviewId, userId) {
+  return toRemoveReviewHelpfulCommand(reviewId, userId);
+}
+
 function toReportReviewCommand(dto, reviewId, userId) {
   return new ReportReviewCommand({
     reviewId,
@@ -207,8 +212,10 @@ function toGymReviewResponse(review, options = {}) {
     };
   }
 
-  // Agregar si el usuario actual votó útil
-  if (options.user_voted !== undefined) {
+  // Agregar si el usuario actual votó útil (puede venir del review directo o de options)
+  if (review.hasUserVoted !== undefined) {
+    response.user_voted = review.hasUserVoted;
+  } else if (options.user_voted !== undefined) {
     response.user_voted = options.user_voted;
   }
 
@@ -251,6 +258,7 @@ module.exports = {
   toDeleteGymReviewCommand,
   toMarkReviewHelpfulCommand,
   toRemoveReviewHelpfulCommand,
+  toUnmarkReviewHelpfulCommand,
   toReportReviewCommand,
 
   // RequestDTO → Query

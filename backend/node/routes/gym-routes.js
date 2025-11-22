@@ -335,8 +335,10 @@ router.post('/:id/favorite', verificarToken, verificarUsuarioApp, gymController.
 /**
  * GET /api/gyms/:gymId/reviews
  * Listar reseñas de un gimnasio
+ * Usa verificarTokenOpcional para incluir user_voted si hay usuario autenticado
  */
-router.get('/:gymId/reviews', reviewController.listGymReviews);
+const { verificarTokenOpcional } = require('../middlewares/auth');
+router.get('/:gymId/reviews', verificarTokenOpcional, reviewController.listGymReviews);
 
 /**
  * GET /api/gyms/:gymId/reviews/stats

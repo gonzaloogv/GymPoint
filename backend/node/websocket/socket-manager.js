@@ -190,6 +190,30 @@ function registerAppEventListeners(io) {
     }
   });
 
+  appEvents.on(EVENTS.REVIEW_DELETED, (data) => {
+    if (data.gymId) {
+      io.to(`gym:${data.gymId}`).emit('review:deleted', {
+        reviewId: data.reviewId,
+        gymId: data.gymId,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  appEvents.on(EVENTS.REVIEW_HELPFUL_UPDATED, (data) => {
+    if (data.gymId) {
+      console.log(`[WebSocket] REVIEW_HELPFUL_UPDATED - Review ${data.reviewId}, helpful_count: ${data.helpfulCount}`);
+      io.to(`gym:${data.gymId}`).emit('review:helpful:updated', {
+        reviewId: data.reviewId,
+        gymId: data.gymId,
+        helpfulCount: data.helpfulCount,
+        userId: data.userId,
+        hasVoted: data.hasVoted,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   appEvents.on(EVENTS.GYM_RATING_UPDATED, (data) => {
     if (data.gymId) {
       io.to(`gym:${data.gymId}`).emit('gym:rating:updated', {

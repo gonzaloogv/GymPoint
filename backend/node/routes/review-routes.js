@@ -4,6 +4,27 @@ const controller = require('../controllers/review-controller');
 const { verificarToken, verificarUsuarioApp, verificarRol } = require('../middlewares/auth');
 
 // ============================================================================
+// RUTAS ESPECÍFICAS (deben ir ANTES que las rutas genéricas con parámetros)
+// ============================================================================
+
+/**
+ * POST /:id_review/helpful
+ * Marcar una review como útil
+ */
+router.post('/:id_review/helpful', (req, res, next) => {
+  console.log('[REVIEW-ROUTES] POST /:id_review/helpful called');
+  console.log('[REVIEW-ROUTES] Params:', req.params);
+  console.log('[REVIEW-ROUTES] Full URL:', req.originalUrl);
+  next();
+}, verificarToken, verificarUsuarioApp, controller.marcarUtil);
+
+/**
+ * DELETE /:id_review/helpful
+ * Remover marca de útil de una review
+ */
+router.delete('/:id_review/helpful', verificarToken, verificarUsuarioApp, controller.removerUtil);
+
+// ============================================================================
 // RUTAS OPENAPI (se montan en /api/gym-reviews desde index.js)
 // ============================================================================
 
@@ -312,56 +333,7 @@ router.post('/', verificarToken, verificarUsuarioApp, controller.crearReview);
 router.patch('/:id_review', verificarToken, verificarUsuarioApp, controller.actualizarReview);
 router.delete('/:id_review', verificarToken, verificarUsuarioApp, controller.eliminarReview);
 
-/**
- * @swagger
- * /api/reviews/{id_review}/helpful:
- *   post:
- *     summary: Marcar una review como útil
- *     description: El usuario no puede marcar su propia review como útil
- *     tags: [Reviews]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id_review
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID de la review
- *     responses:
- *       200:
- *         description: Review marcada como útil exitosamente
- *       400:
- *         description: Ya marcaste esta review como útil o es tu propia review
- *       401:
- *         description: No autorizado
- *       403:
- *         description: Requiere rol de usuario de la app
- *       404:
- *         description: Review no encontrada
- *   delete:
- *     summary: Remover marca de útil de una review
- *     tags: [Reviews]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id_review
- *         required: true
- *         schema:
- *           type: integer
- *         description: ID de la review
- *     responses:
- *       200:
- *         description: Marca de útil removida exitosamente
- *       401:
- *         description: No autorizado
- *       403:
- *         description: Requiere rol de usuario de la app
- *       404:
- *         description: Review no encontrada
- */
-router.post('/:id_review/helpful', verificarToken, verificarUsuarioApp, controller.marcarUtil);
-router.delete('/:id_review/helpful', verificarToken, verificarUsuarioApp, controller.removerUtil);
+// NOTE: Las rutas /:id_review/helpful están definidas al inicio del archivo
+// para que tengan prioridad sobre las rutas genéricas /:reviewId
 
 module.exports = router;

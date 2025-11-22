@@ -143,6 +143,10 @@ const errorHandler = (err, req, res, next) => {
  * Debe colocarse después de todas las rutas definidas
  */
 const notFoundHandler = (req, res) => {
+  console.log('[404 NOT FOUND]', req.method, req.originalUrl);
+  console.log('[404 NOT FOUND] Path:', req.path);
+  console.log('[404 NOT FOUND] Headers:', req.headers);
+
   res.status(404).json({
     error: {
       code: 'ROUTE_NOT_FOUND',

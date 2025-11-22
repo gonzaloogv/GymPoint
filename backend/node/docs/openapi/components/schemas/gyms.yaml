@@ -377,6 +377,10 @@ components:
         featured:
           type: boolean
           description: Gimnasio destacado
+        trial_allowed:
+          type: boolean
+          default: false
+          description: Indica si el gimnasio permite un pase de prueba gratis
         auto_checkin_enabled:
           type: boolean
           default: true

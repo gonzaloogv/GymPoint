@@ -39,6 +39,8 @@ const EVENTS = {
   // Reseñas y Ratings
   REVIEW_CREATED: 'review:created',
   REVIEW_UPDATED: 'review:updated',
+  REVIEW_DELETED: 'review:deleted',
+  REVIEW_HELPFUL_UPDATED: 'review:helpful:updated',
   GYM_RATING_UPDATED: 'gym:rating:updated',
 
   // Logros

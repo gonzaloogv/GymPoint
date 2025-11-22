@@ -161,14 +161,10 @@ async function createHelpfulVote(payload, options = {}) {
   });
 }
 
-async function updateHelpfulVote(reviewId, userId, isHelpful, options = {}) {
-  return ReviewHelpful.update(
-    { is_helpful: isHelpful },
-    {
-      where: { id_review: reviewId, id_user_profile: userId },
-      transaction: options.transaction,
-    }
-  );
+async function updateHelpfulVote(reviewId, userId, options = {}) {
+  // Esta función ya no es necesaria porque no hay campo is_helpful para actualizar
+  // Simplemente devolvemos 0 (no se actualizó nada)
+  return 0;
 }
 
 async function deleteHelpfulVote(reviewId, userId, options = {}) {
@@ -176,6 +172,30 @@ async function deleteHelpfulVote(reviewId, userId, options = {}) {
     where: { id_review: reviewId, id_user_profile: userId },
     transaction: options.transaction,
   });
+}
+
+async function recalculateHelpfulCount(reviewId, options = {}) {
+  console.log('[recalculateHelpfulCount] Called for reviewId:', reviewId);
+
+  // Contar todos los registros (la existencia del registro = voto útil)
+  const count = await ReviewHelpful.count({
+    where: { id_review: reviewId },
+    transaction: options.transaction,
+  });
+
+  console.log('[recalculateHelpfulCount] Count of helpful votes:', count);
+
+  await GymReview.update(
+    { helpful_count: count },
+    {
+      where: { id_review: reviewId },
+      transaction: options.transaction,
+    }
+  );
+
+  console.log('[recalculateHelpfulCount] Updated helpful_count to:', count);
+
+  return count;
 }
 
 // ============================================================================
@@ -213,6 +233,7 @@ module.exports = {
   createHelpfulVote,
   updateHelpfulVote,
   deleteHelpfulVote,
+  recalculateHelpfulCount,
 
   // Rating stats
   findRatingStatsByGymId,

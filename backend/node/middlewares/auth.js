@@ -308,6 +308,72 @@ const verificarPropiedad = (idField = 'id_user_profile') => {
 
 
 /**
+ * Middleware: Verificar Token Opcional
+ *
+ * Decodifica el token si existe, pero no falla si no hay token.
+ * Útil para endpoints públicos que pueden beneficiarse de la autenticación.
+ */
+const verificarTokenOpcional = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    // No hay token, continuar sin autenticación
+    return next();
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    // Decodificar token
+    const decoded = jwt.verify(token, SECRET);
+
+    // Cargar Account completo con roles y perfil
+    const account = await Account.findByPk(decoded.id, {
+      include: [
+        {
+          model: Role,
+          as: 'roles',
+          through: { attributes: [] }
+        },
+        {
+          model: UserProfile,
+          as: 'userProfile',
+          required: false
+        },
+        {
+          model: AdminProfile,
+          as: 'adminProfile',
+          required: false
+        }
+      ]
+    });
+
+    if (account && account.is_active) {
+      // Adjuntar al request
+      req.account = account;
+      req.profile = account.userProfile || account.adminProfile;
+      req.roles = account.roles.map(r => r.role_name);
+
+      // Retrocompatibilidad con código existente
+      req.user = {
+        id: decoded.id,
+        id_account: account.id_account,
+        id_user_profile: account.userProfile?.id_user_profile,
+        id_admin_profile: account.adminProfile?.id_admin_profile,
+        email: account.email,
+        roles: req.roles,
+        subscription: account.userProfile?.app_tier || null
+      };
+    }
+
+    next();
+  } catch (error) {
+    // Token inválido o expirado, continuar sin autenticación
+    next();
+  }
+};
+
+/**
  * Alias simplificado para verificarRol
  */
 const requireRole = verificarRol;
@@ -315,6 +381,7 @@ const requireRole = verificarRol;
 module.exports = {
   requireRole,
   verificarToken,
+  verificarTokenOpcional,
   verificarRol,
   verificarRolMultiple,
   verificarAdmin,

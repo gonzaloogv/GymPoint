@@ -56,6 +56,7 @@ const listGymReviews = async (req, res) => {
   try {
     const gymId = Number.parseInt(req.params.gymId, 10);
     const { page, limit, min_rating, max_rating, with_comment_only, sortBy, order } = req.query;
+    const currentUserId = req.account?.userProfile?.id_user_profile;
 
     const query = gymReviewMappers.toListGymReviewsQuery(
       gymId,
@@ -68,14 +69,46 @@ const listGymReviews = async (req, res) => {
         sortBy,
         order,
       },
-      req.account?.userProfile?.id_user_profile
+      currentUserId
     );
 
     const result = await reviewService.listGymReviews(query);
-    const dto = gymReviewMappers.toPaginatedGymReviewsResponse(result);
+
+    // Si hay usuario logueado, consultar sus votos
+    let userVotesMap = {};
+    if (currentUserId && result.items && result.items.length > 0) {
+      const { ReviewHelpful } = require('../models');
+      const reviewIds = result.items.map(r => r.id_review);
+
+      const userVotes = await ReviewHelpful.findAll({
+        where: {
+          id_review: reviewIds,
+          id_user_profile: currentUserId
+        }
+      });
+
+      // Crear mapa de votos: reviewId -> true
+      userVotesMap = userVotes.reduce((map, vote) => {
+        map[vote.id_review] = true;
+        return map;
+      }, {});
+
+    }
+
+    // Enriquecer cada review con hasUserVoted
+    const enrichedItems = result.items.map(review => ({
+      ...review,
+      hasUserVoted: !!userVotesMap[review.id_review]
+    }));
+
+    const dto = gymReviewMappers.toPaginatedGymReviewsResponse({
+      ...result,
+      items: enrichedItems
+    });
 
     res.json(dto);
   } catch (error) {
+    console.error('[listGymReviews] Error:', error);
     res.status(error.statusCode || 500).json({
       error: {
         code: error.code || 'LIST_REVIEWS_FAILED',
@@ -262,12 +295,12 @@ const deleteGymReview = async (req, res) => {
 // ============================================================================
 
 /**
- * POST /api/reviews/:reviewId/helpful
+ * POST /api/reviews/:id_review/helpful
  * Marca una reseña como útil
  */
 const markReviewHelpful = async (req, res) => {
   try {
-    const reviewId = Number.parseInt(req.params.reviewId, 10);
+    const reviewId = Number.parseInt(req.params.id_review, 10);
     const userProfile = req.account?.userProfile;
 
     if (!userProfile) {
@@ -286,7 +319,14 @@ const markReviewHelpful = async (req, res) => {
     );
 
     const review = await reviewService.markReviewHelpful(command);
-    const dto = gymReviewMappers.toGymReviewResponse(review);
+
+    // Agregar hasUserVoted: true porque acabamos de votar
+    const enrichedReview = {
+      ...review,
+      hasUserVoted: true
+    };
+
+    const dto = gymReviewMappers.toGymReviewResponse(enrichedReview);
 
     res.json(dto);
   } catch (error) {
@@ -300,12 +340,12 @@ const markReviewHelpful = async (req, res) => {
 };
 
 /**
- * DELETE /api/reviews/:reviewId/helpful
+ * DELETE /api/reviews/:id_review/helpful
  * Remueve el voto de utilidad de una reseña
  */
 const unmarkReviewHelpful = async (req, res) => {
   try {
-    const reviewId = Number.parseInt(req.params.reviewId, 10);
+    const reviewId = Number.parseInt(req.params.id_review, 10);
     const userProfile = req.account?.userProfile;
 
     if (!userProfile) {
@@ -322,9 +362,17 @@ const unmarkReviewHelpful = async (req, res) => {
       userProfile.id_user_profile
     );
 
-    const removed = await reviewService.unmarkReviewHelpful(command);
+    const review = await reviewService.unmarkReviewHelpful(command);
 
-    res.json({ removed });
+    // Agregar hasUserVoted: false porque acabamos de quitar el voto
+    const enrichedReview = {
+      ...review,
+      hasUserVoted: false
+    };
+
+    const dto = gymReviewMappers.toGymReviewResponse(enrichedReview);
+
+    res.json(dto);
   } catch (error) {
     res.status(error.statusCode || 400).json({
       error: {

@@ -424,6 +424,8 @@ async function deleteGymReview(command) {
 async function markReviewHelpful(command) {
   const transaction = await sequelize.transaction();
   try {
+    console.log('[markReviewHelpful] Called with:', { reviewId: command.reviewId, userId: command.userId });
+
     const review = await gymReviewRepository.findReviewById(command.reviewId, { transaction });
     if (!review) {
       throw new NotFoundError('Reseña no encontrada');
@@ -441,35 +443,42 @@ async function markReviewHelpful(command) {
       { transaction }
     );
 
+    console.log('[markReviewHelpful] Existing vote:', existingVote);
+
     if (existingVote) {
-      // Ya votó, actualizar si cambió el voto
-      if (existingVote.is_helpful !== command.isHelpful) {
-        await gymReviewRepository.updateHelpfulVote(
-          command.reviewId,
-          command.userId,
-          command.isHelpful,
-          { transaction }
-        );
-      } else {
-        throw new ConflictError('Ya marcaste esta reseña');
-      }
-    } else {
-      // Crear nuevo voto
-      await gymReviewRepository.createHelpfulVote(
-        {
-          id_review: command.reviewId,
-          id_user_profile: command.userId,
-          is_helpful: command.isHelpful,
-        },
-        { transaction }
-      );
+      // Ya marcó esta reseña como útil
+      throw new ConflictError('Ya marcaste esta reseña como útil');
     }
 
-    // El helpful_count se maneja en el trigger de la BD o podría calcularse aquí
-    // Por ahora devolvemos la reseña actualizada
+    // Crear nuevo voto
+    console.log('[markReviewHelpful] Creating new vote');
+    await gymReviewRepository.createHelpfulVote(
+      {
+        id_review: command.reviewId,
+        id_user_profile: command.userId,
+      },
+      { transaction }
+    );
+
+    // Recalcular el helpful_count después de la operación
+    console.log('[markReviewHelpful] Calling recalculateHelpfulCount');
+    await gymReviewRepository.recalculateHelpfulCount(command.reviewId, { transaction });
+
+    // Devolver la reseña actualizada con el contador correcto
     const updated = await gymReviewRepository.findReviewById(command.reviewId, { transaction });
+    console.log('[markReviewHelpful] Updated review helpful_count:', updated.helpful_count);
 
     await transaction.commit();
+
+    // Emitir evento WebSocket
+    emitEvent(EVENTS.REVIEW_HELPFUL_UPDATED, {
+      reviewId: updated.id_review,
+      gymId: updated.id_gym,
+      helpfulCount: updated.helpful_count,
+      userId: command.userId,
+      hasVoted: true
+    });
+
     return updated;
   } catch (error) {
     await transaction.rollback();
@@ -480,11 +489,13 @@ async function markReviewHelpful(command) {
 /**
  * Remueve el voto de utilidad de una reseña
  * @param {UnmarkReviewHelpfulCommand} command
- * @returns {Promise<boolean>} true si se eliminó
+ * @returns {Promise<Object>} Reseña actualizada
  */
 async function unmarkReviewHelpful(command) {
   const transaction = await sequelize.transaction();
   try {
+    console.log('[unmarkReviewHelpful] Called with:', { reviewId: command.reviewId, userId: command.userId });
+
     const review = await gymReviewRepository.findReviewById(command.reviewId, { transaction });
     if (!review) {
       throw new NotFoundError('Reseña no encontrada');
@@ -496,8 +507,28 @@ async function unmarkReviewHelpful(command) {
       { transaction }
     );
 
+    console.log('[unmarkReviewHelpful] Deleted votes:', deleted);
+
+    // Recalcular el helpful_count después de eliminar el voto
+    console.log('[unmarkReviewHelpful] Calling recalculateHelpfulCount');
+    await gymReviewRepository.recalculateHelpfulCount(command.reviewId, { transaction });
+
+    // Devolver la reseña actualizada con el contador correcto
+    const updated = await gymReviewRepository.findReviewById(command.reviewId, { transaction });
+    console.log('[unmarkReviewHelpful] Updated review helpful_count:', updated.helpful_count);
+
     await transaction.commit();
-    return deleted > 0;
+
+    // Emitir evento WebSocket
+    emitEvent(EVENTS.REVIEW_HELPFUL_UPDATED, {
+      reviewId: updated.id_review,
+      gymId: updated.id_gym,
+      helpfulCount: updated.helpful_count,
+      userId: command.userId,
+      hasVoted: false
+    });
+
+    return updated;
   } catch (error) {
     await transaction.rollback();
     throw error;

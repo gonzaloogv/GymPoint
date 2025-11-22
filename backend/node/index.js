@@ -140,6 +140,7 @@ app.use('/api/admin/daily-challenges', adminDailyChallengeRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/gym-reviews', reviewRoutes); // Alias OpenAPI para reviews
+console.log('[INDEX] Review routes mounted at /api/reviews and /api/gym-reviews');
 app.use('/api/media', mediaRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/location', locationRoutes);

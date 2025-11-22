@@ -32,6 +32,7 @@ export function mapGymResponseToGym(dto: GymResponse): Gym {
     area_sqm: dto.area_sqm || null,
     verified: dto.verified ?? false,
     featured: dto.featured ?? false,
+    trial_allowed: dto.trial_allowed ?? false,
     month_price: dto.month_price,
     week_price: dto.week_price || 0,
     photo_url: dto.photo_url || null,
@@ -73,6 +74,7 @@ export function mapCreateGymDTOToRequest(domainDTO: DomainCreateGymDTO): CreateG
     area_sqm: domainDTO.area_sqm,
     verified: domainDTO.verified,
     featured: domainDTO.featured,
+    trial_allowed: domainDTO.trial_allowed ?? false,
     month_price: domainDTO.month_price,
     week_price: domainDTO.week_price,
     photo_url: domainDTO.photo_url && domainDTO.photo_url.trim() !== '' ? domainDTO.photo_url : undefined,
@@ -121,6 +123,7 @@ export function mapUpdateGymDTOToRequest(domainDTO: DomainUpdateGymDTO): UpdateG
   if (rest.area_sqm !== undefined) request.area_sqm = rest.area_sqm;
   if (rest.verified !== undefined) request.verified = rest.verified;
   if (rest.featured !== undefined) request.featured = rest.featured;
+  if (rest.trial_allowed !== undefined) request.trial_allowed = rest.trial_allowed;
   if (rest.month_price !== undefined) request.month_price = rest.month_price;
   if (rest.week_price !== undefined) request.week_price = rest.week_price;
   if (rest.photo_url !== undefined) request.photo_url = rest.photo_url;

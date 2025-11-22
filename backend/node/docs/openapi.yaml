@@ -2012,6 +2012,10 @@ components:
         featured:
           type: boolean
           description: Gimnasio destacado
+        trial_allowed:
+          type: boolean
+          default: false
+          description: Indica si el gimnasio permite un pase de prueba gratis
         auto_checkin_enabled:
           type: boolean
           default: true
@@ -6651,6 +6655,81 @@ paths:
                 $ref: '#/components/schemas/Error'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/reviews/{id_review}/helpful:
+    parameters:
+      - name: id_review
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: ID de la reseña
+    post:
+      operationId: markReviewHelpful
+      tags:
+        - Gym Reviews
+      summary: Marcar una reseña como útil
+      description: Marca una reseña como útil. El usuario no puede marcar su propia reseña.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Reseña marcada como útil exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymReviewResponse'
+        '400':
+          description: Ya marcaste esta review como útil o es tu propia review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Requiere rol de usuario de la app
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: unmarkReviewHelpful
+      tags:
+        - Gym Reviews
+      summary: Remover marca de útil de una reseña
+      description: Remueve el voto de utilidad de una reseña
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Marca de útil removida exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  removed:
+                    type: boolean
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Requiere rol de usuario de la app
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           $ref: '#/components/responses/NotFound'
   /api/media:

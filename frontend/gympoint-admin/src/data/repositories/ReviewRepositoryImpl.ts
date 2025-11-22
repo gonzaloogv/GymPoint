@@ -29,13 +29,16 @@ export class ReviewRepositoryImpl implements ReviewRepository {
   async getAllReviews(
     filters: ReviewFilters = {}
   ): Promise<{ total: number; reviews: Review[] }> {
-    const response = await apiClient.get<PaginatedGymReviewsResponse>(
-      '/gym-reviews',
+    // Admin endpoint incluye datos enriquecidos (usuario, gimnasio, aprobado)
+    const response = await apiClient.get<{ message: string; data: { total: number; reviews: GymReviewResponse[] } }>(
+      '/admin/reviews',
       { params: buildQueryParams(filters) }
     );
+
+    const payload = response.data?.data || { total: 0, reviews: [] };
     return {
-      total: response.data.total,
-      reviews: response.data.items.map(mapGymReviewResponseToReview),
+      total: payload.total,
+      reviews: payload.reviews.map(mapGymReviewResponseToReview),
     };
   }
 
@@ -48,13 +51,13 @@ export class ReviewRepositoryImpl implements ReviewRepository {
   async approveReview(data: ApproveReviewDTO): Promise<Review> {
     const { id_review, is_approved } = data;
     const response = await apiClient.put<GymReviewResponse>(
-      `/api/gym-reviews/${id_review}`,
+      `/admin/reviews/${id_review}/approve`,
       { is_approved }
     );
     return mapGymReviewResponseToReview(response.data);
   }
 
   async deleteReview(id: number): Promise<void> {
-    await apiClient.delete(`/api/gym-reviews/${id}`);
+    await apiClient.delete(`/admin/reviews/${id}`);
   }
 }

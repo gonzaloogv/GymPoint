@@ -58,11 +58,25 @@ export function mapGymReviewResponseToReview(dto: GymReviewResponse): Review {
     staff_rating: dto.staff_rating || null,
     value_rating: dto.value_rating || null,
     helpful_count: dto.helpful_count || 0,
-    reported: false, // No hay campo reported en OpenAPI
-    is_approved: true, // Asumir aprobado si está en la respuesta
-    review_date: dto.created_at, // Usar created_at como review_date
+    reported: (dto as any).reported ?? false,
+    is_approved: Boolean((dto as any).is_approved ?? (dto as any).is_verified ?? dto.is_verified),
+    review_date: (dto as any).review_date ?? dto.created_at, // fallback a created_at
     created_at: dto.created_at,
     updated_at: dto.updated_at,
+    user: (dto as any).user
+      ? {
+          id_user_profile: (dto as any).user.id_user_profile,
+          name: (dto as any).user.name,
+          email: (dto as any).user.email ?? null,
+        }
+      : undefined,
+    gym: (dto as any).gym
+      ? {
+          id_gym: (dto as any).gym.id_gym,
+          name: (dto as any).gym.name,
+          city: (dto as any).gym.city ?? null,
+        }
+      : undefined,
   };
 }
 
