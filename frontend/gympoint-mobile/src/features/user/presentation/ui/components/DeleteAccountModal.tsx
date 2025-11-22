@@ -135,7 +135,6 @@ export function DeleteAccountModal({
           {/* Content */}
           <ScrollView
             className="px-5"
-            style={{ maxHeight: 450 }}
             contentContainerStyle={{ paddingBottom: 24 }}
             showsVerticalScrollIndicator={true}
           >
@@ -194,7 +193,7 @@ export function DeleteAccountModal({
 
             {/* Período de gracia */}
             <View
-              className="px-4 py-3 rounded-2xl mb-4"
+              className="w-full px-4 py-3 rounded-2xl mb-4"
               style={{
                 backgroundColor: isDark ? 'rgba(59, 130, 246, 0.15)' : 'rgba(219, 234, 254, 0.8)',
               }}
@@ -209,14 +208,14 @@ export function DeleteAccountModal({
                   className="text-sm font-bold"
                   style={{ color: isDark ? '#60A5FA' : '#1D4ED8' }}
                 >
-                  Período de gracia: 7 días
+                  Período de gracia: 30 días
                 </Text>
               </View>
               <Text
                 className="text-xs"
                 style={{ color: isDark ? '#93C5FD' : '#1E40AF' }}
               >
-                Tienes 7 días para cambiar de opinión y cancelar la eliminación desde tu perfil.
+                Tienes 30 días para cambiar de opinión y cancelar la eliminación desde tu perfil.
               </Text>
             </View>
 

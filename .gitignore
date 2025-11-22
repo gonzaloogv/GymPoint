@@ -8,6 +8,7 @@ node_modules/
 .env.production
 .env.production.backend
 .env.development.backend
+.env.staging.backend
 
 # Frontend env files (pueden contener API keys)
 frontend/**/.env

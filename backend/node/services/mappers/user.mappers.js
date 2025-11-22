@@ -407,7 +407,7 @@ function toAccountDeletionResponse(request) {
   if (!request) return null;
 
   return {
-    id_request: request.id_request ?? request.idRequest,
+    id_request: request.id_request ?? request.idRequest ?? request.id_deletion_request,
     id_account: request.id_account ?? request.idAccount,
     reason: request.reason || null,
     status: request.status,

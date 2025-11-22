@@ -1,0 +1,66 @@
+version: '3.9'
+
+services:
+  db:
+    image: mysql:8.4
+    container_name: gympoint-db-staging
+    restart: unless-stopped
+    env_file:
+      - ../.env.staging.backend
+    ports:
+      - '3309:3306'
+    volumes:
+      - db-data-staging:/var/lib/mysql
+      - ../backend/db:/docker-entrypoint-initdb.d
+    networks:
+      - gympoint-staging-network
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      timeout: 20s
+      retries: 10
+
+  backend_stable:
+    image: project-gympoint-backend:stable
+    container_name: gympoint-backend-stable
+    env_file:
+      - ../.env.staging.backend
+    networks:
+      - gympoint-staging-network
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  backend_canary:
+    image: project-gympoint-backend:staging
+    build: ../backend/node
+    container_name: gympoint-backend-canary
+    env_file:
+      - ../.env.staging.backend
+    networks:
+      - gympoint-staging-network
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  proxy:
+    image: nginx:alpine
+    container_name: gympoint-proxy-staging
+    volumes:
+      - ./nginx.staging.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - '4000:80'
+    depends_on:
+      - backend_stable
+      - backend_canary
+    networks:
+      - gympoint-staging-network
+    restart: unless-stopped
+
+volumes:
+  db-data-staging:
+
+networks:
+  gympoint-staging-network:
+    driver: bridge

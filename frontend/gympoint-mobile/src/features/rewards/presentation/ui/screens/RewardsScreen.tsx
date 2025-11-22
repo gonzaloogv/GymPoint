@@ -17,7 +17,6 @@ import {
   RewardsHeader,
   RewardsContent,
   LoadingState,
-  PremiumUpsell,
   TokensTips,
 } from '@features/rewards/presentation/ui/components';
 
@@ -54,10 +53,6 @@ const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser, navig
 
   // Handlers
   const handleGoBack = () => navigation?.goBack?.();
-  const handlePremiumPress = () => {
-    // TODO: Navegar a la pantalla Premium o modal
-  };
-
   const handleViewHistory = () => {
     navigation?.navigate('TokenHistory');
   };
@@ -92,9 +87,6 @@ const RewardsScreen: React.FC<RewardsScreenProps> = ({ user, onUpdateUser, navig
 
       {/* Banner de Efectos Activos */}
       <ActiveEffectsBanner />
-
-      {/* Banner Premium para usuarios Free */}
-      {user.plan === 'Free' && <PremiumUpsell onPress={handlePremiumPress} />}
 
       {/* Tabs */}
       <View className="flex-row gap-2">

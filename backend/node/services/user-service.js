@@ -66,7 +66,7 @@ const mapDeletionRequest = (requestInstance) => {
   const request = requestInstance.get ? requestInstance.get({ plain: true }) : requestInstance;
 
   return {
-    id_request: request.id_request,
+    id_request: request.id_request ?? request.id_deletion_request,
     id_account: request.id_account,
     reason: request.reason,
     status: request.status,
@@ -416,7 +416,8 @@ const requestAccountDeletion = async (command) => {
       await RefreshToken.update(
         { revoked: true },
         {
-          where: { id_user: account.userProfile.id_user_profile },
+          // RefreshToken almacena id_account, no id_user_profile
+          where: { id_account: account.id_account },
           transaction
         }
       );
