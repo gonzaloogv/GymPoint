@@ -1,0 +1,209 @@
+components:
+  schemas:
+    PaginationMeta:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+      additionalProperties: false
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          description: Página actual
+          example: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Elementos por página
+          example: 10
+        total:
+          type: integer
+          minimum: 0
+          description: Total de elementos
+          example: 42
+        totalPages:
+          type: integer
+          minimum: 0
+          description: Total de páginas
+          example: 5
+
+    # ==========================================
+    # ENUMS REUTILIZABLES
+    # ==========================================
+
+    SubscriptionType:
+      type: string
+      enum:
+        - FREE
+        - PREMIUM
+      description: Tipo de suscripción del usuario
+
+    Gender:
+      type: string
+      enum:
+        - M
+        - F
+        - O
+      description: Género del usuario (M=Masculino, F=Femenino, O=Otro)
+
+    DifficultyLevel:
+      type: string
+      enum:
+        - EASY
+        - MEDIUM
+        - HARD
+      description: Nivel de dificultad estándar
+
+    ExtendedDifficultyLevel:
+      type: string
+      enum:
+        - EASY
+        - MEDIUM
+        - HARD
+        - BEGINNER
+        - INTERMEDIATE
+        - ADVANCED
+      description: Nivel de dificultad extendido
+
+    WorkoutSessionStatus:
+      type: string
+      enum:
+        - IN_PROGRESS
+        - COMPLETED
+        - CANCELLED
+      description: Estado de una sesión de entrenamiento
+
+    UserRoutineStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - COMPLETED
+        - CANCELLED
+      description: Estado de una rutina de usuario
+
+    AchievementCategory:
+      type: string
+      enum:
+        - ONBOARDING
+        - STREAK
+        - FREQUENCY
+        - ATTENDANCE
+        - ROUTINE
+        - CHALLENGE
+        - PROGRESS
+        - TOKEN
+        - SOCIAL
+      description: Categoría de logro
+
+    MuscleGroup:
+      type: string
+      enum:
+        - CHEST
+        - BACK
+        - LEGS
+        - SHOULDERS
+        - ARMS
+        - ABS
+        - FULL_BODY
+      description: Grupo muscular objetivo
+
+    ChallengeType:
+      type: string
+      enum:
+        - STEPS
+        - CALORIES
+        - DURATION
+        - REPS
+        - DISTANCE
+      description: Tipo de desafío
+
+    ChallengeProgressStatus:
+      type: string
+      enum:
+        - NOT_STARTED
+        - IN_PROGRESS
+        - COMPLETED
+      description: Estado del progreso de desafío
+
+    MediaType:
+      type: string
+      enum:
+        - IMAGE
+        - VIDEO
+      description: Tipo de archivo multimedia
+
+    EntityType:
+      type: string
+      enum:
+        - USER_PROFILE
+        - GYM
+        - EXERCISE
+        - PROGRESS
+      description: Tipo de entidad asociada
+
+    RewardCategory:
+      type: string
+      enum:
+        - descuento
+        - pase_gratis
+        - producto
+        - servicio
+        - merchandising
+      description: Categoría de recompensa
+
+    PaymentStatus:
+      type: string
+      enum:
+        - PENDING
+        - COMPLETED
+        - FAILED
+        - REFUNDED
+      description: Estado del pago
+
+    AccountDeletionStatus:
+      type: string
+      enum:
+        - PENDING
+        - CANCELLED
+        - COMPLETED
+      description: Estado de solicitud de eliminación
+
+    AchievementMetric:
+      type: string
+      enum:
+        - STREAK_DAYS
+        - STREAK_RECOVERY_USED
+        - ASSISTANCE_TOTAL
+        - FREQUENCY_WEEKS_MET
+        - ROUTINE_COMPLETED_COUNT
+        - CHALLENGE_COMPLETED_COUNT
+        - TOKEN_EARNED_TOTAL
+        - SOCIAL_SHARE_COUNT
+      description: Métrica de logro
+
+    ChallengeMetric:
+      type: string
+      enum:
+        - MINUTES
+        - EXERCISES
+        - FREQUENCY
+      description: Métrica de desafío
+
+    # ==========================================
+    # RESPONSE SCHEMAS
+    # ==========================================
+
+    Error:
+      type: object
+      required:
+        - error
+      additionalProperties: false
+      properties:
+        error:
+          type: string
+          description: Mensaje de error descriptivo
+          example: Ha ocurrido un error

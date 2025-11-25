@@ -1,0 +1,355 @@
+paths:
+  /api/user-gym/alta:
+    post:
+      operationId: subscribeToGym
+      tags:
+        - User Gym Subscriptions
+      summary: Dar de alta a un usuario en un gimnasio
+      description: Suscribe al usuario autenticado a un gimnasio con un plan específico
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id_gym
+                - plan
+              properties:
+                id_gym:
+                  type: integer
+                  description: ID del gimnasio
+                  example: 2
+                plan:
+                  type: string
+                  description: Plan de membresía
+                  enum:
+                    - MENSUAL
+                    - SEMANAL
+                    - ANUAL
+                  example: MENSUAL
+                subscription_start:
+                  type: string
+                  format: date
+                  description: Fecha de inicio (opcional). Si no se envía, se usa la fecha actual
+                  example: '2025-10-29'
+                subscription_end:
+                  type: string
+                  format: date
+                  description: Fecha de fin (opcional). Si no se envía, se calcula automáticamente según el plan
+                  example: '2025-11-29'
+      responses:
+        '201':
+          description: Usuario dado de alta correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Alta en gimnasio realizada con éxito
+                  data:
+                    type: object
+                    properties:
+                      id_user:
+                        type: integer
+                      id_gym:
+                        type: integer
+                      plan:
+                        type: string
+                        example: MENSUAL
+                      active:
+                        type: boolean
+                      start_date:
+                        type: string
+                        format: date-time
+        '400':
+          description: Faltan datos requeridos o límite de gimnasios alcanzado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Plan inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: INVALID_PLAN
+                      message:
+                        type: string
+                        example: Plan inválido. Valores aceptados MENSUAL, SEMANAL, ANUAL
+                      accepted_values:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - MENSUAL
+                          - SEMANAL
+                          - ANUAL
+  /api/user-gym/baja:
+    put:
+      operationId: unsubscribeFromGym
+      tags:
+        - User Gym Subscriptions
+      summary: Dar de baja al usuario en un gimnasio
+      description: Cancela la suscripción del usuario autenticado a un gimnasio
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id_gym
+              properties:
+                id_gym:
+                  type: integer
+                  description: ID del gimnasio
+                  example: 2
+      responses:
+        '200':
+          description: Usuario dado de baja correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Baja en gimnasio realizada con éxito
+        '400':
+          description: Faltan datos requeridos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Suscripción no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/user-gym/me/activos:
+    get:
+      operationId: getActiveGymSubscriptions
+      tags:
+        - User Gym Subscriptions
+      summary: Obtener los gimnasios activos del usuario autenticado
+      description: Lista todos los gimnasios donde el usuario tiene una suscripción activa
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lista de gimnasios activos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: ID de la relación user_gym
+                    id_user_profile:
+                      type: integer
+                      description: ID del perfil de usuario
+                    id_gym:
+                      type: integer
+                      description: ID del gimnasio
+                    gym_name:
+                      type: string
+                      description: Nombre del gimnasio
+                    plan:
+                      type: string
+                      enum:
+                        - MENSUAL
+                        - SEMANAL
+                        - ANUAL
+                    is_active:
+                      type: boolean
+                    subscription_start:
+                      type: string
+                      format: date
+                    subscription_end:
+                      type: string
+                      format: date
+                    trial_used:
+                      type: boolean
+                    trial_date:
+                      type: string
+                      format: date
+                      description: Fecha en que usó el trial (null si no aplicó)
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/user-gym/me/historial:
+    get:
+      operationId: getUserGymHistory
+      tags:
+        - User Gym Subscriptions
+      summary: Obtener historial completo de membresías del usuario autenticado
+      description: Lista todas las membresías del usuario, activas e inactivas
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: active
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: Filtrar por estado (activo o no)
+      responses:
+        '200':
+          description: Lista de membresías por gimnasio
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    id_user_profile:
+                      type: integer
+                    id_gym:
+                      type: integer
+                    gym_name:
+                      type: string
+                    plan:
+                      type: string
+                      enum:
+                        - MENSUAL
+                        - SEMANAL
+                        - ANUAL
+                    is_active:
+                      type: boolean
+                    subscription_start:
+                      type: string
+                      format: date
+                    subscription_end:
+                      type: string
+                      format: date
+                    trial_used:
+                      type: boolean
+                    trial_date:
+                      type: string
+                      format: date
+                      description: Fecha en que usó el trial (null si no aplicó)
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/user-gym/gimnasio/{id_gym}/conteo:
+    get:
+      operationId: getGymMemberCount
+      tags:
+        - User Gym Subscriptions
+      summary: Obtener cantidad de usuarios activos en un gimnasio
+      description: Cuenta cuántos usuarios tienen suscripción activa en el gimnasio
+      parameters:
+        - name: id_gym
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del gimnasio
+      responses:
+        '200':
+          description: Cantidad de usuarios activos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 42
+        '404':
+          description: Gimnasio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/user-gym/gimnasio/{id_gym}:
+    get:
+      operationId: getGymMemberHistory
+      tags:
+        - User Gym Subscriptions
+      summary: Obtener historial de usuarios de un gimnasio
+      description: Lista todos los usuarios que han tenido o tienen suscripción en el gimnasio
+      parameters:
+        - name: id_gym
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del gimnasio
+        - name: active
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: Filtrar por estado (activo o no)
+      responses:
+        '200':
+          description: Lista de usuarios que pasaron por el gimnasio
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    id_user_profile:
+                      type: integer
+                    id_gym:
+                      type: integer
+                    plan:
+                      type: string
+                    is_active:
+                      type: boolean
+                    subscription_start:
+                      type: string
+                      format: date
+                    subscription_end:
+                      type: string
+                      format: date
+        '404':
+          description: Gimnasio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

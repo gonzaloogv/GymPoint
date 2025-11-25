@@ -1,0 +1,66 @@
+components:
+  schemas:
+    TodayChallengeResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        challenge:
+          type: object
+          properties:
+            id_challenge:
+              type: integer
+            challenge_date:
+              type: string
+              format: date
+            title:
+              type: string
+            description:
+              type: string
+            challenge_type:
+              $ref: ../common.yaml#/components/schemas/ChallengeType
+            target_value:
+              type: integer
+            target_unit:
+              type: string
+            tokens_reward:
+              type: integer
+            difficulty:
+              $ref: ../common.yaml#/components/schemas/DifficultyLevel
+            is_active:
+              type: boolean
+        progress:
+          type: object
+          properties:
+            id_user_challenge:
+              type: integer
+            id_user_profile:
+              type: integer
+            id_challenge:
+              type: integer
+            current_value:
+              type: integer
+            status:
+              $ref: ../common.yaml#/components/schemas/ChallengeProgressStatus
+            completed_at:
+              type: string
+              format: date-time
+            reward_claimed_at:
+              type: string
+              format: date-time
+    ChallengeProgressResponse:
+      type: object
+      required:
+        - progress
+        - completed
+        - tokens_earned
+      additionalProperties: false
+      properties:
+        progress:
+          type: integer
+          description: Valor actual del progreso
+        completed:
+          type: boolean
+          description: Si el desafío fue completado
+        tokens_earned:
+          type: integer
+          description: Tokens otorgados (si se completó)

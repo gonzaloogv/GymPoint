@@ -1,0 +1,169 @@
+components:
+  schemas:
+    Exercise:
+      type: object
+      properties:
+        id_exercise:
+          type: integer
+        exercise_name:
+          type: string
+        muscular_group:
+          type: string
+        description:
+          type: string
+        equipment_needed:
+          type: string
+        difficulty:
+          type: string
+          enum:
+            - beginner
+            - intermediate
+            - advanced
+        instructions:
+          type: string
+        video_url:
+          type: string
+        created_by:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id_exercise
+        - exercise_name
+    CreateExerciseRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        exercise_name:
+          type: string
+        muscular_group:
+          type: string
+        description:
+          type: string
+        equipment_needed:
+          type: string
+        difficulty:
+          type: string
+          enum:
+            - beginner
+            - intermediate
+            - advanced
+        instructions:
+          type: string
+        video_url:
+          type: string
+      required:
+        - exercise_name
+    UpdateExerciseRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        exercise_name:
+          type: string
+        muscular_group:
+          type: string
+        description:
+          type: string
+        equipment_needed:
+          type: string
+        difficulty:
+          type: string
+          enum:
+            - beginner
+            - intermediate
+            - advanced
+        instructions:
+          type: string
+        video_url:
+          type: string
+    PaginatedExercisesResponse:
+      allOf:
+        - $ref: '../common.yaml#/components/schemas/PaginationMeta'
+        - type: object
+          required:
+            - items
+          additionalProperties: false
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Exercise'
+    RoutineExercise:
+      type: object
+      properties:
+        id_routine:
+          type: integer
+        id_exercise:
+          type: integer
+        id_routine_day:
+          type: integer
+        series:
+          type: integer
+        reps:
+          type: string
+        order:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id_routine
+        - id_exercise
+        - series
+        - reps
+        - order
+    ExerciseInRoutine:
+      type: object
+      properties:
+        id_exercise:
+          type: integer
+        exercise_name:
+          type: string
+        muscular_group:
+          type: string
+        series:
+          type: integer
+        reps:
+          type: string
+        order:
+          type: integer
+        id_routine_day:
+          type: integer
+    AddExerciseToRoutineRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        id_exercise:
+          type: integer
+        series:
+          type: integer
+        reps:
+          type: string
+        order:
+          type: integer
+        id_routine_day:
+          type: integer
+      required:
+        - id_exercise
+        - series
+        - reps
+        - order
+    UpdateRoutineExerciseRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        series:
+          type: integer
+        reps:
+          type: string
+        order:
+          type: integer
+        id_routine_day:
+          type: integer

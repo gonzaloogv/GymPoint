@@ -1,0 +1,374 @@
+{
+  "description": "Ejemplos de datos de prueba para la API de GymPoint",
+  "users": {
+    "regular_user": {
+      "name": "Usuario",
+      "lastname": "Test",
+      "email": "test.user@gympoint.com",
+      "password": "TestPassword123!",
+      "gender": "M",
+      "locality": "Buenos Aires",
+      "frequency_goal": 3,
+      "birth_date": "1990-01-15",
+      "role": "USER"
+    },
+    "admin_user": {
+      "name": "Administrador",
+      "lastname": "GymPoint",
+      "email": "admin@gympoint.com",
+      "password": "admin123",
+      "gender": "M",
+      "locality": "Buenos Aires",
+      "frequency_goal": 5,
+      "birth_date": "1985-05-20",
+      "role": "ADMIN",
+      "note": "Usar el request 'Login Admin' en la colección para autenticarse"
+    },
+    "premium_user": {
+      "name": "Usuario",
+      "lastname": "Premium",
+      "email": "premium@gympoint.com",
+      "password": "PremiumPass123!",
+      "gender": "F",
+      "locality": "Córdoba",
+      "frequency_goal": 4,
+      "birth_date": "1995-03-10",
+      "role": "PREMIUM"
+    }
+  },
+  "gyms": {
+    "gym_downtown": {
+      "name": "GymPoint Downtown",
+      "description": "Gimnasio moderno en el centro de la ciudad",
+      "address": "Av. Principal 123",
+      "city": "Buenos Aires",
+      "state": "CABA",
+      "postal_code": "C1000",
+      "phone": "+54 11 1234-5678",
+      "email": "downtown@gympoint.com",
+      "latitude": -34.603722,
+      "longitude": -58.381592,
+      "month_price": 5000.00,
+      "is_active": true,
+      "is_featured": true,
+      "gym_type_id": 1,
+      "amenities": [1, 2, 3, 4, 5]
+    },
+    "gym_northside": {
+      "name": "GymPoint Northside",
+      "description": "Gimnasio familiar en zona norte",
+      "address": "Calle Norte 456",
+      "city": "Buenos Aires",
+      "state": "Buenos Aires",
+      "postal_code": "B1600",
+      "phone": "+54 11 8765-4321",
+      "email": "northside@gympoint.com",
+      "latitude": -34.543722,
+      "longitude": -58.461592,
+      "month_price": 4500.00,
+      "is_active": true,
+      "is_featured": false,
+      "gym_type_id": 2,
+      "amenities": [1, 2, 4, 6]
+    },
+    "gym_premium": {
+      "name": "GymPoint Premium",
+      "description": "Gimnasio de alto nivel con entrenadores personales",
+      "address": "Av. Libertador 789",
+      "city": "Buenos Aires",
+      "state": "CABA",
+      "postal_code": "C1425",
+      "phone": "+54 11 5555-6666",
+      "email": "premium@gympoint.com",
+      "latitude": -34.583722,
+      "longitude": -58.401592,
+      "month_price": 8000.00,
+      "is_active": true,
+      "is_featured": true,
+      "gym_type_id": 3,
+      "amenities": [1, 2, 3, 4, 5, 6, 7, 8]
+    }
+  },
+  "gym_schedules": {
+    "monday_to_friday": {
+      "day_of_week": 1,
+      "open_time": "06:00",
+      "close_time": "23:00",
+      "is_closed": false
+    },
+    "saturday": {
+      "day_of_week": 6,
+      "open_time": "08:00",
+      "close_time": "20:00",
+      "is_closed": false
+    },
+    "sunday": {
+      "day_of_week": 0,
+      "open_time": "09:00",
+      "close_time": "18:00",
+      "is_closed": false
+    }
+  },
+  "special_schedules": {
+    "christmas": {
+      "date": "2025-12-25",
+      "open_time": "10:00",
+      "close_time": "14:00",
+      "is_closed": false,
+      "reason": "Horario especial por Navidad"
+    },
+    "new_year": {
+      "date": "2026-01-01",
+      "is_closed": true,
+      "reason": "Cerrado por Año Nuevo"
+    }
+  },
+  "exercises": {
+    "bench_press": {
+      "name": "Press de banca",
+      "description": "Ejercicio compuesto para pecho y tríceps",
+      "muscle_group": "CHEST",
+      "equipment": "BARBELL",
+      "difficulty_level": "INTERMEDIATE",
+      "instructions": "1. Acuéstate en el banco\n2. Agarra la barra con las manos al ancho de los hombros\n3. Baja la barra hasta el pecho\n4. Empuja hacia arriba hasta extender los brazos",
+      "video_url": "https://example.com/bench-press.mp4",
+      "calories_per_minute": 8.0,
+      "is_compound": true
+    },
+    "squat": {
+      "name": "Sentadilla",
+      "description": "Ejercicio compuesto para piernas",
+      "muscle_group": "LEGS",
+      "equipment": "BARBELL",
+      "difficulty_level": "INTERMEDIATE",
+      "instructions": "1. Coloca la barra sobre los trapecios\n2. Baja controladamente hasta que los muslos estén paralelos al suelo\n3. Empuja a través de los talones para subir",
+      "video_url": "https://example.com/squat.mp4",
+      "calories_per_minute": 10.0,
+      "is_compound": true
+    },
+    "deadlift": {
+      "name": "Peso muerto",
+      "description": "Ejercicio compuesto para espalda y piernas",
+      "muscle_group": "BACK",
+      "equipment": "BARBELL",
+      "difficulty_level": "ADVANCED",
+      "instructions": "1. Párate frente a la barra\n2. Agáchate y agarra la barra\n3. Mantén la espalda recta y levanta la barra\n4. Extiende las caderas y rodillas",
+      "video_url": "https://example.com/deadlift.mp4",
+      "calories_per_minute": 12.0,
+      "is_compound": true
+    }
+  },
+  "routines": {
+    "strength_routine": {
+      "name": "Rutina de Fuerza 4x4",
+      "description": "Rutina de fuerza enfocada en ejercicios compuestos, 4 días por semana",
+      "difficulty_level": "INTERMEDIATE",
+      "duration_weeks": 12,
+      "days_per_week": 4,
+      "is_public": true,
+      "goal_type": "STRENGTH",
+      "estimated_duration_minutes": 90
+    },
+    "hypertrophy_routine": {
+      "name": "Rutina de Hipertrofia PPL",
+      "description": "Rutina Push-Pull-Legs para ganancia muscular",
+      "difficulty_level": "INTERMEDIATE",
+      "duration_weeks": 8,
+      "days_per_week": 6,
+      "is_public": true,
+      "goal_type": "HYPERTROPHY",
+      "estimated_duration_minutes": 75
+    },
+    "beginner_routine": {
+      "name": "Rutina para Principiantes",
+      "description": "Rutina de cuerpo completo para iniciarse en el gimnasio",
+      "difficulty_level": "BEGINNER",
+      "duration_weeks": 6,
+      "days_per_week": 3,
+      "is_public": true,
+      "goal_type": "GENERAL_FITNESS",
+      "estimated_duration_minutes": 60
+    }
+  },
+  "body_metrics": {
+    "initial_metrics": {
+      "weight_kg": 75.0,
+      "height_cm": 175,
+      "body_fat_percentage": 20.0,
+      "muscle_mass_kg": 30.0,
+      "notes": "Medición inicial"
+    },
+    "monthly_metrics": {
+      "weight_kg": 73.5,
+      "height_cm": 175,
+      "body_fat_percentage": 18.5,
+      "muscle_mass_kg": 31.5,
+      "waist_cm": 85,
+      "chest_cm": 100,
+      "arm_cm": 35,
+      "thigh_cm": 55,
+      "notes": "Progreso después de 1 mes"
+    }
+  },
+  "challenges": {
+    "30_day_challenge": {
+      "title": "Desafío 30 Días de Entrenamiento",
+      "description": "Completa 30 días consecutivos de entrenamiento para ganar tokens",
+      "challenge_type": "DAILY",
+      "start_date": "2025-11-01",
+      "end_date": "2025-11-30",
+      "target_value": 30,
+      "reward_tokens": 500,
+      "is_active": true,
+      "difficulty": "MEDIUM"
+    },
+    "strength_challenge": {
+      "title": "Desafío de Fuerza",
+      "description": "Aumenta tu 1RM en 10kg en press de banca",
+      "challenge_type": "STRENGTH",
+      "start_date": "2025-11-01",
+      "end_date": "2025-12-31",
+      "target_value": 10,
+      "reward_tokens": 1000,
+      "is_active": true,
+      "difficulty": "HARD"
+    }
+  },
+  "rewards": {
+    "discount_coupon": {
+      "name": "Cupón de Descuento 20%",
+      "description": "Obtén un 20% de descuento en tu próxima mensualidad",
+      "token_cost": 500,
+      "reward_type": "DISCOUNT",
+      "discount_percentage": 20,
+      "is_available": true,
+      "stock": 100,
+      "expiration_days": 30
+    },
+    "personal_training": {
+      "name": "Sesión de Entrenamiento Personal",
+      "description": "Una sesión gratis con un entrenador personal certificado",
+      "token_cost": 1000,
+      "reward_type": "SERVICE",
+      "is_available": true,
+      "stock": 20,
+      "expiration_days": 60
+    },
+    "premium_membership": {
+      "name": "Membresía Premium 1 Mes",
+      "description": "Accede a todos los gimnasios premium por 1 mes",
+      "token_cost": 2000,
+      "reward_type": "MEMBERSHIP",
+      "is_available": true,
+      "stock": 10,
+      "expiration_days": 90
+    }
+  },
+  "reviews": {
+    "positive_review": {
+      "rating": 5,
+      "comment": "Excelente gimnasio, muy limpio y con buen equipamiento. Los entrenadores son muy profesionales y atentos."
+    },
+    "neutral_review": {
+      "rating": 3,
+      "comment": "Está bien, pero puede mejorar. El equipamiento es bueno pero en horas pico está muy lleno."
+    },
+    "detailed_review": {
+      "rating": 4,
+      "comment": "Muy buen gimnasio en general. Las instalaciones son modernas y limpias. Me gustaría que tuvieran más clases grupales."
+    }
+  },
+  "workout_sessions": {
+    "chest_session": {
+      "planned_exercises": [
+        {
+          "id_exercise": 1,
+          "sets": 4,
+          "reps": 8,
+          "rest_seconds": 120,
+          "weight_kg": 60.0
+        },
+        {
+          "id_exercise": 2,
+          "sets": 3,
+          "reps": 12,
+          "rest_seconds": 90,
+          "weight_kg": 30.0
+        }
+      ],
+      "notes": "Sesión de pecho y tríceps"
+    }
+  },
+  "payments": {
+    "monthly_payment": {
+      "amount": 5000.00,
+      "payment_method": "CARD",
+      "billing_period_start": "2025-11-01",
+      "billing_period_end": "2025-11-30",
+      "notes": "Pago mensual"
+    },
+    "quarterly_payment": {
+      "amount": 14000.00,
+      "payment_method": "TRANSFER",
+      "billing_period_start": "2025-11-01",
+      "billing_period_end": "2026-01-31",
+      "notes": "Pago trimestral con descuento"
+    }
+  },
+  "assistance": {
+    "check_in": {
+      "latitude": -34.603722,
+      "longitude": -58.381592,
+      "notes": "Check-in normal"
+    }
+  },
+  "notes": {
+    "day_of_week_mapping": {
+      "0": "Domingo",
+      "1": "Lunes",
+      "2": "Martes",
+      "3": "Miércoles",
+      "4": "Jueves",
+      "5": "Viernes",
+      "6": "Sábado"
+    },
+    "muscle_groups": [
+      "CHEST",
+      "BACK",
+      "LEGS",
+      "SHOULDERS",
+      "ARMS",
+      "ABS",
+      "CARDIO"
+    ],
+    "equipment_types": [
+      "BARBELL",
+      "DUMBBELL",
+      "MACHINE",
+      "CABLE",
+      "BODYWEIGHT",
+      "KETTLEBELL",
+      "RESISTANCE_BAND"
+    ],
+    "difficulty_levels": [
+      "BEGINNER",
+      "INTERMEDIATE",
+      "ADVANCED"
+    ],
+    "payment_methods": [
+      "CARD",
+      "CASH",
+      "TRANSFER",
+      "MERCADOPAGO"
+    ],
+    "challenge_types": [
+      "DAILY",
+      "WEEKLY",
+      "MONTHLY",
+      "STRENGTH",
+      "ENDURANCE",
+      "FREQUENCY"
+    ]
+  }
+}
+

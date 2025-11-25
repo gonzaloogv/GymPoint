@@ -1,0 +1,317 @@
+paths:
+  /api/assistances:
+    post:
+      operationId: registrarAsistencia
+      summary: Registrar check-in en un gimnasio
+      tags:
+        - Asistencias
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id_gym
+                - latitude
+                - longitude
+              properties:
+                id_gym:
+                  type: integer
+                  description: ID del gimnasio
+                  example: 3
+                latitude:
+                  type: number
+                  format: float
+                  description: Latitud actual del usuario
+                  example: -34.603722
+                longitude:
+                  type: number
+                  format: float
+                  description: Longitud actual del usuario
+                  example: -58.38159
+                accuracy:
+                  type: number
+                  format: float
+                  description: Precisión del GPS en metros
+                  example: 10.5
+      responses:
+        '201':
+          description: Asistencia registrada con éxito
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Asistencia registrada con éxito
+                  data:
+                    type: object
+                    properties:
+                      id_assistance:
+                        type: integer
+                      id_user_profile:
+                        type: integer
+                      id_gym:
+                        type: integer
+                      entry_time:
+                        type: string
+                        format: date-time
+                      latitude:
+                        type: number
+                      longitude:
+                        type: number
+                      accuracy:
+                        type: number
+                      gym:
+                        type: object
+                        properties:
+                          id_gym:
+                            type: integer
+                          name:
+                            type: string
+                          address:
+                            type: string
+                          city:
+                            type: string
+        '400':
+          description: Error en validación o fuera de rango
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - OUT_OF_RANGE
+                          - GPS_INACCURATE
+                          - SUBSCRIPTION_REQUIRED
+                          - ASSISTANCE_REGISTRATION_FAILED
+                          - MISSING_FIELDS
+                      message:
+                        type: string
+        '401':
+          description: No autorizado
+        '403':
+          description: Requiere rol de usuario app
+
+  /api/assistances/me:
+    get:
+      operationId: obtenerHistorialAsistencias
+      summary: Obtener historial de asistencias del usuario
+      tags:
+        - Asistencias
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Historial obtenido con éxito
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id_assistance:
+                          type: integer
+                        id_user_profile:
+                          type: integer
+                        id_gym:
+                          type: integer
+                        entry_time:
+                          type: string
+                          format: date-time
+                        exit_time:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        latitude:
+                          type: number
+                        longitude:
+                          type: number
+                        accuracy:
+                          type: number
+                          nullable: true
+                        duration_minutes:
+                          type: integer
+                          nullable: true
+                        created_at:
+                          type: string
+                          format: date-time
+                        updated_at:
+                          type: string
+                          format: date-time
+                        gym:
+                          type: object
+                          properties:
+                            id_gym:
+                              type: integer
+                            name:
+                              type: string
+                            address:
+                              type: string
+                            city:
+                              type: string
+                            profile_image_url:
+                              type: string
+                              nullable: true
+        '400':
+          description: Error al obtener historial
+        '401':
+          description: No autorizado
+
+  /api/assistances/auto-checkin:
+    post:
+      operationId: autoCheckIn
+      summary: Auto check-in del usuario (usa geofence)
+      tags:
+        - Asistencias
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id_gym
+                - latitude
+                - longitude
+              properties:
+                id_gym:
+                  type: integer
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+      responses:
+        '201':
+          description: Auto check-in registrado
+        '400':
+          description: Error de validación
+
+  /api/assistances/{id}/checkout:
+    put:
+      operationId: checkOut
+      summary: Registrar check-out y bonus por duración
+      tags:
+        - Asistencias
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID de la asistencia
+      responses:
+        '200':
+          description: Check-out registrado
+        '400':
+          description: Error de validación
+
+  /api/assistances/presence:
+    post:
+      operationId: registrarPresencia
+      summary: Registrar presencia del usuario (PREMIUM)
+      tags:
+        - Asistencias
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id_gym
+                - latitude
+                - longitude
+              properties:
+                id_gym:
+                  type: integer
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+      responses:
+        '200':
+          description: Presencia actualizada
+        '403':
+          description: Función exclusiva premium
+
+  /api/assistances/today-status:
+    get:
+      operationId: verificarCheckInHoy
+      summary: Verificar si el usuario ya hizo check-in hoy
+      tags:
+        - Asistencias
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Estado de check-in del día
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  has_checked_in_today:
+                    type: boolean
+                    example: true
+                  assistance:
+                    type: object
+                    nullable: true
+                    properties:
+                      id_assistance:
+                        type: integer
+                      id_gym:
+                        type: integer
+                      entry_time:
+                        type: string
+                        format: date-time
+                      gym_name:
+                        type: string
+        '401':
+          description: No autorizado
+
+  /api/assistances/verify-auto-checkin:
+    post:
+      operationId: verificarAutoCheckIn
+      summary: Verificar y registrar auto check-in (PREMIUM)
+      tags:
+        - Asistencias
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id_gym
+              properties:
+                id_gym:
+                  type: integer
+      responses:
+        '201':
+          description: Auto check-in completado
+        '400':
+          description: No cumple permanencia mínima
+        '403':
+          description: Función exclusiva premium

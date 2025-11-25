@@ -1,0 +1,156 @@
+components:
+  schemas:
+    DailyChallengeResponse:
+      type: object
+      required:
+        - id_challenge
+        - challenge_date
+        - title
+        - challenge_type
+        - target_value
+        - tokens_reward
+        - difficulty
+        - is_active
+        - created_at
+        - updated_at
+      properties:
+        id_challenge:
+          type: integer
+          example: 1
+        challenge_date:
+          type: string
+          format: date
+          example: '2025-10-23'
+        title:
+          type: string
+          example: Entrena 30 minutos
+        description:
+          type:
+            - string
+            - 'null'
+          example: Completa al menos 30 minutos de ejercicio hoy
+        challenge_type:
+          type: string
+          enum:
+            - MINUTES
+            - EXERCISES
+            - FREQUENCY
+          example: MINUTES
+        target_value:
+          type: number
+          minimum: 0
+          example: 30
+        target_unit:
+          type:
+            - string
+            - 'null'
+          example: minutos
+        tokens_reward:
+          type: integer
+          minimum: 0
+          default: 10
+          example: 15
+        difficulty:
+          $ref: ../common.yaml#/components/schemas/ExtendedDifficultyLevel
+          example: EASY
+        is_active:
+          type: boolean
+          default: true
+        id_template:
+          type:
+            - integer
+            - 'null'
+          description: ID de la plantilla usada (si aplica)
+        auto_generated:
+          type: boolean
+          default: false
+        created_by:
+          type:
+            - integer
+            - 'null'
+          description: ID del admin que lo creó
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CreateDailyChallengeRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - challenge_date
+        - title
+        - challenge_type
+        - target_value
+      properties:
+        challenge_date:
+          type: string
+          format: date
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        challenge_type:
+          type: string
+          enum:
+            - MINUTES
+            - EXERCISES
+            - FREQUENCY
+        target_value:
+          type: number
+          minimum: 0
+        target_unit:
+          type: string
+        tokens_reward:
+          type: integer
+          minimum: 0
+          default: 10
+        difficulty:
+          $ref: ../common.yaml#/components/schemas/ExtendedDifficultyLevel
+          default: MEDIUM
+        is_active:
+          type: boolean
+          default: true
+        id_template:
+          type: integer
+        auto_generated:
+          type: boolean
+          default: false
+    UpdateDailyChallengeRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        challenge_date:
+          type: string
+          format: date
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+        challenge_type:
+          type: string
+          enum:
+            - MINUTES
+            - EXERCISES
+            - FREQUENCY
+        target_value:
+          type: number
+          minimum: 0
+        target_unit:
+          type: string
+        tokens_reward:
+          type: integer
+          minimum: 0
+        difficulty:
+          $ref: ../common.yaml#/components/schemas/ExtendedDifficultyLevel
+        is_active:
+          type: boolean
+        id_template:
+          type: integer
+        auto_generated:
+          type: boolean

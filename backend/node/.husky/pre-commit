@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Ejecutando validaciones pre-commit..."
+
+# Validar que el bundle de OpenAPI esté actualizado
+echo "📦 Validando OpenAPI bundle..."
+npm run openapi:validate || {
+  echo "❌ OpenAPI no está sincronizado"
+  echo "💡 Ejecuta: npm run openapi:sync"
+  exit 1
+}
+
+# Ejecutar lint-staged
+npx lint-staged
+

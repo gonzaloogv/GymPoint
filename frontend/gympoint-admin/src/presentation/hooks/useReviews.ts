@@ -1,0 +1,46 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ReviewRepositoryImpl } from '@/data';
+import { ApproveReviewDTO } from '@/domain';
+
+const reviewRepository = new ReviewRepositoryImpl();
+const EMPTY_FILTERS = Object.freeze({});
+
+export const useReviews = (filters?: { limit?: number; offset?: number; is_approved?: boolean; sortBy?: string; order?: string; searchTerm?: string }) => {
+  const normalizedFilters = filters ?? EMPTY_FILTERS;
+
+  return useQuery({
+    queryKey: ['reviews', normalizedFilters],
+    queryFn: () => reviewRepository.getAllReviews(filters ?? {}),
+  });
+};
+
+export const useReviewStats = () => {
+  return useQuery({
+    queryKey: ['reviewStats'],
+    queryFn: () => reviewRepository.getReviewStats(),
+  });
+};
+
+export const useApproveReview = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: ApproveReviewDTO) => reviewRepository.approveReview(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reviews'] });
+      queryClient.invalidateQueries({ queryKey: ['reviewStats'] });
+    },
+  });
+};
+
+export const useDeleteReview = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => reviewRepository.deleteReview(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reviews'] });
+      queryClient.invalidateQueries({ queryKey: ['reviewStats'] });
+    },
+  });
+};
+
+

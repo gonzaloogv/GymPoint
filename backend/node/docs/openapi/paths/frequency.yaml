@@ -1,0 +1,99 @@
+paths:
+  /api/frequency:
+    post:
+      operationId: createWeeklyGoal
+      tags:
+        - Frequency
+      summary: Crear o actualizar meta semanal
+      description: Define la meta semanal de asistencias del usuario.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - goal
+              properties:
+                goal:
+                  type: integer
+                  description: Número de asistencias objetivo por semana
+                  example: 3
+                  minimum: 1
+      responses:
+        '201':
+          description: Meta creada o actualizada
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/frequency.yaml#/components/schemas/FrequencyResponse
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/frequency/me:
+    get:
+      operationId: getUserFrequency
+      tags:
+        - Frequency
+      summary: Consultar estado de frecuencia semanal
+      description: Retorna la meta semanal y el progreso del usuario autenticado.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Estado actual de frecuencia
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/frequency.yaml#/components/schemas/FrequencyResponse
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+        '404':
+          description: Frecuencia no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/frequency/reset:
+    put:
+      operationId: resetAllFrequencies
+      tags:
+        - Frequency
+      summary: Reiniciar todas las frecuencias semanales (Admin)
+      description: Reinicia los contadores de asistencias de todos los usuarios (cron semanal).
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Frecuencias reiniciadas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Frecuencias reiniciadas con éxito
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+        '403':
+          description: Requiere permisos de administrador
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error

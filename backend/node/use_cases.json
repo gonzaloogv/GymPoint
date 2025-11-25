@@ -1,0 +1,1796 @@
+[
+  {
+    "path": "/api/achievements/definitions",
+    "method": "GET",
+    "operationId": "listAchievementDefinitions",
+    "summary": "Listar todas las definiciones de logros",
+    "description": "Obtiene la lista de todas las definiciones de achievements (alias de /api/achievements)",
+    "actor": "Usuario",
+    "tags": [
+      "Achievements"
+    ]
+  },
+  {
+    "path": "/api/achievements/definitions",
+    "method": "POST",
+    "operationId": "createAchievementDefinition",
+    "summary": "Crear una nueva definición de logro",
+    "description": "Crea una nueva definición de achievement (admin)",
+    "actor": "Usuario",
+    "tags": [
+      "Achievements"
+    ]
+  },
+  {
+    "path": "/api/achievements/definitions/{id}",
+    "method": "GET",
+    "operationId": "getAchievementDefinitionById",
+    "summary": "Obtener un logro por ID",
+    "description": "Obtiene los detalles de una definición de achievement",
+    "actor": "Usuario",
+    "tags": [
+      "Achievements"
+    ]
+  },
+  {
+    "path": "/api/achievements/definitions/{id}",
+    "method": "PUT",
+    "operationId": "updateAchievementDefinition",
+    "summary": "Actualizar una definición de logro",
+    "description": "Actualiza los datos de un achievement (admin)",
+    "actor": "Usuario",
+    "tags": [
+      "Achievements"
+    ]
+  },
+  {
+    "path": "/api/achievements/definitions/{id}",
+    "method": "DELETE",
+    "operationId": "deleteAchievementDefinition",
+    "summary": "Eliminar un logro",
+    "description": "Elimina lógicamente un achievement (soft delete)",
+    "actor": "Usuario",
+    "tags": [
+      "Achievements"
+    ]
+  },
+  {
+    "path": "/api/achievements/me",
+    "method": "GET",
+    "operationId": "getMyAchievements",
+    "summary": "Listar los logros del usuario autenticado",
+    "description": "Obtiene la lista de achievements del usuario con su progreso actual",
+    "actor": "Usuario",
+    "tags": [
+      "Achievements"
+    ]
+  },
+  {
+    "path": "/api/achievements/sync",
+    "method": "POST",
+    "operationId": "syncMyAchievements",
+    "summary": "Recalcular los logros del usuario",
+    "description": "Sincroniza y recalcula todos los achievements del usuario autenticado",
+    "actor": "Usuario",
+    "tags": [
+      "Achievements"
+    ]
+  },
+  {
+    "path": "/api/admin/activity",
+    "method": "GET",
+    "operationId": "getAdminActivity",
+    "summary": "Obtener actividad reciente del sistema",
+    "description": "Devuelve actividad reciente (últimos N días)",
+    "actor": "Admin",
+    "tags": [
+      "Admin"
+    ]
+  },
+  {
+    "path": "/api/admin/daily-challenges",
+    "method": "GET",
+    "operationId": "listAdminDailyChallenges",
+    "summary": "Listar desafíos diarios",
+    "description": "Obtiene la lista de desafíos diarios (admin) (alias de /api/daily-challenges)",
+    "actor": "Admin",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/admin/daily-challenges",
+    "method": "POST",
+    "operationId": "createAdminDailyChallenge",
+    "summary": "Crear un nuevo desafío diario",
+    "description": "Crea un nuevo desafío diario (admin)",
+    "actor": "Admin",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/admin/daily-challenges/{id}",
+    "method": "GET",
+    "operationId": "getAdminDailyChallengeById",
+    "summary": "Obtener un desafío diario por ID",
+    "description": "Obtiene los detalles de un desafío diario específico (admin)",
+    "actor": "Admin",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/admin/daily-challenges/{id}",
+    "method": "PUT",
+    "operationId": "updateAdminDailyChallenge",
+    "summary": "Actualizar un desafío diario",
+    "description": "Actualiza los datos de un desafío diario (admin)",
+    "actor": "Admin",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/admin/daily-challenges/{id}",
+    "method": "DELETE",
+    "operationId": "deleteAdminDailyChallenge",
+    "summary": "Eliminar un desafío diario",
+    "description": "Elimina un desafío diario (admin)",
+    "actor": "Admin",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/admin/me",
+    "method": "GET",
+    "operationId": "getAdminProfile",
+    "summary": "Obtener perfil del admin actual",
+    "description": "Devuelve la información del administrador autenticado",
+    "actor": "Admin",
+    "tags": [
+      "Admin"
+    ]
+  },
+  {
+    "path": "/api/admin/stats",
+    "method": "GET",
+    "operationId": "getAdminStats",
+    "summary": "Obtener estadísticas generales del sistema",
+    "description": "Devuelve estadísticas del sistema (usuarios, gimnasios, etc.)",
+    "actor": "Admin",
+    "tags": [
+      "Admin"
+    ]
+  },
+  {
+    "path": "/api/admin/transactions",
+    "method": "GET",
+    "operationId": "getAdminTransactions",
+    "summary": "Obtener log de transacciones de tokens",
+    "description": "Lista paginada de transacciones de tokens",
+    "actor": "Admin",
+    "tags": [
+      "Admin"
+    ]
+  },
+  {
+    "path": "/api/admin/users",
+    "method": "GET",
+    "operationId": "listAdminUsers",
+    "summary": "Listar todos los usuarios",
+    "description": "Lista paginada de usuarios con filtros",
+    "actor": "Admin",
+    "tags": [
+      "Admin"
+    ]
+  },
+  {
+    "path": "/api/admin/users/{id}/activate",
+    "method": "POST",
+    "operationId": "activateUser",
+    "summary": "Activar cuenta de usuario",
+    "description": "Activa la cuenta de un usuario previamente desactivado",
+    "actor": "Admin",
+    "tags": [
+      "Admin"
+    ]
+  },
+  {
+    "path": "/api/admin/users/{id}/deactivate",
+    "method": "POST",
+    "operationId": "deactivateUser",
+    "summary": "Desactivar cuenta de usuario",
+    "description": "Desactiva la cuenta de un usuario",
+    "actor": "Admin",
+    "tags": [
+      "Admin"
+    ]
+  },
+  {
+    "path": "/api/admin/users/{id}/subscription",
+    "method": "PUT",
+    "operationId": "adminUpdateUserSubscription",
+    "summary": "Actualizar suscripción de usuario",
+    "description": "Cambia el tipo de suscripción de un usuario",
+    "actor": "Admin",
+    "tags": [
+      "Admin"
+    ]
+  },
+  {
+    "path": "/api/admin/users/{id}/tokens",
+    "method": "POST",
+    "operationId": "grantUserTokens",
+    "summary": "Otorgar tokens a un usuario",
+    "description": "Añade o resta tokens del balance de un usuario",
+    "actor": "Admin",
+    "tags": [
+      "Admin"
+    ]
+  },
+  {
+    "path": "/api/admin/users/search",
+    "method": "GET",
+    "operationId": "searchAdminUser",
+    "summary": "Buscar usuario por email",
+    "description": "Busca un usuario específico por su email",
+    "actor": "Admin",
+    "tags": [
+      "Admin"
+    ]
+  },
+  {
+    "path": "/api/assistances",
+    "method": "POST",
+    "operationId": "registrarAsistencia",
+    "summary": "Registrar check-in en un gimnasio",
+    "description": "Registrar check-in en un gimnasio",
+    "actor": "Usuario",
+    "tags": [
+      "Asistencias"
+    ]
+  },
+  {
+    "path": "/api/assistances/{id}/checkout",
+    "method": "PUT",
+    "operationId": "checkOut",
+    "summary": "Registrar check-out y bonus por duración",
+    "description": "Registrar check-out y bonus por duración",
+    "actor": "Usuario",
+    "tags": [
+      "Asistencias"
+    ]
+  },
+  {
+    "path": "/api/assistances/auto-checkin",
+    "method": "POST",
+    "operationId": "autoCheckIn",
+    "summary": "Auto check-in del usuario (usa geofence)",
+    "description": "Auto check-in del usuario (usa geofence)",
+    "actor": "Usuario",
+    "tags": [
+      "Asistencias"
+    ]
+  },
+  {
+    "path": "/api/assistances/me",
+    "method": "GET",
+    "operationId": "obtenerHistorialAsistencias",
+    "summary": "Obtener historial de asistencias del usuario",
+    "description": "Obtener historial de asistencias del usuario",
+    "actor": "Usuario",
+    "tags": [
+      "Asistencias"
+    ]
+  },
+  {
+    "path": "/api/assistances/presence",
+    "method": "POST",
+    "operationId": "registrarPresencia",
+    "summary": "Registrar presencia del usuario (PREMIUM)",
+    "description": "Registrar presencia del usuario (PREMIUM)",
+    "actor": "Usuario",
+    "tags": [
+      "Asistencias"
+    ]
+  },
+  {
+    "path": "/api/assistances/today-status",
+    "method": "GET",
+    "operationId": "verificarCheckInHoy",
+    "summary": "Verificar si el usuario ya hizo check-in hoy",
+    "description": "Verificar si el usuario ya hizo check-in hoy",
+    "actor": "Usuario",
+    "tags": [
+      "Asistencias"
+    ]
+  },
+  {
+    "path": "/api/assistances/verify-auto-checkin",
+    "method": "POST",
+    "operationId": "verificarAutoCheckIn",
+    "summary": "Verificar y registrar auto check-in (PREMIUM)",
+    "description": "Verificar y registrar auto check-in (PREMIUM)",
+    "actor": "Usuario",
+    "tags": [
+      "Asistencias"
+    ]
+  },
+  {
+    "path": "/api/auth/google",
+    "method": "POST",
+    "operationId": "loginWithGoogle",
+    "summary": "Login con Google OAuth",
+    "description": "Valida un ID token de Google. Crea o vincula la cuenta y responde con tokens de acceso.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Auth"
+    ]
+  },
+  {
+    "path": "/api/auth/login",
+    "method": "POST",
+    "operationId": "loginWithPassword",
+    "summary": "Autenticación por email y contraseña",
+    "description": "Valida las credenciales y emite un nuevo par de tokens JWT/refresh.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Auth"
+    ]
+  },
+  {
+    "path": "/api/auth/logout",
+    "method": "POST",
+    "operationId": "revokeRefreshToken",
+    "summary": "Revocar un refresh token",
+    "description": "Revocar un refresh token",
+    "actor": "Usuario",
+    "tags": [
+      "Auth"
+    ]
+  },
+  {
+    "path": "/api/auth/refresh-token",
+    "method": "POST",
+    "operationId": "refreshAccessToken",
+    "summary": "Renovar access token usando refresh token",
+    "description": "Renovar access token usando refresh token",
+    "actor": "Usuario",
+    "tags": [
+      "Auth"
+    ]
+  },
+  {
+    "path": "/api/auth/register",
+    "method": "POST",
+    "operationId": "registerAccount",
+    "summary": "Registrar una nueva cuenta de usuario",
+    "description": "Crea una `Account`, `UserProfile`, `Frequency` y `Streak` iniciales. Retorna los tokens de autenticación y la información básica del usuario.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Auth"
+    ]
+  },
+  {
+    "path": "/api/challenges/{id}/progress",
+    "method": "PUT",
+    "operationId": "updateChallengeProgress",
+    "summary": "Actualizar progreso del desafío diario",
+    "description": "Actualiza el progreso del usuario en el desafío. Si alcanza el objetivo, otorga tokens automáticamente.",
+    "actor": "Usuario",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/challenges/today",
+    "method": "GET",
+    "operationId": "getTodayChallenge",
+    "summary": "Obtener desafío diario de hoy",
+    "description": "Retorna el desafío del día actual y el progreso del usuario autenticado.",
+    "actor": "Usuario",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/daily-challenge-templates",
+    "method": "GET",
+    "operationId": "listDailyChallengeTemplates",
+    "summary": "Listar plantillas de desafíos",
+    "description": "Obtiene la lista de plantillas de desafíos diarios (admin)",
+    "actor": "Usuario",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/daily-challenge-templates",
+    "method": "POST",
+    "operationId": "createDailyChallengeTemplate",
+    "summary": "Crear una nueva plantilla de desafío",
+    "description": "Crea una nueva plantilla de desafío diario (admin)",
+    "actor": "Usuario",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/daily-challenge-templates/{id}",
+    "method": "GET",
+    "operationId": "getDailyChallengeTemplateById",
+    "summary": "Obtener una plantilla por ID",
+    "description": "Obtiene los detalles de una plantilla específica",
+    "actor": "Usuario",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/daily-challenge-templates/{id}",
+    "method": "PUT",
+    "operationId": "updateDailyChallengeTemplate",
+    "summary": "Actualizar una plantilla",
+    "description": "Actualiza los datos de una plantilla (admin)",
+    "actor": "Usuario",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/daily-challenge-templates/{id}",
+    "method": "DELETE",
+    "operationId": "deleteDailyChallengeTemplate",
+    "summary": "Eliminar una plantilla",
+    "description": "Elimina una plantilla de desafío",
+    "actor": "Usuario",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/daily-challenges",
+    "method": "GET",
+    "operationId": "listDailyChallenges",
+    "summary": "Listar desafíos diarios",
+    "description": "Obtiene la lista de desafíos diarios (admin)",
+    "actor": "Usuario",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/daily-challenges",
+    "method": "POST",
+    "operationId": "createDailyChallenge",
+    "summary": "Crear un nuevo desafío diario",
+    "description": "Crea un nuevo desafío diario (admin)",
+    "actor": "Usuario",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/daily-challenges/{id}",
+    "method": "GET",
+    "operationId": "getDailyChallengeById",
+    "summary": "Obtener un desafío diario por ID",
+    "description": "Obtiene los detalles de un desafío diario específico",
+    "actor": "Usuario",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/daily-challenges/{id}",
+    "method": "PUT",
+    "operationId": "updateDailyChallenge",
+    "summary": "Actualizar un desafío diario",
+    "description": "Actualiza los datos de un desafío diario (admin)",
+    "actor": "Usuario",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/daily-challenges/{id}",
+    "method": "DELETE",
+    "operationId": "deleteDailyChallenge",
+    "summary": "Eliminar un desafío diario",
+    "description": "Elimina un desafío diario",
+    "actor": "Usuario",
+    "tags": [
+      "Challenges"
+    ]
+  },
+  {
+    "path": "/api/exercises",
+    "method": "GET",
+    "operationId": "listExercises",
+    "summary": "Listar ejercicios con paginación",
+    "description": "Retorna la lista de ejercicios con paginación (alias de /api/exercises/paginated)",
+    "actor": "Usuario",
+    "tags": [
+      "Exercises"
+    ]
+  },
+  {
+    "path": "/api/exercises",
+    "method": "POST",
+    "operationId": "createExercise",
+    "summary": "Crear un nuevo ejercicio",
+    "description": "Crea un nuevo ejercicio en el sistema (admin)",
+    "actor": "Usuario",
+    "tags": [
+      "Exercises"
+    ]
+  },
+  {
+    "path": "/api/exercises/{id}",
+    "method": "GET",
+    "operationId": "getExerciseById",
+    "summary": "Obtener ejercicio por ID",
+    "description": "Obtener ejercicio por ID",
+    "actor": "Usuario",
+    "tags": [
+      "Exercises"
+    ]
+  },
+  {
+    "path": "/api/exercises/{id}",
+    "method": "PUT",
+    "operationId": "updateExercise",
+    "summary": "Actualizar ejercicio",
+    "description": "Actualizar ejercicio",
+    "actor": "Usuario",
+    "tags": [
+      "Exercises"
+    ]
+  },
+  {
+    "path": "/api/exercises/{id}",
+    "method": "DELETE",
+    "operationId": "deleteExercise",
+    "summary": "Eliminar ejercicio",
+    "description": "Solo el creador o admin puede eliminar",
+    "actor": "Usuario",
+    "tags": [
+      "Exercises"
+    ]
+  },
+  {
+    "path": "/api/exercises/paginated",
+    "method": "GET",
+    "operationId": "listExercisesPaginated",
+    "summary": "Listar ejercicios con paginación",
+    "description": "Listar ejercicios con paginación",
+    "actor": "Usuario",
+    "tags": [
+      "Exercises"
+    ]
+  },
+  {
+    "path": "/api/frequency",
+    "method": "POST",
+    "operationId": "createWeeklyGoal",
+    "summary": "Crear o actualizar meta semanal",
+    "description": "Define la meta semanal de asistencias del usuario.",
+    "actor": "Usuario",
+    "tags": [
+      "Frequency"
+    ]
+  },
+  {
+    "path": "/api/frequency/me",
+    "method": "GET",
+    "operationId": "getUserFrequency",
+    "summary": "Consultar estado de frecuencia semanal",
+    "description": "Retorna la meta semanal y el progreso del usuario autenticado.",
+    "actor": "Usuario",
+    "tags": [
+      "Frequency"
+    ]
+  },
+  {
+    "path": "/api/frequency/reset",
+    "method": "PUT",
+    "operationId": "resetAllFrequencies",
+    "summary": "Reiniciar todas las frecuencias semanales (Admin)",
+    "description": "Reinicia los contadores de asistencias de todos los usuarios (cron semanal).",
+    "actor": "Usuario",
+    "tags": [
+      "Frequency"
+    ]
+  },
+  {
+    "path": "/api/gym-requests",
+    "method": "GET",
+    "operationId": "N/A",
+    "summary": "Obtener todas las solicitudes de gimnasios",
+    "description": "Obtener todas las solicitudes de gimnasios",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Requests"
+    ]
+  },
+  {
+    "path": "/api/gym-requests",
+    "method": "POST",
+    "operationId": "N/A",
+    "summary": "Crear solicitud de gimnasio",
+    "description": "Crear solicitud de gimnasio",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Requests"
+    ]
+  },
+  {
+    "path": "/api/gym-requests/{id}",
+    "method": "GET",
+    "operationId": "N/A",
+    "summary": "Obtener solicitud por ID",
+    "description": "Obtener solicitud por ID",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Requests"
+    ]
+  },
+  {
+    "path": "/api/gym-requests/{id}",
+    "method": "DELETE",
+    "operationId": "N/A",
+    "summary": "Eliminar solicitud",
+    "description": "Eliminar solicitud",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Requests"
+    ]
+  },
+  {
+    "path": "/api/gym-requests/{id}/approve",
+    "method": "POST",
+    "operationId": "N/A",
+    "summary": "Aprobar solicitud",
+    "description": "Aprobar solicitud",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Requests"
+    ]
+  },
+  {
+    "path": "/api/gym-requests/{id}/reject",
+    "method": "POST",
+    "operationId": "N/A",
+    "summary": "Rechazar solicitud",
+    "description": "Rechazar solicitud",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Requests"
+    ]
+  },
+  {
+    "path": "/api/gym-reviews",
+    "method": "GET",
+    "operationId": "listAllGymReviews",
+    "summary": "Listar todas las reseñas de gimnasios",
+    "description": "Obtiene la lista de reseñas de todos los gimnasios con paginación",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Reviews"
+    ]
+  },
+  {
+    "path": "/api/gym-reviews/{reviewId}",
+    "method": "PARAMETERS",
+    "operationId": "N/A",
+    "summary": "Sin descripción",
+    "description": "Sin descripción",
+    "actor": "Usuario",
+    "tags": []
+  },
+  {
+    "path": "/api/gym-reviews/{reviewId}",
+    "method": "PUT",
+    "operationId": "updateGymReview",
+    "summary": "Actualizar una reseña",
+    "description": "Actualiza una reseña existente (admin o autor)",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Reviews"
+    ]
+  },
+  {
+    "path": "/api/gym-reviews/{reviewId}",
+    "method": "PATCH",
+    "operationId": "patchGymReview",
+    "summary": "Actualizar una reseña (PATCH)",
+    "description": "Actualiza una reseña existente (admin o autor) - Alias de PUT",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Reviews"
+    ]
+  },
+  {
+    "path": "/api/gym-reviews/{reviewId}",
+    "method": "DELETE",
+    "operationId": "deleteGymReview",
+    "summary": "Eliminar una reseña",
+    "description": "Elimina una reseña (admin o autor)",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Reviews"
+    ]
+  },
+  {
+    "path": "/api/gym-special-schedules/{gymId}",
+    "method": "GET",
+    "operationId": "listGymSpecialSchedules",
+    "summary": "Listar horarios especiales de un gimnasio",
+    "description": "Obtiene todos los horarios especiales de un gimnasio específico",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Schedules"
+    ]
+  },
+  {
+    "path": "/api/gym-special-schedules/{gymId}",
+    "method": "POST",
+    "operationId": "createGymSpecialSchedule",
+    "summary": "Crear un horario especial",
+    "description": "Crea un nuevo horario especial para el gimnasio (admin)",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Schedules"
+    ]
+  },
+  {
+    "path": "/api/gym-special-schedules/{id}",
+    "method": "PUT",
+    "operationId": "updateGymSpecialSchedule",
+    "summary": "Actualizar un horario especial",
+    "description": "Actualiza los datos de un horario especial (admin)",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Schedules"
+    ]
+  },
+  {
+    "path": "/api/gym-special-schedules/{id}",
+    "method": "DELETE",
+    "operationId": "deleteGymSpecialSchedule",
+    "summary": "Eliminar un horario especial",
+    "description": "Elimina un horario especial",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Schedules"
+    ]
+  },
+  {
+    "path": "/api/gyms",
+    "method": "GET",
+    "operationId": "listGyms",
+    "summary": "Listar gimnasios",
+    "description": "Obtiene la lista de gimnasios con paginación",
+    "actor": "Usuario",
+    "tags": [
+      "Gyms"
+    ]
+  },
+  {
+    "path": "/api/gyms",
+    "method": "POST",
+    "operationId": "createGym",
+    "summary": "Crear un nuevo gimnasio",
+    "description": "Crea un nuevo gimnasio en el sistema (admin)",
+    "actor": "Usuario",
+    "tags": [
+      "Gyms"
+    ]
+  },
+  {
+    "path": "/api/gyms/{gymId}",
+    "method": "PARAMETERS",
+    "operationId": "N/A",
+    "summary": "Sin descripción",
+    "description": "Sin descripción",
+    "actor": "Usuario",
+    "tags": []
+  },
+  {
+    "path": "/api/gyms/{gymId}",
+    "method": "GET",
+    "operationId": "getGym",
+    "summary": "Obtener detalle de un gimnasio",
+    "description": "Obtener detalle de un gimnasio",
+    "actor": "Usuario",
+    "tags": [
+      "Gyms"
+    ]
+  },
+  {
+    "path": "/api/gyms/{gymId}",
+    "method": "PUT",
+    "operationId": "updateGym",
+    "summary": "Actualizar un gimnasio",
+    "description": "Actualizar un gimnasio",
+    "actor": "Usuario",
+    "tags": [
+      "Gyms"
+    ]
+  },
+  {
+    "path": "/api/gyms/{gymId}",
+    "method": "DELETE",
+    "operationId": "deleteGym",
+    "summary": "Eliminar un gimnasio",
+    "description": "Eliminar un gimnasio",
+    "actor": "Usuario",
+    "tags": [
+      "Gyms"
+    ]
+  },
+  {
+    "path": "/api/gyms/{gymId}/payments",
+    "method": "PARAMETERS",
+    "operationId": "N/A",
+    "summary": "Sin descripción",
+    "description": "Sin descripción",
+    "actor": "Usuario",
+    "tags": []
+  },
+  {
+    "path": "/api/gyms/{gymId}/payments",
+    "method": "GET",
+    "operationId": "listGymPayments",
+    "summary": "Listar pagos de un gimnasio",
+    "description": "Listar pagos de un gimnasio",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Payments"
+    ]
+  },
+  {
+    "path": "/api/gyms/{gymId}/payments",
+    "method": "POST",
+    "operationId": "createGymPayment",
+    "summary": "Registrar un pago de suscripción a gimnasio",
+    "description": "Registrar un pago de suscripción a gimnasio",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Payments"
+    ]
+  },
+  {
+    "path": "/api/gyms/{gymId}/reviews",
+    "method": "PARAMETERS",
+    "operationId": "N/A",
+    "summary": "Sin descripción",
+    "description": "Sin descripción",
+    "actor": "Usuario",
+    "tags": []
+  },
+  {
+    "path": "/api/gyms/{gymId}/reviews",
+    "method": "GET",
+    "operationId": "listGymReviews",
+    "summary": "Listar reseñas de un gimnasio",
+    "description": "Listar reseñas de un gimnasio",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Reviews"
+    ]
+  },
+  {
+    "path": "/api/gyms/{gymId}/reviews",
+    "method": "POST",
+    "operationId": "createGymReview",
+    "summary": "Crear una reseña para un gimnasio",
+    "description": "Crear una reseña para un gimnasio",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Reviews"
+    ]
+  },
+  {
+    "path": "/api/gyms/{gymId}/reviews/stats",
+    "method": "PARAMETERS",
+    "operationId": "N/A",
+    "summary": "Sin descripción",
+    "description": "Sin descripción",
+    "actor": "Usuario",
+    "tags": []
+  },
+  {
+    "path": "/api/gyms/{gymId}/reviews/stats",
+    "method": "GET",
+    "operationId": "getGymRatingStats",
+    "summary": "Obtener estadísticas de rating de un gimnasio",
+    "description": "Devuelve estadísticas agregadas de las reseñas de un gimnasio (promedio, distribución por estrellas, etc.)",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Reviews"
+    ]
+  },
+  {
+    "path": "/api/gyms/{gymId}/schedules",
+    "method": "PARAMETERS",
+    "operationId": "N/A",
+    "summary": "Sin descripción",
+    "description": "Sin descripción",
+    "actor": "Usuario",
+    "tags": []
+  },
+  {
+    "path": "/api/gyms/{gymId}/schedules",
+    "method": "GET",
+    "operationId": "listGymSchedules",
+    "summary": "Listar horarios regulares de un gimnasio",
+    "description": "Retorna los horarios de la semana (lunes a domingo)",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Schedules"
+    ]
+  },
+  {
+    "path": "/api/gyms/{gymId}/schedules",
+    "method": "POST",
+    "operationId": "createGymSchedule",
+    "summary": "Crear horario regular para un día",
+    "description": "Crear horario regular para un día",
+    "actor": "Usuario",
+    "tags": [
+      "Gym Schedules"
+    ]
+  },
+  {
+    "path": "/api/gyms/amenidades",
+    "method": "GET",
+    "operationId": "listGymAmenities",
+    "summary": "Listar amenities disponibles",
+    "description": "Listar amenities disponibles",
+    "actor": "Usuario",
+    "tags": [
+      "Gyms"
+    ]
+  },
+  {
+    "path": "/api/media",
+    "method": "GET",
+    "operationId": "listUserMedia",
+    "summary": "Listar archivos multimedia del usuario",
+    "description": "Obtiene todos los archivos multimedia asociados al usuario autenticado.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Media"
+    ]
+  },
+  {
+    "path": "/api/media",
+    "method": "POST",
+    "operationId": "createMedia",
+    "summary": "Crear un nuevo archivo multimedia",
+    "description": "Crea un nuevo registro de archivo multimedia asociado a una entidad (usuario, gimnasio, ejercicio, progreso).\n",
+    "actor": "Usuario",
+    "tags": [
+      "Media"
+    ]
+  },
+  {
+    "path": "/api/media/{entity_type}/{entity_id}",
+    "method": "GET",
+    "operationId": "listMediaByEntity",
+    "summary": "Listar archivos multimedia de una entidad",
+    "description": "Obtiene todos los archivos multimedia asociados a una entidad específica (usuario, gimnasio, ejercicio, progreso).\n",
+    "actor": "Usuario",
+    "tags": [
+      "Media"
+    ]
+  },
+  {
+    "path": "/api/media/{id_media}",
+    "method": "DELETE",
+    "operationId": "deleteMedia",
+    "summary": "Eliminar archivo multimedia",
+    "description": "Elimina un archivo multimedia del sistema.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Media"
+    ]
+  },
+  {
+    "path": "/api/media/{id_media}/primary",
+    "method": "POST",
+    "operationId": "setPrimaryMedia",
+    "summary": "Establecer archivo como principal",
+    "description": "Marca un archivo multimedia como principal para su entidad. Automáticamente desmarca otros archivos de la misma entidad.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Media"
+    ]
+  },
+  {
+    "path": "/api/progress",
+    "method": "POST",
+    "operationId": "registerProgress",
+    "summary": "Registrar progreso físico del usuario",
+    "description": "Registra el progreso físico del usuario incluyendo peso total levantado, repeticiones totales, sets totales y ejercicios realizados.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Progress"
+    ]
+  },
+  {
+    "path": "/api/progress/me",
+    "method": "GET",
+    "operationId": "getUserProgress",
+    "summary": "Obtener historial de progreso del usuario",
+    "description": "Obtiene todo el historial de progreso físico del usuario autenticado con opciones de paginación y filtrado.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Progress"
+    ]
+  },
+  {
+    "path": "/api/progress/me/ejercicios",
+    "method": "GET",
+    "operationId": "getExerciseHistory",
+    "summary": "Obtener historial completo de ejercicios",
+    "description": "Obtiene el historial completo de todos los ejercicios realizados por el usuario autenticado.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Progress"
+    ]
+  },
+  {
+    "path": "/api/progress/me/ejercicios/{id_exercise}",
+    "method": "GET",
+    "operationId": "getExerciseHistoryByExercise",
+    "summary": "Obtener historial de un ejercicio específico",
+    "description": "Obtiene el historial de un ejercicio específico del usuario autenticado.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Progress"
+    ]
+  },
+  {
+    "path": "/api/progress/me/ejercicios/{id_exercise}/mejor",
+    "method": "GET",
+    "operationId": "getPersonalRecord",
+    "summary": "Obtener récord personal de un ejercicio",
+    "description": "Obtiene el mejor levantamiento (peso máximo) del usuario para un ejercicio específico.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Progress"
+    ]
+  },
+  {
+    "path": "/api/progress/me/ejercicios/{id_exercise}/promedio",
+    "method": "GET",
+    "operationId": "getExerciseAverages",
+    "summary": "Obtener promedios de un ejercicio",
+    "description": "Obtiene los promedios de peso, repeticiones y sets para un ejercicio específico del usuario.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Progress"
+    ]
+  },
+  {
+    "path": "/api/progress/me/estadistica",
+    "method": "GET",
+    "operationId": "getWeightStats",
+    "summary": "Obtener estadísticas de peso levantado",
+    "description": "Obtiene estadísticas de peso total levantado del usuario en un rango de fechas opcional.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Progress"
+    ]
+  },
+  {
+    "path": "/api/rewards",
+    "method": "GET",
+    "operationId": "listRewards",
+    "summary": "Listar todas las recompensas",
+    "description": "Obtiene la lista de todas las recompensas disponibles",
+    "actor": "Usuario",
+    "tags": [
+      "Rewards"
+    ]
+  },
+  {
+    "path": "/api/rewards",
+    "method": "POST",
+    "operationId": "createReward",
+    "summary": "Crear una nueva recompensa",
+    "description": "Crea una nueva recompensa en el sistema (admin)",
+    "actor": "Usuario",
+    "tags": [
+      "Rewards"
+    ]
+  },
+  {
+    "path": "/api/rewards/{id}",
+    "method": "GET",
+    "operationId": "getRewardById",
+    "summary": "Obtener una recompensa por ID",
+    "description": "Obtiene los detalles de una recompensa específica",
+    "actor": "Usuario",
+    "tags": [
+      "Rewards"
+    ]
+  },
+  {
+    "path": "/api/rewards/{id}",
+    "method": "PUT",
+    "operationId": "updateReward",
+    "summary": "Actualizar una recompensa",
+    "description": "Actualiza los datos de una recompensa existente (admin)",
+    "actor": "Usuario",
+    "tags": [
+      "Rewards"
+    ]
+  },
+  {
+    "path": "/api/rewards/{id}",
+    "method": "DELETE",
+    "operationId": "deleteReward",
+    "summary": "Eliminar una recompensa",
+    "description": "Elimina lógicamente una recompensa (soft delete)",
+    "actor": "Usuario",
+    "tags": [
+      "Rewards"
+    ]
+  },
+  {
+    "path": "/api/routines",
+    "method": "POST",
+    "operationId": "createRoutineWithExercises",
+    "summary": "Crear rutina con ejercicios",
+    "description": "Crea una rutina con al menos 2 ejercicios",
+    "actor": "Usuario",
+    "tags": [
+      "Routines"
+    ]
+  },
+  {
+    "path": "/api/routines/{id}",
+    "method": "GET",
+    "operationId": "getRoutineById",
+    "summary": "Obtener rutina por ID",
+    "description": "Obtiene rutina con ejercicios y días",
+    "actor": "Usuario",
+    "tags": [
+      "Routines"
+    ]
+  },
+  {
+    "path": "/api/routines/{id}",
+    "method": "PUT",
+    "operationId": "updateRoutine",
+    "summary": "Actualizar rutina",
+    "description": "Actualizar rutina",
+    "actor": "Usuario",
+    "tags": [
+      "Routines"
+    ]
+  },
+  {
+    "path": "/api/routines/{id}",
+    "method": "DELETE",
+    "operationId": "deleteRoutine",
+    "summary": "Eliminar rutina",
+    "description": "Eliminar rutina",
+    "actor": "Usuario",
+    "tags": [
+      "Routines"
+    ]
+  },
+  {
+    "path": "/api/routines/{id}/days",
+    "method": "GET",
+    "operationId": "listRoutineDays",
+    "summary": "Listar días de rutina",
+    "description": "Listar días de rutina",
+    "actor": "Usuario",
+    "tags": [
+      "Routines"
+    ]
+  },
+  {
+    "path": "/api/routines/{id}/days",
+    "method": "POST",
+    "operationId": "createRoutineDay",
+    "summary": "Crear día de rutina",
+    "description": "Crear día de rutina",
+    "actor": "Usuario",
+    "tags": [
+      "Routines"
+    ]
+  },
+  {
+    "path": "/api/routines/{id}/exercises",
+    "method": "POST",
+    "operationId": "addExerciseToRoutine",
+    "summary": "Agregar ejercicio a rutina",
+    "description": "Agregar ejercicio a rutina",
+    "actor": "Usuario",
+    "tags": [
+      "Routines"
+    ]
+  },
+  {
+    "path": "/api/routines/{id}/exercises/{id_exercise}",
+    "method": "PUT",
+    "operationId": "updateRoutineExercise",
+    "summary": "Actualizar ejercicio en rutina",
+    "description": "Actualizar ejercicio en rutina",
+    "actor": "Usuario",
+    "tags": [
+      "Routines"
+    ]
+  },
+  {
+    "path": "/api/routines/{id}/exercises/{id_exercise}",
+    "method": "DELETE",
+    "operationId": "deleteRoutineExercise",
+    "summary": "Eliminar ejercicio de rutina",
+    "description": "Eliminar ejercicio de rutina",
+    "actor": "Usuario",
+    "tags": [
+      "Routines"
+    ]
+  },
+  {
+    "path": "/api/routines/days/{id_routine_day}",
+    "method": "PUT",
+    "operationId": "updateRoutineDay",
+    "summary": "Actualizar día de rutina",
+    "description": "Actualizar día de rutina",
+    "actor": "Usuario",
+    "tags": [
+      "Routines"
+    ]
+  },
+  {
+    "path": "/api/routines/days/{id_routine_day}",
+    "method": "DELETE",
+    "operationId": "deleteRoutineDay",
+    "summary": "Eliminar día de rutina",
+    "description": "Eliminar día de rutina",
+    "actor": "Usuario",
+    "tags": [
+      "Routines"
+    ]
+  },
+  {
+    "path": "/api/routines/me",
+    "method": "GET",
+    "operationId": "getMyRoutines",
+    "summary": "Obtener mis rutinas",
+    "description": "Lista las rutinas del usuario autenticado",
+    "actor": "Usuario",
+    "tags": [
+      "Routines"
+    ]
+  },
+  {
+    "path": "/api/routines/templates",
+    "method": "GET",
+    "operationId": "listRoutineTemplates",
+    "summary": "Listar plantillas de rutinas",
+    "description": "Listar plantillas de rutinas",
+    "actor": "Usuario",
+    "tags": [
+      "Routines"
+    ]
+  },
+  {
+    "path": "/api/streak/{id_user_profile}/grant-recovery",
+    "method": "POST",
+    "operationId": "grantRecoveryItems",
+    "summary": "Otorgar items de recuperación (Admin)",
+    "description": "Añade items de recuperación a la racha de un usuario.",
+    "actor": "Usuario",
+    "tags": [
+      "Streaks"
+    ]
+  },
+  {
+    "path": "/api/streak/{id_user_profile}/reset",
+    "method": "PUT",
+    "operationId": "resetUserStreak",
+    "summary": "Resetear racha de usuario (Admin)",
+    "description": "Reinicia la racha de un usuario a cero.",
+    "actor": "Usuario",
+    "tags": [
+      "Streaks"
+    ]
+  },
+  {
+    "path": "/api/streak/me",
+    "method": "GET",
+    "operationId": "getUserStreak",
+    "summary": "Obtener racha actual del usuario",
+    "description": "Retorna la racha de asistencias del usuario autenticado con estadísticas.",
+    "actor": "Usuario",
+    "tags": [
+      "Streaks"
+    ]
+  },
+  {
+    "path": "/api/streak/stats",
+    "method": "GET",
+    "operationId": "getStreakStats",
+    "summary": "Estadísticas globales de rachas (Admin)",
+    "description": "Retorna estadísticas del sistema de rachas.",
+    "actor": "Usuario",
+    "tags": [
+      "Streaks"
+    ]
+  },
+  {
+    "path": "/api/streak/use-recovery",
+    "method": "POST",
+    "operationId": "useRecoveryItem",
+    "summary": "Usar item de recuperación",
+    "description": "Consume un item de recuperación para mantener la racha activa.",
+    "actor": "Usuario",
+    "tags": [
+      "Streaks"
+    ]
+  },
+  {
+    "path": "/api/user-gym/alta",
+    "method": "POST",
+    "operationId": "subscribeToGym",
+    "summary": "Dar de alta a un usuario en un gimnasio",
+    "description": "Suscribe al usuario autenticado a un gimnasio con un plan específico",
+    "actor": "Usuario",
+    "tags": [
+      "User Gym Subscriptions"
+    ]
+  },
+  {
+    "path": "/api/user-gym/baja",
+    "method": "PUT",
+    "operationId": "unsubscribeFromGym",
+    "summary": "Dar de baja al usuario en un gimnasio",
+    "description": "Cancela la suscripción del usuario autenticado a un gimnasio",
+    "actor": "Usuario",
+    "tags": [
+      "User Gym Subscriptions"
+    ]
+  },
+  {
+    "path": "/api/user-gym/gimnasio/{id_gym}",
+    "method": "GET",
+    "operationId": "getGymMemberHistory",
+    "summary": "Obtener historial de usuarios de un gimnasio",
+    "description": "Lista todos los usuarios que han tenido o tienen suscripción en el gimnasio",
+    "actor": "Usuario",
+    "tags": [
+      "User Gym Subscriptions"
+    ]
+  },
+  {
+    "path": "/api/user-gym/gimnasio/{id_gym}/conteo",
+    "method": "GET",
+    "operationId": "getGymMemberCount",
+    "summary": "Obtener cantidad de usuarios activos en un gimnasio",
+    "description": "Cuenta cuántos usuarios tienen suscripción activa en el gimnasio",
+    "actor": "Usuario",
+    "tags": [
+      "User Gym Subscriptions"
+    ]
+  },
+  {
+    "path": "/api/user-gym/me/activos",
+    "method": "GET",
+    "operationId": "getActiveGymSubscriptions",
+    "summary": "Obtener los gimnasios activos del usuario autenticado",
+    "description": "Lista todos los gimnasios donde el usuario tiene una suscripción activa",
+    "actor": "Usuario",
+    "tags": [
+      "User Gym Subscriptions"
+    ]
+  },
+  {
+    "path": "/api/user-gym/me/historial",
+    "method": "GET",
+    "operationId": "getUserGymHistory",
+    "summary": "Obtener historial completo de membresías del usuario autenticado",
+    "description": "Lista todas las membresías del usuario, activas e inactivas",
+    "actor": "Usuario",
+    "tags": [
+      "User Gym Subscriptions"
+    ]
+  },
+  {
+    "path": "/api/user-routines",
+    "method": "POST",
+    "operationId": "assignRoutineToUser",
+    "summary": "Asignar rutina activa a usuario",
+    "description": "Asignar rutina activa a usuario",
+    "actor": "Usuario",
+    "tags": [
+      "User Routines"
+    ]
+  },
+  {
+    "path": "/api/user-routines/me",
+    "method": "GET",
+    "operationId": "getActiveRoutine",
+    "summary": "Obtener rutina activa del usuario",
+    "description": "Obtener rutina activa del usuario",
+    "actor": "Usuario",
+    "tags": [
+      "User Routines"
+    ]
+  },
+  {
+    "path": "/api/user-routines/me/active-routine",
+    "method": "GET",
+    "operationId": "getActiveRoutineWithExercises",
+    "summary": "Obtener rutina activa con ejercicios",
+    "description": "Obtener rutina activa con ejercicios",
+    "actor": "Usuario",
+    "tags": [
+      "User Routines"
+    ]
+  },
+  {
+    "path": "/api/user-routines/me/end",
+    "method": "PUT",
+    "operationId": "endUserRoutine",
+    "summary": "Finalizar rutina activa",
+    "description": "Finalizar rutina activa",
+    "actor": "Usuario",
+    "tags": [
+      "User Routines"
+    ]
+  },
+  {
+    "path": "/api/users/{userId}",
+    "method": "GET",
+    "operationId": "getUserById",
+    "summary": "Obtener perfil de usuario por ID (admin)",
+    "description": "Devuelve la información del perfil de un usuario específico. Solo para administradores.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Users"
+    ]
+  },
+  {
+    "path": "/api/users/{userId}/subscription",
+    "method": "PUT",
+    "operationId": "updateUserSubscription",
+    "summary": "Actualizar suscripción de un usuario (admin)",
+    "description": "Cambia el nivel de suscripción de un usuario. Solo para administradores.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Users"
+    ]
+  },
+  {
+    "path": "/api/users/{userId}/tokens",
+    "method": "POST",
+    "operationId": "updateUserTokens",
+    "summary": "Actualizar tokens de un usuario (admin)",
+    "description": "Incrementa o decrementa el balance de tokens de un usuario. Solo para administradores.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Users"
+    ]
+  },
+  {
+    "path": "/api/users/me",
+    "method": "GET",
+    "operationId": "getUserProfile",
+    "summary": "Obtener perfil del usuario actual",
+    "description": "Devuelve la información completa del perfil del usuario autenticado.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Users"
+    ]
+  },
+  {
+    "path": "/api/users/me",
+    "method": "PUT",
+    "operationId": "updateUserProfile",
+    "summary": "Actualizar perfil del usuario actual",
+    "description": "Actualiza los datos del perfil del usuario autenticado. Solo se actualizan los campos proporcionados en el request body.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Users"
+    ]
+  },
+  {
+    "path": "/api/users/me",
+    "method": "DELETE",
+    "operationId": "requestAccountDeletion",
+    "summary": "Solicitar eliminación de cuenta",
+    "description": "Inicia el proceso de eliminación de cuenta con período de gracia. La cuenta no se eliminará inmediatamente sino después del período configurado.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Users"
+    ]
+  },
+  {
+    "path": "/api/users/me/body-metrics",
+    "method": "POST",
+    "operationId": "N/A",
+    "summary": "Crear métrica corporal",
+    "description": "Registra una nueva métrica corporal para el usuario.\n\n**Restricciones:**\n- Usuarios PREMIUM: Pueden crear 1 métrica por semana (cada 7 días)\n- Usuarios FREE: Pueden crear 1 métrica por mes\n- Tokens: Se otorgan 5 tokens solo 1 vez por mes (independientemente de la suscripción)\n\n**Edición:** Para modificar métricas existentes, usar PUT /api/users/me/body-metrics/{id_metric}\n",
+    "actor": "Usuario",
+    "tags": [
+      "Body Metrics"
+    ]
+  },
+  {
+    "path": "/api/users/me/body-metrics",
+    "method": "GET",
+    "operationId": "N/A",
+    "summary": "Listar métricas corporales del usuario",
+    "description": "Obtiene el historial de métricas corporales del usuario",
+    "actor": "Usuario",
+    "tags": [
+      "Body Metrics"
+    ]
+  },
+  {
+    "path": "/api/users/me/body-metrics/{id_metric}",
+    "method": "PUT",
+    "operationId": "N/A",
+    "summary": "Actualizar métrica corporal",
+    "description": "Actualiza una métrica corporal existente del usuario. No otorga tokens.",
+    "actor": "Usuario",
+    "tags": [
+      "Body Metrics"
+    ]
+  },
+  {
+    "path": "/api/users/me/body-metrics/latest",
+    "method": "GET",
+    "operationId": "N/A",
+    "summary": "Obtener la métrica más reciente del usuario",
+    "description": "Obtener la métrica más reciente del usuario",
+    "actor": "Usuario",
+    "tags": [
+      "Body Metrics"
+    ]
+  },
+  {
+    "path": "/api/users/me/deletion-request",
+    "method": "GET",
+    "operationId": "getAccountDeletionStatus",
+    "summary": "Obtener estado de solicitud de eliminación",
+    "description": "Consulta el estado de una solicitud de eliminación de cuenta pendiente.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Users"
+    ]
+  },
+  {
+    "path": "/api/users/me/deletion-request",
+    "method": "DELETE",
+    "operationId": "cancelAccountDeletion",
+    "summary": "Cancelar solicitud de eliminación",
+    "description": "Cancela una solicitud de eliminación de cuenta pendiente.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Users"
+    ]
+  },
+  {
+    "path": "/api/users/me/email",
+    "method": "PUT",
+    "operationId": "updateUserEmail",
+    "summary": "Actualizar email del usuario",
+    "description": "Actualiza el email del usuario autenticado. Requiere verificación posterior.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Users"
+    ]
+  },
+  {
+    "path": "/api/users/me/notifications/settings",
+    "method": "GET",
+    "operationId": "getNotificationSettings",
+    "summary": "Obtener configuración de notificaciones",
+    "description": "Devuelve las preferencias de notificaciones del usuario autenticado.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Users"
+    ]
+  },
+  {
+    "path": "/api/users/me/notifications/settings",
+    "method": "PUT",
+    "operationId": "updateNotificationSettings",
+    "summary": "Actualizar configuración de notificaciones",
+    "description": "Actualiza las preferencias de notificaciones del usuario autenticado.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Users"
+    ]
+  },
+  {
+    "path": "/api/users/me/tokens/balance",
+    "method": "GET",
+    "operationId": "getMyTokenBalance",
+    "summary": "Obtener balance de tokens del usuario autenticado",
+    "description": "Obtiene el balance actual de tokens del usuario autenticado.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Users",
+      "Tokens"
+    ]
+  },
+  {
+    "path": "/api/users/me/tokens/ledger",
+    "method": "GET",
+    "operationId": "getMyTokenLedger",
+    "summary": "Obtener historial de movimientos de tokens del usuario autenticado",
+    "description": "Obtiene el historial paginado de movimientos de tokens del usuario autenticado.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Users",
+      "Tokens"
+    ]
+  },
+  {
+    "path": "/api/users/me/tokens/stats",
+    "method": "GET",
+    "operationId": "getMyTokenStats",
+    "summary": "Obtener estadísticas de tokens del usuario autenticado",
+    "description": "Obtiene estadísticas agregadas de tokens del usuario autenticado.\n",
+    "actor": "Usuario",
+    "tags": [
+      "Users",
+      "Tokens"
+    ]
+  },
+  {
+    "path": "/api/workouts/sessions",
+    "method": "POST",
+    "operationId": "startWorkoutSession",
+    "summary": "Iniciar sesión de entrenamiento",
+    "description": "Iniciar sesión de entrenamiento",
+    "actor": "Usuario",
+    "tags": [
+      "Workouts"
+    ]
+  },
+  {
+    "path": "/api/workouts/sessions/{id}",
+    "method": "GET",
+    "operationId": "getWorkoutSession",
+    "summary": "Obtener sesión por ID",
+    "description": "Obtener sesión por ID",
+    "actor": "Usuario",
+    "tags": [
+      "Workouts"
+    ]
+  },
+  {
+    "path": "/api/workouts/sessions/{id}",
+    "method": "PUT",
+    "operationId": "updateWorkoutSession",
+    "summary": "Actualizar sesión (notas)",
+    "description": "Actualizar sesión (notas)",
+    "actor": "Usuario",
+    "tags": [
+      "Workouts"
+    ]
+  },
+  {
+    "path": "/api/workouts/sessions/{id}/cancel",
+    "method": "PUT",
+    "operationId": "cancelWorkoutSession",
+    "summary": "Cancelar sesión",
+    "description": "Cancelar sesión",
+    "actor": "Usuario",
+    "tags": [
+      "Workouts"
+    ]
+  },
+  {
+    "path": "/api/workouts/sessions/{id}/complete",
+    "method": "PUT",
+    "operationId": "completeWorkoutSession",
+    "summary": "Completar sesión",
+    "description": "Completar sesión",
+    "actor": "Usuario",
+    "tags": [
+      "Workouts"
+    ]
+  },
+  {
+    "path": "/api/workouts/sessions/{id}/sets",
+    "method": "GET",
+    "operationId": "listWorkoutSets",
+    "summary": "Listar sets de una sesión",
+    "description": "Listar sets de una sesión",
+    "actor": "Usuario",
+    "tags": [
+      "Workouts"
+    ]
+  },
+  {
+    "path": "/api/workouts/sessions/{id}/sets",
+    "method": "POST",
+    "operationId": "registerWorkoutSet",
+    "summary": "Registrar un set",
+    "description": "Registrar un set",
+    "actor": "Usuario",
+    "tags": [
+      "Workouts"
+    ]
+  },
+  {
+    "path": "/api/workouts/sessions/active",
+    "method": "GET",
+    "operationId": "getActiveWorkoutSession",
+    "summary": "Obtener sesión activa",
+    "description": "Obtener sesión activa",
+    "actor": "Usuario",
+    "tags": [
+      "Workouts"
+    ]
+  },
+  {
+    "path": "/api/workouts/sessions/me",
+    "method": "GET",
+    "operationId": "listMyWorkoutSessions",
+    "summary": "Listar mis sesiones de entrenamiento",
+    "description": "Listar mis sesiones de entrenamiento",
+    "actor": "Usuario",
+    "tags": [
+      "Workouts"
+    ]
+  },
+  {
+    "path": "/api/workouts/sets/{id}",
+    "method": "PUT",
+    "operationId": "updateWorkoutSet",
+    "summary": "Actualizar un set",
+    "description": "Actualizar un set",
+    "actor": "Usuario",
+    "tags": [
+      "Workouts"
+    ]
+  },
+  {
+    "path": "/api/workouts/sets/{id}",
+    "method": "DELETE",
+    "operationId": "deleteWorkoutSet",
+    "summary": "Eliminar un set",
+    "description": "Eliminar un set",
+    "actor": "Usuario",
+    "tags": [
+      "Workouts"
+    ]
+  },
+  {
+    "path": "/api/workouts/stats",
+    "method": "GET",
+    "operationId": "getWorkoutStats",
+    "summary": "Obtener estadísticas de workout",
+    "description": "Obtener estadísticas de workout",
+    "actor": "Usuario",
+    "tags": [
+      "Workouts"
+    ]
+  }
+]
+
+=== RESUMEN ===
+Total de casos de uso encontrados: 163
+
+Primeros 5 casos de uso:
+- GET /api/achievements/definitions: Listar todas las definiciones de logros
+- POST /api/achievements/definitions: Crear una nueva definición de logro
+- GET /api/achievements/definitions/{id}: Obtener un logro por ID
+- PUT /api/achievements/definitions/{id}: Actualizar una definición de logro
+- DELETE /api/achievements/definitions/{id}: Eliminar un logro

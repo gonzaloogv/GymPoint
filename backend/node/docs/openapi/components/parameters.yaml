@@ -1,0 +1,172 @@
+components:
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Número de página (1-indexado).
+    LimitParam:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: Tamaño máximo de página.
+    OrderParam:
+      name: order
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+        default: desc
+      description: Dirección de ordenamiento.
+    GymSortParam:
+      name: sortBy
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - created_at
+          - name
+          - city
+          - month_price
+        default: created_at
+      description: Campo permitido para ordenar gimnasios.
+    GymIdPathParam:
+      name: gymId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: Identificador del gimnasio (`id_gym`).
+    # Path Parameters Genéricos
+    IdPathParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: Identificador único del recurso
+    UserIdPathParam:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID del usuario
+    ExerciseIdPathParam:
+      name: id_exercise
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID del ejercicio
+    RoutineIdPathParam:
+      name: id_routine
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID de la rutina
+    RoutineDayIdPathParam:
+      name: id_routine_day
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID del día de rutina
+    MediaIdPathParam:
+      name: id_media
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID del elemento multimedia
+    SessionIdPathParam:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID de la sesión de entrenamiento
+    SetIdPathParam:
+      name: setId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID del set de ejercicio
+    # Query Parameters Comunes
+    StatusQueryParam:
+      name: status
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Filtrar por estado
+    AvailableQueryParam:
+      name: available
+      in: query
+      required: false
+      schema:
+        type: boolean
+      description: Filtrar solo elementos disponibles
+    ActiveQueryParam:
+      name: active
+      in: query
+      required: false
+      schema:
+        type: boolean
+      description: Filtrar solo elementos activos
+    StartDateParam:
+      name: startDate
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date
+      description: Fecha de inicio del rango (YYYY-MM-DD)
+    EndDateParam:
+      name: endDate
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date
+      description: Fecha de fin del rango (YYYY-MM-DD)
+    SearchQueryParam:
+      name: search
+      in: query
+      required: false
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 255
+      description: Término de búsqueda
+    SortByParam:
+      name: sortBy
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Campo por el cual ordenar

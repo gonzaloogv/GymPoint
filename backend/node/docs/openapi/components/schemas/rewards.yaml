@@ -1,0 +1,411 @@
+components:
+  schemas:
+    RewardResponse:
+      type: object
+      required:
+        - id_reward
+        - routine_name
+        - description
+        - token_cost
+        - created_at
+        - updated_at
+      properties:
+        id_reward:
+          type: integer
+          description: ID único de la recompensa
+          example: 1
+        id_gym:
+          type:
+            - integer
+            - 'null'
+          description: ID del gimnasio (null para recompensas globales)
+        name:
+          type: string
+          description: Nombre de la recompensa
+          example: Pase VIP 1 mes
+        description:
+          type: string
+          description: Descripción detallada
+          example: Acceso VIP durante 1 mes a todos los gimnasios
+        reward_type:
+          type:
+            - string
+            - 'null'
+          enum:
+            - descuento
+            - pase_gratis
+            - producto
+            - servicio
+            - merchandising
+            - token_multiplier
+            - streak_saver
+            - otro
+            - null
+          description: Tipo de recompensa
+          example: pase_gratis
+        effect_value:
+          type:
+            - number
+            - 'null'
+          description: Valor del efecto (días, multiplicador o cantidad de ítems)
+          example: 7
+        token_cost:
+          type: integer
+          description: Costo en tokens
+          minimum: 0
+          example: 500
+        cooldown_days:
+          type:
+            - integer
+            - 'null'
+          description: Días de cooldown entre reclamos
+          example: 30
+        is_unlimited:
+          type:
+            - boolean
+            - 'null'
+          description: Indica si no se descuenta stock
+        requires_premium:
+          type:
+            - boolean
+            - 'null'
+          description: Requiere que el usuario sea Premium
+        is_stackable:
+          type:
+            - boolean
+            - 'null'
+          description: Se puede acumular en inventario
+        max_stack:
+          type:
+            - integer
+            - 'null'
+          description: Máximo acumulable cuando es stackable
+        duration_days:
+          type:
+            - integer
+            - 'null'
+          description: Duración del efecto en días (multiplicadores)
+        discount_percentage:
+          type:
+            - number
+            - 'null'
+          minimum: 0
+          maximum: 100
+        discount_amount:
+          type:
+            - number
+            - 'null'
+          minimum: 0
+        stock:
+          type:
+            - integer
+            - 'null'
+          description: Stock disponible
+          minimum: 0
+          example: 10
+        valid_from:
+          type:
+            - string
+            - 'null'
+          format: date
+          description: Fecha de inicio de validez
+          example: '2025-01-01'
+        valid_until:
+          type:
+            - string
+            - 'null'
+          format: date
+          description: Fecha de fin de validez
+          example: '2025-12-31'
+        is_active:
+          type: boolean
+          description: Si está activa para canje
+          default: true
+        image_url:
+          type:
+            - string
+            - 'null'
+          maxLength: 500
+          description: URL de la imagen de la recompensa
+          example: https://cdn.gympoint.com/rewards/vip-pass.jpg
+        terms:
+          type:
+            - string
+            - 'null'
+          description: Términos y condiciones de la recompensa
+          example: Válido solo en horarios de 6am a 10pm. No acumulable con otras promociones.
+        can_claim:
+          type:
+            - boolean
+            - 'null'
+          description: Indica si el usuario actual puede reclamarla
+        current_stack:
+          type:
+            - integer
+            - 'null'
+          description: Cantidad actual en inventario del usuario
+        cooldown_ends_at:
+          type:
+            - string
+            - 'null'
+          format: date-time
+          description: Próxima fecha en la que podrá reclamarla
+        cooldown_hours_remaining:
+          type:
+            - integer
+            - 'null'
+          description: Horas restantes del cooldown
+        reason:
+          type:
+            - string
+            - 'null'
+          description: Mensaje explicando por qué no puede reclamarla
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type:
+            - string
+            - 'null'
+          format: date-time
+    CreateRewardRequest:
+      type: object
+      additionalProperties: true
+      required:
+        - name
+        - description
+        - token_cost
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+        reward_type:
+          type: string
+          enum:
+            - descuento
+            - pase_gratis
+            - producto
+            - servicio
+            - merchandising
+            - token_multiplier
+            - streak_saver
+            - otro
+        effect_value:
+          type: number
+          description: Valor del efecto (obligatorio para pase_gratis, token_multiplier, streak_saver)
+        token_cost:
+          type: integer
+          minimum: 0
+        cooldown_days:
+          type: integer
+          minimum: 0
+        is_unlimited:
+          type: boolean
+        requires_premium:
+          type: boolean
+        is_stackable:
+          type: boolean
+        max_stack:
+          type: integer
+          minimum: 1
+        duration_days:
+          type: integer
+          minimum: 1
+          description: Duración del efecto en días (solo multipliers)
+        discount_percentage:
+          type: number
+          minimum: 0
+          maximum: 100
+        discount_amount:
+          type: number
+          minimum: 0
+        stock:
+          type: integer
+          minimum: 0
+        valid_from:
+          type: string
+          format: date
+        valid_until:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+          default: true
+        image_url:
+          type: string
+        terms:
+          type: string
+    UpdateRewardRequest:
+      type: object
+      additionalProperties: true
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+        reward_type:
+          type: string
+          enum:
+            - descuento
+            - pase_gratis
+            - producto
+            - servicio
+            - merchandising
+            - token_multiplier
+            - streak_saver
+            - otro
+        effect_value:
+          type: number
+        token_cost:
+          type: integer
+          minimum: 0
+        cooldown_days:
+          type: integer
+          minimum: 0
+        is_unlimited:
+          type: boolean
+        requires_premium:
+          type: boolean
+        is_stackable:
+          type: boolean
+        max_stack:
+          type: integer
+          minimum: 1
+        duration_days:
+          type: integer
+          minimum: 1
+        discount_percentage:
+          type: number
+          minimum: 0
+          maximum: 100
+        discount_amount:
+          type: number
+          minimum: 0
+        stock:
+          type: integer
+          minimum: 0
+        valid_from:
+          type: string
+          format: date
+        valid_until:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+        image_url:
+          type: string
+        terms:
+          type: string
+    PaginatedRewardsResponse:
+      type: object
+      required:
+        - items
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RewardResponse'
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+    RewardInventoryItem:
+      type: object
+      properties:
+        id_inventory:
+          type: integer
+        id_reward:
+          type: integer
+        item_type:
+          type: string
+          enum:
+            - streak_saver
+            - token_multiplier
+        quantity:
+          type: integer
+        max_stack:
+          type: integer
+        created_at:
+          type:
+            - string
+            - 'null'
+          format: date-time
+        updated_at:
+          type:
+            - string
+            - 'null'
+          format: date-time
+        reward:
+          type:
+            - object
+            - 'null'
+          properties:
+            id_reward:
+              type: integer
+            name:
+              type: string
+            description:
+              type:
+                - string
+                - 'null'
+            image_url:
+              type:
+                - string
+                - 'null'
+    RewardInventoryResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RewardInventoryItem'
+    ActiveRewardEffect:
+      type: object
+      properties:
+        id_effect:
+          type: integer
+        effect_type:
+          type: string
+          enum:
+            - token_multiplier
+        multiplier_value:
+          type: number
+        started_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        hours_remaining:
+          type: integer
+    ActiveEffectsResponse:
+      type: object
+      properties:
+        effects:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActiveRewardEffect'
+        total_multiplier:
+          type: number

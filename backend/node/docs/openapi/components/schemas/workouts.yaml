@@ -1,0 +1,186 @@
+components:
+  schemas:
+    WorkoutSession:
+      type: object
+      properties:
+        id_workout_session:
+          type: integer
+        id_user_profile:
+          type: integer
+        id_routine:
+          type: integer
+        id_routine_day:
+          type: integer
+        status:
+          $ref: ../common.yaml#/components/schemas/WorkoutSessionStatus
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+        duration_seconds:
+          type: integer
+        total_sets:
+          type: integer
+        total_reps:
+          type: integer
+        total_weight:
+          type: number
+        notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        routine:
+          type: object
+          properties:
+            id_routine:
+              type: integer
+            routine_name:
+              type: string
+        routine_day:
+          type: object
+          properties:
+            id_routine_day:
+              type: integer
+            day_number:
+              type: integer
+            title:
+              type: string
+        sets:
+          type: array
+          items:
+            $ref: ../common.yaml#/components/schemas/WorkoutSet
+      required:
+        - id_workout_session
+        - id_user_profile
+        - status
+        - started_at
+    StartWorkoutSessionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        id_routine:
+          type: integer
+        id_routine_day:
+          type: integer
+        started_at:
+          type: string
+          format: date-time
+        notes:
+          type: string
+    UpdateWorkoutSetRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        weight:
+          type: number
+        reps:
+          type: integer
+        rpe:
+          type: integer
+        rest_seconds:
+          type: integer
+        is_warmup:
+          type: boolean
+        notes:
+          type: string
+    WorkoutSet:
+      type: object
+      properties:
+        id_workout_set:
+          type: integer
+        id_workout_session:
+          type: integer
+        id_exercise:
+          type: integer
+        set_number:
+          type: integer
+        weight:
+          type: number
+        reps:
+          type: integer
+        rpe:
+          type: integer
+        rest_seconds:
+          type: integer
+        is_warmup:
+          type: boolean
+        notes:
+          type: string
+        performed_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        exercise:
+          type: object
+          properties:
+            id_exercise:
+              type: integer
+            exercise_name:
+              type: string
+            muscular_group:
+              type: string
+      required:
+        - id_workout_set
+        - id_workout_session
+        - id_exercise
+        - set_number
+    WorkoutStats:
+      type: object
+      properties:
+        total_workouts:
+          type: integer
+        total_sets:
+          type: integer
+        total_reps:
+          type: integer
+        total_weight:
+          type: number
+    CompleteWorkoutSessionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        ended_at:
+          type: string
+          format: date-time
+        notes:
+          type: string
+    UpdateWorkoutSessionRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        notes:
+          type: string
+    RegisterWorkoutSetRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        id_exercise:
+          type: integer
+        weight:
+          type: number
+        reps:
+          type: integer
+        rpe:
+          type: integer
+        rest_seconds:
+          type: integer
+        is_warmup:
+          type: boolean
+        notes:
+          type: string
+        performed_at:
+          type: string
+          format: date-time
+      required:
+        - id_exercise

@@ -1,0 +1,223 @@
+paths:
+  /api/media:
+    get:
+      operationId: listUserMedia
+      tags:
+        - Media
+      summary: Listar archivos multimedia del usuario
+      description: |
+        Obtiene todos los archivos multimedia asociados al usuario autenticado.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lista de archivos multimedia
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../components/schemas/media.yaml#/components/schemas/MediaResponse
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+    post:
+      operationId: createMedia
+      tags:
+        - Media
+      summary: Crear un nuevo archivo multimedia
+      description: |
+        Crea un nuevo registro de archivo multimedia asociado a una entidad (usuario, gimnasio, ejercicio, progreso).
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - entity_type
+                - entity_id
+                - url
+              properties:
+                entity_type:
+                  $ref: ../components/common.yaml#/components/schemas/EntityType
+                  description: Tipo de entidad
+                  example: GYM
+                entity_id:
+                  type: integer
+                  description: ID de la entidad
+                  example: 5
+                media_type:
+                  allOf:
+                    - $ref: ../components/common.yaml#/components/schemas/MediaType
+                  default: IMAGE
+                  description: Tipo de archivo
+                url:
+                  type: string
+                  format: uri
+                  description: URL del archivo
+                  example: https://example.com/gym.jpg
+                thumbnail_url:
+                  type: string
+                  format: uri
+                  description: URL de la miniatura
+                  example: https://example.com/gym-thumb.jpg
+                file_size:
+                  type: integer
+                  description: Tamaño del archivo en bytes
+                  example: 1024000
+                mime_type:
+                  type: string
+                  description: Tipo MIME del archivo
+                  example: image/jpeg
+                width:
+                  type: integer
+                  description: Ancho de la imagen en píxeles
+                  example: 1920
+                height:
+                  type: integer
+                  description: Alto de la imagen en píxeles
+                  example: 1080
+                is_primary:
+                  type: boolean
+                  default: false
+                  description: Si es el archivo principal de la entidad
+                display_order:
+                  type: integer
+                  default: 0
+                  description: Orden de visualización
+      responses:
+        '201':
+          description: Archivo multimedia creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/schemas/media.yaml#/components/schemas/MediaResponse
+        '400':
+          $ref: ../components/responses.yaml#/components/responses/BadRequest
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/media/{entity_type}/{entity_id}:
+    get:
+      operationId: listMediaByEntity
+      tags:
+        - Media
+      summary: Listar archivos multimedia de una entidad
+      description: |
+        Obtiene todos los archivos multimedia asociados a una entidad específica (usuario, gimnasio, ejercicio, progreso).
+      parameters:
+        - name: entity_type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - USER_PROFILE
+              - GYM
+              - EXERCISE
+              - PROGRESS
+          description: Tipo de entidad
+          example: GYM
+        - name: entity_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de la entidad
+          example: 5
+        - name: media_type
+          in: query
+          schema:
+            type: string
+            enum:
+              - IMAGE
+              - VIDEO
+          description: Filtrar por tipo de archivo
+      responses:
+        '200':
+          description: Lista de archivos multimedia
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../components/schemas/media.yaml#/components/schemas/MediaResponse
+        '400':
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+  /api/media/{id_media}/primary:
+    post:
+      operationId: setPrimaryMedia
+      tags:
+        - Media
+      summary: Establecer archivo como principal
+      description: |
+        Marca un archivo multimedia como principal para su entidad. Automáticamente desmarca otros archivos de la misma entidad.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/MediaIdPathParam
+          description: ID del archivo multimedia
+          example: 1
+      responses:
+        '200':
+          description: Archivo marcado como principal
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: ../components/schemas/media.yaml#/components/schemas/MediaResponse
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound
+  /api/media/{id_media}:
+    delete:
+      operationId: deleteMedia
+      tags:
+        - Media
+      summary: Eliminar archivo multimedia
+      description: |
+        Elimina un archivo multimedia del sistema.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: ../components/parameters.yaml#/components/parameters/MediaIdPathParam
+          description: ID del archivo multimedia
+          example: 1
+      responses:
+        '204':
+          description: Archivo eliminado exitosamente
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: ../components/common.yaml#/components/schemas/Error
+        '404':
+          $ref: ../components/responses.yaml#/components/responses/NotFound

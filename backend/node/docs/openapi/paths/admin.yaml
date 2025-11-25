@@ -1,0 +1,406 @@
+paths:
+  /api/admin/stats:
+    get:
+      operationId: getAdminStats
+      summary: Obtener estadísticas generales del sistema
+      description: Devuelve estadísticas del sistema (usuarios, gimnasios, etc.)
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Estadísticas obtenidas correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_users:
+                    type: integer
+                  total_gyms:
+                    type: integer
+                  total_workouts:
+                    type: integer
+                  active_subscriptions:
+                    type: integer
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+
+  /api/admin/me:
+    get:
+      operationId: getAdminProfile
+      summary: Obtener perfil del admin actual
+      description: Devuelve la información del administrador autenticado
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Perfil del admin
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_admin_profile:
+                    type: integer
+                  id_account:
+                    type: integer
+                  email:
+                    type: string
+                  name:
+                    type: string
+                  lastname:
+                    type: string
+                  department:
+                    type:
+                      - string
+                      - 'null'
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  created_at:
+                    type: string
+                    format: date-time
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+
+  /api/admin/activity:
+    get:
+      operationId: getAdminActivity
+      summary: Obtener actividad reciente del sistema
+      description: Devuelve actividad reciente (últimos N días)
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: days
+          in: query
+          description: Número de días de actividad (default 7)
+          required: false
+          schema:
+            type: integer
+            default: 7
+      responses:
+        '200':
+          description: Actividad reciente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  registrations:
+                    type: array
+                    items:
+                      type: object
+                  workouts:
+                    type: array
+                    items:
+                      type: object
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+
+  /api/admin/users:
+    get:
+      operationId: listAdminUsers
+      summary: Listar todos los usuarios
+      description: Lista paginada de usuarios con filtros
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/PageParam'
+        - $ref: '../components/parameters.yaml#/components/parameters/LimitParam'
+        - name: subscription
+          in: query
+          description: Filtrar por tipo de suscripción
+          required: false
+          schema:
+            type: string
+            enum: [FREE, PREMIUM]
+        - name: search
+          in: query
+          description: Buscar por email o nombre
+          required: false
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          description: Campo para ordenar
+          required: false
+          schema:
+            type: string
+        - name: order
+          in: query
+          description: Orden ascendente o descendente
+          required: false
+          schema:
+            type: string
+            enum: [ASC, DESC]
+      responses:
+        '200':
+          description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                  pagination:
+                    $ref: '../components/schemas/common.yaml#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+
+  /api/admin/users/search:
+    get:
+      operationId: searchAdminUser
+      summary: Buscar usuario por email
+      description: Busca un usuario específico por su email
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: email
+          in: query
+          description: Email del usuario a buscar
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '404':
+          $ref: '../components/responses.yaml#/components/responses/NotFound'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+
+  /api/admin/users/{id}/tokens:
+    post:
+      operationId: grantUserTokens
+      summary: Otorgar tokens a un usuario
+      description: Añade o resta tokens del balance de un usuario
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID del usuario
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - delta
+              properties:
+                delta:
+                  type: integer
+                  description: Cantidad de tokens (positivo para añadir, negativo para restar)
+                reason:
+                  type: string
+                  description: Razón del ajuste
+      responses:
+        '200':
+          description: Tokens otorgados correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_user_profile:
+                    type: integer
+                  new_balance:
+                    type: integer
+                  delta:
+                    type: integer
+                  reason:
+                    type: string
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+
+  /api/admin/users/{id}/subscription:
+    put:
+      operationId: adminUpdateUserSubscription
+      summary: Actualizar suscripción de usuario
+      description: Cambia el tipo de suscripción de un usuario
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID del usuario
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - subscription
+              properties:
+                subscription:
+                  type: string
+                  enum: [FREE, PREMIUM]
+      responses:
+        '200':
+          description: Suscripción actualizada
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+
+  /api/admin/users/{id}/deactivate:
+    post:
+      operationId: deactivateUser
+      summary: Desactivar cuenta de usuario
+      description: Desactiva la cuenta de un usuario
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID del usuario
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Usuario desactivado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id_account:
+                    type: integer
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+
+  /api/admin/users/{id}/activate:
+    post:
+      operationId: activateUser
+      summary: Activar cuenta de usuario
+      description: Activa la cuenta de un usuario previamente desactivado
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID del usuario
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Usuario activado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id_account:
+                    type: integer
+        '400':
+          $ref: '../components/responses.yaml#/components/responses/BadRequest'
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+
+  /api/admin/transactions:
+    get:
+      operationId: getAdminTransactions
+      summary: Obtener log de transacciones de tokens
+      description: Lista paginada de transacciones de tokens
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: query
+          description: Filtrar por ID de usuario
+          required: false
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Número de página
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Elementos por página
+          required: false
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Lista de transacciones
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                  pagination:
+                    type: object
+        '401':
+          $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'

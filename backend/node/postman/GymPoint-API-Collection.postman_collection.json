@@ -1,0 +1,2890 @@
+{
+  "info": {
+    "name": "GymPoint API - Complete Test Collection",
+    "description": "Colección completa de pruebas para todas las rutas del backend de GymPoint. Incluye autenticación, gimnasios, rutinas, entrenamientos, desafíos, recompensas y más.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "gym_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "routine_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "exercise_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "workout_session_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has user data', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('user');",
+                  "    pm.expect(jsonData.user).to.have.property('id_user');",
+                  "    pm.expect(jsonData.user).to.have.property('email');",
+                  "    if(jsonData.access_token) {",
+                  "        pm.collectionVariables.set('auth_token', jsonData.access_token);",
+                  "    }",
+                  "    if(jsonData.refresh_token) {",
+                  "        pm.collectionVariables.set('refresh_token', jsonData.refresh_token);",
+                  "    }",
+                  "    if(jsonData.user) {",
+                  "        pm.collectionVariables.set('user_id', jsonData.user.id_user);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Usuario\",\n  \"lastname\": \"Test\",\n  \"email\": \"test@example.com\",\n  \"password\": \"Test123456!\",\n  \"gender\": \"M\",\n  \"locality\": \"Buenos Aires\",\n  \"frequency_goal\": 3,\n  \"birth_date\": \"1990-01-15\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Registra un nuevo usuario en el sistema"
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has token', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('access_token');",
+                  "    pm.collectionVariables.set('auth_token', jsonData.access_token);",
+                  "    if(jsonData.refresh_token) {",
+                  "        pm.collectionVariables.set('refresh_token', jsonData.refresh_token);",
+                  "    }",
+                  "    if(jsonData.user) {",
+                  "        pm.collectionVariables.set('user_id', jsonData.user.id_user);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"Test123456!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Inicia sesión con credenciales de usuario"
+          }
+        },
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has token', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('access_token');",
+                  "    pm.collectionVariables.set('auth_token', jsonData.access_token);",
+                  "    pm.collectionVariables.set('admin_token', jsonData.access_token);",
+                  "    if(jsonData.refresh_token) {",
+                  "        pm.collectionVariables.set('refresh_token', jsonData.refresh_token);",
+                  "    }",
+                  "    if(jsonData.user) {",
+                  "        pm.collectionVariables.set('user_id', jsonData.user.id_user);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test('User has ADMIN role', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.user.roles).to.include('ADMIN');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@gympoint.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Inicia sesión con credenciales de administrador. El token se guarda tanto en auth_token como en admin_token."
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has new token', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "    pm.collectionVariables.set('auth_token', jsonData.token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh-token",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "refresh-token"]
+            },
+            "description": "Refresca el token de autenticación usando el refresh token"
+          }
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 204', function() {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Cierra la sesión del usuario revocando el refresh token"
+          }
+        }
+      ],
+      "description": "Endpoints de autenticación: registro, login, refresh token y logout"
+    },
+    {
+      "name": "02 - Users",
+      "item": [
+        {
+          "name": "Get Current User Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has user data', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id_user');",
+                  "    pm.expect(jsonData).to.have.property('email');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "me"]
+            },
+            "description": "Obtiene el perfil del usuario autenticado"
+          }
+        },
+        {
+          "name": "Update Current User Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Usuario\",\n  \"lastname\": \"Actualizado\",\n  \"gender\": \"M\",\n  \"locality\": \"Buenos Aires\",\n  \"birth_date\": \"1990-01-15\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "me"]
+            },
+            "description": "Actualiza el perfil del usuario autenticado"
+          }
+        },
+        {
+          "name": "Get User By ID (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            },
+            "description": "Obtiene información de un usuario específico (requiere permisos de administrador)"
+          }
+        },
+        {
+          "name": "List All Users (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has pagination', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('pagination');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "subscription",
+                  "value": "FREE",
+                  "disabled": true,
+                  "description": "Filtrar por tipo de suscripción"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Buscar por nombre, apellido o email"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "created_at",
+                  "disabled": true,
+                  "description": "Ordenar por: created_at, tokens, name"
+                },
+                {
+                  "key": "order",
+                  "value": "DESC",
+                  "disabled": true,
+                  "description": "Orden: ASC o DESC"
+                }
+              ]
+            },
+            "description": "Lista todos los usuarios del sistema con paginación (requiere permisos de administrador)"
+          }
+        },
+        {
+          "name": "Delete Account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "me"]
+            },
+            "description": "Solicita la eliminación programada de la cuenta del usuario autenticado"
+          }
+        }
+      ],
+      "description": "Endpoints de gestión de usuarios"
+    },
+    {
+      "name": "03 - Gyms",
+      "item": [
+        {
+          "name": "List Gyms",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has gym list', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    if(jsonData.data.length > 0) {",
+                  "        pm.collectionVariables.set('gym_id', jsonData.data[0].id_gym);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/gyms?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gyms"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "city",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "is_active",
+                  "value": "true",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Lista todos los gimnasios disponibles"
+          }
+        },
+        {
+          "name": "Get Gym By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has gym details', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id_gym');",
+                  "    pm.expect(jsonData).to.have.property('name');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/gyms/{{gym_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gyms", "{{gym_id}}"]
+            },
+            "description": "Obtiene detalles de un gimnasio específico"
+          }
+        },
+        {
+          "name": "Create Gym (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has gym ID', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id_gym');",
+                  "    pm.collectionVariables.set('gym_id', jsonData.id_gym);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Gimnasio Test\",\n  \"description\": \"Gimnasio de prueba\",\n  \"address\": \"Calle Falsa 123\",\n  \"city\": \"Ciudad Test\",\n  \"state\": \"Estado Test\",\n  \"postal_code\": \"12345\",\n  \"phone\": \"+1234567890\",\n  \"email\": \"gym@test.com\",\n  \"latitude\": -34.603722,\n  \"longitude\": -58.381592,\n  \"month_price\": 50.00,\n  \"is_active\": true,\n  \"gym_type_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/gyms",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gyms"]
+            },
+            "description": "Crea un nuevo gimnasio (requiere permisos de admin)"
+          }
+        },
+        {
+          "name": "Update Gym (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Gimnasio Test Actualizado\",\n  \"description\": \"Descripción actualizada\",\n  \"month_price\": 60.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/gyms/{{gym_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gyms", "{{gym_id}}"]
+            },
+            "description": "Actualiza datos de un gimnasio"
+          }
+        },
+        {
+          "name": "Delete Gym (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 204', function() {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/gyms/{{gym_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gyms", "{{gym_id}}"]
+            },
+            "description": "Elimina un gimnasio"
+          }
+        },
+        {
+          "name": "Get Gym Types",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/gyms/tipos",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gyms", "tipos"]
+            },
+            "description": "Lista los tipos de gimnasios disponibles"
+          }
+        },
+        {
+          "name": "Get Gym Amenities",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/gyms/amenidades",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gyms", "amenidades"]
+            },
+            "description": "Lista las amenidades disponibles para gimnasios"
+          }
+        }
+      ],
+      "description": "Endpoints de gestión de gimnasios"
+    },
+    {
+      "name": "04 - Gym Schedules",
+      "item": [
+        {
+          "name": "Get Gym Schedules",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/gyms/{{gym_id}}/schedules",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gyms", "{{gym_id}}", "schedules"]
+            },
+            "description": "Obtiene los horarios regulares de un gimnasio"
+          }
+        },
+        {
+          "name": "Create Gym Schedule (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"day_of_week\": 1,\n  \"open_time\": \"08:00\",\n  \"close_time\": \"22:00\",\n  \"is_closed\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/gyms/{{gym_id}}/schedules",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gyms", "{{gym_id}}", "schedules"]
+            },
+            "description": "Crea un horario regular para un gimnasio"
+          }
+        },
+        {
+          "name": "Get Special Schedules",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/gym-special-schedules/{{gym_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gym-special-schedules", "{{gym_id}}"]
+            },
+            "description": "Obtiene los horarios especiales de un gimnasio"
+          }
+        },
+        {
+          "name": "Create Special Schedule (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2025-12-25\",\n  \"open_time\": \"10:00\",\n  \"close_time\": \"14:00\",\n  \"is_closed\": false,\n  \"reason\": \"Navidad - Horario especial\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/gym-special-schedules/{{gym_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gym-special-schedules", "{{gym_id}}"]
+            },
+            "description": "Crea un horario especial para una fecha específica"
+          }
+        }
+      ],
+      "description": "Endpoints de gestión de horarios de gimnasios"
+    },
+    {
+      "name": "05 - Exercises",
+      "item": [
+        {
+          "name": "List Exercises",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has exercises', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    if(jsonData.data.length > 0) {",
+                  "        pm.collectionVariables.set('exercise_id', jsonData.data[0].id_exercise);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/exercises?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "exercises"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "muscle_group",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "equipment",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Lista todos los ejercicios disponibles"
+          }
+        },
+        {
+          "name": "Get Exercise By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/exercises/{{exercise_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "exercises", "{{exercise_id}}"]
+            },
+            "description": "Obtiene detalles de un ejercicio específico"
+          }
+        },
+        {
+          "name": "Create Exercise (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Press de banca\",\n  \"description\": \"Ejercicio de fuerza para pecho\",\n  \"muscle_group\": \"CHEST\",\n  \"equipment\": \"BARBELL\",\n  \"difficulty_level\": \"INTERMEDIATE\",\n  \"instructions\": \"Acostado en un banco, baja la barra hasta el pecho y empuja hacia arriba\",\n  \"video_url\": \"https://example.com/video.mp4\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/exercises",
+              "host": ["{{base_url}}"],
+              "path": ["api", "exercises"]
+            },
+            "description": "Crea un nuevo ejercicio"
+          }
+        },
+        {
+          "name": "Update Exercise (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Press de banca actualizado\",\n  \"description\": \"Descripción actualizada\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/exercises/{{exercise_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "exercises", "{{exercise_id}}"]
+            },
+            "description": "Actualiza un ejercicio existente"
+          }
+        },
+        {
+          "name": "Delete Exercise (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 204', function() {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/exercises/{{exercise_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "exercises", "{{exercise_id}}"]
+            },
+            "description": "Elimina un ejercicio"
+          }
+        }
+      ],
+      "description": "Endpoints de gestión de ejercicios"
+    },
+    {
+      "name": "06 - Routines",
+      "item": [
+        {
+          "name": "List My Routines",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has routines', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    if(jsonData.length > 0) {",
+                  "        pm.collectionVariables.set('routine_id', jsonData[0].id_routine);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/routines/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "routines", "me"]
+            },
+            "description": "Lista las rutinas del usuario autenticado"
+          }
+        },
+        {
+          "name": "Get Routine By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/routines/{{routine_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "routines", "{{routine_id}}"]
+            },
+            "description": "Obtiene detalles de una rutina específica"
+          }
+        },
+        {
+          "name": "Create Routine",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has routine ID', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id_routine');",
+                  "    pm.collectionVariables.set('routine_id', jsonData.id_routine);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rutina de Fuerza\",\n  \"description\": \"Rutina enfocada en fuerza\",\n  \"difficulty_level\": \"INTERMEDIATE\",\n  \"duration_weeks\": 8,\n  \"days_per_week\": 4,\n  \"is_public\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/routines",
+              "host": ["{{base_url}}"],
+              "path": ["api", "routines"]
+            },
+            "description": "Crea una nueva rutina"
+          }
+        },
+        {
+          "name": "Update Routine",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rutina de Fuerza Actualizada\",\n  \"description\": \"Descripción actualizada\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/routines/{{routine_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "routines", "{{routine_id}}"]
+            },
+            "description": "Actualiza una rutina existente"
+          }
+        },
+        {
+          "name": "Delete Routine",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 204', function() {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/routines/{{routine_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "routines", "{{routine_id}}"]
+            },
+            "description": "Elimina una rutina"
+          }
+        }
+      ],
+      "description": "Endpoints de gestión de rutinas de entrenamiento"
+    },
+    {
+      "name": "07 - Workouts",
+      "item": [
+        {
+          "name": "List My Workout Sessions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has sessions', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    if(jsonData.data.length > 0) {",
+                  "        pm.collectionVariables.set('workout_session_id', jsonData.data[0].id_session);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/workouts/sessions?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "workouts", "sessions"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Lista las sesiones de entrenamiento del usuario"
+          }
+        },
+        {
+          "name": "Start Workout Session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has session ID', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id_session');",
+                  "    pm.collectionVariables.set('workout_session_id', jsonData.id_session);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_routine\": {{routine_id}},\n  \"id_routine_day\": 1,\n  \"planned_exercises\": [\n    {\n      \"id_exercise\": {{exercise_id}},\n      \"sets\": 3,\n      \"reps\": 12\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/workouts/sessions/start",
+              "host": ["{{base_url}}"],
+              "path": ["api", "workouts", "sessions", "start"]
+            },
+            "description": "Inicia una nueva sesión de entrenamiento"
+          }
+        },
+        {
+          "name": "Log Exercise Set",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_exercise\": {{exercise_id}},\n  \"reps_completed\": 12,\n  \"weight_used\": 50.0,\n  \"rest_seconds\": 60,\n  \"notes\": \"Buena ejecución\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/workouts/sessions/{{workout_session_id}}/sets",
+              "host": ["{{base_url}}"],
+              "path": ["api", "workouts", "sessions", "{{workout_session_id}}", "sets"]
+            },
+            "description": "Registra una serie de ejercicio"
+          }
+        },
+        {
+          "name": "Complete Workout Session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"notes\": \"Excelente sesión\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/workouts/sessions/{{workout_session_id}}/complete",
+              "host": ["{{base_url}}"],
+              "path": ["api", "workouts", "sessions", "{{workout_session_id}}", "complete"]
+            },
+            "description": "Completa una sesión de entrenamiento"
+          }
+        },
+        {
+          "name": "Get Workout Statistics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/workouts/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "workouts", "stats"]
+            },
+            "description": "Obtiene estadísticas de entrenamiento del usuario"
+          }
+        }
+      ],
+      "description": "Endpoints de gestión de entrenamientos y sesiones"
+    },
+    {
+      "name": "08 - Progress & Body Metrics",
+      "item": [
+        {
+          "name": "Get My Progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/progress/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "progress", "me"]
+            },
+            "description": "Obtiene el progreso del usuario"
+          }
+        },
+        {
+          "name": "List Body Metrics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/body-metrics/me?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "body-metrics", "me"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Lista las métricas corporales del usuario"
+          }
+        },
+        {
+          "name": "Add Body Metric",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"weight_kg\": 75.5,\n  \"height_cm\": 175,\n  \"body_fat_percentage\": 18.5,\n  \"muscle_mass_kg\": 32.0,\n  \"notes\": \"Medición semanal\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/body-metrics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "body-metrics"]
+            },
+            "description": "Registra una nueva métrica corporal"
+          }
+        },
+        {
+          "name": "Get Exercise Progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/progress/exercises/{{exercise_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "progress", "exercises", "{{exercise_id}}"]
+            },
+            "description": "Obtiene el progreso de un ejercicio específico"
+          }
+        }
+      ],
+      "description": "Endpoints de progreso y métricas corporales"
+    },
+    {
+      "name": "09 - Challenges",
+      "item": [
+        {
+          "name": "List Active Challenges",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/challenges?status=ACTIVE",
+              "host": ["{{base_url}}"],
+              "path": ["api", "challenges"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "ACTIVE"
+                }
+              ]
+            },
+            "description": "Lista los desafíos activos"
+          }
+        },
+        {
+          "name": "Get Challenge By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/challenges/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "challenges", "1"]
+            },
+            "description": "Obtiene detalles de un desafío"
+          }
+        },
+        {
+          "name": "Join Challenge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/challenges/1/join",
+              "host": ["{{base_url}}"],
+              "path": ["api", "challenges", "1", "join"]
+            },
+            "description": "Unirse a un desafío"
+          }
+        },
+        {
+          "name": "Get My Challenges",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/challenges/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "challenges", "me"]
+            },
+            "description": "Lista los desafíos del usuario"
+          }
+        },
+        {
+          "name": "Create Challenge (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Desafío de 30 días\",\n  \"description\": \"Completa 30 días de entrenamiento\",\n  \"challenge_type\": \"DAILY\",\n  \"start_date\": \"2025-11-01\",\n  \"end_date\": \"2025-11-30\",\n  \"target_value\": 30,\n  \"reward_tokens\": 500,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/challenges",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "challenges"]
+            },
+            "description": "Crea un nuevo desafío (admin)"
+          }
+        }
+      ],
+      "description": "Endpoints de desafíos y competencias"
+    },
+    {
+      "name": "10 - Rewards & Tokens",
+      "item": [
+        {
+          "name": "List Available Rewards",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rewards?available=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rewards"],
+              "query": [
+                {
+                  "key": "available",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Lista las recompensas disponibles"
+          }
+        },
+        {
+          "name": "Get My Tokens Balance",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has balance', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('balance');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tokens/balance",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tokens", "balance"]
+            },
+            "description": "Obtiene el saldo de tokens del usuario"
+          }
+        },
+        {
+          "name": "Claim Reward",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rewards/1/claim",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rewards", "1", "claim"]
+            },
+            "description": "Canjea una recompensa"
+          }
+        },
+        {
+          "name": "Get My Claimed Rewards",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/claimed-rewards/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "claimed-rewards", "me"]
+            },
+            "description": "Lista las recompensas canjeadas por el usuario"
+          }
+        },
+        {
+          "name": "Get Token Transactions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tokens/transactions?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tokens", "transactions"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Lista las transacciones de tokens del usuario"
+          }
+        }
+      ],
+      "description": "Endpoints de recompensas y sistema de tokens"
+    },
+    {
+      "name": "11 - Achievements",
+      "item": [
+        {
+          "name": "List Achievements",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/achievements",
+              "host": ["{{base_url}}"],
+              "path": ["api", "achievements"]
+            },
+            "description": "Lista todos los logros disponibles"
+          }
+        },
+        {
+          "name": "Get My Achievements",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/achievements/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "achievements", "me"]
+            },
+            "description": "Lista los logros del usuario"
+          }
+        },
+        {
+          "name": "Get Achievement By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/achievements/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "achievements", "1"]
+            },
+            "description": "Obtiene detalles de un logro"
+          }
+        }
+      ],
+      "description": "Endpoints de logros y achievements"
+    },
+    {
+      "name": "12 - Reviews",
+      "item": [
+        {
+          "name": "Get Gym Reviews",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/gyms/{{gym_id}}/reviews?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gyms", "{{gym_id}}", "reviews"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Lista las reseñas de un gimnasio"
+          }
+        },
+        {
+          "name": "Create Gym Review",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Excelente gimnasio, muy bien equipado\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/gyms/{{gym_id}}/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gyms", "{{gym_id}}", "reviews"]
+            },
+            "description": "Crea una reseña para un gimnasio"
+          }
+        },
+        {
+          "name": "Update My Review",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Muy buen gimnasio\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reviews/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "1"]
+            },
+            "description": "Actualiza una reseña existente"
+          }
+        },
+        {
+          "name": "Delete My Review",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 204', function() {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "1"]
+            },
+            "description": "Elimina una reseña propia"
+          }
+        }
+      ],
+      "description": "Endpoints de reseñas de gimnasios"
+    },
+    {
+      "name": "13 - Payments",
+      "item": [
+        {
+          "name": "Get My Gym Payments",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/gyms/{{gym_id}}/payments?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gyms", "{{gym_id}}", "payments"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Lista los pagos de un gimnasio"
+          }
+        },
+        {
+          "name": "Create Gym Payment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 50.00,\n  \"payment_method\": \"CARD\",\n  \"billing_period_start\": \"2025-11-01\",\n  \"billing_period_end\": \"2025-11-30\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/gyms/{{gym_id}}/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "gyms", "{{gym_id}}", "payments"]
+            },
+            "description": "Registra un pago de suscripción al gimnasio"
+          }
+        },
+        {
+          "name": "Get Payment By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "1"]
+            },
+            "description": "Obtiene detalles de un pago"
+          }
+        }
+      ],
+      "description": "Endpoints de pagos y suscripciones"
+    },
+    {
+      "name": "14 - Notifications",
+      "item": [
+        {
+          "name": "Get My Notifications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/notifications?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "unread",
+                  "value": "true",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Lista las notificaciones del usuario"
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/1/read",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "1", "read"]
+            },
+            "description": "Marca una notificación como leída"
+          }
+        },
+        {
+          "name": "Mark All Notifications as Read",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/read-all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "read-all"]
+            },
+            "description": "Marca todas las notificaciones como leídas"
+          }
+        }
+      ],
+      "description": "Endpoints de notificaciones"
+    },
+    {
+      "name": "15 - Streaks & Frequency",
+      "item": [
+        {
+          "name": "Get My Streak",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has streak data', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('current_streak');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/streaks/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "streaks", "me"]
+            },
+            "description": "Obtiene la racha actual del usuario"
+          }
+        },
+        {
+          "name": "Get Frequency Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/frequency/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "frequency", "me"]
+            },
+            "description": "Obtiene el estado de frecuencia semanal"
+          }
+        },
+        {
+          "name": "Update Frequency Goal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"weekly_goal\": 4\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/frequency/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "frequency", "me"]
+            },
+            "description": "Actualiza la meta de frecuencia semanal"
+          }
+        }
+      ],
+      "description": "Endpoints de rachas y frecuencia de entrenamiento"
+    },
+    {
+      "name": "16 - Gym Membership",
+      "item": [
+        {
+          "name": "Get My Gym Memberships",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user-gyms/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user-gyms", "me"]
+            },
+            "description": "Lista las membresías de gimnasios del usuario"
+          }
+        },
+        {
+          "name": "Subscribe to Gym",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_gym\": {{gym_id}},\n  \"start_date\": \"2025-11-01\",\n  \"end_date\": \"2025-12-01\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user-gyms",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user-gyms"]
+            },
+            "description": "Suscribe al usuario a un gimnasio"
+          }
+        },
+        {
+          "name": "Get My Favorite Gyms",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user-favorite-gyms/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user-favorite-gyms", "me"]
+            },
+            "description": "Lista los gimnasios favoritos del usuario"
+          }
+        },
+        {
+          "name": "Add Gym to Favorites",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_gym\": {{gym_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user-favorite-gyms",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user-favorite-gyms"]
+            },
+            "description": "Agrega un gimnasio a favoritos"
+          }
+        },
+        {
+          "name": "Remove Gym from Favorites",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 204', function() {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user-favorite-gyms/{{gym_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user-favorite-gyms", "{{gym_id}}"]
+            },
+            "description": "Elimina un gimnasio de favoritos"
+          }
+        }
+      ],
+      "description": "Endpoints de membresías y favoritos de gimnasios"
+    },
+    {
+      "name": "17 - Assistance (Check-in)",
+      "item": [
+        {
+          "name": "Check-in to Gym",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_gym\": {{gym_id}},\n  \"latitude\": -34.603722,\n  \"longitude\": -58.381592\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/assistance/check-in",
+              "host": ["{{base_url}}"],
+              "path": ["api", "assistance", "check-in"]
+            },
+            "description": "Registra entrada al gimnasio"
+          }
+        },
+        {
+          "name": "Check-out from Gym",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/assistance/check-out",
+              "host": ["{{base_url}}"],
+              "path": ["api", "assistance", "check-out"]
+            },
+            "description": "Registra salida del gimnasio"
+          }
+        },
+        {
+          "name": "Get My Assistance History",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/assistance/me?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "assistance", "me"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Lista el historial de asistencia del usuario"
+          }
+        }
+      ],
+      "description": "Endpoints de asistencia y check-in a gimnasios"
+    },
+    {
+      "name": "18 - Media",
+      "item": [
+        {
+          "name": "Upload Media",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "media_type",
+                  "value": "IMAGE",
+                  "type": "text"
+                },
+                {
+                  "key": "context",
+                  "value": "PROFILE",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/media/upload",
+              "host": ["{{base_url}}"],
+              "path": ["api", "media", "upload"]
+            },
+            "description": "Sube un archivo multimedia"
+          }
+        },
+        {
+          "name": "Get Media By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/media/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "media", "1"]
+            },
+            "description": "Obtiene información de un archivo multimedia"
+          }
+        },
+        {
+          "name": "Delete Media",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 204', function() {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/media/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "media", "1"]
+            },
+            "description": "Elimina un archivo multimedia"
+          }
+        }
+      ],
+      "description": "Endpoints de gestión de archivos multimedia"
+    },
+    {
+      "name": "19 - Admin",
+      "item": [
+        {
+          "name": "Get System Stats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "stats"]
+            },
+            "description": "Obtiene estadísticas del sistema (admin)"
+          }
+        },
+        {
+          "name": "List All Users (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users?page=1&limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            },
+            "description": "Lista todos los usuarios (admin)"
+          }
+        },
+        {
+          "name": "Update User Role (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}/role",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "{{user_id}}", "role"]
+            },
+            "description": "Actualiza el rol de un usuario (admin)"
+          }
+        }
+      ],
+      "description": "Endpoints de administración del sistema"
+    },
+    {
+      "name": "20 - Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has status OK', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('status');",
+                  "    pm.expect(jsonData.status).to.equal('OK');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Verifica el estado del servidor"
+          }
+        },
+        {
+          "name": "Database Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health/db",
+              "host": ["{{base_url}}"],
+              "path": ["health", "db"]
+            },
+            "description": "Verifica la conexión con la base de datos"
+          }
+        }
+      ],
+      "description": "Endpoints de verificación de salud del sistema"
+    }
+  ]
+}
+

@@ -1,0 +1,268 @@
+components:
+  schemas:
+    ProgressResponse:
+      type: object
+      properties:
+        id_progress:
+          type: integer
+          description: ID del registro de progreso
+          example: 1
+        id_user_profile:
+          type: integer
+          description: ID del perfil de usuario
+          example: 10
+        date:
+          type: string
+          format: date
+          description: Fecha del registro
+          example: '2025-01-15'
+        total_weight_lifted:
+          type: number
+          format: float
+          description: Peso total levantado en kg
+          example: 5000
+        total_reps:
+          type: integer
+          description: Repeticiones totales
+          example: 100
+        total_sets:
+          type: integer
+          description: Sets totales
+          example: 20
+        notes:
+          type: string
+          description: Notas adicionales
+          example: Great workout session
+        created_at:
+          type: string
+          format: date-time
+          description: Fecha de creación
+        updated_at:
+          type: string
+          format: date-time
+          description: Fecha de última actualización
+    CheckInRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - id_gym
+        - latitude
+        - longitude
+      properties:
+        id_gym:
+          type: integer
+          minimum: 1
+          description: ID del gimnasio
+          example: 3
+        latitude:
+          type: number
+          format: float
+          minimum: -90
+          maximum: 90
+          description: Latitud actual del usuario
+          example: -34.603722
+        longitude:
+          type: number
+          format: float
+          minimum: -180
+          maximum: 180
+          description: Longitud actual del usuario
+          example: -58.38159
+        accuracy:
+          type: number
+          format: float
+          minimum: 0
+          description: Precisión GPS en metros (opcional)
+          example: 10.5
+    AssistanceResponse:
+      type: object
+      properties:
+        id_assistance:
+          type: integer
+          description: ID único de la asistencia
+          example: 42
+        id_user_profile:
+          type: integer
+          description: ID del perfil de usuario
+          example: 5
+        id_gym:
+          type: integer
+          description: ID del gimnasio
+          example: 3
+        date:
+          type: string
+          format: date
+          description: Fecha de la asistencia
+          example: '2025-10-23'
+        check_in_time:
+          type: string
+          format: time
+          description: Hora de check-in
+          example: '14:30:00'
+        check_out_time:
+          type:
+            - string
+            - 'null'
+          format: time
+          description: Hora de check-out (si existe)
+          example: '16:00:00'
+        duration_minutes:
+          type:
+            - integer
+            - 'null'
+          description: Duración en minutos
+          example: 90
+        auto_checkin:
+          type: boolean
+          description: Si fue auto check-in por geofence
+          example: false
+          default: false
+        distance_meters:
+          type:
+            - number
+            - 'null'
+          format: float
+          description: Distancia en metros al momento del check-in
+          example: 6.5
+        verified:
+          type: boolean
+          description: Si la asistencia fue verificada
+          example: true
+          default: false
+        created_at:
+          type: string
+          format: date-time
+          description: Fecha de creación del registro
+          example: '2025-10-23T14:30:00.000Z'
+    CheckInResponseData:
+      type: object
+      properties:
+        asistencia:
+          $ref: ../common.yaml#/components/schemas/AssistanceResponse
+        distancia:
+          type: integer
+          description: Distancia en metros desde el gimnasio
+          example: 6
+        tokens_actuales:
+          type: integer
+          description: Tokens totales del usuario tras registrar asistencia
+          example: 30
+        racha_actual:
+          type: integer
+          description: Valor actual de la racha
+          example: 5
+    CheckOutResponse:
+      type: object
+      properties:
+        asistencia:
+          $ref: ../common.yaml#/components/schemas/AssistanceResponse
+        duration_minutes:
+          type: integer
+          description: Duración total de la sesión en minutos
+          example: 90
+        tokens_awarded:
+          type: integer
+          description: Tokens otorgados por duración
+          example: 5
+        tokens_total:
+          type: integer
+          description: Total de tokens del usuario
+          example: 35
+    PresenceRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - id_gym
+        - latitude
+        - longitude
+      properties:
+        id_gym:
+          type: integer
+          minimum: 1
+          description: ID del gimnasio
+          example: 3
+        latitude:
+          type: number
+          format: float
+          minimum: -90
+          maximum: 90
+          description: Latitud actual del usuario
+          example: -34.603722
+        longitude:
+          type: number
+          format: float
+          minimum: -180
+          maximum: 180
+          description: Longitud actual del usuario
+          example: -58.38159
+        accuracy:
+          type: number
+          format: float
+          minimum: 0
+          description: Precisión GPS en metros (opcional)
+          example: 10.5
+    PresenceResponse:
+      type: object
+      properties:
+        duracion_minutos:
+          type: integer
+          description: Minutos de permanencia en el gimnasio
+          example: 5
+        min_stay_minutes:
+          type: integer
+          description: Tiempo mínimo requerido de permanencia
+          example: 10
+        listo_para_checkin:
+          type: boolean
+          description: Si cumplió el tiempo mínimo para auto check-in
+          example: false
+        progreso:
+          type: string
+          description: Progreso en formato texto
+          example: 5/10 min
+    AssistanceHistoryResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Historial de asistencias obtenido con éxito
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id_assistance:
+                type: integer
+                example: 42
+              id_user_profile:
+                type: integer
+                example: 5
+              id_gym:
+                type: integer
+                example: 3
+              date:
+                type: string
+                format: date
+                example: '2025-10-04'
+              check_in_time:
+                type: string
+                format: time
+                example: '14:30:00'
+              check_out_time:
+                type:
+                  - string
+                  - 'null'
+                format: time
+                example: '16:00:00'
+              gym:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: MegaGym Centro
+                  city:
+                    type: string
+                    example: Córdoba
+                  address:
+                    type: string
+                    example: Av. Colón 123

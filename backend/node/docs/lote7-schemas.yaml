@@ -1,0 +1,551 @@
+    # ==================== Exercise Schemas ====================
+    Exercise:
+      type: object
+      properties:
+        id_exercise:
+          type: integer
+        exercise_name:
+          type: string
+        muscular_group:
+          type: string
+        description:
+          type: string
+        equipment_needed:
+          type: string
+        difficulty:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        instructions:
+          type: string
+        video_url:
+          type: string
+        created_by:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id_exercise
+        - exercise_name
+    CreateExerciseRequest:
+      type: object
+      properties:
+        exercise_name:
+          type: string
+        muscular_group:
+          type: string
+        description:
+          type: string
+        equipment_needed:
+          type: string
+        difficulty:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        instructions:
+          type: string
+        video_url:
+          type: string
+      required:
+        - exercise_name
+    UpdateExerciseRequest:
+      type: object
+      properties:
+        exercise_name:
+          type: string
+        muscular_group:
+          type: string
+        description:
+          type: string
+        equipment_needed:
+          type: string
+        difficulty:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        instructions:
+          type: string
+        video_url:
+          type: string
+    PaginatedExercisesResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Exercise'
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+    # ==================== Routine Schemas ====================
+    Routine:
+      type: object
+      properties:
+        id_routine:
+          type: integer
+        routine_name:
+          type: string
+        description:
+          type: string
+        created_by:
+          type: integer
+        is_template:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id_routine
+        - routine_name
+    RoutineWithDetails:
+      allOf:
+        - $ref: '#/components/schemas/Routine'
+        - type: object
+          properties:
+            creator:
+              type: object
+              properties:
+                id_user_profile:
+                  type: integer
+                name:
+                  type: string
+                lastname:
+                  type: string
+            days:
+              type: array
+              items:
+                $ref: '#/components/schemas/RoutineDay'
+            exercises:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExerciseInRoutine'
+    RoutineDay:
+      type: object
+      properties:
+        id_routine_day:
+          type: integer
+        id_routine:
+          type: integer
+        day_number:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id_routine_day
+        - id_routine
+        - day_number
+    RoutineExercise:
+      type: object
+      properties:
+        id_routine:
+          type: integer
+        id_exercise:
+          type: integer
+        id_routine_day:
+          type: integer
+        series:
+          type: integer
+        reps:
+          type: string
+        order:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id_routine
+        - id_exercise
+        - series
+        - reps
+        - order
+    ExerciseInRoutine:
+      type: object
+      properties:
+        id_exercise:
+          type: integer
+        exercise_name:
+          type: string
+        muscular_group:
+          type: string
+        series:
+          type: integer
+        reps:
+          type: string
+        order:
+          type: integer
+        id_routine_day:
+          type: integer
+    CreateRoutineRequest:
+      type: object
+      properties:
+        routine_name:
+          type: string
+        description:
+          type: string
+        exercises:
+          type: array
+          items:
+            type: object
+            properties:
+              id_exercise:
+                type: integer
+              series:
+                type: integer
+              reps:
+                type: string
+              order:
+                type: integer
+              day_number:
+                type: integer
+            required:
+              - id_exercise
+              - series
+              - reps
+              - order
+          minItems: 3
+        days:
+          type: array
+          items:
+            type: object
+            properties:
+              day_number:
+                type: integer
+              title:
+                type: string
+              description:
+                type: string
+            required:
+              - day_number
+      required:
+        - routine_name
+        - exercises
+    UpdateRoutineRequest:
+      type: object
+      properties:
+        routine_name:
+          type: string
+        description:
+          type: string
+    AddExerciseToRoutineRequest:
+      type: object
+      properties:
+        id_exercise:
+          type: integer
+        series:
+          type: integer
+        reps:
+          type: string
+        order:
+          type: integer
+        id_routine_day:
+          type: integer
+      required:
+        - id_exercise
+        - series
+        - reps
+        - order
+    UpdateRoutineExerciseRequest:
+      type: object
+      properties:
+        series:
+          type: integer
+        reps:
+          type: string
+        order:
+          type: integer
+        id_routine_day:
+          type: integer
+    CreateRoutineDayRequest:
+      type: object
+      properties:
+        day_number:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+      required:
+        - day_number
+    UpdateRoutineDayRequest:
+      type: object
+      properties:
+        day_number:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+    PaginatedRoutinesResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Routine'
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+    # ==================== UserRoutine Schemas ====================
+    UserRoutine:
+      type: object
+      properties:
+        id_user_routine:
+          type: integer
+        id_user:
+          type: integer
+        id_routine:
+          type: integer
+        start_date:
+          type: string
+          format: date-time
+        finish_date:
+          type: string
+          format: date-time
+        active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        routine:
+          $ref: '#/components/schemas/RoutineWithDetails'
+      required:
+        - id_user_routine
+        - id_user
+        - id_routine
+        - start_date
+        - active
+    UserRoutineCounts:
+      type: object
+      properties:
+        total_owned:
+          type: integer
+        imported_count:
+          type: integer
+        created_count:
+          type: integer
+    AssignRoutineRequest:
+      type: object
+      properties:
+        id_routine:
+          type: integer
+        start_date:
+          type: string
+          format: date-time
+      required:
+        - id_routine
+    ImportRoutineRequest:
+      type: object
+      properties:
+        id_template_routine:
+          type: integer
+      required:
+        - id_template_routine
+    # ==================== Workout Schemas ====================
+    WorkoutSession:
+      type: object
+      properties:
+        id_workout_session:
+          type: integer
+        id_user_profile:
+          type: integer
+        id_routine:
+          type: integer
+        id_routine_day:
+          type: integer
+        status:
+          type: string
+          enum: [IN_PROGRESS, COMPLETED, CANCELLED]
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+        duration_seconds:
+          type: integer
+        total_sets:
+          type: integer
+        total_reps:
+          type: integer
+        total_weight:
+          type: number
+        notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        routine:
+          type: object
+          properties:
+            id_routine:
+              type: integer
+            routine_name:
+              type: string
+        routine_day:
+          type: object
+          properties:
+            id_routine_day:
+              type: integer
+            day_number:
+              type: integer
+            title:
+              type: string
+        sets:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkoutSet'
+      required:
+        - id_workout_session
+        - id_user_profile
+        - status
+        - started_at
+    WorkoutSet:
+      type: object
+      properties:
+        id_workout_set:
+          type: integer
+        id_workout_session:
+          type: integer
+        id_exercise:
+          type: integer
+        set_number:
+          type: integer
+        weight:
+          type: number
+        reps:
+          type: integer
+        rpe:
+          type: integer
+        rest_seconds:
+          type: integer
+        is_warmup:
+          type: boolean
+        notes:
+          type: string
+        performed_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        exercise:
+          type: object
+          properties:
+            id_exercise:
+              type: integer
+            exercise_name:
+              type: string
+            muscular_group:
+              type: string
+      required:
+        - id_workout_set
+        - id_workout_session
+        - id_exercise
+        - set_number
+    WorkoutStats:
+      type: object
+      properties:
+        total_workouts:
+          type: integer
+        total_sets:
+          type: integer
+        total_reps:
+          type: integer
+        total_weight:
+          type: number
+    StartWorkoutSessionRequest:
+      type: object
+      properties:
+        id_routine:
+          type: integer
+        id_routine_day:
+          type: integer
+        started_at:
+          type: string
+          format: date-time
+        notes:
+          type: string
+    CompleteWorkoutSessionRequest:
+      type: object
+      properties:
+        ended_at:
+          type: string
+          format: date-time
+        notes:
+          type: string
+    UpdateWorkoutSessionRequest:
+      type: object
+      properties:
+        notes:
+          type: string
+    RegisterWorkoutSetRequest:
+      type: object
+      properties:
+        id_exercise:
+          type: integer
+        weight:
+          type: number
+        reps:
+          type: integer
+        rpe:
+          type: integer
+        rest_seconds:
+          type: integer
+        is_warmup:
+          type: boolean
+        notes:
+          type: string
+        performed_at:
+          type: string
+          format: date-time
+      required:
+        - id_exercise
+    UpdateWorkoutSetRequest:
+      type: object
+      properties:
+        weight:
+          type: number
+        reps:
+          type: integer
+        rpe:
+          type: integer
+        rest_seconds:
+          type: integer
+        is_warmup:
+          type: boolean
+        notes:
+          type: string

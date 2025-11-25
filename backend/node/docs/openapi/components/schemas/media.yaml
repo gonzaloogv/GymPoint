@@ -1,0 +1,70 @@
+components:
+  schemas:
+    MediaResponse:
+      type: object
+      properties:
+        id_media:
+          type: integer
+          description: ID del archivo multimedia
+          example: 1
+        entity_type:
+          $ref: ../common.yaml#/components/schemas/EntityType
+          description: Tipo de entidad asociada
+          example: GYM
+        entity_id:
+          type: integer
+          description: ID de la entidad asociada
+          example: 5
+        media_type:
+          allOf:
+            - $ref: ../common.yaml#/components/schemas/MediaType
+          description: Tipo de archivo
+          example: IMAGE
+        url:
+          type: string
+          format: uri
+          description: URL del archivo
+          example: https://example.com/gym.jpg
+        thumbnail_url:
+          type: string
+          format: uri
+          description: URL de la miniatura
+          example: https://example.com/gym-thumb.jpg
+        file_size:
+          type: integer
+          description: Tamaño del archivo en bytes
+          example: 1024000
+        mime_type:
+          type: string
+          description: Tipo MIME del archivo
+          example: image/jpeg
+        width:
+          type: integer
+          description: Ancho de la imagen en píxeles
+          example: 1920
+        height:
+          type: integer
+          description: Alto de la imagen en píxeles
+          example: 1080
+        is_primary:
+          type: boolean
+          description: Si es el archivo principal de la entidad
+          example: true
+          default: false
+        display_order:
+          type: integer
+          description: Orden de visualización
+          example: 0
+          default: 0
+        uploaded_at:
+          type: string
+          format: date-time
+          description: Fecha de carga
+        created_at:
+          type: string
+          format: date-time
+          description: Fecha de creación
+        updated_at:
+          type: string
+          format: date-time
+          description: Fecha de última actualización

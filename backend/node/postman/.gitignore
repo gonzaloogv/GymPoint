@@ -1,0 +1,18 @@
+# Reportes de test generados
+test-reports/
+*.html
+*.json
+!*.postman_collection.json
+!*.postman_environment.json
+!test-data-examples.json
+
+# Archivos temporales
+*.tmp
+*.log
+
+# Newman cache
+.newman/
+
+# Variables de entorno con datos sensibles (opcional)
+# *Local*.postman_environment.json
+
