@@ -87,16 +87,8 @@ const config: ExpoConfig = {
   plugins: [
     'expo-secure-store',
     'expo-web-browser',
-    [
-      'react-native-maps',
-      {
-        config: {
-          googleMaps: {
-            apiKey: process.env.ANDROID_GOOGLE_MAPS_API_KEY,
-          },
-        },
-      },
-    ],
+    // Nota: el módulo de mapas ya viene incluido en Expo Go (SDK 54) y no expone config plugin.
+    // El API Key para builds nativos sigue aplicado vía android.config.googleMaps.apiKey (arriba).
   ],
   extra: {
     apiUrl: process.env.EXPO_PUBLIC_API_BASE_URL,

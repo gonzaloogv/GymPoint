@@ -134,8 +134,8 @@ export default function MapScreen() {
               activeOpacity={0.75}
               className={`flex-row items-center justify-center py-3 px-5 rounded-xl border gap-2 shadow-sm ${
                 isDark
-                  ? 'bg-gray-800/95 border-gray-700/80'
-                  : 'bg-white/95 border-gray-200/80'
+                  ? 'bg-gray-800 border-gray-700'
+                  : 'bg-gray-50 border-gray-200'
               }`}
               style={{
                 shadowColor: '#000',

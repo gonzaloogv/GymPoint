@@ -1,69 +1,42 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Platform, View } from 'react-native';
-import Svg, { Circle, G, Path, Polygon } from 'react-native-svg';
-import Animated, {
-  Easing,
-  useAnimatedProps,
-  useSharedValue,
-  withRepeat,
-  withSequence,
-  withTiming,
-} from 'react-native-reanimated';
+import Svg, { Circle, Ellipse, Path, Rect, G } from 'react-native-svg';
 
-const AnimatedG = Animated.createAnimatedComponent(G);
-
-interface GymPinProps {
+type GymPinProps = {
   size?: number;
   scale?: number;
-}
+};
 
-// Geometria base del SVG (sin padding)
-const VIEWBOX_SIZE = 502.691;
-const PIN_TIP_Y = 288.125; // Punto que debe alinearse con la coordenada del mapa
+// ViewBox base y punto de ancla (punta del pin)
+const VIEWBOX_WIDTH = 120;
+const VIEWBOX_HEIGHT = 180;
+const PIN_TIP_Y = 170;
 
-// Padding adicional para evitar que Google Maps (Android) recorte el bitmap del marcador
-const ANDROID_PADDING_RATIO = 0.3;
-const IOS_PADDING_RATIO = 0.22;
+// Ancla usado por MapMarker para alinear la punta con la coordenada
+export const GYM_PIN_ANCHOR_Y = PIN_TIP_Y / VIEWBOX_HEIGHT;
 
-const PADDING_RATIO =
-  Platform.select({
-    android: ANDROID_PADDING_RATIO,
-    default: IOS_PADDING_RATIO,
-  }) ?? IOS_PADDING_RATIO;
+// Padding externo para evitar recorte en Android
+const ANDROID_EXTRA_PADDING = 8;
+const IOS_EXTRA_PADDING = 4;
 
-const VIEWBOX_PADDING = VIEWBOX_SIZE * PADDING_RATIO;
-const PADDED_VIEWBOX_SIZE = VIEWBOX_SIZE + VIEWBOX_PADDING * 2;
-
-// Anchor recalculado con padding para usar en MapMarker
-export const GYM_PIN_ANCHOR_Y = (PIN_TIP_Y + VIEWBOX_PADDING) / PADDED_VIEWBOX_SIZE;
+// Escala máxima esperada; el canvas se dimensiona a este máximo para evitar clipping al hacer zoom
+const MAX_SCALE = 3;
 
 /**
- * GymPin - Pin personalizado adaptativo para marcar gimnasios en el mapa.
- * Incluye mancuerna y pin de ubicacion.
+ * Pin simple y robusto para Google Maps.
+ * Sin animaciones y con canvas sobredimensionado para que el bitmap no se corte al escalar.
  */
 export function GymPin({ size = 48, scale = 1.0 }: GymPinProps) {
-  const translateY = useSharedValue(0);
+  const clampedScale = Math.max(0.1, Math.min(scale, MAX_SCALE));
+  const baseSize = Math.max(1, Math.round(size));
+  const svgMaxSize = Math.round(baseSize * MAX_SCALE);
+  const renderScale = clampedScale / MAX_SCALE;
 
-  // Escala base del SVG. El padding proporcional evita cortes en Google Maps (Android) al rasterizar.
-  const effectiveSize = Math.max(1, Math.round(size * scale));
-  const canvasSize = Math.max(1, Math.round(effectiveSize * (1 + 2 * PADDING_RATIO)));
+  const basePadding = Platform.OS === 'android' ? ANDROID_EXTRA_PADDING : IOS_EXTRA_PADDING;
+  // Padding crece suavemente con la escala para evitar recorte en Android.
+  const padding = Math.round(basePadding * (1 + 0.6 * Math.max(0, clampedScale - 1)));
 
-  const bobAmount = 10; // unidades del viewBox (no pixeles)
-
-  useEffect(() => {
-    translateY.value = withRepeat(
-      withSequence(
-        withTiming(-bobAmount, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0, { duration: 800, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      true
-    );
-  }, [bobAmount, translateY]);
-
-  const animatedProps = useAnimatedProps(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
+  const canvasSize = svgMaxSize + padding * 2;
 
   return (
     <View
@@ -75,76 +48,53 @@ export function GymPin({ size = 48, scale = 1.0 }: GymPinProps) {
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'visible',
+        padding,
       }}
     >
       <Svg
-        width={canvasSize}
-        height={canvasSize}
-        viewBox={`-${VIEWBOX_PADDING} -${VIEWBOX_PADDING} ${PADDED_VIEWBOX_SIZE} ${PADDED_VIEWBOX_SIZE}`}
+        width={svgMaxSize}
+        height={svgMaxSize}
+        viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
         preserveAspectRatio="xMidYMid meet"
-        style={{ overflow: 'visible' }}
+        style={{
+          overflow: 'visible',
+          transform: [{ scale: renderScale }],
+        }}
       >
-        {/* PIN DE UBICACION (DETRAS, ARRIBA, ANIMADO) */}
-        <AnimatedG animatedProps={animatedProps}>
-          <G transform="translate(251.345 155) scale(8.875) translate(-16 -16)">
-            <Path
-              d="M21 12C21 9.24 18.76 7 16 7C13.24 7 11 9.24 11 12C11 14.76 13.24 17 16 17C18.76 17 21 14.76 21 12ZM16 1C22.08 1 27 5.92 27 12C27 21 16 31 16 31C16 31 5 21 5 12C5 5.92 9.92 1 16 1Z"
-              fill="#ECF0F1"
-            />
-            <Path
-              d="M19 28C23 24 27 17.447 27 12C27 5.925 22.075 1 16 1C9.925 1 5 5.925 5 12C5 21 16 31 16 31 M21 12C21 9.238 18.762 7 16 7C13.238 7 11 9.238 11 12C11 14.762 13.238 17 16 17C18.762 17 21 14.762 21 12Z"
-              stroke="#43adff"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-            />
-          </G>
-        </AnimatedG>
+        {/* Caja invisible para asegurar el bounding completo */}
+        <Rect x={0} y={0} width={VIEWBOX_WIDTH} height={VIEWBOX_HEIGHT} fill="transparent" />
 
-        {/* MANCUERNA (ADELANTE, ABAJO) */}
-        <G transform="translate(41 162) scale(0.837)">
-          <Path
-            fill="#43adff"
-            d="M27.927,325.818C12.567,325.818,0,313.251,0,297.891V204.8c0-15.36,12.567-27.927,27.927-27.927c15.36,0,27.927,12.567,27.927,27.927v93.091C55.855,313.251,43.287,325.818,27.927,325.818z"
-          />
-          <Path
-            fill="#25638d"
-            d="M74.473,353.745c-15.36,0-27.927-12.567-27.927-27.927V176.873c0-15.36,12.567-27.927,27.927-27.927s27.927,12.567,27.927,27.927v148.945C102.4,341.178,89.833,353.745,74.473,353.745z"
-          />
-          <Path
-            fill="#43adff"
-            d="M474.764,176.873c15.36,0,27.927,12.567,27.927,27.927v93.091c0,15.36-12.567,27.927-27.927,27.927c-15.36,0-27.927-12.567-27.927-27.927V204.8C446.836,189.44,459.404,176.873,474.764,176.873z"
-          />
-          <Path
-            fill="#25638d"
-            d="M428.208,148.945c15.36,0,27.927,12.567,27.927,27.927v148.945c0,15.36-12.567,27.927-27.927,27.927s-27.927-12.567-27.927-27.927V176.873C400.281,161.513,412.848,148.945,428.208,148.945z"
-          />
-          <Polygon fill="#BDC3C7" points="148.942,297.895 353.742,297.895 353.742,204.804 148.942,204.804" />
-          <Path
-            fill="#43adff"
-            d="M121.018,381.673c-15.36,0-27.927-12.567-27.927-27.927v-204.8c0-15.36,12.567-27.927,27.927-27.927s27.927,12.567,27.927,27.927v204.8C148.945,369.105,136.378,381.673,121.018,381.673z"
-          />
-          <Path
-            fill="#43adff"
-            d="M381.673,121.018c15.36,0,27.927,12.567,27.927,27.927v204.8c0,15.36-12.567,27.927-27.927,27.927c-15.36,0-27.927-12.567-27.927-27.927v-204.8C353.745,133.585,366.313,121.018,381.673,121.018z"
-          />
-          <G fill="#ECF0F1">
-            <Circle cx="214.109" cy="214.109" r="9.309" />
-            <Circle cx="251.345" cy="214.109" r="9.309" />
-            <Circle cx="288.582" cy="214.109" r="9.309" />
-            <Circle cx="232.727" cy="232.727" r="9.309" />
-            <Circle cx="269.964" cy="232.727" r="9.309" />
-            <Circle cx="214.109" cy="251.345" r="9.309" />
-            <Circle cx="251.345" cy="251.345" r="9.309" />
-            <Circle cx="288.582" cy="251.345" r="9.309" />
-            <Circle cx="214.109" cy="288.582" r="9.309" />
-            <Circle cx="251.345" cy="288.582" r="9.309" />
-            <Circle cx="288.582" cy="288.582" r="9.309" />
-            <Circle cx="232.727" cy="269.964" r="9.309" />
-            <Circle cx="269.964" cy="269.964" r="9.309" />
-          </G>
-        </G>
+        {/* Sombra sutil */}
+        <Ellipse cx={60} cy={PIN_TIP_Y - 2} rx={18} ry={6} fill="#000" opacity={0.12} />
+
+        {/* Pin base */}
+        <Path
+          d="M60 10 C33 10 12 31 12 58 C12 108 60 170 60 170 C60 170 108 108 108 58 C108 31 87 10 60 10 Z"
+          fill="#43adff"
+          stroke="#25638d"
+          strokeWidth={4}
+          strokeLinejoin="round"
+        />
+
+        {/* Brillo lateral */}
+        <Path
+          d="M40 20 C28 32 22 46 22 62 C22 98 46 138 60 158"
+          fill="none"
+          stroke="#d8edff"
+          strokeWidth={6}
+          strokeLinecap="round"
+          opacity={0.7}
+        />
+
+        {/* Centro */}
+        <Circle cx={60} cy={62} r={18} fill="#ECF0F1" />
+        <Circle cx={60} cy={62} r={12} fill="#43adff" opacity={0.9} />
+
+        {/* Barra / mancuerna simple */}
+        <Rect x={36} y={102} width={48} height={12} rx={6} fill="#25638d" />
+        <Rect x={44} y={94} width={32} height={10} rx={5} fill="#43adff" />
+        <Rect x={30} y={98} width={8} height={20} rx={3} fill="#25638d" />
+        <Rect x={82} y={98} width={8} height={20} rx={3} fill="#25638d" />
       </Svg>
     </View>
   );
