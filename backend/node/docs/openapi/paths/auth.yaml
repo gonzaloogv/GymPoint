@@ -53,6 +53,143 @@ paths:
           $ref: '../components/responses.yaml#/components/responses/BadRequest'
         '401':
           $ref: '../components/responses.yaml#/components/responses/Unauthorized'
+
+  /api/auth/resend-verification:
+    post:
+      operationId: resendVerification
+      tags:
+        - Auth
+      summary: Reenviar email de verificación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+      responses:
+        '200':
+          description: Email reenviado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Email de verificación enviado. Revisa tu bandeja de entrada y spam.
+        '400':
+          description: Error de validación (email faltante o ya verificado)
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+        '429':
+          description: Rate limit excedido (espera 5 minutos)
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+
+  /api/auth/forgot-password:
+    post:
+      operationId: forgotPassword
+      tags:
+        - Auth
+      summary: Solicitar restablecimiento de contraseña
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+      responses:
+        '200':
+          description: Solicitud procesada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Si existe una cuenta con ese email, recibirás un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada y spam.
+        '400':
+          description: Email faltante
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
+
+  /api/auth/reset-password:
+    post:
+      operationId: resetPassword
+      tags:
+        - Auth
+      summary: Restablecer contraseña con token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - newPassword
+              properties:
+                token:
+                  type: string
+                  format: uuid
+                  example: 550e8400-e29b-41d4-a716-446655440000
+                newPassword:
+                  type: string
+                  minLength: 6
+                  example: nuevaPassword123
+      responses:
+        '200':
+          description: Contraseña restablecida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Contraseña actualizada correctamente.
+        '400':
+          description: Token o contraseña inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '../components/common.yaml#/components/schemas/Error'
+        '500':
+          $ref: '../components/responses.yaml#/components/responses/InternalServerError'
   /api/auth/google:
     post:
       operationId: loginWithGoogle

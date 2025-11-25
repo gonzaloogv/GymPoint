@@ -2012,6 +2012,10 @@ components:
         featured:
           type: boolean
           description: Gimnasio destacado
+        trial_allowed:
+          type: boolean
+          default: false
+          description: Indica si el gimnasio permite un pase de prueba gratis
         auto_checkin_enabled:
           type: boolean
           default: true
@@ -5163,6 +5167,143 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+
+  /api/auth/resend-verification:
+    post:
+      operationId: resendVerification
+      tags:
+        - Auth
+      summary: Reenviar email de verificación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+      responses:
+        '200':
+          description: Email reenviado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Email de verificación enviado. Revisa tu bandeja de entrada y spam.
+        '400':
+          description: Error de validación (email faltante o ya verificado)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Rate limit excedido (espera 5 minutos)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/auth/forgot-password:
+    post:
+      operationId: forgotPassword
+      tags:
+        - Auth
+      summary: Solicitar restablecimiento de contraseña
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+      responses:
+        '200':
+          description: Solicitud procesada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Si existe una cuenta con ese email, recibirás un enlace para restablecer tu contraseña. Revisa tu bandeja de entrada y spam.
+        '400':
+          description: Email faltante
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/auth/reset-password:
+    post:
+      operationId: resetPassword
+      tags:
+        - Auth
+      summary: Restablecer contraseña con token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - newPassword
+              properties:
+                token:
+                  type: string
+                  format: uuid
+                  example: 550e8400-e29b-41d4-a716-446655440000
+                newPassword:
+                  type: string
+                  minLength: 6
+                  example: nuevaPassword123
+      responses:
+        '200':
+          description: Contraseña restablecida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Contraseña actualizada correctamente.
+        '400':
+          description: Token o contraseña inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/challenges/today:
     get:
       operationId: getTodayChallenge
@@ -6651,6 +6792,81 @@ paths:
                 $ref: '#/components/schemas/Error'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/reviews/{id_review}/helpful:
+    parameters:
+      - name: id_review
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: ID de la reseña
+    post:
+      operationId: markReviewHelpful
+      tags:
+        - Gym Reviews
+      summary: Marcar una reseña como útil
+      description: Marca una reseña como útil. El usuario no puede marcar su propia reseña.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Reseña marcada como útil exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GymReviewResponse'
+        '400':
+          description: Ya marcaste esta review como útil o es tu propia review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Requiere rol de usuario de la app
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: unmarkReviewHelpful
+      tags:
+        - Gym Reviews
+      summary: Remover marca de útil de una reseña
+      description: Remueve el voto de utilidad de una reseña
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Marca de útil removida exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  removed:
+                    type: boolean
+        '401':
+          description: Autenticación requerida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Requiere rol de usuario de la app
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           $ref: '#/components/responses/NotFound'
   /api/media:
