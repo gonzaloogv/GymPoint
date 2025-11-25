@@ -41,7 +41,7 @@ function MapMarkerComponent({ location }: Props) {
     }
   }, []);
 
-  const size = 40; // tamaño fijo del asset
+  const size = 41; // tamaño fijo del asset
 
   return (
     <Marker
