@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Alert } from 'react-native';
 import { ReviewRemote } from '../../data/review.remote';
 import { mapCreateReviewDataToRequestDTO, mapUpdateReviewDataToRequestDTO, mapReviewDTOToEntity } from '../../data/mappers/review.mapper';
@@ -18,7 +18,7 @@ export interface UseReviewActionsResult {
 }
 
 /**
- * Hook para manejar acciones sobre reviews (crear, actualizar, eliminar, marcar Ãºtil)
+ * Hook para manejar acciones sobre reviews (crear, actualizar, eliminar, marcar útil)
  */
 export function useReviewActions(): UseReviewActionsResult {
   const [isCreating, setIsCreating] = useState(false);
@@ -27,7 +27,7 @@ export function useReviewActions(): UseReviewActionsResult {
   const [isMarking, setIsMarking] = useState(false);
 
   /**
-   * Crear una nueva reseÃ±a
+   * Crear una nueva reseña
    */
   const createReview = async (data: CreateReviewData): Promise<Review | null> => {
     setIsCreating(true);
@@ -38,26 +38,26 @@ export function useReviewActions(): UseReviewActionsResult {
       const review = mapReviewDTOToEntity(response.data);
 
       showSuccessAlert(
-        'ReseÃ±a publicada',
-        'Â¡Tu reseÃ±a ha sido publicada correctamente!\n\nGracias por compartir tu experiencia.'
+        'Reseña publicada',
+        '¡Tu reseña ha sido publicada correctamente!\n\nGracias por compartir tu experiencia.'
       );
 
       return review;
     } catch (err: any) {
 
       const errorData = err?.response?.data?.error;
-      let errorMessage = 'OcurriÃ³ un error al publicar tu reseÃ±a. Por favor intentÃ¡ nuevamente.';
+      let errorMessage = 'Ocurrió un error al publicar tu reseña. Por favor intentá nuevamente.';
 
       if (errorData) {
         switch (errorData.code) {
           case 'NO_ATTENDANCE':
-            errorMessage = 'Debes haber asistido al gimnasio para poder dejar una reseÃ±a.';
+            errorMessage = 'Debés haber asistido al gimnasio para poder dejar una reseña.';
             break;
           case 'REVIEW_EXISTS':
-            errorMessage = 'Ya has dejado una reseÃ±a para este gimnasio. PodÃ©s editarla desde "Mi reseÃ±a".';
+            errorMessage = 'Ya has dejado una reseña para este gimnasio. Podés editarla desde "Mi reseña".';
             break;
           case 'VALIDATION_ERROR':
-            errorMessage = errorData.message || 'Los datos de la reseÃ±a no son vÃ¡lidos. VerificÃ¡ la informaciÃ³n ingresada.';
+            errorMessage = errorData.message || 'Los datos de la reseña no son válidos. Verificá la información ingresada.';
             break;
           default:
             errorMessage = errorData.message || errorMessage;
@@ -73,7 +73,7 @@ export function useReviewActions(): UseReviewActionsResult {
   };
 
   /**
-   * Actualizar una reseÃ±a existente
+   * Actualizar una reseña existente
    */
   const updateReview = async (reviewId: number, data: UpdateReviewData): Promise<Review | null> => {
     setIsUpdating(true);
@@ -84,14 +84,14 @@ export function useReviewActions(): UseReviewActionsResult {
       const review = mapReviewDTOToEntity(response.data);
 
       showSuccessAlert(
-        'ReseÃ±a actualizada',
-        'Tu reseÃ±a ha sido actualizada correctamente.'
+        'Reseña actualizada',
+        'Tu reseña ha sido actualizada correctamente.'
       );
 
       return review;
     } catch (err: any) {
 
-      const errorMessage = err?.response?.data?.error?.message || 'OcurriÃ³ un error al actualizar tu reseÃ±a. Por favor intentÃ¡ nuevamente.';
+      const errorMessage = err?.response?.data?.error?.message || 'Ocurrió un error al actualizar tu reseña. Por favor intentá nuevamente.';
 
       showErrorAlert('Error al actualizar', errorMessage);
 
@@ -102,13 +102,13 @@ export function useReviewActions(): UseReviewActionsResult {
   };
 
   /**
-   * Eliminar una reseÃ±a
+   * Eliminar una reseña
    */
   const deleteReview = async (reviewId: number): Promise<boolean> => {
     return new Promise((resolve) => {
       Alert.alert(
-        'ðŸ—‘ï¸ Eliminar reseÃ±a',
-        'Â¿EstÃ¡s seguro que deseas eliminar esta reseÃ±a? Esta acciÃ³n no se puede deshacer.',
+        '🗑️ Eliminar reseña',
+        '¿Estás seguro que deseás eliminar esta reseña? Esta acción no se puede deshacer.',
         [
           {
             text: 'Cancelar',
@@ -125,13 +125,13 @@ export function useReviewActions(): UseReviewActionsResult {
                 await ReviewRemote.deleteReview(reviewId);
 
                 showSuccessAlert(
-                  'ReseÃ±a eliminada',
-                  'Tu reseÃ±a ha sido eliminada correctamente.'
+                  'Reseña eliminada',
+                  'Tu reseña ha sido eliminada correctamente.'
                 );
 
                 resolve(true);
               } catch (err: any) {
-                const errorMessage = err?.response?.data?.error?.message || 'OcurriÃ³ un error al eliminar tu reseÃ±a. Por favor intentÃ¡ nuevamente.';
+                const errorMessage = err?.response?.data?.error?.message || 'Ocurrió un error al eliminar tu reseña. Por favor intentá nuevamente.';
 
                 showErrorAlert('Error al eliminar', errorMessage);
 
@@ -147,7 +147,7 @@ export function useReviewActions(): UseReviewActionsResult {
   };
 
   /**
-   * Marcar reseÃ±a como Ãºtil
+   * Marcar reseña como útil
    */
   const markHelpful = async (reviewId: number): Promise<boolean> => {
     setIsMarking(true);
@@ -168,7 +168,7 @@ export function useReviewActions(): UseReviewActionsResult {
         }
       }
 
-      const errorMessage = err?.response?.data?.error?.message || 'Ocurrio un error al marcar la resena como util. Por favor intenta nuevamente.';
+      const errorMessage = err?.response?.data?.error?.message || 'Ocurrió un error al marcar la reseña como útil. Por favor intentá nuevamente.';
 
       showErrorAlert('Error', errorMessage);
 
@@ -179,7 +179,7 @@ export function useReviewActions(): UseReviewActionsResult {
   };
 
   /**
-   * Quitar voto de ?til
+   * Quitar voto de útil
    */
   const unmarkHelpful = async (reviewId: number): Promise<boolean> => {
     setIsMarking(true);
@@ -206,5 +206,3 @@ export function useReviewActions(): UseReviewActionsResult {
     isMarking,
   };
 }
-
-

@@ -3,6 +3,7 @@ import { DI } from '@di/container';
 import { Gym } from '../../domain/entities/Gym';
 import { Schedule } from '../../domain/entities/Schedule';
 import { GymRemote } from '../../data/gym.remote';
+import { ReviewRemote } from '@features/reviews';
 
 interface UseGymDetailResult {
   gym: Gym | null;
@@ -46,11 +47,11 @@ export function useGymDetail(gymId: string | number): UseGymDetailResult {
       return;
     }
 
-    // Fetch gym details, schedules, and reviews stats in parallel
-    Promise.all([
-      GymRemote.getById(numericId)
-        .then((gymData: any) => {
-          // Map API response to Gym entity
+  // Fetch gym details, schedules, and rating stats in parallel
+  Promise.all([
+    GymRemote.getById(numericId)
+      .then((gymData: any) => {
+        // Map API response to Gym entity
           // Response structure: GymResponse (flat object with id_gym, latitude, longitude, equipment, services, rules, amenities)
           return {
             id: gymData.id_gym,
@@ -61,38 +62,32 @@ export function useGymDetail(gymId: string | number): UseGymDetailResult {
             lat: gymData.latitude,
             lng: gymData.longitude,
             monthPrice: gymData.month_price,
-            weekPrice: gymData.week_price,
-            equipment: gymData.equipment || {}, // Objeto categorizado
-            services: gymData.services || [], // Array de servicios/tipos
-            rules: gymData.rules || [],
-            amenities: gymData.amenities || [],
-            phone: gymData.phone,
-            email: gymData.email,
-            website: gymData.website,
-            google_maps_url: gymData.google_maps_url,
-            geofence_radius_meters: gymData.geofence_radius_meters,
-            min_stay_minutes: gymData.min_stay_minutes,
-            auto_checkin_enabled: gymData.auto_checkin_enabled,
-            verified: gymData.verified,
-            featured: gymData.featured,
-            is_active: gymData.is_active,
-          } as Gym;
-        }),
-      DI.getSchedulesForGyms.execute([numericId])
-        .then((map: Record<number, Schedule[]>) => map[numericId] || []),
-      // Fetch reviews to calculate stats
-      GymRemote.listReviews(numericId, { page: 1, limit: 100 })
-        .then((data: any) => {
-          const items = data.items || [];
-          const total = data.total || data.totalItems || 0;
-          const average = items.length > 0
-            ? items.reduce((sum: number, item: any) => sum + (item.rating || 0), 0) / items.length
-            : null;
-          return { total, average };
-        })
-        .catch(() => {
-          return { total: 0, average: null };
-        }),
+          weekPrice: gymData.week_price,
+          equipment: gymData.equipment || {}, // Objeto categorizado
+          services: gymData.services || [], // Array de servicios/tipos
+          rules: gymData.rules || [],
+          amenities: gymData.amenities || [],
+          phone: gymData.phone,
+          email: gymData.email,
+          website: gymData.website,
+          google_maps_url: gymData.google_maps_url,
+          geofence_radius_meters: gymData.geofence_radius_meters,
+          min_stay_minutes: gymData.min_stay_minutes,
+          auto_checkin_enabled: gymData.auto_checkin_enabled,
+          verified: gymData.verified,
+          featured: gymData.featured,
+          is_active: gymData.is_active,
+          trial_allowed: gymData.trial_allowed ?? false,
+        } as Gym;
+      }),
+    DI.getSchedulesForGyms.execute([numericId])
+      .then((map: Record<number, Schedule[]>) => map[numericId] || []),
+    ReviewRemote.getGymRatingStats(numericId)
+      .then((data) => ({
+        total: (data.total_reviews ?? data.total) ?? 0,
+        average: (data.average_rating ?? data.average) ?? null,
+      }))
+      .catch(() => ({ total: 0, average: null })),
     ])
       .then(([gymData, schedulesData, reviewsData]) => {
         if (mounted) {

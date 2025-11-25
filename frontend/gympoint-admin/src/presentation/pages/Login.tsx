@@ -18,7 +18,7 @@ export const Login = () => {
 
     const err = loginMutation.error as AxiosError<{ error: { message: string } }>;
     if (err.response?.status === 401) {
-      setErrorMessage('Credenciales invalidas. Verifica tu email y contrasena.');
+      setErrorMessage('Credenciales inválidas. Verificá tu email y contraseña.');
       return;
     }
 
@@ -27,7 +27,7 @@ export const Login = () => {
       return;
     }
 
-    setErrorMessage('Error al iniciar sesion. Por favor intenta de nuevo.');
+    setErrorMessage('Error al iniciar sesión. Por favor intentá de nuevo.');
   }, [loginMutation.error, loginMutation.isError]);
 
   const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
@@ -71,13 +71,13 @@ export const Login = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-text dark:text-text-dark">Contrasena</label>
+            <label className="text-sm font-medium text-text dark:text-text-dark">Contraseña</label>
             <input
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               required
-              placeholder="Ingresa tu contrasena"
+              placeholder="Ingresá tu contraseña"
               className="rounded-lg border border-input-border bg-input-bg px-4 py-[0.85rem] text-text focus:border-primary focus:outline-none dark:border-input-border-dark dark:bg-input-bg-dark dark:text-text-dark"
             />
           </div>

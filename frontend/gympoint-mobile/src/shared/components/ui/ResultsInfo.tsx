@@ -24,7 +24,7 @@ export function ResultsInfo({
 
   return (
     <Text
-      className="px-4 mt-0.75 text-center text-sm font-medium"
+      className="px-4 text-center text-sm font-medium"
       style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}
     >
       {count} {itemLabel} {foundLabel}

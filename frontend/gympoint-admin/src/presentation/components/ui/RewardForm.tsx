@@ -196,7 +196,7 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
     }
   };
 
-  // Mapeo de tipos a nombres descriptivos en espaÃ±ol
+  // Mapeo de tipos a nombres descriptivos en español
   const getRewardTypeLabel = (type: string): string => {
     const labels: Record<string, string> = {
       'descuento': 'Descuento',
@@ -328,7 +328,7 @@ export const RewardForm = ({ reward, onSubmit, onCancel, isLoading }: RewardForm
         name="terms"
         value={formData.terms || ''}
         onChange={handleChange}
-        placeholder="Ej: VÃ¡lido de lunes a viernes de 6am a 10pm. No acumulable con otras promociones. Expira 30 días después del canje."
+        placeholder="Ej: Válido de lunes a viernes de 6am a 10pm. No acumulable con otras promociones. Expira 30 días después del canje."
         maxLength={500}
         rows={3}
         disabled={isLoading}

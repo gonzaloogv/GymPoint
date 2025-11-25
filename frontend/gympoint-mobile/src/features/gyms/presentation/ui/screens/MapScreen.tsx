@@ -132,7 +132,7 @@ export default function MapScreen() {
             <TouchableOpacity
               onPress={openFullscreenMap}
               activeOpacity={0.75}
-              className={`flex-row items-center justify-center py-3 px-5 rounded-xl border gap-2 shadow-sm ${
+              className={`flex-row items-center justify-center py-3 px-5 rounded-2xl border gap-2 shadow-sm ${
                 isDark
                   ? 'bg-gray-800 border-gray-700'
                   : 'bg-gray-50 border-gray-200'
@@ -168,7 +168,7 @@ export default function MapScreen() {
 
         {/* VISTA LISTA: Solo texto contador + lista (sin mapa) */}
         {isListView && (
-          <View className="flex-1">
+          <View className="gap-6">
             {/* Texto contador: "6 gimnasios encontrados..." */}
             <ResultsInfo count={resultsCount} hasUserLocation={hasUserLocation} />
 

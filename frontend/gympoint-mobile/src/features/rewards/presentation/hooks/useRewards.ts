@@ -65,7 +65,7 @@ export const useRewards = ({
     if (user.id_user) {
       fetchClaimedRewards(user.id_user);
     }
-    // fetchGeneratedCodes(); // COMENTADO: Sistema sin cÃ³digos por ahora
+    // fetchGeneratedCodes(); // COMENTADO: Sistema sin códigos por ahora
   }, [user.plan, user.id_user]);
 
   const handleGenerate = async (reward: any) => {
@@ -89,8 +89,8 @@ export const useRewards = ({
     // generatedCodes, // COMENTADO: Sistema sin códigos por ahora
     handleGenerate,
     useInventoryItem: storeUseInventoryItem,
-    // handleCopy, // COMENTADO: Sistema sin cÃ³digos por ahora
-    // handleToggleCode, // COMENTADO: Sistema sin cÃ³digos por ahora
+    // handleCopy, // COMENTADO: Sistema sin códigos por ahora
+    // handleToggleCode, // COMENTADO: Sistema sin códigos por ahora
   };
 };
 
