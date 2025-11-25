@@ -32,6 +32,16 @@ const { normalizeSortParams, GYM_SORTABLE_FIELDS } = require('../../utils/sort-w
 // Helper Functions
 // ============================================================================
 
+const normalizeBoolean = (value, defaultValue = false) => {
+  if (value === undefined || value === null) return defaultValue;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (['true', '1', 'si', 'sí', 'yes', 'on'].includes(normalized)) return true;
+    if (['false', '0', 'no', 'off'].includes(normalized)) return false;
+  }
+  return Boolean(value);
+};
+
 /**
  * Normaliza un valor a array (si no es array, lo envuelve en array)
  */
@@ -66,11 +76,11 @@ function toCreateGymCommand(dto, createdBy) {
     phone: dto.phone || null,
     email: dto.email || null,
     website: dto.website || null,
-    is_active: dto.is_active === undefined ? true : dto.is_active,
-    verified: dto.verified || false,
-    featured: dto.featured || false,
-    trial_allowed: dto.trial_allowed || false,
-    auto_checkin_enabled: dto.auto_checkin_enabled || false,
+    is_active: dto.is_active === undefined ? true : normalizeBoolean(dto.is_active, true),
+    verified: normalizeBoolean(dto.verified, false),
+    featured: normalizeBoolean(dto.featured, false),
+    trial_allowed: normalizeBoolean(dto.trial_allowed, false),
+    auto_checkin_enabled: normalizeBoolean(dto.auto_checkin_enabled, false),
     createdBy,
     // id_types y type_names eliminados - ahora en services
     amenities: dto.amenities || [],
@@ -104,11 +114,14 @@ function toUpdateGymCommand(dto, gymId, updatedBy) {
     phone: dto.phone,
     email: dto.email,
     website: dto.website,
-    is_active: dto.is_active,
-    verified: dto.verified,
-    featured: dto.featured,
-    trial_allowed: dto.trial_allowed,
-    auto_checkin_enabled: dto.auto_checkin_enabled,
+    is_active: dto.is_active !== undefined ? normalizeBoolean(dto.is_active, true) : undefined,
+    verified: dto.verified !== undefined ? normalizeBoolean(dto.verified, false) : undefined,
+    featured: dto.featured !== undefined ? normalizeBoolean(dto.featured, false) : undefined,
+    trial_allowed: dto.trial_allowed !== undefined ? normalizeBoolean(dto.trial_allowed, false) : undefined,
+    auto_checkin_enabled:
+      dto.auto_checkin_enabled !== undefined
+        ? normalizeBoolean(dto.auto_checkin_enabled, false)
+        : undefined,
     updatedBy,
     // id_types y type_names eliminados - ahora en services
     amenities: dto.amenities,

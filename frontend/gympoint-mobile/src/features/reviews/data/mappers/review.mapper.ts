@@ -73,9 +73,19 @@ export function mapReviewDTOsToEntities(dtos: ReviewDTO[]): Review[] {
  * Mapea RatingStatsDTO del backend a RatingStats entity
  */
 export function mapRatingStatsDTOToEntity(dto: RatingStatsDTO): RatingStats {
+  const averageRaw =
+    dto.average_rating != null
+      ? dto.average_rating
+      : dto.avg_rating != null
+        ? dto.avg_rating
+        : (dto as any).average != null
+          ? (dto as any).average
+          : 0;
+  const average = Number.isFinite(Number(averageRaw)) ? Number(averageRaw) : 0;
+
   return {
     gymId: dto.id_gym,
-    averageRating: dto.average_rating || dto.avg_rating || 0,
+    averageRating: Number.isFinite(average) ? average : 0,
     totalReviews: dto.total_reviews || 0,
     rating5Count: dto.rating_5_count || 0,
     rating4Count: dto.rating_4_count || 0,

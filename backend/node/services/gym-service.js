@@ -168,6 +168,16 @@ const normalizeAmenityIds = (list) => {
   return Array.from(unique);
 };
 
+const normalizeBooleanFlag = (value, defaultValue = false) => {
+  if (value === undefined || value === null) return defaultValue;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (['true', '1', 'si', 'sí', 'yes', 'on'].includes(normalized)) return true;
+    if (['false', '0', 'no', 'off'].includes(normalized)) return false;
+  }
+  return Boolean(value);
+};
+
 // -----------------------------------------------------------------------------
 // Use cases
 // -----------------------------------------------------------------------------
@@ -233,10 +243,10 @@ const createGym = async (input) => {
     email: command.email,
     website: command.website,
     is_active: command.is_active !== undefined ? command.is_active : true,
-    verified: command.verified || false,
-    featured: command.featured || false,
-    auto_checkin_enabled: command.auto_checkin_enabled || false,
-    trial_allowed: command.trial_allowed || false,
+    verified: normalizeBooleanFlag(command.verified, false),
+    featured: normalizeBooleanFlag(command.featured, false),
+    auto_checkin_enabled: normalizeBooleanFlag(command.auto_checkin_enabled, false),
+    trial_allowed: normalizeBooleanFlag(command.trial_allowed, false),
     rules: normalizeRules(command.rules),
     equipment: command.equipment || {},
     services: command.services || [],
@@ -291,9 +301,18 @@ const updateGym = async (id, data = {}) => {
     is_active: command.is_active,
     verified: command.verified,
     featured: command.featured,
-    auto_checkin_enabled: command.auto_checkin_enabled,
-    trial_allowed: command.trial_allowed,
   };
+
+  if (command.auto_checkin_enabled !== undefined) {
+    payload.auto_checkin_enabled = normalizeBooleanFlag(
+      command.auto_checkin_enabled,
+      existing.auto_checkin_enabled
+    );
+  }
+
+  if (command.trial_allowed !== undefined) {
+    payload.trial_allowed = normalizeBooleanFlag(command.trial_allowed, existing.trial_allowed);
+  }
 
   if (command.rules !== undefined) {
     payload.rules = normalizeRules(command.rules);

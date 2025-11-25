@@ -5,36 +5,44 @@ const { gymScheduleRepository } = require('../infra/db/repositories');
 const { NotFoundError, ValidationError } = require('../utils/errors');
 const { appEvents, EVENTS } = require('../websocket/events/event-emitter');
 
+const normalizeBoolean = (value, defaultValue = false) => {
+  if (value === undefined || value === null) return defaultValue;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (['true', '1', 'si', 'sí', 'yes', 'on'].includes(normalized)) return true;
+    if (['false', '0', 'no', 'off'].includes(normalized)) return false;
+  }
+  return Boolean(value);
+};
+
 /**
  * Convertir nombres de amenidades a IDs
  * Si recibe IDs numéricos, los retorna tal cual
  * Si recibe strings (nombres), busca los IDs correspondientes
  */
-async function convertAmenitiesToIds(amenities) {
+async function convertAmenityNamesToIds(amenities) {
   if (!Array.isArray(amenities) || amenities.length === 0) {
     return [];
   }
 
   // Si son todos números, retornar directamente
-  const allNumbers = amenities.every(a => typeof a === 'number' || !isNaN(Number(a)));
+  const allNumbers = amenities.every((a) => typeof a === 'number' || !isNaN(Number(a)));
   if (allNumbers) {
-    return amenities.map(a => Number(a)).filter(id => id > 0);
+    return amenities.map((a) => Number(a)).filter((id) => id > 0);
   }
 
   // Si son strings (nombres), buscar en la BD
-  const stringAmenities = amenities.filter(a => typeof a === 'string');
+  const stringAmenities = amenities.filter((a) => typeof a === 'string');
   if (stringAmenities.length === 0) {
     return [];
   }
 
   const foundAmenities = await Amenity.findAll({
-    where: {
-      name: stringAmenities
-    },
-    attributes: ['id_amenity', 'name']
+    where: { name: stringAmenities },
+    attributes: ['id_amenity', 'name'],
   });
 
-  return foundAmenities.map(a => a.id_amenity);
+  return foundAmenities.map((a) => a.id_amenity);
 }
 
 /**
@@ -48,7 +56,7 @@ async function getAllRequests(status = null) {
 
   const requests = await GymRequest.findAll({
     where,
-    order: [['created_at', 'DESC']]
+    order: [['created_at', 'DESC']],
   });
 
   return requests;
@@ -58,8 +66,7 @@ async function getAllRequests(status = null) {
  * Obtener una solicitud por ID
  */
 async function getRequestById(id) {
-  const request = await GymRequest.findByPk(id);
-  return request;
+  return GymRequest.findByPk(id);
 }
 
 /**
@@ -75,6 +82,9 @@ async function createRequest(data) {
     throw new ValidationError('Debe proporcionar al menos un email o teléfono de contacto');
   }
 
+  const photos = Array.isArray(data.photos) ? data.photos.slice(0, 1) : [];
+  const trialAllowed = normalizeBoolean(data.trial_allowed, false);
+
   const request = await GymRequest.create({
     name: data.name,
     description: data.description,
@@ -87,7 +97,7 @@ async function createRequest(data) {
     website: data.website,
     instagram: data.instagram,
     facebook: data.facebook,
-    photos: data.photos || [],
+    photos,
     equipment: data.equipment || {},
     services: data.services || [],
     rules: data.rules || [],
@@ -95,15 +105,15 @@ async function createRequest(data) {
     weekly_price: data.weekly_price,
     daily_price: data.daily_price,
     schedule: data.schedule || [],
-    trial_allowed: data.trial_allowed || false,
+    trial_allowed: trialAllowed,
     amenities: data.amenities || [],
-    status: 'pending'
+    status: 'pending',
   });
 
   // Emitir evento para actualizaciones en tiempo real
   appEvents.emit(EVENTS.GYM_REQUEST_CREATED, {
     gymRequest: request.toJSON(),
-    timestamp: new Date()
+    timestamp: new Date(),
   });
 
   return request;
@@ -124,19 +134,21 @@ async function approveRequest(requestId, adminId) {
   }
 
   // Parse JSON fields if they come as strings (Sequelize sometimes returns JSON as strings)
-  const equipment = typeof request.equipment === 'string' ? JSON.parse(request.equipment) : (request.equipment || {});
-  const services = typeof request.services === 'string' ? JSON.parse(request.services) : (request.services || []);
-  const rules = typeof request.rules === 'string' ? JSON.parse(request.rules) : (request.rules || []);
-  const scheduleRaw = typeof request.schedule === 'string' ? JSON.parse(request.schedule) : (request.schedule || []);
-  const amenitiesRaw = typeof request.amenities === 'string' ? JSON.parse(request.amenities) : (request.amenities || []);
-  const trialAllowed = typeof request.trial_allowed === 'string'
-    ? ['true', '1', 'yes', 'si', 'sí'].includes(request.trial_allowed.toLowerCase())
-    : Boolean(request.trial_allowed);
+  const equipment =
+    typeof request.equipment === 'string' ? JSON.parse(request.equipment) : request.equipment || {};
+  const services =
+    typeof request.services === 'string' ? JSON.parse(request.services) : request.services || [];
+  const rules = typeof request.rules === 'string' ? JSON.parse(request.rules) : request.rules || [];
+  const scheduleRaw =
+    typeof request.schedule === 'string' ? JSON.parse(request.schedule) : request.schedule || [];
+  const amenitiesRaw =
+    typeof request.amenities === 'string' ? JSON.parse(request.amenities) : request.amenities || [];
+  const trialAllowed = normalizeBoolean(request.trial_allowed, false);
 
   // Convertir amenities a IDs si vienen como nombres
-  const amenityIds = await convertAmenitiesToIds(amenitiesRaw);
+  const amenityIds = await convertAmenityNamesToIds(amenitiesRaw);
 
-  console.log('🔍 DEBUG - GymRequest data (raw):');
+  console.log('[GymRequest] Datos originales:');
   console.log('  id:', request.id_gym_request);
   console.log('  name:', request.name);
   console.log('  city:', request.city);
@@ -169,13 +181,13 @@ async function approveRequest(requestId, adminId) {
     featured: false,
     auto_checkin_enabled: false,
     trial_allowed: trialAllowed,
-    equipment: equipment,
-    services: services,
-    rules: rules,
-    amenities: amenityIds // IDs de amenidades
+    equipment,
+    services,
+    rules,
+    amenities: amenityIds, // IDs de amenidades
   };
 
-  console.log('🔍 DEBUG - Gym data to create:');
+  console.log('[GymRequest] Gym a crear:');
   console.log('  name:', gymData.name);
   console.log('  city:', gymData.city);
   console.log('  address:', gymData.address);
@@ -187,7 +199,7 @@ async function approveRequest(requestId, adminId) {
   console.log('  amenities:', gymData.amenities);
 
   // Si tiene precio semanal, setearlo
-  if (request.weekly_price) {
+  if (request.weekly_price !== undefined && request.weekly_price !== null) {
     gymData.week_price = request.weekly_price;
   }
 
@@ -196,13 +208,22 @@ async function approveRequest(requestId, adminId) {
 
   // Crear horarios regulares a partir del schedule enviado
   const dayMap = {
-    domingo: 0, sunday: 0,
-    lunes: 1, monday: 1,
-    martes: 2, tuesday: 2,
-    miércoles: 3, miercoles: 3, wednesday: 3,
-    jueves: 4, thursday: 4,
-    viernes: 5, friday: 5,
-    sábado: 6, sabado: 6, saturday: 6,
+    domingo: 0,
+    sunday: 0,
+    lunes: 1,
+    monday: 1,
+    martes: 2,
+    tuesday: 2,
+    miércoles: 3,
+    miercoles: 3,
+    wednesday: 3,
+    jueves: 4,
+    thursday: 4,
+    viernes: 5,
+    friday: 5,
+    sábado: 6,
+    sabado: 6,
+    saturday: 6,
   };
 
   const normalizedSchedule = Array.isArray(scheduleRaw) ? scheduleRaw : [];
@@ -239,7 +260,7 @@ async function approveRequest(requestId, adminId) {
     status: 'approved',
     id_gym: gym.id_gym,
     processed_by: adminId,
-    processed_at: new Date()
+    processed_at: new Date(),
   });
 
   // Emitir evento para actualizaciones en tiempo real
@@ -248,7 +269,7 @@ async function approveRequest(requestId, adminId) {
     gymId: gym.id_gym,
     gymRequest: request.toJSON(),
     gym: gym.toJSON ? gym.toJSON() : gym,
-    timestamp: new Date()
+    timestamp: new Date(),
   });
 
   return gym;
@@ -272,15 +293,15 @@ async function rejectRequest(requestId, reason, adminId) {
     status: 'rejected',
     rejection_reason: reason,
     processed_by: adminId,
-    processed_at: new Date()
+    processed_at: new Date(),
   });
 
   // Emitir evento para actualizaciones en tiempo real
   appEvents.emit(EVENTS.GYM_REQUEST_REJECTED, {
     requestId: request.id_gym_request,
     gymRequest: request.toJSON(),
-    reason: reason,
-    timestamp: new Date()
+    reason,
+    timestamp: new Date(),
   });
 
   return request;
@@ -305,5 +326,5 @@ module.exports = {
   createRequest,
   approveRequest,
   rejectRequest,
-  deleteRequest
+  deleteRequest,
 };

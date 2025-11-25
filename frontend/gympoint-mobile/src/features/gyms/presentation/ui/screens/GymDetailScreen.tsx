@@ -73,6 +73,14 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
 
   const { stats: ratingStats } = useGymRatingStats(gym.id);
 
+  // Calcular promedio real de las reseñas (fix temporal mientras backend no lo hace)
+  const calculatedAverage = displayReviews.length > 0
+    ? displayReviews.reduce((sum, review) => sum + (review.rating || 0), 0) / displayReviews.length
+    : 0;
+
+  const combinedAverageRating = calculatedAverage || (ratingStats?.averageRating ?? averageRating ?? 0);
+  const combinedTotalReviews = displayReviews.length || (ratingStats?.totalReviews ?? totalReviews ?? 0);
+
   useEffect(() => {
     setDisplayReviews(reviews);
   }, [reviews]);
@@ -321,8 +329,8 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
         <GymDetailHeader gymName={gym.name} onBack={onBack} />
 
         <GymRatingScheduleBar
-          averageRating={averageRating ?? 0}
-          totalReviews={totalReviews}
+          averageRating={combinedAverageRating}
+          totalReviews={combinedTotalReviews}
           scheduleText={formatScheduleText()}
         />
 
@@ -356,7 +364,7 @@ export function GymDetailScreen({ gym, onBack, onCheckIn }: GymDetailScreenProps
 
         <GymReviewsSection
           reviews={displayedReviews}
-          averageRating={averageRating ?? 0}
+          averageRating={combinedAverageRating}
           ratingStats={ratingStats}
           isLoading={reviewsLoading}
           pagination={undefined}

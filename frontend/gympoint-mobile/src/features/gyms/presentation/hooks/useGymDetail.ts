@@ -83,10 +83,24 @@ export function useGymDetail(gymId: string | number): UseGymDetailResult {
     DI.getSchedulesForGyms.execute([numericId])
       .then((map: Record<number, Schedule[]>) => map[numericId] || []),
     ReviewRemote.getGymRatingStats(numericId)
-      .then((data) => ({
-        total: (data.total_reviews ?? data.total) ?? 0,
-        average: (data.average_rating ?? data.average) ?? null,
-      }))
+      .then((data) => {
+        const totalRaw = (data.total_reviews ?? data.total) ?? 0;
+        const averageRaw = (data.average_rating ?? (data as any).average ?? (data as any).avg_rating) ?? null;
+
+        const normalizeNumber = (value: any): number | null => {
+          if (value === null || value === undefined) return null;
+          const num = Number(value);
+          return Number.isFinite(num) ? num : null;
+        };
+
+        const totalParsed = normalizeNumber(totalRaw) ?? 0;
+        const averageParsed = normalizeNumber(averageRaw);
+
+        return {
+          total: totalParsed,
+          average: averageParsed,
+        };
+      })
       .catch(() => ({ total: 0, average: null })),
     ])
       .then(([gymData, schedulesData, reviewsData]) => {

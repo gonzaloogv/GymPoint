@@ -8,14 +8,7 @@ import { FormStep1, FormStep2, FormStep3 } from '../components/form';
 export const RegisterGymPage = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const {
-    formData,
-    updateField,
-    currentStep,
-    setCurrentStep,
-    isStep1Complete,
-    clearDraft,
-  } = useGymForm();
+  const { formData, updateField, currentStep, setCurrentStep, isStep1Complete, clearDraft } = useGymForm();
 
   const {
     isSubmitting,
@@ -65,18 +58,18 @@ export const RegisterGymPage = () => {
   };
 
   return (
-    <div className={`min-h-screen py-12 px-4 ${
-      theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'
-    }`}>
+    <div
+      className={`min-h-screen py-12 px-4 ${
+        theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'
+      }`}
+    >
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-start mb-8">
           <div className="flex-1 text-center">
             <Heading variant="h1" className="mb-4">
               Registrá tu Gimnasio
             </Heading>
-            <p className={`${
-              theme === 'light' ? 'text-gray-600' : 'text-gray-400'
-            }`}>
+            <p className={`${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
               Paso {currentStep} de {totalSteps}
             </p>
           </div>
@@ -93,8 +86,8 @@ export const RegisterGymPage = () => {
                 className={`h-2 flex-1 rounded-full transition-colors ${
                   step <= currentStep
                     ? 'bg-secondary'
-                    : theme === 'light' 
-                      ? 'bg-gray-300' 
+                    : theme === 'light'
+                      ? 'bg-gray-300'
                       : 'bg-gray-700'
                 }`}
               />
@@ -102,9 +95,11 @@ export const RegisterGymPage = () => {
           </div>
         </div>
 
-        <div className={`rounded-lg shadow-lg p-8 mb-8 ${
-          theme === 'light' ? 'bg-white' : 'bg-gray-800'
-        }`}>
+        <div
+          className={`rounded-lg shadow-lg p-8 mb-8 ${
+            theme === 'light' ? 'bg-white' : 'bg-gray-800'
+          }`}
+        >
           <AnimatePresence mode="wait">
             {currentStep === 1 && (
               <motion.div
@@ -117,9 +112,11 @@ export const RegisterGymPage = () => {
                 <Heading variant="h2" className="mb-6">
                   Información Esencial
                 </Heading>
-                <p className={`mb-6 ${
-                  theme === 'light' ? 'text-gray-600' : 'text-gray-400'
-                }`}>
+                <p
+                  className={`mb-6 ${
+                    theme === 'light' ? 'text-gray-600' : 'text-gray-400'
+                  }`}
+                >
                   Esta información es obligatoria para crear el perfil de tu gimnasio.
                 </p>
                 <FormStep1 formData={formData} updateField={updateField} />
@@ -137,9 +134,11 @@ export const RegisterGymPage = () => {
                 <Heading variant="h2" className="mb-6">
                   ¡La Información Clave!
                 </Heading>
-                <p className={`mb-6 ${
-                  theme === 'light' ? 'text-gray-600' : 'text-gray-400'
-                }`}>
+                <p
+                  className={`mb-6 ${
+                    theme === 'light' ? 'text-gray-600' : 'text-gray-400'
+                  }`}
+                >
                   Esta información ayuda a los usuarios a tomar decisiones.
                 </p>
                 <FormStep2 formData={formData} updateField={updateField} />
@@ -157,9 +156,11 @@ export const RegisterGymPage = () => {
                 <Heading variant="h2" className="mb-6">
                   Los Detalles que Enamoran
                 </Heading>
-                <p className={`mb-6 ${
-                  theme === 'light' ? 'text-gray-600' : 'text-gray-400'
-                }`}>
+                <p
+                  className={`mb-6 ${
+                    theme === 'light' ? 'text-gray-600' : 'text-gray-400'
+                  }`}
+                >
                   Información complementaria para destacarte.
                 </p>
                 <FormStep3 formData={formData} updateField={updateField} />
@@ -178,20 +179,12 @@ export const RegisterGymPage = () => {
           </Button>
 
           <div className="flex gap-4">
-            <Button 
-              variant="secondary" 
-              onClick={handleFinish}
-              disabled={isSubmitting}
-            >
+            <Button variant="secondary" onClick={handleFinish} disabled={isSubmitting}>
               {isSubmitting ? 'Enviando...' : 'Finalizar'}
             </Button>
 
             {currentStep < totalSteps && (
-              <Button 
-                variant="primary" 
-                onClick={handleNext}
-                disabled={isSubmitting}
-              >
+              <Button variant="primary" onClick={handleNext} disabled={isSubmitting}>
                 Siguiente
               </Button>
             )}
@@ -199,22 +192,26 @@ export const RegisterGymPage = () => {
         </div>
 
         {submitStatus === 'error' && (
-          <div className={`mt-4 p-4 rounded-lg ${
-            theme === 'light' 
-              ? 'bg-red-50 border border-red-300' 
-              : 'bg-red-900/30 border border-red-700'
-          }`}>
-            <p className={`text-sm ${
-              theme === 'light' ? 'text-red-900' : 'text-red-200'
-            }`}>
-              ❌ {errorMessage}
+          <div
+            className={`mt-4 p-4 rounded-lg ${
+              theme === 'light'
+                ? 'bg-red-50 border border-red-300'
+                : 'bg-red-900/30 border border-red-700'
+            }`}
+          >
+            <p
+              className={`text-sm ${
+                theme === 'light' ? 'text-red-900' : 'text-red-200'
+              }`}
+            >
+              ¡Ups! {errorMessage}
             </p>
           </div>
         )}
 
         {showWarningModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <motion.div 
+            <motion.div
               className={`p-6 rounded-lg max-w-md w-full ${
                 theme === 'light' ? 'bg-white' : 'bg-gray-800'
               }`}
@@ -225,29 +222,31 @@ export const RegisterGymPage = () => {
               <Heading variant="h3" className="mb-4">
                 ¡Atención!
               </Heading>
-              <p className={`mb-6 ${
-                theme === 'light' ? 'text-gray-700' : 'text-gray-300'
-              }`}>
+              <p
+                className={`mb-6 ${
+                  theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+                }`}
+              >
                 Debes completar toda la información obligatoria del <strong>Paso 1</strong> antes de finalizar:
               </p>
-              <ul className={`mb-6 list-disc list-inside space-y-1 ${
-                theme === 'light' ? 'text-gray-600' : 'text-gray-400'
-              }`}>
+              <ul
+                className={`mb-6 list-disc list-inside space-y-1 ${
+                  theme === 'light' ? 'text-gray-600' : 'text-gray-400'
+                }`}
+              >
                 <li>Nombre del gimnasio</li>
                 <li>Ubicación (dirección, ciudad y coordenadas)</li>
                 <li>Email de contacto</li>
                 <li>Teléfono de contacto</li>
               </ul>
-              <Button onClick={() => setShowWarningModal(false)}>
-                Entendido
-              </Button>
+              <Button onClick={() => setShowWarningModal(false)}>Entendido</Button>
             </motion.div>
           </div>
         )}
 
         {showSuccessModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <motion.div 
+            <motion.div
               className={`p-6 rounded-lg max-w-md w-full ${
                 theme === 'light' ? 'bg-white' : 'bg-gray-800'
               }`}
@@ -256,19 +255,19 @@ export const RegisterGymPage = () => {
               transition={{ duration: 0.2 }}
             >
               <div className="text-center">
-                <div className="text-6xl mb-4">🎉</div>
+                <div className="text-6xl mb-4">✅</div>
                 <Heading variant="h3" className="mb-4">
                   ¡Registro Exitoso!
                 </Heading>
-                <p className={`mb-6 ${
-                  theme === 'light' ? 'text-gray-700' : 'text-gray-300'
-                }`}>
-                  Hemos recibido la información de <strong>{formData.name}</strong>. 
-                  Te contactaremos pronto al email <strong>{formData.contact.email}</strong>.
+                <p
+                  className={`mb-6 ${
+                    theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+                  }`}
+                >
+                  Hemos recibido la información de <strong>{formData.name}</strong>. Te contactaremos pronto al email{' '}
+                  <strong>{formData.contact.email}</strong>.
                 </p>
-                <Button onClick={handleSuccessModalClose}>
-                  Volver al Inicio
-                </Button>
+                <Button onClick={handleSuccessModalClose}>Volver al Inicio</Button>
               </div>
             </motion.div>
           </div>

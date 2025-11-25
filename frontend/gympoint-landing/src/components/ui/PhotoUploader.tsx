@@ -12,7 +12,7 @@ interface PhotoUploaderProps {
 export const PhotoUploader: React.FC<PhotoUploaderProps> = ({
   photos,
   onPhotosChange,
-  maxPhotos = 10,
+  maxPhotos = 1,
 }) => {
   const { theme } = useTheme();
   const [uploading, setUploading] = useState(false);
@@ -43,7 +43,7 @@ export const PhotoUploader: React.FC<PhotoUploaderProps> = ({
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       if (photos.length + acceptedFiles.length > maxPhotos) {
-        alert(`Máximo ${maxPhotos} fotos permitidas`);
+        alert(`Máximo ${maxPhotos} foto${maxPhotos > 1 ? 's' : ''} permitida${maxPhotos > 1 ? 's' : ''}`);
         return;
       }
 
@@ -58,10 +58,10 @@ export const PhotoUploader: React.FC<PhotoUploaderProps> = ({
         });
 
         const uploadedUrls = await Promise.all(uploadPromises);
-        onPhotosChange([...photos, ...uploadedUrls]);
+        onPhotosChange([...photos, ...uploadedUrls].slice(0, maxPhotos));
       } catch (error) {
         console.error('Error uploading photos:', error);
-        alert('Error al subir las fotos. Por favor, intenta nuevamente.');
+        alert('Error al subir la foto. Por favor, intenta nuevamente.');
       } finally {
         setUploading(false);
         setUploadProgress(0);
@@ -76,7 +76,7 @@ export const PhotoUploader: React.FC<PhotoUploaderProps> = ({
       'image/*': ['.jpeg', '.jpg', '.png', '.webp'],
     },
     maxSize: 5242880, // 5MB
-    multiple: true,
+    multiple: maxPhotos > 1,
     disabled: uploading || photos.length >= maxPhotos,
     noClick: false,
     noKeyboard: false,
@@ -106,14 +106,18 @@ export const PhotoUploader: React.FC<PhotoUploaderProps> = ({
         <input {...getInputProps()} />
         {uploading ? (
           <div>
-            <p className={`mb-2 ${
-              theme === 'light' ? 'text-gray-700' : 'text-gray-300'
-            }`}>
-              Subiendo fotos... {Math.round(uploadProgress)}%
+            <p
+              className={`mb-2 ${
+                theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+              }`}
+            >
+              Subiendo foto... {Math.round(uploadProgress)}%
             </p>
-            <div className={`w-full rounded-full h-2 ${
-              theme === 'light' ? 'bg-gray-200' : 'bg-gray-700'
-            }`}>
+            <div
+              className={`w-full rounded-full h-2 ${
+                theme === 'light' ? 'bg-gray-200' : 'bg-gray-700'
+              }`}
+            >
               <div
                 className="bg-secondary h-2 rounded-full transition-all"
                 style={{ width: `${uploadProgress}%` }}
@@ -137,23 +141,27 @@ export const PhotoUploader: React.FC<PhotoUploaderProps> = ({
                 strokeLinejoin="round"
               />
             </svg>
-            <p className={`mt-2 text-sm ${
-              theme === 'light' ? 'text-gray-700' : 'text-gray-300'
-            }`}>
+            <p
+              className={`mt-2 text-sm ${
+                theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+              }`}
+            >
               {isDragActive
-                ? '¡Suelta las fotos aquí!'
-                : 'Arrastra fotos aquí o haz clic para seleccionar'}
+                ? '¡Soltá la foto aquí!'
+                : 'Arrastrá una foto aquí o hacé clic para seleccionar'}
             </p>
-            <p className={`text-xs mt-1 ${
-              theme === 'light' ? 'text-gray-600' : 'text-gray-400'
-            }`}>
+            <p
+              className={`text-xs mt-1 ${
+                theme === 'light' ? 'text-gray-600' : 'text-gray-400'
+              }`}
+            >
               PNG, JPG, WEBP hasta 5MB ({photos.length}/{maxPhotos} fotos)
             </p>
           </div>
         )}
       </div>
 
-      {/* Preview de Fotos */}
+      {/* Preview de Foto */}
       {photos.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {photos.map((url, index) => (
@@ -188,15 +196,19 @@ export const PhotoUploader: React.FC<PhotoUploaderProps> = ({
       )}
 
       {/* Disclaimer */}
-      <div className={`p-4 rounded-lg ${
-        theme === 'light' 
-          ? 'bg-blue-100 border border-blue-300' 
-          : 'bg-blue-900/30 border border-blue-700'
-      }`}>
-        <p className={`text-sm ${
-          theme === 'light' ? 'text-blue-900' : 'text-blue-200'
-        }`}>
-          💡 <strong>Tip:</strong> Los gimnasios con fotos reciben hasta{' '}
+      <div
+        className={`p-4 rounded-lg ${
+          theme === 'light'
+            ? 'bg-blue-100 border border-blue-300'
+            : 'bg-blue-900/30 border border-blue-700'
+        }`}
+      >
+        <p
+          className={`text-sm ${
+            theme === 'light' ? 'text-blue-900' : 'text-blue-200'
+          }`}
+        >
+          💡 <strong>Tip:</strong> Los gimnasios con foto reciben hasta{' '}
           <strong>7x más visitas</strong> que aquellos sin imágenes.
         </p>
       </div>

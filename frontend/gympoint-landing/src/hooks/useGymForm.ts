@@ -3,6 +3,25 @@ import type { GymFormData, DaySchedule } from '../types/gym.types.ts';
 
 const STORAGE_KEY = 'gympoint_form_draft';
 
+const getDefaultSchedule = (): DaySchedule[] => {
+  const days: DaySchedule['day'][] = [
+    'lunes',
+    'martes',
+    'miércoles',
+    'jueves',
+    'viernes',
+    'sábado',
+    'domingo',
+  ];
+
+  return days.map((day) => ({
+    day,
+    opens: '07:00',
+    closes: '22:00',
+    is_open: true,
+  }));
+};
+
 const getInitialFormData = (): GymFormData => {
   const defaultData: GymFormData = {
     name: '',
@@ -41,7 +60,6 @@ const getInitialFormData = (): GymFormData => {
   if (saved) {
     try {
       const parsedData = JSON.parse(saved);
-      // Merge con defaults para asegurar que todos los campos existan
       return {
         ...defaultData,
         ...parsedData,
@@ -75,16 +93,6 @@ const getInitialFormData = (): GymFormData => {
   return defaultData;
 };
 
-const getDefaultSchedule = (): DaySchedule[] => {
-  const days = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
-  return days.map(day => ({
-    day,
-    opens: '07:00',
-    closes: '22:00',
-    is_open: true,
-  }));
-};
-
 export const useGymForm = () => {
   const [formData, setFormData] = useState<GymFormData>(getInitialFormData);
   const [currentStep, setCurrentStep] = useState(1);
@@ -94,9 +102,9 @@ export const useGymForm = () => {
   }, [formData]);
 
   const updateField = (path: string, value: any) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const keys = path.split('.');
-      const updated = { ...prev };
+      const updated: any = { ...prev };
       let current: any = updated;
 
       for (let i = 0; i < keys.length - 1; i++) {
@@ -109,28 +117,25 @@ export const useGymForm = () => {
     });
   };
 
-const isStep1Complete = () => {
-  const { name, location, contact } = formData;
-  const hasCoordinates = location.latitude !== null && location.longitude !== null;
+  const isStep1Complete = () => {
+    const { name, location, contact } = formData;
+    const hasCoordinates = location.latitude !== null && location.longitude !== null;
 
-  return !!(
-    name.trim() &&
-    location.address.trim() &&
-    location.city.trim() &&
-    contact.phone.trim() &&
-    hasCoordinates
-  );
-};
+    return !!(
+      name.trim() &&
+      location.address.trim() &&
+      location.city.trim() &&
+      contact.phone.trim() &&
+      hasCoordinates
+    );
+  };
 
   const clearDraft = () => {
     localStorage.removeItem(STORAGE_KEY);
     setFormData(getInitialFormData());
   };
 
-  const exportJSON = () => {
-    return JSON.stringify(formData, null, 2);
-  };
-  
+  const exportJSON = () => JSON.stringify(formData, null, 2);
 
   return {
     formData,

@@ -84,6 +84,6 @@ export const DAYS_OF_WEEK = [
   'domingo',
 ] as const;
 
-export type TrainingType = typeof TRAINING_TYPES[number];
-export type Amenity = typeof AMENITIES[number];
-export type DayOfWeek = typeof DAYS_OF_WEEK[number];
+export type TrainingType = (typeof TRAINING_TYPES)[number];
+export type Amenity = (typeof AMENITIES)[number];
+export type DayOfWeek = (typeof DAYS_OF_WEEK)[number];

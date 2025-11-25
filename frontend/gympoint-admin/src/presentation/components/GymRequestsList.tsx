@@ -35,7 +35,7 @@ export const GymRequestsList = () => {
     try {
       await rejectMutation.mutateAsync({
         id: selectedRequest.id_gym_request,
-        reason: rejectionReason
+        reason: rejectionReason,
       });
       alert('Solicitud rechazada exitosamente');
       setShowRejectModal(false);
@@ -102,7 +102,7 @@ export const GymRequestsList = () => {
                     disabled={approveMutation.isPending}
                     className="bg-green-600 hover:bg-green-700"
                   >
-                    ✓ Aprobar
+                    ✅ Aprobar
                   </Button>
                   <Button
                     onClick={() => openRejectModal(request)}
@@ -110,7 +110,7 @@ export const GymRequestsList = () => {
                     disabled={rejectMutation.isPending}
                     className="bg-red-600 hover:bg-red-700 text-white"
                   >
-                    ✗ Rechazar
+                    ✖ Rechazar
                   </Button>
                   <Button
                     onClick={() => handleDelete(request.id_gym_request, request.name)}
@@ -151,12 +151,18 @@ export const GymRequestsList = () => {
                     </p>
                   )}
                   <p className="text-text-muted">
-                    <strong>Pase de prueba:</strong> {request.trial_allowed ? 'Sí, admite 1 día gratis' : 'No'}
+                    <strong>Pase de prueba:</strong>{' '}
+                    {request.trial_allowed ? 'Sí, admite 1 día gratis' : 'No'}
                   </p>
                   {request.website && (
                     <p className="text-text-muted">
                       <strong>Web:</strong>{' '}
-                      <a href={request.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                      <a
+                        href={request.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 underline"
+                      >
                         {request.website}
                       </a>
                     </p>
@@ -174,7 +180,13 @@ export const GymRequestsList = () => {
                   const schedule = Array.isArray(request.schedule)
                     ? request.schedule
                     : typeof request.schedule === 'string'
-                      ? (() => { try { return JSON.parse(request.schedule); } catch { return []; } })()
+                      ? (() => {
+                          try {
+                            return JSON.parse(request.schedule);
+                          } catch {
+                            return [];
+                          }
+                        })()
                       : [];
                   return schedule.length > 0 ? (
                     <div>
@@ -193,10 +205,15 @@ export const GymRequestsList = () => {
 
                 {request.services && Array.isArray(request.services) && request.services.length > 0 && (
                   <div>
-                    <h4 className="font-semibold text-text dark:text-text-dark mb-2">Servicios / Tipos de Entrenamiento</h4>
+                    <h4 className="font-semibold text-text dark:text-text-dark mb-2">
+                      Servicios / Tipos de Entrenamiento
+                    </h4>
                     <div className="flex flex-wrap gap-2">
                       {request.services.map((service, idx) => (
-                        <span key={idx} className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded text-xs">
+                        <span
+                          key={idx}
+                          className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded text-xs"
+                        >
                           {service}
                         </span>
                       ))}
@@ -204,25 +221,29 @@ export const GymRequestsList = () => {
                   </div>
                 )}
 
-                {request.equipment && typeof request.equipment === 'object' && Object.keys(request.equipment).length > 0 && (
-                  <div>
-                    <h4 className="font-semibold text-text dark:text-text-dark mb-2">Equipamiento</h4>
-                    <div className="space-y-2">
-                      {Object.entries(request.equipment).map(([category, items]) => (
-                        <div key={category}>
-                          <strong className="text-text dark:text-text-dark capitalize">{category}:</strong>
-                          <span className="ml-2 text-text-muted">
-                            {Array.isArray(items) && items.map((item: any, idx: number) => (
-                              <span key={idx}>
-                                {item.name} ({item.quantity}){idx < items.length - 1 ? ', ' : ''}
-                              </span>
-                            ))}
-                          </span>
-                        </div>
-                      ))}
+                {request.equipment &&
+                  typeof request.equipment === 'object' &&
+                  Object.keys(request.equipment).length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-text dark:text-text-dark mb-2">Equipamiento</h4>
+                      <div className="space-y-2">
+                        {Object.entries(request.equipment).map(([category, items]) => (
+                          <div key={category}>
+                            <strong className="text-text dark:text-text-dark capitalize">{category}:</strong>
+                            <span className="ml-2 text-text-muted">
+                              {Array.isArray(items) &&
+                                items.map((item: any, idx: number) => (
+                                  <span key={idx}>
+                                    {item.name} ({item.quantity})
+                                    {idx < items.length - 1 ? ', ' : ''}
+                                  </span>
+                                ))}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {request.rules && Array.isArray(request.rules) && request.rules.length > 0 && (
                   <div>
@@ -261,7 +282,10 @@ export const GymRequestsList = () => {
                     <h4 className="font-semibold text-text dark:text-text-dark mb-2">Amenidades</h4>
                     <div className="flex flex-wrap gap-2">
                       {request.amenities.map((amenity, idx) => (
-                        <span key={idx} className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded text-xs">
+                        <span
+                          key={idx}
+                          className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded text-xs"
+                        >
                           {amenity}
                         </span>
                       ))}
@@ -311,7 +335,7 @@ export const GymRequestsList = () => {
                 onChange={(e) => setRejectionReason(e.target.value)}
                 className="w-full px-3 py-2 border border-border dark:border-border-dark rounded-lg bg-white dark:bg-gray-800 text-text dark:text-text-dark"
                 rows={4}
-                placeholder="Explique por qué se rechaza esta solicitud..."
+                placeholder="Explicá por qué se rechaza esta solicitud..."
               />
             </div>
             <div className="flex justify-end gap-3">

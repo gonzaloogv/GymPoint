@@ -15,14 +15,18 @@ export const FormStep3: React.FC<FormStep3Props> = ({ formData, updateField }) =
   return (
     <div className="space-y-8">
       <div>
-        <h3 className={`text-lg font-semibold mb-2 text-center ${
-          theme === 'light' ? 'text-gray-900' : 'text-gray-100'
-        }`}>
+        <h3
+          className={`text-lg font-semibold mb-2 text-center ${
+            theme === 'light' ? 'text-gray-900' : 'text-gray-100'
+          }`}
+        >
           Describí brevemente tu gimnasio
         </h3>
-        <p className={`text-sm mb-4 text-center ${
-          theme === 'light' ? 'text-gray-700' : 'text-gray-300'
-        }`}>
+        <p
+          className={`text-sm mb-4 text-center ${
+            theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+          }`}
+        >
           Contale a tus futuros clientes por qué tu gimnasio es la mejor opción.
         </p>
         <div className="flex justify-center">
@@ -34,9 +38,11 @@ export const FormStep3: React.FC<FormStep3Props> = ({ formData, updateField }) =
               helperText=""
               maxLength={500}
             />
-            <p className={`text-xs text-right mt-1 ${
-              theme === 'light' ? 'text-gray-600' : 'text-gray-400'
-            }`}>
+            <p
+              className={`text-xs text-right mt-1 ${
+                theme === 'light' ? 'text-gray-600' : 'text-gray-400'
+              }`}
+            >
               {formData.description.length}/500 caracteres
             </p>
           </div>
@@ -44,20 +50,21 @@ export const FormStep3: React.FC<FormStep3Props> = ({ formData, updateField }) =
       </div>
 
       <div>
-        <h3 className={`text-lg font-semibold mb-2 ${
-          theme === 'light' ? 'text-gray-900' : 'text-gray-100'
-        }`}>
+        <h3
+          className={`text-lg font-semibold mb-2 ${
+            theme === 'light' ? 'text-gray-900' : 'text-gray-100'
+          }`}
+        >
           Días y Horarios de Atención
         </h3>
-        <p className={`text-sm mb-4 ${
-          theme === 'light' ? 'text-gray-700' : 'text-gray-300'
-        }`}>
+        <p
+          className={`text-sm mb-4 ${
+            theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+          }`}
+        >
           Configurá los días y horarios en que tu gimnasio está abierto.
         </p>
-        <ScheduleEditor
-          schedule={formData.schedule}
-          onChange={(schedule) => updateField('schedule', schedule)}
-        />
+        <ScheduleEditor schedule={formData.schedule} onChange={(schedule) => updateField('schedule', schedule)} />
       </div>
 
       <div>
@@ -70,11 +77,11 @@ export const FormStep3: React.FC<FormStep3Props> = ({ formData, updateField }) =
         />
       </div>
 
-      <div className={`p-5 rounded-lg ${
-        theme === 'light'
-          ? 'bg-blue-50 border border-blue-200'
-          : 'bg-blue-900/20 border border-blue-700'
-      }`}>
+      <div
+        className={`p-5 rounded-lg ${
+          theme === 'light' ? 'bg-blue-50 border border-blue-200' : 'bg-blue-900/20 border border-blue-700'
+        }`}
+      >
         <label className="flex items-start gap-3 cursor-pointer">
           <input
             type="checkbox"
@@ -83,29 +90,37 @@ export const FormStep3: React.FC<FormStep3Props> = ({ formData, updateField }) =
             className="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
           <div>
-            <span className={`text-base font-semibold block ${
-              theme === 'light' ? 'text-gray-900' : 'text-gray-100'
-            }`}>
+            <span
+              className={`text-base font-semibold block ${
+                theme === 'light' ? 'text-gray-900' : 'text-gray-100'
+              }`}
+            >
               🎁 ¿Tu gimnasio permite pase gratis por 1 día?
             </span>
-            <span className={`text-sm ${
-              theme === 'light' ? 'text-gray-700' : 'text-gray-300'
-            }`}>
-              Los usuarios podrán hacer 1 visita de prueba sin necesidad de suscripción
+            <span
+              className={`text-sm ${
+                theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+              }`}
+            >
+              Los usuarios podrán hacer 1 visita de prueba sin necesidad de suscripción.
             </span>
           </div>
         </label>
       </div>
 
       <div>
-        <h3 className={`text-lg font-semibold mb-2 ${
-          theme === 'light' ? 'text-gray-900' : 'text-gray-100'
-        }`}>
+        <h3
+          className={`text-lg font-semibold mb-2 ${
+            theme === 'light' ? 'text-gray-900' : 'text-gray-100'
+          }`}
+        >
           Conectá con tu comunidad
         </h3>
-        <p className={`text-sm mb-4 ${
-          theme === 'light' ? 'text-gray-700' : 'text-gray-300'
-        }`}>
+        <p
+          className={`text-sm mb-4 ${
+            theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+          }`}
+        >
           Agregá tus redes sociales para que los usuarios puedan seguirte.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -128,16 +143,15 @@ export const FormStep3: React.FC<FormStep3Props> = ({ formData, updateField }) =
         </div>
       </div>
 
-      <div className={`p-4 rounded-lg ${
-        theme === 'light' 
-          ? 'bg-purple-100 border border-purple-300' 
-          : 'bg-purple-900/30 border border-purple-700'
-      }`}>
-        <p className={`text-sm ${
-          theme === 'light' ? 'text-purple-900' : 'text-purple-200'
-        }`}>
-          🎉 <strong>¡Casi listo!</strong> Esta información complementaria ayuda a crear
-          un perfil completo y atractivo para tu gimnasio.
+      <div
+        className={`p-4 rounded-lg ${
+          theme === 'light' ? 'bg-purple-100 border border-purple-300' : 'bg-purple-900/30 border border-purple-700'
+        }`}
+      >
+        <p
+          className={`text-sm ${theme === 'light' ? 'text-purple-900' : 'text-purple-200'}`}
+        >
+          ✅ <strong>¡Casi listo!</strong> Esta información complementaria ayuda a crear un perfil completo y atractivo para tu gimnasio.
         </p>
       </div>
     </div>

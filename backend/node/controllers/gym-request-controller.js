@@ -3,7 +3,7 @@ const { ValidationError, NotFoundError } = require('../utils/errors');
 const GymAmenity = require('../models/GymAmenity');
 
 /**
- * Convierte nombres de amenidades a IDs
+ * Convierte nombres de amenidades a IDs numéricos
  * @param {string[]} amenityNames - Array de nombres de amenidades
  * @returns {Promise<number[]>} - Array de IDs de amenidades
  */
@@ -15,15 +15,13 @@ async function convertAmenityNamesToIds(amenityNames) {
   try {
     // Buscar amenidades en la base de datos
     const amenities = await GymAmenity.findAll({
-      where: {
-        name: amenityNames
-      },
-      attributes: ['id_amenity', 'name']
+      where: { name: amenityNames },
+      attributes: ['id_amenity', 'name'],
     });
 
-    return amenities.map(amenity => amenity.id_amenity);
+    return amenities.map((amenity) => amenity.id_amenity);
   } catch (error) {
-    console.error('Error converting amenity names to IDs:', error);
+    console.error('Error convirtiendo amenidades a IDs:', error);
     return [];
   }
 }
@@ -37,7 +35,7 @@ const getAllGymRequests = async (req, res) => {
     const requests = await gymRequestService.getAllRequests(status);
     res.json({
       message: 'Solicitudes obtenidas exitosamente',
-      data: requests
+      data: requests,
     });
   } catch (err) {
     const status = err instanceof ValidationError ? 400 : 500;
@@ -66,7 +64,7 @@ const getGymRequestById = async (req, res) => {
     }
     res.json({
       message: 'Solicitud obtenida exitosamente',
-      data: request
+      data: request,
     });
   } catch (err) {
     const status = err instanceof ValidationError ? 400 : 500;
@@ -84,9 +82,12 @@ const getGymRequestById = async (req, res) => {
  */
 const createGymRequest = async (req, res) => {
   try {
-    // Convertir nombres de amenidades a IDs
     const amenityNames = req.body.amenities || [];
     const amenityIds = await convertAmenityNamesToIds(amenityNames);
+
+    const photos = Array.isArray(req.body.attributes?.photos || req.body.photos)
+      ? (req.body.attributes?.photos || req.body.photos).slice(0, 1)
+      : [];
 
     const requestData = {
       name: req.body.name,
@@ -100,7 +101,7 @@ const createGymRequest = async (req, res) => {
       website: req.body.website || null,
       instagram: req.body.contact?.social_media?.instagram || req.body.instagram,
       facebook: req.body.contact?.social_media?.facebook || req.body.facebook,
-      photos: req.body.attributes?.photos || req.body.photos || [],
+      photos,
       equipment: req.body.attributes?.equipment || req.body.equipment || {},
       services: req.body.attributes?.services || req.body.services || [],
       rules: req.body.attributes?.rules || req.body.rules || [],
@@ -109,15 +110,15 @@ const createGymRequest = async (req, res) => {
       daily_price: req.body.pricing?.daily || req.body.daily_price,
       schedule: req.body.schedule || [],
       trial_allowed: req.body.trial_allowed ?? req.body.trialAllowed ?? false,
-      amenities: amenityIds // Ahora son IDs numéricos
+      amenities: amenityIds, // IDs numéricos
     };
 
-    console.log('🔍 DEBUG - Data recibida:');
+    console.log('[GymRequest] Datos recibidos desde landing:');
     console.log('  equipment:', req.body.attributes?.equipment);
     console.log('  services:', req.body.attributes?.services);
     console.log('  amenities (names):', req.body.amenities);
     console.log('  amenities (IDs):', amenityIds);
-    console.log('🔍 DEBUG - RequestData:');
+    console.log('[GymRequest] Payload normalizado:');
     console.log('  equipment:', requestData.equipment);
     console.log('  services:', requestData.services);
     console.log('  amenities:', requestData.amenities);
@@ -126,7 +127,7 @@ const createGymRequest = async (req, res) => {
 
     res.status(201).json({
       message: 'Solicitud creada exitosamente. Será revisada por nuestro equipo.',
-      data: request
+      data: request,
     });
   } catch (err) {
     const status = err instanceof ValidationError ? 400 : 500;
@@ -151,8 +152,8 @@ const approveGymRequest = async (req, res) => {
       message: 'Solicitud aprobada y gimnasio creado exitosamente',
       data: {
         request_id: req.params.id,
-        gym: gym
-      }
+        gym,
+      },
     });
   } catch (err) {
     let status = 500;
@@ -187,7 +188,7 @@ const rejectGymRequest = async (req, res) => {
 
     res.json({
       message: 'Solicitud rechazada exitosamente',
-      data: request
+      data: request,
     });
   } catch (err) {
     let status = 500;
@@ -234,5 +235,5 @@ module.exports = {
   createGymRequest,
   approveGymRequest,
   rejectGymRequest,
-  deleteGymRequest
+  deleteGymRequest,
 };

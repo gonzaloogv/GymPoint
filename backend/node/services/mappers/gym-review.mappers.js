@@ -233,10 +233,17 @@ function toPaginatedGymReviewsResponse({ items, total, page, limit }, options = 
 }
 
 function toGymRatingStatsResponse(stats) {
+  const average =
+    stats.average_rating != null
+      ? Number.parseFloat(stats.average_rating)
+      : stats.avg_rating != null
+        ? Number.parseFloat(stats.avg_rating)
+        : 0;
+
   return {
     id_gym: stats.id_gym,
     total_reviews: stats.total_reviews || 0,
-    average_rating: Number.parseFloat(stats.average_rating) || 0,
+    average_rating: Number.isFinite(average) ? average : 0,
     rating_1_count: stats.rating_1_count || 0,
     rating_2_count: stats.rating_2_count || 0,
     rating_3_count: stats.rating_3_count || 0,
