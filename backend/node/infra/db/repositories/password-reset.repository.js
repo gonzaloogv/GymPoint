@@ -1,6 +1,17 @@
 const { QueryTypes } = require('sequelize');
 const sequelize = require('../../../config/database');
 
+const getAffectedRows = (result) => {
+  if (Array.isArray(result)) {
+    const first = result[0] || {};
+    return first.affectedRows || first.affectedCount || first.rowCount || 0;
+  }
+  if (result && typeof result === 'object') {
+    return result.affectedRows || result.affectedCount || result.rowCount || 0;
+  }
+  return 0;
+};
+
 /**
  * Repositorio para Password Reset Tokens
  *
@@ -120,13 +131,13 @@ const passwordResetRepository = {
         AND used_at IS NULL
     `;
 
-    const [result] = await sequelize.query(query, {
+    const result = await sequelize.query(query, {
       replacements: { token },
       type: QueryTypes.UPDATE,
       ...options,
     });
 
-    return result.affectedRows > 0;
+    return getAffectedRows(result) > 0;
   },
 
   /**
@@ -143,13 +154,13 @@ const passwordResetRepository = {
       WHERE id_account = :idAccount
     `;
 
-    const [result] = await sequelize.query(query, {
+    const result = await sequelize.query(query, {
       replacements: { idAccount },
       type: QueryTypes.DELETE,
       ...options,
     });
 
-    return result.affectedRows || 0;
+    return getAffectedRows(result);
   },
 
   /**

@@ -1,6 +1,17 @@
 const { QueryTypes } = require('sequelize');
 const sequelize = require('../../../config/database');
 
+const getAffectedRows = (result) => {
+  if (Array.isArray(result)) {
+    const first = result[0] || {};
+    return first.affectedRows || first.affectedCount || first.rowCount || 0;
+  }
+  if (result && typeof result === 'object') {
+    return result.affectedRows || result.affectedCount || result.rowCount || 0;
+  }
+  return 0;
+};
+
 /**
  * Repositorio para Email Verification Tokens
  *
@@ -107,14 +118,13 @@ const emailVerificationRepository = {
         AND used_at IS NULL
     `;
 
-    // IMPORTANTE: QueryTypes.UPDATE devuelve OkPacket, no array
-    const [result] = await sequelize.query(query, {
+    const result = await sequelize.query(query, {
       replacements: { token },
       type: QueryTypes.UPDATE,
       ...options,
     });
 
-    return result.affectedRows > 0;
+    return getAffectedRows(result) > 0;
   },
 
   /**
@@ -131,14 +141,13 @@ const emailVerificationRepository = {
       WHERE id_account = :idAccount
     `;
 
-    // IMPORTANTE: QueryTypes.DELETE devuelve OkPacket, no array
-    const [result] = await sequelize.query(query, {
+    const result = await sequelize.query(query, {
       replacements: { idAccount },
       type: QueryTypes.DELETE,
       ...options,
     });
 
-    return result.affectedRows || 0;
+    return getAffectedRows(result);
   },
 
   /**
@@ -187,13 +196,12 @@ const emailVerificationRepository = {
         OR (used_at IS NOT NULL AND used_at < DATE_SUB(NOW(), INTERVAL 7 DAY))
     `;
 
-    // IMPORTANTE: QueryTypes.DELETE devuelve OkPacket, no array
-    const [result] = await sequelize.query(query, {
+    const result = await sequelize.query(query, {
       type: QueryTypes.DELETE,
       ...options,
     });
 
-    const affectedRows = result.affectedRows || 0;
+    const affectedRows = getAffectedRows(result);
 
     if (affectedRows > 0) {
       console.log(`[EmailVerification] Limpiados ${affectedRows} tokens expirados/usados`);
