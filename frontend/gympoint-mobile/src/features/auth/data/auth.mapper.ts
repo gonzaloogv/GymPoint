@@ -26,6 +26,16 @@ const buildDisplayName = (name?: string | null, lastname?: string | null) => {
   return (normalizedName ?? normalizedLast ?? '').trim();
 };
 
+const pickLastname = (obj: any): string | null => {
+  // Aceptar variantes que puedan venir del backend/Google
+  return (
+    obj?.lastname ??
+    obj?.last_name ??
+    obj?.family_name ??
+    null
+  );
+};
+
 const normalizeRole = (roles: string[], subscription: 'FREE' | 'PREMIUM'): User['role'] => {
   const normalized = roles.map((r) => r?.toUpperCase?.() ?? '').filter(Boolean);
   if (normalized.includes('ADMIN')) {
@@ -42,7 +52,7 @@ const normalizeRole = (roles: string[], subscription: 'FREE' | 'PREMIUM'): User[
  */
 export const mapAuthUserToEntity = (authUser: AuthUserDTO): User => {
   const profile = authUser.profile;
-  const displayName = buildDisplayName(profile.name, profile.lastname);
+  const displayName = buildDisplayName(profile.name ?? authUser.email, pickLastname(profile) ?? pickLastname(authUser));
 
   // El backend puede retornar tokens_balance O tokens (inconsistencia legacy), aceptamos ambos
   const tokens = profile.tokens_balance ?? (profile as any).tokens ?? 0;
@@ -67,7 +77,7 @@ export const mapAuthUserToEntity = (authUser: AuthUserDTO): User => {
  * Mapea UserProfileResponseDTO (del endpoint /api/users/me) a User entity
  */
 export const mapUserProfileToEntity = (profile: UserProfileResponseDTO): User => {
-  const displayName = buildDisplayName(profile.name, profile.lastname);
+  const displayName = buildDisplayName(profile.name ?? profile.email, pickLastname(profile));
 
   // El backend puede retornar tokens_balance O tokens (inconsistencia legacy), aceptamos ambos
   const tokens = profile.tokens_balance ?? (profile as any).tokens ?? 0;
@@ -106,7 +116,7 @@ export const mapUser = (
   // Si es UserProfileResponseDTO o UserProfileSummaryDTO
   if ('id_user_profile' in u && u.id_user_profile) {
     const profile = u as UserProfileSummaryDTO | UserProfileResponseDTO;
-    const displayName = buildDisplayName(profile.name, profile.lastname);
+    const displayName = buildDisplayName(profile.name ?? profile.email, pickLastname(profile));
 
     return {
       id_user: profile.id_user_profile,
@@ -123,7 +133,7 @@ export const mapUser = (
 
   // Formato legacy (soporte para casos antiguos)
   const id = u.id_user_profile ?? ('id' in u ? u.id : -1);
-  const displayName = buildDisplayName(u.name as string | undefined, u.lastname as string | undefined);
+  const displayName = buildDisplayName(u.name as string | undefined, pickLastname(u));
   const roles = 'roles' in u ? u.roles ?? [] : [];
   const subscription = 'subscription' in u ? u.subscription ?? 'FREE' : 'FREE';
 
