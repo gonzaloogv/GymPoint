@@ -1,5 +1,5 @@
 const { QueryTypes } = require('sequelize');
-const { sequelize } = require('../../../models');
+const sequelize = require('../../../config/database');
 
 /**
  * Repositorio para Password Reset Tokens
