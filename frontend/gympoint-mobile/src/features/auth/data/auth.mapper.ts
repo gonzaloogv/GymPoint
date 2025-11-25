@@ -11,6 +11,21 @@ import {
  * Alineado con OpenAPI backend (lotes 1-2)
  */
 
+const buildDisplayName = (name?: string | null, lastname?: string | null) => {
+  const normalizedName = name?.trim();
+  const normalizedLast = lastname?.trim();
+
+  if (normalizedName && normalizedLast) {
+    // Evitar duplicar el nombre cuando backend devuelve el mismo valor en ambos campos (pasa con Google)
+    if (normalizedName.toLowerCase() === normalizedLast.toLowerCase()) {
+      return normalizedName;
+    }
+    return `${normalizedName} ${normalizedLast}`.trim();
+  }
+
+  return (normalizedName ?? normalizedLast ?? '').trim();
+};
+
 const normalizeRole = (roles: string[], subscription: 'FREE' | 'PREMIUM'): User['role'] => {
   const normalized = roles.map((r) => r?.toUpperCase?.() ?? '').filter(Boolean);
   if (normalized.includes('ADMIN')) {
@@ -27,7 +42,7 @@ const normalizeRole = (roles: string[], subscription: 'FREE' | 'PREMIUM'): User[
  */
 export const mapAuthUserToEntity = (authUser: AuthUserDTO): User => {
   const profile = authUser.profile;
-  const displayName = [profile.name, profile.lastname].filter(Boolean).join(' ').trim();
+  const displayName = buildDisplayName(profile.name, profile.lastname);
 
   // El backend puede retornar tokens_balance O tokens (inconsistencia legacy), aceptamos ambos
   const tokens = profile.tokens_balance ?? (profile as any).tokens ?? 0;
@@ -52,7 +67,7 @@ export const mapAuthUserToEntity = (authUser: AuthUserDTO): User => {
  * Mapea UserProfileResponseDTO (del endpoint /api/users/me) a User entity
  */
 export const mapUserProfileToEntity = (profile: UserProfileResponseDTO): User => {
-  const displayName = [profile.name, profile.lastname].filter(Boolean).join(' ').trim();
+  const displayName = buildDisplayName(profile.name, profile.lastname);
 
   // El backend puede retornar tokens_balance O tokens (inconsistencia legacy), aceptamos ambos
   const tokens = profile.tokens_balance ?? (profile as any).tokens ?? 0;
@@ -91,7 +106,7 @@ export const mapUser = (
   // Si es UserProfileResponseDTO o UserProfileSummaryDTO
   if ('id_user_profile' in u && u.id_user_profile) {
     const profile = u as UserProfileSummaryDTO | UserProfileResponseDTO;
-    const displayName = [profile.name, profile.lastname].filter(Boolean).join(' ').trim();
+    const displayName = buildDisplayName(profile.name, profile.lastname);
 
     return {
       id_user: profile.id_user_profile,
@@ -108,7 +123,7 @@ export const mapUser = (
 
   // Formato legacy (soporte para casos antiguos)
   const id = u.id_user_profile ?? ('id' in u ? u.id : -1);
-  const displayName = [u.name, u.lastname].filter(Boolean).join(' ').trim();
+  const displayName = buildDisplayName(u.name as string | undefined, u.lastname as string | undefined);
   const roles = 'roles' in u ? u.roles ?? [] : [];
   const subscription = 'subscription' in u ? u.subscription ?? 'FREE' : 'FREE';
 
