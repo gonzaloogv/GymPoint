@@ -241,21 +241,6 @@ const verifyEmailToken = async (token) => {
     includeUserProfile: true,
   });
 
-  // Enviar email de bienvenida (opcional, asíncrono)
-  if (account && account.userProfile) {
-    setImmediate(async () => {
-      try {
-        await emailService.sendWelcomeEmail({
-          email: account.email,
-          name: account.userProfile.name,
-        });
-        console.log(`[Auth] Email de bienvenida enviado a: ${account.email}`);
-      } catch (error) {
-        console.error(`[Auth] Error enviando email de bienvenida:`, error.message);
-      }
-    });
-  }
-
   return account;
 };
 
@@ -1208,6 +1193,21 @@ const completeOnboarding = async (accountId, { frequencyGoal, birthDate, gender 
     includeRoles: true,
     includeUserProfile: true,
   });
+
+  // Enviar email de bienvenida después de completar onboarding
+  if (updatedAccount && updatedAccount.userProfile) {
+    setImmediate(async () => {
+      try {
+        await emailService.sendWelcomeEmail({
+          email: updatedAccount.email,
+          name: updatedAccount.userProfile.name || 'Usuario',
+        });
+        console.log(`[Auth] Email de bienvenida enviado a: ${updatedAccount.email}`);
+      } catch (error) {
+        console.error(`[Auth] Error enviando email de bienvenida:`, error.message);
+      }
+    });
+  }
 
   return {
     account: updatedAccount,

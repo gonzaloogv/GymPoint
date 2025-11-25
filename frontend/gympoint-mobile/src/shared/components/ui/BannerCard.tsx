@@ -1,7 +1,8 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
 import FeatherIcon from '@expo/vector-icons/Feather';
 import { useTheme } from '@shared/hooks';
 import { Card } from './Card';
+import { Button } from './Button';
 import { palette } from '@shared/styles';
 
 type Props = {
@@ -66,10 +67,15 @@ export function BannerCard({
 
   if (!visible) return null;
 
+  // Ajustar border según el tema para dark mode
+  const borderColor = isDark
+    ? 'rgba(239, 68, 68, 0.3)'
+    : styles.borderColor;
+
   return (
     <Card
       className="border-2"
-      style={{ borderColor: styles.borderColor, backgroundColor: styles.bgColor }}
+      style={{ borderColor }}
     >
       <View className="flex-row items-start gap-4">
         <FeatherIcon name={icon} size={20} color={styles.iconColor} className="mt-1" />
@@ -80,18 +86,14 @@ export function BannerCard({
           <Text className="mb-3 text-sm" style={{ color: styles.descColor }}>
             {description}
           </Text>
-          <TouchableOpacity
+          <Button
             onPress={onButtonPress}
-            className="rounded-lg border items-center justify-center py-2 px-3"
-            style={{ borderColor: isDark ? '#444' : '#ddd' }}
+            variant="secondary"
+            size="sm"
+            fullWidth
           >
-            <Text
-              className="font-semibold text-sm"
-              style={{ color: isDark ? '#fff' : '#000' }}
-            >
-              {buttonText}
-            </Text>
-          </TouchableOpacity>
+            {buttonText}
+          </Button>
         </View>
       </View>
     </Card>

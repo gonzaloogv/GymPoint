@@ -43,6 +43,15 @@ class EmailService {
         pool: true, // Usar pooling para múltiples emails
         maxConnections: 5,
         maxMessages: 100,
+        // Permitir certificados autofirmados si SMTP usa TLS sin CA pública
+        tls: {
+          rejectUnauthorized:
+            process.env.SMTP_REJECT_UNAUTHORIZED === 'true'
+              ? true
+              : process.env.SMTP_REJECT_UNAUTHORIZED === 'false'
+                ? false
+                : false, // default false para entornos con cert autofirmado
+        },
       };
 
       this.transporter = nodemailer.createTransport(config);
@@ -142,7 +151,7 @@ class EmailService {
 
     return this.sendEmail({
       to: email,
-      subject: '¡Bienvenido a GymPoint! 🎉',
+      subject: '¡Bienvenido a GymPoint!',
       html,
     });
   }
