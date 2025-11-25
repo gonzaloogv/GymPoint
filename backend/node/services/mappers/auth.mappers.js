@@ -48,11 +48,30 @@ function toRefreshTokenCommand(dto) {
 }
 
 function toGoogleAuthCommand(dto, payload) {
+  // Extraer nombre y apellido de Google
+  const givenName = payload.given_name || '';
+  const familyName = payload.family_name || '';
+  const fullName = payload.name || '';
+
+  // Estrategia de fallback:
+  // 1. Si family_name existe, usarlo
+  // 2. Si no existe pero name tiene espacios, intentar split
+  // 3. Si name no tiene espacios, dejar lastname vacío
+  let name = givenName || fullName.split(' ')[0] || '';
+  let lastname = familyName;
+
+  // Solo si family_name está vacío Y hay espacios en el nombre completo
+  if (!lastname && fullName.includes(' ')) {
+    const parts = fullName.split(' ');
+    name = parts[0];
+    lastname = parts.slice(1).join(' ');
+  }
+
   return new GoogleAuthCommand({
     idToken: dto.id_token,
     email: payload.email,
-    name: payload.given_name || payload.name || '',
-    lastname: payload.family_name || payload.name?.split(' ').slice(1).join(' ') || '',
+    name: name.trim(),
+    lastname: lastname.trim(),
     googleId: payload.sub,
     picture: payload.picture || null,
   });
