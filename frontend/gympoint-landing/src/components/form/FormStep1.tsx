@@ -43,8 +43,8 @@ export const FormStep1: React.FC<FormStep1Props> = ({ formData, updateField }) =
   const handleLocationChange = (data: {
     address: string;
     city: string;
-    latitude: number;
-    longitude: number;
+    latitude: number | null;
+    longitude: number | null;
   }) => {
     updateField('location.address', data.address);
     updateField('location.city', data.city);
