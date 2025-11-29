@@ -585,7 +585,7 @@ const ensureLogoutCommand = (input = {}) =>
   input instanceof LogoutCommand
     ? input
     : new LogoutCommand({
-        refreshToken: input.refreshToken || input.refresh_token || input.token || input,
+        refreshToken: input.refreshToken || input.refresh_token || input.token || null,
         accountId: input.accountId || input.id_account || null,
       });
 

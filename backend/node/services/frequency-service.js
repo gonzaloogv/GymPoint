@@ -411,9 +411,6 @@ const reiniciarSemana = () =>
 const consultarMetaSemanal = (idUserProfile) =>
   getUserFrequency({ idUserProfile });
 
-const actualizarUsuarioFrecuencia = (id_frequency, idUserProfile) =>
-  updateFrequencyUser(id_frequency, idUserProfile);
-
 module.exports = {
   // Query Operations
   getUserFrequency,
@@ -433,7 +430,6 @@ module.exports = {
   archivarFrecuencias,
   reiniciarSemana,
   consultarMetaSemanal,
-  actualizarUsuarioFrecuencia,
 
   // Exported helpers for testing
   __private: {
